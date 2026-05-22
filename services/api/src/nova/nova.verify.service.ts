@@ -1,11 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { anthropic } from '../common/openai.client';
+import { TokensService } from '../billing/tokens.service';
 
 @Injectable()
 export class NovaVerifyService {
+  constructor(@Optional() private readonly tokens?: TokensService) {}
+
   async verifySolution(input: {
     caption?: string;
     files: { mimeType: string }[];
+    /// User uploading the solution — used to bill the verifier call.
+    /// Optional so the API stays backwards-compatible for callers that
+    /// don't have a user (e.g. internal moderation tools).
+    billingUserId?: string;
   }) {
     try {
       const prompt = `
@@ -31,13 +38,23 @@ Respond ONLY in JSON:
 }
 `;
 
+      const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
       const res = await anthropic.messages.create({
-        model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
+        model,
         max_tokens: 256,
         system: 'You are a strict academic validator.',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
       } as any);
+
+      if (this.tokens && input.billingUserId) {
+        await this.tokens.chargeAnthropicResponse({
+          userId: input.billingUserId,
+          source: 'solution-verify',
+          model,
+          response: res,
+        });
+      }
 
       const text = res.content[0]?.type === 'text' ? res.content[0].text : '{}';
 

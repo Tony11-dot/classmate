@@ -68,6 +68,23 @@ export function pricingForModel(model: string): ModelPricing {
 /// Per-call cost + token-charge calculator. `inputTokens` is the
 /// non-cached portion; `cachedInputTokens` is reused from a prior
 /// cache write within the 5-minute TTL.
+export interface AnthropicUsage {
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+}
+
+/// Normalise the various shapes Anthropic returns into one struct.
+/// Accepts a final message (`res.usage`) OR a raw usage object.
+export function extractAnthropicUsage(payload: any): AnthropicUsage {
+  const u = payload?.usage ?? payload ?? {};
+  return {
+    inputTokens: Number(u.input_tokens ?? 0),
+    cachedInputTokens: Number(u.cache_read_input_tokens ?? 0),
+    outputTokens: Number(u.output_tokens ?? 0),
+  };
+}
+
 export function computeCost(
   model: string,
   inputTokens: number,

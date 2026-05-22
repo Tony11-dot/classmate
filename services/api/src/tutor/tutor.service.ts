@@ -30,6 +30,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import mammoth from 'mammoth';
 import { StudentInsightsService } from '../student/student-insights.service';
+import { TokensService, userIdFromReq } from '../billing/tokens.service';
 
 @Injectable()
 export class TutorService {
@@ -195,6 +196,7 @@ export class TutorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly studentInsightsService: StudentInsightsService,
+    private readonly tokens: TokensService,
   ) {}
 
   private replyRateStore = new Map<string, number[]>();
@@ -757,6 +759,11 @@ export class TutorService {
       }
     }
 
+    // Hoisted so the nested helper below can bill the user without
+    // re-extracting the JWT subject on every code path.
+    const visionBillingUserId = userIdFromReq(user);
+    const tokensSvc = this.tokens;
+
     async function extractDocumentText() {
       try {
         if (!mimeType) return '';
@@ -768,13 +775,27 @@ export class TutorService {
         if (!buf) return '';
 
         if (mimeType.startsWith('image/')) {
+          // Block uploads when the user has zero tokens — the vision
+          // call is the expensive part of an image message, easily 1k+
+          // tokens per upload. Returning empty here means we still save
+          // the user's image to the session but skip the AI extract,
+          // and the chat-reply step will surface the OUT_OF_TOKENS
+          // error to the user.
+          if (visionBillingUserId) {
+            try {
+              await tokensSvc.assertHasTokens(visionBillingUserId);
+            } catch {
+              return '';
+            }
+          }
           try {
             const client = getAnthropicClient();
             const safeMime = (mimeType as string).startsWith('image/')
               ? (mimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp')
               : 'image/jpeg';
+            const visionModel = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
             const vision: any = await client.messages.create({
-              model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+              model: visionModel,
               max_tokens: 1024,
               system:
                 'You are extracting tutoring context from an uploaded image for a study assistant. Report only what is actually visible. Never guess missing details. Never invent readable text. Never infer a language or script unless it is clearly legible. If text is unclear, say it is unclear.',
@@ -798,6 +819,13 @@ export class TutorService {
                 },
               ],
             } as any);
+
+            await tokensSvc.chargeAnthropicResponse({
+              userId: visionBillingUserId,
+              source: 'nova-vision',
+              model: visionModel,
+              response: vision,
+            });
 
             const text = vision?.content?.[0]?.type === 'text' ? vision.content[0].text : '';
             return String(text).trim();
@@ -1147,12 +1175,35 @@ export class TutorService {
 
 
   replyToSessionStream(user: any, sessionId: string, opts?: { displayName?: string; novaSettings?: string }): Observable<MessageEvent> {
+  const tokens = this.tokens;
+  const billingUserId = userIdFromReq(user);
   return new Observable((subscriber) => {
     (async () => {
       let eventId = 0;
       let acc = '';
 
       try {
+        // Pre-flight token gate — 402 the user BEFORE we call Anthropic.
+        // We surface the error as a normal SSE 'error' event so the
+        // client can show the paywall without parsing HTTP status codes.
+        if (billingUserId) {
+          try {
+            await tokens.assertHasTokens(billingUserId);
+          } catch (e: any) {
+            subscriber.next(({
+              id: String(++eventId),
+              data: {
+                type: 'error',
+                code: 'OUT_OF_TOKENS',
+                message:
+                  'You have used all your tokens for this period. Upgrade your plan or buy a top-up to continue.',
+              },
+            } as any));
+            subscriber.complete();
+            return;
+          }
+        }
+
         // 1) Load last USER message from DB (real prompt)
         const msgs = await this.prisma.tutorMessage.findMany({
           where: { sessionId },
@@ -1216,6 +1267,20 @@ const system =
           messages,
           displayName: opts?.displayName,
           novaSettings: opts?.novaSettings,
+          onUsage: (u) => {
+            // Fire-and-forget bill — we never want a billing write to
+            // break the stream the user is already consuming.
+            if (billingUserId) {
+              void tokens.commitUsage({
+                userId: billingUserId,
+                source: 'nova-chat',
+                model: u.model,
+                inputTokens: u.inputTokens,
+                cachedInputTokens: u.cachedInputTokens,
+                outputTokens: u.outputTokens,
+              }).catch((e) => console.error('[billing] nova-chat commit failed:', e));
+            }
+          },
           })) {
           if (typeof delta === 'string' && delta.length) {
             acc += delta;
@@ -2064,6 +2129,18 @@ const system =
       return { suggestions: [] };
     }
 
+    // Cheap pre-flight: skip the AI call entirely if the user is out of
+    // tokens. Followups are nice-to-have UI — degrade to no suggestions
+    // rather than error out.
+    const billingUserId = userIdFromReq(user);
+    if (billingUserId) {
+      try {
+        await this.tokens.assertHasTokens(billingUserId);
+      } catch {
+        return { suggestions: [] };
+      }
+    }
+
     const client = getAnthropicClient();
     const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 
@@ -2088,6 +2165,15 @@ const system =
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
       } as any);
+
+      // Bill the call regardless of whether we manage to parse it —
+      // Anthropic charged us either way.
+      await this.tokens.chargeAnthropicResponse({
+        userId: billingUserId,
+        source: 'nova-followups',
+        model,
+        response: res,
+      });
 
       const raw = (res.content[0]?.type === 'text' ? res.content[0].text : '').trim();
       const parsed = JSON.parse(raw);

@@ -5,8 +5,16 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { computeCost } from './cost.model';
+import { computeCost, extractAnthropicUsage } from './cost.model';
 import { findPlanByTier, freeQuota } from './plan.catalog';
+
+/// Pulls our internal user id out of the JWT-decoded `req.user` blob.
+/// Centralised so every AI call site uses the same fallback order
+/// (`sub` is the JWT subject we set in auth, but older code paths
+/// stamp `id` / `userId`).
+export function userIdFromReq(user: any): string {
+  return String(user?.sub ?? user?.id ?? user?.userId ?? '').trim();
+}
 
 /// Thrown when a user tries to use NOVA / Practice / etc. but has 0
 /// remaining tokens. The HTTP layer maps it to 402 Payment Required so
@@ -183,6 +191,28 @@ export class TokensService {
     });
 
     return cost;
+  }
+
+  /// Convenience: charge a finished Anthropic response in one call.
+  /// Accepts the raw response (or its `.usage` block) plus the source
+  /// label + model the call used. Swallowed on missing userId — we never
+  /// want a billing failure to break an AI call that already succeeded.
+  async chargeAnthropicResponse(params: {
+    userId: string;
+    source: string;
+    model: string;
+    response: any;
+  }): Promise<void> {
+    const { userId, source, model, response } = params;
+    if (!userId) return;
+    const usage = extractAnthropicUsage(response);
+    try {
+      await this.commitUsage({ userId, source, model, ...usage });
+    } catch (e) {
+      // Never let a billing write break a successful AI call.
+      // eslint-disable-next-line no-console
+      console.error('[billing] commitUsage failed:', e);
+    }
   }
 
   /// Grant tokens (called by RevenueCat webhook on renewal / purchase).

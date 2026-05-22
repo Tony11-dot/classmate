@@ -46,9 +46,10 @@ import { PhysicsElectricFieldDeterministicEngine } from './engine/physics-electr
 import { PhysicsElectricityDeterministicEngine } from './engine/physics-electricity-deterministic.engine';
 import { PracticeAiInsightsService } from './practice-ai-insights.service';
 import { BroadCatalogDeterministicEngine } from './engine/broad-catalog-deterministic.engine';
+import { BillingModule } from '../billing/billing.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, BillingModule],
   controllers: [PracticeController],
   providers: [ConfidenceService, MultiSourceService, RetrievalService, EmbeddingService, 
     AdaptivePracticeFlowService,

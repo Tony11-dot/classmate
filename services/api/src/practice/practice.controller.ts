@@ -10,8 +10,11 @@ export class PracticeController {
   constructor(private readonly practiceService: PracticeService) {}
 
   @Post('generate')
-  async generate(@Body() body: any) {
-    return this.practiceService.generate(body ?? {});
+  async generate(@Req() req: any, @Body() body: any) {
+    const userId = String(
+      req?.user?.sub ?? req?.user?.id ?? req?.user?.userId ?? '',
+    ).trim();
+    return this.practiceService.generate({ ...(body ?? {}), userId });
   }
 
   @Get('progress-summary')

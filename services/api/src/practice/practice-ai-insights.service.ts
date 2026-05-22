@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { getAnthropicClient } from '../tutor/providers/openai.provider';
+import { TokensService } from '../billing/tokens.service';
 
 type PracticeProgressTopicDto = {
   subject: string;
@@ -37,6 +38,8 @@ type AiInsightsSummaryDto = {
 
 @Injectable()
 export class PracticeAiInsightsService {
+  constructor(@Optional() private readonly tokens?: TokensService) {}
+
   private accuracyPct(value: number): number {
     const n = Number(value ?? 0);
     return Math.max(0, Math.min(100, Math.round(n * 100)));
@@ -192,6 +195,17 @@ export class PracticeAiInsightsService {
       return fallback;
     }
 
+    // Cheap pre-flight: insights are nice-to-have UI — degrade to the
+    // deterministic fallback when the user is out of tokens rather than
+    // erroring out.
+    if (this.tokens && summary.userId) {
+      try {
+        await this.tokens.assertHasTokens(summary.userId);
+      } catch {
+        return fallback;
+      }
+    }
+
     try {
       const client = getAnthropicClient();
       const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
@@ -253,6 +267,15 @@ export class PracticeAiInsightsService {
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.3,
       } as any);
+
+      if (this.tokens) {
+        await this.tokens.chargeAnthropicResponse({
+          userId: summary.userId,
+          source: 'practice-insights',
+          model,
+          response: res,
+        });
+      }
 
       const text = String(res.content[0]?.type === 'text' ? res.content[0].text : '').trim();
       const parsed = this.parseJsonObject(text);

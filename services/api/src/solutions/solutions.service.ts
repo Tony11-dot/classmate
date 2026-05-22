@@ -52,6 +52,7 @@ export class SolutionsService {
       files: files.map((f) => ({
         mimeType: String(f.mimeType ?? ''),
       })),
+      billingUserId: userId,
     });
 
     const book = await this.prisma.solutionBook.upsert({

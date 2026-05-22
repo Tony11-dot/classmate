@@ -140,12 +140,22 @@ export interface TutorReplyProvider {
   generate(args: TutorReplyProviderArgs): Promise<TutorReplyGen>;
 }
 
+export interface StreamUsageReport {
+  model: string;
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+}
+
 export async function* generateAssistantReplyStream(args: {
   system: string;
   user: string;
   messages?: { role: string; content: string }[];
   displayName?: string;
   novaSettings?: string;
+  /// Called once after the stream completes with the model + token
+  /// counts. Used by the caller to charge the user's token balance.
+  onUsage?: (usage: StreamUsageReport) => void;
 }): AsyncGenerator<string> {
   const client = getAnthropicClient();
   const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
@@ -196,13 +206,33 @@ export async function* generateAssistantReplyStream(args: {
     ],
   } as any);
 
+  // Capture usage as the stream emits — message_start has input / cache
+  // counts, message_delta has the running output count. Final values
+  // are forwarded to onUsage so the caller can bill the user.
+  let inputTokens = 0;
+  let cachedInputTokens = 0;
+  let outputTokens = 0;
+
   for await (const event of stream) {
-    if (
+    if (event.type === 'message_start') {
+      const u = (event as any)?.message?.usage ?? {};
+      inputTokens = Number(u.input_tokens ?? 0);
+      cachedInputTokens = Number(u.cache_read_input_tokens ?? 0);
+      outputTokens = Number(u.output_tokens ?? 0);
+    } else if (event.type === 'message_delta') {
+      const u = (event as any)?.usage ?? {};
+      // `output_tokens` on message_delta is cumulative for the message.
+      if (typeof u.output_tokens === 'number') outputTokens = u.output_tokens;
+    } else if (
       event.type === 'content_block_delta' &&
       (event.delta as any).type === 'text_delta'
     ) {
       const text = (event.delta as any).text as string;
       if (text?.length) yield text;
     }
+  }
+
+  if (args.onUsage) {
+    args.onUsage({ model, inputTokens, cachedInputTokens, outputTokens });
   }
 }

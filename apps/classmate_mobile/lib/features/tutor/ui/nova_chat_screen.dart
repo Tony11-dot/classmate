@@ -565,16 +565,24 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             }
 
             if (type == 'error') {
+              final code = (ev['code'] ?? '').toString();
               setState(() {
                 if (_messages.isNotEmpty &&
                     _messages.last.role == 'assistant') {
-                  _messages[_messages.length - 1] = _Msg(
-                    role: 'assistant',
-                    content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
-                  );
+                  _messages.removeLast();
                 }
                 _sending = false;
               });
+              if (code == 'OUT_OF_TOKENS') {
+                _showOutOfTokensSnackbar();
+              } else {
+                setState(() {
+                  _messages.add(_Msg(
+                    role: 'assistant',
+                    content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
+                  ));
+                });
+              }
               _scrollToBottom();
             }
           },
@@ -587,6 +595,21 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             setState(() => _sending = false);
           },
         );
+  }
+
+  void _showOutOfTokensSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.',
+        ),
+        duration: const Duration(seconds: 6),
+        action: SnackBarAction(
+          label: 'Upgrade',
+          onPressed: () => context.push('/plans'),
+        ),
+      ),
+    );
   }
 
   Future<void> _pickFiles() async {
@@ -1009,16 +1032,24 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               }
 
               if (type == 'error') {
+                final code = (ev['code'] ?? '').toString();
                 setState(() {
                   if (_messages.isNotEmpty &&
                       _messages.last.role == 'assistant') {
-                    _messages[_messages.length - 1] = _Msg(
-                      role: 'assistant',
-                        content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
-                    );
+                    _messages.removeLast();
                   }
                   _sending = false;
                 });
+                if (code == 'OUT_OF_TOKENS') {
+                  _showOutOfTokensSnackbar();
+                } else {
+                  setState(() {
+                    _messages.add(_Msg(
+                      role: 'assistant',
+                      content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
+                    ));
+                  });
+                }
                 _scrollToBottom();
               }
             },

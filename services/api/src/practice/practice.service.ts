@@ -22,6 +22,7 @@ import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
 import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
 import { AdaptivePracticeFlowService } from './adaptive/flow/adaptive-practice-flow.service';
 import { PracticeAiInsightsService } from './practice-ai-insights.service';
+import { TokensService } from '../billing/tokens.service';
 import type {
   AdaptiveAttemptInput,
   AdaptiveAttemptResult,
@@ -66,6 +67,10 @@ type PracticeFilterPayload = {
   timePreferenceSeconds?: number | null;
   useAiTiming?: boolean;
   maxLives?: number;
+  /// Set by the controller so the AI generation path can bill the
+  /// right user. Not part of the public request body — the controller
+  /// pulls it from the JWT and stuffs it in here before calling.
+  userId?: string;
 };
 
 type RawGeneratedQuestion = {
@@ -184,6 +189,8 @@ export class PracticeService {
     private readonly adaptivePracticeFlowService: AdaptivePracticeFlowService,
     @Optional()
     private readonly practiceAiInsightsService: PracticeAiInsightsService,
+    @Optional()
+    private readonly tokens?: TokensService,
   ) {}
   async submitAdaptiveAttempt(
     input: AdaptiveAttemptInput,
@@ -722,6 +729,7 @@ export class PracticeService {
           questionCount,
           repairNote: attemptNotes[attempt],
           timeoutMs: attemptTimeoutMs,
+          billingUserId: input.userId,
         });
       } catch (error) {
         lastAiFailure = error;
@@ -784,6 +792,7 @@ export class PracticeService {
           requestPayload,
           questions: locallyValid,
           timeoutMs: this.remainingPracticeBudgetMs(generationDeadlineAt),
+          billingUserId: input.userId,
         });
       } catch (error) {
         lastAiFailure = error;
@@ -860,6 +869,7 @@ export class PracticeService {
           requestPayload,
           questions: deterministicallyValid,
           timeoutMs: this.remainingPracticeBudgetMs(generationDeadlineAt),
+          billingUserId: input.userId,
         });
       } catch (error) {
         lastAiFailure = error;
@@ -1310,6 +1320,7 @@ export class PracticeService {
     questionCount: number;
     repairNote: string;
     timeoutMs?: number;
+    billingUserId?: string;
   }): Promise<any[]> {
     const { apiKey, requestPayload, questionCount, repairNote, timeoutMs } = args;
 
@@ -1383,6 +1394,8 @@ export class PracticeService {
       // wrote them, not a temperature-0 schema-filler. Verification
       // passes below stay at 0 (the default) for deterministic judgement.
       temperature: 0.7,
+      billingUserId: args.billingUserId,
+      billingSource: 'practice-generate',
       schemaName: 'practice_questions',
       schema: {
         type: 'object',
@@ -1443,6 +1456,7 @@ export class PracticeService {
     requestPayload: Record<string, unknown>;
     questions: RawGeneratedQuestion[];
     timeoutMs?: number;
+    billingUserId?: string;
   }): Promise<RawGeneratedQuestion[]> {
     const { apiKey, requestPayload, questions, timeoutMs } = args;
     const confidenceThreshold = this.confidenceThreshold(requestPayload);
@@ -1484,6 +1498,8 @@ export class PracticeService {
     const parsed = await this.callResponsesJson({
       apiKey,
       timeoutMs,
+      billingUserId: args.billingUserId,
+      billingSource: 'practice-self-verify',
       schemaName: 'practice_self_verify',
       schema: {
         type: 'object',
@@ -1597,6 +1613,7 @@ export class PracticeService {
     requestPayload: Record<string, unknown>;
     questions: RawGeneratedQuestion[];
     timeoutMs?: number;
+    billingUserId?: string;
   }): Promise<RawGeneratedQuestion[]> {
     const { apiKey, requestPayload, questions, timeoutMs } = args;
 
@@ -1638,6 +1655,8 @@ export class PracticeService {
     const parsed = await this.callResponsesJson({
       apiKey,
       timeoutMs,
+      billingUserId: args.billingUserId,
+      billingSource: 'practice-verify',
       schemaName: 'practice_verifier',
       schema: {
         type: 'object',
@@ -1773,18 +1792,32 @@ export class PracticeService {
     /// generation passes use ~0.7 so questions read like a thoughtful
     /// teacher wrote them, not a constrained schema-filler.
     temperature?: number;
+    /// Identifies which user to charge for this call (and what label
+    /// to write to the TokenUsage audit table). When omitted (legacy
+    /// callers) the call still runs but billing is skipped — never
+    /// blocked, since some practice paths run before the user is even
+    /// signed in (e.g. anonymous preview flows).
+    billingUserId?: string;
+    billingSource?: string;
   }): Promise<any> {
     const { apiKey, schema, system, user, timeoutMs } = args;
     const resolvedTimeoutMs = this.resolveOpenAiTimeoutMs(timeoutMs);
 
+    // Cheap pre-flight: bail with 402 BEFORE we hit Anthropic. Skipped
+    // when the caller didn't pass a userId or DI hasn't wired tokens in.
+    if (args.billingUserId && this.tokens) {
+      await this.tokens.assertHasTokens(args.billingUserId);
+    }
+
     const Anthropic = require('@anthropic-ai/sdk').default ?? require('@anthropic-ai/sdk');
     const client = new Anthropic({ apiKey });
+    const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
     let res: any;
     try {
       res = await Promise.race([
         client.messages.create({
-          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+          model,
           max_tokens: 4000,
           system: `${system}\n\nIMPORTANT: Return ONLY valid JSON. No markdown fences, no explanation. The JSON must conform to this schema:\n${JSON.stringify(schema)}`,
           messages: [{ role: 'user', content: user }],
@@ -1801,6 +1834,17 @@ export class PracticeService {
         );
       }
       throw error;
+    }
+
+    // Charge the user for the call we just made. Done before JSON
+    // parsing so a malformed response still bills (Anthropic charged us).
+    if (args.billingUserId && this.tokens) {
+      await this.tokens.chargeAnthropicResponse({
+        userId: args.billingUserId,
+        source: args.billingSource ?? 'practice-ai',
+        model,
+        response: res,
+      });
     }
 
     const jsonText = res?.content?.[0]?.type === 'text' ? res.content[0].text : '';
