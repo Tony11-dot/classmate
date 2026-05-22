@@ -1019,7 +1019,30 @@ export class ScheduleService {
     const weekOfDate = parseWeekOf(params.weekOf);
     const start = startOfWeekSundayInJerusalem(weekOfDate);
 
+    // Diagnostic: what did the resolver actually find? Logs each template
+    // row's identifying info so we can see why a given dayYmd ends up
+    // with zero items in the response even when mergedSlotIds was > 0.
+    // eslint-disable-next-line no-console
+    console.log('[schedule.getWeekForStudent.templateRows]', JSON.stringify({
+      weekOf: params.weekOf ?? null,
+      weekStart: ymdUTC(start),
+      rows: templateRows.map((r: any) => ({
+        id: r.id,
+        dayOfWeek: r.dayOfWeek,
+        period: r.period,
+        subject: r.subject,
+        teacherId: r.teacherId,
+        frequencyWeeks: r.frequencyWeeks,
+        startDate: r.startDate,
+        skipDates: r.skipDates,
+        studentDateSkips: r.studentDateSkips,
+      })),
+    }));
+
     const out: ScheduleItem[] = [];
+    // Track per-day item counts so we can see which day each slot
+    // actually rendered on (and which days came back empty).
+    const perDayCounts: Record<string, number> = {};
     for (let i = 0; i < 7; i++) {
       const d = addDaysUTC(start, i);
       const dateYmd = ymdUTC(d);
@@ -1035,6 +1058,8 @@ export class ScheduleService {
         schoolDefaults,
       });
 
+      perDayCounts[dateYmd] = items.length;
+
       for (const it of items) (it as any).date = (it as any).date ?? dateYmd;
 
       out.push(...items);
@@ -1048,6 +1073,13 @@ export class ScheduleService {
       if (da > db) return 1;
       return Number(a.period ?? 0) - Number(b.period ?? 0);
     });
+
+    // eslint-disable-next-line no-console
+    console.log('[schedule.getWeekForStudent.perDay]', JSON.stringify({
+      weekOf: params.weekOf ?? null,
+      perDayCounts,
+      totalItems: out.length,
+    }));
 
     return out;
   }
