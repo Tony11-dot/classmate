@@ -318,9 +318,11 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Week schedule shortcut
+                // Week schedule shortcut — /teacher/schedule (the route
+                // is registered without /week; the old path used to
+                // throw a go_router "no route" exception).
                 InkWell(
-                  onTap: () => context.push('/teacher/schedule/week'),
+                  onTap: () => context.push('/teacher/schedule'),
                   borderRadius: BorderRadius.circular(14),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),

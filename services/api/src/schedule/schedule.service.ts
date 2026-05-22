@@ -296,6 +296,11 @@ export class ScheduleService {
             },
             materials: {
               select: {
+                // The date is essential — without it _materialsFromSlotRow's
+                // per-day filter falls back to "" for every entry and the
+                // student sees a date-scoped PDF on every occurrence of
+                // the slot.
+                date: true,
                 material: {
                   select: {
                     id: true, title: true, description: true,

@@ -57,7 +57,6 @@ bool _hideTopBarForRoute(String loc) {
       l.startsWith('/nova/chat/') ||
       l.startsWith('/teacher/classroom/') ||
       l.startsWith('/teacher/announcements/') ||
-      l.startsWith('/teacher/schedule/week') ||
       l.startsWith('/teacher/student/') ||
       l.startsWith('/assignments/') ||
       l.startsWith('/exams/') ||
