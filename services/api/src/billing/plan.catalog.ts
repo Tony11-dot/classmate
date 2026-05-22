@@ -93,28 +93,28 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 export const TOPUP_PACKS: TopupPack[] = [
   {
     label: 'Small pack',
-    priceAgorot: 1400, // ₪14
+    priceAgorot: 1490, // ₪14.90 (matches App Store Connect)
     priceUsd: 4,
     tokens: 200_000,
     storeProductId: 'com.classmate.tokens.small',
   },
   {
     label: 'Medium pack',
-    priceAgorot: 2900, // ₪29
+    priceAgorot: 2990, // ₪29.90
     priceUsd: 8,
     tokens: 500_000,
     storeProductId: 'com.classmate.tokens.medium',
   },
   {
     label: 'Large pack',
-    priceAgorot: 4900, // ₪49
+    priceAgorot: 4990, // ₪49.90
     priceUsd: 13,
     tokens: 1_000_000,
     storeProductId: 'com.classmate.tokens.large',
   },
   {
     label: 'Mega pack',
-    priceAgorot: 9900, // ₪99
+    priceAgorot: 9990, // ₪99.90
     priceUsd: 27,
     tokens: 2_000_000,
     storeProductId: 'com.classmate.tokens.mega',
