@@ -5,10 +5,12 @@ import { extname } from 'path';
 import { mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-const ALLOWED_MIMES = new Set([
-  'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif',
-  'audio/mpeg', 'audio/mp4', 'audio/wav', 'audio/aac', 'audio/ogg', 'audio/webm',
-  'video/mp4', 'video/quicktime', 'video/webm', 'video/3gpp',
+// Specific document/text/archive MIMEs we accept. Anything that starts
+// with image/ audio/ video/ is accepted via the category check below —
+// iOS in particular uses non-standard subtypes like audio/m4a,
+// audio/x-m4a, video/quicktime variations, image/heic that we don't
+// want to enumerate one-by-one.
+const ALLOWED_DOC_MIMES = new Set([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -17,8 +19,19 @@ const ALLOWED_MIMES = new Set([
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'application/zip',
+  'application/octet-stream', // generic fallback some clients send
   'text/plain',
+  'text/csv',
 ]);
+
+function isAllowedMime(mime: string): boolean {
+  if (!mime) return false;
+  const m = mime.toLowerCase();
+  if (m.startsWith('image/')) return true;
+  if (m.startsWith('audio/')) return true;
+  if (m.startsWith('video/')) return true;
+  return ALLOWED_DOC_MIMES.has(m);
+}
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
@@ -49,7 +62,7 @@ export class DmUploadController {
       limits: { fileSize: MAX_FILE_SIZE },
       fileFilter: (_req, file, cb) => {
         const mime = String(file.mimetype || '').toLowerCase();
-        if (!ALLOWED_MIMES.has(mime)) {
+        if (!isAllowedMime(mime)) {
           cb(new BadRequestException(`File type "${mime}" is not allowed`), false);
           return;
         }
