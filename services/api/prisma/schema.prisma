@@ -142,6 +142,11 @@ model User {
   passwordChangeRequests         PasswordChangeRequest[]       @relation("PasswordChangeRequestUser")
   /// Pending password-change requests waiting for THIS user (an admin) to approve.
   passwordChangeApprovals        PasswordChangeRequest[]       @relation("PasswordChangeRequestAdmin")
+
+  // Billing relations — NOVA / Practice token economy.
+  subscriptions  UserSubscription[]
+  tokenBalance   TokenBalance?
+  tokenUsages    TokenUsage[]
 }
 
 model UserRole {
@@ -1997,3 +2002,125 @@ model TeacherMeeting {
   @@index([teacherId])
   @@index([startsAt])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Billing — NOVA + Practice token economy
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Plan tier identifier. Stays a string column so we can add new tiers
+/// or rename existing ones without an enum migration. The catalog of
+/// known values lives in src/billing/plan.catalog.ts on the server.
+///
+/// Known values right now:
+///   FREE, BUDGET, BALANCE, COMMITMENT
+enum SubscriptionStatus {
+  ACTIVE          // current period valid, tokens granted
+  IN_GRACE_PERIOD // Apple/Google says renewal failed but user is in grace
+  ON_HOLD         // billing failed, grace expired — tokens frozen
+  CANCELLED       // user cancelled but still in paid period
+  EXPIRED         // period ended, no renewal
+  REFUNDED        // payment refunded
+}
+
+/// A user's current subscription. One active row per user — historical
+/// rows are kept (with status EXPIRED/CANCELLED) for audit + analytics.
+model UserSubscription {
+  id              String              @id @default(uuid())
+  userId          String
+  planTier        String              // 'BUDGET' | 'BALANCE' | 'COMMITMENT'
+  status          SubscriptionStatus  @default(ACTIVE)
+  /// 'apple' | 'google' | 'web' (web is reserved for a future Stripe flow).
+  store           String
+  /// Apple originalTransactionId or Google purchaseToken or RevenueCat
+  /// app_user_id. Persisted so webhook events can find the subscription.
+  storeTransactionId String?
+  /// RevenueCat's internal subscription identifier when we route through
+  /// them. Nullable so we can also accept direct App Store / Play
+  /// server-to-server callbacks if RevenueCat ever goes away.
+  rcSubscriptionId   String?
+  /// Cached store product id (e.g. com.classmate.plan.balance.monthly).
+  storeProductId  String?
+  /// When the current paid period ends. After this, the renewal webhook
+  /// either bumps it forward or flips status to EXPIRED.
+  currentPeriodEnd DateTime
+  startedAt        DateTime           @default(now())
+  cancelledAt      DateTime?
+  updatedAt        DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([storeTransactionId])
+  @@index([rcSubscriptionId])
+}
+
+/// One row per user — tracks token entitlements.
+///
+/// Two buckets:
+///   - planTokensRemaining: granted by the active subscription; resets to
+///     the plan quota on every renewal.
+///   - topupTokensRemaining: one-time purchases (consumable IAPs). NEVER
+///     expires and NEVER resets. Drained only after planTokensRemaining
+///     hits zero.
+///
+/// On every AI call: deduct from plan first, then top-up. When both
+/// are 0 the API call 402s and the client shows the paywall.
+model TokenBalance {
+  userId               String   @id
+  planTokensRemaining  Int      @default(0)
+  topupTokensRemaining Int      @default(0)
+  /// When planTokensRemaining gets reset back to the plan quota.
+  /// Apple/Google webhook bumps this on each renewal.
+  resetAt              DateTime?
+  updatedAt            DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Append-only audit log of every AI call's token usage. Lets us
+/// reconcile API bills, debug suspicious usage spikes, and feed analytics
+/// without re-hitting Anthropic's billing dashboard.
+model TokenUsage {
+  id              String   @id @default(cuid())
+  userId          String
+  /// 'nova' | 'practice' | 'tutor' | 'whisper' | 'practice_insights' etc.
+  source          String
+  /// Anthropic model id at call time (so a future model swap shows in the audit).
+  model           String
+  inputTokens     Int      @default(0)
+  cachedInputTokens Int    @default(0)
+  outputTokens    Int      @default(0)
+  /// Total tokens DEDUCTED from the user's balance. This is what counts
+  /// against their quota — separate from inputTokens+outputTokens so we
+  /// can apply per-source weighting if we ever need to (e.g. count voice
+  /// transcription differently).
+  tokensCharged   Int      @default(0)
+  /// Computed USD cost to us at time of call. Cached so per-user margin
+  /// reports don't have to re-derive from token counts.
+  costUsd         Float    @default(0)
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([source, createdAt])
+}
+
+/// Records every Apple/Google/RevenueCat webhook event we receive, in
+/// raw JSON form. Lets us re-process if we ever change subscription
+/// logic, and proves what we received vs. what the store sent in case
+/// of a dispute.
+model StoreWebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String   // 'apple' | 'google' | 'revenuecat'
+  eventType   String   // e.g. 'INITIAL_PURCHASE', 'RENEWAL', 'CANCELLATION'
+  rcEventId   String?  @unique
+  userId      String?
+  rawPayload  Json
+  processedAt DateTime?
+  receivedAt  DateTime @default(now())
+
+  @@index([provider, eventType])
+  @@index([userId, receivedAt])
+}
+
