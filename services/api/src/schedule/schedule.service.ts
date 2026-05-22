@@ -239,6 +239,26 @@ export class ScheduleService {
       ...byGrade.map((r: any) => r.id),
     ]));
 
+    // Diagnostic so we can see exactly why a student is seeing an empty
+    // schedule. Logs at INFO so Railway captures it. Shows the inputs
+    // (studentId / schoolId / cohorts the resolver considered) and the
+    // sizes of every audience-match union — the bug "schedule empties
+    // after force-quit + relaunch" should show non-zero byStudent here
+    // either way.
+    // eslint-disable-next-line no-console
+    console.log('[schedule.resolveTemplateSlotsForStudent]', JSON.stringify({
+      studentId,
+      schoolId,
+      cohortId,
+      studentGrade,
+      cohortLinksCount: studentCohortLinks.length,
+      uniqueCohortIds: uniqueCohortIds.length,
+      byStudentCount: byStudent.length,
+      byCohortCount: byCohort.length,
+      byGradeCount: byGrade.length,
+      mergedSlotIds: slotIds.length,
+    }));
+
     // Explicit select with a graceful fallback — if a column is in the
     // Prisma schema but the DB hasn't pushed it yet (mid-deploy state),
     // the rich query throws and we retry without the newest column.
