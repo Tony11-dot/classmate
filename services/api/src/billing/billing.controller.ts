@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Req, UseGuards, Headers, HttpCode } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator';
 import { TokensService } from './tokens.service';
 import { SUBSCRIPTION_PLANS, TOPUP_PACKS } from './plan.catalog';
 import { PrismaService } from '../prisma/prisma.service';
@@ -17,6 +18,7 @@ export class BillingController {
   /// — server-driven so we can adjust prices/quotas/copy without a Flutter
   /// release. Public (no auth) so the marketing landing page could also
   /// fetch it later.
+  @Public()
   @Get('plans')
   plans() {
     return {
@@ -40,6 +42,12 @@ export class BillingController {
   /// renewals, cancellations, refunds. Validated against the shared
   /// secret header; raw event stored in StoreWebhookEvent before
   /// processing so we can replay if our logic has a bug.
+  ///
+  /// @Public bypasses the global JwtAuthGuard — RC doesn't send a JWT,
+  /// it sends our own webhook secret in the Authorization header which
+  /// the RevenueCatWebhookService validates separately. Without @Public
+  /// the JWT guard 401s every test event before it reaches our handler.
+  @Public()
   @Post('webhooks/revenuecat')
   @HttpCode(200)
   async revenuecatWebhook(
