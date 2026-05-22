@@ -178,7 +178,16 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
       );
       final session = ref.read(authSessionProvider);
       await session.setSchoolName(name);
-      await session.setSchoolLogoUrl(_logoUrl);
+      // Same guard for the local session: only push the URL when we
+      // actually have one. Without this, saving "name change" while the
+      // postFrame hydrate hadn't loaded the logo yet wrote null into
+      // the cached session, blanking the drawer logo until next /auth/me
+      // refreshed it (which itself defends null with the cached value —
+      // so once wiped, the logo stayed wiped).
+      final localLogo = (_logoUrl ?? '').trim();
+      if (localLogo.isNotEmpty) {
+        await session.setSchoolLogoUrl(localLogo);
+      }
       session.setSchoolGradeRange(_minGrade, _maxGrade);
       // Don't invalidate + reset _initialized — that briefly drops the
       // textbox into a loading spinner before the new data lands, which
