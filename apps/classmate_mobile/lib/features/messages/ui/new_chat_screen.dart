@@ -8,6 +8,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'new_group_screen.dart';
+import '../../../common/widgets/role_badge.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 final sameSchoolPeopleProvider =
@@ -69,17 +70,6 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     return true;
   }
 
-  String _roleLabel(String role) {
-    return switch (role.toLowerCase()) {
-      'student' => 'Student',
-      'teacher' => 'Teacher',
-      'parent' => 'Parent',
-      'admin' => 'Admin',
-      'secretary' => 'Secretary',
-      _ => '',
-    };
-  }
-
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '?';
@@ -94,6 +84,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     final theme = Theme.of(context);
     final session = ref.read(authSessionProvider);
     final isTeacher = session.isTeacherLike;
+    final isParent = session.primaryRole == 'PARENT';
+    final isSecretary = session.primaryRole == 'SECRETARY';
+    final isAdmin = session.primaryRole == 'ADMIN';
+    final showRoleChips = isTeacher || isParent || isSecretary || isAdmin;
     final peopleValue = ref.watch(sameSchoolPeopleProvider);
     final q = _searchCtl.text.trim().toLowerCase();
 
@@ -141,8 +135,11 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Filter chips (only for teachers who have multiple roles to filter)
-                  if (isTeacher) ...[
+                  // Filter chips — shown for every role with a mixed
+                  // recipient list (teachers, secretaries, admins, parents).
+                  // Students see no chips; the server already filters
+                  // their picker to peers + own parents + staff.
+                  if (showRoleChips) ...[
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -248,7 +245,6 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                         const SizedBox(height: 10),
                         ...filtered.map((person) {
 
-                          final roleLabel = _roleLabel(person.role);
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: InkWell(
@@ -283,9 +279,23 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(person.displayName, style: const TextStyle(fontWeight: FontWeight.w700)),
-                                          if (roleLabel.isNotEmpty)
-                                            Text(roleLabel, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  person.displayName,
+                                                  style: const TextStyle(fontWeight: FontWeight.w700),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              if (person.role.trim().isNotEmpty) ...[
+                                                const SizedBox(width: 6),
+                                                RoleBadge(role: person.role, compact: true),
+                                              ],
+                                            ],
+                                          ),
+                                          if (person.gradeLabel.isNotEmpty)
+                                            Text(person.gradeLabel, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                                         ],
                                       ),
                                     ),

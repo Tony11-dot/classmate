@@ -144,7 +144,7 @@ class _TeacherNewAnnouncementScreenState
         builder: (dCtx) => AlertDialog(
           title: const Text('Broadcast to everyone?'),
           content: const Text(
-            'No specific audience selected. This announcement will be visible to ALL students and teachers in the school.',
+            'No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.',
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(dCtx, false), child: const Text('Cancel')),

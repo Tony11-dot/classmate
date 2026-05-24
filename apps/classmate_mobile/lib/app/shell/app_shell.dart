@@ -46,6 +46,16 @@ const _teacherBottomNavPaths = <String>{
   '/messages',
 };
 
+/// Routes where the parent bottom nav stays visible. The 5 tabs are:
+/// Home | Schedule | Grades | Messages | Announcements.
+const _parentBottomNavPaths = <String>{
+  '/parent/home',
+  '/parent/schedule',
+  '/parent/grades',
+  '/messages',
+  '/announcements',
+};
+
 String _routePathOnly(String loc) {
   final uri = Uri.tryParse(loc);
   return (uri?.path ?? loc).toLowerCase();
@@ -123,6 +133,23 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/messages')) return 4;
     return 0;
   }
+
+  int _parentIndexFor(String loc) {
+    if (loc.startsWith('/parent/schedule')) return 1;
+    if (loc.startsWith('/parent/grades')) return 2;
+    if (loc.startsWith('/messages')) return 3;
+    if (loc.startsWith('/announcements')) return 4;
+    return 0; // /parent/home
+  }
+
+  String _parentLocFor(int index) => switch (index) {
+    0 => '/parent/home',
+    1 => '/parent/schedule',
+    2 => '/parent/grades',
+    3 => '/messages',
+    4 => '/announcements',
+    _ => '/parent/home',
+  };
 
   String _adminLocFor(int index, bool isAdmin) {
     if (!isAdmin) {
@@ -316,6 +343,10 @@ class AppShell extends ConsumerWidget {
     return isTeacherLike ? l.navTeacherWorkspace : l.titleSchedule;
   }
 
+  bool _hideBottomNavParent(String loc) {
+    return !_parentBottomNavPaths.contains(loc);
+  }
+
   bool _hideBottomNav(String loc, bool isTeacherLike, bool isAdminLike, bool isAdmin) {
     // Admin and Secretary navigate entirely via the drawer — no bottom pill nav.
     if (isAdminLike) return true;
@@ -415,14 +446,19 @@ class AppShell extends ConsumerWidget {
     final primaryRole = session.primaryRole;
     final isAdminLike = primaryRole == 'ADMIN' || primaryRole == 'SECRETARY';
     final isAdmin = primaryRole == 'ADMIN';
+    final isParent = primaryRole == 'PARENT';
     final loc = GoRouterState.of(context).matchedLocation;
     final unreadMessages = ref.watch(unreadMessagesCountProvider);
     final idx = isAdminLike
         ? _adminIndexFor(loc, isAdmin)
-        : isTeacherLike
-            ? _teacherIndexFor(loc)
-            : _studentIndexFor(loc);
-    final hideBottomNav = _hideBottomNav(loc, isTeacherLike, isAdminLike, isAdmin);
+        : isParent
+            ? _parentIndexFor(loc)
+            : isTeacherLike
+                ? _teacherIndexFor(loc)
+                : _studentIndexFor(loc);
+    final hideBottomNav = isParent
+        ? _hideBottomNavParent(loc)
+        : _hideBottomNav(loc, isTeacherLike, isAdminLike, isAdmin);
     final hideTopBar = _hideTopBarForRoute(loc);
 
     final pageTitle = _pageTitle(context, loc, isTeacherLike, isAdminLike);
@@ -483,6 +519,7 @@ class AppShell extends ConsumerWidget {
         isTeacherLike: isTeacherLike,
         isAdminLike: isAdminLike,
         isAdmin: isAdmin,
+        isParent: isParent,
         hideBottomNav: hideBottomNav,
         hideTopBar: hideTopBar,
         unreadMessages: unreadMessages,
@@ -492,6 +529,8 @@ class AppShell extends ConsumerWidget {
           final String next;
           if (isAdminLike) {
             next = _adminLocFor(i, isAdmin);
+          } else if (isParent) {
+            next = _parentLocFor(i);
           } else if (isTeacherLike) {
             next = _teacherLocFor(i);
           } else {
@@ -515,6 +554,7 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
     required this.isTeacherLike,
     required this.isAdminLike,
     required this.isAdmin,
+    required this.isParent,
     required this.hideBottomNav,
     required this.hideTopBar,
     required this.unreadMessages,
@@ -530,6 +570,7 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
   final bool isTeacherLike;
   final bool isAdminLike;
   final bool isAdmin;
+  final bool isParent;
   final bool hideBottomNav;
   final bool hideTopBar;
   final int unreadMessages;
@@ -609,7 +650,16 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
                           _NavItem(Icons.school_outlined, Icons.school_rounded, l.adminStudents),
                           _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
                         ]
-                  : widget.isTeacherLike
+                  : widget.isParent
+                      ? <_NavItem>[
+                          // Parent: Home | Schedule | Grades | Messages | Announcements
+                          _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
+                          _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+                          _NavItem(Icons.grade_outlined, Icons.grade_rounded, l.navGrades),
+                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+                          _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
+                        ]
+                      : widget.isTeacherLike
                       ? <_NavItem>[
                           _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
                           _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
