@@ -309,7 +309,12 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
 
   double _modeChildAspectRatio(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    return width >= 420 ? 1.28 : 1.18;
+    // Square-ish tiles. The previous 1.18–1.28 ratios made tiles
+    // shorter than the content (icon + label + 2-line subtitle +
+    // preview + footer bar = ~135px min height), which produced the
+    // red OVERFLOWED-BY-17px banners. ~0.92 gives plenty of room
+    // without making the grid feel sparse.
+    return width >= 420 ? 0.95 : 0.92;
   }
 
   Future<void> _showModeInfoSheet(BuildContext context) async {

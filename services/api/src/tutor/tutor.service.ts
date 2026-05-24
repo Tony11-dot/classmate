@@ -1112,7 +1112,7 @@ export class TutorService {
   async deleteSession(user: any, sessionId: string) {
     const studentId = String(user?.sub ?? user?.id ?? '').trim();
     if (!studentId) {
-      throw new Error('Missing user id');
+      throw new BadRequestException('Not authenticated');
     }
 
     const session = await this.prisma.tutorSession.findFirst({
@@ -1126,12 +1126,29 @@ export class TutorService {
       select: { id: true },
     });
 
+    // Idempotent: deleting a session that doesn't exist (or doesn't
+    // belong to the caller) just returns ok. Previously this threw a
+    // 500 via `throw new Error(...)`, which surfaced as the ugly
+    // "Internal Server Error" toast when the client retried a delete
+    // on a stale session id.
     if (!session?.id) {
-      throw new Error('Session not found');
+      return { ok: true, alreadyGone: true };
     }
 
-    await this.prisma.tutorMessage.deleteMany({ where: { sessionId } });
-    await this.prisma.tutorSession.delete({ where: { id: sessionId } });
+    // Wrap in a transaction so a mid-flight failure can't leave the
+    // session row alive but its messages gone. StudentBrainEvent
+    // rows that reference this session/message via tutorSessionId /
+    // tutorMessageId have onDelete: SetNull, so they don't block.
+    try {
+      await this.prisma.$transaction([
+        this.prisma.tutorMessage.deleteMany({ where: { sessionId } }),
+        this.prisma.tutorSession.delete({ where: { id: sessionId } }),
+      ]);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[tutor] deleteSession failed:', e);
+      throw new HttpException('Failed to delete tutor session', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     return { ok: true };
   }

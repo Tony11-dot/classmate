@@ -1080,7 +1080,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black,
+      // Semi-transparent dim — using opaque Colors.black blanked out
+      // the whole chat behind the card, which looked like a render bug.
+      barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (dialogContext, animation, secondaryAnimation) => SafeArea(
         child: Padding(
