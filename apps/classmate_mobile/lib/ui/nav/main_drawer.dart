@@ -17,6 +17,7 @@ class MainDrawer extends ConsumerWidget {
     final isTeacherLike = session.isTeacherLike;
     final isSecretary = session.primaryRole == 'SECRETARY';
     final isPureAdmin = session.primaryRole == 'ADMIN';
+    final isParent = session.primaryRole == 'PARENT';
     final displayName = session.displayName.trim();
     final initials = _initials(displayName);
     final schoolName = session.schoolName.trim();
@@ -273,13 +274,25 @@ class MainDrawer extends ConsumerWidget {
                 padding: const EdgeInsets.only(bottom: 12),
                 children: [
                   // ── Admin/Secretary drawer: 3 focused categories ──────────
-                  if (isSecretary) ...[
+                  if (isParent) ...[
+                    sectionHeader(l.sectionCore),
+                    navItem(icon: Icons.dashboard_rounded, label: 'Home', route: '/parent/home'),
+                    navItem(icon: Icons.event_note_rounded, label: 'Child\'s schedule', route: '/parent/schedule'),
+                    navItem(icon: Icons.grade_rounded, label: 'Child\'s grades', route: '/parent/grades'),
+                    navItem(icon: Icons.how_to_reg_rounded, label: 'Child\'s attendance', route: '/parent/attendance'),
+                    sectionHeader(l.sectionSchoolTools),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.notifications_rounded, label: 'Notifications', route: '/parent/notifications'),
+                    sectionHeader(l.sectionAccount),
+                  ] else if (isSecretary) ...[
                     sectionHeader('School Tools'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
                     sectionHeader('Secretary Tools'),
                     navItem(icon: Icons.school_rounded, label: l.adminStudents, route: '/secretary/students'),
+                    navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/secretary/people'),
                     navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/secretary/schedule'),
                     navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/admin/export'),
                     sectionHeader(l.sectionAccount),

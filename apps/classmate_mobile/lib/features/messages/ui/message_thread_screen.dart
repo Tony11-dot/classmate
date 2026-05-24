@@ -13,6 +13,7 @@ import '../../chat_core/ui/chat_thread_view.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../users/ui/user_profile_sheet.dart';
 
 class MessageThreadScreen extends ConsumerStatefulWidget {
   const MessageThreadScreen({super.key, required this.threadId});
@@ -112,6 +113,25 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   }
 
   Future<void> _openThreadInfo(MessageThreadDetail detail) async {
+    // 1:1 DM → open the rich profile sheet for the other participant
+    // (role badge, grade if student, children if parent). Group threads
+    // stay on the original participant-list sheet because the user
+    // needs to see members, invite codes, mute/block, etc.
+    if (!detail.isGroup) {
+      final session = ref.read(authSessionProvider);
+      final myId = session.userId;
+      final peer = detail.participants.firstWhere(
+        (p) => p.userId.isNotEmpty && p.userId != myId,
+        orElse: () => detail.participants.isEmpty
+            ? const MessageParticipant(userId: '', displayName: '', initials: '?')
+            : detail.participants.first,
+      );
+      if (peer.userId.isNotEmpty) {
+        await UserProfileSheet.show(context, peer.userId);
+        return;
+      }
+    }
+
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,

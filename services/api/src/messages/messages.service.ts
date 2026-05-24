@@ -268,16 +268,54 @@ export class MessagesService {
     const viewerId = this.viewerId(user);
     const schoolId = (user as any)?.schoolId ?? null;
 
-    // Role-based contact restrictions:
-    //   • SECRETARY → only TEACHER and PARENT (per role spec — no DMs
-    //     to students).
-    //   • Everyone else → everyone in the school (default).
     const viewerRoles = ((user as any)?.roles ?? []).map((r: any) =>
       String(r ?? '').toUpperCase(),
     );
-    const isSecretary = viewerRoles.includes('SECRETARY') && !viewerRoles.includes('ADMIN');
-    const roleFilter = isSecretary
-      ? { roles: { some: { role: { in: ['TEACHER', 'PARENT'] as any } } } }
+    const isStudentOnly =
+      viewerRoles.includes('STUDENT') &&
+      !viewerRoles.includes('TEACHER') &&
+      !viewerRoles.includes('ADMIN') &&
+      !viewerRoles.includes('SECRETARY');
+
+    // Students can only DM (a) other students same school, (b) teachers,
+    // (c) secretaries, (d) their OWN parents — never other students'
+    // parents. We resolve "own parents" via the ParentChild link and
+    // then restrict the role-PARENT slice of the result to that set.
+    // For every other role (TEACHER / SECRETARY / ADMIN / PARENT viewer)
+    // the school-wide contact picker is unrestricted.
+    let ownParentIds: string[] = [];
+    if (isStudentOnly) {
+      const links = await this.prisma.parentChild.findMany({
+        where: { childId: viewerId, status: 'APPROVED' as any },
+        select: { parentId: true },
+      });
+      ownParentIds = links.map((l) => l.parentId);
+    }
+
+    const studentRoleFilter = isStudentOnly
+      ? {
+          OR: [
+            // Non-parents: include all (subject to school + viewer-exclude).
+            {
+              roles: {
+                some: {
+                  role: { in: ['STUDENT', 'TEACHER', 'SECRETARY', 'ADMIN'] as any },
+                },
+              },
+            },
+            // Parents: only the ones linked to this student.
+            ...(ownParentIds.length
+              ? [
+                  {
+                    AND: [
+                      { roles: { some: { role: 'PARENT' as any } } },
+                      { id: { in: ownParentIds } },
+                    ],
+                  },
+                ]
+              : []),
+          ],
+        }
       : { roles: { some: {} } };
 
     // Fetch users in the same school (excluding viewer)
@@ -285,7 +323,7 @@ export class MessagesService {
       where: {
         id: { not: viewerId },
         ...(schoolId ? { schoolId } : {}),
-        ...roleFilter,
+        ...studentRoleFilter,
       },
       select: {
         id: true,
@@ -782,16 +820,29 @@ export class MessagesService {
       throw new ForbiddenException('Cannot message users from a different school');
     }
 
-    // Role-based restriction: SECRETARY can only initiate DMs with
-    // TEACHER or PARENT (not STUDENT). Mirrors the contact-picker
-    // filter so a crafted POST can't bypass the UI.
+    // Role-based DM restriction (defense-in-depth — mirrors the
+    // fetchSameSchoolPeople filter so a crafted POST can't bypass the UI):
+    // STUDENT viewers can only DM (a) other students same school,
+    // (b) teachers, (c) secretaries, (d) their OWN approved parents.
+    // Other students' parents are off-limits.
     const senderRoles = (senderRow?.roles ?? []).map((r) => String(r.role).toUpperCase());
-    const isSecretary = senderRoles.includes('SECRETARY') && !senderRoles.includes('ADMIN');
-    if (isSecretary) {
-      const recipientRoles = (recipientRow?.roles ?? []).map((r) => String(r.role).toUpperCase());
-      const allowed = recipientRoles.some((r) => r === 'TEACHER' || r === 'PARENT');
-      if (!allowed) {
-        throw new ForbiddenException('Secretary can only message teachers and parents');
+    const recipientRoles = (recipientRow?.roles ?? []).map((r) => String(r.role).toUpperCase());
+    const isStudentOnly =
+      senderRoles.includes('STUDENT') &&
+      !senderRoles.includes('TEACHER') &&
+      !senderRoles.includes('ADMIN') &&
+      !senderRoles.includes('SECRETARY');
+    if (isStudentOnly && recipientRoles.includes('PARENT')) {
+      const link = await this.prisma.parentChild.findFirst({
+        where: {
+          parentId: recipientUserId,
+          childId: userId,
+          status: 'APPROVED' as any,
+        },
+        select: { id: true },
+      });
+      if (!link) {
+        throw new ForbiddenException('Students can only message their own parents');
       }
     }
 

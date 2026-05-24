@@ -77,6 +77,11 @@ import '../features/admin/ui/admin_settings_screen.dart';
 import '../features/admin/ui/admin_export_screen.dart';
 import '../features/admin/ui/admin_password_requests_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
+import '../features/parent/ui/parent_home_screen.dart';
+import '../features/parent/ui/parent_grades_screen.dart';
+import '../features/parent/ui/parent_schedule_screen.dart';
+import '../features/parent/ui/parent_attendance_screen.dart';
+import '../features/parent/ui/parent_notifications_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
@@ -163,10 +168,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == '/support';
 
       final isSecretary = primaryRole == 'SECRETARY';
+      final isParent = primaryRole == 'PARENT';
 
       if (!loggedIn && !isAuthRoute) return '/login';
       if (loggedIn && isLoginOnly) {
         if (isSecretary) return '/announcements';
+        if (isParent) return '/parent/home';
         if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
       }
@@ -617,6 +624,34 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/secretary/schedule',
             builder: (context, state) => const AdminScheduleScreen(readOnly: true),
+          ),
+          // Secretary's all-users view: same screen as admin's People,
+          // but isAdmin==false auto-hides the FAB + edit/delete actions
+          // — view-only access matching the role spec.
+          GoRoute(
+            path: '/secretary/people',
+            builder: (context, state) => const AdminPeopleScreen(),
+          ),
+          // ── Parent app ─────────────────────────────────────────────
+          GoRoute(
+            path: '/parent/home',
+            builder: (context, state) => const ParentHomeScreen(),
+          ),
+          GoRoute(
+            path: '/parent/grades',
+            builder: (context, state) => const ParentGradesScreen(),
+          ),
+          GoRoute(
+            path: '/parent/schedule',
+            builder: (context, state) => const ParentScheduleScreen(),
+          ),
+          GoRoute(
+            path: '/parent/attendance',
+            builder: (context, state) => const ParentAttendanceScreen(),
+          ),
+          GoRoute(
+            path: '/parent/notifications',
+            builder: (context, state) => const ParentNotificationsScreen(),
           ),
           GoRoute(
             path: '/teacher/insights',

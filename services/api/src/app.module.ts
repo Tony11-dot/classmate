@@ -35,6 +35,7 @@ import { AnnouncementsModule } from './announcements/announcements.module';
 import { SolutionsModule } from './solutions/solutions.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { BillingModule } from './billing/billing.module';
+import { UsersModule } from './users/users.module';
 import { VersionModule } from './version/version.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ClassroomsModule } from './classrooms/classrooms.module';
@@ -128,6 +129,7 @@ const seedControllers = [
     PracticeModule,
     GradeBumpModule,
     BillingModule,
+    UsersModule,
   ],
   controllers: [DmUploadController, SetupController, PasswordResetController, VerifyController, MetricsController, ...seedControllers],
   providers: [
