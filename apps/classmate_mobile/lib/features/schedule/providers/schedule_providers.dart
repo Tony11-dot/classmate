@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/http/cm_api.dart';
+import '../../parent/data/viewed_student_context.dart';
 import '../data/schedule_repository.dart';
 
 // autoDispose so each week key is independent; keepAlive is NOT used so
@@ -24,8 +25,9 @@ final weekScheduleProvider =
         return <String, dynamic>{'items': []};
       }
       final repo = ref.watch(scheduleRepositoryProvider);
+      final viewedStudentId = ref.watch(viewedStudentIdProvider);
       try {
-        return await repo.getWeek(DateTime.parse(weekOf));
+        return await repo.getWeek(DateTime.parse(weekOf), overrideStudentId: viewedStudentId);
       } on CMApiException catch (e) {
         if (e.statusCode == 401) return <String, dynamic>{'items': []};
         throw Exception(e.friendlyMessage);

@@ -9,9 +9,10 @@ import { ParentService } from './parent.service';
 import { ParentNotificationsController } from './parent-notifications.controller';
 import { ParentNotificationsService } from './parent-notifications.service';
 import { ParentAttendanceController } from './parent.attendance.controller';
+import { StudentModule } from '../student/student.module';
 
 @Module({
-  imports: [PrismaModule, ScheduleModule],
+  imports: [PrismaModule, ScheduleModule, StudentModule],
   controllers: [ParentController, ParentNotificationsController,
     ParentAttendanceController,
   ],

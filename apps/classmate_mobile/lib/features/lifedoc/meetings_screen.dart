@@ -9,10 +9,36 @@ import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
+import '../parent/data/parent_repository.dart';
+import '../parent/data/viewed_student_context.dart';
 import '../../ui/widgets/cm_loading.dart';
 
 final meetingsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
+    // Parent flow: server pre-aggregates meetings across the child's
+    // classrooms into a single response. Skip the per-classroom fan-out
+    // that the student path does — same final shape, half the round-trips.
+    final viewedStudentId = ref.watch(viewedStudentIdProvider);
+    if (viewedStudentId != null) {
+      final raw = await ref.read(parentRepositoryProvider)
+          .getChildFeed('/parent/meetings', viewedStudentId);
+      final list = raw is Map && raw['items'] is List ? raw['items'] as List : const [];
+      return list
+          .whereType<Map>()
+          .map((m) {
+            final mm = Map<String, dynamic>.from(m);
+            // Rebadge classroom* keys to the underscore-prefixed schema
+            // the rest of this screen reads.
+            return <String, dynamic>{
+              ...mm,
+              '_courseId': mm['classroomId'] ?? '',
+              '_courseName': mm['classroomName'] ?? '',
+              '_subject': mm['classroomSubject'] ?? '',
+            };
+          })
+          .toList(growable: false);
+    }
+
     final repo = ref.read(classroomsRepoProvider);
     final classrooms = await ref.watch(orderedStudentClassroomsProvider.future);
 

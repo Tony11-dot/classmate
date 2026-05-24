@@ -118,4 +118,46 @@ export class ParentController {
   lookup(@Req() req: any) {
     return this.parent.lookup(req.user);
   }
+
+  // ── Child-scoped feeds ────────────────────────────────────────────
+  // Mirror the student endpoints (/student/exams, /student/diplomas,
+  // /student/assignments, /student/classrooms/all-materials, etc.) but
+  // pivot to the parent's selected child. All gated by requireParentChild
+  // in the service.
+
+  @Get('exams')
+  exams(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.examsForChild(req.user, studentId.trim());
+  }
+
+  @Get('assignments')
+  assignments(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.assignmentsForChild(req.user, studentId.trim());
+  }
+
+  @Get('diplomas')
+  diplomas(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.diplomasForChild(req.user, studentId.trim());
+  }
+
+  @Get('meetings')
+  meetings(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.meetingsForChild(req.user, studentId.trim());
+  }
+
+  @Get('materials')
+  materials(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.materialsForChild(req.user, studentId.trim());
+  }
+
+  @Get('insights')
+  insights(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.insightsForChild(req.user, studentId.trim());
+  }
 }

@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { ParentNotificationDtoSchema } from './dto/parent-notification.dto';
 import { hasAnyRole } from '../auth/permissions';
+import { StudentInsightsService } from '../student/student-insights.service';
 
 function ymdInJerusalem(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -68,7 +69,14 @@ export class ParentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly schedule: ScheduleService,
+    private readonly insights: StudentInsightsService,
   ) {}
+
+  async insightsForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+    return this.insights.getStudentInsights(user, studentId);
+  }
 
   // normalize notification payload
   private notifDto(n: any) {
@@ -625,6 +633,313 @@ export class ParentService {
       since: cutoff ? cutoff.toISOString() : null,
       breakdown,
     };
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Child-scoped feeds — mirror the equivalent student methods but
+  // pivot the identity to the parent's selected child. Each one runs
+  // `requireParentChild()` first so a crafted POST can't peek at
+  // another family's data.
+  // ────────────────────────────────────────────────────────────────
+
+  /// Mirror of student.service.myExams(), pivoted to a child.
+  async examsForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+
+    const [cohortLinks, profile, childRow] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: studentId },
+        select: { schoolId: true },
+      }),
+    ]);
+    const cohortIds = cohortLinks.map((c) => c.cohortId);
+    const grade = profile?.grade ?? null;
+    const schoolId = childRow?.schoolId ?? null;
+
+    const exams = await this.prisma.teacherExam.findMany({
+      where: {
+        published: true,
+        teacher: { ...(schoolId ? { schoolId } : {}) },
+        OR: [
+          { targetType: 'EVERYONE' },
+          { targetStudentIds: { has: studentId } },
+          ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+        ],
+      },
+      orderBy: { date: 'desc' },
+      include: { teacher: { select: { name: true } } },
+    });
+
+    const items = await Promise.all(exams.map(async (exam) => {
+      const assessment = await this.prisma.assessment.findFirst({
+        where: { examId: exam.id, cohortId: { in: [...cohortIds, ''] } },
+        select: { id: true },
+      });
+      const childGrade = assessment ? await this.prisma.gradeRecord.findFirst({
+        where: { assessmentId: assessment.id, studentId },
+        select: { grade: true },
+      }) : null;
+      return {
+        id: exam.id,
+        title: exam.title,
+        subject: exam.subject ?? null,
+        date: exam.date,
+        maxGrade: exam.maxGrade ?? 100,
+        grade: childGrade?.grade ?? null,
+        teacherName: (exam as any).teacher?.name ?? null,
+      };
+    }));
+
+    return { ok: true, items };
+  }
+
+  /// Mirror of student.service.myTeacherAssignments(), pivoted to a child.
+  async assignmentsForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+
+    const [cohortLinks, profile, childRow] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: studentId },
+        select: { schoolId: true },
+      }),
+    ]);
+    const cohortIds = cohortLinks.map((c) => c.cohortId);
+    const grade = profile?.grade ?? null;
+    const schoolId = childRow?.schoolId ?? null;
+
+    const assignments = await this.prisma.teacherAssignment.findMany({
+      where: {
+        published: true,
+        teacher: { ...(schoolId ? { schoolId } : {}) },
+        OR: [
+          { targetType: 'EVERYONE' },
+          { targetStudentIds: { has: studentId } },
+          ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+        ],
+      },
+      orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }],
+      include: { teacher: { select: { name: true } } },
+    });
+
+    const items = await Promise.all(assignments.map(async (a) => {
+      const sub = await this.prisma.teacherAssignmentSubmission.findFirst({
+        where: { assignmentId: a.id, studentId },
+        select: { id: true, submittedAt: true, grade: true },
+      });
+      return {
+        id: a.id,
+        title: a.title,
+        description: a.description ?? null,
+        subject: a.subject ?? null,
+        dueAt: a.dueAt ?? null,
+        maxGrade: a.maxGrade ?? null,
+        attachments: a.attachments,
+        teacherName: (a as any).teacher?.name ?? null,
+        submitted: !!sub,
+        submittedAt: sub?.submittedAt ?? null,
+        grade: sub?.grade ?? null,
+      };
+    }));
+
+    return { ok: true, items };
+  }
+
+  /// Mirror of student.service.myDiplomas(), pivoted to a child.
+  async diplomasForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+
+    const diplomas = await this.prisma.teacherDiploma.findMany({
+      where: { studentId },
+      orderBy: { issuedAt: 'desc' },
+      include: { teacher: { select: { name: true } } },
+    });
+
+    return {
+      ok: true,
+      diplomas: diplomas.map((d) => ({
+        id: d.id,
+        studentName: d.studentName,
+        title: d.title,
+        subject: d.subject ?? '',
+        grade: d.grade ?? '',
+        distinction: d.distinction ?? '',
+        notes: d.notes ?? '',
+        issuedAt: d.issuedAt.toISOString(),
+        issuedBy: (d as any).teacher?.name ?? null,
+        attachments: Array.isArray((d as any).attachments) ? (d as any).attachments : [],
+      })),
+    };
+  }
+
+  /// Aggregated meetings across every classroom the child is a member of.
+  /// Returns the same shape the student materials/meetings UI expects.
+  async meetingsForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+
+    const memberships = await this.prisma.classroomMember.findMany({
+      where: { studentId },
+      select: {
+        classroomId: true,
+        classroom: { select: { name: true, subject: true } },
+      },
+    });
+    const classroomIds = memberships.map((m) => m.classroomId);
+    const classroomMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
+
+    if (classroomIds.length === 0) return { ok: true, items: [] };
+
+    const meetings = await this.prisma.classroomMeeting.findMany({
+      where: { classroomId: { in: classroomIds } },
+      orderBy: [{ startsAt: 'asc' }],
+      select: {
+        id: true,
+        classroomId: true,
+        title: true,
+        link: true,
+        startsAt: true,
+        endsAt: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      ok: true,
+      items: meetings.map((m) => ({
+        ...m,
+        classroomName: classroomMap.get(m.classroomId)?.name ?? null,
+        classroomSubject: classroomMap.get(m.classroomId)?.subject ?? null,
+      })),
+    };
+  }
+
+  /// Mirror of student.classrooms.allMaterials(), pivoted to a child.
+  /// Same dedup logic across classroom / direct-target / slot-cascade.
+  async materialsForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+
+    const [profile, studentCohorts, memberships] = await Promise.all([
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true },
+      }),
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.classroomMember.findMany({
+        where: { studentId },
+        select: {
+          classroomId: true,
+          classroom: { select: { name: true, subject: true } },
+        },
+      }),
+    ]);
+    const grade = profile?.grade ?? null;
+    const cohortIds = studentCohorts.map((c) => c.cohortId);
+    const classroomIds = memberships.map((m) => m.classroomId);
+    const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
+
+    const slotWhere: any = {
+      OR: [
+        { students: { some: { studentId } } },
+        ...(cohortIds.length ? [{ cohorts: { some: { cohortId: { in: cohortIds } } } }] : []),
+        ...(grade != null ? [{ audienceGrade: grade }] : []),
+      ],
+    };
+    const slotIds = (slotWhere.OR.length
+      ? await this.prisma.scheduleSlot.findMany({ where: slotWhere, select: { id: true } })
+      : []
+    ).map((s: any) => s.id);
+
+    const [classroomMaterials, teacherMaterials, slotMaterialRows] = await Promise.all([
+      classroomIds.length
+        ? this.prisma.classroomMaterial.findMany({
+            where: { classroomId: { in: classroomIds } },
+            orderBy: { createdAt: 'desc' },
+          })
+        : [],
+      this.prisma.teacherMaterial.findMany({
+        where: {
+          published: true,
+          OR: [
+            { targetType: 'EVERYONE' },
+            { targetStudentIds: { has: studentId } },
+            ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+            ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+          ],
+        },
+        orderBy: { createdAt: 'desc' },
+        include: { teacher: { select: { name: true } } },
+      }),
+      slotIds.length
+        ? this.prisma.scheduleSlotMaterial.findMany({
+            where: { slotId: { in: slotIds } },
+            include: {
+              material: { include: { teacher: { select: { name: true } } } },
+              slot: { select: { subject: true, period: true } },
+            },
+          })
+        : [],
+    ]);
+
+    const seenTeacherMaterialIds = new Set<string>();
+    const teacherFromDirect = teacherMaterials.map((m) => {
+      seenTeacherMaterialIds.add(m.id);
+      return {
+        ...m,
+        _source: 'teacher',
+        _teacherName: (m as any).teacher?.name ?? null,
+      };
+    });
+    const teacherFromSlots = slotMaterialRows
+      .filter((r: any) => r.material && !seenTeacherMaterialIds.has(r.material.id))
+      .map((r: any) => {
+        seenTeacherMaterialIds.add(r.material.id);
+        return {
+          ...r.material,
+          _source: 'period',
+          _teacherName: r.material.teacher?.name ?? null,
+          _subject: r.material.subject ?? r.slot?.subject ?? null,
+        };
+      });
+
+    const items = [
+      ...classroomMaterials.map((m) => ({
+        ...m,
+        _source: 'classroom',
+        _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
+        _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
+      })),
+      ...teacherFromDirect,
+      ...teacherFromSlots,
+    ].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return { ok: true, items };
   }
 
   async lookup(user: any) {

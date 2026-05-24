@@ -16,6 +16,8 @@ import '../../features/lifedoc/data/exams_repository.dart';
 import '../../features/lifedoc/diplomas_screen.dart';
 import '../../features/lifedoc/meetings_screen.dart';
 import '../../features/lifedoc/notifications_provider.dart';
+import '../../features/parent/data/parent_models.dart';
+import '../../features/parent/data/parent_repository.dart';
 import '../../features/lifedoc/student_materials_screen.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/data/teacher_mobile_repository.dart';
@@ -567,12 +569,27 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
   @override
   Widget build(BuildContext context) {
     final l = widget.l;
+    final loc = GoRouterState.of(context).matchedLocation;
+    // Parents see a thin "viewing as {child}" banner on every parent
+    // route except /parent/home (home already shows the child picker
+    // prominently). The banner lets them swap children without
+    // navigating back to home.
+    final session = ref.watch(authSessionProvider);
+    final isParent = session.primaryRole == 'PARENT';
+    final showChildBanner = isParent
+        && loc.startsWith('/parent/')
+        && loc != '/parent/home';
     return Scaffold(
       extendBody: true,
       drawerEnableOpenDragGesture: !widget.hideTopBar,
       drawer: widget.hideTopBar ? null : const MainDrawer(),
       appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
-      body: widget.child,
+      body: showChildBanner
+          ? Column(children: [
+              const _ParentChildSwitcherBar(),
+              Expanded(child: widget.child),
+            ])
+          : widget.child,
       floatingActionButton: widget.buildFab(context),
       bottomNavigationBar: widget.hideBottomNav
           ? null
@@ -1388,6 +1405,122 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Thin sticky bar shown to parents at the top of every /parent/* route
+/// (except /parent/home). Renders the currently-selected child + a
+/// dropdown to switch between siblings, so the parent never has to back
+/// out to the home screen just to look at a different child's data.
+class _ParentChildSwitcherBar extends ConsumerWidget {
+  const _ParentChildSwitcherBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final childrenAsync = ref.watch(parentChildrenProvider);
+    final selectedId = ref.watch(selectedChildProvider);
+
+    return childrenAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (children) {
+        if (children.isEmpty) return const SizedBox.shrink();
+        final selected = children.firstWhere(
+          (c) => c.studentId == selectedId,
+          orElse: () => children.first,
+        );
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            border: Border(bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.visibility_rounded, size: 16, color: cs.onSurfaceVariant),
+              const SizedBox(width: 8),
+              Text(
+                'Viewing as ',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: children.length <= 1
+                      ? null
+                      : () => _openSwitcher(context, ref, children, selected.studentId),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          selected.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      if (selected.gradeLabel.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          '· ${selected.gradeLabel}',
+                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                        ),
+                      ],
+                      if (children.length > 1) ...[
+                        const SizedBox(width: 4),
+                        Icon(Icons.expand_more_rounded, size: 18, color: cs.onSurfaceVariant),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openSwitcher(
+    BuildContext context,
+    WidgetRef ref,
+    List<ParentChild> children,
+    String currentId,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      builder: (ctx) {
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
+                child: Text(
+                  'Switch child',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                ),
+              ),
+              for (final c in children)
+                RadioListTile<String>(
+                  value: c.studentId,
+                  groupValue: currentId,
+                  onChanged: (v) {
+                    if (v != null) {
+                      ref.read(selectedChildProvider.notifier).select(v);
+                    }
+                    Navigator.of(ctx).pop();
+                  },
+                  title: Text(c.name),
+                  subtitle: c.gradeLabel.isNotEmpty ? Text(c.gradeLabel) : null,
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 }

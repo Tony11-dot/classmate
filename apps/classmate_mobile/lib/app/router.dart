@@ -78,10 +78,6 @@ import '../features/admin/ui/admin_export_screen.dart';
 import '../features/admin/ui/admin_password_requests_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/parent/ui/parent_home_screen.dart';
-import '../features/parent/ui/parent_grades_screen.dart';
-import '../features/parent/ui/parent_schedule_screen.dart';
-import '../features/parent/ui/parent_attendance_screen.dart';
-import '../features/parent/ui/parent_notifications_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
@@ -633,25 +629,49 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const AdminPeopleScreen(),
           ),
           // ── Parent app ─────────────────────────────────────────────
+          // ── Parent flow ────────────────────────────────────────────
+          // All non-/home parent routes render the STUDENT screens. Each
+          // screen's data provider watches viewedStudentIdProvider —
+          // when set (which happens for any logged-in PARENT who has
+          // picked a child), the provider pivots to /parent/* endpoints
+          // server-side. Result: zero UI duplication; identical look-and-
+          // feel; parent can switch between children and the data
+          // re-fetches.
           GoRoute(
             path: '/parent/home',
             builder: (context, state) => const ParentHomeScreen(),
           ),
           GoRoute(
             path: '/parent/grades',
-            builder: (context, state) => const ParentGradesScreen(),
+            builder: (context, state) => const GradesScreen(),
           ),
           GoRoute(
             path: '/parent/schedule',
-            builder: (context, state) => const ParentScheduleScreen(),
+            builder: (context, state) => const schedule_ui.ScheduleScreen(),
           ),
           GoRoute(
             path: '/parent/attendance',
-            builder: (context, state) => const ParentAttendanceScreen(),
+            builder: (context, state) => const AttendanceScreen(),
           ),
           GoRoute(
-            path: '/parent/notifications',
-            builder: (context, state) => const ParentNotificationsScreen(),
+            path: '/parent/exams',
+            builder: (context, state) => const ExamsScreen(mode: ExamsScreenMode.examsOnly),
+          ),
+          GoRoute(
+            path: '/parent/certificates',
+            builder: (context, state) => const DiplomasScreen(),
+          ),
+          GoRoute(
+            path: '/parent/assignments',
+            builder: (context, state) => const AssignmentsScreen(),
+          ),
+          GoRoute(
+            path: '/parent/meetings',
+            builder: (context, state) => const MeetingsScreen(),
+          ),
+          GoRoute(
+            path: '/parent/materials',
+            builder: (context, state) => const StudentMaterialsScreen(),
           ),
           GoRoute(
             path: '/teacher/insights',

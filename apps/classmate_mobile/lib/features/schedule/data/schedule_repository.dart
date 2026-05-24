@@ -67,13 +67,21 @@ class ScheduleRepository {
     return [];
   }
 
-  Future<Map<String, dynamic>> getWeek(DateTime weekOf) async {
+  Future<Map<String, dynamic>> getWeek(DateTime weekOf, {String? overrideStudentId}) async {
     final ymd = _weekYmd(weekOf);
     final requestedWeek = DateTime.parse('${ymd}T00:00:00.000Z');
-    final raw = await _api.getJson(
-      '/student/schedule/week',
-      query: <String, String>{'weekOf': ymd},
-    );
+    // Parent flow pivots to /parent/schedule/week?studentId=X. The
+    // backend returns the same shape so the normalizer below works
+    // unchanged for both paths.
+    final path = overrideStudentId != null && overrideStudentId.isNotEmpty
+        ? '/parent/schedule/week'
+        : '/student/schedule/week';
+    final query = <String, String>{
+      'weekOf': ymd,
+      if (overrideStudentId != null && overrideStudentId.isNotEmpty)
+        'studentId': overrideStudentId,
+    };
+    final raw = await _api.getJson(path, query: query);
     // API wraps response as { ok, items: { weekOf, days } } — unwrap items layer.
     final payload = (raw is Map && raw['items'] is Map) ? raw['items'] as Map<String, dynamic> : raw;
     return _normalizeWeek(payload, requestedWeek);

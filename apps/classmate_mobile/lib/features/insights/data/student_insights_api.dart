@@ -17,9 +17,16 @@ class StudentInsightsApi {
 
   CMApi get _api => CMApi(token: token);
 
-  Future<UnifiedStudentInsights?> fetchUnifiedInsights() async {
+  Future<UnifiedStudentInsights?> fetchUnifiedInsights({String? overrideStudentId}) async {
     try {
-      final raw = await _api.getJson('/student/insights');
+      // Parent flow: hit /parent/insights?studentId=X instead of /student/insights.
+      // Server enforces requireParentChild before returning anything.
+      final path = overrideStudentId != null && overrideStudentId.isNotEmpty
+          ? '/parent/insights'
+          : '/student/insights';
+      final raw = await _api.getJson(path, query: overrideStudentId != null && overrideStudentId.isNotEmpty
+          ? {'studentId': overrideStudentId}
+          : null);
       if (raw is! Map) return null;
       return UnifiedStudentInsights.fromJson(Map<String, dynamic>.from(raw));
     } catch (_) {

@@ -276,47 +276,85 @@ export class MessagesService {
       !viewerRoles.includes('TEACHER') &&
       !viewerRoles.includes('ADMIN') &&
       !viewerRoles.includes('SECRETARY');
+    const isParentOnly =
+      viewerRoles.includes('PARENT') &&
+      !viewerRoles.includes('TEACHER') &&
+      !viewerRoles.includes('ADMIN') &&
+      !viewerRoles.includes('SECRETARY');
 
     // Students can only DM (a) other students same school, (b) teachers,
     // (c) secretaries, (d) their OWN parents — never other students'
-    // parents. We resolve "own parents" via the ParentChild link and
-    // then restrict the role-PARENT slice of the result to that set.
-    // For every other role (TEACHER / SECRETARY / ADMIN / PARENT viewer)
-    // the school-wide contact picker is unrestricted.
+    // parents. Parents are the mirror: they can DM (a) other parents,
+    // (b) teachers, (c) secretaries, (d) admins, and (e) their OWN
+    // children — never other people's children. Same parent-child link
+    // lookup, different direction.
     let ownParentIds: string[] = [];
+    let ownChildIds: string[] = [];
     if (isStudentOnly) {
       const links = await this.prisma.parentChild.findMany({
         where: { childId: viewerId, status: 'APPROVED' as any },
         select: { parentId: true },
       });
       ownParentIds = links.map((l) => l.parentId);
+    } else if (isParentOnly) {
+      const links = await this.prisma.parentChild.findMany({
+        where: { parentId: viewerId, status: 'APPROVED' as any },
+        select: { childId: true },
+      });
+      ownChildIds = links.map((l) => l.childId);
     }
 
-    const studentRoleFilter = isStudentOnly
-      ? {
-          OR: [
-            // Non-parents: include all (subject to school + viewer-exclude).
-            {
-              roles: {
-                some: {
-                  role: { in: ['STUDENT', 'TEACHER', 'SECRETARY', 'ADMIN'] as any },
-                },
+    let roleFilter: any = { roles: { some: {} } };
+    if (isStudentOnly) {
+      roleFilter = {
+        OR: [
+          // Non-parents: include all (subject to school + viewer-exclude).
+          {
+            roles: {
+              some: {
+                role: { in: ['STUDENT', 'TEACHER', 'SECRETARY', 'ADMIN'] as any },
               },
             },
-            // Parents: only the ones linked to this student.
-            ...(ownParentIds.length
-              ? [
-                  {
-                    AND: [
-                      { roles: { some: { role: 'PARENT' as any } } },
-                      { id: { in: ownParentIds } },
-                    ],
-                  },
-                ]
-              : []),
-          ],
-        }
-      : { roles: { some: {} } };
+          },
+          // Parents: only the ones linked to this student.
+          ...(ownParentIds.length
+            ? [
+                {
+                  AND: [
+                    { roles: { some: { role: 'PARENT' as any } } },
+                    { id: { in: ownParentIds } },
+                  ],
+                },
+              ]
+            : []),
+        ],
+      };
+    } else if (isParentOnly) {
+      roleFilter = {
+        OR: [
+          // Non-students: every parent / teacher / secretary / admin.
+          {
+            roles: {
+              some: {
+                role: { in: ['PARENT', 'TEACHER', 'SECRETARY', 'ADMIN'] as any },
+              },
+            },
+          },
+          // Students: only the parent's OWN children.
+          ...(ownChildIds.length
+            ? [
+                {
+                  AND: [
+                    { roles: { some: { role: 'STUDENT' as any } } },
+                    { id: { in: ownChildIds } },
+                  ],
+                },
+              ]
+            : []),
+        ],
+      };
+    }
+    const studentRoleFilter = roleFilter;
 
     // Fetch users in the same school (excluding viewer)
     const schoolUsers = await this.prisma.user.findMany({
@@ -843,6 +881,27 @@ export class MessagesService {
       });
       if (!link) {
         throw new ForbiddenException('Students can only message their own parents');
+      }
+    }
+
+    // Mirror rule for parents: a parent can DM a student ONLY if it's
+    // their own approved child.
+    const isParentOnly =
+      senderRoles.includes('PARENT') &&
+      !senderRoles.includes('TEACHER') &&
+      !senderRoles.includes('ADMIN') &&
+      !senderRoles.includes('SECRETARY');
+    if (isParentOnly && recipientRoles.includes('STUDENT')) {
+      const link = await this.prisma.parentChild.findFirst({
+        where: {
+          parentId: userId,
+          childId: recipientUserId,
+          status: 'APPROVED' as any,
+        },
+        select: { id: true },
+      });
+      if (!link) {
+        throw new ForbiddenException('Parents can only message their own children');
       }
     }
 

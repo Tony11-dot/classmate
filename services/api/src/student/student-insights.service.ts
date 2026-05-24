@@ -162,8 +162,13 @@ export class StudentInsightsService {
     };
   }
 
-  async getStudentInsights(user: any): Promise<StudentInsightsResponse> {
-    const studentId = String(user?.sub ?? user?.id ?? '');
+  /// `overrideStudentId` lets a verified caller (e.g. a parent who's
+  /// already passed requireParentChild()) ask for another student's
+  /// insights without impersonating them at the JWT layer.
+  async getStudentInsights(user: any, overrideStudentId?: string): Promise<StudentInsightsResponse> {
+    const studentId = overrideStudentId?.trim()
+      ? overrideStudentId.trim()
+      : String(user?.sub ?? user?.id ?? '');
 
     const profile = await this.prisma.studentProfile.findUnique({
       where: { userId: studentId },

@@ -90,6 +90,22 @@ class ParentRepository {
     }
   }
 
+  /// Generic GET wrapper for the child-scoped feeds (exams, assignments,
+  /// diplomas, meetings, materials, insights). Returns the raw JSON so
+  /// callers can hand it straight to whatever parser the equivalent
+  /// student screen already uses.
+  Future<dynamic> getChildFeed(String path, String studentId, {Map<String, String>? extraQuery}) async {
+    final api = CMApi(token: _token);
+    try {
+      return await api.getJson(path, query: {
+        'studentId': studentId,
+        ...?extraQuery,
+      });
+    } finally {
+      api.dispose();
+    }
+  }
+
   Future<Map<String, dynamic>> dashboard() async {
     final api = CMApi(token: _token);
     try {

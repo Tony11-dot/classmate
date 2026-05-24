@@ -10,6 +10,8 @@ import '../../ui/widgets/attachment_pill.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
+import '../parent/data/parent_repository.dart';
+import '../parent/data/viewed_student_context.dart';
 import '../teacher_mobile/data/teacher_mobile_repository.dart';
 
 const _assignmentStateNoDueDate = '__no_due_date__';
@@ -19,6 +21,20 @@ const _assignmentStateUpcoming = '__upcoming__';
 
 final assignmentsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
+    // Parent flow: /parent/assignments returns the flat list directly
+    // (already aggregated server-side), so we skip the per-classroom
+    // fan-out the student path does.
+    final viewedStudentId = ref.watch(viewedStudentIdProvider);
+    if (viewedStudentId != null) {
+      final raw = await ref.read(parentRepositoryProvider)
+          .getChildFeed('/parent/assignments', viewedStudentId);
+      final list = raw is Map && raw['items'] is List ? raw['items'] as List : const [];
+      return list
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList(growable: false);
+    }
+
     final repo = ref.read(classroomsRepoProvider);
     final classrooms = await ref.watch(orderedStudentClassroomsProvider.future);
 

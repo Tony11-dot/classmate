@@ -4,12 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/glass/liquid_glass_card.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
+import '../parent/data/parent_repository.dart';
+import '../parent/data/viewed_student_context.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/attachment_pill.dart';
 import '../../core/config/env.dart';
 
 final studentMaterialsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
+    final viewedStudentId = ref.watch(viewedStudentIdProvider);
+    if (viewedStudentId != null) {
+      final raw = await ref.read(parentRepositoryProvider)
+          .getChildFeed('/parent/materials', viewedStudentId);
+      final list = raw is Map && raw['items'] is List ? raw['items'] as List : const [];
+      return list.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList(growable: false);
+    }
     final repo = ref.read(classroomsRepoProvider);
     return repo.allStudentMaterials();
   },

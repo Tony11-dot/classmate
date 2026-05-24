@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../classrooms/providers/classrooms_repo_provider.dart';
+import '../../parent/data/parent_repository.dart';
+import '../../parent/data/viewed_student_context.dart';
 import '../domain/exam_models.dart';
 
 const _examsCacheTtl = Duration(minutes: 2);
@@ -15,6 +17,20 @@ final examsRepositoryProvider = Provider<StudentExamsRepository>((ref) {
 // ── Live provider — merges /student/exams (new) with /student/assessments ────
 
 final examsLiveProvider = FutureProvider<List<StudentExamItem>>((ref) async {
+  // Parent view: bypass the module-level cache (it's not keyed by
+  // student, so switching children would serve stale data) and pivot
+  // to /parent/exams?studentId=X.
+  final viewedStudentId = ref.watch(viewedStudentIdProvider);
+  if (viewedStudentId != null) {
+    final raw = await ref.read(parentRepositoryProvider)
+        .getChildFeed('/parent/exams', viewedStudentId);
+    final list = raw is Map && raw['items'] is List ? raw['items'] as List : const [];
+    return list
+        .whereType<Map>()
+        .map((m) => _mapToExamItem(Map<String, dynamic>.from(m)))
+        .toList(growable: false);
+  }
+
   final now = DateTime.now();
   if (_examsCachedAt != null &&
       _examsCachedItems != null &&

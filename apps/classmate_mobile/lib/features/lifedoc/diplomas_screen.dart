@@ -11,6 +11,8 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../parent/data/parent_repository.dart';
+import '../parent/data/viewed_student_context.dart';
 
 // Public trigger so AppShell can open the create sheet
 class _DiplomasTrigger extends Notifier<int> {
@@ -45,8 +47,15 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     setState(() { _loading = true; _error = null; });
     try {
       final List<Map<String, dynamic>> diplomas;
+      final viewedStudentId = ref.read(viewedStudentIdProvider);
       if (_isTeacher) {
         diplomas = await ref.read(teacherMobileRepositoryProvider).listDiplomas();
+      } else if (viewedStudentId != null) {
+        // Parent viewing a child's certificates → /parent/diplomas
+        final raw = await ref.read(parentRepositoryProvider)
+            .getChildFeed('/parent/diplomas', viewedStudentId);
+        final list = (raw is Map ? raw['diplomas'] : raw) as List? ?? [];
+        diplomas = list.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
       } else {
         final session = ref.read(authSessionProvider);
         final api = CMApi(token: session.token);
