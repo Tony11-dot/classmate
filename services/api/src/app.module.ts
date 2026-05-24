@@ -104,7 +104,16 @@ const seedControllers = [
     FormsModule,
     RealtimeModule,
     ...serveStatic,
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
+    // Two throttle buckets:
+    //   • default — generous global cap so a buggy client can't spam us
+    //     to death (120 req/min/IP applies to every authed route).
+    //   • auth    — strict 5 req / 15 min / IP for credential-handling
+    //     endpoints (login, register, forgot/reset password). Brute-
+    //     force defense; opted into per-route with @Throttle({ auth: … }).
+    ThrottlerModule.forRoot([
+      { name: 'default', ttl: 60_000, limit: 120 },
+      { name: 'auth', ttl: 15 * 60_000, limit: 5 },
+    ]),
     HealthModule,
     PrismaModule,
     AuthModule,

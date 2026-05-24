@@ -1,12 +1,11 @@
 import { BadRequestException, Body, ConflictException, Controller, Get, HttpException, HttpStatus, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Public } from './decorators/public.decorator';
-import { SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 
-@SkipThrottle()
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -15,6 +14,7 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('login')
   async login(@Body() body: any) {
     const identifier = String(body?.identifier ?? body?.email ?? body?.username ?? '').trim().toLowerCase();
@@ -28,6 +28,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('register')
   async register(@Body() body: any) {
     const email = String(body?.email ?? '').trim().toLowerCase();
@@ -254,6 +255,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('me/password')
   async changePassword(@Req() req: any, @Body() body: any) {
     const userId = req.user?.sub ?? req.user?.id;

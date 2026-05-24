@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_session.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/parent_models.dart';
 import '../data/parent_repository.dart';
 import 'widgets/child_picker.dart';
@@ -119,6 +120,7 @@ class _ToolsGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final selected = ref.watch(selectedChildProvider);
     final disabledMsg = !hasChild
         ? 'No child linked yet'
@@ -129,22 +131,22 @@ class _ToolsGrid extends ConsumerWidget {
     final tiles = <_ToolDef>[
       _ToolDef(
         icon: Icons.event_note_rounded,
-        label: 'Schedule',
+        label: l.navSchedule,
         route: '/parent/schedule',
       ),
       _ToolDef(
         icon: Icons.grade_rounded,
-        label: 'Grades',
+        label: l.navGrades,
         route: '/parent/grades',
       ),
       _ToolDef(
         icon: Icons.how_to_reg_rounded,
-        label: 'Attendance',
+        label: l.navAttendance,
         route: '/parent/attendance',
       ),
       _ToolDef(
         icon: Icons.notifications_rounded,
-        label: 'Notifications',
+        label: l.navNotifications,
         route: '/parent/notifications',
         ignoreSelection: true, // notifications aggregate across children
       ),

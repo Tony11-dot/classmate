@@ -24,6 +24,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Throttle } from '@nestjs/throttler';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { mkdirSync } from 'fs';
@@ -68,10 +69,16 @@ function ensureUploadsDir() {
 
 function checkSecret(provided: string | undefined): void {
   const expected = process.env.SETUP_SECRET;
-  if (!expected || expected.length < 4)
-    throw new ForbiddenException('SETUP_SECRET is not configured on the server. Add it to your environment variables.');
-  if (provided !== expected)
-    throw new ForbiddenException('Wrong setup secret. Check your SETUP_SECRET environment variable.');
+  // Both "missing" and "wrong" return the same generic error so a
+  // probing attacker can't tell whether SETUP_SECRET is unset on the
+  // server (info disclosure) vs whether they guessed wrong.
+  // Operators see the missing-secret case in server logs instead.
+  if (!expected || expected.length < 16) {
+    // eslint-disable-next-line no-console
+    console.error('[setup] SETUP_SECRET missing or too short on this server — all /cms mutating routes will 403.');
+    throw new ForbiddenException('Forbidden');
+  }
+  if (provided !== expected) throw new ForbiddenException('Forbidden');
 }
 
 @Controller('cms')
@@ -92,8 +99,12 @@ export class SetupController {
   }
 
   // ── Logo upload ────────────────────────────────────────────────────────────
+  // All mutating /cms routes are throttled on the strict 'auth' bucket
+  // (5 attempts per 15 min per IP) so even a leaked-secret scenario
+  // can't be brute-forced from one box.
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('upload')
   @HttpCode(200)
   @UseInterceptors(FileInterceptor('file', {
@@ -130,6 +141,7 @@ export class SetupController {
   // ── Create school ──────────────────────────────────────────────────────────
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('school')
   @HttpCode(200)
   async createSchool(
@@ -380,6 +392,7 @@ export class SetupController {
   // ── Update school ──────────────────────────────────────────────────────────
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Patch('schools/:id')
   async updateSchool(
     @Headers('x-setup-secret') secret: string,
@@ -416,6 +429,7 @@ export class SetupController {
   // ── Delete one school (cascade) ────────────────────────────────────────────
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Delete('schools/:id')
   async deleteSchool(@Headers('x-setup-secret') secret: string, @Param('id') id: string) {
     checkSecret(secret);
@@ -443,6 +457,7 @@ export class SetupController {
   // ── Request reset-all confirmation code (sends SMS) ────────────────────────
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('reset-all/request-code')
   @HttpCode(200)
   async requestResetCode(@Headers('x-setup-secret') secret: string) {
@@ -508,6 +523,7 @@ export class SetupController {
   // ── Execute the reset (validates code + RESET text + nukes DB) ─────────────
 
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('reset-all/execute')
   @HttpCode(200)
   async executeReset(

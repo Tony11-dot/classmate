@@ -26,11 +26,23 @@ docker-compose.yml.tmp
 scripts/tmp/
 routes.txt
 
-# env files
+# env files — NEVER commit anything with secrets in it. The only
+# files in this set that may be checked in are the *.example
+# templates (which contain placeholder values, no real credentials).
+.env
+.env.*
+!.env.example
+!.env.production.example
 services/api/.env*
 !services/api/.env.example
-
 !services/api/.env.production.example
+env/.env.*
+!env/.env.example
+
+# Also keep secrets out of the mobile + admin web tree.
+apps/**/.env
+apps/**/.env.*
+!apps/**/.env.example
 
 # --- Local scratch / backups ---
 _archive/

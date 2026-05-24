@@ -16,6 +16,7 @@ import '../../features/lifedoc/data/exams_repository.dart';
 import '../../features/lifedoc/diplomas_screen.dart';
 import '../../features/lifedoc/meetings_screen.dart';
 import '../../features/lifedoc/notifications_provider.dart';
+import '../../features/insights/providers/insights_providers.dart';
 import '../../features/parent/data/parent_models.dart';
 import '../../features/parent/data/parent_repository.dart';
 import '../../features/lifedoc/student_materials_screen.dart';
@@ -469,6 +470,10 @@ class AppShell extends ConsumerWidget {
       switch (event.type) {
         case 'grade_updated':
           ref.invalidate(examsLiveProvider);
+          // Insights powers the Grades AND Attendance screens (student
+          // + parent). Without this the grade tile stayed stale until
+          // the user pulled-to-refresh.
+          ref.invalidate(unifiedStudentInsightsProvider);
           break;
         case 'assignment_created':
           ref.invalidate(assignmentsFeedProvider);

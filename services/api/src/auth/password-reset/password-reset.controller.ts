@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Res } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 
 import { Public } from '../decorators/public.decorator';
@@ -15,6 +16,7 @@ export class PasswordResetController {
    * identifier matched a real account — prevents account enumeration.
    */
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('auth/forgot-password')
   @HttpCode(200)
   async forgot(@Body() body: { identifier?: string; channel?: string }) {
@@ -43,6 +45,7 @@ export class PasswordResetController {
    * reset-password HTML page (below) or any other client.
    */
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('auth/reset-password')
   @HttpCode(200)
   async reset(@Body() body: { token?: string; newPassword?: string }) {
@@ -73,6 +76,7 @@ export class PasswordResetController {
    * surfaced to the admin.
    */
   @Public()
+  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('auth/password-request/submit')
   @HttpCode(200)
   async submitRequest(@Body() body: { identifier?: string; adminId?: string; desiredPassword?: string; phone?: string }) {
