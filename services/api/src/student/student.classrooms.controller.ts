@@ -19,6 +19,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
+import { NotificationsHubService } from '../notifications/notifications-hub.service';
 import * as bcrypt from 'bcrypt';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -42,6 +43,7 @@ export class StudentClassroomsController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
+    private readonly hub: NotificationsHubService,
   ) {}
 
   private uid(req: any) { return String(req?.user?.sub ?? req?.user?.id ?? ''); }
@@ -548,6 +550,27 @@ export class StudentClassroomsController {
         data: classroomIds.map((classroomId) => ({ classroomId, studentId })),
         skipDuplicates: true,
       });
+      // Student already knows they joined (they triggered it), but
+      // their parents likely don't. The hub's fanOutToParents path
+      // covers this: a `CLASSROOM_INVITE` notification with the
+      // student as direct recipient also creates a ParentNotification
+      // for each linked parent.
+      try {
+        const classrooms = await this.prisma.classroom.findMany({
+          where: { id: { in: classroomIds } },
+          select: { name: true },
+        });
+        const names = classrooms.map((c) => c.name).filter(Boolean);
+        await this.hub.notify({
+          recipientUserIds: [studentId],
+          type: 'CLASSROOM_INVITE',
+          title: names.length === 1
+            ? `Joined ${names[0]}`
+            : `Joined ${names.length} classes`,
+          body: names.join(', ').slice(0, 200),
+          data: { cohortId: matchedCohortId, classroomIds },
+        });
+      } catch (e) { console.error('[student] join notify failed:', e); }
     }
 
     return { ok: true, cohortId: matchedCohortId, classroomIds };

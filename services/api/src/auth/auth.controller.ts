@@ -5,6 +5,7 @@ import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -257,15 +258,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('me/password')
-  async changePassword(@Req() req: any, @Body() body: any) {
+  async changePassword(@Req() req: any, @Body() body: ChangePasswordDto) {
     const userId = req.user?.sub ?? req.user?.id;
     if (!userId) throw new BadRequestException('Not authenticated');
 
-    const currentPassword = String(body?.currentPassword ?? '').trim();
-    const newPassword = String(body?.newPassword ?? '').trim();
-
-    if (!currentPassword || !newPassword) throw new BadRequestException('Both currentPassword and newPassword are required');
-    if (newPassword.length < 8) throw new BadRequestException('New password must be at least 8 characters');
+    // class-validator + global ValidationPipe (whitelist + forbidNonWhitelisted)
+    // has already enforced length + type. We just trim defensively.
+    const currentPassword = body.currentPassword.trim();
+    const newPassword = body.newPassword.trim();
 
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { password: true } });
     if (!user) throw new BadRequestException('User not found');

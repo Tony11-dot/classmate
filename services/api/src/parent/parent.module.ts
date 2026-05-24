@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ParentNotificationsEvents } from './parent-notifications.events';
 import { PrismaModule } from '../prisma/prisma.module';
 import { ScheduleModule } from '../schedule/schedule.module';
 
@@ -10,15 +9,14 @@ import { ParentNotificationsController } from './parent-notifications.controller
 import { ParentNotificationsService } from './parent-notifications.service';
 import { ParentAttendanceController } from './parent.attendance.controller';
 import { StudentModule } from '../student/student.module';
+import { ParentNotificationsEventsModule } from './parent-notifications-events.module';
 
 @Module({
-  imports: [PrismaModule, ScheduleModule, StudentModule],
+  imports: [PrismaModule, ScheduleModule, StudentModule, ParentNotificationsEventsModule],
   controllers: [ParentController, ParentNotificationsController,
     ParentAttendanceController,
   ],
-  providers: [ParentService, ParentNotificationsService,
-    ParentNotificationsEvents
-  ],
+  providers: [ParentService, ParentNotificationsService],
   exports: [ParentService, ParentNotificationsService],
 })
 export class ParentModule {}

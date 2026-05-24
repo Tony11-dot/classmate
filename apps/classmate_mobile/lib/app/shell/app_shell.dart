@@ -487,6 +487,11 @@ class AppShell extends ConsumerWidget {
         case 'notification':
           ref.invalidate(notificationInboxProvider);
           ref.invalidate(unreadNotificationsCountProvider);
+          // Parent SSE bridges all parent-specific events into the
+          // shared 'notification' type — refresh the parent inbox too.
+          if (isParent) {
+            ref.invalidate(parentNotificationsProvider);
+          }
           break;
         case 'schedule_updated':
           // Student's schedule was updated by admin — invalidate schedule cache

@@ -3,6 +3,8 @@ import { BadRequestException, ForbiddenException, Injectable, HttpException, Htt
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
 import { RealtimeService } from '../realtime/realtime.service';
+import { NotificationsHubService } from '../notifications/notifications-hub.service';
+import { ParentNotificationsEvents } from '../parent/parent-notifications.events';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
@@ -116,7 +118,33 @@ export class TeacherService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
+    private readonly hub: NotificationsHubService,
+    private readonly parentEvents: ParentNotificationsEvents,
   ) {}
+
+  /// Resolve a teacher-level audience (the targetType + targetStudentIds
+  /// + targetCohortIds + targetGrades fields that almost every teacher
+  /// create endpoint shares) into the de-duped list of student userIds
+  /// it should notify. Wraps the hub's audience expander with the
+  /// teacher's schoolId so EVERYONE resolves to "everyone in this school".
+  private async _audienceUserIds(
+    user: any,
+    record: {
+      targetType?: string | null;
+      targetStudentIds?: string[];
+      targetCohortIds?: string[];
+      targetGrades?: number[];
+    },
+  ): Promise<string[]> {
+    const schoolId = (user as any)?.schoolId ?? null;
+    return this.hub.expandAudience({
+      schoolId,
+      targetType: record.targetType ?? null,
+      targetStudentIds: record.targetStudentIds ?? [],
+      targetCohortIds: record.targetCohortIds ?? [],
+      targetGrades: record.targetGrades ?? [],
+    });
+  }
 
   private ensureTeacher(user: any) {
     if (!hasAnyRole(user, ['TEACHER','ADMIN']))
@@ -494,11 +522,34 @@ export class TeacherService {
                 cohortId: session.cohortId,
                 date: session.date.toISOString(),
                 period: session.period,
-                
+
               },
             })),
           });
+          // Existing inline path only creates ParentNotification rows
+          // — it never poked the SSE bus, so the parent's
+          // /parent/notifications/stream stayed silent until next poll.
+          // Ping them here so their bell badge updates in real time.
+          for (const t of targets) {
+            this.parentEvents.emit({ type: 'notification.created', parentId: t.parentId });
+          }
         }
+      }
+
+      // Also notify the STUDENT themselves so the attendance hit shows
+      // up in their own /notifications inbox. fanOutToParents: false
+      // because the explicit ParentNotification path above already
+      // handled parents.
+      if (__newStatus === 'ABSENT' || __newStatus === 'LATE') {
+        await this.hub.notify({
+          recipientUserIds: [record.studentId],
+          type: 'ATTENDANCE_ALERT',
+          title: __newStatus === 'ABSENT' ? 'You were marked absent' : 'You were marked late',
+          body: `Period ${session.period} · ${session.date.toISOString().slice(0, 10)}`,
+          data: { sessionId: record.sessionId, status: __newStatus },
+          severity: 'warning',
+          fanOutToParents: false,
+        });
       }
     } catch (_e) {
       // don't break teacher flow on notification failures
@@ -621,7 +672,7 @@ export class TeacherService {
 
             if (!targets.length) {
               /* no-op */
-            } else
+            } else {
               await this.prisma.parentNotification.createMany({
                 data: targets.map((p) => ({
                   parentId: p.parentId,
@@ -635,11 +686,29 @@ export class TeacherService {
                     cohortId: session.cohortId,
                     date: session.date.toISOString(),
                     period: session.period,
-                    
+
                   },
                 })),
               });
+              for (const t of targets) {
+                this.parentEvents.emit({ type: 'notification.created', parentId: t.parentId });
+              }
+            }
           }
+        }
+
+        // Notify the student themselves (the parents path above
+        // handles parents — no need to fan out).
+        if (__newStatus === 'ABSENT' || __newStatus === 'LATE') {
+          await this.hub.notify({
+            recipientUserIds: [__upserted.studentId],
+            type: 'ATTENDANCE_ALERT',
+            title: __newStatus === 'ABSENT' ? 'You were marked absent' : 'You were marked late',
+            body: `Period ${session.period} · ${session.date.toISOString().slice(0, 10)}`,
+            data: { sessionId: __upserted.sessionId, status: __newStatus },
+            severity: 'warning',
+            fanOutToParents: false,
+          });
         }
       } catch (_e) {
         // don't break teacher flow on notification failures
@@ -1013,7 +1082,26 @@ export class TeacherService {
                 },
               })),
             });
+            for (const p of parents) {
+              this.parentEvents.emit({ type: 'notification.created', parentId: p.parentId });
+            }
           }
+
+          // Also notify the student themselves in their /notifications
+          // inbox. Hub handles persistence + SSE; fanOutToParents:false
+          // because the explicit ParentNotification path above already
+          // covered parents.
+          await this.hub.notify({
+            recipientUserIds: [__studentId],
+            type: 'GRADE_POSTED',
+            title: 'New grade posted',
+            body: `You got ${__upserted.grade}`,
+            data: {
+              grade: __upserted.grade,
+              assessmentId: __assessmentId,
+            },
+            fanOutToParents: false,
+          });
         } catch (_e) {
           // don't break teacher flow on notification failures
         }
@@ -1343,6 +1431,21 @@ export class TeacherService {
       data: schoolStudentIds.map((sid) => ({ classroomId, studentId: sid })),
       skipDuplicates: true,
     });
+
+    try {
+      const classroom = await this.prisma.classroom.findUnique({
+        where: { id: classroomId },
+        select: { name: true, subject: true },
+      });
+      const subject = classroom?.subject ?? classroom?.name ?? 'a class';
+      await this.hub.notify({
+        recipientUserIds: schoolStudentIds,
+        type: 'CLASSROOM_INVITE',
+        title: `Added to ${subject}`,
+        body: `You're now a member of ${classroom?.name ?? 'a new classroom'}.`,
+        data: { classroomId },
+      });
+    } catch (e) { console.error('[teacher] classroom-add notify failed:', e); }
 
     return { ok: true, added: schoolStudentIds.length };
   }
@@ -2123,6 +2226,20 @@ export class TeacherService {
           : [],
       },
     });
+    if (form.published) {
+      try {
+        const recipients = await this._audienceUserIds(user, form);
+        if (recipients.length) {
+          await this.hub.notify({
+            recipientUserIds: recipients,
+            type: 'NEW_FORM',
+            title: `New form: ${form.title}`,
+            body: (form.description ?? form.subject ?? '').slice(0, 200),
+            data: { formId: form.id },
+          });
+        }
+      } catch (e) { console.error('[teacher] form notify failed:', e); }
+    }
     return { ok: true, form: { id: form.id } };
   }
 
@@ -2232,8 +2349,18 @@ export class TeacherService {
         attachments: Array.isArray(body.attachments) ? body.attachments : [],
       } as any,
     });
-    // Notify student in real-time
-    if (body.studentId) this.realtime.emitToUser(String(body.studentId), { type: 'notification', userId: String(body.studentId) });
+    // Persist + push notification (student + parents) via the hub.
+    if (body.studentId) {
+      try {
+        await this.hub.notify({
+          recipientUserIds: [String(body.studentId)],
+          type: 'NEW_DIPLOMA',
+          title: `You earned a certificate: ${diploma.title}`,
+          body: [diploma.subject, diploma.distinction, diploma.notes].filter(Boolean).join(' · ').slice(0, 200),
+          data: { diplomaId: diploma.id },
+        });
+      } catch (e) { console.error('[teacher] diploma notify failed:', e); }
+    }
     return { ok: true, diploma: { id: diploma.id } };
   }
 
@@ -2353,6 +2480,22 @@ export class TeacherService {
     // Emit to explicitly targeted students
     if (a.published && a.targetStudentIds.length) {
       this.realtime.emitToUsers(a.targetStudentIds, { type: 'assignment_created', targetUserIds: a.targetStudentIds });
+    }
+    // Persist + push notifications via the hub. Covers students AND
+    // their parents in one call.
+    if (a.published) {
+      try {
+        const recipients = await this._audienceUserIds(user, a);
+        if (recipients.length) {
+          await this.hub.notify({
+            recipientUserIds: recipients,
+            type: 'NEW_ASSIGNMENT',
+            title: `New assignment: ${title}`,
+            body: a.subject ? `${a.subject} · ${a.description ?? ''}`.slice(0, 200) : (a.description ?? '').slice(0, 200),
+            data: { assignmentId: a.id, classroomId },
+          });
+        }
+      } catch (e) { console.error('[teacher] assignment notify failed:', e); }
     }
     return { ok: true, assignment: a };
   }
@@ -2522,6 +2665,20 @@ export class TeacherService {
           teacherMaterialId: m.id,
         },
       }).catch(() => {});
+    }
+    if (m.published) {
+      try {
+        const recipients = await this._audienceUserIds(user, m);
+        if (recipients.length) {
+          await this.hub.notify({
+            recipientUserIds: recipients,
+            type: 'NEW_MATERIAL',
+            title: `New material: ${title}`,
+            body: (m.subject ?? m.description ?? '').slice(0, 200),
+            data: { materialId: m.id, classroomId },
+          });
+        }
+      } catch (e) { console.error('[teacher] material notify failed:', e); }
     }
     return { ok: true, material: m };
   }
@@ -3006,6 +3163,18 @@ export class TeacherService {
         },
       }).catch(() => {});
     }
+    try {
+      const recipients = await this._audienceUserIds(user, m);
+      if (recipients.length) {
+        await this.hub.notify({
+          recipientUserIds: recipients,
+          type: 'NEW_MEETING',
+          title: `New meeting: ${title}`,
+          body: `Starts ${startsAt.toISOString()}`,
+          data: { meetingId: m.id, classroomId },
+        });
+      }
+    } catch (e) { console.error('[teacher] meeting notify failed:', e); }
     return { ok: true, meeting: m };
   }
 
@@ -3082,6 +3251,20 @@ export class TeacherService {
           : [],
       },
     });
+    if (e.published) {
+      try {
+        const recipients = await this._audienceUserIds(user, e);
+        if (recipients.length) {
+          await this.hub.notify({
+            recipientUserIds: recipients,
+            type: 'NEW_EXAM',
+            title: `New exam: ${title}`,
+            body: e.subject ? `${e.subject} · ${e.date.toISOString().slice(0, 10)}` : e.date.toISOString().slice(0, 10),
+            data: { examId: e.id },
+          });
+        }
+      } catch (err) { console.error('[teacher] exam notify failed:', err); }
+    }
     return { ok: true, exam: e };
   }
 

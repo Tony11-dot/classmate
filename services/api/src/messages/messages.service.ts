@@ -23,6 +23,7 @@ import { DeleteMessageDto } from './dto/delete-message.dto';
 import { ForwardMessageDto } from './dto/forward-message.dto';
 import { ReactMessageDto } from './dto/react-message.dto';
 import { RealtimeService } from '../realtime/realtime.service';
+import { NotificationsHubService } from '../notifications/notifications-hub.service';
 
 type AppUser = {
   id?: string;
@@ -39,6 +40,7 @@ export class MessagesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
+    private readonly hub: NotificationsHubService,
   ) {}
 
   private viewerId(user: AppUser): string {
@@ -1353,16 +1355,43 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
     });
 
-    // Push real-time event to all thread participants except sender
+    // Push real-time event + persistent notification to every other
+    // participant. We send a fan-out of `notification` events too so
+    // their bell-icon badge bumps even if they're not on the thread
+    // screen at that moment.
     try {
       const participants = await this.prisma.dmParticipant.findMany({
         where: { threadId, userId: { not: userId } },
         select: { userId: true },
       });
-      this.realtime.emitToUsers(
-        participants.map((p) => p.userId),
-        { type: 'dm_message', threadId },
-      );
+      const peerIds = participants.map((p) => p.userId);
+      this.realtime.emitToUsers(peerIds, { type: 'dm_message', threadId });
+
+      if (peerIds.length > 0) {
+        const senderName = this.displayNameOf((await this.userMapForIds([userId])).get(userId));
+        const preview = kind === DmMessageKind.TEXT
+          ? (text ?? '').slice(0, 120)
+          : kind === DmMessageKind.IMAGE
+            ? '📷 Photo'
+            : kind === DmMessageKind.VOICE
+              ? '🎤 Voice message'
+              : kind === DmMessageKind.VIDEO
+                ? '🎥 Video'
+                : '📎 Attachment';
+        // fanOutToParents: false — a parent DM'd directly is the
+        // direct recipient. If a STUDENT happens to be the peer, we
+        // do want their parents notified, but that's handled inside
+        // the hub: it fan-outs only when the recipient is a student
+        // (via ParentChild lookup). The flag here is only "should the
+        // hub even attempt fan-out" — keep it ON.
+        await this.hub.notify({
+          recipientUserIds: peerIds,
+          type: 'NEW_MESSAGE',
+          title: `${senderName} sent you a message`,
+          body: preview,
+          data: { threadId, messageId: created.id },
+        });
+      }
     } catch (_) {}
 
     const users = await this.userMapForIds([userId]);

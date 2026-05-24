@@ -61,6 +61,14 @@ class _RealtimeListenerState extends ConsumerState<RealtimeListener> {
 
     if (token.isEmpty) return;
 
+    // PARENT users need a second SSE channel — /parent/notifications
+    // pushes parent-specific events that don't go through the main
+    // /realtime stream. enableParentStream() is idempotent and a no-op
+    // for other roles.
+    if (session.primaryRole == 'PARENT') {
+      RealtimeService.instance.enableParentStream();
+    }
+
     RealtimeService.instance.connect(token);
     _eventSub = RealtimeService.instance.events.listen((event) {
       if (!mounted) return;

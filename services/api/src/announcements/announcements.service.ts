@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
 import { RealtimeService } from '../realtime/realtime.service';
+import { NotificationsHubService } from '../notifications/notifications-hub.service';
 
 function parseDateish(input?: string): Date | null {
   if (!input) return null;
@@ -22,6 +23,7 @@ export class AnnouncementsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
+    private readonly hub: NotificationsHubService,
   ) {}
 
   private ensureCanPost(user: any) {
@@ -98,21 +100,98 @@ export class AnnouncementsService {
       },
     });
 
-    // Emit real-time notification to explicitly targeted users only.
-    // For broadcast announcements (targets=[]) the feed is role-filtered server-side,
-    // so all connected users will pick it up on their next poll/refresh.
+    // Expand the targets into a concrete list of recipient userIds and
+    // hand the dispatch over to the hub — it owns the Notification
+    // persistence, SSE push, and parent fan-out.
     try {
-      const targetUserIds: string[] = [];
-      if (created.targets?.length) {
-        for (const t of created.targets) {
-          if (t.userId) targetUserIds.push(t.userId);
-        }
+      const recipientIds = await this.resolveAudienceUserIds(user, created.targets ?? [], !created.targets?.length);
+      if (recipientIds.length > 0) {
+        await this.hub.notify({
+          recipientUserIds: recipientIds,
+          type: 'ANNOUNCEMENT',
+          title: title,
+          body: text.slice(0, 200),
+          data: { announcementId: created.id },
+        });
       }
-      if (targetUserIds.length) {
-        this.realtime.emitToUsers(targetUserIds, { type: 'notification', userId: '' });
-      }
-    } catch {}
+    } catch (e) {
+      console.error('[announcements] notify dispatch failed:', e);
+    }
     return { ok: true, announcement: created };
+  }
+
+  /// Convert the saved AnnouncementTarget rows into the actual list of
+  /// userIds the announcement reaches. Empty targets + isBroadcast =
+  /// every user in the school.
+  private async resolveAudienceUserIds(
+    user: any,
+    targets: Array<{
+      userId?: string | null;
+      role?: string | null;
+      grade?: number | null;
+      cohortId?: string | null;
+    }>,
+    isBroadcast: boolean,
+  ): Promise<string[]> {
+    const schoolId = (user as any)?.schoolId ?? null;
+    const result = new Set<string>();
+
+    if (isBroadcast) {
+      if (!schoolId) return [];
+      const rows = await this.prisma.user.findMany({
+        where: { schoolId, id: { not: user.id } },
+        select: { id: true },
+      });
+      rows.forEach((r) => result.add(r.id));
+      return Array.from(result);
+    }
+
+    const directIds = new Set<string>();
+    const roles = new Set<string>();
+    const cohortIds = new Set<string>();
+    const grades = new Set<number>();
+    for (const t of targets) {
+      if (t.userId) directIds.add(t.userId);
+      if (t.role) roles.add(String(t.role).toUpperCase());
+      if (t.cohortId) cohortIds.add(t.cohortId);
+      if (typeof t.grade === 'number') grades.add(t.grade);
+    }
+
+    directIds.forEach((id) => result.add(id));
+
+    if (roles.size > 0 && schoolId) {
+      const rows = await this.prisma.user.findMany({
+        where: {
+          schoolId,
+          roles: { some: { role: { in: Array.from(roles) as any } } },
+        },
+        select: { id: true },
+      });
+      rows.forEach((r) => result.add(r.id));
+    }
+
+    if (cohortIds.size > 0) {
+      const rows = await this.prisma.studentCohort.findMany({
+        where: { cohortId: { in: Array.from(cohortIds) } },
+        select: { studentId: true },
+      });
+      rows.forEach((r) => result.add(r.studentId));
+    }
+
+    if (grades.size > 0 && schoolId) {
+      const rows = await this.prisma.user.findMany({
+        where: {
+          schoolId,
+          roles: { some: { role: 'STUDENT' as any } },
+          studentProfile: { grade: { in: Array.from(grades) } },
+        },
+        select: { id: true },
+      });
+      rows.forEach((r) => r.id && result.add(r.id));
+    }
+
+    result.delete(user.id);
+    return Array.from(result);
   }
 
   async feed(user: any, opts: { take: number; skip: number }) {
