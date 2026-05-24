@@ -197,6 +197,7 @@ class AppShell extends ConsumerWidget {
     '/notifications',
     '/messages',
     '/profile',
+    '/plans',
     '/settings',
     '/about',
     '/support',
@@ -211,15 +212,19 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule',
     '/admin/settings',
     '/admin/periods',
+    '/admin/password-requests',
     '/admin/export',
     '/admin/',
     '/secretary/students',
+    '/secretary/people',
+    '/secretary/schedule',
     '/secretary/',
     '/messages',
     '/tutor',
     '/announcements',
     '/notifications',
     '/profile',
+    '/plans',
     '/settings',
     '/about',
     '/support',
@@ -244,6 +249,30 @@ class AppShell extends ConsumerWidget {
     '/materials',
     '/saved-questions',
     '/profile',
+    '/plans',
+    '/settings',
+    '/about',
+    '/support',
+  ];
+
+  /// Parent gets its own prefix list because the routes are namespaced
+  /// under /parent/*. Order matters — most-specific first.
+  static const _parentPrefixes = <String>[
+    '/parent/home',
+    '/parent/schedule',
+    '/parent/grades',
+    '/parent/attendance',
+    '/parent/exams',
+    '/parent/certificates',
+    '/parent/assignments',
+    '/parent/meetings',
+    '/parent/materials',
+    '/parent/notifications',
+    '/messages',
+    '/announcements',
+    '/notifications',
+    '/profile',
+    '/plans',
     '/settings',
     '/about',
     '/support',
@@ -258,15 +287,19 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule' => l.adminSettingsBellSchedule,
     '/admin/settings' => l.adminSettingsTitle,
     '/admin/periods' => l.adminSettingsPeriodDefaults,
+    '/admin/password-requests' => 'Password Requests',
     '/admin/export' => 'Export Data',
     '/admin/' => l.roleAdmin,
     '/secretary/students' => l.adminStudents,
+    '/secretary/people' => l.navPeople,
+    '/secretary/schedule' => l.adminScheduleTitle,
     '/secretary/' => l.roleSecretary,
     '/messages' => l.titleMessages,
     '/tutor' => l.titleNova,
     '/announcements' => l.navAnnouncements,
     '/notifications' => l.navNotifications,
     '/profile' => l.navProfile,
+    '/plans' => 'NOVA Plans',
     '/settings' => l.navSettings,
     '/about' => 'About',
     '/support' => 'Support',
@@ -296,6 +329,7 @@ class AppShell extends ConsumerWidget {
     '/notifications' => l.navNotifications,
     '/messages' => l.titleMessages,
     '/profile' => l.navProfile,
+    '/plans' => 'NOVA Plans',
     '/settings' => l.navSettings,
     '/about' => 'About',
     '/support' => 'Support',
@@ -321,19 +355,48 @@ class AppShell extends ConsumerWidget {
     '/materials' => 'Materials',
     '/saved-questions' => l.navSavedQuestions,
     '/profile' => l.navProfile,
+    '/plans' => 'NOVA Plans',
     '/settings' => l.navSettings,
     '/about' => 'About',
     '/support' => 'Support',
     _ => l.titleSchedule,
   };
 
-  String _pageTitle(BuildContext context, String loc, bool isTeacherLike, bool isAdminLike) {
+  String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    '/parent/home' => l.navHome,
+    '/parent/schedule' => l.navSchedule,
+    '/parent/grades' => l.navGrades,
+    '/parent/attendance' => l.navAttendance,
+    '/parent/exams' => l.navExams,
+    '/parent/certificates' => l.navDiplomas,
+    '/parent/assignments' => l.navAssignments,
+    '/parent/meetings' => l.navMeetings,
+    '/parent/materials' => 'Materials',
+    '/parent/notifications' => l.navNotifications,
+    '/messages' => l.titleMessages,
+    '/announcements' => l.navAnnouncements,
+    '/notifications' => l.navNotifications,
+    '/profile' => l.navProfile,
+    '/plans' => 'NOVA Plans',
+    '/settings' => l.navSettings,
+    '/about' => 'About',
+    '/support' => 'Support',
+    _ => l.navHome,
+  };
+
+  String _pageTitle(BuildContext context, String loc, bool isTeacherLike, bool isAdminLike, {bool isParent = false}) {
     final l = AppLocalizations.of(context)!;
     if (isAdminLike) {
       for (final p in _adminPrefixes) {
         if (loc.startsWith(p)) return _adminTitle(l, p);
       }
       return 'Admin';
+    }
+    if (isParent) {
+      for (final p in _parentPrefixes) {
+        if (loc.startsWith(p)) return _parentTitle(l, p);
+      }
+      return l.navHome;
     }
     final prefixes = isTeacherLike ? _teacherPrefixes : _studentPrefixes;
     for (final p in prefixes) {
@@ -462,7 +525,7 @@ class AppShell extends ConsumerWidget {
         : _hideBottomNav(loc, isTeacherLike, isAdminLike, isAdmin);
     final hideTopBar = _hideTopBarForRoute(loc);
 
-    final pageTitle = _pageTitle(context, loc, isTeacherLike, isAdminLike);
+    final pageTitle = _pageTitle(context, loc, isTeacherLike, isAdminLike, isParent: isParent);
 
     // Global real-time event handler — invalidates providers when SSE events arrive
     ref.listen(realtimeEventProvider, (_, event) {

@@ -19,11 +19,11 @@ class PlansScreen extends ConsumerWidget {
     final catalogAsync = ref.watch(plansCatalogProvider);
     final balanceAsync = ref.watch(tokenBalanceProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NOVA Plans'),
-      ),
-      body: RefreshIndicator(
+    // No local Scaffold/AppBar — the shell wraps every route with its
+    // top-bar pill which already shows "NOVA Plans" (see _pageTitle()
+    // in app_shell.dart). Returning a bare RefreshIndicator keeps the
+    // pill from being doubled.
+    return RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(plansCatalogProvider);
           ref.invalidate(tokenBalanceProvider);
@@ -84,8 +84,7 @@ class PlansScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
