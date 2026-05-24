@@ -122,6 +122,22 @@ class TeacherMobileRepository {
         .toList(growable: false);
   }
 
+  /// Parents at the school + each parent's approved children. Powers the
+  /// announcement audience picker's "individual parents" section so an
+  /// author can target Maria (mother of Sarah) without broadcasting to
+  /// every parent in the school.
+  Future<List<TeacherParent>> fetchAllParents() async {
+    try {
+      final raw = await _api.getJson('/teacher/school-parents');
+      final map = _asMap(raw);
+      return _asList(map['parents'])
+          .map((item) => TeacherParent.fromJson(_asMap(item)))
+          .toList(growable: false);
+    } catch (_) {
+      return const <TeacherParent>[];
+    }
+  }
+
   Future<TeacherJoinCode> createJoinCode(String cohortId) async {
     final raw = await _api.postJson(
       '/teacher/cohorts/join-code',
@@ -1405,6 +1421,71 @@ class TeacherStudent {
   final String studentId;
   final String name;
   final String email;
+}
+
+class TeacherParentChild {
+  const TeacherParentChild({
+    required this.studentId,
+    required this.name,
+    this.grade,
+    this.cohortName = '',
+  });
+
+  factory TeacherParentChild.fromJson(Map<String, dynamic> json) {
+    return TeacherParentChild(
+      studentId: _asString(json['studentId']),
+      name: _asString(json['name']),
+      grade: json['grade'] == null ? null : _asInt(json['grade']),
+      cohortName: _asString(json['cohortName']),
+    );
+  }
+
+  final String studentId;
+  final String name;
+  final int? grade;
+  final String cohortName;
+
+  String get summary {
+    if (grade != null && cohortName.isNotEmpty) return 'Grade $grade · $cohortName';
+    if (grade != null) return 'Grade $grade';
+    if (cohortName.isNotEmpty) return cohortName;
+    return '';
+  }
+}
+
+class TeacherParent {
+  const TeacherParent({
+    required this.parentId,
+    required this.name,
+    required this.email,
+    this.children = const [],
+  });
+
+  factory TeacherParent.fromJson(Map<String, dynamic> json) {
+    final rawChildren = json['children'];
+    final children = rawChildren is List
+        ? rawChildren
+            .whereType<Map>()
+            .map((m) => TeacherParentChild.fromJson(Map<String, dynamic>.from(m)))
+            .toList(growable: false)
+        : const <TeacherParentChild>[];
+    return TeacherParent(
+      parentId: _asString(json['parentId']),
+      name: _asString(json['name']),
+      email: _asString(json['email']),
+      children: children,
+    );
+  }
+
+  final String parentId;
+  final String name;
+  final String email;
+  final List<TeacherParentChild> children;
+
+  String get childrenSummary {
+    if (children.isEmpty) return '';
+    return children.map((c) => c.name).join(', ');
+  }
 }
 
 class TeacherJoinCode {

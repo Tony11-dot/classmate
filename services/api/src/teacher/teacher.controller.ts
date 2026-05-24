@@ -73,6 +73,11 @@ export class TeacherController {
     return this.teacher.schoolStudents(req.user);
   }
 
+  @Get('school-parents')
+  schoolParents(@Req() req: any) {
+    return this.teacher.schoolParents(req.user);
+  }
+
   @Get('cohorts')
   teacherCohorts(@Req() req: any) {
     return this.teacher.teacherCohorts(req.user);

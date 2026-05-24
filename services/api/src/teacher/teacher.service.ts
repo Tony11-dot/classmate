@@ -690,6 +690,58 @@ export class TeacherService {
     };
   }
 
+  /// Same shape as schoolStudents but for PARENT users — each parent is
+  /// returned with the list of children linked via APPROVED ParentChild.
+  /// Powers the announcement audience picker so authors can target an
+  /// individual parent (with their kids' names shown inline for context)
+  /// instead of broadcasting to every parent in the school.
+  async schoolParents(user: any) {
+    this.ensureTeacher(user);
+    const schoolId = user.schoolId ?? null;
+    const parents = await this.prisma.user.findMany({
+      where: {
+        ...(schoolId ? { schoolId } : {}),
+        roles: { some: { role: 'PARENT' } },
+      },
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        email: true,
+        parentLinks: {
+          where: { status: 'APPROVED' as any },
+          select: {
+            child: {
+              select: {
+                id: true,
+                name: true,
+                displayName: true,
+                studentProfile: {
+                  select: { cohort: { select: { name: true, grade: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+    return {
+      ok: true,
+      parents: parents.map((p) => ({
+        parentId: p.id,
+        name: p.displayName ?? p.name ?? p.email,
+        email: p.email,
+        children: p.parentLinks.map((l) => ({
+          studentId: l.child.id,
+          name: l.child.displayName ?? l.child.name,
+          grade: l.child.studentProfile?.cohort?.grade ?? null,
+          cohortName: l.child.studentProfile?.cohort?.name ?? '',
+        })),
+      })),
+    };
+  }
+
   async listAttendanceSessions(user: any, query: { from?: string; to?: string }) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;

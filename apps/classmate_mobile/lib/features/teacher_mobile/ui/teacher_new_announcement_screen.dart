@@ -42,10 +42,12 @@ class _TeacherNewAnnouncementScreenState
   // ── Audience ──────────────────────────────────────────────────────────────
   final Set<String> _selectedRoles = {};        // e.g. {'STUDENT', 'PARENT'}
   final Set<String> _selectedStudentIds = {};   // individual userId targets
+  final Set<String> _selectedParentIds = {};    // individual parent userId targets
   final Set<String> _selectedCohortIds = {};    // cohort targets
 
   // loaded once
   List<TeacherStudentWithLevel> _allStudents = [];
+  List<TeacherParent> _allParents = [];
   List<({String id, String name, int grade})> _cohorts = [];
   final Map<String, List<String>> _cohortMemberCache = {};
   bool _loadingPeople = false;
@@ -92,11 +94,13 @@ class _TeacherNewAnnouncementScreenState
       final results = await Future.wait([
         repo.fetchAllStudents(),
         repo.fetchCohortsForPicker(),
+        repo.fetchAllParents(),
       ]);
       if (!mounted) return;
       final cohortMaps = results[1] as List<Map<String, dynamic>>;
       setState(() {
         _allStudents = results[0] as List<TeacherStudentWithLevel>;
+        _allParents = results[2] as List<TeacherParent>;
         _cohorts = cohortMaps.map((c) => (
           id: (c['id'] ?? '').toString(),
           name: (c['name'] ?? '').toString(),
@@ -111,7 +115,9 @@ class _TeacherNewAnnouncementScreenState
     }
   }
 
-  // Build the targets array for the API
+  // Build the targets array for the API. Parents and students both end
+  // up as `{userId: …}` entries — server doesn't care about the role
+  // distinction here, it just delivers to the listed user IDs.
   List<Map<String, dynamic>> get _targets {
     final targets = <Map<String, dynamic>>[];
     for (final r in _selectedRoles) {
@@ -119,6 +125,9 @@ class _TeacherNewAnnouncementScreenState
     }
     for (final uid in _selectedStudentIds) {
       targets.add({'userId': uid});
+    }
+    for (final pid in _selectedParentIds) {
+      targets.add({'userId': pid});
     }
     for (final cid in _selectedCohortIds) {
       targets.add({'cohortId': cid});
@@ -244,6 +253,27 @@ class _TeacherNewAnnouncementScreenState
     } catch (_) {}
   }
 
+  Future<void> _openParentPicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (ctx) => _ParentPickerSheet(
+        parents: _allParents,
+        selected: Set.from(_selectedParentIds),
+        onToggle: (id) => setState(() {
+          if (_selectedParentIds.contains(id)) {
+            _selectedParentIds.remove(id);
+          } else {
+            _selectedParentIds.add(id);
+          }
+        }),
+      ),
+    );
+  }
+
   Future<void> _openCohortPicker() async {
     await showModalBottomSheet<void>(
       context: context,
@@ -283,6 +313,7 @@ class _TeacherNewAnnouncementScreenState
 
     final hasAudience = _selectedRoles.isNotEmpty ||
         _selectedStudentIds.isNotEmpty ||
+        _selectedParentIds.isNotEmpty ||
         _selectedCohortIds.isNotEmpty;
 
     return Scaffold(
@@ -438,7 +469,7 @@ class _TeacherNewAnnouncementScreenState
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          '${_selectedRoles.length + _selectedStudentIds.length + _selectedCohortIds.length} selected',
+                          '${_selectedRoles.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length} selected',
                           style: TextStyle(
                               color: cs.onPrimaryContainer,
                               fontSize: 11,
@@ -521,6 +552,47 @@ class _TeacherNewAnnouncementScreenState
                               label: s.name,
                               onRemove: () => setState(
                                   () => _selectedStudentIds.remove(s.studentId)),
+                            ))
+                        .toList(),
+                  ),
+                ],
+                const SizedBox(height: 16),
+
+                // Parents DDL trigger — opens a sheet listing every
+                // parent with their children expandable as a subtitle
+                // so the author can target one family ("Maria — Sarah,
+                // Liam") without broadcasting to every parent.
+                Text(
+                  'Individual parents',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 8),
+                _loadingPeople
+                    ? const SizedBox.shrink()
+                    : _PickerTrigger(
+                        icon: Icons.family_restroom_rounded,
+                        label: _selectedParentIds.isEmpty
+                            ? 'Tap to select parents…'
+                            : '${_selectedParentIds.length} parent${_selectedParentIds.length == 1 ? "" : "s"} selected',
+                        hasSelection: _selectedParentIds.isNotEmpty,
+                        onTap: _openParentPicker,
+                      ),
+                if (_selectedParentIds.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: _allParents
+                        .where((p) => _selectedParentIds.contains(p.parentId))
+                        .map((p) => _MiniChip(
+                              label: p.children.isEmpty
+                                  ? p.name
+                                  : '${p.name} · ${p.children.length}',
+                              onRemove: () => setState(
+                                  () => _selectedParentIds.remove(p.parentId)),
                             ))
                         .toList(),
                   ),
@@ -813,6 +885,283 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Parent picker — same modal pattern as _PersonPickerSheet but each
+// parent row has an expandable subtitle showing their children (with
+// grade). Lets the author target Maria (mother of Sarah) by tapping
+// her row, OR expand to see who's in her family before deciding.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ParentPickerSheet extends StatefulWidget {
+  const _ParentPickerSheet({
+    required this.parents,
+    required this.selected,
+    required this.onToggle,
+  });
+
+  final List<TeacherParent> parents;
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+
+  @override
+  State<_ParentPickerSheet> createState() => _ParentPickerSheetState();
+}
+
+class _ParentPickerSheetState extends State<_ParentPickerSheet> {
+  final _searchCtrl = TextEditingController();
+  String _query = '';
+  late Set<String> _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = Set<String>.from(widget.selected);
+    _searchCtrl.addListener(() {
+      final v = _searchCtrl.text.trim().toLowerCase();
+      if (v != _query) setState(() => _query = v);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  List<TeacherParent> get _filtered {
+    if (_query.isEmpty) return widget.parents;
+    return widget.parents.where((p) {
+      if (p.name.toLowerCase().contains(_query)) return true;
+      if (p.email.toLowerCase().contains(_query)) return true;
+      for (final c in p.children) {
+        if (c.name.toLowerCase().contains(_query)) return true;
+      }
+      return false;
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.85,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      builder: (_, scroll) => Column(
+        children: [
+          const SizedBox(height: 10),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: cs.outlineVariant,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const Text(
+                  'Select parents',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Done'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: 'Search parents or children…',
+                prefixIcon: const Icon(Icons.search_rounded),
+                isDense: true,
+                filled: true,
+                fillColor: cs.surfaceContainerLow,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: cs.outlineVariant),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: cs.outlineVariant),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: widget.parents.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('No parents found at this school.'),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: scroll,
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
+                    itemCount: _filtered.length,
+                    itemBuilder: (ctx, i) {
+                      final p = _filtered[i];
+                      final isSelected = _selected.contains(p.parentId);
+                      return _ParentTile(
+                        parent: p,
+                        selected: isSelected,
+                        onToggle: () {
+                          setState(() {
+                            if (isSelected) {
+                              _selected.remove(p.parentId);
+                            } else {
+                              _selected.add(p.parentId);
+                            }
+                          });
+                          widget.onToggle(p.parentId);
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ParentTile extends StatefulWidget {
+  const _ParentTile({
+    required this.parent,
+    required this.selected,
+    required this.onToggle,
+  });
+
+  final TeacherParent parent;
+  final bool selected;
+  final VoidCallback onToggle;
+
+  @override
+  State<_ParentTile> createState() => _ParentTileState();
+}
+
+class _ParentTileState extends State<_ParentTile> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final hasChildren = widget.parent.children.isNotEmpty;
+    final childCount = widget.parent.children.length;
+    final summary = hasChildren
+        ? '$childCount ${childCount == 1 ? "child" : "children"} — ${widget.parent.childrenSummary}'
+        : 'No linked children';
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: widget.selected ? cs.primaryContainer : cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: widget.selected ? cs.primary : cs.outlineVariant,
+          width: widget.selected ? 1.4 : 0.8,
+        ),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: widget.onToggle,
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: widget.selected,
+                    onChanged: (_) => widget.onToggle(),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.parent.name.isEmpty
+                              ? widget.parent.email
+                              : widget.parent.name,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          summary,
+                          maxLines: _expanded ? 99 : 1,
+                          overflow: _expanded ? null : TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (hasChildren)
+                    IconButton(
+                      icon: Icon(
+                        _expanded
+                            ? Icons.expand_less_rounded
+                            : Icons.expand_more_rounded,
+                      ),
+                      onPressed: () => setState(() => _expanded = !_expanded),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (_expanded && hasChildren) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(54, 8, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widget.parent.children
+                    .map((c) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 3),
+                          child: Row(
+                            children: [
+                              Icon(Icons.school_rounded, size: 14, color: cs.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  c.name,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              if (c.summary.isNotEmpty)
+                                Text(
+                                  c.summary,
+                                  style: TextStyle(
+                                    color: cs.onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
         ],
       ),
     );

@@ -1763,13 +1763,36 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     });
     if (!thread) throw new BadRequestException('Thread not found');
 
-    // Fetch user info for each participant separately (DmParticipant has no user relation)
+    // Fetch user info for each participant separately (DmParticipant has no user relation).
+    // Also pull the user's primary platform role (STUDENT / TEACHER / etc.)
+    // so the client can render a RoleBadge next to each member — distinct
+    // from the per-thread `role` ('ADMIN' / 'MEMBER') used for group admin
+    // status.
     const userIds = (thread as any).participants.map((p: any) => p.userId as string);
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
-      select: { id: true, name: true, displayName: true, nameEn: true, email: true } as any,
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        nameEn: true,
+        email: true,
+        roles: { select: { role: true } },
+      } as any,
     });
-    const userMap = new Map(users.map((u) => [u.id, u]));
+    const rolePriority: Record<string, number> = {
+      TEACHER: 5,
+      ADMIN: 4,
+      SECRETARY: 3,
+      PARENT: 2,
+      STUDENT: 1,
+    };
+    const userMap = new Map(users.map((u) => {
+      const primary = ((u as any).roles ?? [])
+        .map((r: any) => String(r.role).toUpperCase())
+        .sort((a: string, b: string) => (rolePriority[b] ?? 0) - (rolePriority[a] ?? 0))[0] ?? 'STUDENT';
+      return [u.id, { ...u, _primaryRole: primary }];
+    }));
 
     return {
       ok: true,
@@ -1783,11 +1806,12 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
         myRole: meRaw.role,
         isMuted: meRaw.isMuted,
         members: (thread as any).participants.map((p: any) => {
-          const u = userMap.get(p.userId);
+          const u: any = userMap.get(p.userId);
           return {
             userId: p.userId,
             name: u?.displayName ?? u?.name ?? u?.email ?? '',
             role: p.role,
+            userRole: u?._primaryRole ?? 'STUDENT',
             joinedAt: p.createdAt,
             isMuted: false,
           };

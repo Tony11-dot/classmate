@@ -12,6 +12,7 @@ import '../../chat_core/policies/chat_action_policy.dart';
 import '../../chat_core/ui/chat_thread_view.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
+import '../../../common/widgets/role_badge.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../users/ui/user_profile_sheet.dart';
 
@@ -832,14 +833,35 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                                   final mId = (m['userId'] ?? '').toString();
                                   final mName = (m['name'] ?? '').toString();
                                   final mRole = (m['role'] ?? 'MEMBER').toString();
+                                  final mUserRole = (m['userRole'] ?? '').toString();
                                   final mIsAdmin = mRole == 'ADMIN';
                                   return ListTile(
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                    onTap: mId.isEmpty
+                                        ? null
+                                        : () {
+                                            Navigator.of(context).pop();
+                                            UserProfileSheet.show(context, mId);
+                                          },
                                     leading: CircleAvatar(
                                       backgroundColor: mIsAdmin ? cs.primary : cs.primaryContainer,
                                       child: Text(_initials(mName), style: TextStyle(color: mIsAdmin ? cs.onPrimary : cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 13)),
                                     ),
-                                    title: Text(mName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                    title: Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            mName,
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (mUserRole.isNotEmpty) ...[
+                                          const SizedBox(width: 6),
+                                          RoleBadge(role: mUserRole, compact: true),
+                                        ],
+                                      ],
+                                    ),
                                     subtitle: mIsAdmin ? Text(l.msgAdmin, style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700, fontSize: 11)) : null,
                                     trailing: isAdmin ? PopupMenuButton<String>(
                                       icon: const Icon(Icons.more_vert_rounded),
