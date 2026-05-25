@@ -372,7 +372,7 @@ class _FeaturesList extends StatelessWidget {
     final theme = Theme.of(context);
     final features = const [
       'Use tokens across NOVA chat and Practice sessions',
-      'Voice messages and image analysis included',
+      'Image analysis and file upload included',
       'Tokens reset at the start of each month',
       'Cancel anytime — no commitment',
     ];

@@ -191,6 +191,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         return '/teacher/schedule';
       }
       if (loggedIn && !session.isTeacherLike && isTeacherRoute) return '/schedule';
+
+      // Parent: bounce any student-only / teacher-only / admin-only route
+      // back to /parent/home. Allowed: /parent/* + shared (messages,
+      // tutor, announcements, notifications, profile, plans, etc.).
+      if (loggedIn && isParent && !isAuthRoute) {
+        final isParentRoute = loc.startsWith('/parent/');
+        final parentSafe = isParentRoute || isCommonSafe || loc == '/plans';
+        if (!parentSafe) return '/parent/home';
+      }
       return null;
     },
     initialLocation: '/schedule',

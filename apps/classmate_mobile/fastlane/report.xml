@@ -5,12 +5,12 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: cd .. &amp;&amp; env -u GEM_HOME -u GEM_PATH -u BUNDLE_GEMFILE -u BUNDLE_BIN_PATH -u RUBYOPT -u RUBYLIB     flutter build ipa --release     --dart-define=CM_API_BASE_URL=https://pacific-enchantment-production-7a80.up.railway.app     --export-options-plist=ios/ExportOptions.plist" time="155.359972">
+      <testcase classname="fastlane.lanes" name="0: cd .. &amp;&amp; env -u GEM_HOME -u GEM_PATH -u BUNDLE_GEMFILE -u BUNDLE_BIN_PATH -u RUBYOPT -u RUBYLIB     flutter build ipa --release     --dart-define=CM_API_BASE_URL=https://pacific-enchantment-production-7a80.up.railway.app     --export-options-plist=ios/ExportOptions.plist" time="152.65961">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: upload_to_testflight" time="336.082229">
+      <testcase classname="fastlane.lanes" name="1: upload_to_testflight" time="373.922962">
         
       </testcase>
     

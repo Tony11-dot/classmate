@@ -6,6 +6,7 @@ import 'package:classmate_mobile/core/auth/auth_controller.dart';
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
 import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
+import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -483,32 +484,30 @@ Widget _schoolLogoPlaceholder(ColorScheme cs) {
   );
 }
 
-/// Compact dropdown shown under the parent's name in the drawer header.
-/// Lets parents switch between linked children without leaving the drawer.
-/// Writes to [selectedChildProvider]; every parent-scoped data provider
-/// watches that, so the entire app re-fetches against the new child on
-/// switch.
+/// Liquid-glass-styled child selector under the parent's name in the
+/// drawer header. Tap → opens the shared bottom-sheet picker; selecting
+/// writes to [selectedChildProvider] so every parent-scoped data
+/// provider re-fetches against the new child.
 class _ParentChildDropdown extends ConsumerWidget {
   const _ParentChildDropdown();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final async = ref.watch(parentChildrenProvider);
     final selectedId = ref.watch(selectedChildProvider);
 
     return async.when(
-      // Skeleton placeholder while children load — keeps the header
-      // height stable so the nav list doesn't jump.
-      loading: () => _buildShell(cs,
+      loading: () => _shell(cs, isDark,
           child: Text('Loading children…',
               style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant))),
-      error: (_, __) => _buildShell(cs,
+      error: (err, _) => _shell(cs, isDark,
           child: Text('Could not load children',
               style: TextStyle(fontSize: 12, color: cs.error))),
       data: (children) {
         if (children.isEmpty) {
-          return _buildShell(cs,
+          return _shell(cs, isDark,
               child: Text('No children linked',
                   style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)));
         }
@@ -517,104 +516,60 @@ class _ParentChildDropdown extends ConsumerWidget {
           orElse: () => children.first,
         );
 
-        return _buildShell(
-          cs,
-          padding: EdgeInsets.zero,
-          child: PopupMenuButton<String>(
-            tooltip: 'Switch child',
-            position: PopupMenuPosition.under,
-            initialValue: selected.studentId,
-            offset: const Offset(0, 6),
-            onSelected: (id) =>
-                ref.read(selectedChildProvider.notifier).select(id),
-            itemBuilder: (ctx) => [
-              for (final c in children)
-                PopupMenuItem<String>(
-                  value: c.studentId,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: c.studentId == selected.studentId
-                            ? cs.primary
-                            : cs.surfaceContainerHighest,
-                        child: Text(
-                          _initials(c.name),
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: c.studentId == selected.studentId
-                                ? cs.onPrimary
-                                : cs.onSurface,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              c.name.isEmpty ? '—' : c.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: c.studentId == selected.studentId
-                                    ? FontWeight.w800
-                                    : FontWeight.w600,
-                              ),
-                            ),
-                            if (c.gradeLabel.isNotEmpty)
-                              Text(
-                                c.gradeLabel,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (c.studentId == selected.studentId)
-                        Icon(Icons.check_rounded,
-                            size: 18, color: cs.primary),
-                    ],
+        return InkWell(
+          onTap: () async {
+            final picked = await showLiquidGlassPicker<String>(
+              context: context,
+              title: 'Switch child',
+              currentValue: selected.studentId,
+              items: [
+                for (final c in children)
+                  LiquidGlassDropdownItem(
+                    value: c.studentId,
+                    label: c.gradeLabel.isNotEmpty
+                        ? '${c.name.isEmpty ? '—' : c.name} • ${c.gradeLabel}'
+                        : (c.name.isEmpty ? '—' : c.name),
+                    icon: Icons.child_care_rounded,
+                  ),
+              ],
+            );
+            if (picked != null && picked != selected.studentId) {
+              ref.read(selectedChildProvider.notifier).select(picked);
+            }
+          },
+          borderRadius: BorderRadius.circular(14),
+          child: _shell(
+            cs,
+            isDark,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 11,
+                  backgroundColor: cs.primary,
+                  child: Text(
+                    _initials(selected.name),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: cs.onPrimary,
+                    ),
                   ),
                 ),
-            ],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 11,
-                    backgroundColor: cs.primary,
-                    child: Text(
-                      _initials(selected.name),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: cs.onPrimary,
-                      ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    selected.name.isEmpty ? '—' : selected.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      selected.name.isEmpty ? '—' : selected.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.keyboard_arrow_down_rounded,
-                      size: 18, color: cs.onSurfaceVariant),
-                ],
-              ),
+                ),
+                Icon(Icons.keyboard_arrow_down_rounded,
+                    size: 18, color: cs.onSurfaceVariant),
+              ],
             ),
           ),
         );
@@ -622,16 +577,23 @@ class _ParentChildDropdown extends ConsumerWidget {
     );
   }
 
-  Widget _buildShell(ColorScheme cs,
-      {required Widget child,
-      EdgeInsets padding =
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 6)}) {
+  /// The liquid-glass shell — same gradient + border style as
+  /// [LiquidGlassDropdown] so the drawer trigger matches the rest of the
+  /// app's pickers.
+  Widget _shell(ColorScheme cs, bool isDark, {required Widget child}) {
     return Container(
-      padding: padding,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cs.outlineVariant),
+        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.surface.withValues(alpha: isDark ? 0.76 : 0.88),
+            cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
+          ],
+        ),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
       ),
       child: child,
     );

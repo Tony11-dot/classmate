@@ -1,5 +1,8 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/billing_repository.dart';
 import '../data/plan_models.dart';
@@ -38,6 +41,14 @@ class PlansScreen extends ConsumerWidget {
             children: [
               // ── Balance hero ─────────────────────────────────────────
               _BalanceCard(balanceAsync: balanceAsync),
+
+              // ── Manage subscription (only when on a paid tier) ───────
+              if (balanceAsync.asData?.value.activeTier != null &&
+                  balanceAsync.asData!.value.activeTier != 'FREE') ...[
+                const SizedBox(height: 12),
+                _ManageSubscriptionButton(cs: cs),
+              ],
+
               const SizedBox(height: 24),
 
               // ── Token explainer ──────────────────────────────────────
@@ -193,6 +204,57 @@ class _BalanceCard extends StatelessWidget {
   }
 }
 
+/// Opens the OS-managed subscription settings page so the user can
+/// cancel, downgrade, or change billing details. Apple and Google both
+/// require this be handled in their own UI — apps are forbidden from
+/// cancelling subs themselves.
+class _ManageSubscriptionButton extends StatelessWidget {
+  const _ManageSubscriptionButton({required this.cs});
+  final ColorScheme cs;
+
+  Future<void> _open(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    Uri uri;
+    if (Platform.isIOS) {
+      uri = Uri.parse('itms-apps://apps.apple.com/account/subscriptions');
+    } else if (Platform.isAndroid) {
+      uri = Uri.parse(
+        'https://play.google.com/store/account/subscriptions'
+        '?package=com.tonyaboud.classmate',
+      );
+    } else {
+      uri = Uri.parse('https://apps.apple.com/account/subscriptions');
+    }
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Could not open subscription settings.')),
+        );
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Failed to open: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _open(context),
+        icon: const Icon(Icons.settings_rounded, size: 18),
+        label: const Text('Manage or cancel subscription'),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          side: BorderSide(color: cs.outlineVariant),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+}
+
 class _TokenExplainer extends StatelessWidget {
   const _TokenExplainer({required this.theme, required this.cs});
   final ThemeData theme;
@@ -227,7 +289,7 @@ class _TokenExplainer extends StatelessWidget {
             'Tokens are how AI counts its work.\n'
             '• A short question ≈ 2,000 tokens\n'
             '• A long explanation or practice session ≈ 5,000–10,000\n'
-            '• Voice messages cost a bit more\n\n'
+            '• Image analysis costs a bit more\n\n'
             'Your monthly tokens reset on the 1st. Top-up tokens never expire.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.onSurfaceVariant,
