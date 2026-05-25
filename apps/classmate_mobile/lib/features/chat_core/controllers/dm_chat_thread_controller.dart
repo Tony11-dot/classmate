@@ -933,6 +933,15 @@ class DmChatThreadController extends ChatThreadController {
   }
 
   @override
+  Future<void> reportMessage(String messageId, {String? reason}) async {
+    await _repo.reportMessage(
+      threadId: _threadId,
+      messageId: messageId,
+      reason: reason,
+    );
+  }
+
+  @override
   Future<void> markRead() async {
     await _repo.markThreadRead(threadId: _threadId);
     // Refresh the inbox so unread badge drops immediately.

@@ -33,17 +33,17 @@ enum AssignmentTargetType {
 }
 
 model School {
-  id        String   @id @default(uuid())
-  name      String
-  logoUrl   String?
-  minGrade  Int      @default(5)
-  maxGrade  Int      @default(12)
+  id                String   @id @default(uuid())
+  name              String
+  logoUrl           String?
+  minGrade          Int      @default(5)
+  maxGrade          Int      @default(12)
   /// Year of the most recent Sept-1 grade bump that succeeded for this
   /// school.  The bump runs at most once per year per school and is idempotent
   /// — see GradeBumpService.
   lastGradeBumpYear Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   users          User[]
   forms          SchoolForm[]
@@ -72,11 +72,11 @@ model User {
   status      AccountStatus @default(AUTH_ONLY)
 
   // Multi-language name support — any combination can be filled
-  nameEn   String? // Full name in English (first + last)
-  nameAr   String? // Full name in Arabic (اسم بالعربي)
-  nameHe   String? // Full name in Hebrew (שם בעברית)
-  nameFr   String? // Full name in French
-  nameRu   String? // Full name in Russian
+  nameEn String? // Full name in English (first + last)
+  nameAr String? // Full name in Arabic (اسم بالعربي)
+  nameHe String? // Full name in Hebrew (שם בעברית)
+  nameFr String? // Full name in French
+  nameRu String? // Full name in Russian
 
   // Which language name to show in the app ('en'|'ar'|'he'|'fr'|'ru')
   // Defaults to null → falls back to displayName / name
@@ -103,10 +103,10 @@ model User {
   parentLinks ParentChild[] @relation("ParentLinks")
   childLinks  ParentChild[] @relation("ChildLinks")
 
-  scheduleSlots       ScheduleSlot[]       @relation("TeacherSlots")
-  scheduleOverrides   ScheduleOverride[]   @relation("TeacherOverrides")
-  ownedClassrooms     Classroom[]          @relation("TeacherClassrooms")
-  classroomMemberships ClassroomMember[]   @relation("ClassroomMemberships")
+  scheduleSlots        ScheduleSlot[]     @relation("TeacherSlots")
+  scheduleOverrides    ScheduleOverride[] @relation("TeacherOverrides")
+  ownedClassrooms      Classroom[]        @relation("TeacherClassrooms")
+  classroomMemberships ClassroomMember[]  @relation("ClassroomMemberships")
 
   createdAt             DateTime               @default(now())
   assessments           Assessment[]
@@ -126,27 +126,30 @@ model User {
   messageThreadMemberships MessageThreadMember[]
   sentMessages             Message[]
   messageReactions         MessageReaction[]
-  messageRequestDecisions  MessageThread[]       @relation("MessageRequestDecisionUser")
+  messageRequestDecisions  MessageThread[]        @relation("MessageRequestDecisionUser")
   messageThreads           MessageThread[]
   assignmentSubmissions    AssignmentSubmission[]
-  teacherForms             SchoolForm[]      @relation("TeacherForms")
-  issuedDiplomas           TeacherDiploma[]  @relation("IssuedDiplomas")
+  teacherForms             SchoolForm[]           @relation("TeacherForms")
+  issuedDiplomas           TeacherDiploma[]       @relation("IssuedDiplomas")
 
-  teacherAssignments             TeacherAssignment[]           @relation("TeacherAssignments")
-  teacherAssignmentSubmissions   TeacherAssignmentSubmission[] @relation("AssignmentStudent")
-  teacherExams                   TeacherExam[]                 @relation("TeacherExams")
-  teacherMaterials               TeacherMaterial[]             @relation("TeacherMaterials")
-  teacherMeetings                TeacherMeeting[]              @relation("TeacherMeetings")
+  teacherAssignments           TeacherAssignment[]           @relation("TeacherAssignments")
+  teacherAssignmentSubmissions TeacherAssignmentSubmission[] @relation("AssignmentStudent")
+  teacherExams                 TeacherExam[]                 @relation("TeacherExams")
+  teacherMaterials             TeacherMaterial[]             @relation("TeacherMaterials")
+  teacherMeetings              TeacherMeeting[]              @relation("TeacherMeetings")
 
   /// Password-change requests this user has filed on themselves.
-  passwordChangeRequests         PasswordChangeRequest[]       @relation("PasswordChangeRequestUser")
+  passwordChangeRequests  PasswordChangeRequest[] @relation("PasswordChangeRequestUser")
   /// Pending password-change requests waiting for THIS user (an admin) to approve.
-  passwordChangeApprovals        PasswordChangeRequest[]       @relation("PasswordChangeRequestAdmin")
+  passwordChangeApprovals PasswordChangeRequest[] @relation("PasswordChangeRequestAdmin")
 
   // Billing relations — NOVA / Practice token economy.
-  subscriptions  UserSubscription[]
-  tokenBalance   TokenBalance?
-  tokenUsages    TokenUsage[]
+  subscriptions UserSubscription[]
+  tokenBalance  TokenBalance?
+  tokenUsages   TokenUsage[]
+
+  dmMessageReportsFiled DmMessageReport[] @relation("DmMessageReportsFiled")
+  dmMessagesSent        DmMessage[]       @relation("DmMessagesSent")
 }
 
 model UserRole {
@@ -169,7 +172,7 @@ model UserRole {
 /// `target` is whatever value the code was sent TO (current value for both
 /// kinds — the "send code to OLD when changing" guarantee).
 model VerificationCode {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
   /// 'email' | 'sms' — selects which channel sent the code.
   channel   String
@@ -202,10 +205,10 @@ model VerificationCode {
 /// by /auth/reset-password. Only the SHA-256 hash of the raw token is stored;
 /// the raw value is sent to the user via email or SMS exactly once.
 model PasswordResetToken {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
   /// SHA-256 hex digest of the raw token.
-  tokenHash String   @unique
+  tokenHash String    @unique
   /// 'email' | 'sms' — for analytics/debug. Not used to validate.
   channel   String
   /// Hard expiry; rows past this are ignored even if unused.
@@ -213,7 +216,7 @@ model PasswordResetToken {
   /// Stamped the moment the token is redeemed. Tokens with usedAt != null cannot
   /// be redeemed again.
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId])
   @@index([expiresAt])
@@ -224,26 +227,26 @@ model PasswordResetToken {
 /// approves or rejects without ever seeing the raw password. On approve the
 /// stored bcrypt hash becomes the user's new password.
 model PasswordChangeRequest {
-  id           String   @id @default(uuid())
+  id             String    @id @default(uuid())
   /// The user whose password should change.
-  userId       String
+  userId         String
   /// The admin chosen to approve the request.
-  toAdminId    String
+  toAdminId      String
   /// Bcrypt hash of the user's desired password. Admin never sees plaintext.
-  passwordHash String
+  passwordHash   String
   /// Phone number the requester typed when filing the request — surfaced to
   /// the admin so they can call/text it to verify identity before approving.
   /// Optional: blank when the requester didn't provide one.
   requesterPhone String?
   /// 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
-  status       String   @default("PENDING")
+  status         String    @default("PENDING")
   /// 24h from creation; expired rows can be auto-cleaned later.
-  expiresAt    DateTime
-  createdAt    DateTime  @default(now())
+  expiresAt      DateTime
+  createdAt      DateTime  @default(now())
   /// Stamped when approve/reject happens.
-  resolvedAt   DateTime?
+  resolvedAt     DateTime?
 
-  user    User @relation("PasswordChangeRequestUser",  fields: [userId],    references: [id], onDelete: Cascade)
+  user    User @relation("PasswordChangeRequestUser", fields: [userId], references: [id], onDelete: Cascade)
   toAdmin User @relation("PasswordChangeRequestAdmin", fields: [toAdminId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -291,7 +294,7 @@ model StudentCohort {
   joinedAt  DateTime @default(now())
 
   student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  cohort  Cohort         @relation(fields: [cohortId],  references: [id],     onDelete: Cascade)
+  cohort  Cohort         @relation(fields: [cohortId], references: [id], onDelete: Cascade)
 
   @@id([studentId, cohortId])
   @@index([cohortId])
@@ -299,14 +302,14 @@ model StudentCohort {
 }
 
 model StudentProfile {
-  userId       String @id
+  userId       String  @id
   cohortId     String?
-  grade        Int?   // primary grade level for this student
-  englishLevel Int    @default(0)
-  mathLevel    Int    @default(0)
+  grade        Int? // primary grade level for this student
+  englishLevel Int     @default(0)
+  mathLevel    Int     @default(0)
 
-  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cohort            Cohort?              @relation(fields: [cohortId], references: [id])
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cohort            Cohort?               @relation(fields: [cohortId], references: [id])
   cohorts           StudentCohort[]
   studentMajors     StudentMajor[]
   attendanceRecords AttendanceRecord[]
@@ -384,33 +387,33 @@ enum MessageDeleteMode {
 }
 
 model ScheduleSlot {
-  id             String  @id @default(uuid())
-  schoolId       String?
-  dayOfWeek      Int
-  period         Int
-  teacherId      String?
-  classroomId    String?
-  subject        String?
+  id                String   @id @default(uuid())
+  schoolId          String?
+  dayOfWeek         Int
+  period            Int
+  teacherId         String?
+  classroomId       String?
+  subject           String?
   /// Optional per-period color override (`#RRGGBB`).  Falls back to the
   /// subject's color, then to a deterministic palette hue if both are null.
-  color          String?
+  color             String?
   /// When the admin picked "By Grade N" in Add Period, this is N.  The
   /// resolved audience is still stored as cohortIds (so attendance/lookup
   /// queries don't change), but this field records the original intent so
   /// the grid label can read "Grade N" and edit mode restores the picker.
-  audienceGrade  Int?
-  startTime      String? // override school default, e.g. "08:00"
-  endTime        String? // override school default, e.g. "08:45"
-  frequencyWeeks Int     @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc. 0=one-off (anchored to startDate).
-  startDate      String? // ISO date "YYYY-MM-DD" of the first occurrence for bi-weekly etc.
+  audienceGrade     Int?
+  startTime         String? // override school default, e.g. "08:00"
+  endTime           String? // override school default, e.g. "08:45"
+  frequencyWeeks    Int      @default(1) // 1=every week, 2=bi-weekly, 4=monthly, etc. 0=one-off (anchored to startDate).
+  startDate         String? // ISO date "YYYY-MM-DD" of the first occurrence for bi-weekly etc.
   /// Optional free-text caption shown above "subject · teacher" on the
   /// schedule tile.  Lets admins annotate a slot (e.g. "Quiz day",
   /// "Lab session") without renaming the subject.
-  caption        String?
+  caption           String?
   /// YYYY-MM-DD strings. The slot skips rendering on these dates, used when
   /// a Once override replaces this recurring slot just for the override
   /// date.  Mutated via the conflict dialog's "Override" action.
-  skipDates      String[] @default([])
+  skipDates         String[] @default([])
   /// LEGACY — forever-scoped per-student skip from an earlier override
   /// design. The new override flow writes to `studentDateSkips` instead
   /// (date-scoped, restores automatically after the override date), and
@@ -426,11 +429,11 @@ model ScheduleSlot {
   /// the override scope matches the overriding period's lifetime —
   /// when the Once override's date passes (or it's deleted by clearing
   /// the entries), the original slot reappears automatically.
-  studentDateSkips String[] @default([])
+  studentDateSkips  String[] @default([])
 
-  school    School?    @relation(fields: [schoolId], references: [id], onDelete: SetNull)
-  teacher   User?      @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)
-  classroom Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  school    School?                @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  teacher   User?                  @relation("TeacherSlots", fields: [teacherId], references: [id], onDelete: SetNull)
+  classroom Classroom?             @relation(fields: [classroomId], references: [id], onDelete: SetNull)
   students  ScheduleSlotStudent[]
   cohorts   ScheduleSlotCohort[]
   materials ScheduleSlotMaterial[]
@@ -502,11 +505,11 @@ model SchoolPeriodDefault {
 }
 
 model ScheduleOverride {
-  id       String   @id @default(uuid())
-  cohortId String
-  date     DateTime
-  period   Int
-  subject  String?
+  id        String   @id @default(uuid())
+  cohortId  String
+  date      DateTime
+  period    Int
+  subject   String?
   teacherId String?
 
   cohort  Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
@@ -568,13 +571,13 @@ model Assessment {
   maxGrade  Int      @default(100)
   createdBy String // teacher user id
 
-  examId             String?
+  examId              String?
   teacherAssignmentId String?
-  published          Boolean        @default(true)
+  published           Boolean @default(true)
 
-  cohort            Cohort            @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  teacher          User            @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  exam             TeacherExam?    @relation(fields: [examId], references: [id], onDelete: SetNull)
+  cohort            Cohort             @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  teacher           User               @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  exam              TeacherExam?       @relation(fields: [examId], references: [id], onDelete: SetNull)
   teacherAssignment TeacherAssignment? @relation(fields: [teacherAssignmentId], references: [id], onDelete: SetNull)
 
   grades GradeRecord[]
@@ -1262,8 +1265,8 @@ model Classroom {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  teacher     User              @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
-  school      School?           @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  teacher     User                  @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  school      School?               @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   members     ClassroomMember[]
   messages    ClassroomMessage[]
   assignments ClassroomAssignment[]
@@ -1317,16 +1320,16 @@ enum ClassroomMessageKind {
 }
 
 model ClassroomAssignment {
-  id                   String    @id @default(cuid())
-  classroomId          String
-  title                String
-  body                 String?
-  dueAt                DateTime?
-  createdBy            String
-  teacherAssignmentId  String?   // back-ref to TeacherAssignment mirror
-  attachments          Json      @default("[]")
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  classroomId         String
+  title               String
+  body                String?
+  dueAt               DateTime?
+  createdBy           String
+  teacherAssignmentId String? // back-ref to TeacherAssignment mirror
+  attachments         Json      @default("[]")
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   classroom   Classroom              @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   submissions AssignmentSubmission[]
@@ -1353,17 +1356,17 @@ model AssignmentSubmission {
 }
 
 model ClassroomMaterial {
-  id                 String   @id @default(cuid())
-  classroomId        String
-  title              String
-  description        String?
-  url                String
-  attachments        Json     @default("[]")
-  mime               String?
-  createdBy          String
-  teacherMaterialId  String?  // back-ref to the TeacherMaterial that created this mirror
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                String   @id @default(cuid())
+  classroomId       String
+  title             String
+  description       String?
+  url               String
+  attachments       Json     @default("[]")
+  mime              String?
+  createdBy         String
+  teacherMaterialId String? // back-ref to the TeacherMaterial that created this mirror
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
@@ -1371,16 +1374,16 @@ model ClassroomMaterial {
 }
 
 model ClassroomMeeting {
-  id                String    @id @default(cuid())
-  classroomId       String
-  title             String
-  startsAt          DateTime
-  endsAt            DateTime?
-  link              String
-  createdBy         String
-  teacherMeetingId  String?   // back-ref to TeacherMeeting mirror
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  classroomId      String
+  title            String
+  startsAt         DateTime
+  endsAt           DateTime?
+  link             String
+  createdBy        String
+  teacherMeetingId String? // back-ref to TeacherMeeting mirror
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
@@ -1694,12 +1697,14 @@ model DmMessage {
   forwardedFromId  String?
   createdAt        DateTime            @default(now())
   thread           DmThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender           User                @relation("DmMessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
   views            DmMessageView[]
   reactions        DmReaction[]
   replyTo          DmMessage?          @relation("DmMessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
   replies          DmMessage[]         @relation("DmMessageReply")
   forwardedFrom    DmMessage?          @relation("DmMessageForward", fields: [forwardedFromId], references: [id], onDelete: SetNull)
   forwardedCopies  DmMessage[]         @relation("DmMessageForward")
+  reports          DmMessageReport[]
 
   @@index([threadId, createdAt])
   @@index([replyToMessageId])
@@ -1817,25 +1822,51 @@ model MessageReaction {
   @@index([userId, createdAt])
 }
 
+enum MessageReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+/// User-filed report on a DM/group chat message. Required by Google Play
+/// policy for any app with user-to-user messaging. Admins triage these in
+/// the Admin → Reports screen.
+model DmMessageReport {
+  id         String              @id @default(uuid())
+  messageId  String
+  reporterId String
+  reason     String? // optional free-text "why"
+  status     MessageReportStatus @default(OPEN)
+  createdAt  DateTime            @default(now())
+  resolvedAt DateTime?
+  resolvedBy String? // admin user id
+
+  message  DmMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  reporter User      @relation("DmMessageReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, reporterId]) // one report per user per message
+  @@index([status, createdAt])
+}
+
 model SchoolForm {
-  id                     String       @id @default(uuid())
+  id                     String    @id @default(uuid())
   schoolId               String
   createdBy              String
   title                  String
   description            String?
   subject                String?
   audienceLabel          String?
-  acceptingResponses     Boolean      @default(true)
-  allowMultipleResponses Boolean      @default(false)
-  published              Boolean      @default(false)
+  acceptingResponses     Boolean   @default(true)
+  allowMultipleResponses Boolean   @default(false)
+  published              Boolean   @default(false)
   publishedAt            DateTime?
-  questions              Json         @default("[]")
-  targetType             String       @default("EVERYONE")
-  targetCohortIds        String[]     @default([])
-  targetStudentIds       String[]     @default([])
-  targetGrades           Int[]        @default([])
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
+  questions              Json      @default("[]")
+  targetType             String    @default("EVERYONE")
+  targetCohortIds        String[]  @default([])
+  targetStudentIds       String[]  @default([])
+  targetGrades           Int[]     @default([])
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   school    School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   teacher   User           @relation("TeacherForms", fields: [createdBy], references: [id], onDelete: Cascade)
@@ -1973,7 +2004,7 @@ model TeacherMaterial {
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
 
-  teacher User @relation("TeacherMaterials", fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher User                   @relation("TeacherMaterials", fields: [teacherId], references: [id], onDelete: Cascade)
   slots   ScheduleSlotMaterial[]
 
   @@index([teacherId])
@@ -2014,23 +2045,23 @@ model TeacherMeeting {
 /// Known values right now:
 ///   FREE, BUDGET, BALANCE, COMMITMENT
 enum SubscriptionStatus {
-  ACTIVE          // current period valid, tokens granted
+  ACTIVE // current period valid, tokens granted
   IN_GRACE_PERIOD // Apple/Google says renewal failed but user is in grace
-  ON_HOLD         // billing failed, grace expired — tokens frozen
-  CANCELLED       // user cancelled but still in paid period
-  EXPIRED         // period ended, no renewal
-  REFUNDED        // payment refunded
+  ON_HOLD // billing failed, grace expired — tokens frozen
+  CANCELLED // user cancelled but still in paid period
+  EXPIRED // period ended, no renewal
+  REFUNDED // payment refunded
 }
 
 /// A user's current subscription. One active row per user — historical
 /// rows are kept (with status EXPIRED/CANCELLED) for audit + analytics.
 model UserSubscription {
-  id              String              @id @default(uuid())
-  userId          String
-  planTier        String              // 'BUDGET' | 'BALANCE' | 'COMMITMENT'
-  status          SubscriptionStatus  @default(ACTIVE)
+  id                 String             @id @default(uuid())
+  userId             String
+  planTier           String // 'BUDGET' | 'BALANCE' | 'COMMITMENT'
+  status             SubscriptionStatus @default(ACTIVE)
   /// 'apple' | 'google' | 'web' (web is reserved for a future Stripe flow).
-  store           String
+  store              String
   /// Apple originalTransactionId or Google purchaseToken or RevenueCat
   /// app_user_id. Persisted so webhook events can find the subscription.
   storeTransactionId String?
@@ -2039,13 +2070,13 @@ model UserSubscription {
   /// server-to-server callbacks if RevenueCat ever goes away.
   rcSubscriptionId   String?
   /// Cached store product id (e.g. com.classmate.plan.balance.monthly).
-  storeProductId  String?
+  storeProductId     String?
   /// When the current paid period ends. After this, the renewal webhook
   /// either bumps it forward or flips status to EXPIRED.
-  currentPeriodEnd DateTime
-  startedAt        DateTime           @default(now())
-  cancelledAt      DateTime?
-  updatedAt        DateTime           @updatedAt
+  currentPeriodEnd   DateTime
+  startedAt          DateTime           @default(now())
+  cancelledAt        DateTime?
+  updatedAt          DateTime           @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2066,13 +2097,13 @@ model UserSubscription {
 /// On every AI call: deduct from plan first, then top-up. When both
 /// are 0 the API call 402s and the client shows the paywall.
 model TokenBalance {
-  userId               String   @id
-  planTokensRemaining  Int      @default(0)
-  topupTokensRemaining Int      @default(0)
+  userId               String    @id
+  planTokensRemaining  Int       @default(0)
+  topupTokensRemaining Int       @default(0)
   /// When planTokensRemaining gets reset back to the plan quota.
   /// Apple/Google webhook bumps this on each renewal.
   resetAt              DateTime?
-  updatedAt            DateTime @updatedAt
+  updatedAt            DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -2081,24 +2112,24 @@ model TokenBalance {
 /// reconcile API bills, debug suspicious usage spikes, and feed analytics
 /// without re-hitting Anthropic's billing dashboard.
 model TokenUsage {
-  id              String   @id @default(cuid())
-  userId          String
+  id                String   @id @default(cuid())
+  userId            String
   /// 'nova' | 'practice' | 'tutor' | 'whisper' | 'practice_insights' etc.
-  source          String
+  source            String
   /// Anthropic model id at call time (so a future model swap shows in the audit).
-  model           String
-  inputTokens     Int      @default(0)
-  cachedInputTokens Int    @default(0)
-  outputTokens    Int      @default(0)
+  model             String
+  inputTokens       Int      @default(0)
+  cachedInputTokens Int      @default(0)
+  outputTokens      Int      @default(0)
   /// Total tokens DEDUCTED from the user's balance. This is what counts
   /// against their quota — separate from inputTokens+outputTokens so we
   /// can apply per-source weighting if we ever need to (e.g. count voice
   /// transcription differently).
-  tokensCharged   Int      @default(0)
+  tokensCharged     Int      @default(0)
   /// Computed USD cost to us at time of call. Cached so per-user margin
   /// reports don't have to re-derive from token counts.
-  costUsd         Float    @default(0)
-  createdAt       DateTime @default(now())
+  costUsd           Float    @default(0)
+  createdAt         DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2111,16 +2142,15 @@ model TokenUsage {
 /// logic, and proves what we received vs. what the store sent in case
 /// of a dispute.
 model StoreWebhookEvent {
-  id          String   @id @default(cuid())
-  provider    String   // 'apple' | 'google' | 'revenuecat'
-  eventType   String   // e.g. 'INITIAL_PURCHASE', 'RENEWAL', 'CANCELLATION'
-  rcEventId   String?  @unique
+  id          String    @id @default(cuid())
+  provider    String // 'apple' | 'google' | 'revenuecat'
+  eventType   String // e.g. 'INITIAL_PURCHASE', 'RENEWAL', 'CANCELLATION'
+  rcEventId   String?   @unique
   userId      String?
   rawPayload  Json
   processedAt DateTime?
-  receivedAt  DateTime @default(now())
+  receivedAt  DateTime  @default(now())
 
   @@index([provider, eventType])
   @@index([userId, receivedAt])
 }
-

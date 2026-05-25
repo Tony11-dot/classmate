@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -69,6 +70,35 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     await launchUrl(uri, mode: LaunchMode.platformDefault);
   }
 
+  Future<void> _download() async {
+    // The PDF is already on disk in the temp dir (we wrote it in
+    // _prepare). Hand it to the OS share sheet — that gives the user
+    // "Save to Files", "Save to Drive", AirDrop, etc.
+    if (_localPath == null) return;
+    try {
+      final box = context.findRenderObject() as RenderBox?;
+      final fileName = (widget.title?.trim().isNotEmpty ?? false)
+          ? '${widget.title!.trim()}.pdf'
+          : 'document.pdf';
+      // Copy to a stable name so the share sheet shows the right filename
+      // instead of `pdf_1234567890.pdf`.
+      final dir = await getTemporaryDirectory();
+      final namedFile = File('${dir.path}/$fileName');
+      await File(_localPath!).copy(namedFile.path);
+      await Share.shareXFiles(
+        [XFile(namedFile.path, mimeType: 'application/pdf')],
+        subject: fileName,
+        sharePositionOrigin:
+            box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Download failed: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final resolvedTitle =
@@ -109,6 +139,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _PdfFloatingButton(
+                  icon: Icons.file_download_outlined,
+                  tooltip: 'Download',
+                  onTap: _localPath == null ? null : _download,
+                ),
+                const SizedBox(width: 6),
+                _PdfFloatingButton(
                   icon: Icons.open_in_new_rounded,
                   tooltip: 'Open externally',
                   onTap: _openExternally,
@@ -137,7 +173,7 @@ class _PdfFloatingButton extends StatelessWidget {
 
   final IconData icon;
   final String tooltip;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

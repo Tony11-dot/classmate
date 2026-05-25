@@ -1,6 +1,7 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
 import { BadRequestException, Body, Controller, DefaultValuePipe, Get, GoneException, Header, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { CurrentActor } from '../common/request/current-actor.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ParentService } from './parent.service';
@@ -33,6 +34,7 @@ export class ParentController {
     return this.parent.grades(req.user, take);
   }
 
+  @SkipThrottle()
   @Get('schedule/today')
   scheduleToday(@Req() req: any, @Query('studentId') studentId: string) {
     if (!studentId?.trim())
@@ -40,6 +42,7 @@ export class ParentController {
     return this.parent.scheduleToday(req.user, studentId.trim());
   }
 
+  @SkipThrottle()
   @Get('schedule/week')
   scheduleWeek(
     @Req() req: any,

@@ -5,7 +5,11 @@ APK_PATH = "build/app/outputs/flutter-apk/app-release.apk"
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 def flutter_build_ios
-  sh "cd .. && flutter build ipa --release \
+  # Clear fastlane's Ruby/Bundler env vars before invoking flutter — otherwise
+  # Flutter's subprocess inherits GEM_HOME/BUNDLE_GEMFILE from fastlane and
+  # CocoaPods fails with "installed but broken".
+  sh "cd .. && env -u GEM_HOME -u GEM_PATH -u BUNDLE_GEMFILE -u BUNDLE_BIN_PATH -u RUBYOPT -u RUBYLIB \
+    flutter build ipa --release \
     --dart-define=CM_API_BASE_URL=#{PROD_API} \
     --export-options-plist=ios/ExportOptions.plist"
 end
@@ -22,6 +26,16 @@ platform :ios do
   desc "Upload to TestFlight (beta)"
   lane :beta do
     flutter_build_ios
+    upload_to_testflight(
+      ipa:                        IOS_IPA,
+      skip_waiting_for_build_processing: true,
+      changelog:                  "ClassMate beta build — #{Time.now.strftime('%Y-%m-%d')}",
+    )
+    UI.success "✅ Uploaded to TestFlight!"
+  end
+
+  desc "Upload existing IPA to TestFlight (skip build)"
+  lane :upload do
     upload_to_testflight(
       ipa:                        IOS_IPA,
       skip_waiting_for_build_processing: true,

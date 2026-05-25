@@ -1806,4 +1806,93 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     return { ok: true, cohorts: results };
   }
+
+  // ── Message reports ─────────────────────────────────────────────────────
+
+  /// Lists user-filed reports on chat messages. Default returns OPEN reports
+  /// (the triage queue). Pass status=RESOLVED or DISMISSED for history.
+  /// Scoped to the admin's own school — admin can only see reports where
+  /// either the reporter or the reported message's sender is in their school.
+  async listMessageReports(adminUser: any, status?: string) {
+    const schoolId = adminUser?.schoolId ?? null;
+    const where: any = {};
+    const s = (status ?? 'OPEN').toUpperCase();
+    if (s === 'OPEN' || s === 'RESOLVED' || s === 'DISMISSED') {
+      where.status = s;
+    }
+
+    // School scoping: report's reporter OR message sender must belong to this school.
+    if (schoolId) {
+      where.OR = [
+        { reporter: { schoolId } },
+        { message: { sender: { schoolId } } },
+      ];
+    }
+
+    const rows = await this.prisma.dmMessageReport.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      include: {
+        reporter: { select: { id: true, name: true, email: true } },
+        message: {
+          select: {
+            id: true,
+            text: true,
+            mediaUrl: true,
+            createdAt: true,
+            threadId: true,
+            sender: { select: { id: true, name: true, email: true } },
+          },
+        },
+      },
+    });
+
+    return {
+      ok: true,
+      items: rows.map((r) => ({
+        id: r.id,
+        status: r.status,
+        reason: r.reason,
+        createdAt: r.createdAt.toISOString(),
+        resolvedAt: r.resolvedAt?.toISOString() ?? null,
+        reporter: r.reporter,
+        message: {
+          id: r.message.id,
+          threadId: r.message.threadId,
+          text: r.message.text,
+          mediaUrl: r.message.mediaUrl,
+          createdAt: r.message.createdAt.toISOString(),
+          sender: r.message.sender,
+        },
+      })),
+    };
+  }
+
+  /// Marks a report as RESOLVED or DISMISSED. Idempotent.
+  async resolveMessageReport(
+    adminUser: any,
+    reportId: string,
+    next: 'RESOLVED' | 'DISMISSED',
+  ) {
+    const id = String(reportId ?? '').trim();
+    if (!id) throw new BadRequestException('reportId is required');
+
+    const adminId = adminUser?.sub ?? adminUser?.id;
+    const existing = await this.prisma.dmMessageReport.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!existing) throw new NotFoundException('Report not found');
+
+    await this.prisma.dmMessageReport.update({
+      where: { id },
+      data: {
+        status: next,
+        resolvedAt: new Date(),
+        resolvedBy: adminId ?? null,
+      },
+    });
+    return { ok: true };
+  }
 }

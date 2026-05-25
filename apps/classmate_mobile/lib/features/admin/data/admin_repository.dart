@@ -172,6 +172,21 @@ class AdminRepository {
     await _api.postJson('/admin/password-requests/$id/reject');
   }
 
+  // ── Message reports (Play policy queue) ─────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> listReports({String status = 'OPEN'}) async {
+    final raw = await _api.getJson('/admin/reports', query: {'status': status});
+    return _l(_m(raw)['items']).map(_m).toList();
+  }
+
+  Future<void> resolveReport(String id) async {
+    await _api.postJson('/admin/reports/$id/resolve');
+  }
+
+  Future<void> dismissReport(String id) async {
+    await _api.postJson('/admin/reports/$id/dismiss');
+  }
+
   // ── Cohorts ──────────────────────────────────────────────────────────────────
 
   Future<List<AdminCohort>> listCohorts() async {

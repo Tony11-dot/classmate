@@ -403,4 +403,27 @@ export class AdminController {
     return this.admin.getAnalyticsGrades(req.user);
   }
 
+  // ── Message reports (Play policy: report-content flow) ───────────────
+
+  @Roles(Role.ADMIN)
+  @Get('reports')
+  listReports(
+    @Req() req: any,
+    @Query('status') status?: string,
+  ) {
+    return this.admin.listMessageReports(req.user, status);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('reports/:id/resolve')
+  resolveReport(@Req() req: any, @Param('id') id: string) {
+    return this.admin.resolveMessageReport(req.user, id, 'RESOLVED');
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('reports/:id/dismiss')
+  dismissReport(@Req() req: any, @Param('id') id: string) {
+    return this.admin.resolveMessageReport(req.user, id, 'DISMISSED');
+  }
+
 }

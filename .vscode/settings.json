@@ -8,5 +8,6 @@
         "pod": true,
         "pnpm": true,
         "xcrun": true
-    }
+    },
+    "cmake.sourceDirectory": "/Users/tonyaboud/Dev/classmate/classmate_mobile/linux"
 }

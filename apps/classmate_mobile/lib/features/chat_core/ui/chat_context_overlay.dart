@@ -26,6 +26,7 @@ class ChatContextOverlay extends StatelessWidget {
     this.canForward = true,
     this.canPin = false,
     this.canViewInfo = false,
+    this.canReport = false,
     this.pinLabel,
     this.pickerAllowedEmojis,
   });
@@ -39,6 +40,7 @@ class ChatContextOverlay extends StatelessWidget {
   final bool canForward;
   final bool canPin;
   final bool canViewInfo;
+  final bool canReport;
   final String? pinLabel;
   final List<String>? pickerAllowedEmojis;
 
@@ -54,6 +56,7 @@ class ChatContextOverlay extends StatelessWidget {
     bool canForward = true,
     bool canPin = false,
     bool canViewInfo = false,
+    bool canReport = false,
     String? pinLabel,
     List<String>? pickerAllowedEmojis,
   }) {
@@ -78,6 +81,7 @@ class ChatContextOverlay extends StatelessWidget {
         canForward: canForward,
         canPin: canPin,
         canViewInfo: canViewInfo,
+        canReport: canReport,
         pinLabel: pinLabel,
         pickerAllowedEmojis: pickerAllowedEmojis,
       ),
@@ -153,6 +157,7 @@ class ChatContextOverlay extends StatelessWidget {
                             canViewInfo: canViewInfo,
                             canEdit: canEdit,
                             canDelete: canDelete,
+                            canReport: canReport,
                             onAction: (key) =>
                                 Navigator.of(context).pop(key),
                           ),
@@ -243,6 +248,7 @@ class _ActionPanel extends StatelessWidget {
     required this.canViewInfo,
     required this.canEdit,
     required this.canDelete,
+    required this.canReport,
     required this.onAction,
   });
 
@@ -254,6 +260,7 @@ class _ActionPanel extends StatelessWidget {
   final bool canViewInfo;
   final bool canEdit;
   final bool canDelete;
+  final bool canReport;
   final ValueChanged<String> onAction;
 
   @override
@@ -307,6 +314,13 @@ class _ActionPanel extends StatelessWidget {
           icon: Icons.delete_outline_rounded,
           label: l.chatContextDelete,
           key: 'delete',
+          isDanger: true,
+        ),
+      if (canReport)
+        (
+          icon: Icons.flag_outlined,
+          label: 'Report',
+          key: 'report',
           isDanger: true,
         ),
     ];

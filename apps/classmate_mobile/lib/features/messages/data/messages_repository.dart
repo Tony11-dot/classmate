@@ -79,6 +79,12 @@ abstract class MessagesRepository {
     String? emoji,
   });
 
+  Future<void> reportMessage({
+    required String threadId,
+    required String messageId,
+    String? reason,
+  });
+
   Future<void> markThreadRead({required String threadId});
 }
 
@@ -762,6 +768,20 @@ class ApiMessagesRepository implements MessagesRepository {
       if ((emoji ?? '').trim().isNotEmpty) 'emoji': emoji!.trim(),
     });
     if (!_ok(r)) _fail('messages.reactMessage', r);
+  }
+
+  @override
+  Future<void> reportMessage({
+    required String threadId,
+    required String messageId,
+    String? reason,
+  }) async {
+    final r = await _post('/messages/report', {
+      'threadId': threadId,
+      'messageId': messageId,
+      if ((reason ?? '').trim().isNotEmpty) 'reason': reason!.trim(),
+    });
+    if (!_ok(r)) _fail('messages.reportMessage', r);
   }
 
   @override

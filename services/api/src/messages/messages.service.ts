@@ -1731,6 +1731,41 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     return { ok: true };
   }
 
+  /// Files a user-report against a chat message. Required for Google Play
+  /// policy compliance (any app with user messaging must let users report
+  /// content). Idempotent — re-reporting the same message just updates the
+  /// reason. Admins triage via /admin/reports.
+  async reportMessage(
+    user: AppUser,
+    dto: { threadId: string; messageId: string; reason?: string },
+  ) {
+    const userId = this.viewerId(user);
+    const threadId = String(dto.threadId ?? '').trim();
+    const messageId = String(dto.messageId ?? '').trim();
+    const reason = (dto.reason ?? '').trim().slice(0, 500) || null;
+
+    if (!threadId || !messageId) {
+      throw new BadRequestException('threadId and messageId are required');
+    }
+
+    // Must be a participant of the thread + message must exist in it.
+    await this.loadParticipantOrThrow(threadId, userId);
+    const message = await this.loadMessageOrThrow(threadId, messageId, userId);
+
+    // Can't report your own messages — that's not abuse, it's just delete.
+    if (message.senderId === userId) {
+      throw new BadRequestException('Cannot report your own message');
+    }
+
+    await this.prisma.dmMessageReport.upsert({
+      where: { messageId_reporterId: { messageId, reporterId: userId } },
+      update: { reason: reason ?? undefined },
+      create: { messageId, reporterId: userId, reason: reason ?? undefined },
+    });
+
+    return { ok: true };
+  }
+
   async markThreadRead(user: AppUser, dto: MarkThreadReadDto) {
     const userId = this.viewerId(user);
     const threadId = String(dto.threadId ?? '').trim();

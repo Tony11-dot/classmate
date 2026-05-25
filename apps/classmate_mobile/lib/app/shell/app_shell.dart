@@ -48,13 +48,13 @@ const _teacherBottomNavPaths = <String>{
 };
 
 /// Routes where the parent bottom nav stays visible. The 5 tabs are:
-/// Home | Schedule | Grades | Messages | Announcements.
+/// Home | Schedule | Overview | Messages | NOVA.
 const _parentBottomNavPaths = <String>{
   '/parent/home',
   '/parent/schedule',
-  '/parent/grades',
+  '/parent/overview',
   '/messages',
-  '/announcements',
+  '/tutor',
 };
 
 String _routePathOnly(String loc) {
@@ -137,18 +137,18 @@ class AppShell extends ConsumerWidget {
 
   int _parentIndexFor(String loc) {
     if (loc.startsWith('/parent/schedule')) return 1;
-    if (loc.startsWith('/parent/grades')) return 2;
+    if (loc.startsWith('/parent/overview')) return 2;
     if (loc.startsWith('/messages')) return 3;
-    if (loc.startsWith('/announcements')) return 4;
+    if (loc.startsWith('/tutor')) return 4;
     return 0; // /parent/home
   }
 
   String _parentLocFor(int index) => switch (index) {
     0 => '/parent/home',
     1 => '/parent/schedule',
-    2 => '/parent/grades',
+    2 => '/parent/overview',
     3 => '/messages',
-    4 => '/announcements',
+    4 => '/tutor',
     _ => '/parent/home',
   };
 
@@ -213,6 +213,7 @@ class AppShell extends ConsumerWidget {
     '/admin/settings',
     '/admin/periods',
     '/admin/password-requests',
+    '/admin/reports',
     '/admin/export',
     '/admin/',
     '/secretary/students',
@@ -260,6 +261,7 @@ class AppShell extends ConsumerWidget {
   static const _parentPrefixes = <String>[
     '/parent/home',
     '/parent/schedule',
+    '/parent/overview',
     '/parent/grades',
     '/parent/attendance',
     '/parent/exams',
@@ -269,6 +271,7 @@ class AppShell extends ConsumerWidget {
     '/parent/materials',
     '/parent/notifications',
     '/messages',
+    '/tutor',
     '/announcements',
     '/notifications',
     '/profile',
@@ -288,6 +291,7 @@ class AppShell extends ConsumerWidget {
     '/admin/settings' => l.adminSettingsTitle,
     '/admin/periods' => l.adminSettingsPeriodDefaults,
     '/admin/password-requests' => 'Password Requests',
+    '/admin/reports' => 'Reports',
     '/admin/export' => 'Export Data',
     '/admin/' => l.roleAdmin,
     '/secretary/students' => l.adminStudents,
@@ -365,6 +369,7 @@ class AppShell extends ConsumerWidget {
   String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/parent/home' => l.navHome,
     '/parent/schedule' => l.navSchedule,
+    '/parent/overview' => l.navInsights,
     '/parent/grades' => l.navGrades,
     '/parent/attendance' => l.navAttendance,
     '/parent/exams' => l.navExams,
@@ -373,6 +378,7 @@ class AppShell extends ConsumerWidget {
     '/parent/meetings' => l.navMeetings,
     '/parent/materials' => 'Materials',
     '/parent/notifications' => l.navNotifications,
+    '/tutor' => l.navNova,
     '/messages' => l.titleMessages,
     '/announcements' => l.navAnnouncements,
     '/notifications' => l.navNotifications,
@@ -725,12 +731,12 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
                         ]
                   : widget.isParent
                       ? <_NavItem>[
-                          // Parent: Home | Schedule | Grades | Messages | Announcements
+                          // Parent: Home | Schedule | Overview | Messages | NOVA
                           _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
                           _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                          _NavItem(Icons.grade_outlined, Icons.grade_rounded, l.navGrades),
+                          _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
                           _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-                          _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
+                          _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
                         ]
                       : widget.isTeacherLike
                       ? <_NavItem>[

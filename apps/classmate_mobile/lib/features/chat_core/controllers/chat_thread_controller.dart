@@ -44,9 +44,15 @@ abstract class ChatThreadController {
   });
   
   Future<void> togglePin(String messageId);
-  
+
   Future<void> react(String messageId, String? emoji);
-  
+
+  /// Files a user-report against a message. Required by Play policy. The
+  /// default implementation is a no-op so classroom chats (which currently
+  /// have no report endpoint) don't break — only the DM controller actually
+  /// wires this through to the backend.
+  Future<void> reportMessage(String messageId, {String? reason}) async {}
+
   Future<void> markRead();
 
   Future<void> markVoicePlayed(String messageId) async {}

@@ -281,11 +281,16 @@ export class ParentService {
     const parentId = user.sub ?? user.id;
 
     if (!studentId) throw new BadRequestException('studentId is required');
-    await this.assertLinked(parentId, studentId);
-
-    const sp = await this.prisma.studentProfile.findUnique({
-      where: { userId: studentId },
-    });
+    // Run the two reads in parallel — they're independent and the parent
+    // app fires these as part of a burst on landing screen. Roughly halves
+    // the perceived latency on cold-cache loads.
+    const [, sp] = await Promise.all([
+      this.assertLinked(parentId, studentId),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { cohortId: true },
+      }),
+    ]);
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     return this.schedule.getTodayForCohort(sp.cohortId ?? '');
@@ -298,12 +303,14 @@ export class ParentService {
       !user?.roles?.includes('ADMIN')
     )
       throw new ForbiddenException('Auth required');
-    await this.assertLinked(user.sub ?? user.id, studentId);
-
-    const sp = await this.prisma.studentProfile.findUnique({
-      where: { userId: studentId },
-      select: { cohortId: true },
-    });
+    const parentId = user.sub ?? user.id;
+    const [, sp] = await Promise.all([
+      this.assertLinked(parentId, studentId),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { cohortId: true },
+      }),
+    ]);
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     return this.schedule.getWeekForCohort(sp.cohortId ?? '', weekOf);

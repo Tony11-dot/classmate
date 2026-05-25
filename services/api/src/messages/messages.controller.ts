@@ -24,6 +24,7 @@ import { TogglePinMessageDto } from './dto/toggle-pin-message.dto';
 import { DeleteMessageDto } from './dto/delete-message.dto';
 import { ForwardMessageDto } from './dto/forward-message.dto';
 import { ReactMessageDto } from './dto/react-message.dto';
+import { ReportMessageDto } from './dto/report-message.dto';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.SECRETARY)
@@ -124,6 +125,11 @@ export class MessagesController {
   @Post('react')
   react(@Req() req: any, @Body() body: ReactMessageDto) {
     return this.service.reactMessage(req.user, body);
+  }
+
+  @Post('report')
+  report(@Req() req: any, @Body() body: ReportMessageDto) {
+    return this.service.reportMessage(req.user, body);
   }
 
   // ── Group management ──────────────────────────────────────────────────────

@@ -1544,6 +1544,9 @@ export class TeacherService {
     const msg = await this.prisma.classroomMessage.create({
       data: { classroomId, senderUserId: teacherId, kind: 'TEXT' as any, text },
     });
+    // Push to every classroom member so students' chat refreshes
+    // immediately, matching how the student->teacher direction works.
+    void this.emitToClassroomMembers(classroomId, { type: 'classroom_message', classroomId });
     return { ok: true, message: msg };
   }
 

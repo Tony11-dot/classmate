@@ -853,6 +853,13 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                               );
                             }),
                             const SizedBox(height: 16),
+                            // Parents see the assignment + attachments read-only.
+                            // The "Your submission" + Hand-in flow only renders
+                            // when this is the student themselves (viewedStudentId
+                            // is null — non-null means a parent is viewing a child).
+                            if (ref.watch(viewedStudentIdProvider) != null)
+                              const SizedBox.shrink()
+                            else
                             _SectionCard(
                               title: 'Your submission',
                               subtitle: _submitted

@@ -35,7 +35,7 @@ Return ONLY a JSON array. No markdown, no explanation.
 `;
 
     const res = await this.client.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+      model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
       max_tokens: 4096,
       system: 'You are a strict academic exam generator. Return only valid JSON arrays.',
       messages: [{ role: 'user', content: prompt }],

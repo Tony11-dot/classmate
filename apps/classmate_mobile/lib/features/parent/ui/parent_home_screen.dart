@@ -130,9 +130,9 @@ class _ToolsGrid extends ConsumerWidget {
 
     final tiles = <_ToolDef>[
       _ToolDef(
-        icon: Icons.event_note_rounded,
-        label: l.navSchedule,
-        route: '/parent/schedule',
+        icon: Icons.insights_rounded,
+        label: l.navInsights,
+        route: '/parent/overview',
       ),
       _ToolDef(
         icon: Icons.grade_rounded,
@@ -143,6 +143,37 @@ class _ToolsGrid extends ConsumerWidget {
         icon: Icons.how_to_reg_rounded,
         label: l.navAttendance,
         route: '/parent/attendance',
+      ),
+      _ToolDef(
+        icon: Icons.assignment_outlined,
+        label: l.navAssignments,
+        route: '/parent/assignments',
+      ),
+      _ToolDef(
+        icon: Icons.fact_check_outlined,
+        label: l.navExams,
+        route: '/parent/exams',
+      ),
+      _ToolDef(
+        icon: Icons.workspace_premium_outlined,
+        label: l.navDiplomas,
+        route: '/parent/certificates',
+      ),
+      _ToolDef(
+        icon: Icons.folder_outlined,
+        label: 'Materials',
+        route: '/parent/materials',
+      ),
+      _ToolDef(
+        icon: Icons.event_available_outlined,
+        label: l.navMeetings,
+        route: '/parent/meetings',
+      ),
+      _ToolDef(
+        icon: Icons.campaign_outlined,
+        label: l.navAnnouncements,
+        route: '/announcements',
+        ignoreSelection: true, // announcements are school-wide
       ),
       _ToolDef(
         icon: Icons.notifications_rounded,

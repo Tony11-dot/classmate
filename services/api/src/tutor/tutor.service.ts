@@ -793,7 +793,7 @@ export class TutorService {
             const safeMime = (mimeType as string).startsWith('image/')
               ? (mimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp')
               : 'image/jpeg';
-            const visionModel = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+            const visionModel = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
             const vision: any = await client.messages.create({
               model: visionModel,
               max_tokens: 1024,

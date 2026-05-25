@@ -18,19 +18,20 @@ export interface ModelPricing {
 }
 
 export const MODEL_PRICING: Record<string, ModelPricing> = {
-  // Claude Sonnet 4.6 — primary model for NOVA + Practice generation.
+  // Claude Sonnet 4.6 — kept so historical TokenUsage rows still re-price correctly.
+  // No longer the default model; see pricingForModel() below.
   'claude-sonnet-4-6': {
     inputPerM: 3.0,
     cachedInputPerM: 0.3,
     outputPerM: 15.0,
   },
-  // Claude Haiku 4.5 — used for cheap classifiers + practice insights.
+  // Claude Haiku 4.5 — primary model for NOVA + Practice (all tiers).
   'claude-haiku-4-5': {
     inputPerM: 1.0,
     cachedInputPerM: 0.1,
     outputPerM: 5.0,
   },
-  // Claude Haiku 4.5 explicit-date alias (matches what the code calls today).
+  // Claude Haiku 4.5 explicit-date alias.
   'claude-haiku-4-5-20251001': {
     inputPerM: 1.0,
     cachedInputPerM: 0.1,
@@ -60,9 +61,8 @@ export interface CostBreakdown {
 export function pricingForModel(model: string): ModelPricing {
   const lookup = MODEL_PRICING[model];
   if (lookup) return lookup;
-  // Unknown model — fall back to Sonnet pricing. Safer to over-charge
-  // ourselves on rare models than to silently undercharge.
-  return MODEL_PRICING['claude-sonnet-4-6'];
+  // Unknown model — fall back to Haiku pricing (current default model).
+  return MODEL_PRICING['claude-haiku-4-5-20251001'];
 }
 
 /// Per-call cost + token-charge calculator. `inputTokens` is the

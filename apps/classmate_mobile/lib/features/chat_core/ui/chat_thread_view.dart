@@ -932,6 +932,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       canForward: widget.policy.canForward && !message.deletedForEveryone,
       canPin: widget.policy.canPin,
       canViewInfo: widget.policy.canViewInfo,
+      // Report appears on messages from OTHER users — can't report your own.
+      // Required by Google Play policy for any app with user messaging.
+      canReport: !message.isOwn && !message.deletedForEveryone,
       pinLabel: isPinned ? AppLocalizations.of(context)!.chatUnpin : AppLocalizations.of(context)!.chatPin,
       pickerAllowedEmojis: widget.allowedEmojis,
     );
@@ -959,6 +962,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         _startEdit(message);
       case 'delete':
         _enterDeleteMode(message.id);
+      case 'report':
+        await _reportMessage(message);
       case 'info':
         _openInfoPage(message);
       default:
@@ -968,6 +973,62 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
               .react(message.id, emoji.isEmpty ? null : emoji);
           widget.controller.invalidate();
         }
+    }
+  }
+
+  Future<void> _reportMessage(ChatMessage message) async {
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        final controller = TextEditingController();
+        return AlertDialog(
+          title: const Text('Report message'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'This message will be flagged for review by an admin.',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                maxLength: 500,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Reason (optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppLocalizations.of(ctx)!.actionCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+              child: const Text('Report'),
+            ),
+          ],
+        );
+      },
+    );
+    if (reason == null) return; // user cancelled
+    try {
+      await widget.controller.reportMessage(message.id, reason: reason.isEmpty ? null : reason);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reported. Thank you — an admin will review.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Report failed: $e')),
+      );
     }
   }
 

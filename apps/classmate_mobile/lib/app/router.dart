@@ -76,6 +76,7 @@ import '../features/admin/ui/admin_school_settings_screen.dart';
 import '../features/admin/ui/admin_settings_screen.dart';
 import '../features/admin/ui/admin_export_screen.dart';
 import '../features/admin/ui/admin_password_requests_screen.dart';
+import '../features/admin/ui/admin_reports_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/parent/ui/parent_home_screen.dart';
 import '../features/support/ui/support_screen.dart';
@@ -602,6 +603,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const AdminPasswordRequestsScreen(),
           ),
           GoRoute(
+            path: '/admin/reports',
+            builder: (context, state) => const AdminReportsScreen(),
+          ),
+          GoRoute(
             path: '/admin/settings',
             builder: (context, state) => const AdminSettingsScreen(),
           ),
@@ -672,6 +677,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/parent/materials',
             builder: (context, state) => const StudentMaterialsScreen(),
+          ),
+          GoRoute(
+            // Parent overview = student insights scoped to the selected
+            // child via viewedStudentIdProvider. Reuses InsightsScreen
+            // 1:1 — no parent-specific code needed.
+            path: '/parent/overview',
+            builder: (context, state) => const InsightsScreen(),
           ),
           GoRoute(
             path: '/teacher/insights',

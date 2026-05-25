@@ -56,7 +56,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     blurb: 'Get a taste of NOVA. Resets every month.',
     priceAgorot: 0,
     priceUsd: 0,
-    monthlyTokens: 50_000,
+    monthlyTokens: 20_000,
     storeProductId: null,
   },
   {
