@@ -150,16 +150,19 @@ class _TeacherNewAnnouncementScreenState
     if (targetsNow.isEmpty) {
       final confirm = await showDialog<bool>(
         context: context,
-        builder: (dCtx) => AlertDialog(
-          title: const Text('Broadcast to everyone?'),
-          content: const Text(
-            'No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.',
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(dCtx, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(dCtx, true), child: const Text('Send to everyone')),
-          ],
-        ),
+        builder: (dCtx) {
+          final dl = AppLocalizations.of(dCtx)!;
+          return AlertDialog(
+            title: Text(dl.teacherAnnounceBroadcastTitle),
+            content: const Text(
+              'No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.',
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(dCtx, false), child: Text(dl.commonCancel)),
+              FilledButton(onPressed: () => Navigator.pop(dCtx, true), child: Text(dl.teacherAnnounceSendToEveryone)),
+            ],
+          );
+        },
       );
       if (confirm != true || !mounted) return;
     }
@@ -408,13 +411,13 @@ class _TeacherNewAnnouncementScreenState
                 // Attachment picker — files uploaded on publish.
                 Row(
                   children: [
-                    Text('Attachments',
+                    Text(l.commonAttachments,
                         style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                     const Spacer(),
                     TextButton.icon(
                       onPressed: _pickAttachment,
                       icon: const Icon(Icons.attach_file_rounded, size: 18),
-                      label: const Text('Add file'),
+                      label: Text(l.teacherMaterialAddFile),
                     ),
                   ],
                 ),
@@ -609,7 +612,7 @@ class _TeacherNewAnnouncementScreenState
                 ),
                 const SizedBox(height: 8),
                 _cohorts.isEmpty
-                    ? Text('No cohorts available',
+                    ? Text(AppLocalizations.of(context)!.teacherAnnounceNoCohorts,
                         style: TextStyle(
                             color: cs.onSurfaceVariant, fontSize: 13))
                     : _PickerTrigger(
@@ -788,7 +791,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
           Expanded(
             child: filtered.isEmpty
                 ? Center(
-                    child: Text('Nothing found',
+                    child: Text(AppLocalizations.of(context)!.teacherAnnounceNothingFound,
                         style: TextStyle(color: cs.onSurfaceVariant)))
                 : ListView.builder(
                     controller: scrollCtrl,
@@ -881,7 +884,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Done'),
+                child: Text(AppLocalizations.of(context)!.commonDone),
               ),
             ),
           ),
@@ -977,7 +980,7 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
                 const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Done'),
+                  child: Text(AppLocalizations.of(context)!.commonDone),
                 ),
               ],
             ),
@@ -1007,10 +1010,10 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
           const SizedBox(height: 8),
           Expanded(
             child: widget.parents.isEmpty
-                ? const Center(
+                ? Center(
                     child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text('No parents found at this school.'),
+                      padding: const EdgeInsets.all(24),
+                      child: Text(AppLocalizations.of(context)!.teacherAnnounceNoParents),
                     ),
                   )
                 : ListView.builder(

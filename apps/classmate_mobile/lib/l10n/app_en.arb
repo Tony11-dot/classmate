@@ -2596,5 +2596,11 @@
   "adminSubjectEnglishNameRequired": "English name is required",
   "adminSubjectNameInLang": "Name in {language}",
   "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
-  "adminSubjectResetButton": "Reset"
+  "adminSubjectResetButton": "Reset",
+
+  "teacherAnnounceBroadcastTitle": "Broadcast to everyone?",
+  "teacherAnnounceSendToEveryone": "Send to everyone",
+  "teacherAnnounceNoCohorts": "No cohorts available",
+  "teacherAnnounceNothingFound": "Nothing found",
+  "teacherAnnounceNoParents": "No parents found at this school."
 }

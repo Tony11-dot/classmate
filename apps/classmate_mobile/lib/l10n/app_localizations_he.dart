@@ -6101,4 +6101,19 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSubjectResetButton => 'אפס';
+
+  @override
+  String get teacherAnnounceBroadcastTitle => 'לשלוח לכולם?';
+
+  @override
+  String get teacherAnnounceSendToEveryone => 'שלח לכולם';
+
+  @override
+  String get teacherAnnounceNoCohorts => 'אין קבוצות זמינות';
+
+  @override
+  String get teacherAnnounceNothingFound => 'לא נמצא דבר';
+
+  @override
+  String get teacherAnnounceNoParents => 'לא נמצאו הורים בבית ספר זה.';
 }

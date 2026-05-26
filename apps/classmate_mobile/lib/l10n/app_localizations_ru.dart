@@ -6095,4 +6095,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminSubjectResetButton => 'Сбросить';
+
+  @override
+  String get teacherAnnounceBroadcastTitle => 'Отправить всем?';
+
+  @override
+  String get teacherAnnounceSendToEveryone => 'Отправить всем';
+
+  @override
+  String get teacherAnnounceNoCohorts => 'Нет доступных групп';
+
+  @override
+  String get teacherAnnounceNothingFound => 'Ничего не найдено';
+
+  @override
+  String get teacherAnnounceNoParents => 'В этой школе не найдено родителей.';
 }

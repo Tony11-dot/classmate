@@ -10968,6 +10968,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset'**
   String get adminSubjectResetButton;
+
+  /// No description provided for @teacherAnnounceBroadcastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast to everyone?'**
+  String get teacherAnnounceBroadcastTitle;
+
+  /// No description provided for @teacherAnnounceSendToEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to everyone'**
+  String get teacherAnnounceSendToEveryone;
+
+  /// No description provided for @teacherAnnounceNoCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'No cohorts available'**
+  String get teacherAnnounceNoCohorts;
+
+  /// No description provided for @teacherAnnounceNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get teacherAnnounceNothingFound;
+
+  /// No description provided for @teacherAnnounceNoParents.
+  ///
+  /// In en, this message translates to:
+  /// **'No parents found at this school.'**
+  String get teacherAnnounceNoParents;
 }
 
 class _AppLocalizationsDelegate

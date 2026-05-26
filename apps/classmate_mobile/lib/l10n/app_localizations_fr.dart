@@ -6248,4 +6248,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminSubjectResetButton => 'Réinitialiser';
+
+  @override
+  String get teacherAnnounceBroadcastTitle => 'Diffuser à tout le monde ?';
+
+  @override
+  String get teacherAnnounceSendToEveryone => 'Envoyer à tous';
+
+  @override
+  String get teacherAnnounceNoCohorts => 'Aucun groupe disponible';
+
+  @override
+  String get teacherAnnounceNothingFound => 'Rien trouvé';
+
+  @override
+  String get teacherAnnounceNoParents =>
+      'Aucun parent trouvé dans cette école.';
 }

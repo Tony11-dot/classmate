@@ -2389,5 +2389,11 @@
   "adminSubjectEnglishNameRequired": "الاسم بالإنجليزية مطلوب",
   "adminSubjectNameInLang": "الاسم بـ {language}",
   "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
-  "adminSubjectResetButton": "إعادة تعيين"
+  "adminSubjectResetButton": "إعادة تعيين",
+
+  "teacherAnnounceBroadcastTitle": "إرسال للجميع؟",
+  "teacherAnnounceSendToEveryone": "إرسال للجميع",
+  "teacherAnnounceNoCohorts": "لا توجد مجموعات متاحة",
+  "teacherAnnounceNothingFound": "لم يتم العثور على شيء",
+  "teacherAnnounceNoParents": "لم يتم العثور على أولياء أمور في هذه المدرسة."
 }

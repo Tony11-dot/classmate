@@ -6126,4 +6126,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSubjectResetButton => 'إعادة تعيين';
+
+  @override
+  String get teacherAnnounceBroadcastTitle => 'إرسال للجميع؟';
+
+  @override
+  String get teacherAnnounceSendToEveryone => 'إرسال للجميع';
+
+  @override
+  String get teacherAnnounceNoCohorts => 'لا توجد مجموعات متاحة';
+
+  @override
+  String get teacherAnnounceNothingFound => 'لم يتم العثور على شيء';
+
+  @override
+  String get teacherAnnounceNoParents =>
+      'لم يتم العثور على أولياء أمور في هذه المدرسة.';
 }

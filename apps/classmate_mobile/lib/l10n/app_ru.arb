@@ -2596,5 +2596,11 @@
   "adminSubjectEnglishNameRequired": "Требуется название на английском",
   "adminSubjectNameInLang": "Название на {language}",
   "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
-  "adminSubjectResetButton": "Сбросить"
+  "adminSubjectResetButton": "Сбросить",
+
+  "teacherAnnounceBroadcastTitle": "Отправить всем?",
+  "teacherAnnounceSendToEveryone": "Отправить всем",
+  "teacherAnnounceNoCohorts": "Нет доступных групп",
+  "teacherAnnounceNothingFound": "Ничего не найдено",
+  "teacherAnnounceNoParents": "В этой школе не найдено родителей."
 }

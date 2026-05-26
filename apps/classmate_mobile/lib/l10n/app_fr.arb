@@ -2389,5 +2389,11 @@
   "adminSubjectEnglishNameRequired": "Le nom en anglais est requis",
   "adminSubjectNameInLang": "Nom en {language}",
   "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
-  "adminSubjectResetButton": "Réinitialiser"
+  "adminSubjectResetButton": "Réinitialiser",
+
+  "teacherAnnounceBroadcastTitle": "Diffuser à tout le monde ?",
+  "teacherAnnounceSendToEveryone": "Envoyer à tous",
+  "teacherAnnounceNoCohorts": "Aucun groupe disponible",
+  "teacherAnnounceNothingFound": "Rien trouvé",
+  "teacherAnnounceNoParents": "Aucun parent trouvé dans cette école."
 }
