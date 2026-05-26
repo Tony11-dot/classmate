@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/attachment_pill.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -59,7 +60,7 @@ class _TeacherClassroomAddAssignmentScreenState
   Future<void> _save() async {
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonTitleRequired)));
       return;
     }
     setState(() => _saving = true);
@@ -114,7 +115,7 @@ class _TeacherClassroomAddAssignmentScreenState
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.check_rounded, size: 18),
-              label: const Text('Create'),
+              label: Text(AppLocalizations.of(context)!.teacherCreateAssignment),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               ),
@@ -156,9 +157,9 @@ class _TeacherClassroomAddAssignmentScreenState
                   TextFormField(
                     controller: _titleCtrl,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Title *',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherAssignmentTitleField,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -169,10 +170,10 @@ class _TeacherClassroomAddAssignmentScreenState
                     minLines: 3,
                     maxLines: 8,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Instructions (optional)',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherAssignmentInstructions,
                       alignLabelWithHint: true,
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -192,7 +193,7 @@ class _TeacherClassroomAddAssignmentScreenState
                     },
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: 'Due date (optional)',
+                        labelText: AppLocalizations.of(context)!.teacherAssignmentDueDate,
                         border: const OutlineInputBorder(),
                         prefixIcon: Icon(
                           Icons.calendar_today_rounded,
@@ -201,7 +202,7 @@ class _TeacherClassroomAddAssignmentScreenState
                         suffixIcon: _dueDate != null
                             ? IconButton(
                                 icon: const Icon(Icons.clear_rounded, size: 18),
-                                tooltip: 'Clear due date',
+                                tooltip: AppLocalizations.of(context)!.teacherAssignmentClearDueDate,
                                 onPressed: () =>
                                     setState(() => _dueDate = null),
                               )

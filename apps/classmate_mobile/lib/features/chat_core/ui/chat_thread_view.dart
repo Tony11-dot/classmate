@@ -981,8 +981,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       context: context,
       builder: (ctx) {
         final controller = TextEditingController();
+        final l = AppLocalizations.of(ctx)!;
         return AlertDialog(
-          title: const Text('Report message'),
+          title: Text(l.chatReportTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1007,11 +1008,11 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text(AppLocalizations.of(ctx)!.actionCancel),
+              child: Text(l.actionCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-              child: const Text('Report'),
+              child: Text(l.chatReportButton),
             ),
           ],
         );
@@ -1022,12 +1023,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       await widget.controller.reportMessage(message.id, reason: reason.isEmpty ? null : reason);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reported. Thank you — an admin will review.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.chatReportSuccess)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Report failed: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.chatReportFailed(e.toString()))),
       );
     }
   }
@@ -1419,7 +1420,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 icon: const Icon(Icons.close_rounded),
               ),
               Expanded(
-                child: Text('$count selected',
+                child: Text(l.chatSelectedCount(count.toString()),
                     style: Theme.of(context).textTheme.bodyMedium),
               ),
               IconButton(
@@ -1435,7 +1436,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
               FilledButton.icon(
                 onPressed: count == 0 ? null : _commitForward,
                 icon: const Icon(Icons.forward_rounded),
-                label: Text('Forward $count'),
+                label: Text(l.chatForwardLabel(count.toString())),
               ),
             ],
           ),
@@ -1472,7 +1473,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 icon: const Icon(Icons.close_rounded),
               ),
               Expanded(
-                child: Text('$count selected',
+                child: Text(l.chatSelectedCount(count.toString()),
                     style: Theme.of(context).textTheme.bodyMedium),
               ),
               IconButton(
@@ -1492,7 +1493,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 ),
                 onPressed: count == 0 ? null : _commitDelete,
                 icon: const Icon(Icons.delete_outline_rounded),
-                label: Text('Delete $count'),
+                label: Text(l.chatDeleteLabel(count.toString())),
               ),
             ],
           ),

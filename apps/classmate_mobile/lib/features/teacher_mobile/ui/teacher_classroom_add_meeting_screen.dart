@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 
 class TeacherClassroomAddMeetingScreen extends ConsumerStatefulWidget {
@@ -83,21 +84,22 @@ class _TeacherClassroomAddMeetingScreenState
     final title = _titleCtrl.text.trim();
     final link = _linkCtrl.text.trim();
 
+    final l = AppLocalizations.of(context)!;
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meeting title required')),
+        SnackBar(content: Text(l.teacherMeetingTitleRequired)),
       );
       return;
     }
     if (link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Meeting link required')),
+        SnackBar(content: Text(l.teacherMeetingLinkRequired)),
       );
       return;
     }
     if (_startDate == null || _startTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Start date and time required')),
+        SnackBar(content: Text(l.teacherMeetingDateTimeRequired)),
       );
       return;
     }
@@ -155,7 +157,7 @@ class _TeacherClassroomAddMeetingScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Schedule Meeting',
+          AppLocalizations.of(context)!.teacherScheduleMeetingTitle,
           style:
               theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
@@ -171,7 +173,7 @@ class _TeacherClassroomAddMeetingScreenState
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.event_available_rounded, size: 18),
-              label: const Text('Schedule'),
+              label: Text(AppLocalizations.of(context)!.teacherScheduleButton),
               style: FilledButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -212,9 +214,9 @@ class _TeacherClassroomAddMeetingScreenState
                   TextFormField(
                     controller: _titleCtrl,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Meeting title *',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherMeetingTitleField,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -222,11 +224,11 @@ class _TeacherClassroomAddMeetingScreenState
                   TextFormField(
                     controller: _linkCtrl,
                     keyboardType: TextInputType.url,
-                    decoration: const InputDecoration(
-                      labelText: 'Meeting link *',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherMeetingLinkField,
                       hintText: 'e.g. https://zoom.us/j/...',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.videocam_outlined),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.videocam_outlined),
                     ),
                   ),
                   const SizedBox(height: 4),
