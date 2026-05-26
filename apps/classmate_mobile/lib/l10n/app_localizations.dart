@@ -8574,7 +8574,7 @@ abstract class AppLocalizations {
   /// No description provided for @navPeople.
   ///
   /// In en, this message translates to:
-  /// **'People'**
+  /// **'Users'**
   String get navPeople;
 
   /// No description provided for @navCohorts.
@@ -13490,6 +13490,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Grades {list}'**
   String adminCohortGradesList(String list);
+
+  /// No description provided for @adminExportHeaderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export users'**
+  String get adminExportHeaderTitle;
+
+  /// No description provided for @adminExportHeaderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add filters as pills — every pill adds users to the export. Tap a pill to remove it.'**
+  String get adminExportHeaderSubtitle;
+
+  /// No description provided for @adminExportAddFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Add filter'**
+  String get adminExportAddFilter;
+
+  /// No description provided for @adminExportEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a filter to start: pick a role, cohort, grade, or specific users.'**
+  String get adminExportEmptyState;
+
+  /// No description provided for @adminExportFilterRolesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get adminExportFilterRolesTab;
+
+  /// No description provided for @adminExportFilterCohortsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get adminExportFilterCohortsTab;
+
+  /// No description provided for @adminExportFilterGradesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get adminExportFilterGradesTab;
+
+  /// No description provided for @adminExportFilterUsersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminExportFilterUsersTab;
+
+  /// No description provided for @adminExportPillRolePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Role:'**
+  String get adminExportPillRolePrefix;
+
+  /// No description provided for @adminExportPillCohortPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort:'**
+  String get adminExportPillCohortPrefix;
+
+  /// No description provided for @adminExportActiveFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} active filter} other{{count} active filters}}'**
+  String adminExportActiveFilters(int count);
+
+  /// No description provided for @adminExportClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get adminExportClearAll;
+
+  /// No description provided for @adminExportCounting.
+  ///
+  /// In en, this message translates to:
+  /// **'Counting…'**
+  String get adminExportCounting;
+
+  /// No description provided for @adminExportMatchCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} user will be exported} other{{count} users will be exported}}'**
+  String adminExportMatchCount(int count);
+
+  /// No description provided for @adminExportNoGradesConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades configured for this school'**
+  String get adminExportNoGradesConfigured;
+
+  /// No description provided for @adminExportColumnRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get adminExportColumnRole;
+
+  /// No description provided for @adminExportRoleStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get adminExportRoleStudent;
+
+  /// No description provided for @adminExportRoleTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get adminExportRoleTeacher;
+
+  /// No description provided for @adminExportRoleParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get adminExportRoleParent;
+
+  /// No description provided for @adminExportRoleSecretary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretary'**
+  String get adminExportRoleSecretary;
+
+  /// No description provided for @adminExportRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get adminExportRoleAdmin;
+
+  /// No description provided for @adminExportUsersSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} user selected} other{{count} users selected}}'**
+  String adminExportUsersSelected(int count);
+
+  /// No description provided for @adminExportPasswordsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords will be visible in the export — handle the file securely.'**
+  String get adminExportPasswordsOn;
+
+  /// No description provided for @adminExportPasswordsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Export will not contain any passwords.'**
+  String get adminExportPasswordsOff;
+
+  /// No description provided for @adminExportPdfUserDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'User Directory'**
+  String get adminExportPdfUserDirectory;
+
+  /// No description provided for @adminExportPdfUsersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} user} other{{count} users}}'**
+  String adminExportPdfUsersCount(int count);
 }
 
 class _AppLocalizationsDelegate

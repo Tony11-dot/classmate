@@ -4772,7 +4772,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get navDashboard => 'לוח בקרה';
 
   @override
-  String get navPeople => 'אנשים';
+  String get navPeople => 'משתמשים';
 
   @override
   String get navCohorts => 'קבוצות';
@@ -7573,5 +7573,118 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String adminCohortGradesList(String list) {
     return 'כיתות $list';
+  }
+
+  @override
+  String get adminExportHeaderTitle => 'ייצוא משתמשים';
+
+  @override
+  String get adminExportHeaderSubtitle =>
+      'הוסף סננים כתגיות — כל תגית מוסיפה משתמשים לייצוא. הקש על תגית להסרתה.';
+
+  @override
+  String get adminExportAddFilter => 'הוסף סנן';
+
+  @override
+  String get adminExportEmptyState =>
+      'הוסף סנן להתחלה: בחר תפקיד, קבוצה, כיתה או משתמשים ספציפיים.';
+
+  @override
+  String get adminExportFilterRolesTab => 'תפקידים';
+
+  @override
+  String get adminExportFilterCohortsTab => 'קבוצות';
+
+  @override
+  String get adminExportFilterGradesTab => 'כיתות';
+
+  @override
+  String get adminExportFilterUsersTab => 'משתמשים';
+
+  @override
+  String get adminExportPillRolePrefix => 'תפקיד:';
+
+  @override
+  String get adminExportPillCohortPrefix => 'קבוצה:';
+
+  @override
+  String adminExportActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count סננים פעילים',
+      one: 'סנן פעיל אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportClearAll => 'נקה הכל';
+
+  @override
+  String get adminExportCounting => 'סופר…';
+
+  @override
+  String adminExportMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משתמשים יוצאו',
+      one: 'משתמש אחד יוצא',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportNoGradesConfigured => 'אין כיתות מוגדרות לבית הספר';
+
+  @override
+  String get adminExportColumnRole => 'תפקיד';
+
+  @override
+  String get adminExportRoleStudent => 'תלמיד';
+
+  @override
+  String get adminExportRoleTeacher => 'מורה';
+
+  @override
+  String get adminExportRoleParent => 'הורה';
+
+  @override
+  String get adminExportRoleSecretary => 'מזכיר';
+
+  @override
+  String get adminExportRoleAdmin => 'מנהל';
+
+  @override
+  String adminExportUsersSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'נבחרו $count משתמשים',
+      one: 'נבחר משתמש אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportPasswordsOn =>
+      'סיסמאות יופיעו בייצוא — טפל בקובץ בזהירות.';
+
+  @override
+  String get adminExportPasswordsOff => 'הייצוא לא יכיל סיסמאות.';
+
+  @override
+  String get adminExportPdfUserDirectory => 'ספריית משתמשים';
+
+  @override
+  String adminExportPdfUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משתמשים',
+      one: 'משתמש אחד',
+    );
+    return '$_temp0';
   }
 }

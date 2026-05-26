@@ -246,6 +246,31 @@ export class AdminController {
     return this.admin.exportStudents(req.user, { cohortId, grade, generatePasswords, studentIds });
   }
 
+  /// Multi-filter user export. All filters are UNIONed: the result is
+  /// every user that matches ANY of the supplied filters. Cohort/grade
+  /// filters only contribute STUDENT rows; specific userIds include
+  /// regardless of role. roles[] (comma-separated) acts as a wildcard
+  /// for "every user with one of these roles" (no other filter needed).
+  /// Query: roles, cohortIds, gradeIds, userIds, generatePasswords.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('export/users')
+  exportUsers(
+    @Req() req: any,
+    @Query('roles') roles?: string,
+    @Query('cohortIds') cohortIds?: string,
+    @Query('gradeIds') gradeIds?: string,
+    @Query('userIds') userIds?: string,
+    @Query('generatePasswords') generatePasswords?: string,
+  ) {
+    return this.admin.exportUsers(req.user, {
+      roles,
+      cohortIds,
+      gradeIds,
+      userIds,
+      generatePasswords,
+    });
+  }
+
   @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('export/cohorts')
   exportCohorts(@Req() req: any) {

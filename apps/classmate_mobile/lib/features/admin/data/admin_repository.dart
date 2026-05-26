@@ -294,6 +294,26 @@ class AdminRepository {
     return _l(_m(raw)['students']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
+  /// Multi-filter user export. Server UNIONs across roles, cohortIds,
+  /// gradeIds, and userIds — each adds rows. Used by the redesigned
+  /// admin export screen where every filter is a removable pill.
+  Future<List<Map<String, dynamic>>> exportUsers({
+    List<String> roles = const [],
+    List<String> cohortIds = const [],
+    List<int> gradeIds = const [],
+    List<String> userIds = const [],
+    bool generatePasswords = false,
+  }) async {
+    final q = <String, String>{};
+    if (roles.isNotEmpty) q['roles'] = roles.join(',');
+    if (cohortIds.isNotEmpty) q['cohortIds'] = cohortIds.join(',');
+    if (gradeIds.isNotEmpty) q['gradeIds'] = gradeIds.join(',');
+    if (userIds.isNotEmpty) q['userIds'] = userIds.join(',');
+    if (generatePasswords) q['generatePasswords'] = 'true';
+    final raw = await _api.getJson('/admin/export/users', query: q.isEmpty ? null : q);
+    return _l(_m(raw)['users']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   Future<List<Map<String, dynamic>>> exportCohorts() async {
     final raw = await _api.getJson('/admin/export/cohorts');
     return _l(_m(raw)['cohorts']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();

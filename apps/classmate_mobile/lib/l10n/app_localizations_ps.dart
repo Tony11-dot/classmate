@@ -4843,7 +4843,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get navDashboard => '‹‹Dashboard››';
 
   @override
-  String get navPeople => '‹‹People››';
+  String get navPeople => '‹‹Users››';
 
   @override
   String get navCohorts => '‹‹Cohorts››';
@@ -7690,5 +7690,120 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String adminCohortGradesList(String list) {
     return '‹‹Grades $list››';
+  }
+
+  @override
+  String get adminExportHeaderTitle => '‹‹Export users››';
+
+  @override
+  String get adminExportHeaderSubtitle =>
+      '‹‹Add filters as pills — every pill adds users to the export. Tap a pill to remove it.››';
+
+  @override
+  String get adminExportAddFilter => '‹‹Add filter››';
+
+  @override
+  String get adminExportEmptyState =>
+      '‹‹Add a filter to start: pick a role, cohort, grade, or specific users.››';
+
+  @override
+  String get adminExportFilterRolesTab => '‹‹Roles››';
+
+  @override
+  String get adminExportFilterCohortsTab => '‹‹Cohorts››';
+
+  @override
+  String get adminExportFilterGradesTab => '‹‹Grades››';
+
+  @override
+  String get adminExportFilterUsersTab => '‹‹Users››';
+
+  @override
+  String get adminExportPillRolePrefix => '‹‹Role:››';
+
+  @override
+  String get adminExportPillCohortPrefix => '‹‹Cohort:››';
+
+  @override
+  String adminExportActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count active filters',
+      one: '$count active filter',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get adminExportClearAll => '‹‹Clear all››';
+
+  @override
+  String get adminExportCounting => '‹‹Counting…››';
+
+  @override
+  String adminExportMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users will be exported',
+      one: '$count user will be exported',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get adminExportNoGradesConfigured =>
+      '‹‹No grades configured for this school››';
+
+  @override
+  String get adminExportColumnRole => '‹‹Role››';
+
+  @override
+  String get adminExportRoleStudent => '‹‹Student››';
+
+  @override
+  String get adminExportRoleTeacher => '‹‹Teacher››';
+
+  @override
+  String get adminExportRoleParent => '‹‹Parent››';
+
+  @override
+  String get adminExportRoleSecretary => '‹‹Secretary››';
+
+  @override
+  String get adminExportRoleAdmin => '‹‹Admin››';
+
+  @override
+  String adminExportUsersSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users selected',
+      one: '$count user selected',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get adminExportPasswordsOn =>
+      '‹‹Passwords will be visible in the export — handle the file securely.››';
+
+  @override
+  String get adminExportPasswordsOff =>
+      '‹‹Export will not contain any passwords.››';
+
+  @override
+  String get adminExportPdfUserDirectory => '‹‹User Directory››';
+
+  @override
+  String adminExportPdfUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users',
+      one: '$count user',
+    );
+    return '‹‹$_temp0››';
   }
 }

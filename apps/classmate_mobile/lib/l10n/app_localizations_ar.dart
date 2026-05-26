@@ -4793,7 +4793,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navDashboard => 'لوحة التحكم';
 
   @override
-  String get navPeople => 'الأشخاص';
+  String get navPeople => 'المستخدمون';
 
   @override
   String get navCohorts => 'المجموعات';
@@ -7606,5 +7606,118 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String adminCohortGradesList(String list) {
     return 'الصفوف $list';
+  }
+
+  @override
+  String get adminExportHeaderTitle => 'تصدير المستخدمين';
+
+  @override
+  String get adminExportHeaderSubtitle =>
+      'أضف الفلاتر كشارات — كل شارة تضيف مستخدمين إلى التصدير. اضغط على شارة لإزالتها.';
+
+  @override
+  String get adminExportAddFilter => 'إضافة فلتر';
+
+  @override
+  String get adminExportEmptyState =>
+      'أضف فلترًا للبدء: اختر دورًا أو مجموعة أو صفًا أو مستخدمين محددين.';
+
+  @override
+  String get adminExportFilterRolesTab => 'الأدوار';
+
+  @override
+  String get adminExportFilterCohortsTab => 'المجموعات';
+
+  @override
+  String get adminExportFilterGradesTab => 'الصفوف';
+
+  @override
+  String get adminExportFilterUsersTab => 'المستخدمون';
+
+  @override
+  String get adminExportPillRolePrefix => 'دور:';
+
+  @override
+  String get adminExportPillCohortPrefix => 'مجموعة:';
+
+  @override
+  String adminExportActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count فلاتر نشطة',
+      one: 'فلتر نشط واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportClearAll => 'مسح الكل';
+
+  @override
+  String get adminExportCounting => 'جاري العد…';
+
+  @override
+  String adminExportMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'سيتم تصدير $count مستخدمين',
+      one: 'سيتم تصدير مستخدم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportNoGradesConfigured => 'لا توجد صفوف مكونة لهذه المدرسة';
+
+  @override
+  String get adminExportColumnRole => 'الدور';
+
+  @override
+  String get adminExportRoleStudent => 'طالب';
+
+  @override
+  String get adminExportRoleTeacher => 'معلم';
+
+  @override
+  String get adminExportRoleParent => 'ولي أمر';
+
+  @override
+  String get adminExportRoleSecretary => 'سكرتير';
+
+  @override
+  String get adminExportRoleAdmin => 'مدير';
+
+  @override
+  String adminExportUsersSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تم اختيار $count مستخدمين',
+      one: 'تم اختيار مستخدم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportPasswordsOn =>
+      'ستظهر كلمات المرور في التصدير — تعامل مع الملف بأمان.';
+
+  @override
+  String get adminExportPasswordsOff => 'لن يحتوي التصدير على أي كلمات مرور.';
+
+  @override
+  String get adminExportPdfUserDirectory => 'دليل المستخدمين';
+
+  @override
+  String adminExportPdfUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مستخدمين',
+      one: 'مستخدم واحد',
+    );
+    return '$_temp0';
   }
 }

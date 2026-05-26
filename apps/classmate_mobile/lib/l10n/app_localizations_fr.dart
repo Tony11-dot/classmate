@@ -4887,7 +4887,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navDashboard => 'Tableau de bord';
 
   @override
-  String get navPeople => 'Personnes';
+  String get navPeople => 'Utilisateurs';
 
   @override
   String get navCohorts => 'Cohortes';
@@ -7756,5 +7756,120 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String adminCohortGradesList(String list) {
     return 'Niveaux $list';
+  }
+
+  @override
+  String get adminExportHeaderTitle => 'Exporter les utilisateurs';
+
+  @override
+  String get adminExportHeaderSubtitle =>
+      'Ajoutez des filtres sous forme de puces — chaque puce ajoute des utilisateurs à l\'export. Appuyez sur une puce pour la retirer.';
+
+  @override
+  String get adminExportAddFilter => 'Ajouter un filtre';
+
+  @override
+  String get adminExportEmptyState =>
+      'Ajoutez un filtre pour commencer : choisissez un rôle, un groupe, un niveau ou des utilisateurs spécifiques.';
+
+  @override
+  String get adminExportFilterRolesTab => 'Rôles';
+
+  @override
+  String get adminExportFilterCohortsTab => 'Groupes';
+
+  @override
+  String get adminExportFilterGradesTab => 'Niveaux';
+
+  @override
+  String get adminExportFilterUsersTab => 'Utilisateurs';
+
+  @override
+  String get adminExportPillRolePrefix => 'Rôle :';
+
+  @override
+  String get adminExportPillCohortPrefix => 'Groupe :';
+
+  @override
+  String adminExportActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filtres actifs',
+      one: '$count filtre actif',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportClearAll => 'Tout effacer';
+
+  @override
+  String get adminExportCounting => 'Comptage…';
+
+  @override
+  String adminExportMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count utilisateurs seront exportés',
+      one: '$count utilisateur sera exporté',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportNoGradesConfigured =>
+      'Aucun niveau configuré pour cette école';
+
+  @override
+  String get adminExportColumnRole => 'Rôle';
+
+  @override
+  String get adminExportRoleStudent => 'Élève';
+
+  @override
+  String get adminExportRoleTeacher => 'Enseignant';
+
+  @override
+  String get adminExportRoleParent => 'Parent';
+
+  @override
+  String get adminExportRoleSecretary => 'Secrétaire';
+
+  @override
+  String get adminExportRoleAdmin => 'Administrateur';
+
+  @override
+  String adminExportUsersSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count utilisateurs sélectionnés',
+      one: '$count utilisateur sélectionné',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportPasswordsOn =>
+      'Les mots de passe seront visibles dans l\'export — manipulez le fichier avec précaution.';
+
+  @override
+  String get adminExportPasswordsOff =>
+      'L\'export ne contiendra aucun mot de passe.';
+
+  @override
+  String get adminExportPdfUserDirectory => 'Annuaire des utilisateurs';
+
+  @override
+  String adminExportPdfUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count utilisateurs',
+      one: '$count utilisateur',
+    );
+    return '$_temp0';
   }
 }

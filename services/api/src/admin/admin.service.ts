@@ -1105,6 +1105,190 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return { ok: true, students: result, schoolName };
   }
 
+  /// Multi-role, multi-filter user export. Pills in the admin export UI
+  /// map to UNIONed filter buckets:
+  ///   - roles[]         → all users in the school with any of these roles
+  ///   - cohortIds[]     → STUDENT users belonging to any of these cohorts
+  ///   - gradeIds[]      → STUDENT users whose grade is in this set
+  ///   - userIds[]       → specific users (any role) added one-by-one
+  /// Result is deduplicated by user id. When includePasswords is true,
+  /// rows carry their stored plainPassword (or empty for legacy accounts
+  /// created before plaintext was tracked — see exportStudents notes).
+  async exportUsers(
+    user: any,
+    query: {
+      roles?: string;
+      cohortIds?: string;
+      gradeIds?: string;
+      userIds?: string;
+      generatePasswords?: string;
+    },
+  ) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const parseCsv = (v?: string) =>
+      (v ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    const rolesFilter = parseCsv(query.roles).map((r) => r.toUpperCase());
+    const cohortIdsFilter = parseCsv(query.cohortIds);
+    const gradeIdsFilter = parseCsv(query.gradeIds)
+      .map((g) => Number(g))
+      .filter((n) => Number.isFinite(n));
+    const userIdsFilter = parseCsv(query.userIds);
+
+    if (
+      rolesFilter.length === 0 &&
+      cohortIdsFilter.length === 0 &&
+      gradeIdsFilter.length === 0 &&
+      userIdsFilter.length === 0
+    ) {
+      throw new BadRequestException(
+        'At least one filter required (roles, cohortIds, gradeIds, or userIds).',
+      );
+    }
+
+    // Resolve the union of user ids that should appear in the export.
+    const includedIds = new Set<string>(userIdsFilter);
+
+    if (rolesFilter.length > 0) {
+      const roleRows = await this.prisma.user.findMany({
+        where: {
+          schoolId,
+          roles: { some: { role: { in: rolesFilter as any } } },
+        },
+        select: { id: true },
+      });
+      for (const r of roleRows) includedIds.add(r.id);
+    }
+
+    if (cohortIdsFilter.length > 0) {
+      // Both primary-cohort link and the many-to-many StudentCohort
+      // memberships count as "in" a cohort.
+      const cohortMembers = await this.prisma.user.findMany({
+        where: {
+          schoolId,
+          roles: { some: { role: 'STUDENT' as any } },
+          OR: [
+            { studentProfile: { cohortId: { in: cohortIdsFilter } } },
+            {
+              studentProfile: {
+                cohorts: { some: { cohortId: { in: cohortIdsFilter } } },
+              },
+            },
+          ],
+        },
+        select: { id: true },
+      });
+      for (const r of cohortMembers) includedIds.add(r.id);
+    }
+
+    if (gradeIdsFilter.length > 0) {
+      const gradeMembers = await this.prisma.user.findMany({
+        where: {
+          schoolId,
+          roles: { some: { role: 'STUDENT' as any } },
+          OR: [
+            { studentProfile: { cohort: { grade: { in: gradeIdsFilter } } } },
+            {
+              studentProfile: {
+                cohorts: {
+                  some: { cohort: { grade: { in: gradeIdsFilter } } },
+                },
+              },
+            },
+          ],
+        },
+        select: { id: true },
+      });
+      for (const r of gradeMembers) includedIds.add(r.id);
+    }
+
+    if (includedIds.size === 0) {
+      const school = await this.prisma.school.findUnique({
+        where: { id: schoolId },
+        select: { name: true },
+      });
+      return { ok: true, users: [], schoolName: school?.name ?? '' };
+    }
+
+    const includePasswords = query.generatePasswords === 'true';
+
+    const rows = await this.prisma.user.findMany({
+      where: { id: { in: Array.from(includedIds) }, schoolId },
+      select: {
+        id: true,
+        name: true,
+        nameEn: true,
+        nameAr: true,
+        nameHe: true,
+        nameFr: true,
+        nameRu: true,
+        email: true,
+        username: true,
+        phone: true,
+        plainPassword: true,
+        roles: { select: { role: true } },
+        studentProfile: {
+          select: {
+            cohort: { select: { id: true, name: true, grade: true } },
+            cohorts: {
+              select: { cohort: { select: { id: true, name: true, grade: true } } },
+            },
+          },
+        },
+      } as any,
+      orderBy: { name: 'asc' },
+    }) as any[];
+
+    const school = await this.prisma.school.findUnique({
+      where: { id: schoolId },
+      select: { name: true },
+    });
+    const schoolName = school?.name ?? '';
+
+    const result = rows.map((r) => {
+      const cohortMap = new Map<string, { id: string; name: string; grade: number | null }>();
+      if (r.studentProfile?.cohort?.id) {
+        cohortMap.set(r.studentProfile.cohort.id, r.studentProfile.cohort);
+      }
+      for (const c of r.studentProfile?.cohorts ?? []) {
+        if (c?.cohort?.id) cohortMap.set(c.cohort.id, c.cohort);
+      }
+      const cohortList = Array.from(cohortMap.values());
+
+      // Pick a single canonical role per row for the Role column.
+      // Multi-role users (rare) collapse to the first role with stable
+      // priority STUDENT < TEACHER < PARENT < SECRETARY < ADMIN.
+      const rolePriority = ['ADMIN', 'SECRETARY', 'PARENT', 'TEACHER', 'STUDENT'];
+      const roles = (r.roles ?? []).map((x: any) => x.role);
+      const role = rolePriority.find((p) => roles.includes(p)) ?? roles[0] ?? '';
+
+      return {
+        id: r.id,
+        nameEn: r.nameEn ?? r.name,
+        nameAr: r.nameAr ?? '',
+        nameHe: r.nameHe ?? '',
+        nameFr: r.nameFr ?? '',
+        nameRu: r.nameRu ?? '',
+        email: r.email ?? null,
+        username: r.username ?? null,
+        phone: r.phone ?? null,
+        role,
+        grade: r.studentProfile?.cohort?.grade ?? r.studentProfile?.cohorts?.[0]?.cohort?.grade ?? null,
+        cohortName: cohortList[0]?.name ?? '',
+        cohortNames: cohortList.map((c) => c.name),
+        schoolName,
+        tempPassword: includePasswords ? ((r as any).plainPassword ?? '') : undefined,
+      };
+    });
+
+    return { ok: true, users: result, schoolName };
+  }
+
   async exportCohorts(user: any) {
     this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId;

@@ -3232,5 +3232,44 @@
   "adminCohortGradesList": "Grades {list}",
   "@adminCohortGradesList": {
     "placeholders": { "list": { "type": "String" } }
+  },
+
+  "adminExportHeaderTitle": "Export users",
+  "adminExportHeaderSubtitle": "Add filters as pills — every pill adds users to the export. Tap a pill to remove it.",
+  "adminExportAddFilter": "Add filter",
+  "adminExportEmptyState": "Add a filter to start: pick a role, cohort, grade, or specific users.",
+  "adminExportFilterRolesTab": "Roles",
+  "adminExportFilterCohortsTab": "Cohorts",
+  "adminExportFilterGradesTab": "Grades",
+  "adminExportFilterUsersTab": "Users",
+  "adminExportPillRolePrefix": "Role:",
+  "adminExportPillCohortPrefix": "Cohort:",
+  "adminExportActiveFilters": "{count, plural, one{{count} active filter} other{{count} active filters}}",
+  "@adminExportActiveFilters": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminExportClearAll": "Clear all",
+  "adminExportCounting": "Counting…",
+  "adminExportMatchCount": "{count, plural, one{{count} user will be exported} other{{count} users will be exported}}",
+  "@adminExportMatchCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminExportNoGradesConfigured": "No grades configured for this school",
+  "adminExportColumnRole": "Role",
+  "adminExportRoleStudent": "Student",
+  "adminExportRoleTeacher": "Teacher",
+  "adminExportRoleParent": "Parent",
+  "adminExportRoleSecretary": "Secretary",
+  "adminExportRoleAdmin": "Admin",
+  "adminExportUsersSelected": "{count, plural, one{{count} user selected} other{{count} users selected}}",
+  "@adminExportUsersSelected": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminExportPasswordsOn": "Passwords will be visible in the export — handle the file securely.",
+  "adminExportPasswordsOff": "Export will not contain any passwords.",
+  "adminExportPdfUserDirectory": "User Directory",
+  "adminExportPdfUsersCount": "{count, plural, one{{count} user} other{{count} users}}",
+  "@adminExportPdfUsersCount": {
+    "placeholders": { "count": { "type": "int" } }
   }
 }

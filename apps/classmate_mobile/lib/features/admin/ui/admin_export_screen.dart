@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -17,6 +18,11 @@ import '../data/admin_repository.dart';
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
+/// Admin/secretary export screen. Filters are pills — every pill (role,
+/// cohort, grade, specific user) adds to the export set (UNION). When no
+/// pills are set the screen shows an empty state and the export FAB is
+/// hidden. Cohort/grade pills only contribute student rows; specific-user
+/// pills always include their user regardless of role.
 class AdminExportScreen extends ConsumerStatefulWidget {
   const AdminExportScreen({super.key});
 
@@ -24,23 +30,31 @@ class AdminExportScreen extends ConsumerStatefulWidget {
   ConsumerState<AdminExportScreen> createState() => _AdminExportScreenState();
 }
 
-enum _PickerMode { students, cohorts, grades }
+const _kRoles = <String>['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
 
 class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
-  // Mode
-  _PickerMode _mode = _PickerMode.students;
+  // ── Pills ──────────────────────────────────────────────────────────────────
+  final Set<String> _selectedRoles = {};
+  final Set<String> _selectedCohortIds = {};
+  final Set<int> _selectedGrades = {};
+  final Set<String> _selectedUserIds = {};
 
-  // Selection
-  final Set<String> _selectedStudentIds = {};
-  final Set<String> _selectedCohortIds  = {};
-  final Set<int>    _selectedGrades     = {};
-  final Set<String> _expandedCohortIds  = {};
+  // ── Data caches for pill labels and the picker sheet ──────────────────────
+  List<Map<String, dynamic>> _ddlStudents = [];
+  List<Map<String, dynamic>> _ddlTeachers = [];
+  List<Map<String, dynamic>> _ddlCohorts = [];
+  /// All available grades in the school, derived from cohort metadata.
+  List<int> _allGrades = [];
+  /// Quick lookup id → user record for rendering specific-user pills.
+  final Map<String, Map<String, dynamic>> _userById = {};
 
-  // Data
-  List<Map<String, dynamic>> _students = [];
-  List<Map<String, dynamic>> _cohorts  = [];
   bool _loading = true;
-  String _search = '';
+  bool _previewing = false;
+  int _previewCount = 0;
+
+  // Debounce repeated preview requests when the user toggles several
+  // filters in quick succession.
+  Timer? _previewDebounce;
 
   @override
   void initState() {
@@ -48,124 +62,201 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _previewDebounce?.cancel();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     try {
-      final [students, cohorts] = await Future.wait([
-        ref.read(adminRepositoryProvider).getDdlStudents(),
-        ref.read(adminRepositoryProvider).getDdlCohorts(),
+      final repo = ref.read(adminRepositoryProvider);
+      final results = await Future.wait([
+        repo.getDdlStudents(),
+        repo.getDdlCohorts(),
+        repo.getDdlTeachers(),
       ]);
-      if (mounted) {
-        setState(() {
-        _students = students;
-        _cohorts  = cohorts;
-        _loading  = false;
-      });
+      final students = results[0];
+      final cohorts = results[1];
+      final teachers = results[2];
+
+      final gradeSet = <int>{};
+      for (final c in cohorts) {
+        final gs = c['grades'];
+        if (gs is List && gs.isNotEmpty) {
+          for (final g in gs) {
+            if (g is num) gradeSet.add(g.toInt());
+          }
+        } else {
+          final g = c['grade'];
+          if (g is num) gradeSet.add(g.toInt());
+        }
       }
+
+      if (!mounted) return;
+      setState(() {
+        _ddlStudents = students;
+        _ddlTeachers = teachers;
+        _ddlCohorts = cohorts;
+        _allGrades = gradeSet.toList()..sort();
+        _userById.clear();
+        for (final u in [...students, ...teachers]) {
+          final id = u['id']?.toString() ?? '';
+          if (id.isNotEmpty) _userById[id] = u;
+        }
+        _loading = false;
+      });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  /// All grades visible in this school — derived from the cohorts DDL so we
-  /// don't need a separate school-grades fetch. Each cohort can span multiple
-  /// grades via `grades[]`, otherwise falls back to its primary `grade`.
-  List<int> get _allGrades {
-    final set = <int>{};
-    for (final c in _cohorts) {
-      final gs = c['grades'];
-      if (gs is List && gs.isNotEmpty) {
-        for (final g in gs) {
-          if (g is num) set.add(g.toInt());
-        }
-      } else {
-        final g = c['grade'];
-        if (g is num) set.add(g.toInt());
-      }
-    }
-    return set.toList()..sort();
+  bool get _hasFilters =>
+      _selectedRoles.isNotEmpty ||
+      _selectedCohortIds.isNotEmpty ||
+      _selectedGrades.isNotEmpty ||
+      _selectedUserIds.isNotEmpty;
+
+  void _schedulePreview() {
+    _previewDebounce?.cancel();
+    _previewDebounce = Timer(const Duration(milliseconds: 280), _refreshPreview);
   }
 
-  /// Resolves the list of selected student IDs across all three picker
-  /// modes, deduplicated. Students mode = direct selection. Cohorts mode =
-  /// roster lookup by selected cohort ids (matched against StudentCohort
-  /// memberships, with a name fallback for legacy rows). Grades mode =
-  /// any student whose own grade or whose cohorts cover one of the
-  /// selected grades.
-  List<String> get _effectiveStudentIds {
-    final ids = <String>{};
-    if (_mode == _PickerMode.students) {
-      ids.addAll(_selectedStudentIds);
-    } else if (_mode == _PickerMode.cohorts) {
-      for (final cid in _selectedCohortIds) {
-        final cohort = _cohorts.firstWhere(
-          (c) => c['id']?.toString() == cid,
-          orElse: () => const {},
-        );
-        // Prefer the new multi-cohort membership lookup (cohort.studentIds
-        // from the DDL); fall back to legacy single-cohort name match.
-        final memberIds = (cohort['studentIds'] as List?)
-                ?.map((e) => e.toString())
-                .where((s) => s.isNotEmpty)
-                .toList() ??
-            const <String>[];
-        if (memberIds.isNotEmpty) {
-          ids.addAll(memberIds);
-        } else {
-          final cohortName = cohort['name']?.toString() ?? '';
-          for (final s in _students) {
-            if ((s['cohortName']?.toString() ?? '') == cohortName) {
-              ids.add(s['id']?.toString() ?? '');
-            }
-          }
-        }
-      }
-    } else if (_mode == _PickerMode.grades) {
-      for (final g in _selectedGrades) {
-        for (final s in _students) {
-          final sg = (s['grade'] as num?)?.toInt();
-          if (sg == g) {
-            ids.add(s['id']?.toString() ?? '');
-          }
-        }
-      }
-    }
-    return ids.where((id) => id.isNotEmpty).toList();
-  }
-
-  int get _selectedCount {
-    if (_mode == _PickerMode.students) return _selectedStudentIds.length;
-    return _effectiveStudentIds.length;
-  }
-
-  void _toggleStudent(String id) => setState(() =>
-    _selectedStudentIds.contains(id) ? _selectedStudentIds.remove(id) : _selectedStudentIds.add(id));
-
-  void _toggleCohort(String id) => setState(() =>
-    _selectedCohortIds.contains(id) ? _selectedCohortIds.remove(id) : _selectedCohortIds.add(id));
-
-  void _toggleGrade(int g) => setState(() =>
-    _selectedGrades.contains(g) ? _selectedGrades.remove(g) : _selectedGrades.add(g));
-
-  void _toggleExpandCohort(String id) => setState(() =>
-    _expandedCohortIds.contains(id) ? _expandedCohortIds.remove(id) : _expandedCohortIds.add(id));
-
-  // ── Export sheet ───────────────────────────────────────────────────────────
-
-  void _showExportSheet() {
-    final count = _selectedCount;
-    if (count == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.adminExportNeedStudents)));
+  Future<void> _refreshPreview() async {
+    if (!_hasFilters) {
+      setState(() {
+        _previewCount = 0;
+        _previewing = false;
+      });
       return;
     }
-    showModalBottomSheet(
+    setState(() => _previewing = true);
+    try {
+      final rows = await ref.read(adminRepositoryProvider).exportUsers(
+            roles: _selectedRoles.toList(),
+            cohortIds: _selectedCohortIds.toList(),
+            gradeIds: _selectedGrades.toList(),
+            userIds: _selectedUserIds.toList(),
+          );
+      if (!mounted) return;
+      setState(() {
+        _previewCount = rows.length;
+        _previewing = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _previewing = false);
+    }
+  }
+
+  // ── Pill mutators ──────────────────────────────────────────────────────────
+  void _toggleRole(String role) {
+    setState(() {
+      if (_selectedRoles.contains(role)) {
+        _selectedRoles.remove(role);
+      } else {
+        _selectedRoles.add(role);
+      }
+    });
+    _schedulePreview();
+  }
+
+  void _toggleCohort(String id) {
+    setState(() {
+      if (_selectedCohortIds.contains(id)) {
+        _selectedCohortIds.remove(id);
+      } else {
+        _selectedCohortIds.add(id);
+      }
+    });
+    _schedulePreview();
+  }
+
+  void _toggleGrade(int g) {
+    setState(() {
+      if (_selectedGrades.contains(g)) {
+        _selectedGrades.remove(g);
+      } else {
+        _selectedGrades.add(g);
+      }
+    });
+    _schedulePreview();
+  }
+
+  void _toggleUser(String id) {
+    setState(() {
+      if (_selectedUserIds.contains(id)) {
+        _selectedUserIds.remove(id);
+      } else {
+        _selectedUserIds.add(id);
+      }
+    });
+    _schedulePreview();
+  }
+
+  void _clearAll() {
+    setState(() {
+      _selectedRoles.clear();
+      _selectedCohortIds.clear();
+      _selectedGrades.clear();
+      _selectedUserIds.clear();
+      _previewCount = 0;
+    });
+  }
+
+  // ── Add filter sheet ───────────────────────────────────────────────────────
+  Future<void> _openAddFilterSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetCtx) => _AddFilterSheet(
+        roles: _kRoles,
+        cohorts: _ddlCohorts,
+        grades: _allGrades,
+        students: _ddlStudents,
+        teachers: _ddlTeachers,
+        selectedRoles: _selectedRoles,
+        selectedCohortIds: _selectedCohortIds,
+        selectedGrades: _selectedGrades,
+        selectedUserIds: _selectedUserIds,
+        onToggleRole: _toggleRole,
+        onToggleCohort: _toggleCohort,
+        onToggleGrade: _toggleGrade,
+        onToggleUser: _toggleUser,
+      ),
+    );
+  }
+
+  // ── Export bottom sheet ────────────────────────────────────────────────────
+  void _showExportSheet() {
+    if (!_hasFilters || _previewCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminExportNeedStudents)),
+      );
+      return;
+    }
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (ctx) => _ExportOptionsSheet(
-        studentCount: count,
-        selectedStudentIds: _effectiveStudentIds,
+        userCount: _previewCount,
+        filter: _UserExportFilter(
+          roles: _selectedRoles.toList(),
+          cohortIds: _selectedCohortIds.toList(),
+          gradeIds: _selectedGrades.toList(),
+          userIds: _selectedUserIds.toList(),
+        ),
         repo: ref.read(adminRepositoryProvider),
         session: ref.read(authSessionProvider),
       ),
@@ -173,115 +264,608 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   }
 
   // ── Build ──────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
-    final cs    = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final q     = _search.toLowerCase();
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
-      floatingActionButton: _selectedCount > 0
+      floatingActionButton: _hasFilters && _previewCount > 0
           ? FloatingActionButton.extended(
               heroTag: 'fab_export',
               onPressed: _showExportSheet,
               icon: const Icon(Icons.download_rounded),
-              label: Text(AppLocalizations.of(context)!.adminExportButton(_selectedCount)),
+              label: Text(l.adminExportButton(_previewCount)),
             )
           : null,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Mode toggle
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-              child: SegmentedButton<_PickerMode>(
-                segments: [
-                  ButtonSegment(value: _PickerMode.students, label: Text(AppLocalizations.of(context)!.adminExportStudentsTab), icon: const Icon(Icons.person_rounded, size: 16)),
-                  ButtonSegment(value: _PickerMode.cohorts,  label: Text(AppLocalizations.of(context)!.adminExportCohortsTab),  icon: const Icon(Icons.groups_rounded,  size: 16)),
-                  ButtonSegment(value: _PickerMode.grades,   label: Text(AppLocalizations.of(context)!.adminExportGradesTab),   icon: const Icon(Icons.school_rounded,  size: 16)),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+                children: [
+                  // Header
+                  Text(
+                    l.adminExportHeaderTitle,
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.adminExportHeaderSubtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Add filter button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _openAddFilterSheet,
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(l.adminExportAddFilter),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Pills bar
+                  if (!_hasFilters)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.filter_list_rounded, size: 36, color: cs.onSurfaceVariant),
+                          const SizedBox(height: 8),
+                          Text(
+                            l.adminExportEmptyState,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    _PillsBar(
+                      selectedRoles: _selectedRoles,
+                      selectedCohortIds: _selectedCohortIds,
+                      selectedGrades: _selectedGrades,
+                      selectedUserIds: _selectedUserIds,
+                      cohorts: _ddlCohorts,
+                      userById: _userById,
+                      onRemoveRole: _toggleRole,
+                      onRemoveCohort: _toggleCohort,
+                      onRemoveGrade: _toggleGrade,
+                      onRemoveUser: _toggleUser,
+                      onClearAll: _clearAll,
+                    ),
+
+                  // Preview card
+                  if (_hasFilters) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          if (_previewing)
+                            const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          else
+                            Icon(Icons.people_alt_rounded, color: cs.primary),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _previewing
+                                  ? l.adminExportCounting
+                                  : l.adminExportMatchCount(_previewCount),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: cs.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
-                selected: {_mode},
-                onSelectionChanged: (s) => setState(() {
-                  _mode = s.first;
-                  _selectedStudentIds.clear();
-                  _selectedCohortIds.clear();
-                  _selectedGrades.clear();
-                }),
+              ),
+      ),
+    );
+  }
+}
+
+// ── Pills bar ────────────────────────────────────────────────────────────────
+
+class _PillsBar extends StatelessWidget {
+  const _PillsBar({
+    required this.selectedRoles,
+    required this.selectedCohortIds,
+    required this.selectedGrades,
+    required this.selectedUserIds,
+    required this.cohorts,
+    required this.userById,
+    required this.onRemoveRole,
+    required this.onRemoveCohort,
+    required this.onRemoveGrade,
+    required this.onRemoveUser,
+    required this.onClearAll,
+  });
+
+  final Set<String> selectedRoles;
+  final Set<String> selectedCohortIds;
+  final Set<int> selectedGrades;
+  final Set<String> selectedUserIds;
+  final List<Map<String, dynamic>> cohorts;
+  final Map<String, Map<String, dynamic>> userById;
+  final ValueChanged<String> onRemoveRole;
+  final ValueChanged<String> onRemoveCohort;
+  final ValueChanged<int> onRemoveGrade;
+  final ValueChanged<String> onRemoveUser;
+  final VoidCallback onClearAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+
+    final pills = <Widget>[];
+
+    for (final role in selectedRoles) {
+      pills.add(_Pill(
+        icon: Icons.badge_rounded,
+        label: '${l.adminExportPillRolePrefix} ${_localizedRoleName(l, role)}',
+        onRemove: () => onRemoveRole(role),
+      ));
+    }
+    for (final cid in selectedCohortIds) {
+      final c = cohorts.firstWhere(
+        (x) => x['id']?.toString() == cid,
+        orElse: () => const {},
+      );
+      final name = (c['name'] ?? '').toString();
+      pills.add(_Pill(
+        icon: Icons.groups_rounded,
+        label: '${l.adminExportPillCohortPrefix} ${name.isEmpty ? cid : name}',
+        onRemove: () => onRemoveCohort(cid),
+      ));
+    }
+    for (final g in selectedGrades) {
+      pills.add(_Pill(
+        icon: Icons.school_rounded,
+        label: l.adminCohortGradeFormat(g.toString()),
+        onRemove: () => onRemoveGrade(g),
+      ));
+    }
+    for (final uid in selectedUserIds) {
+      final u = userById[uid] ?? const {};
+      final name = (u['name'] ?? '').toString();
+      pills.add(_Pill(
+        icon: Icons.person_rounded,
+        label: name.isEmpty ? uid : name,
+        onRemove: () => onRemoveUser(uid),
+      ));
+    }
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.adminExportActiveFilters(pills.length),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: onClearAll,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(l.adminExportClearAll),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: pills),
+        ],
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({required this.icon, required this.label, required this.onRemove});
+  final IconData icon;
+  final String label;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.primaryContainer,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onRemove,
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: cs.onPrimaryContainer),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: cs.onPrimaryContainer,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.close_rounded, size: 16, color: cs.onPrimaryContainer),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Add-filter modal sheet ───────────────────────────────────────────────────
+
+class _AddFilterSheet extends StatefulWidget {
+  const _AddFilterSheet({
+    required this.roles,
+    required this.cohorts,
+    required this.grades,
+    required this.students,
+    required this.teachers,
+    required this.selectedRoles,
+    required this.selectedCohortIds,
+    required this.selectedGrades,
+    required this.selectedUserIds,
+    required this.onToggleRole,
+    required this.onToggleCohort,
+    required this.onToggleGrade,
+    required this.onToggleUser,
+  });
+
+  final List<String> roles;
+  final List<Map<String, dynamic>> cohorts;
+  final List<int> grades;
+  final List<Map<String, dynamic>> students;
+  final List<Map<String, dynamic>> teachers;
+  final Set<String> selectedRoles;
+  final Set<String> selectedCohortIds;
+  final Set<int> selectedGrades;
+  final Set<String> selectedUserIds;
+  final ValueChanged<String> onToggleRole;
+  final ValueChanged<String> onToggleCohort;
+  final ValueChanged<int> onToggleGrade;
+  final ValueChanged<String> onToggleUser;
+
+  @override
+  State<_AddFilterSheet> createState() => _AddFilterSheetState();
+}
+
+class _AddFilterSheetState extends State<_AddFilterSheet>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabs;
+  String _userQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabs.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (ctx, scrollCtrl) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l.adminExportAddFilter,
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l.commonDone),
+                ),
+              ],
+            ),
+          ),
+          TabBar(
+            controller: _tabs,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            labelColor: cs.primary,
+            unselectedLabelColor: cs.onSurfaceVariant,
+            indicatorColor: cs.primary,
+            tabs: [
+              Tab(text: l.adminExportFilterRolesTab),
+              Tab(text: l.adminExportFilterCohortsTab),
+              Tab(text: l.adminExportFilterGradesTab),
+              Tab(text: l.adminExportFilterUsersTab),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: TabBarView(
+              controller: _tabs,
+              children: [
+                _buildRolesTab(scrollCtrl, l),
+                _buildCohortsTab(scrollCtrl, l),
+                _buildGradesTab(scrollCtrl, l),
+                _buildUsersTab(scrollCtrl, l),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRolesTab(ScrollController c, AppLocalizations l) {
+    return ListView.separated(
+      controller: c,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+      itemCount: widget.roles.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 4),
+      itemBuilder: (ctx, i) {
+        final role = widget.roles[i];
+        final selected = widget.selectedRoles.contains(role);
+        return _PickerRow(
+          icon: Icons.badge_rounded,
+          label: _localizedRoleName(l, role),
+          selected: selected,
+          onTap: () {
+            widget.onToggleRole(role);
+            setState(() {});
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCohortsTab(ScrollController c, AppLocalizations l) {
+    if (widget.cohorts.isEmpty) {
+      return Center(child: Text(l.adminNoCohortsYet));
+    }
+    return ListView.separated(
+      controller: c,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+      itemCount: widget.cohorts.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 4),
+      itemBuilder: (ctx, i) {
+        final cohort = widget.cohorts[i];
+        final id = cohort['id']?.toString() ?? '';
+        final name = (cohort['name'] ?? '').toString();
+        final grade = (cohort['grade'] as num?)?.toInt();
+        final selected = widget.selectedCohortIds.contains(id);
+        return _PickerRow(
+          icon: Icons.groups_rounded,
+          label: name.isEmpty ? id : name,
+          subtitle: grade != null ? l.adminCohortGradeFormat(grade.toString()) : null,
+          selected: selected,
+          onTap: () {
+            widget.onToggleCohort(id);
+            setState(() {});
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildGradesTab(ScrollController c, AppLocalizations l) {
+    if (widget.grades.isEmpty) {
+      return Center(child: Text(l.adminExportNoGradesConfigured));
+    }
+    return ListView.separated(
+      controller: c,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+      itemCount: widget.grades.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 4),
+      itemBuilder: (ctx, i) {
+        final g = widget.grades[i];
+        final selected = widget.selectedGrades.contains(g);
+        return _PickerRow(
+          icon: Icons.school_rounded,
+          label: l.adminCohortGradeFormat(g.toString()),
+          selected: selected,
+          onTap: () {
+            widget.onToggleGrade(g);
+            setState(() {});
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildUsersTab(ScrollController c, AppLocalizations l) {
+    final all = [
+      ...widget.students.map((s) => {...s, '__role': 'STUDENT'}),
+      ...widget.teachers.map((t) => {...t, '__role': 'TEACHER'}),
+    ];
+    final q = _userQuery.trim().toLowerCase();
+    final filtered = q.isEmpty
+        ? all
+        : all.where((u) {
+            final name = (u['name'] ?? '').toString().toLowerCase();
+            final email = (u['email'] ?? '').toString().toLowerCase();
+            final username = (u['username'] ?? '').toString().toLowerCase();
+            return name.contains(q) || email.contains(q) || username.contains(q);
+          }).toList();
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: TextField(
+            onChanged: (v) => setState(() => _userQuery = v),
+            decoration: InputDecoration(
+              hintText: l.adminScheduleSearchStudents,
+              prefixIcon: const Icon(Icons.search_rounded, size: 18),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              isDense: true,
+            ),
+          ),
+        ),
+        Expanded(
+          child: filtered.isEmpty
+              ? Center(child: Text(l.adminExportNoStudents))
+              : ListView.separated(
+                  controller: c,
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 4),
+                  itemBuilder: (ctx, i) {
+                    final u = filtered[i];
+                    final id = u['id']?.toString() ?? '';
+                    final name = (u['name'] ?? '').toString();
+                    final role = (u['__role'] ?? '').toString();
+                    final email = (u['email'] ?? '').toString();
+                    final selected = widget.selectedUserIds.contains(id);
+                    return _PickerRow(
+                      icon: Icons.person_rounded,
+                      label: name.isEmpty ? id : name,
+                      subtitle: [
+                        _localizedRoleName(l, role),
+                        if (email.isNotEmpty) email,
+                      ].join(' · '),
+                      selected: selected,
+                      onTap: () {
+                        widget.onToggleUser(id);
+                        setState(() {});
+                      },
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PickerRow extends StatelessWidget {
+  const _PickerRow({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected
+                ? cs.primary.withValues(alpha: 0.4)
+                : cs.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: selected ? cs.primary : cs.onSurfaceVariant),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  if ((subtitle ?? '').isNotEmpty)
+                    Text(
+                      subtitle!,
+                      style: theme.textTheme.labelSmall
+                          ?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                ],
               ),
             ),
-
-            // Search — flips its hint with the active mode. Grades mode skips
-            // it since the picker is a short chip list anyway.
-            if (_mode != _PickerMode.grades)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                child: TextField(
-                  onChanged: (v) => setState(() => _search = v),
-                  decoration: InputDecoration(
-                    hintText: _mode == _PickerMode.cohorts ? AppLocalizations.of(context)!.adminSearchCohorts : AppLocalizations.of(context)!.adminScheduleSearchStudents,
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    isDense: true,
-                  ),
-                ),
-              ),
-
-            // Selection count
-            if (_selectedCount > 0)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle_rounded, size: 16, color: cs.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        '$_selectedCount student${_selectedCount == 1 ? '' : 's'} selected',
-                        style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700, color: cs.primary),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : switch (_mode) {
-                      _PickerMode.cohorts => _CohortPickerList(
-                          cohorts: _cohorts.where((c) {
-                            if (q.isEmpty) return true;
-                            final name = (c['name']?.toString() ?? '').toLowerCase();
-                            return name.contains(q);
-                          }).toList(),
-                          students: _students,
-                          selectedCohortIds: _selectedCohortIds,
-                          expandedCohortIds: _expandedCohortIds,
-                          onToggleCohort: _toggleCohort,
-                          onToggleExpand: _toggleExpandCohort,
-                        ),
-                      _PickerMode.grades => _GradePickerList(
-                          grades: _allGrades,
-                          students: _students,
-                          selectedGrades: _selectedGrades,
-                          onToggle: _toggleGrade,
-                        ),
-                      _PickerMode.students => _StudentPickerList(
-                          students: _students.where((s) {
-                            if (q.isEmpty) return true;
-                            return (s['name']?.toString() ?? '').toLowerCase().contains(q);
-                          }).toList(),
-                          selectedIds: _selectedStudentIds,
-                          onToggle: _toggleStudent,
-                        ),
-                    },
+            Icon(
+              selected
+                  ? Icons.check_circle_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: selected ? cs.primary : cs.onSurfaceVariant,
             ),
           ],
         ),
@@ -290,308 +874,31 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   }
 }
 
-// ── Student picker list ────────────────────────────────────────────────────────
+// ── Export options sheet ─────────────────────────────────────────────────────
 
-class _StudentPickerList extends StatelessWidget {
-  const _StudentPickerList({required this.students, required this.selectedIds, required this.onToggle});
-  final List<Map<String, dynamic>> students;
-  final Set<String> selectedIds;
-  final ValueChanged<String> onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    if (students.isEmpty) {
-      return Center(child: Text(AppLocalizations.of(context)!.adminExportNoStudents, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)));
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 120),
-      itemCount: students.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 4),
-      itemBuilder: (ctx, i) {
-        final s        = students[i];
-        final id       = s['id']?.toString() ?? '';
-        final name     = s['name']?.toString() ?? '';
-        final cohort   = s['cohortName']?.toString() ?? '';
-        final grade    = (s['grade'] as num?)?.toInt();
-        final selected = selectedIds.contains(id);
-
-        return InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => onToggle(id),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                  size: 20,
-                  color: selected ? cs.primary : cs.onSurfaceVariant,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                      if (cohort.isNotEmpty || grade != null)
-                        Text(
-                          [if (grade != null) 'Grade $grade', if (cohort.isNotEmpty) cohort].join(' · '),
-                          style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ── Grade picker list ─────────────────────────────────────────────────────────
-
-class _GradePickerList extends StatelessWidget {
-  const _GradePickerList({
-    required this.grades,
-    required this.students,
-    required this.selectedGrades,
-    required this.onToggle,
+class _UserExportFilter {
+  const _UserExportFilter({
+    required this.roles,
+    required this.cohortIds,
+    required this.gradeIds,
+    required this.userIds,
   });
-  final List<int> grades;
-  final List<Map<String, dynamic>> students;
-  final Set<int> selectedGrades;
-  final ValueChanged<int> onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    if (grades.isEmpty) {
-      return Center(
-        child: Text(
-          'No grades configured for this school',
-          style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 120),
-      itemCount: grades.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 4),
-      itemBuilder: (ctx, i) {
-        final g = grades[i];
-        final selected = selectedGrades.contains(g);
-        // Live preview of how many students this grade covers — same source
-        // the effective-selection getter uses, so the count and the export
-        // result can't drift.
-        final count = students.where((s) => (s['grade'] as num?)?.toInt() == g).length;
-        return InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => onToggle(g),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: selected
-                    ? cs.primary.withValues(alpha: 0.4)
-                    : cs.outlineVariant.withValues(alpha: 0.4),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                  size: 20,
-                  color: selected ? cs.primary : cs.onSurfaceVariant,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Grade $g',
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Text(
-                  '$count student${count == 1 ? '' : 's'}',
-                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  final List<String> roles;
+  final List<String> cohortIds;
+  final List<int> gradeIds;
+  final List<String> userIds;
 }
-
-// ── Cohort picker list ────────────────────────────────────────────────────────
-
-class _CohortPickerList extends StatelessWidget {
-  const _CohortPickerList({
-    required this.cohorts,
-    required this.students,
-    required this.selectedCohortIds,
-    required this.expandedCohortIds,
-    required this.onToggleCohort,
-    required this.onToggleExpand,
-  });
-  final List<Map<String, dynamic>> cohorts;
-  final List<Map<String, dynamic>> students;
-  final Set<String> selectedCohortIds;
-  final Set<String> expandedCohortIds;
-  final ValueChanged<String> onToggleCohort;
-  final ValueChanged<String> onToggleExpand;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 120),
-      itemCount: cohorts.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 6),
-      itemBuilder: (ctx, i) {
-        final c        = cohorts[i];
-        final cid      = c['id']?.toString() ?? '';
-        final name     = c['name']?.toString() ?? '';
-        final grade    = (c['grade'] as num?)?.toInt();
-        final selected = selectedCohortIds.contains(cid);
-        final expanded = expandedCohortIds.contains(cid);
-
-        // Students of this cohort — read the DDL's studentIds (server-side
-        // union of StudentCohort + legacy studentProfile.cohortId) and
-        // resolve to names from the students list. Falls back to a
-        // cohort-name match for legacy rows where studentIds is empty,
-        // and to cohortIds-on-the-student row when both fail. Previous
-        // behavior matched only on cohortName which silently showed 0
-        // for every cohort whose students were multi-cohort'd (the
-        // student's primary cohortName resolved to a different cohort).
-        final memberIdsFromCohort = (c['studentIds'] as List?)
-                ?.map((e) => e.toString())
-                .where((s) => s.isNotEmpty)
-                .toSet() ??
-            <String>{};
-        List<Map<String, dynamic>> cohortStudents;
-        if (memberIdsFromCohort.isNotEmpty) {
-          cohortStudents = students
-              .where((s) => memberIdsFromCohort.contains(s['id']?.toString() ?? ''))
-              .toList();
-        } else {
-          cohortStudents = students.where((s) {
-            final cohortIds = (s['cohortIds'] as List?)
-                    ?.map((e) => e.toString())
-                    .toSet() ??
-                <String>{};
-            if (cohortIds.contains(cid)) return true;
-            if ((s['cohortId']?.toString() ?? '') == cid) return true;
-            return (s['cohortName']?.toString() ?? '') == name;
-          }).toList();
-        }
-
-        return Column(
-          children: [
-            InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: () => onToggleCohort(cid),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: selected ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                      size: 20,
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                          Text(
-                            '${grade != null ? 'Grade $grade · ' : ''}${cohortStudents.length} students',
-                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Expand toggle
-                    if (cohortStudents.isNotEmpty)
-                      IconButton(
-                        icon: Icon(
-                          expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                          color: cs.onSurfaceVariant,
-                        ),
-                        onPressed: () => onToggleExpand(cid),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            // Expanded student preview
-            if (expanded)
-              Container(
-                margin: const EdgeInsets.only(left: 16, top: 2),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHigh,
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: cohortStudents.map((s) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Row(
-                      children: [
-                        Icon(Icons.person_outline_rounded, size: 14, color: cs.onSurfaceVariant),
-                        const SizedBox(width: 6),
-                        Text(s['name']?.toString() ?? '', style: theme.textTheme.bodySmall),
-                      ],
-                    ),
-                  )).toList(),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-// ── Export options bottom sheet ────────────────────────────────────────────────
 
 class _ExportOptionsSheet extends StatefulWidget {
   const _ExportOptionsSheet({
-    required this.studentCount,
-    required this.selectedStudentIds,
+    required this.userCount,
+    required this.filter,
     required this.repo,
     required this.session,
   });
-  final int studentCount;
-  final List<String> selectedStudentIds;
+
+  final int userCount;
+  final _UserExportFilter filter;
   final AdminRepository repo;
   final dynamic session;
 
@@ -611,12 +918,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     if (box != null && box.hasSize) {
       return box.localToGlobal(Offset.zero) & box.size;
     }
-    // Fallback: anchor at top-center of the screen with a 1x1 rect.
     final size = MediaQuery.sizeOf(ctx);
     return Rect.fromLTWH(size.width / 2, 0, 1, 1);
   }
 
-  Future<bool> _confirmReset() async {
+  Future<bool> _confirmPasswords() async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (d) {
@@ -626,13 +932,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             children: [
               Icon(Icons.warning_amber_rounded, color: cs.error),
               const SizedBox(width: 10),
-              Expanded(
-                child: Text(AppLocalizations.of(context)!.adminExportIncludesPasswords),
-              ),
+              Expanded(child: Text(AppLocalizations.of(context)!.adminExportIncludesPasswords)),
             ],
           ),
           content: Text(
-            AppLocalizations.of(context)!.adminExportPasswordsWarning(widget.studentCount),
+            AppLocalizations.of(context)!.adminExportPasswordsWarning(widget.userCount),
             style: const TextStyle(height: 1.4),
           ),
           actions: [
@@ -642,7 +946,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ),
             FilledButton(
               onPressed: () => Navigator.pop(d, true),
-              child: Text(AppLocalizations.of(context)!.adminExportButton(widget.studentCount)),
+              child: Text(AppLocalizations.of(context)!.adminExportButton(widget.userCount)),
             ),
           ],
         );
@@ -651,60 +955,71 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     return confirm == true;
   }
 
-  Future<List<Map<String, dynamic>>> _fetch() =>
-      widget.repo.exportStudents(
-        studentIds: widget.selectedStudentIds,
+  Future<List<Map<String, dynamic>>> _fetch() => widget.repo.exportUsers(
+        roles: widget.filter.roles,
+        cohortIds: widget.filter.cohortIds,
+        gradeIds: widget.filter.gradeIds,
+        userIds: widget.filter.userIds,
         generatePasswords: _includePasswords,
       );
 
   // ── CSV ────────────────────────────────────────────────────────────────────
-
   Future<void> _exportCsv() async {
-    if (_includePasswords && !await _confirmReset()) return;
+    if (_includePasswords && !await _confirmPasswords()) return;
     setState(() => _exporting = true);
     try {
-      final students = await _fetch();
+      final users = await _fetch();
       if (!mounted) return;
-
       final l = AppLocalizations.of(context)!;
-      final headers = [l.adminExportColumnNameEn, l.adminExportColumnNameAr, l.adminExportColumnNameHe, l.adminExportColumnNameFr, l.adminExportColumnNameRu, l.adminExportColumnEmail, l.adminExportColumnUsername, l.adminExportColumnPhone, l.adminExportColumnGrade, l.adminExportColumnCohorts, l.adminExportColumnSchool];
+      final headers = [
+        l.adminExportColumnNameEn,
+        l.adminExportColumnNameAr,
+        l.adminExportColumnNameHe,
+        l.adminExportColumnNameFr,
+        l.adminExportColumnNameRu,
+        l.adminExportColumnRole,
+        l.adminExportColumnEmail,
+        l.adminExportColumnUsername,
+        l.adminExportColumnPhone,
+        l.adminExportColumnGrade,
+        l.adminExportColumnCohorts,
+        l.adminExportColumnSchool,
+      ];
       if (_includePasswords) headers.add(l.adminExportColumnPassword);
       final buf = StringBuffer()..writeln(headers.join(','));
-      for (final s in students) {
-        // Cohorts list: prefer the new cohortNames[] field with every
-        // cohort the student belongs to; fall back to legacy cohortName.
-        final cohortNamesRaw = s['cohortNames'];
+      for (final u in users) {
+        final cohortNamesRaw = u['cohortNames'];
         final cohortsJoined = cohortNamesRaw is List
             ? cohortNamesRaw.whereType<String>().where((n) => n.isNotEmpty).join(' / ')
-            : (s['cohortName']?.toString() ?? '');
+            : (u['cohortName']?.toString() ?? '');
+        final role = (u['role'] ?? '').toString();
+        final isStudent = role == 'STUDENT';
         final row = [
-          _esc(s['nameEn']?.toString() ?? ''),
-          _esc(s['nameAr']?.toString() ?? ''),
-          _esc(s['nameHe']?.toString() ?? ''),
-          _esc(s['nameFr']?.toString() ?? ''),
-          _esc(s['nameRu']?.toString() ?? ''),
-          _esc(s['email']?.toString() ?? ''),
-          _esc(s['username']?.toString() ?? ''),
-          _esc(s['phone']?.toString() ?? ''),
-          s['grade']?.toString() ?? '',
-          _esc(cohortsJoined),
-          _esc(s['schoolName']?.toString() ?? ''),
-          if (_includePasswords) _esc(s['tempPassword']?.toString() ?? ''),
+          _esc(u['nameEn']?.toString() ?? ''),
+          _esc(u['nameAr']?.toString() ?? ''),
+          _esc(u['nameHe']?.toString() ?? ''),
+          _esc(u['nameFr']?.toString() ?? ''),
+          _esc(u['nameRu']?.toString() ?? ''),
+          _esc(_localizedRoleName(l, role)),
+          _esc(u['email']?.toString() ?? ''),
+          _esc(u['username']?.toString() ?? ''),
+          _esc(u['phone']?.toString() ?? ''),
+          isStudent ? (u['grade']?.toString() ?? '') : '—',
+          _esc(isStudent ? cohortsJoined : '—'),
+          _esc(u['schoolName']?.toString() ?? ''),
+          if (_includePasswords) _esc(u['tempPassword']?.toString() ?? ''),
         ];
         buf.writeln(row.join(','));
       }
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/students_${DateTime.now().millisecondsSinceEpoch}.csv');
+      final file = File('${dir.path}/users_${DateTime.now().millisecondsSinceEpoch}.csv');
       await file.writeAsString(buf.toString());
       if (!mounted) return;
-      // iOS share sheet REQUIRES a non-zero source rect on iPad / newer
-      // iPhones. Grab the bottom-sheet's render box BEFORE we pop so we can
-      // anchor the share popover correctly.
       final origin = _shareOrigin(context);
       Navigator.pop(context);
       await Share.shareXFiles(
         [XFile(file.path, mimeType: 'text/csv')],
-        subject: 'ClassMate Students',
+        subject: 'ClassMate Users',
         sharePositionOrigin: origin,
       );
     } catch (e) {
@@ -716,24 +1031,28 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   }
 
   // ── PDF ────────────────────────────────────────────────────────────────────
-
   Future<void> _exportPdf() async {
-    if (_includePasswords && !await _confirmReset()) return;
+    if (_includePasswords && !await _confirmPasswords()) return;
     setState(() => _exporting = true);
     try {
-      final students = await _fetch();
+      final users = await _fetch();
       if (!mounted) return;
       final schoolName = widget.session?.schoolName ?? '';
       final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? 'Admin') as String;
       final l = AppLocalizations.of(context)!;
-      final bytes = await _buildPdf(students, withPasswords: _includePasswords, schoolName: schoolName, exportedBy: exportedBy, l: l);
+      final bytes = await _buildPdf(
+        users,
+        withPasswords: _includePasswords,
+        schoolName: schoolName,
+        exportedBy: exportedBy,
+        l: l,
+      );
       if (!mounted) return;
       final origin = _shareOrigin(context);
       Navigator.pop(context);
       await Printing.sharePdf(
         bytes: bytes,
-        filename: 'classmate_students.pdf',
-        // Same iOS source-rect requirement as the CSV share above.
+        filename: 'classmate_users.pdf',
         bounds: origin,
       );
     } catch (e) {
@@ -744,24 +1063,18 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     }
   }
 
-  // ── PDF builder ────────────────────────────────────────────────────────────
-
   Future<Uint8List> _buildPdf(
-    List<Map<String, dynamic>> students, {
+    List<Map<String, dynamic>> users, {
     required bool withPasswords,
     required String schoolName,
     required String exportedBy,
     required AppLocalizations l,
   }) async {
-    // Bundle Latin + Arabic + Hebrew fonts so multi-language student names
-    // actually render. Helvetica (the pdf-package default) only ships Latin
-    // glyphs — without these fallbacks Arabic / Hebrew names came out as
-    // tofu boxes and we got the "Helvetica has no Unicode support" warning.
-    final baseFont    = await PdfGoogleFonts.notoSansRegular();
-    final baseBold    = await PdfGoogleFonts.notoSansBold();
-    final arabicFont  = await PdfGoogleFonts.notoSansArabicRegular();
-    final hebrewFont  = await PdfGoogleFonts.notoSansHebrewRegular();
-    final cmLogo      = pw.MemoryImage(
+    final baseFont = await PdfGoogleFonts.notoSansRegular();
+    final baseBold = await PdfGoogleFonts.notoSansBold();
+    final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
+    final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
+    final cmLogo = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
 
@@ -775,63 +1088,84 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final now = DateTime.now();
     final dateStr = '${_months[now.month]} ${now.day}, ${now.year}';
 
-    const brandBlue    = PdfColor.fromInt(0xFF2563EB);
-    const brandLight   = PdfColor.fromInt(0xFFEFF6FF);
-    const headerBg     = PdfColor.fromInt(0xFF1E3A5F);
-    const rowAlt       = PdfColor.fromInt(0xFFF8FAFD);
-    const pwColor      = PdfColor.fromInt(0xFF7C3AED);
+    const brandBlue = PdfColor.fromInt(0xFF2563EB);
+    const brandLight = PdfColor.fromInt(0xFFEFF6FF);
+    const headerBg = PdfColor.fromInt(0xFF1E3A5F);
+    const rowAlt = PdfColor.fromInt(0xFFF8FAFD);
+    const pwColor = PdfColor.fromInt(0xFF7C3AED);
 
-    // PDF columns: Phone + School + multi-Cohort added. Dropped the AR/HE
-    // columns from the PDF entirely because the pdf package's table layout
-    // can't reliably reverse-direction Hebrew/Arabic glyphs inside a Text
-    // cell (without a Directionality wrapper, RTL scripts render in
-    // visual order which reads right-to-left scrambled). Localized names
-    // are still in the CSV export — admins who need them open Excel.
     final cols = withPasswords
-        ? [_Col(l.adminExportColumnIndex, 0.03), _Col(l.adminExportColumnName, 0.15), _Col(l.adminExportColumnEmail, 0.15), _Col(l.adminExportColumnUsername, 0.10), _Col(l.adminExportColumnPhone, 0.11), _Col(l.adminExportColumnGrade, 0.05), _Col(l.adminExportColumnCohorts, 0.14), _Col(l.adminExportColumnSchool, 0.12), _Col(l.adminExportColumnPassword, 0.15)]
-        : [_Col(l.adminExportColumnIndex, 0.04), _Col(l.adminExportColumnName, 0.18), _Col(l.adminExportColumnEmail, 0.18), _Col(l.adminExportColumnUsername, 0.11), _Col(l.adminExportColumnPhone, 0.12), _Col(l.adminExportColumnGrade, 0.05), _Col(l.adminExportColumnCohorts, 0.18), _Col(l.adminExportColumnSchool, 0.14)];
+        ? [
+            _Col(l.adminExportColumnIndex, 0.03),
+            _Col(l.adminExportColumnName, 0.13),
+            _Col(l.adminExportColumnRole, 0.07),
+            _Col(l.adminExportColumnEmail, 0.13),
+            _Col(l.adminExportColumnUsername, 0.10),
+            _Col(l.adminExportColumnPhone, 0.10),
+            _Col(l.adminExportColumnGrade, 0.05),
+            _Col(l.adminExportColumnCohorts, 0.12),
+            _Col(l.adminExportColumnSchool, 0.12),
+            _Col(l.adminExportColumnPassword, 0.15),
+          ]
+        : [
+            _Col(l.adminExportColumnIndex, 0.04),
+            _Col(l.adminExportColumnName, 0.16),
+            _Col(l.adminExportColumnRole, 0.08),
+            _Col(l.adminExportColumnEmail, 0.16),
+            _Col(l.adminExportColumnUsername, 0.11),
+            _Col(l.adminExportColumnPhone, 0.11),
+            _Col(l.adminExportColumnGrade, 0.05),
+            _Col(l.adminExportColumnCohorts, 0.15),
+            _Col(l.adminExportColumnSchool, 0.14),
+          ];
 
-    final fmt  = PdfPageFormat.a4.landscape;
+    final fmt = PdfPageFormat.a4.landscape;
     final pageW = fmt.availableWidth;
 
     doc.addPage(pw.MultiPage(
       pageFormat: fmt,
       margin: const pw.EdgeInsets.all(24),
       build: (ctx) => [
-        // ── Header banner ──────────────────────────────────────────────────────
         pw.Container(
           padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(color: brandBlue, borderRadius: pw.BorderRadius.circular(12)),
           child: pw.Row(
             children: [
               pw.Container(
-                width: 44, height: 44,
+                width: 44,
+                height: 44,
                 padding: const pw.EdgeInsets.all(6),
                 decoration: pw.BoxDecoration(color: PdfColors.white, borderRadius: pw.BorderRadius.circular(10)),
                 alignment: pw.Alignment.center,
                 child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
               ),
               pw.SizedBox(width: 12),
-              pw.Expanded(child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-                pw.Text('ClassMate', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                if (schoolName.isNotEmpty) pw.Text(schoolName, style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
-              ])),
-              pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
-                pw.Text(l.adminExportPdfStudentDirectory, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-                pw.Text(l.adminExportPdfBy(exportedBy), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-                pw.Text(l.adminExportPdfStudentsCount(students.length), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-              ]),
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text('ClassMate', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                    if (schoolName.isNotEmpty)
+                      pw.Text(schoolName, style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
+                  ],
+                ),
+              ),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text(l.adminExportPdfUserDirectory, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                  pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                  pw.Text(l.adminExportPdfBy(exportedBy), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                  pw.Text(l.adminExportPdfUsersCount(users.length), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                ],
+              ),
             ],
           ),
         ),
         pw.SizedBox(height: 14),
-
-        // ── Table ──────────────────────────────────────────────────────────────
         pw.Table(
-          columnWidths: { for (var i = 0; i < cols.length; i++) i: pw.FixedColumnWidth(cols[i].fraction * pageW) },
+          columnWidths: {for (var i = 0; i < cols.length; i++) i: pw.FixedColumnWidth(cols[i].fraction * pageW)},
           children: [
-            // Header row
             pw.TableRow(
               decoration: pw.BoxDecoration(color: headerBg, borderRadius: const pw.BorderRadius.only(topLeft: pw.Radius.circular(8), topRight: pw.Radius.circular(8))),
               children: cols.map((c) => pw.Padding(
@@ -839,28 +1173,47 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: pw.Text(c.label, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
               )).toList(),
             ),
-            // Data rows
-            ...students.asMap().entries.map((entry) {
+            ...users.asMap().entries.map((entry) {
               final i = entry.key;
-              final s = entry.value;
-              // Multi-cohort: join the new cohortNames[] field; fall back
-              // to the legacy singular cohortName for back-compat.
-              final cohortNamesRaw = s['cohortNames'];
+              final u = entry.value;
+              final cohortNamesRaw = u['cohortNames'];
               final cohortsJoined = cohortNamesRaw is List
                   ? cohortNamesRaw.whereType<String>().where((n) => n.isNotEmpty).join(' / ')
-                  : (s['cohortName']?.toString() ?? '');
+                  : (u['cohortName']?.toString() ?? '');
+              final role = (u['role'] ?? '').toString();
+              final isStudent = role == 'STUDENT';
               final cells = withPasswords
-                  ? ['${i+1}', s['nameEn']??'', s['email']??'', s['username']??'', s['phone']??'', '${s['grade']??''}', cohortsJoined, s['schoolName']??'', s['tempPassword']??'']
-                  : ['${i+1}', s['nameEn']??'', s['email']??'', s['username']??'', s['phone']??'', '${s['grade']??''}', cohortsJoined, s['schoolName']??''];
+                  ? [
+                      '${i + 1}',
+                      u['nameEn'] ?? '',
+                      _localizedRoleName(l, role),
+                      u['email'] ?? '',
+                      u['username'] ?? '',
+                      u['phone'] ?? '',
+                      isStudent ? '${u['grade'] ?? ''}' : '—',
+                      isStudent ? cohortsJoined : '—',
+                      u['schoolName'] ?? '',
+                      u['tempPassword'] ?? '',
+                    ]
+                  : [
+                      '${i + 1}',
+                      u['nameEn'] ?? '',
+                      _localizedRoleName(l, role),
+                      u['email'] ?? '',
+                      u['username'] ?? '',
+                      u['phone'] ?? '',
+                      isStudent ? '${u['grade'] ?? ''}' : '—',
+                      isStudent ? cohortsJoined : '—',
+                      u['schoolName'] ?? '',
+                    ];
               return pw.TableRow(
                 decoration: pw.BoxDecoration(color: i.isOdd ? rowAlt : PdfColors.white),
                 children: cells.asMap().entries.map((ce) {
-                  // Password is always the LAST column now (index 8 with
-                  // passwords) — keeps its monospace-ish purple styling.
                   final isPw = withPasswords && ce.key == cells.length - 1;
                   return pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-                    child: pw.Text(ce.value.toString(),
+                    child: pw.Text(
+                      ce.value.toString(),
                       style: pw.TextStyle(fontSize: 8, color: isPw ? pwColor : PdfColors.black, fontWeight: isPw ? pw.FontWeight.bold : pw.FontWeight.normal),
                     ),
                   );
@@ -870,8 +1223,6 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           ],
         ),
         pw.SizedBox(height: 10),
-
-        // ── Footer ────────────────────────────────────────────────────────────
         pw.Container(
           padding: const pw.EdgeInsets.all(10),
           decoration: pw.BoxDecoration(color: brandLight, borderRadius: pw.BorderRadius.circular(8), border: pw.Border.all(color: brandBlue, width: 0.5)),
@@ -887,8 +1238,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cs    = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -902,23 +1254,14 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.adminExportOptionsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                    Text(AppLocalizations.of(context)!.adminExportStudentsSelected(widget.studentCount),
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    Text(l.adminExportOptionsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(l.adminExportUsersSelected(widget.userCount), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-
-          // Password toggle — no longer regenerates anything. When on, the
-          // server still includes the password column in the export, but
-          // it's the existing temporary password admins set at user-add
-          // time (never overwritten silently). The previous design did a
-          // hard reset on toggle-on and surfaced new passwords in the
-          // file — too dangerous when an admin just wanted to share login
-          // info with parents.
           Container(
             decoration: BoxDecoration(
               color: _includePasswords ? cs.errorContainer.withValues(alpha: 0.2) : cs.surfaceContainerHigh,
@@ -928,13 +1271,19 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             child: SwitchListTile.adaptive(
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-              title: Text(AppLocalizations.of(context)!.adminExportIncludePasswords,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: _includePasswords ? cs.error : cs.onSurface)),
+              title: Text(
+                l.adminExportIncludePasswords,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: _includePasswords ? cs.error : cs.onSurface,
+                ),
+              ),
               subtitle: Text(
-                _includePasswords
-                    ? 'Passwords will be visible in the export — handle the file securely.'
-                    : 'Export will not contain any passwords.',
-                style: theme.textTheme.labelSmall?.copyWith(color: _includePasswords ? cs.error : cs.onSurfaceVariant, height: 1.3),
+                _includePasswords ? l.adminExportPasswordsOn : l.adminExportPasswordsOff,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: _includePasswords ? cs.error : cs.onSurfaceVariant,
+                  height: 1.3,
+                ),
               ),
               value: _includePasswords,
               activeColor: cs.error,
@@ -942,15 +1291,15 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Export buttons
           Row(
             children: [
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _exporting ? null : _exportCsv,
-                  icon: _exporting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.table_chart_rounded, size: 16),
-                  label: Text(AppLocalizations.of(context)!.adminExportCsvButton),
+                  icon: _exporting
+                      ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.table_chart_rounded, size: 16),
+                  label: Text(l.adminExportCsvButton),
                 ),
               ),
               const SizedBox(width: 10),
@@ -958,8 +1307,10 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: FilledButton.icon(
                   onPressed: _exporting ? null : _exportPdf,
                   style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
-                  icon: _exporting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.picture_as_pdf_rounded, size: 16),
-                  label: Text(AppLocalizations.of(context)!.adminExportPdfButton),
+                  icon: _exporting
+                      ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.picture_as_pdf_rounded, size: 16),
+                  label: Text(l.adminExportPdfButton),
                 ),
               ),
             ],
@@ -970,7 +1321,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 class _Col {
   const _Col(this.label, this.fraction);
@@ -981,6 +1332,25 @@ class _Col {
 const _months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 String _esc(String v) {
-  if (v.contains(',') || v.contains('"') || v.contains('\n')) return '"${v.replaceAll('"', '""')}"';
+  if (v.contains(',') || v.contains('"') || v.contains('\n')) {
+    return '"${v.replaceAll('"', '""')}"';
+  }
   return v;
+}
+
+String _localizedRoleName(AppLocalizations l, String role) {
+  switch (role.toUpperCase()) {
+    case 'STUDENT':
+      return l.adminExportRoleStudent;
+    case 'TEACHER':
+      return l.adminExportRoleTeacher;
+    case 'PARENT':
+      return l.adminExportRoleParent;
+    case 'SECRETARY':
+      return l.adminExportRoleSecretary;
+    case 'ADMIN':
+      return l.adminExportRoleAdmin;
+    default:
+      return role;
+  }
 }

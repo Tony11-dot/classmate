@@ -4743,7 +4743,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navDashboard => 'Панель управления';
 
   @override
-  String get navPeople => 'Люди';
+  String get navPeople => 'Пользователи';
 
   @override
   String get navCohorts => 'Группы';
@@ -7616,5 +7616,127 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String adminCohortGradesList(String list) {
     return 'Классы $list';
+  }
+
+  @override
+  String get adminExportHeaderTitle => 'Экспорт пользователей';
+
+  @override
+  String get adminExportHeaderSubtitle =>
+      'Добавляйте фильтры как метки — каждая метка добавляет пользователей в экспорт. Нажмите на метку, чтобы убрать её.';
+
+  @override
+  String get adminExportAddFilter => 'Добавить фильтр';
+
+  @override
+  String get adminExportEmptyState =>
+      'Добавьте фильтр для начала: выберите роль, группу, класс или конкретных пользователей.';
+
+  @override
+  String get adminExportFilterRolesTab => 'Роли';
+
+  @override
+  String get adminExportFilterCohortsTab => 'Группы';
+
+  @override
+  String get adminExportFilterGradesTab => 'Классы';
+
+  @override
+  String get adminExportFilterUsersTab => 'Пользователи';
+
+  @override
+  String get adminExportPillRolePrefix => 'Роль:';
+
+  @override
+  String get adminExportPillCohortPrefix => 'Группа:';
+
+  @override
+  String adminExportActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count активных фильтров',
+      many: '$count активных фильтров',
+      few: '$count активных фильтра',
+      one: '$count активный фильтр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportClearAll => 'Очистить всё';
+
+  @override
+  String get adminExportCounting => 'Подсчёт…';
+
+  @override
+  String adminExportMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Будут экспортированы $count пользователей',
+      many: 'Будут экспортированы $count пользователей',
+      few: 'Будут экспортированы $count пользователя',
+      one: 'Будет экспортирован $count пользователь',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportNoGradesConfigured =>
+      'В этой школе нет настроенных классов';
+
+  @override
+  String get adminExportColumnRole => 'Роль';
+
+  @override
+  String get adminExportRoleStudent => 'Ученик';
+
+  @override
+  String get adminExportRoleTeacher => 'Учитель';
+
+  @override
+  String get adminExportRoleParent => 'Родитель';
+
+  @override
+  String get adminExportRoleSecretary => 'Секретарь';
+
+  @override
+  String get adminExportRoleAdmin => 'Администратор';
+
+  @override
+  String adminExportUsersSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбрано $count пользователей',
+      many: 'Выбрано $count пользователей',
+      few: 'Выбрано $count пользователя',
+      one: 'Выбран $count пользователь',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportPasswordsOn =>
+      'Пароли будут видны в экспорте — обращайтесь с файлом безопасно.';
+
+  @override
+  String get adminExportPasswordsOff => 'Экспорт не будет содержать паролей.';
+
+  @override
+  String get adminExportPdfUserDirectory => 'Справочник пользователей';
+
+  @override
+  String adminExportPdfUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count пользователей',
+      many: '$count пользователей',
+      few: '$count пользователя',
+      one: '$count пользователь',
+    );
+    return '$_temp0';
   }
 }
