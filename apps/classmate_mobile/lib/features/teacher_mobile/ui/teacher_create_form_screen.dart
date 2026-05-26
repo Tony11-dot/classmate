@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -95,7 +96,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   Future<void> _save({required bool published}) async {
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a form title.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherFormEnterTitle)));
       return;
     }
     setState(() => _saving = true);
@@ -176,14 +177,14 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () { if (context.canPop()) context.pop(); }),
-        title: Text('Create Form', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.teacherCreateFormTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
-          TextButton(onPressed: _saving ? null : () => _save(published: false), child: const Text('Save Draft')),
+          TextButton(onPressed: _saving ? null : () => _save(published: false), child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft)),
           const SizedBox(width: 6),
           Padding(padding: const EdgeInsets.only(right: 12),
             child: FilledButton(
               onPressed: _saving ? null : () => _save(published: true),
-              child: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Publish'))),
+              child: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(AppLocalizations.of(context)!.commonPublish))),
         ],
       ),
       body: ListView(
@@ -228,13 +229,13 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
                 controller: _titleCtrl,
                 style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(border: InputBorder.none, hintText: 'Form title *')),
+                decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormTitleHint)),
               const Divider(height: 1),
               const SizedBox(height: 8),
               TextField(
                 controller: _descCtrl, maxLines: 3, minLines: 1,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(border: InputBorder.none, hintText: 'Description (optional)')),
+                decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormDescriptionHint)),
             ])),
           const SizedBox(height: 12),
 
@@ -246,15 +247,15 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
                 SwitchListTile(
                   value: _acceptingResponses,
                   onChanged: (v) => setState(() => _acceptingResponses = v),
-                  title: const Text('Accepting responses'),
+                  title: Text(AppLocalizations.of(context)!.teacherFormAcceptingResponses),
                   contentPadding: EdgeInsets.zero,
                 ),
                 SwitchListTile(
                   value: _allowMultipleResponses,
                   onChanged: (v) =>
                       setState(() => _allowMultipleResponses = v),
-                  title: const Text('Allow multiple responses'),
-                  subtitle: const Text('Off = once per student (default)'),
+                  title: Text(AppLocalizations.of(context)!.teacherFormAllowMultiple),
+                  subtitle: Text(AppLocalizations.of(context)!.teacherFormAllowMultipleSubtitle),
                   contentPadding: EdgeInsets.zero,
                 ),
               ],
@@ -264,7 +265,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
 
           // ── 4. Questions ─────────────────────────────────────────────────────
           Row(children: [
-            Text('Questions', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+            Text(AppLocalizations.of(context)!.teacherFormQuestionsSection, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
             const Spacer(),
             Text('${_questions.length}', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
           ]),
@@ -299,7 +300,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
           OutlinedButton.icon(
             onPressed: _addQuestion,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Add question'),
+            label: Text(AppLocalizations.of(context)!.teacherFormAddQuestionButton),
             style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44))),
         ],
       ),
@@ -415,13 +416,13 @@ class _QuestionCardState extends State<_QuestionCard> {
         const SizedBox(height: 8),
         TextField(
           controller: _textCtrl,
-          decoration: InputDecoration(border: InputBorder.none, hintText: 'Question ${widget.index + 1}', isDense: true, contentPadding: EdgeInsets.zero),
+          decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
           onChanged: (v) { q.text = v; widget.onChanged(); }),
         const SizedBox(height: 8),
         _buildTypeUI(context, cs, theme, q),
         const Divider(height: 20),
         Row(children: [
-          Text('Required', style: theme.textTheme.bodySmall),
+          Text(AppLocalizations.of(context)!.teacherFormRequiredToggle, style: theme.textTheme.bodySmall),
           const Spacer(),
           Switch(value: q.required, onChanged: (v) => setState(() => q.required = v), materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
         ]),
@@ -467,7 +468,7 @@ class _QuestionCardState extends State<_QuestionCard> {
           }),
           TextButton.icon(
             onPressed: () => setState(() => q.options.add('')),
-            icon: const Icon(Icons.add, size: 16), label: const Text('Add option'),
+            icon: const Icon(Icons.add, size: 16), label: Text(AppLocalizations.of(context)!.teacherFormAddOptionButton),
             style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 4), visualDensity: VisualDensity.compact)),
         ]);
       case 'linearScale':
@@ -477,12 +478,12 @@ class _QuestionCardState extends State<_QuestionCard> {
           ..selection = TextSelection.collapsed(offset: '${q.scaleMax}'.length);
         return Row(children: [
           SizedBox(width: 56, child: TextField(controller: minCtrl,
-            decoration: const InputDecoration(labelText: 'Min', isDense: true, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherFormMinLabel, isDense: true, border: const OutlineInputBorder()),
             keyboardType: TextInputType.number,
             onChanged: (v) => q.scaleMin = int.tryParse(v) ?? q.scaleMin)),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('to')),
           SizedBox(width: 56, child: TextField(controller: maxCtrl,
-            decoration: const InputDecoration(labelText: 'Max', isDense: true, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherFormMaxLabel, isDense: true, border: const OutlineInputBorder()),
             keyboardType: TextInputType.number,
             onChanged: (v) => q.scaleMax = int.tryParse(v) ?? q.scaleMax)),
         ]);
