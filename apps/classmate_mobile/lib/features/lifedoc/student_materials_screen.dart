@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../parent/data/parent_repository.dart';
@@ -36,6 +37,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
     final materialsAsync = ref.watch(studentMaterialsProvider);
 
     return RefreshIndicator(
@@ -50,7 +52,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
               children: [
                 Icon(Icons.cloud_off_rounded, size: 48, color: cs.onSurfaceVariant),
                 const SizedBox(height: 16),
-                Text('Could not load materials', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                Text(l.studentMaterialsLoadError, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 6),
                 Text('$e', style: TextStyle(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
               ],
@@ -69,9 +71,9 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                   border: Border.all(color: cs.outlineVariant),
                   child: Row(children: [
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Materials', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+                      Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
                       const SizedBox(height: 4),
-                      Text('No materials yet', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      Text(l.studentMaterialsEmptyTitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                     ])),
                     Container(width: 46, height: 46,
                       decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
@@ -82,9 +84,9 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                 Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Icon(Icons.folder_open_rounded, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
                   const SizedBox(height: 16),
-                  Text('No materials shared yet', style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(l.studentMaterialsEmptyTitle, style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 6),
-                  Text('Your teacher will share resources here.', style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(l.studentMaterialsEmptyHint, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
                 ])),
               ],
             );
@@ -109,7 +111,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                 border: Border.all(color: cs.outlineVariant),
                 child: Row(children: [
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Materials', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+                    Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
                     const SizedBox(height: 4),
                     Text('${items.length} resource${items.length == 1 ? '' : 's'} from your teachers',
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),

@@ -1102,7 +1102,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginEmailLabel.
   ///
   /// In en, this message translates to:
-  /// **'Email'**
+  /// **'Email or username'**
   String get loginEmailLabel;
 
   /// No description provided for @loginPasswordLabel.
@@ -9084,6 +9084,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No {role} yet'**
   String adminNoPeopleYet(Object role);
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// No description provided for @commonBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get commonBack;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// No description provided for @commonDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get commonDownload;
+
+  /// No description provided for @commonOpenExternally.
+  ///
+  /// In en, this message translates to:
+  /// **'Open externally'**
+  String get commonOpenExternally;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get commonDone;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @commonEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get commonEdit;
+
+  /// No description provided for @commonSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search…'**
+  String get commonSearch;
+
+  /// No description provided for @commonShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get commonShare;
+
+  /// No description provided for @commonLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get commonLoading;
+
+  /// No description provided for @commonError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get commonError;
+
+  /// No description provided for @commonTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get commonTryAgain;
+
+  /// No description provided for @studentMaterialsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get studentMaterialsTitle;
+
+  /// No description provided for @studentMaterialsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No materials shared yet'**
+  String get studentMaterialsEmptyTitle;
+
+  /// No description provided for @studentMaterialsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your teacher will share resources here.'**
+  String get studentMaterialsEmptyHint;
+
+  /// No description provided for @studentMaterialsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load materials'**
+  String get studentMaterialsLoadError;
+
+  /// No description provided for @studentAssignmentSubmittedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment handed in!'**
+  String get studentAssignmentSubmittedSnackbar;
+
+  /// No description provided for @studentAssignmentSubmitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit — please try again.'**
+  String get studentAssignmentSubmitFailed;
+
+  /// No description provided for @studentAssignmentUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'File upload failed — please try again.'**
+  String get studentAssignmentUploadFailed;
+
+  /// No description provided for @studentAssignmentHandedInBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed in'**
+  String get studentAssignmentHandedInBadge;
+
+  /// No description provided for @studentAssignmentSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand in'**
+  String get studentAssignmentSubmitButton;
+
+  /// No description provided for @studentAssignmentSubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Handing in…'**
+  String get studentAssignmentSubmitting;
+
+  /// No description provided for @studentAssignmentAttachFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach file'**
+  String get studentAssignmentAttachFile;
+
+  /// No description provided for @studentAssignmentAddMoreFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more files'**
+  String get studentAssignmentAddMoreFiles;
+
+  /// No description provided for @studentAssignmentYourSubmission.
+  ///
+  /// In en, this message translates to:
+  /// **'Your submission'**
+  String get studentAssignmentYourSubmission;
+
+  /// No description provided for @studentAssignmentTeacherAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get studentAssignmentTeacherAttachments;
+
+  /// No description provided for @secretaryWelcomeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi {name} 👋'**
+  String secretaryWelcomeGreeting(Object name);
+
+  /// No description provided for @secretaryYourTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tools'**
+  String get secretaryYourTools;
+
+  /// No description provided for @secretaryReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get secretaryReports;
+
+  /// No description provided for @secretaryExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get secretaryExportData;
+
+  /// No description provided for @secretaryHomeTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get secretaryHomeTile;
+
+  /// No description provided for @parentHomeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi {name} 👋'**
+  String parentHomeGreeting(Object name);
+
+  /// No description provided for @parentYourTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tools'**
+  String get parentYourTools;
+
+  /// No description provided for @parentNoChildLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'No child linked yet'**
+  String get parentNoChildLinked;
+
+  /// No description provided for @parentPickChildFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a child first'**
+  String get parentPickChildFirst;
+
+  /// No description provided for @parentNoApprovedChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'No approved children yet. Ask your school to link your account.'**
+  String get parentNoApprovedChildren;
+
+  /// No description provided for @loginEmptyFieldsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email or username and password.'**
+  String get loginEmptyFieldsError;
+
+  /// No description provided for @loginConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Check your internet and try again.'**
+  String get loginConnectionError;
+
+  /// No description provided for @loginTimeoutError.
+  ///
+  /// In en, this message translates to:
+  /// **'Request timed out. Please try again.'**
+  String get loginTimeoutError;
+
+  /// No description provided for @loginForgotPasswordLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get loginForgotPasswordLink;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordModeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get forgotPasswordModeEmail;
+
+  /// No description provided for @forgotPasswordModeSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get forgotPasswordModeSms;
+
+  /// No description provided for @forgotPasswordModeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get forgotPasswordModeAdmin;
+
+  /// No description provided for @forgotPasswordEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset link sent (if an account matches).'**
+  String get forgotPasswordEmailSent;
+
+  /// No description provided for @forgotPasswordEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email or username to continue.'**
+  String get forgotPasswordEmptyError;
+
+  /// No description provided for @forgotPasswordEmailButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Email me a reset link'**
+  String get forgotPasswordEmailButton;
+
+  /// No description provided for @forgotPasswordSmsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Text me a reset link'**
+  String get forgotPasswordSmsButton;
+
+  /// No description provided for @forgotPasswordLinkExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'The link expires in 1 hour and can only be used once.'**
+  String get forgotPasswordLinkExpires;
+
+  /// No description provided for @pushPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay in the loop'**
+  String get pushPermissionTitle;
+
+  /// No description provided for @pushPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications so you don\'t miss grades, messages, or schedule changes.'**
+  String get pushPermissionBody;
 }
 
 class _AppLocalizationsDelegate

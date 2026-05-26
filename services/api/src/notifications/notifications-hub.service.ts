@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
 import { ParentNotificationsEvents } from '../parent/parent-notifications.events';
+import { PushService } from './push.service';
 
 export type NotificationKind =
   | 'ANNOUNCEMENT'
@@ -69,6 +70,7 @@ export class NotificationsHubService {
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
     private readonly parentEvents: ParentNotificationsEvents,
+    private readonly push: PushService,
   ) {}
 
   async notify(params: NotifyParams): Promise<void> {
@@ -100,6 +102,22 @@ export class NotificationsHubService {
     for (const userId of uniqueRecipients) {
       this.realtime.emitToUser(userId, { type: 'notification', userId });
     }
+
+    // FCM/APNs out-of-app push. Silent no-op when Firebase isn't
+    // configured. Fired in parallel with SSE so an open-app user gets
+    // the SSE banner immediately while a closed-app user gets the
+    // system push a moment later.
+    void this.push.sendToUsers({
+      userIds: uniqueRecipients,
+      title: params.title,
+      body: params.body ?? '',
+      data: {
+        type: String(params.type),
+        ...Object.fromEntries(
+          Object.entries(params.data ?? {}).map(([k, v]) => [k, String(v ?? '')]),
+        ),
+      },
+    });
 
     // Parent fan-out — every direct student recipient generates parent
     // rows for their approved parents.
@@ -146,6 +164,20 @@ export class NotificationsHubService {
     for (const parentId of uniqueParentIds) {
       this.parentEvents.emit({ type: 'notification.created', parentId });
     }
+
+    // FCM/APNs out-of-app push to parents too — same fan-out, parent
+    // sees the system push on their device when the app is closed.
+    void this.push.sendToUsers({
+      userIds: uniqueParentIds,
+      title: params.title,
+      body: params.body ?? '',
+      data: {
+        type: String(params.type),
+        ...Object.fromEntries(
+          Object.entries(params.data ?? {}).map(([k, v]) => [k, String(v ?? '')]),
+        ),
+      },
+    });
   }
 
   /// Convenience: given an `audience` spec the way teacher endpoints

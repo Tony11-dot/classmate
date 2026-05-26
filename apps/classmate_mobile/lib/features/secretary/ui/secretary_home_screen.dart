@@ -46,15 +46,17 @@ class SecretaryHomeScreen extends ConsumerWidget {
       ),
       _ToolDef(
         icon: Icons.flag_outlined,
-        label: 'Reports',
+        label: l.secretaryReports,
         route: '/secretary/reports',
       ),
       _ToolDef(
         icon: Icons.download_rounded,
-        label: 'Export Data',
+        label: l.secretaryExportData,
         route: '/secretary/export',
       ),
     ];
+
+    final greetingName = session.displayName.isNotEmpty ? session.displayName : 'there';
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -63,7 +65,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
         children: [
           const SizedBox(height: 4),
           Text(
-            'Hi ${session.displayName.isNotEmpty ? session.displayName : 'there'} 👋',
+            l.secretaryWelcomeGreeting(greetingName),
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           Text(
@@ -74,7 +76,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 22),
           Text(
-            'Your tools',
+            l.secretaryYourTools,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),

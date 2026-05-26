@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
 import 'core/auth/auth_session.dart';
 import 'core/config/env.dart';
+import 'core/push/push_notifications_service.dart';
 import 'core/realtime/realtime_listener.dart';
 import 'features/billing/data/revenuecat_service.dart';
 import 'ui/widgets/splash_screen.dart';
@@ -26,6 +29,13 @@ void main() {
   // the RC user. The session doesn't import the SDK directly to keep
   // its dependency surface small; we register the factory here.
   AuthSession.registerRcServiceFactory(() => RevenueCatService.instance);
+  // Firebase / FCM init. No-ops gracefully when firebase_options.dart
+  // or the native config files aren't present yet, so safe to always
+  // call — the app still boots without push.
+  unawaited(PushNotificationsService.instance.init());
+  // Hook AuthSession → push registration so every login/logout updates
+  // the device's bound user on the backend.
+  AuthSession.registerPushService(PushNotificationsService.instance);
   runApp(const ProviderScope(child: _RootApp()));
 }
 

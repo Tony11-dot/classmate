@@ -601,7 +601,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSigningIn => 'Signing in...';
 
   @override
-  String get loginEmailLabel => 'Email';
+  String get loginEmailLabel => 'Email or username';
 
   @override
   String get loginPasswordLabel => 'Password';
@@ -5094,4 +5094,180 @@ class AppLocalizationsEn extends AppLocalizations {
   String adminNoPeopleYet(Object role) {
     return 'No $role yet';
   }
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonBack => 'Back';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonDownload => 'Download';
+
+  @override
+  String get commonOpenExternally => 'Open externally';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonEdit => 'Edit';
+
+  @override
+  String get commonSearch => 'Search…';
+
+  @override
+  String get commonShare => 'Share';
+
+  @override
+  String get commonLoading => 'Loading…';
+
+  @override
+  String get commonError => 'Something went wrong';
+
+  @override
+  String get commonTryAgain => 'Try again';
+
+  @override
+  String get studentMaterialsTitle => 'Materials';
+
+  @override
+  String get studentMaterialsEmptyTitle => 'No materials shared yet';
+
+  @override
+  String get studentMaterialsEmptyHint =>
+      'Your teacher will share resources here.';
+
+  @override
+  String get studentMaterialsLoadError => 'Could not load materials';
+
+  @override
+  String get studentAssignmentSubmittedSnackbar => 'Assignment handed in!';
+
+  @override
+  String get studentAssignmentSubmitFailed =>
+      'Could not submit — please try again.';
+
+  @override
+  String get studentAssignmentUploadFailed =>
+      'File upload failed — please try again.';
+
+  @override
+  String get studentAssignmentHandedInBadge => 'Handed in';
+
+  @override
+  String get studentAssignmentSubmitButton => 'Hand in';
+
+  @override
+  String get studentAssignmentSubmitting => 'Handing in…';
+
+  @override
+  String get studentAssignmentAttachFile => 'Attach file';
+
+  @override
+  String get studentAssignmentAddMoreFiles => 'Add more files';
+
+  @override
+  String get studentAssignmentYourSubmission => 'Your submission';
+
+  @override
+  String get studentAssignmentTeacherAttachments => 'Attachments';
+
+  @override
+  String secretaryWelcomeGreeting(Object name) {
+    return 'Hi $name 👋';
+  }
+
+  @override
+  String get secretaryYourTools => 'Your tools';
+
+  @override
+  String get secretaryReports => 'Reports';
+
+  @override
+  String get secretaryExportData => 'Export Data';
+
+  @override
+  String get secretaryHomeTile => 'Home';
+
+  @override
+  String parentHomeGreeting(Object name) {
+    return 'Hi $name 👋';
+  }
+
+  @override
+  String get parentYourTools => 'Your tools';
+
+  @override
+  String get parentNoChildLinked => 'No child linked yet';
+
+  @override
+  String get parentPickChildFirst => 'Pick a child first';
+
+  @override
+  String get parentNoApprovedChildren =>
+      'No approved children yet. Ask your school to link your account.';
+
+  @override
+  String get loginEmptyFieldsError =>
+      'Please enter your email or username and password.';
+
+  @override
+  String get loginConnectionError =>
+      'No connection. Check your internet and try again.';
+
+  @override
+  String get loginTimeoutError => 'Request timed out. Please try again.';
+
+  @override
+  String get loginForgotPasswordLink => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Reset your password';
+
+  @override
+  String get forgotPasswordModeEmail => 'Email';
+
+  @override
+  String get forgotPasswordModeSms => 'SMS';
+
+  @override
+  String get forgotPasswordModeAdmin => 'Admin';
+
+  @override
+  String get forgotPasswordEmailSent =>
+      'Reset link sent (if an account matches).';
+
+  @override
+  String get forgotPasswordEmptyError =>
+      'Enter your email or username to continue.';
+
+  @override
+  String get forgotPasswordEmailButton => 'Email me a reset link';
+
+  @override
+  String get forgotPasswordSmsButton => 'Text me a reset link';
+
+  @override
+  String get forgotPasswordLinkExpires =>
+      'The link expires in 1 hour and can only be used once.';
+
+  @override
+  String get pushPermissionTitle => 'Stay in the loop';
+
+  @override
+  String get pushPermissionBody =>
+      'Turn on notifications so you don\'t miss grades, messages, or schedule changes.';
 }

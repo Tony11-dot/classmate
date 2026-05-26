@@ -235,6 +235,7 @@ class AuthSession extends ChangeNotifier {
 
   Future<void> setToken(String? token) async {
     final prefs = await SharedPreferences.getInstance();
+    final previousToken = _token;
     if (token == null || token.isEmpty) {
       await prefs.remove(_kToken);
       _token = null;
@@ -249,6 +250,37 @@ class AuthSession extends ChangeNotifier {
     // and the next purchase blocks on its own identify under the hood
     // if this hasn't completed yet.
     _syncRevenueCatIdentity();
+    // FCM token registration. On login: register the device's push
+    // token with the backend so notifications fan out to this phone.
+    // On logout: tell the backend to forget this device. The push
+    // service is no-op when Firebase isn't configured.
+    _syncPushRegistration(previousToken: previousToken);
+  }
+
+  Future<void> _syncPushRegistration({String? previousToken}) async {
+    try {
+      final svc = _pushService;
+      if (svc == null) return;
+      final current = _token;
+      if (current != null && current.isNotEmpty && current != 'SIM_TOKEN') {
+        // Cast through dynamic so this file doesn't import firebase_messaging.
+        // ignore: avoid_dynamic_calls
+        await (svc as dynamic).registerForUser(authToken: current);
+      } else if (previousToken != null && previousToken.isNotEmpty && previousToken != 'SIM_TOKEN') {
+        // ignore: avoid_dynamic_calls
+        await (svc as dynamic).unregisterForUser(authToken: previousToken);
+      }
+    } catch (_) {
+      // Push is non-essential — never block login on a registration failure.
+    }
+  }
+
+  static dynamic _pushService;
+  /// main.dart calls this once on startup to register the
+  /// PushNotificationsService singleton without auth_session needing
+  /// to import firebase_messaging directly.
+  static void registerPushService(dynamic svc) {
+    _pushService = svc;
   }
 
   /// Best-effort identity sync with RevenueCat. Lazy-loaded to avoid
