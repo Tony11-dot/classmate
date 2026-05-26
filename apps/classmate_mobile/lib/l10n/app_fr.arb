@@ -2371,5 +2371,18 @@
   "teacherDiplomaCertTitleLabel": "Titre du certificat",
   "teacherDiplomaSearchStudent": "Rechercher un élève…",
 
-  "teacherProfileChatError": "Impossible de démarrer la conversation"
+  "teacherProfileChatError": "Impossible de démarrer la conversation",
+
+  "teacherGradeAssignmentType": "Devoir",
+  "teacherGradeExamType": "Examen",
+  "teacherGradeOtherType": "Autre",
+  "teacherGradeOutOfLabel": "Sur (optionnel)",
+  "teacherGradePublishedTitle": "Publiée",
+  "teacherGradePublishedSubtitle": "Les élèves voient cette note",
+  "teacherMaterialPickSubject": "Veuillez choisir une matière.",
+  "teacherMaterialAddLink": "Ajouter un lien",
+  "teacherMaterialAddFile": "Ajouter un fichier",
+  "teacherMaterialSearchStudentsGrade": "Rechercher des élèves ou un niveau...",
+  "teacherMaterialDoneSelected": "Terminé ({count} sélectionné(s))",
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
 }

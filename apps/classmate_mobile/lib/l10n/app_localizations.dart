@@ -10884,6 +10884,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not start chat'**
   String get teacherProfileChatError;
+
+  /// No description provided for @teacherGradeAssignmentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get teacherGradeAssignmentType;
+
+  /// No description provided for @teacherGradeExamType.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get teacherGradeExamType;
+
+  /// No description provided for @teacherGradeOtherType.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get teacherGradeOtherType;
+
+  /// No description provided for @teacherGradeOutOfLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of (optional)'**
+  String get teacherGradeOutOfLabel;
+
+  /// No description provided for @teacherGradePublishedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get teacherGradePublishedTitle;
+
+  /// No description provided for @teacherGradePublishedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Students can see this grade'**
+  String get teacherGradePublishedSubtitle;
+
+  /// No description provided for @teacherMaterialPickSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a subject.'**
+  String get teacherMaterialPickSubject;
+
+  /// No description provided for @teacherMaterialAddLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get teacherMaterialAddLink;
+
+  /// No description provided for @teacherMaterialAddFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Add file'**
+  String get teacherMaterialAddFile;
+
+  /// No description provided for @teacherMaterialSearchStudentsGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students or grade...'**
+  String get teacherMaterialSearchStudentsGrade;
+
+  /// No description provided for @teacherMaterialDoneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count} selected)'**
+  String teacherMaterialDoneSelected(int count);
 }
 
 class _AppLocalizationsDelegate

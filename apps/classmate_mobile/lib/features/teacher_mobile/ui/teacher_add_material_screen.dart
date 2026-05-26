@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -237,14 +238,15 @@ class _TeacherAddMaterialScreenState
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a title.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherMeetingEnterTitle)));
       return;
     }
     if (_selectedSubject == null || _selectedSubject!.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a subject.')),
+        SnackBar(content: Text(l.teacherMaterialPickSubject)),
       );
       return;
     }
@@ -439,7 +441,7 @@ class _TeacherAddMaterialScreenState
               icon: _saving
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.check_rounded, size: 18),
-              label: const Text('Save'),
+              label: Text(AppLocalizations.of(context)!.commonSave),
             ),
           ),
         ],
@@ -487,7 +489,7 @@ class _TeacherAddMaterialScreenState
                           _selectedStudentIds.isEmpty &&
                           _selectedGrades.isEmpty) ...[
                         const SizedBox(height: 8),
-                        Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                        Text(AppLocalizations.of(context)!.teacherMeetingVisibleToEveryone, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
                     ],
                   ),
@@ -516,17 +518,17 @@ class _TeacherAddMaterialScreenState
                       TextField(
                         controller: _titleCtrl,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMeetingTitleField, border: const OutlineInputBorder()),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _descCtrl,
                         maxLines: 3,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(
-                          labelText: 'Description (optional)',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.teacherMaterialDescriptionLabel,
                           alignLabelWithHint: true,
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ],
@@ -611,7 +613,7 @@ class _TeacherAddMaterialScreenState
                           FilledButton(
                             onPressed: _addLink,
                             style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), minimumSize: Size.zero),
-                            child: const Text('Add'),
+                            child: Text(AppLocalizations.of(context)!.commonAdd),
                           ),
                           const SizedBox(width: 4),
                           IconButton(
@@ -631,7 +633,7 @@ class _TeacherAddMaterialScreenState
                           OutlinedButton.icon(
                             onPressed: () => setState(() => _showLinkInput = true),
                             icon: const Icon(Icons.link_rounded, size: 15),
-                            label: const Text('Add link'),
+                            label: Text(AppLocalizations.of(context)!.teacherMaterialAddLink),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
@@ -641,7 +643,7 @@ class _TeacherAddMaterialScreenState
                         OutlinedButton.icon(
                           onPressed: _pickFile,
                           icon: const Icon(Icons.attach_file_rounded, size: 15),
-                          label: const Text('Add file'),
+                          label: Text(AppLocalizations.of(context)!.teacherMaterialAddFile),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
@@ -751,7 +753,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                 controller: _searchCtrl,
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
-                  hintText: 'Search students or grade...',
+                  hintText: AppLocalizations.of(context)!.teacherMaterialSearchStudentsGrade,
                   prefixIcon: const Icon(Icons.search_rounded),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   isDense: true,
@@ -780,7 +782,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
               child: SizedBox(width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Done (${_localSelected.length} selected)'),
+                  child: Text(AppLocalizations.of(context)!.teacherMaterialDoneSelected(_localSelected.length)),
                 ))),
           ],
         ),

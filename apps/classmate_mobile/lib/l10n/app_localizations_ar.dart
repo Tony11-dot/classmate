@@ -6080,4 +6080,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherProfileChatError => 'تعذّر بدء المحادثة';
+
+  @override
+  String get teacherGradeAssignmentType => 'واجب';
+
+  @override
+  String get teacherGradeExamType => 'امتحان';
+
+  @override
+  String get teacherGradeOtherType => 'أخرى';
+
+  @override
+  String get teacherGradeOutOfLabel => 'من (اختياري)';
+
+  @override
+  String get teacherGradePublishedTitle => 'منشورة';
+
+  @override
+  String get teacherGradePublishedSubtitle => 'يمكن للطلاب رؤية هذه الدرجة';
+
+  @override
+  String get teacherMaterialPickSubject => 'يرجى اختيار مادة.';
+
+  @override
+  String get teacherMaterialAddLink => 'إضافة رابط';
+
+  @override
+  String get teacherMaterialAddFile => 'إضافة ملف';
+
+  @override
+  String get teacherMaterialSearchStudentsGrade => 'ابحث عن الطلاب أو الصف...';
+
+  @override
+  String teacherMaterialDoneSelected(int count) {
+    return 'تم ($count محدد)';
+  }
 }

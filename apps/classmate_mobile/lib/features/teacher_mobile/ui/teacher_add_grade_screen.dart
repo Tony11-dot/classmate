@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -370,7 +371,7 @@ class _TeacherAddGradeScreenState
                           strokeWidth: 2, color: Colors.white),
                     )
                   : const Icon(Icons.check_rounded, size: 18),
-              label: const Text('Save'),
+              label: Text(AppLocalizations.of(context)!.commonSave),
             ),
           ),
         ],
@@ -470,20 +471,20 @@ class _TeacherAddGradeScreenState
                             style: SegmentedButton.styleFrom(
                               visualDensity: VisualDensity.compact,
                             ),
-                            segments: const [
+                            segments: [
                               ButtonSegment(
                                 value: _GradeType.assignment,
-                                label: Text('Assignment',
+                                label: Text(AppLocalizations.of(context)!.teacherGradeAssignmentType,
                                     overflow: TextOverflow.ellipsis),
                               ),
                               ButtonSegment(
                                 value: _GradeType.exam,
-                                label: Text('Exam',
+                                label: Text(AppLocalizations.of(context)!.teacherGradeExamType,
                                     overflow: TextOverflow.ellipsis),
                               ),
                               ButtonSegment(
                                 value: _GradeType.other,
-                                label: Text('Other',
+                                label: Text(AppLocalizations.of(context)!.teacherGradeOtherType,
                                     overflow: TextOverflow.ellipsis),
                               ),
                             ],
@@ -677,8 +678,8 @@ class _TeacherAddGradeScreenState
                             TextField(
                               controller: _otherTitleCtrl,
                               textCapitalization: TextCapitalization.sentences,
-                              decoration: const InputDecoration(
-                                labelText: 'Title *',
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.teacherAssignmentTitleField,
                                 hintText: 'e.g. Class participation, Quiz 3',
                               ),
                             ),
@@ -686,8 +687,8 @@ class _TeacherAddGradeScreenState
                             TextField(
                               controller: _otherMaxCtrl,
                               keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Out of (optional)',
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.teacherGradeOutOfLabel,
                                 hintText: 'e.g. 10',
                               ),
                             ),
@@ -746,9 +747,9 @@ class _TeacherAddGradeScreenState
                               ? cs.primary
                               : cs.onSurfaceVariant,
                         ),
-                        title: const Text('Published'),
+                        title: Text(AppLocalizations.of(context)!.teacherGradePublishedTitle),
                         subtitle:
-                            const Text('Students can see this grade'),
+                            Text(AppLocalizations.of(context)!.teacherGradePublishedSubtitle),
                         value: _published,
                         onChanged: (v) => setState(() => _published = v),
                       ),
@@ -869,7 +870,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
             child: TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search students…',
+                hintText: AppLocalizations.of(context)!.teacherSearchStudents,
                 prefixIcon:
                     const Icon(Icons.search_rounded, size: 20),
                 border: OutlineInputBorder(

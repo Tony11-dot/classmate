@@ -2371,5 +2371,18 @@
   "teacherDiplomaCertTitleLabel": "כותרת התעודה",
   "teacherDiplomaSearchStudent": "חפש תלמיד…",
 
-  "teacherProfileChatError": "לא ניתן להתחיל צ'אט"
+  "teacherProfileChatError": "לא ניתן להתחיל צ'אט",
+
+  "teacherGradeAssignmentType": "מטלה",
+  "teacherGradeExamType": "מבחן",
+  "teacherGradeOtherType": "אחר",
+  "teacherGradeOutOfLabel": "מתוך (אופציונלי)",
+  "teacherGradePublishedTitle": "פורסם",
+  "teacherGradePublishedSubtitle": "תלמידים יכולים לראות ציון זה",
+  "teacherMaterialPickSubject": "אנא בחר מקצוע.",
+  "teacherMaterialAddLink": "הוסף קישור",
+  "teacherMaterialAddFile": "הוסף קובץ",
+  "teacherMaterialSearchStudentsGrade": "חפש תלמידים או שכבה...",
+  "teacherMaterialDoneSelected": "סיום ({count} נבחרו)",
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
 }

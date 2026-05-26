@@ -6055,4 +6055,39 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherProfileChatError => 'לא ניתן להתחיל צ\'אט';
+
+  @override
+  String get teacherGradeAssignmentType => 'מטלה';
+
+  @override
+  String get teacherGradeExamType => 'מבחן';
+
+  @override
+  String get teacherGradeOtherType => 'אחר';
+
+  @override
+  String get teacherGradeOutOfLabel => 'מתוך (אופציונלי)';
+
+  @override
+  String get teacherGradePublishedTitle => 'פורסם';
+
+  @override
+  String get teacherGradePublishedSubtitle => 'תלמידים יכולים לראות ציון זה';
+
+  @override
+  String get teacherMaterialPickSubject => 'אנא בחר מקצוע.';
+
+  @override
+  String get teacherMaterialAddLink => 'הוסף קישור';
+
+  @override
+  String get teacherMaterialAddFile => 'הוסף קובץ';
+
+  @override
+  String get teacherMaterialSearchStudentsGrade => 'חפש תלמידים או שכבה...';
+
+  @override
+  String teacherMaterialDoneSelected(int count) {
+    return 'סיום ($count נבחרו)';
+  }
 }

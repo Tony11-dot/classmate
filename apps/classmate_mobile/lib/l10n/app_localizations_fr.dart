@@ -6201,4 +6201,40 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherProfileChatError =>
       'Impossible de démarrer la conversation';
+
+  @override
+  String get teacherGradeAssignmentType => 'Devoir';
+
+  @override
+  String get teacherGradeExamType => 'Examen';
+
+  @override
+  String get teacherGradeOtherType => 'Autre';
+
+  @override
+  String get teacherGradeOutOfLabel => 'Sur (optionnel)';
+
+  @override
+  String get teacherGradePublishedTitle => 'Publiée';
+
+  @override
+  String get teacherGradePublishedSubtitle => 'Les élèves voient cette note';
+
+  @override
+  String get teacherMaterialPickSubject => 'Veuillez choisir une matière.';
+
+  @override
+  String get teacherMaterialAddLink => 'Ajouter un lien';
+
+  @override
+  String get teacherMaterialAddFile => 'Ajouter un fichier';
+
+  @override
+  String get teacherMaterialSearchStudentsGrade =>
+      'Rechercher des élèves ou un niveau...';
+
+  @override
+  String teacherMaterialDoneSelected(int count) {
+    return 'Terminé ($count sélectionné(s))';
+  }
 }

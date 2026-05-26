@@ -2578,5 +2578,18 @@
   "teacherDiplomaCertTitleLabel": "Название сертификата",
   "teacherDiplomaSearchStudent": "Поиск ученика…",
 
-  "teacherProfileChatError": "Не удалось начать чат"
+  "teacherProfileChatError": "Не удалось начать чат",
+
+  "teacherGradeAssignmentType": "Задание",
+  "teacherGradeExamType": "Экзамен",
+  "teacherGradeOtherType": "Другое",
+  "teacherGradeOutOfLabel": "Из (необязательно)",
+  "teacherGradePublishedTitle": "Опубликовано",
+  "teacherGradePublishedSubtitle": "Ученики видят эту оценку",
+  "teacherMaterialPickSubject": "Пожалуйста, выберите предмет.",
+  "teacherMaterialAddLink": "Добавить ссылку",
+  "teacherMaterialAddFile": "Добавить файл",
+  "teacherMaterialSearchStudentsGrade": "Поиск учеников или класса...",
+  "teacherMaterialDoneSelected": "Готово (выбрано {count})",
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
 }

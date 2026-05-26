@@ -2371,5 +2371,18 @@
   "teacherDiplomaCertTitleLabel": "عنوان الشهادة",
   "teacherDiplomaSearchStudent": "ابحث عن طالب…",
 
-  "teacherProfileChatError": "تعذّر بدء المحادثة"
+  "teacherProfileChatError": "تعذّر بدء المحادثة",
+
+  "teacherGradeAssignmentType": "واجب",
+  "teacherGradeExamType": "امتحان",
+  "teacherGradeOtherType": "أخرى",
+  "teacherGradeOutOfLabel": "من (اختياري)",
+  "teacherGradePublishedTitle": "منشورة",
+  "teacherGradePublishedSubtitle": "يمكن للطلاب رؤية هذه الدرجة",
+  "teacherMaterialPickSubject": "يرجى اختيار مادة.",
+  "teacherMaterialAddLink": "إضافة رابط",
+  "teacherMaterialAddFile": "إضافة ملف",
+  "teacherMaterialSearchStudentsGrade": "ابحث عن الطلاب أو الصف...",
+  "teacherMaterialDoneSelected": "تم ({count} محدد)",
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
 }

@@ -6047,4 +6047,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherProfileChatError => 'Не удалось начать чат';
+
+  @override
+  String get teacherGradeAssignmentType => 'Задание';
+
+  @override
+  String get teacherGradeExamType => 'Экзамен';
+
+  @override
+  String get teacherGradeOtherType => 'Другое';
+
+  @override
+  String get teacherGradeOutOfLabel => 'Из (необязательно)';
+
+  @override
+  String get teacherGradePublishedTitle => 'Опубликовано';
+
+  @override
+  String get teacherGradePublishedSubtitle => 'Ученики видят эту оценку';
+
+  @override
+  String get teacherMaterialPickSubject => 'Пожалуйста, выберите предмет.';
+
+  @override
+  String get teacherMaterialAddLink => 'Добавить ссылку';
+
+  @override
+  String get teacherMaterialAddFile => 'Добавить файл';
+
+  @override
+  String get teacherMaterialSearchStudentsGrade =>
+      'Поиск учеников или класса...';
+
+  @override
+  String teacherMaterialDoneSelected(int count) {
+    return 'Готово (выбрано $count)';
+  }
 }

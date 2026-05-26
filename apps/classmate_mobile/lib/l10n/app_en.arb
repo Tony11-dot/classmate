@@ -2578,5 +2578,18 @@
   "teacherDiplomaCertTitleLabel": "Certificate title",
   "teacherDiplomaSearchStudent": "Search student…",
 
-  "teacherProfileChatError": "Could not start chat"
+  "teacherProfileChatError": "Could not start chat",
+
+  "teacherGradeAssignmentType": "Assignment",
+  "teacherGradeExamType": "Exam",
+  "teacherGradeOtherType": "Other",
+  "teacherGradeOutOfLabel": "Out of (optional)",
+  "teacherGradePublishedTitle": "Published",
+  "teacherGradePublishedSubtitle": "Students can see this grade",
+  "teacherMaterialPickSubject": "Please select a subject.",
+  "teacherMaterialAddLink": "Add link",
+  "teacherMaterialAddFile": "Add file",
+  "teacherMaterialSearchStudentsGrade": "Search students or grade...",
+  "teacherMaterialDoneSelected": "Done ({count} selected)",
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
 }

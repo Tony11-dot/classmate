@@ -6109,4 +6109,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherProfileChatError => 'Could not start chat';
+
+  @override
+  String get teacherGradeAssignmentType => 'Assignment';
+
+  @override
+  String get teacherGradeExamType => 'Exam';
+
+  @override
+  String get teacherGradeOtherType => 'Other';
+
+  @override
+  String get teacherGradeOutOfLabel => 'Out of (optional)';
+
+  @override
+  String get teacherGradePublishedTitle => 'Published';
+
+  @override
+  String get teacherGradePublishedSubtitle => 'Students can see this grade';
+
+  @override
+  String get teacherMaterialPickSubject => 'Please select a subject.';
+
+  @override
+  String get teacherMaterialAddLink => 'Add link';
+
+  @override
+  String get teacherMaterialAddFile => 'Add file';
+
+  @override
+  String get teacherMaterialSearchStudentsGrade =>
+      'Search students or grade...';
+
+  @override
+  String teacherMaterialDoneSelected(int count) {
+    return 'Done ($count selected)';
+  }
 }
