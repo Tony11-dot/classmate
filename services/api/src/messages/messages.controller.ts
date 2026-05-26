@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
@@ -32,26 +33,35 @@ import { ReportMessageDto } from './dto/report-message.dto';
 export class MessagesController {
   constructor(private readonly service: MessagesService) {}
 
+  // Read endpoints are exempt from the default throttle bucket because the
+  // inbox + thread fetch combo runs on every screen transition and on SSE
+  // reconnect — easily blowing past 1200/min for a power user with two
+  // kids open. Writes (send/edit/delete/etc.) keep the default cap.
+  @SkipThrottle()
   @Get('inbox')
   fetchInbox(@Req() req: any) {
     return this.service.fetchInbox(req.user);
   }
 
+  @SkipThrottle()
   @Get('people/same-school')
   fetchSameSchoolPeople(@Req() req: any) {
     return this.service.fetchSameSchoolPeople(req.user);
   }
 
+  @SkipThrottle()
   @Get('blocked')
   fetchBlocked(@Req() req: any) {
     return this.service.fetchBlocked(req.user);
   }
 
+  @SkipThrottle()
   @Get('threads/:threadId')
   fetchThread(@Req() req: any, @Param('threadId') threadId: string) {
     return this.service.fetchThread(req.user, String(threadId || '').trim());
   }
 
+  @SkipThrottle()
   @Get('requests/:threadId')
   fetchRequest(@Req() req: any, @Param('threadId') threadId: string) {
     return this.service.fetchRequest(req.user, String(threadId || '').trim());

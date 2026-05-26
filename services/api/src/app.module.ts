@@ -106,15 +106,15 @@ const seedControllers = [
     ...serveStatic,
     // Two throttle buckets:
     //   • default — generous global cap so a buggy client can't spam us
-    //     to death. 600 req/min/IP is comfortable for an app with SSE +
-    //     parallel screens (messages inbox + realtime + insights all
-    //     load on tab switch). Previously 120/min, which legitimate use
-    //     hit during testing.
+    //     to death. 1200 req/min/IP — needed once a parent watching two
+    //     kids does a tab switch (insights + schedule + week refetch + SSE
+    //     reconnect can fan out 30+ requests in a second). 600 was tripping
+    //     under that pattern.
     //   • auth    — strict 5 req / 15 min / IP for credential-handling
     //     endpoints (login, register, forgot/reset password). Brute-
     //     force defense; opted into per-route with @Throttle({ auth: … }).
     ThrottlerModule.forRoot([
-      { name: 'default', ttl: 60_000, limit: 600 },
+      { name: 'default', ttl: 60_000, limit: 1200 },
       { name: 'auth', ttl: 15 * 60_000, limit: 5 },
     ]),
     HealthModule,

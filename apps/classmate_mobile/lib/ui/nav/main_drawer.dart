@@ -299,15 +299,15 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/parent/notifications'),
                     sectionHeader(l.sectionAccount),
                   ] else if (isSecretary) ...[
-                    sectionHeader('School Tools'),
-                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
-                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
-                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
                     sectionHeader('Secretary Tools'),
-                    navItem(icon: Icons.school_rounded, label: l.adminStudents, route: '/secretary/students'),
-                    navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/secretary/people'),
+                    navItem(icon: Icons.dashboard_rounded, label: 'Home', route: '/secretary/home'),
                     navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/secretary/schedule'),
-                    navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/admin/export'),
+                    navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/secretary/people'),
+                    navItem(icon: Icons.groups_rounded, label: l.navCohorts, route: '/secretary/cohorts'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
+                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
+                    navItem(icon: Icons.flag_outlined, label: 'Reports', route: '/secretary/reports'),
+                    navItem(icon: Icons.download_rounded, label: 'Export Data', route: '/secretary/export'),
                     sectionHeader(l.sectionAccount),
                   ] else if (isPureAdmin) ...[
                     sectionHeader('School Tools'),
@@ -375,15 +375,15 @@ class MainDrawer extends ConsumerWidget {
                     label: l.navProfile,
                     route: '/profile',
                   ),
-                  // NOVA Plans — token-economy management. Placed under
-                  // Account so users navigate here from the same drawer
-                  // section as Profile / Settings rather than having a
-                  // standalone billing surface.
-                  navItem(
-                    icon: Icons.workspace_premium_rounded,
-                    label: 'NOVA Plans',
-                    route: '/plans',
-                  ),
+                  // NOVA Plans is offered to students, teachers, and parents
+                  // (the roles that actually use the NOVA tutor). Admins and
+                  // secretaries manage a school, not a tutor subscription.
+                  if (!isPureAdmin && !isSecretary)
+                    navItem(
+                      icon: Icons.workspace_premium_rounded,
+                      label: 'NOVA Plans',
+                      route: '/plans',
+                    ),
                   navItem(
                     icon: Icons.settings_rounded,
                     label: l.navSettings,

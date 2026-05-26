@@ -346,19 +346,21 @@ function emailBaseUrl(): string {
 }
 
 /**
- * Centered logo block for email headers.  `size: 'lg'` is the gradient-banner
- * size used by the marketing-style templates; `'sm'` is the inline badge that
- * leads simpler transactional templates.  Both sizes hit the same
- * /static/logo_light.png and use a TABLE-with-align="center" wrapper because
- * email clients (Outlook in particular) ignore `margin: 0 auto` and
- * `display: block; text-align: center` on `<img>`.
+ * Centered logo block for email headers. Uses logo_dark.png (white-on-transparent
+ * wordmark) since every header sits on a dark gradient. The image is 1536x1024
+ * (3:2), so width/height attributes preserve that aspect — setting both to the
+ * same px stretches the mark vertically. `lg` fills the gradient banner; `sm`
+ * is a compact badge for the simpler transactional templates. The TABLE-with-
+ * align="center" wrapper exists because Outlook ignores both `margin:0 auto`
+ * and `display:block;text-align:center` on `<img>`.
  */
 function logoImg({ size = 'lg' }: { size?: 'lg' | 'sm' } = {}): string {
-  const url = `${emailBaseUrl()}/static/logo_light.png`;
-  const px = size === 'lg' ? 88 : 56;
+  const url = `${emailBaseUrl()}/static/logo_dark.png`;
+  const w = size === 'lg' ? 240 : 140;
+  const h = Math.round(w * (1024 / 1536));
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto"><tr>
   <td align="center" style="text-align:center">
-    <img src="${url}" alt="ClassMate" width="${px}" height="${px}" style="display:block;width:${px}px;height:${px}px;border:0;outline:none;text-decoration:none">
+    <img src="${url}" alt="ClassMate" width="${w}" height="${h}" style="display:block;width:${w}px;height:${h}px;max-width:100%;border:0;outline:none;text-decoration:none">
   </td>
 </tr></table>`;
 }

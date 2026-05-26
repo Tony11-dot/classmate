@@ -83,25 +83,28 @@ export class AdminController {
 
   // ── DDL helpers ──────────────────────────────────────────────────────────────
 
-  @Roles(Role.ADMIN)
+  // DDLs power read-only screens (export, schedule view, people) — secretary
+  // needs them to populate filters and student pickers even though they
+  // can't mutate the underlying data.
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('ddl/students')
   ddlStudents(@Req() req: any, @Query('q') q?: string, @Query('cohortId') cohortId?: string) {
     return this.admin.listStudentsForDDL(req.user, { q, cohortId });
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('ddl/teachers')
   ddlTeachers(@Req() req: any) {
     return this.admin.listTeachersForDDL(req.user);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('ddl/cohorts')
   ddlCohorts(@Req() req: any) {
     return this.admin.listCohortsForDDL(req.user);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('ddl/classrooms')
   ddlClassrooms(@Req() req: any, @Query('teacherId') teacherId: string) {
     return this.admin.listClassroomsForTeacher(req.user, teacherId);
@@ -109,7 +112,7 @@ export class AdminController {
 
   // ── Schedule overrides (legacy cohort-based) ─────────────────────────────────
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('schedule/cohort/:cohortId')
   cohortSchedule(@Req() req: any, @Param('cohortId') cohortId: string) {
     return this.admin.getCohortSchedule(req.user, cohortId);
@@ -121,7 +124,7 @@ export class AdminController {
     return this.admin.setScheduleOverride(req.user, body);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('schedule/overrides')
   listOverrides(@Req() req: any, @Query('cohortId') cohortId: string, @Query('from') from: string, @Query('to') to: string) {
     return this.admin.listScheduleOverrides(req.user, { cohortId, from, to });
@@ -339,7 +342,10 @@ export class AdminController {
     return this.admin.listCohorts(req.user);
   }
 
-  @Roles(Role.ADMIN, Role.SECRETARY)
+  // Cohort mutations are admin-only — secretary sees a read-only view of
+  // cohorts (per role spec). Roster reads are still shared so secretary
+  // can browse membership without holding the keys.
+  @Roles(Role.ADMIN)
   @Patch('cohorts/:id')
   updateCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.admin.updateCohort(req.user, id, body);
@@ -357,13 +363,13 @@ export class AdminController {
     return this.admin.getCohortRoster(req.user, id);
   }
 
-  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Roles(Role.ADMIN)
   @Post('cohorts/:id/students')
   addStudentsToCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.admin.addStudentsToCohort(req.user, id, body);
   }
 
-  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Roles(Role.ADMIN)
   @Delete('cohorts/:id/students/:studentId')
   removeStudentFromCohort(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
     return this.admin.removeStudentFromCohort(req.user, id, studentId);
@@ -405,7 +411,9 @@ export class AdminController {
 
   // ── Message reports (Play policy: report-content flow) ───────────────
 
-  @Roles(Role.ADMIN)
+  // Reports moderation — secretary handles inbox + day-to-day moderation;
+  // admin keeps the same access. Both roles can resolve/dismiss.
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('reports')
   listReports(
     @Req() req: any,
@@ -414,13 +422,13 @@ export class AdminController {
     return this.admin.listMessageReports(req.user, status);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Post('reports/:id/resolve')
   resolveReport(@Req() req: any, @Param('id') id: string) {
     return this.admin.resolveMessageReport(req.user, id, 'RESOLVED');
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Post('reports/:id/dismiss')
   dismissReport(@Req() req: any, @Param('id') id: string) {
     return this.admin.resolveMessageReport(req.user, id, 'DISMISSED');

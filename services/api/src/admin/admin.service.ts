@@ -453,7 +453,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   // ── DDL helpers ───────────────────────────────────────────────────────────────
 
   async listStudentsForDDL(user: any, query: { q?: string; cohortId?: string }) {
-    this.ensureAdmin(user);
+    this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId ?? null;
     const students = await this.prisma.user.findMany({
       where: {
@@ -508,7 +508,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async listTeachersForDDL(user: any) {
-    this.ensureAdmin(user);
+    this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId ?? null;
     // Hard-require schoolId. Without it we'd return every teacher in
     // every school (cross-school leak in the period editor's teacher
@@ -528,7 +528,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async listCohortsForDDL(user: any) {
-    this.ensureAdmin(user);
+    this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId ?? null;
     const cohorts = await this.prisma.cohort.findMany({
       where: schoolId ? { OR: [{ schoolId } as any, { schoolId: null }] } : {},
@@ -567,7 +567,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async listClassroomsForTeacher(user: any, teacherId: string) {
-    this.ensureAdmin(user);
+    this.requireAdminOrSecretary(user);
     if (!teacherId) throw new BadRequestException('teacherId is required');
     const classrooms = await this.prisma.classroom.findMany({
       where: { teacherId },
@@ -601,7 +601,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async listScheduleOverrides(user: any, query: { cohortId: string; from: string; to: string }) {
-    this.ensureAdmin(user);
+    this.requireAdminOrSecretary(user);
     const { cohortId, from, to } = query ?? {} as any;
     if (!cohortId) throw new BadRequestException('cohortId is required');
     const fromDt = new Date(`${from}T00:00:00.000Z`);
@@ -625,7 +625,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async getCohortSchedule(user: any, cohortId: string) {
-    this.ensureAdmin(user);
+    this.requireAdminOrSecretary(user);
     if (!cohortId) throw new BadRequestException('cohortId is required');
     const slotIds = (await this.prisma.scheduleSlotCohort.findMany({ where: { cohortId }, select: { slotId: true } })).map((r) => r.slotId);
     if (!slotIds.length) return [];

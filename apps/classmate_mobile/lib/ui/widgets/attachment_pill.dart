@@ -44,12 +44,21 @@ class AttachmentPill extends StatelessWidget {
     final resolved = _resolve(url);
     if (resolved.isEmpty) return;
 
-    final lower = resolved.toLowerCase();
+    // Presigned URLs (?token=…) and CDN URLs (#fragments) break a naive
+    // endsWith('.pdf') / endsWith('.jpg') check — strip query + fragment
+    // before sniffing the extension, then also peek at the filename for
+    // `.pdf` / `.jpg` anywhere as a last-resort fallback.
+    final pathOnly = Uri.tryParse(resolved)?.path.toLowerCase() ?? resolved.toLowerCase();
     final t = type.toLowerCase();
-    final isPdf = t == 'pdf' || lower.endsWith('.pdf');
+    final nameLower = name.toLowerCase();
+    final isPdf = t == 'pdf' ||
+        pathOnly.endsWith('.pdf') ||
+        nameLower.endsWith('.pdf');
     final isImage = t == 'image' ||
-        lower.endsWith('.jpg') || lower.endsWith('.jpeg') ||
-        lower.endsWith('.png') || lower.endsWith('.webp');
+        pathOnly.endsWith('.jpg') || pathOnly.endsWith('.jpeg') ||
+        pathOnly.endsWith('.png') || pathOnly.endsWith('.webp') ||
+        nameLower.endsWith('.jpg') || nameLower.endsWith('.jpeg') ||
+        nameLower.endsWith('.png') || nameLower.endsWith('.webp');
 
     if (!context.mounted) return;
     if (isPdf) {

@@ -78,6 +78,7 @@ import '../features/admin/ui/admin_export_screen.dart';
 import '../features/admin/ui/admin_password_requests_screen.dart';
 import '../features/admin/ui/admin_reports_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
+import '../features/secretary/ui/secretary_home_screen.dart';
 import '../features/parent/ui/parent_home_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
@@ -169,7 +170,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (!loggedIn && !isAuthRoute) return '/login';
       if (loggedIn && isLoginOnly) {
-        if (isSecretary) return '/announcements';
+        if (isSecretary) return '/secretary/home';
         if (isParent) return '/parent/home';
         if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
@@ -180,11 +181,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       // access here even though the path lives under /admin/.
       final secretarySafeAdminRoute = loc == '/admin/export' || loc.startsWith('/admin/export/');
       if (loggedIn && isSecretary && isAdminOnlyRoute && !secretarySafeAdminRoute) {
-        return '/announcements';
+        return '/secretary/home';
       }
       // Admin/Secretary: redirect away from non-admin/secretary routes
       if (loggedIn && isAdminLike && !isAdminRoute && !isCommonSafe) {
-        return isSecretary ? '/announcements' : '/admin/dashboard';
+        return isSecretary ? '/secretary/home' : '/admin/dashboard';
       }
       // Teacher: redirect away from student routes
       if (loggedIn && session.isTeacherLike && !isAdminLike && !isTeacherRoute && !isCommonSafe) {
@@ -628,6 +629,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const AboutScreen(),
           ),
           GoRoute(
+            path: '/secretary/home',
+            builder: (context, state) => const SecretaryHomeScreen(),
+          ),
+          GoRoute(
             path: '/secretary/students',
             builder: (context, state) => const SecretaryStudentsScreen(),
           ),
@@ -641,6 +646,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/secretary/people',
             builder: (context, state) => const AdminPeopleScreen(),
+          ),
+          // Cohorts / Reports / Export reuse the admin screens directly —
+          // those screens already gate their write affordances on
+          // primaryRole == 'ADMIN', so the secretary view comes out
+          // view-only with no extra code path.
+          GoRoute(
+            path: '/secretary/cohorts',
+            builder: (context, state) => const AdminCohortsScreen(),
+          ),
+          GoRoute(
+            path: '/secretary/reports',
+            builder: (context, state) => const AdminReportsScreen(),
+          ),
+          GoRoute(
+            path: '/secretary/export',
+            builder: (context, state) => const AdminExportScreen(),
           ),
           // ── Parent app ─────────────────────────────────────────────
           // ── Parent flow ────────────────────────────────────────────
