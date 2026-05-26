@@ -5787,4 +5787,34 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSchoolEndTime => 'End';
+
+  @override
+  String get adminExportStudentsTab => 'Students';
+
+  @override
+  String get adminExportCohortsTab => 'Cohorts';
+
+  @override
+  String get adminExportGradesTab => 'Grades';
+
+  @override
+  String get adminExportOptionsTitle => 'Export Options';
+
+  @override
+  String get adminExportIncludePasswords => 'Include Passwords';
+
+  @override
+  String get adminExportCsvButton => 'Export CSV';
+
+  @override
+  String get adminExportPdfButton => 'Export PDF';
+
+  @override
+  String get teacherCreateClassroomTooltip => 'Create classroom';
+
+  @override
+  String get teacherClassroomNameRequired => 'Classroom name *';
+
+  @override
+  String get teacherSubjectRequired => 'Subject *';
 }

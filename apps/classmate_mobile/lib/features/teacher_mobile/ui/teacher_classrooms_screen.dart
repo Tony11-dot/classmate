@@ -160,7 +160,7 @@ class _TeacherClassroomsScreenState
                                   ),
                                 ),
                                 IconButton(
-                                  tooltip: 'Create classroom',
+                                  tooltip: AppLocalizations.of(context)!.teacherCreateClassroomTooltip,
                                   onPressed: _showCreateClassroomSheet,
                                   icon: const Icon(Icons.add_rounded),
                                 ),

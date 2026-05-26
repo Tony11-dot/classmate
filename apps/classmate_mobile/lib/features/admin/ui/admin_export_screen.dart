@@ -12,6 +12,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -196,10 +197,10 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: SegmentedButton<_PickerMode>(
-                segments: const [
-                  ButtonSegment(value: _PickerMode.students, label: Text('Students'), icon: Icon(Icons.person_rounded, size: 16)),
-                  ButtonSegment(value: _PickerMode.cohorts,  label: Text('Cohorts'),  icon: Icon(Icons.groups_rounded,  size: 16)),
-                  ButtonSegment(value: _PickerMode.grades,   label: Text('Grades'),   icon: Icon(Icons.school_rounded,  size: 16)),
+                segments: [
+                  ButtonSegment(value: _PickerMode.students, label: Text(AppLocalizations.of(context)!.adminExportStudentsTab), icon: const Icon(Icons.person_rounded, size: 16)),
+                  ButtonSegment(value: _PickerMode.cohorts,  label: Text(AppLocalizations.of(context)!.adminExportCohortsTab),  icon: const Icon(Icons.groups_rounded,  size: 16)),
+                  ButtonSegment(value: _PickerMode.grades,   label: Text(AppLocalizations.of(context)!.adminExportGradesTab),   icon: const Icon(Icons.school_rounded,  size: 16)),
                 ],
                 selected: {_mode},
                 onSelectionChanged: (s) => setState(() {
@@ -920,7 +921,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Export Options', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(AppLocalizations.of(context)!.adminExportOptionsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
                     Text('${widget.studentCount} student${widget.studentCount == 1 ? '' : 's'} selected',
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],
@@ -946,7 +947,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             child: SwitchListTile.adaptive(
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-              title: Text('Include Passwords',
+              title: Text(AppLocalizations.of(context)!.adminExportIncludePasswords,
                   style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: _includePasswords ? cs.error : cs.onSurface)),
               subtitle: Text(
                 _includePasswords
@@ -968,7 +969,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: FilledButton.icon(
                   onPressed: _exporting ? null : _exportCsv,
                   icon: _exporting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.table_chart_rounded, size: 16),
-                  label: const Text('Export CSV'),
+                  label: Text(AppLocalizations.of(context)!.adminExportCsvButton),
                 ),
               ),
               const SizedBox(width: 10),
@@ -977,7 +978,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   onPressed: _exporting ? null : _exportPdf,
                   style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
                   icon: _exporting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.picture_as_pdf_rounded, size: 16),
-                  label: const Text('Export PDF'),
+                  label: Text(AppLocalizations.of(context)!.adminExportPdfButton),
                 ),
               ),
             ],

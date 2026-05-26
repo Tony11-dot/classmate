@@ -10410,6 +10410,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End'**
   String get adminSchoolEndTime;
+
+  /// No description provided for @adminExportStudentsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get adminExportStudentsTab;
+
+  /// No description provided for @adminExportCohortsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get adminExportCohortsTab;
+
+  /// No description provided for @adminExportGradesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get adminExportGradesTab;
+
+  /// No description provided for @adminExportOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Options'**
+  String get adminExportOptionsTitle;
+
+  /// No description provided for @adminExportIncludePasswords.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Passwords'**
+  String get adminExportIncludePasswords;
+
+  /// No description provided for @adminExportCsvButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get adminExportCsvButton;
+
+  /// No description provided for @adminExportPdfButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF'**
+  String get adminExportPdfButton;
+
+  /// No description provided for @teacherCreateClassroomTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Create classroom'**
+  String get teacherCreateClassroomTooltip;
+
+  /// No description provided for @teacherClassroomNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom name *'**
+  String get teacherClassroomNameRequired;
+
+  /// No description provided for @teacherSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject *'**
+  String get teacherSubjectRequired;
 }
 
 class _AppLocalizationsDelegate

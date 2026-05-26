@@ -2469,5 +2469,16 @@
   "adminSchoolBellHint": "Set start and end times for each period. Add or remove periods as needed.",
   "adminSchoolBellInfo": "Set the start and end time for each period. These become the default times used when building the weekly schedule.",
   "adminSchoolStartTime": "Start",
-  "adminSchoolEndTime": "End"
+  "adminSchoolEndTime": "End",
+
+  "adminExportStudentsTab": "Students",
+  "adminExportCohortsTab": "Cohorts",
+  "adminExportGradesTab": "Grades",
+  "adminExportOptionsTitle": "Export Options",
+  "adminExportIncludePasswords": "Include Passwords",
+  "adminExportCsvButton": "Export CSV",
+  "adminExportPdfButton": "Export PDF",
+  "teacherCreateClassroomTooltip": "Create classroom",
+  "teacherClassroomNameRequired": "Classroom name *",
+  "teacherSubjectRequired": "Subject *"
 }
