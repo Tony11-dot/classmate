@@ -31,6 +31,10 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
   final now = DateTime.now();
   final list = <AnnouncementItem>[];
 
+  // Below we emit AnnouncementTemplate keys instead of pre-localized text.
+  // The `title`/`body` fields stay populated with English fallbacks for the
+  // few code paths that don't go through the localizing renderer (logs,
+  // analytics dumps), but the UI never reads them when `template` is set.
   final avg = grades?.average;
   if (avg != null && avg < 70) {
     list.add(
@@ -41,6 +45,7 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.critical,
         source: 'grades',
         createdAt: now,
+        template: AnnouncementTemplate.gradeRisk,
       ),
     );
   }
@@ -55,6 +60,8 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.warning,
         source: 'grades',
         createdAt: now.subtract(const Duration(hours: 1)),
+        template: AnnouncementTemplate.weakSubject,
+        templateArgs: {'subject': weakest},
       ),
     );
   }
@@ -69,6 +76,7 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.critical,
         source: 'attendance',
         createdAt: now.subtract(const Duration(hours: 2)),
+        template: AnnouncementTemplate.lowAttendance,
       ),
     );
   }
@@ -83,6 +91,7 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.warning,
         source: 'attendance',
         createdAt: now.subtract(const Duration(hours: 3)),
+        template: AnnouncementTemplate.lateness,
       ),
     );
   }
@@ -98,6 +107,11 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.warning,
         source: 'practice',
         createdAt: now.subtract(const Duration(hours: 4)),
+        template: AnnouncementTemplate.practiceWeakTopic,
+        templateArgs: {
+          'topic': weak.topicLabel,
+          'subject': weak.subject,
+        },
       ),
     );
   }
@@ -113,6 +127,7 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.warning,
         source: 'practice',
         createdAt: now.subtract(const Duration(hours: 5)),
+        template: AnnouncementTemplate.practiceDrop,
       ),
     );
   }
@@ -130,6 +145,11 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.info,
         source: 'solutions',
         createdAt: item.createdAt,
+        template: AnnouncementTemplate.solutionsActivity,
+        templateArgs: {
+          'page': item.pageNumber,
+          'question': item.questionNumber,
+        },
       ),
     );
   }
@@ -143,6 +163,7 @@ final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
         severity: AnnouncementSeverity.info,
         source: 'system',
         createdAt: now.subtract(const Duration(hours: 6)),
+        template: AnnouncementTemplate.allGood,
       ),
     );
   }

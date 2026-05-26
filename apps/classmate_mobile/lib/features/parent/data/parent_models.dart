@@ -2,6 +2,8 @@
 /// (`String? cohortName` not required, all numeric fields default-zero)
 /// so a server change can't crash the screen — fields just render empty.
 
+import '../../../l10n/app_localizations.dart';
+
 class ParentChild {
   final String studentId;
   final String name;
@@ -27,7 +29,11 @@ class ParentChild {
     );
   }
 
+  /// English-only fallback for logs/JSON. Use [gradeLabelLocalized] in UI.
   String get gradeLabel => grade != null ? 'Grade $grade' : '';
+
+  String gradeLabelLocalized(AppLocalizations l) =>
+      grade != null ? l.adminCohortGradeFormat(grade.toString()) : '';
 }
 
 class ParentGrade {

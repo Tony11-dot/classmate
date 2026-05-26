@@ -540,7 +540,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => context.pop()),
-        title: Text(_isEditing ? 'Edit Meeting' : 'Schedule Meeting',
+        title: Text(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
           Padding(padding: const EdgeInsets.only(right: 12),

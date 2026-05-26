@@ -286,7 +286,7 @@ class _TeacherAddAssignmentScreenState
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(published ? 'Assignment published.' : 'Draft saved.')),
+        SnackBar(content: Text(published ? AppLocalizations.of(context)!.teacherAssignmentPublished : AppLocalizations.of(context)!.teacherAssignmentDraftSaved)),
       );
       if (context.canPop()) context.pop(true);
     } catch (e) {
@@ -395,7 +395,7 @@ class _TeacherAddAssignmentScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isEditing ? 'Edit Assignment' : 'New Assignment',
+          _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
         actions: [

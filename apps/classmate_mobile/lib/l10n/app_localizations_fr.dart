@@ -1079,7 +1079,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Glissez vers le haut pour verrouiller';
 
   @override
-  String get chatComposerReleaseToCancel => 'Relâchez pour annuler';
+  String get chatComposerReleaseToCancel => 'Relâcher pour annuler';
 
   @override
   String get chatComposerKeepSlidingToCancel =>
@@ -4247,7 +4247,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get formNotFound => 'Formulaire introuvable';
 
   @override
-  String get formClosed => 'Ce formulaire est fermé.';
+  String get formClosed => 'Fermé';
 
   @override
   String get formCompletion => 'Complétion';
@@ -7401,4 +7401,360 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tooltipLeaveClassroom => 'Quitter la classe';
+
+  @override
+  String get announcementGradeRiskBody =>
+      'Votre moyenne est tombée sous 70. Action immédiate recommandée.';
+
+  @override
+  String announcementWeakSubjectBody(String subject) {
+    return '$subject nécessite votre attention.';
+  }
+
+  @override
+  String get announcementLowAttendanceBody =>
+      'Votre présence diminue. Cela impactera vos notes.';
+
+  @override
+  String get announcementLatenessBody => 'Vous avez plusieurs retards.';
+
+  @override
+  String announcementPracticeWeakTopicBody(String topic, String subject) {
+    return '$topic en $subject ralentit votre élan.';
+  }
+
+  @override
+  String get announcementPracticeDropBody =>
+      'Votre pratique récente est en dessous de votre niveau. Ralentissez et reconstruisez.';
+
+  @override
+  String announcementSolutionsActivityBody(int page, int question) {
+    return 'Votre espace de solutions est actif à la page $page, question $question. Consultez le travail des pairs ou téléversez le vôtre.';
+  }
+
+  @override
+  String get announcementAllGoodBody =>
+      'Aucun risque académique majeur détecté pour le moment.';
+
+  @override
+  String get faqStartedQ1 => 'Comment je me connecte ?';
+
+  @override
+  String get faqStartedA1 =>
+      'Appuyez sur « Se connecter » sur l\'écran d\'accueil et saisissez l\'e-mail ou le nom d\'utilisateur que votre administrateur scolaire vous a donné, ainsi que votre mot de passe temporaire. Vous serez invité à définir un nouveau mot de passe la première fois.';
+
+  @override
+  String get faqStartedQ2 => 'Je n\'ai pas encore de compte.';
+
+  @override
+  String get faqStartedA2 =>
+      'Votre administrateur scolaire crée les comptes. Demandez-lui de vous ajouter dans son application d\'administration, ou de partager un code d\'inscription si votre école utilise l\'auto-inscription.';
+
+  @override
+  String get faqStartedQ3 => 'Puis-je utiliser l\'application dans ma langue ?';
+
+  @override
+  String get faqStartedA3 =>
+      'Oui — ClassMate prend en charge l\'anglais, l\'arabe, l\'hébreu, le français et le russe. Ouvrez Paramètres pour changer de langue. Vous pouvez aussi définir une langue de nom préférée dans le Profil.';
+
+  @override
+  String get faqStartedQ4 =>
+      'Comment basculer entre les modes sombre et clair ?';
+
+  @override
+  String get faqStartedA4 =>
+      'Ouvrez Paramètres dans le menu et basculez l\'interrupteur d\'apparence. L\'application respecte votre préférence système par défaut.';
+
+  @override
+  String get faqAccountQ1 => 'J\'ai oublié mon mot de passe.';
+
+  @override
+  String get faqAccountA1 =>
+      'Appuyez sur « Mot de passe oublié ? » sur l\'écran de connexion. Vous recevrez un lien de réinitialisation par e-mail ou un code par SMS. Si aucun canal n\'est encore vérifié, demandez à votre administrateur scolaire un nouveau mot de passe temporaire.';
+
+  @override
+  String get faqAccountQ2 => 'Comment changer mon mot de passe ?';
+
+  @override
+  String get faqAccountA2 =>
+      'Ouvrez Profil dans le menu, faites défiler jusqu\'à Sécurité, et appuyez sur la ligne du mot de passe. Vous aurez besoin de votre mot de passe actuel pour en définir un nouveau.';
+
+  @override
+  String get faqAccountQ3 =>
+      'Comment changer mon e-mail ou mon numéro de téléphone ?';
+
+  @override
+  String get faqAccountA3 =>
+      'Ouvrez Profil, appuyez sur le champ à modifier, et suivez les invites de vérification. Un code est envoyé d\'abord à votre e-mail/téléphone ACTUEL pour confirmer votre identité, puis vous pouvez définir la nouvelle valeur.';
+
+  @override
+  String get faqAccountQ4 =>
+      'Mon administrateur scolaire peut changer mon mot de passe — comment ça marche ?';
+
+  @override
+  String get faqAccountA4 =>
+      'Quand un administrateur réinitialise votre mot de passe, vous recevrez un e-mail et un SMS avec un lien en un clic pour définir votre propre mot de passe. L\'administrateur ne voit jamais ce que vous choisissez.';
+
+  @override
+  String get faqStudentsQ1 => 'Où vois-je mon emploi du temps ?';
+
+  @override
+  String get faqStudentsA1 =>
+      'L\'emploi du temps est le premier élément du menu. Vous verrez les périodes de cette semaine, qui enseigne chacune, et tout changement publié par l\'administrateur.';
+
+  @override
+  String get faqStudentsQ2 => 'Comment rejoindre une classe ?';
+
+  @override
+  String get faqStudentsA2 =>
+      'Un enseignant vous ajoutera directement, ou partagera un code d\'inscription. Pour utiliser un code, ouvrez Classes dans le menu et appuyez sur « Rejoindre avec un code ».';
+
+  @override
+  String get faqStudentsQ3 =>
+      'Comment fonctionnent les présences et les notes ?';
+
+  @override
+  String get faqStudentsA3 =>
+      'Les enseignants marquent les présences pendant le cours. Ouvrez Présences ou Notes dans le menu pour voir vos relevés. Les parents liés à votre compte voient les mêmes données.';
+
+  @override
+  String get faqStudentsQ4 => 'Qu\'est-ce que Nova ?';
+
+  @override
+  String get faqStudentsA4 =>
+      'Nova est votre assistant d\'étude IA — demandez-lui d\'expliquer un concept, de générer un quiz, ou de parcourir un problème étape par étape. Ouvrez Nova dans le menu pour démarrer une session.';
+
+  @override
+  String get faqTeachersQ1 => 'Comment créer une classe ?';
+
+  @override
+  String get faqTeachersA1 =>
+      'Ouvrez Classes dans le menu et appuyez sur le bouton +. Donnez-lui un nom et une matière ; les élèves peuvent être ajoutés manuellement ou via un code d\'inscription.';
+
+  @override
+  String get faqTeachersQ2 => 'Comment marquer les présences ?';
+
+  @override
+  String get faqTeachersA2 =>
+      'Ouvrez Présences dans le menu, choisissez la date et la période, puis appuyez sur chaque élève pour définir son statut. Les changements sont enregistrés automatiquement.';
+
+  @override
+  String get faqTeachersQ3 => 'Comment assigner des devoirs ?';
+
+  @override
+  String get faqTeachersA3 =>
+      'Ouvrez Devoirs, appuyez sur +, remplissez le titre/date limite/pièces jointes, et choisissez une cible (toute l\'école, groupes spécifiques, ou élèves nommés). Les élèves le voient instantanément dans leur menu.';
+
+  @override
+  String get faqTeachersQ4 => 'Puis-je émettre un diplôme ou un certificat ?';
+
+  @override
+  String get faqTeachersA4 =>
+      'Oui — ouvrez Diplômes dans le menu, appuyez sur +, choisissez l\'élève, remplissez le titre et les détails, et enregistrez. L\'élève le voit dans sa propre section Diplômes.';
+
+  @override
+  String get faqAdminsQ1 => 'Par où commencer pour configurer une école ?';
+
+  @override
+  String get faqAdminsA1 =>
+      'Ouvrez le Tableau de bord Admin. Le widget Configuration de l\'école en haut montre une liste de 7 étapes (logo, nom, matières, horaires des cloches, groupes, élèves, enseignants). Chaque étape vous mène directement où la compléter.';
+
+  @override
+  String get faqAdminsQ2 => 'Comment fonctionnent les groupes ?';
+
+  @override
+  String get faqAdminsA2 =>
+      'Un groupe est un ensemble d\'élèves qui partagent un emploi du temps. Ouvrez Groupes dans le menu pour les créer, assigner des élèves, et générer des codes d\'inscription. Un seul groupe peut couvrir plusieurs niveaux.';
+
+  @override
+  String get faqAdminsQ3 => 'Un groupe peut-il couvrir plus d\'un niveau ?';
+
+  @override
+  String get faqAdminsA3 =>
+      'Oui — lors de la création d\'un groupe, sélectionnez plusieurs niveaux. Le groupe apparaît alors dans les filtres et vues de chacun de ces niveaux, et les annonces/modèles ciblant l\'un de ces niveaux l\'atteignent.';
+
+  @override
+  String get faqAdminsQ4 =>
+      'Comment construire l\'emploi du temps hebdomadaire ?';
+
+  @override
+  String get faqAdminsA4 =>
+      'Ouvrez Emploi du temps dans le menu. Appuyez sur n\'importe quelle cellule pour ajouter une période — choisissez le jour/période, l\'enseignant, la matière, et l\'audience (groupe/élève/niveau). Les horaires des cloches viennent des Paramètres de l\'école.';
+
+  @override
+  String get faqAdminsQ5 => 'Comment exporter les élèves en masse ?';
+
+  @override
+  String get faqAdminsA5 =>
+      'Ouvrez Exporter les données dans le menu. Choisissez de sélectionner par élève ou par groupe, choisissez les lignes, et appuyez sur Exporter. Optionnellement, incluez les mots de passe actuels lors de l\'export.';
+
+  @override
+  String get faqAdminsQ6 =>
+      'Un utilisateur m\'a demandé de réinitialiser son mot de passe. Que faire ?';
+
+  @override
+  String get faqAdminsA6 =>
+      'Vous pouvez soit définir son mot de passe directement (Profil de l\'utilisateur → Sécurité) soit attendre qu\'il dépose une demande via « Mot de passe oublié » et l\'approuver depuis Demandes de mot de passe dans le menu.';
+
+  @override
+  String get faqParentsQ1 => 'Comment lier mon compte à mon enfant ?';
+
+  @override
+  String get faqParentsA1 =>
+      'Demandez à l\'administrateur scolaire de votre enfant d\'ajouter le lien depuis son application d\'administration, ou de partager un code de lien parent à usage unique. Ouvrez Profil et entrez le code sous Famille.';
+
+  @override
+  String get faqParentsQ2 => 'Que puis-je voir sur mon enfant ?';
+
+  @override
+  String get faqParentsA2 =>
+      'Présences, notes, annonces et devoirs — exactement ce que voit votre enfant plus les tendances dans le temps. Vous ne verrez pas les conversations privées ni les sessions Nova.';
+
+  @override
+  String get faqPrivacyQ1 => 'Qui peut voir mes données ?';
+
+  @override
+  String get faqPrivacyA1 =>
+      'Seules les personnes de votre école. Les enseignants voient les données de leurs classes, les administrateurs voient les données de toute l\'école, les parents voient leurs enfants liés. Nous ne vendons jamais de données à des annonceurs.';
+
+  @override
+  String get faqPrivacyQ2 => 'Comment supprimer mon compte ?';
+
+  @override
+  String get faqPrivacyA2 =>
+      'Demandez à votre administrateur scolaire de le supprimer. Il peut retirer le compte depuis son application d\'administration, ce qui efface votre profil, votre emploi du temps et vos conversations.';
+
+  @override
+  String solutionsPagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '$count page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMeetingEditTitle => 'Modifier la réunion';
+
+  @override
+  String get teacherMeetingNewTitle => 'Planifier une réunion';
+
+  @override
+  String get teacherExamEditTitle => 'Modifier l\'examen';
+
+  @override
+  String get teacherExamNewTitle => 'Créer un examen';
+
+  @override
+  String get teacherAssignmentEditTitle => 'Modifier le devoir';
+
+  @override
+  String get teacherAssignmentNewTitle => 'Nouveau devoir';
+
+  @override
+  String get tooltipShowTabs => 'Afficher les onglets';
+
+  @override
+  String get tooltipHideTabs => 'Masquer les onglets';
+
+  @override
+  String get examsCouldNotLoadForms => 'Impossible de charger les formulaires';
+
+  @override
+  String get examsCouldNotLoadExams => 'Impossible de charger les examens';
+
+  @override
+  String get messagesNoPeopleToAdd => 'Aucune personne à ajouter';
+
+  @override
+  String commonNoResultsForQuery(String query) {
+    return 'Aucun résultat pour « $query »';
+  }
+
+  @override
+  String chatForwardedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Transféré à $count discussions',
+      one: 'Transféré à 1 discussion',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonReadMore => 'Lire plus';
+
+  @override
+  String get commonReadLess => 'Lire moins';
+
+  @override
+  String get chatComposerSlideToCancel => 'Glisser pour annuler';
+
+  @override
+  String adminNoRoleYet(String role) {
+    return 'Aucun $role pour l\'instant';
+  }
+
+  @override
+  String get profileVerified => 'Vérifié.';
+
+  @override
+  String get profileUpdatedPendingVerification =>
+      'Mis à jour, en attente de re-vérification.';
+
+  @override
+  String get adminSearchCohorts => 'Rechercher des groupes…';
+
+  @override
+  String get commonAdding => 'Ajout en cours…';
+
+  @override
+  String get teacherDiplomaIssuing => 'Émission…';
+
+  @override
+  String get teacherDiplomaIssue => 'Émettre';
+
+  @override
+  String get formAccepting => 'Accepte';
+
+  @override
+  String get profileVerifiedShort => 'Vérifié';
+
+  @override
+  String get profileUnverified => 'Non vérifié';
+
+  @override
+  String get notificationNewGradePosted => 'Nouvelle note publiée';
+
+  @override
+  String notificationNewGradePostedIn(String subject) {
+    return 'Nouvelle note publiée en $subject';
+  }
+
+  @override
+  String messagesAddParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ajouter $count participants',
+      one: 'Ajouter 1 participant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationFallbackTitle => 'Notification';
+
+  @override
+  String adminCohortGradeRange(int from, int to) {
+    return 'Niveau $from-$to';
+  }
+
+  @override
+  String adminCohortGradesList(String list) {
+    return 'Niveaux $list';
+  }
 }

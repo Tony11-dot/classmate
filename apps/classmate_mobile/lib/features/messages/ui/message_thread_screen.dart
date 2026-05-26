@@ -1071,7 +1071,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                     if (n > 0)
                       FilledButton(
                         onPressed: _submitting ? null : () => Navigator.of(context).pop(_selected.toList()),
-                        child: Text(_submitting ? 'Adding…' : 'Add $n'),
+                        child: Text(_submitting ? AppLocalizations.of(context)!.commonAdding : AppLocalizations.of(context)!.commonAddCount(n)),
                       ),
                   ],
                 ),
@@ -1112,7 +1112,9 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                             Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant),
                             const SizedBox(height: 12),
                             Text(
-                              _search.text.isEmpty ? 'No people to add' : 'No results for "${_search.text}"',
+                              _search.text.isEmpty
+                                  ? AppLocalizations.of(context)!.messagesNoPeopleToAdd
+                                  : AppLocalizations.of(context)!.commonNoResultsForQuery(_search.text),
                               style: TextStyle(color: cs.onSurfaceVariant),
                             ),
                           ],
@@ -1236,7 +1238,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                     icon: _submitting
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.person_add_rounded),
-                    label: Text(_submitting ? 'Adding…' : 'Add $n participant${n == 1 ? '' : 's'}'),
+                    label: Text(_submitting ? AppLocalizations.of(context)!.commonAdding : AppLocalizations.of(context)!.messagesAddParticipants(n)),
                   ),
                 ),
               ),

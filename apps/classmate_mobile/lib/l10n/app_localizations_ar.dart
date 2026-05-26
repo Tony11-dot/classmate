@@ -1055,7 +1055,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatComposerSlideUpToLock => 'اسحب للأعلى للقفل';
 
   @override
-  String get chatComposerReleaseToCancel => 'اترك للإلغاء';
+  String get chatComposerReleaseToCancel => 'حرر للإلغاء';
 
   @override
   String get chatComposerKeepSlidingToCancel => 'استمر بالسحب للإلغاء';
@@ -4169,7 +4169,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get formNotFound => 'النموذج غير موجود';
 
   @override
-  String get formClosed => 'هذا النموذج مغلق.';
+  String get formClosed => 'مغلق';
 
   @override
   String get formCompletion => 'الإكمال';
@@ -7257,4 +7257,354 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tooltipLeaveClassroom => 'مغادرة الصف';
+
+  @override
+  String get announcementGradeRiskBody =>
+      'انخفض معدلك إلى ما دون 70. ننصح باتخاذ إجراء فوري.';
+
+  @override
+  String announcementWeakSubjectBody(String subject) {
+    return '$subject يحتاج إلى اهتمام.';
+  }
+
+  @override
+  String get announcementLowAttendanceBody =>
+      'حضورك في انخفاض. سيؤثر هذا على درجاتك.';
+
+  @override
+  String get announcementLatenessBody => 'لديك حالات تأخر متعددة.';
+
+  @override
+  String announcementPracticeWeakTopicBody(String topic, String subject) {
+    return '$topic في $subject يبطئ تقدمك.';
+  }
+
+  @override
+  String get announcementPracticeDropBody =>
+      'تدريبك الأخير دون مستواك الأساسي. أبطئ وأعد البناء.';
+
+  @override
+  String announcementSolutionsActivityBody(int page, int question) {
+    return 'مساحة الحلول الخاصة بك نشطة على الصفحة $page والسؤال $question. تحقق من عمل زملائك أو ارفع عملك.';
+  }
+
+  @override
+  String get announcementAllGoodBody => 'لا توجد مخاطر أكاديمية كبيرة الآن.';
+
+  @override
+  String get faqStartedQ1 => 'كيف أسجل الدخول؟';
+
+  @override
+  String get faqStartedA1 =>
+      'اضغط على \"تسجيل الدخول\" في شاشة الترحيب وأدخل البريد الإلكتروني أو اسم المستخدم الذي زودك به مدير المدرسة، بالإضافة إلى كلمة المرور المؤقتة. سيُطلب منك تعيين كلمة مرور جديدة في المرة الأولى.';
+
+  @override
+  String get faqStartedQ2 => 'ليس لدي حساب بعد.';
+
+  @override
+  String get faqStartedA2 =>
+      'مدير المدرسة هو من ينشئ الحسابات. اطلب منه إضافتك في تطبيق الإدارة، أو مشاركة رمز انضمام إذا كانت مدرستك تستخدم التسجيل الذاتي.';
+
+  @override
+  String get faqStartedQ3 => 'هل يمكنني استخدام التطبيق بلغتي؟';
+
+  @override
+  String get faqStartedA3 =>
+      'نعم — يدعم ClassMate الإنجليزية والعربية والعبرية والفرنسية والروسية. افتح الإعدادات لتغيير اللغة. يمكنك أيضًا تعيين لغة الاسم المفضل في الملف الشخصي.';
+
+  @override
+  String get faqStartedQ4 => 'كيف أبدل بين الوضع الليلي والنهاري؟';
+
+  @override
+  String get faqStartedA4 =>
+      'افتح الإعدادات من القائمة الجانبية وبدل مفتاح المظهر. يحترم التطبيق تفضيل النظام لديك افتراضيًا.';
+
+  @override
+  String get faqAccountQ1 => 'نسيت كلمة المرور.';
+
+  @override
+  String get faqAccountA1 =>
+      'اضغط على \"نسيت كلمة المرور؟\" في شاشة تسجيل الدخول. ستحصل على رابط إعادة تعيين عبر البريد الإلكتروني أو رمز عبر الرسائل النصية. إذا لم يكن أي من القناتين موثقًا بعد، اطلب من مدير المدرسة إصدار كلمة مرور مؤقتة جديدة.';
+
+  @override
+  String get faqAccountQ2 => 'كيف أغير كلمة المرور؟';
+
+  @override
+  String get faqAccountA2 =>
+      'افتح الملف الشخصي من القائمة الجانبية، انتقل إلى الأمان، واضغط على صف كلمة المرور. ستحتاج إلى كلمة المرور الحالية لتعيين واحدة جديدة.';
+
+  @override
+  String get faqAccountQ3 => 'كيف أغير بريدي الإلكتروني أو رقم هاتفي؟';
+
+  @override
+  String get faqAccountA3 =>
+      'افتح الملف الشخصي، اضغط على الحقل الذي تريد تغييره، واتبع تعليمات التحقق. سيُرسل رمز إلى بريدك/هاتفك الحالي أولاً للتأكد من هويتك، ثم يمكنك تعيين القيمة الجديدة.';
+
+  @override
+  String get faqAccountQ4 =>
+      'يمكن لمدير المدرسة تغيير كلمة المرور — كيف يعمل ذلك؟';
+
+  @override
+  String get faqAccountA4 =>
+      'عندما يعيد المدير تعيين كلمة المرور، ستحصل على بريد إلكتروني ورسالة نصية مع رابط بضغطة واحدة لتعيين كلمة مرورك الخاصة. لا يرى المدير أبدًا ما تختاره.';
+
+  @override
+  String get faqStudentsQ1 => 'أين أرى جدولي؟';
+
+  @override
+  String get faqStudentsA1 =>
+      'الجدول هو العنصر الأول في القائمة الجانبية. سترى حصص هذا الأسبوع، من يدرس كل واحدة، وأي تغييرات نشرها المدير.';
+
+  @override
+  String get faqStudentsQ2 => 'كيف أنضم إلى صف؟';
+
+  @override
+  String get faqStudentsA2 =>
+      'سيضيفك المعلم مباشرة، أو يشارك رمز انضمام. لاستخدام رمز انضمام، افتح الصفوف من القائمة الجانبية واضغط على \"الانضمام برمز\".';
+
+  @override
+  String get faqStudentsQ3 => 'كيف يعمل الحضور والدرجات؟';
+
+  @override
+  String get faqStudentsA3 =>
+      'يسجل المعلمون الحضور خلال الدرس. افتح الحضور أو الدرجات من القائمة الجانبية لرؤية سجلاتك. يرى الأهالي المرتبطون بحسابك البيانات نفسها.';
+
+  @override
+  String get faqStudentsQ4 => 'ما هو Nova؟';
+
+  @override
+  String get faqStudentsA4 =>
+      'Nova هو رفيق الدراسة بالذكاء الاصطناعي — اطلب منه شرح مفهوم، أو إنشاء اختبار، أو السير عبر مسألة خطوة بخطوة. افتح Nova من القائمة الجانبية لبدء جلسة.';
+
+  @override
+  String get faqTeachersQ1 => 'كيف أنشئ صفًا؟';
+
+  @override
+  String get faqTeachersA1 =>
+      'افتح الصفوف من القائمة الجانبية واضغط على زر +. أعطه اسمًا ومادة؛ يمكن إضافة الطلاب يدويًا أو عبر رمز انضمام.';
+
+  @override
+  String get faqTeachersQ2 => 'كيف أسجل الحضور؟';
+
+  @override
+  String get faqTeachersA2 =>
+      'افتح الحضور من القائمة الجانبية، اختر التاريخ والحصة، ثم اضغط على كل طالب لتعيين حالته. تُحفظ التغييرات تلقائيًا.';
+
+  @override
+  String get faqTeachersQ3 => 'كيف أُعين واجبات منزلية؟';
+
+  @override
+  String get faqTeachersA3 =>
+      'افتح الواجبات، اضغط +، املأ العنوان/تاريخ الاستحقاق/المرفقات، واختر جمهورًا (المدرسة بأكملها، مجموعات محددة، أو طلاب بأسمائهم). يراها الطلاب فورًا في قائمتهم الجانبية.';
+
+  @override
+  String get faqTeachersQ4 => 'هل يمكنني إصدار شهادة أو دبلوم؟';
+
+  @override
+  String get faqTeachersA4 =>
+      'نعم — افتح الشهادات من القائمة الجانبية، اضغط +، اختر الطالب، املأ العنوان والتفاصيل، واحفظ. يرى الطالب الشهادة في قسم الشهادات الخاص به.';
+
+  @override
+  String get faqAdminsQ1 => 'من أين أبدأ إعداد المدرسة؟';
+
+  @override
+  String get faqAdminsA1 =>
+      'افتح لوحة الإدارة. تعرض أداة إعداد المدرسة في الأعلى قائمة من 7 خطوات (الشعار، الاسم، المواد، جدول الأجراس، المجموعات، الطلاب، المعلمون). كل خطوة ترتبط مباشرة بمكان إكمالها.';
+
+  @override
+  String get faqAdminsQ2 => 'كيف تعمل المجموعات؟';
+
+  @override
+  String get faqAdminsA2 =>
+      'المجموعة هي مجموعة من الطلاب يشتركون في جدول. افتح المجموعات من القائمة الجانبية لإنشائها، تعيين الطلاب، وإنشاء رموز انضمام. يمكن لمجموعة واحدة أن تشمل عدة صفوف.';
+
+  @override
+  String get faqAdminsQ3 => 'هل يمكن لمجموعة أن تغطي أكثر من صف؟';
+
+  @override
+  String get faqAdminsA3 =>
+      'نعم — عند إنشاء مجموعة، اختر صفوفًا متعددة. ستظهر المجموعة في مرشحات وعروض أي من تلك الصفوف، وستصل إليها الإعلانات/القوالب الموجهة لأي من تلك الصفوف.';
+
+  @override
+  String get faqAdminsQ4 => 'كيف أبني الجدول الأسبوعي؟';
+
+  @override
+  String get faqAdminsA4 =>
+      'افتح الجدول من القائمة الجانبية. اضغط على أي خلية لإضافة فترة — اختر اليوم/الحصة، المعلم، المادة، والجمهور (مجموعة/طالب/صف). تأتي أوقات جدول الأجراس من إعدادات المدرسة.';
+
+  @override
+  String get faqAdminsQ5 => 'كيف أصدّر الطلاب بالجملة؟';
+
+  @override
+  String get faqAdminsA5 =>
+      'افتح تصدير البيانات من القائمة الجانبية. اختر سواء التحديد حسب الطالب أو حسب المجموعة، اختر الصفوف، واضغط على تصدير. اختياريًا قم بتضمين كلمات المرور الحالية أثناء التصدير.';
+
+  @override
+  String get faqAdminsQ6 => 'طلب مستخدم إعادة تعيين كلمة المرور. ماذا أفعل؟';
+
+  @override
+  String get faqAdminsA6 =>
+      'يمكنك إما تعيين كلمة المرور مباشرة (ملف المستخدم الشخصي → الأمان) أو الانتظار حتى يرسل طلبًا عبر \"نسيت كلمة المرور\" والموافقة عليه من طلبات كلمات المرور في القائمة الجانبية.';
+
+  @override
+  String get faqParentsQ1 => 'كيف أربط حسابي بطفلي؟';
+
+  @override
+  String get faqParentsA1 =>
+      'اطلب من مدير مدرسة طفلك إضافة الرابط من تطبيق الإدارة، أو مشاركة رمز ربط الوالد لمرة واحدة. افتح الملف الشخصي وأدخل الرمز تحت العائلة.';
+
+  @override
+  String get faqParentsQ2 => 'ماذا أرى عن طفلي؟';
+
+  @override
+  String get faqParentsA2 =>
+      'الحضور، الدرجات، الإعلانات، والواجبات المنزلية — تمامًا ما يراه طفلك بالإضافة إلى الاتجاهات عبر الوقت. لن ترى المحادثات الخاصة أو جلسات Nova.';
+
+  @override
+  String get faqPrivacyQ1 => 'من يمكنه رؤية بياناتي؟';
+
+  @override
+  String get faqPrivacyA1 =>
+      'فقط الأشخاص في مدرستك. يرى المعلمون بيانات صفوفهم، يرى المديرون بيانات المدرسة بأكملها، يرى الأهالي أطفالهم المرتبطين. لا نبيع البيانات للمعلنين أبدًا.';
+
+  @override
+  String get faqPrivacyQ2 => 'كيف أحذف حسابي؟';
+
+  @override
+  String get faqPrivacyA2 =>
+      'اطلب من مدير المدرسة حذفه. يمكنه إزالة الحساب من تطبيق الإدارة، مما يمسح ملفك الشخصي وجدولك ومحادثاتك.';
+
+  @override
+  String solutionsPagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صفحات',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMeetingEditTitle => 'تعديل الاجتماع';
+
+  @override
+  String get teacherMeetingNewTitle => 'جدولة اجتماع';
+
+  @override
+  String get teacherExamEditTitle => 'تعديل الامتحان';
+
+  @override
+  String get teacherExamNewTitle => 'إنشاء امتحان';
+
+  @override
+  String get teacherAssignmentEditTitle => 'تعديل الواجب';
+
+  @override
+  String get teacherAssignmentNewTitle => 'واجب جديد';
+
+  @override
+  String get tooltipShowTabs => 'إظهار التبويبات';
+
+  @override
+  String get tooltipHideTabs => 'إخفاء التبويبات';
+
+  @override
+  String get examsCouldNotLoadForms => 'تعذر تحميل النماذج';
+
+  @override
+  String get examsCouldNotLoadExams => 'تعذر تحميل الامتحانات';
+
+  @override
+  String get messagesNoPeopleToAdd => 'لا يوجد أشخاص للإضافة';
+
+  @override
+  String commonNoResultsForQuery(String query) {
+    return 'لا توجد نتائج لـ \"$query\"';
+  }
+
+  @override
+  String chatForwardedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تم التحويل إلى $count محادثات',
+      one: 'تم التحويل إلى محادثة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonReadMore => 'اقرأ المزيد';
+
+  @override
+  String get commonReadLess => 'اقرأ أقل';
+
+  @override
+  String get chatComposerSlideToCancel => 'اسحب للإلغاء';
+
+  @override
+  String adminNoRoleYet(String role) {
+    return 'لا يوجد $role بعد';
+  }
+
+  @override
+  String get profileVerified => 'تم التحقق.';
+
+  @override
+  String get profileUpdatedPendingVerification =>
+      'تم التحديث وفي انتظار إعادة التحقق.';
+
+  @override
+  String get adminSearchCohorts => 'ابحث عن المجموعات…';
+
+  @override
+  String get commonAdding => 'جاري الإضافة…';
+
+  @override
+  String get teacherDiplomaIssuing => 'جاري الإصدار…';
+
+  @override
+  String get teacherDiplomaIssue => 'إصدار';
+
+  @override
+  String get formAccepting => 'قبول';
+
+  @override
+  String get profileVerifiedShort => 'موثق';
+
+  @override
+  String get profileUnverified => 'غير موثق';
+
+  @override
+  String get notificationNewGradePosted => 'تم نشر درجة جديدة';
+
+  @override
+  String notificationNewGradePostedIn(String subject) {
+    return 'تم نشر درجة جديدة في $subject';
+  }
+
+  @override
+  String messagesAddParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'إضافة $count مشاركين',
+      one: 'إضافة مشارك واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationFallbackTitle => 'إشعار';
+
+  @override
+  String adminCohortGradeRange(int from, int to) {
+    return 'الصف $from-$to';
+  }
+
+  @override
+  String adminCohortGradesList(String list) {
+    return 'الصفوف $list';
+  }
 }

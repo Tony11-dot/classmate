@@ -1600,7 +1600,7 @@ class _ParentChildSwitcherBar extends ConsumerWidget {
                       if (selected.gradeLabel.isNotEmpty) ...[
                         const SizedBox(width: 6),
                         Text(
-                          '· ${selected.gradeLabel}',
+                          '· ${selected.gradeLabelLocalized(AppLocalizations.of(context)!)}',
                           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                         ),
                       ],
@@ -1651,7 +1651,7 @@ class _ParentChildSwitcherBar extends ConsumerWidget {
                     Navigator.of(ctx).pop();
                   },
                   title: Text(c.name),
-                  subtitle: c.gradeLabel.isNotEmpty ? Text(c.gradeLabel) : null,
+                  subtitle: c.gradeLabel.isNotEmpty ? Text(c.gradeLabelLocalized(AppLocalizations.of(context)!)) : null,
                 ),
               const SizedBox(height: 8),
             ],

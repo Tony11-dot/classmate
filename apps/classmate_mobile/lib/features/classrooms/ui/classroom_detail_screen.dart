@@ -720,7 +720,7 @@ class _TopHeader extends StatelessWidget {
                 child: const Icon(Icons.keyboard_arrow_down_rounded, size: 22),
               ),
               visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-              tooltip: tabsCollapsed ? 'Show tabs' : 'Hide tabs',
+              tooltip: tabsCollapsed ? AppLocalizations.of(context)!.tooltipShowTabs : AppLocalizations.of(context)!.tooltipHideTabs,
             ),
           ],
         ),

@@ -47,6 +47,10 @@ void main(List<String> args) {
       'semanticLabel: \'English\'',
       RegExp(r'''semanticLabel:\s*[\'"][A-Z][a-z][^\'"]*[\'"]'''),
     ),
+    (
+      'Ternary: cond ? \'English\' : \'English\'',
+      RegExp(r'''\?\s*[\'"][A-Z][a-z][a-z][^\'"]{4,}[\'"]\s*:\s*[\'"][A-Z]'''),
+    ),
   ];
 
   // Substrings that mark a literal as a known safe value (brands, codes,
@@ -70,10 +74,13 @@ void main(List<String> args) {
   final ignorePrefixes = <String>[
     'lib/l10n/app_localizations',
     'lib/l10n/app_',
-    'lib/features/lifedoc/announcements_provider.dart', // pending refactor
     'lib/features/solutions/domain/solutions_models.dart', // book names
     'lib/features/practice/ui/practice_mode_specs.dart', // dead label fields
     'lib/screens/animation_demo_screen.dart', // dev-only splash demo
+    'lib/features/admin/data/admin_repository.dart', // English fallback getter; UI uses gradeLabelLocalized()
+    'lib/features/parent/data/parent_models.dart',   // English fallback getter; UI uses gradeLabelLocalized()
+    'lib/features/lifedoc/notifications_provider.dart', // English fallback in model; renderer uses template helper
+    'lib/features/lifedoc/announcements_provider.dart', // English fallback in model; renderer uses template helper
   ];
   final ignoreSuffixes = <String>['.pre_repair', '.bak', '.g.dart', '.freezed.dart'];
 

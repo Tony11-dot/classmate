@@ -400,7 +400,7 @@ class _FormHero extends StatelessWidget {
                   border: Border.all(color: cs.outlineVariant),
                 ),
                 child: Text(
-                  form.acceptingResponses ? 'Accepting' : 'Closed',
+                  form.acceptingResponses ? AppLocalizations.of(context)!.formAccepting : AppLocalizations.of(context)!.formClosed,
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 12,

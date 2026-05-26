@@ -527,7 +527,7 @@ class _ParentChildDropdown extends ConsumerWidget {
                   LiquidGlassDropdownItem(
                     value: c.studentId,
                     label: c.gradeLabel.isNotEmpty
-                        ? '${c.name.isEmpty ? '—' : c.name} • ${c.gradeLabel}'
+                        ? '${c.name.isEmpty ? '—' : c.name} • ${c.gradeLabelLocalized(AppLocalizations.of(context)!)}'
                         : (c.name.isEmpty ? '—' : c.name),
                     icon: Icons.child_care_rounded,
                   ),

@@ -10,6 +10,23 @@ import 'notifications_models.dart';
 import 'notifications_provider.dart';
 import '../../ui/widgets/cm_loading.dart';
 
+/// Translate a notification title when the item carries a known
+/// template; fall back to the literal text for server-pushed items.
+String _notificationTitleLocalized(
+    BuildContext context, StudentNotificationItem item) {
+  final t = item.template;
+  if (t == null) return item.title;
+  final l = AppLocalizations.of(context)!;
+  switch (t) {
+    case StudentNotificationTemplate.newGradePosted:
+      return l.notificationNewGradePosted;
+    case StudentNotificationTemplate.newGradePostedIn:
+      return l.notificationNewGradePostedIn(
+        (item.templateArgs['subject'] ?? '').toString(),
+      );
+  }
+}
+
 String _friendlyNotificationDateTime(BuildContext context, DateTime value) {
   final localizations = MaterialLocalizations.of(context);
   final date = localizations.formatMediumDate(value);
@@ -361,7 +378,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                   children: [
                                                     Expanded(
                                                       child: Text(
-                                                        item.title,
+                                                        _notificationTitleLocalized(context, item),
                                                         style: const TextStyle(fontWeight: FontWeight.w900),
                                                       ),
                                                     ),

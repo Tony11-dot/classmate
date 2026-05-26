@@ -14,146 +14,68 @@ class SupportScreen extends StatelessWidget {
       title: l.supportSectionGettingStarted,
       icon: Icons.rocket_launch_rounded,
       faqs: [
-        _Faq(
-          q: 'How do I log in?',
-          a: 'Tap "Sign in" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You\'ll be asked to set a new password the first time.',
-        ),
-        _Faq(
-          q: "I don't have a login yet.",
-          a: 'Your school administrator creates accounts. Ask them to add you in their admin app, or to share a join code if your school uses self-enrolment.',
-        ),
-        _Faq(
-          q: 'Can I use the app in my language?',
-          a: 'Yes — ClassMate supports English, Arabic, Hebrew, French, and Russian. Open Settings to switch language. You can also set a preferred name language in Profile.',
-        ),
-        _Faq(
-          q: 'How do I switch between dark and light mode?',
-          a: 'Open Settings from the drawer and toggle the appearance switch. The app respects your system preference by default.',
-        ),
+        _Faq(q: l.faqStartedQ1, a: l.faqStartedA1),
+        _Faq(q: l.faqStartedQ2, a: l.faqStartedA2),
+        _Faq(q: l.faqStartedQ3, a: l.faqStartedA3),
+        _Faq(q: l.faqStartedQ4, a: l.faqStartedA4),
       ],
     ),
     _FaqCategory(
       title: l.supportSectionAccountPassword,
       icon: Icons.lock_outline_rounded,
       faqs: [
-        _Faq(
-          q: 'I forgot my password.',
-          a: 'Tap "Forgot password?" on the login screen. You\'ll get a reset link by email or a code by SMS. If neither channel is verified yet, ask your school administrator to issue you a new temporary password.',
-        ),
-        _Faq(
-          q: 'How do I change my password?',
-          a: 'Open Profile from the drawer, scroll to Security, and tap the password row. You\'ll need your current password to set a new one.',
-        ),
-        _Faq(
-          q: 'How do I change my email or phone number?',
-          a: 'Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it\'s really you, then you can set the new value.',
-        ),
-        _Faq(
-          q: 'My school administrator can change my password — how does that work?',
-          a: 'When an administrator resets your password, you\'ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.',
-        ),
+        _Faq(q: l.faqAccountQ1, a: l.faqAccountA1),
+        _Faq(q: l.faqAccountQ2, a: l.faqAccountA2),
+        _Faq(q: l.faqAccountQ3, a: l.faqAccountA3),
+        _Faq(q: l.faqAccountQ4, a: l.faqAccountA4),
       ],
     ),
     _FaqCategory(
       title: l.supportSectionForStudents,
       icon: Icons.school_rounded,
       faqs: [
-        _Faq(
-          q: 'Where do I see my schedule?',
-          a: 'Schedule is the first item in the drawer. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.',
-        ),
-        _Faq(
-          q: 'How do I join a classroom?',
-          a: 'A teacher will add you directly, or share a join code. To use a join code, open Classrooms from the drawer and tap "Join with code".',
-        ),
-        _Faq(
-          q: 'How do attendance and grades work?',
-          a: 'Teachers mark attendance during the lesson. Open Attendance or Grades from the drawer to see your records. Parents linked to your account see the same data.',
-        ),
-        _Faq(
-          q: 'What is Nova?',
-          a: 'Nova is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open Nova from the drawer to start a session.',
-        ),
+        _Faq(q: l.faqStudentsQ1, a: l.faqStudentsA1),
+        _Faq(q: l.faqStudentsQ2, a: l.faqStudentsA2),
+        _Faq(q: l.faqStudentsQ3, a: l.faqStudentsA3),
+        _Faq(q: l.faqStudentsQ4, a: l.faqStudentsA4),
       ],
     ),
     _FaqCategory(
       title: l.supportSectionForTeachers,
       icon: Icons.co_present_rounded,
       faqs: [
-        _Faq(
-          q: 'How do I create a classroom?',
-          a: 'Open Classrooms from the drawer and tap the + button. Give it a name and subject; students can be added by hand or via a join code.',
-        ),
-        _Faq(
-          q: 'How do I mark attendance?',
-          a: 'Open Attendance from the drawer, pick the date and period, then tap each student to set their status. Changes save automatically.',
-        ),
-        _Faq(
-          q: 'How do I assign homework?',
-          a: 'Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it instantly in their drawer.',
-        ),
-        _Faq(
-          q: 'Can I issue a diploma or certificate?',
-          a: 'Yes — open Diplomas from the drawer, tap +, pick the student, fill in the title and details, and save. The student sees it in their own Diplomas section.',
-        ),
+        _Faq(q: l.faqTeachersQ1, a: l.faqTeachersA1),
+        _Faq(q: l.faqTeachersQ2, a: l.faqTeachersA2),
+        _Faq(q: l.faqTeachersQ3, a: l.faqTeachersA3),
+        _Faq(q: l.faqTeachersQ4, a: l.faqTeachersA4),
       ],
     ),
     _FaqCategory(
       title: l.supportSectionForAdministrators,
       icon: Icons.admin_panel_settings_rounded,
       faqs: [
-        _Faq(
-          q: 'Where do I start setting up a school?',
-          a: 'Open the Admin Dashboard. The School Setup widget at the top shows a 7-step checklist (logo, name, subjects, bell schedule, cohorts, students, teachers). Each step deep-links to where you complete it.',
-        ),
-        _Faq(
-          q: 'How do cohorts work?',
-          a: 'A cohort is a group of students that share a schedule. Open Cohorts from the drawer to create them, assign students, and generate join codes. A single cohort can span multiple grades.',
-        ),
-        _Faq(
-          q: 'Can a cohort cover more than one grade?',
-          a: 'Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades\' filters and views, and announcements/templates targeted at any of those grades reach it.',
-        ),
-        _Faq(
-          q: 'How do I build the weekly schedule?',
-          a: 'Open Schedule from the drawer. Tap any cell to add a period — pick the day/period, teacher, subject, and audience (cohort/student/grade). Bell-schedule times come from School Settings.',
-        ),
-        _Faq(
-          q: 'How do I bulk-export students?',
-          a: 'Open Export Data from the drawer. Choose whether to select by student or by cohort, pick the rows, and tap Export. Optionally generate fresh temporary passwords during export.',
-        ),
-        _Faq(
-          q: 'A user asked me to reset their password. What do I do?',
-          a: 'You can either set their password directly (Profile of the user → Security) or wait for them to file a request via "Forgot password" and approve it from Password Requests in the drawer.',
-        ),
+        _Faq(q: l.faqAdminsQ1, a: l.faqAdminsA1),
+        _Faq(q: l.faqAdminsQ2, a: l.faqAdminsA2),
+        _Faq(q: l.faqAdminsQ3, a: l.faqAdminsA3),
+        _Faq(q: l.faqAdminsQ4, a: l.faqAdminsA4),
+        _Faq(q: l.faqAdminsQ5, a: l.faqAdminsA5),
+        _Faq(q: l.faqAdminsQ6, a: l.faqAdminsA6),
       ],
     ),
     _FaqCategory(
       title: l.supportSectionForParents,
       icon: Icons.family_restroom_rounded,
       faqs: [
-        _Faq(
-          q: 'How do I link my account to my child?',
-          a: 'Ask your child\'s school administrator to either add the link from their admin app, or share a one-time parent link code. Open Profile and enter the code under Family.',
-        ),
-        _Faq(
-          q: 'What can I see about my child?',
-          a: 'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or Nova sessions.',
-        ),
+        _Faq(q: l.faqParentsQ1, a: l.faqParentsA1),
+        _Faq(q: l.faqParentsQ2, a: l.faqParentsA2),
       ],
     ),
     _FaqCategory(
       title: l.supportSectionPrivacyData,
       icon: Icons.privacy_tip_rounded,
       faqs: [
-        _Faq(
-          q: 'Who can see my data?',
-          a: 'Only people in your school. Teachers see their classrooms\' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.',
-        ),
-        _Faq(
-          q: 'How do I delete my account?',
-          a: 'Ask your school administrator to delete it. They can remove the account from their admin app, which wipes your profile, schedule, and chats.',
-        ),
+        _Faq(q: l.faqPrivacyQ1, a: l.faqPrivacyA1),
+        _Faq(q: l.faqPrivacyQ2, a: l.faqPrivacyA2),
       ],
     ),
   ];

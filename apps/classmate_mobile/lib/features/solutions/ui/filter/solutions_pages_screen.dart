@@ -122,7 +122,7 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
                                 ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           if (pageCount < 9999)
-                            Text('$pageCount pages',
+                            Text(l.solutionsPagesCount(pageCount),
                                 style: tt.bodySmall
                                     ?.copyWith(color: cs.onSurfaceVariant)),
                         ],

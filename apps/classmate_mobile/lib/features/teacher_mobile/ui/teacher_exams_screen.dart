@@ -289,7 +289,7 @@ class _ExamCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            published ? 'Published' : 'Draft',
+                            published ? AppLocalizations.of(context)!.teacherMaterialPublished : AppLocalizations.of(context)!.teacherMaterialDraft,
                             style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: published ? cs.onPrimaryContainer : cs.onSurfaceVariant),
                           ),
                         ),

@@ -488,7 +488,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
           content:
-              Text(n == 1 ? 'Forwarded to 1 chat' : 'Forwarded to $n chats')),
+              Text(AppLocalizations.of(context)!.chatForwardedCount(n))),
     );
     _exitForwardMode();
     // Invalidate source AND all target threads so the forwarded message appears.

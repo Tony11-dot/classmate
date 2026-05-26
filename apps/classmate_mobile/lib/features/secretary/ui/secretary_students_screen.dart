@@ -134,7 +134,7 @@ class _SecretaryStudentsScreenState
                 loading: () => const SliverToBoxAdapter(
                     child: Center(child: CircularProgressIndicator())),
                 error: (e, _) =>
-                    SliverToBoxAdapter(child: Text('$e')),
+                    SliverToBoxAdapter(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
                 data: (cohorts) {
                   if (cohorts.isEmpty) {
                     return SliverToBoxAdapter(
@@ -549,7 +549,7 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
       ),
       body: rosterAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
         data: (students) {
           if (students.isEmpty) {
             return Center(

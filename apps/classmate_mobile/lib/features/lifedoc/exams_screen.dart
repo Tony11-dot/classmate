@@ -96,7 +96,9 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            isFormsOnly ? 'Could not load forms' : 'Could not load exams',
+            isFormsOnly
+                ? AppLocalizations.of(context)!.examsCouldNotLoadForms
+                : AppLocalizations.of(context)!.examsCouldNotLoadExams,
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_session.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../../../core/http/cm_api.dart';
+import '../../../l10n/app_localizations.dart';
 
 final adminRepositoryProvider = Provider<AdminRepository>((ref) {
   final token = ref.watch(authSessionProvider).token ?? '';
@@ -620,13 +621,27 @@ class AdminCohort {
   final int studentCount;
 
   /// Human-readable grade label: "Grade 7", "Grade 7-9" (contiguous range),
-  /// or "Grades 7, 9, 11" (non-contiguous list).
+  /// or "Grades 7, 9, 11" (non-contiguous list). English-only — prefer
+  /// [gradeLabelLocalized] for any UI render path.
   String get gradeLabel {
     if (grades.isEmpty) return 'Grade $grade';
     if (grades.length == 1) return 'Grade ${grades.first}';
     final sorted = [...grades]..sort();
     final isRange = sorted.last - sorted.first == sorted.length - 1;
     return isRange ? 'Grade ${sorted.first}-${sorted.last}' : 'Grades ${sorted.join(', ')}';
+  }
+
+  /// Localized variant of [gradeLabel] for UI rendering.
+  String gradeLabelLocalized(AppLocalizations l) {
+    if (grades.isEmpty) return l.adminCohortGradeFormat(grade.toString());
+    if (grades.length == 1) {
+      return l.adminCohortGradeFormat(grades.first.toString());
+    }
+    final sorted = [...grades]..sort();
+    final isRange = sorted.last - sorted.first == sorted.length - 1;
+    return isRange
+        ? l.adminCohortGradeRange(sorted.first, sorted.last)
+        : l.adminCohortGradesList(sorted.join(', '));
   }
 
   /// Compact label for tight chips: "G7", "G7-9", "G7,9,11".

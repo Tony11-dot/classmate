@@ -4111,7 +4111,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get formNotFound => 'Форма не найдена';
 
   @override
-  String get formClosed => 'Эта форма закрыта.';
+  String get formClosed => 'Закрыт';
 
   @override
   String get formCompletion => 'Завершение';
@@ -7256,4 +7256,365 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tooltipLeaveClassroom => 'Покинуть класс';
+
+  @override
+  String get announcementGradeRiskBody =>
+      'Ваш средний балл упал ниже 70. Рекомендуется немедленное действие.';
+
+  @override
+  String announcementWeakSubjectBody(String subject) {
+    return '$subject требует внимания.';
+  }
+
+  @override
+  String get announcementLowAttendanceBody =>
+      'Ваша посещаемость падает. Это повлияет на оценки.';
+
+  @override
+  String get announcementLatenessBody => 'У вас несколько опозданий.';
+
+  @override
+  String announcementPracticeWeakTopicBody(String topic, String subject) {
+    return '$topic в $subject замедляет ваш прогресс.';
+  }
+
+  @override
+  String get announcementPracticeDropBody =>
+      'Ваша недавняя практика ниже базового уровня. Замедлитесь и пересоберитесь.';
+
+  @override
+  String announcementSolutionsActivityBody(int page, int question) {
+    return 'Ваше пространство решений активно на странице $page, вопрос $question. Проверьте работы сверстников или загрузите свою.';
+  }
+
+  @override
+  String get announcementAllGoodBody =>
+      'Серьёзных академических рисков сейчас не обнаружено.';
+
+  @override
+  String get faqStartedQ1 => 'Как мне войти?';
+
+  @override
+  String get faqStartedA1 =>
+      'Нажмите «Войти» на экране приветствия и введите электронную почту или имя пользователя, которые дал вам школьный администратор, плюс временный пароль. В первый раз вас попросят установить новый пароль.';
+
+  @override
+  String get faqStartedQ2 => 'У меня ещё нет аккаунта.';
+
+  @override
+  String get faqStartedA2 =>
+      'Аккаунты создаёт школьный администратор. Попросите его добавить вас в приложении администратора или поделиться кодом присоединения, если в школе используется самостоятельная регистрация.';
+
+  @override
+  String get faqStartedQ3 =>
+      'Могу ли я использовать приложение на своём языке?';
+
+  @override
+  String get faqStartedA3 =>
+      'Да — ClassMate поддерживает английский, арабский, иврит, французский и русский. Откройте Настройки, чтобы сменить язык. Также можно установить предпочитаемый язык имени в Профиле.';
+
+  @override
+  String get faqStartedQ4 =>
+      'Как переключаться между тёмным и светлым режимом?';
+
+  @override
+  String get faqStartedA4 =>
+      'Откройте Настройки из меню и переключите переключатель внешнего вида. По умолчанию приложение следует системным настройкам.';
+
+  @override
+  String get faqAccountQ1 => 'Я забыл пароль.';
+
+  @override
+  String get faqAccountA1 =>
+      'Нажмите «Забыли пароль?» на экране входа. Вы получите ссылку для сброса по электронной почте или код по SMS. Если ни один канал ещё не подтверждён, попросите школьного администратора выдать новый временный пароль.';
+
+  @override
+  String get faqAccountQ2 => 'Как сменить пароль?';
+
+  @override
+  String get faqAccountA2 =>
+      'Откройте Профиль из меню, прокрутите до Безопасности, и нажмите строку пароля. Вам понадобится текущий пароль, чтобы установить новый.';
+
+  @override
+  String get faqAccountQ3 =>
+      'Как сменить электронную почту или номер телефона?';
+
+  @override
+  String get faqAccountA3 =>
+      'Откройте Профиль, нажмите на поле, которое хотите изменить, и следуйте подсказкам проверки. Сначала на ВАШУ текущую почту/телефон отправляется код для подтверждения личности, затем вы можете задать новое значение.';
+
+  @override
+  String get faqAccountQ4 =>
+      'Школьный администратор может сменить мой пароль — как это работает?';
+
+  @override
+  String get faqAccountA4 =>
+      'Когда администратор сбрасывает ваш пароль, вы получите письмо и SMS со ссылкой в одно нажатие для установки собственного пароля. Администратор никогда не видит, что вы выбираете.';
+
+  @override
+  String get faqStudentsQ1 => 'Где я вижу своё расписание?';
+
+  @override
+  String get faqStudentsA1 =>
+      'Расписание — первый пункт в меню. Вы увидите уроки этой недели, кто их ведёт, и любые изменения, опубликованные администратором.';
+
+  @override
+  String get faqStudentsQ2 => 'Как присоединиться к классу?';
+
+  @override
+  String get faqStudentsA2 =>
+      'Учитель добавит вас напрямую или поделится кодом присоединения. Чтобы использовать код, откройте Классы из меню и нажмите «Присоединиться с кодом».';
+
+  @override
+  String get faqStudentsQ3 => 'Как работают посещаемость и оценки?';
+
+  @override
+  String get faqStudentsA3 =>
+      'Учителя отмечают посещаемость во время урока. Откройте Посещаемость или Оценки из меню, чтобы увидеть свои записи. Родители, привязанные к вашему аккаунту, видят те же данные.';
+
+  @override
+  String get faqStudentsQ4 => 'Что такое Nova?';
+
+  @override
+  String get faqStudentsA4 =>
+      'Nova — это ваш ИИ-помощник по учёбе. Попросите его объяснить понятие, создать тест или разобрать задачу шаг за шагом. Откройте Nova из меню, чтобы начать сессию.';
+
+  @override
+  String get faqTeachersQ1 => 'Как создать класс?';
+
+  @override
+  String get faqTeachersA1 =>
+      'Откройте Классы из меню и нажмите кнопку +. Дайте классу название и предмет; учеников можно добавить вручную или с помощью кода присоединения.';
+
+  @override
+  String get faqTeachersQ2 => 'Как отмечать посещаемость?';
+
+  @override
+  String get faqTeachersA2 =>
+      'Откройте Посещаемость из меню, выберите дату и урок, затем нажмите на каждого ученика, чтобы установить его статус. Изменения сохраняются автоматически.';
+
+  @override
+  String get faqTeachersQ3 => 'Как назначить домашнее задание?';
+
+  @override
+  String get faqTeachersA3 =>
+      'Откройте Задания, нажмите +, заполните заголовок/срок/вложения, и выберите цель (вся школа, конкретные группы или названные ученики). Ученики мгновенно увидят это в своём меню.';
+
+  @override
+  String get faqTeachersQ4 => 'Могу ли я выдать диплом или сертификат?';
+
+  @override
+  String get faqTeachersA4 =>
+      'Да — откройте Дипломы из меню, нажмите +, выберите ученика, заполните заголовок и детали, и сохраните. Ученик увидит его в своём разделе Дипломов.';
+
+  @override
+  String get faqAdminsQ1 => 'С чего начать настройку школы?';
+
+  @override
+  String get faqAdminsA1 =>
+      'Откройте Панель администратора. Виджет Настройка школы вверху показывает чек-лист из 7 шагов (логотип, название, предметы, расписание звонков, группы, ученики, учителя). Каждый шаг ведёт прямо туда, где вы его завершаете.';
+
+  @override
+  String get faqAdminsQ2 => 'Как работают группы?';
+
+  @override
+  String get faqAdminsA2 =>
+      'Группа — это набор учеников с общим расписанием. Откройте Группы из меню, чтобы создавать их, назначать учеников и генерировать коды присоединения. Одна группа может охватывать несколько классов.';
+
+  @override
+  String get faqAdminsQ3 => 'Может ли группа охватывать более одного класса?';
+
+  @override
+  String get faqAdminsA3 =>
+      'Да — при создании группы выберите несколько классов. Группа появится в фильтрах и видах любого из этих классов, и объявления/шаблоны, направленные на любой из этих классов, дойдут до неё.';
+
+  @override
+  String get faqAdminsQ4 => 'Как составить недельное расписание?';
+
+  @override
+  String get faqAdminsA4 =>
+      'Откройте Расписание из меню. Нажмите на любую ячейку, чтобы добавить урок — выберите день/урок, учителя, предмет и аудиторию (группа/ученик/класс). Время звонков берётся из Настроек школы.';
+
+  @override
+  String get faqAdminsQ5 => 'Как массово экспортировать учеников?';
+
+  @override
+  String get faqAdminsA5 =>
+      'Откройте Экспорт данных из меню. Выберите, выбирать по ученику или по группе, выберите строки и нажмите Экспортировать. По желанию включите текущие пароли при экспорте.';
+
+  @override
+  String get faqAdminsQ6 =>
+      'Пользователь попросил сбросить пароль. Что делать?';
+
+  @override
+  String get faqAdminsA6 =>
+      'Вы можете установить пароль напрямую (Профиль пользователя → Безопасность) или дождаться, пока он подаст запрос через «Забыли пароль», и одобрить его из Запросов пароля в меню.';
+
+  @override
+  String get faqParentsQ1 => 'Как связать мой аккаунт с ребёнком?';
+
+  @override
+  String get faqParentsA1 =>
+      'Попросите школьного администратора ребёнка добавить связь из приложения администратора или поделиться одноразовым кодом связи родителя. Откройте Профиль и введите код в разделе Семья.';
+
+  @override
+  String get faqParentsQ2 => 'Что я могу видеть о своём ребёнке?';
+
+  @override
+  String get faqParentsA2 =>
+      'Посещаемость, оценки, объявления и домашние задания — ровно то, что видит ваш ребёнок, плюс динамика во времени. Личные чаты и сессии Nova не видны.';
+
+  @override
+  String get faqPrivacyQ1 => 'Кто может видеть мои данные?';
+
+  @override
+  String get faqPrivacyA1 =>
+      'Только люди в вашей школе. Учителя видят данные своих классов, администраторы — данные по всей школе, родители — связанных детей. Мы никогда не продаём данные рекламодателям.';
+
+  @override
+  String get faqPrivacyQ2 => 'Как удалить аккаунт?';
+
+  @override
+  String get faqPrivacyA2 =>
+      'Попросите школьного администратора удалить его. Он может удалить аккаунт из приложения администратора, что стирает ваш профиль, расписание и чаты.';
+
+  @override
+  String solutionsPagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count страниц',
+      many: '$count страниц',
+      few: '$count страницы',
+      one: '$count страница',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMeetingEditTitle => 'Изменить встречу';
+
+  @override
+  String get teacherMeetingNewTitle => 'Назначить встречу';
+
+  @override
+  String get teacherExamEditTitle => 'Изменить экзамен';
+
+  @override
+  String get teacherExamNewTitle => 'Создать экзамен';
+
+  @override
+  String get teacherAssignmentEditTitle => 'Изменить задание';
+
+  @override
+  String get teacherAssignmentNewTitle => 'Новое задание';
+
+  @override
+  String get tooltipShowTabs => 'Показать вкладки';
+
+  @override
+  String get tooltipHideTabs => 'Скрыть вкладки';
+
+  @override
+  String get examsCouldNotLoadForms => 'Не удалось загрузить формы';
+
+  @override
+  String get examsCouldNotLoadExams => 'Не удалось загрузить экзамены';
+
+  @override
+  String get messagesNoPeopleToAdd => 'Нет людей для добавления';
+
+  @override
+  String commonNoResultsForQuery(String query) {
+    return 'Нет результатов для «$query»';
+  }
+
+  @override
+  String chatForwardedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Переслано в $count чатов',
+      many: 'Переслано в $count чатов',
+      few: 'Переслано в $count чата',
+      one: 'Переслано в 1 чат',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonReadMore => 'Читать дальше';
+
+  @override
+  String get commonReadLess => 'Скрыть';
+
+  @override
+  String get chatComposerSlideToCancel => 'Сдвиньте для отмены';
+
+  @override
+  String adminNoRoleYet(String role) {
+    return 'Нет ещё $role';
+  }
+
+  @override
+  String get profileVerified => 'Подтверждено.';
+
+  @override
+  String get profileUpdatedPendingVerification =>
+      'Обновлено, ожидает повторной проверки.';
+
+  @override
+  String get adminSearchCohorts => 'Поиск групп…';
+
+  @override
+  String get commonAdding => 'Добавление…';
+
+  @override
+  String get teacherDiplomaIssuing => 'Выдача…';
+
+  @override
+  String get teacherDiplomaIssue => 'Выдать';
+
+  @override
+  String get formAccepting => 'Принимает';
+
+  @override
+  String get profileVerifiedShort => 'Подтверждено';
+
+  @override
+  String get profileUnverified => 'Не подтверждено';
+
+  @override
+  String get notificationNewGradePosted => 'Опубликована новая оценка';
+
+  @override
+  String notificationNewGradePostedIn(String subject) {
+    return 'Опубликована новая оценка по $subject';
+  }
+
+  @override
+  String messagesAddParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавить $count участников',
+      many: 'Добавить $count участников',
+      few: 'Добавить $count участников',
+      one: 'Добавить 1 участника',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationFallbackTitle => 'Уведомление';
+
+  @override
+  String adminCohortGradeRange(int from, int to) {
+    return 'Класс $from-$to';
+  }
+
+  @override
+  String adminCohortGradesList(String list) {
+    return 'Классы $list';
+  }
 }

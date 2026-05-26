@@ -19,7 +19,7 @@ class ParentNotificationsScreen extends ConsumerWidget {
         onRefresh: () async => ref.invalidate(parentNotificationsProvider),
         child: list.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Padding(padding: const EdgeInsets.all(24), child: Text('$e'))),
+          error: (e, _) => Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(AppLocalizations.of(context)!.commonErrorWith(e)))),
           data: (items) {
             if (items.isEmpty) {
               return ListView(
@@ -65,7 +65,7 @@ class _NotificationTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.title.isEmpty ? 'Notification' : item.title,
+                  item.title.isEmpty ? AppLocalizations.of(context)!.notificationFallbackTitle : item.title,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: item.seen ? FontWeight.w500 : FontWeight.w800,
                   ),

@@ -289,6 +289,10 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
       StudentNotificationItem(
         id: 'local-grade-${grade.id}',
         title: subjectLabel.isEmpty ? 'New grade posted' : 'New grade posted in $subjectLabel',
+        template: subjectLabel.isEmpty
+            ? StudentNotificationTemplate.newGradePosted
+            : StudentNotificationTemplate.newGradePostedIn,
+        templateArgs: subjectLabel.isEmpty ? const {} : {'subject': subjectLabel},
         body: '${grade.assessmentTitle.trim().isEmpty ? 'Assessment' : grade.assessmentTitle.trim()} • ${grade.grade.toStringAsFixed(grade.grade % 1 == 0 ? 0 : 1)}',
         source: 'grades',
         createdAt: createdAt,

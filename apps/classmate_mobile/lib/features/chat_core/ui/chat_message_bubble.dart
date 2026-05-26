@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../utils/chat_reply_codec.dart';
@@ -1205,7 +1206,7 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Text(
-                  _expanded ? 'Read less' : 'Read more',
+                  _expanded ? AppLocalizations.of(context)!.commonReadLess : AppLocalizations.of(context)!.commonReadMore,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11.5,

@@ -421,7 +421,7 @@ class _TeacherAssignmentDetailScreenState
                                           _load();
                                         } catch (e) {
                                           if (!mounted) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
                                         }
                                       },
                                     ),

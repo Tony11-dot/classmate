@@ -256,7 +256,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isEditing ? 'Edit Exam' : 'Create Exam',
+          _isEditing ? AppLocalizations.of(context)!.teacherExamEditTitle : AppLocalizations.of(context)!.teacherExamNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
         actions: [

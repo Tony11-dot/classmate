@@ -4183,7 +4183,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formNotFound => 'Form not found';
 
   @override
-  String get formClosed => 'This form is closed.';
+  String get formClosed => 'Closed';
 
   @override
   String get formCompletion => 'Completion';
@@ -7293,4 +7293,356 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tooltipLeaveClassroom => 'Leave classroom';
+
+  @override
+  String get announcementGradeRiskBody =>
+      'Your average dropped below 70. Immediate action recommended.';
+
+  @override
+  String announcementWeakSubjectBody(String subject) {
+    return '$subject needs attention.';
+  }
+
+  @override
+  String get announcementLowAttendanceBody =>
+      'Your attendance is dropping. This will impact grades.';
+
+  @override
+  String get announcementLatenessBody => 'You have multiple late arrivals.';
+
+  @override
+  String announcementPracticeWeakTopicBody(String topic, String subject) {
+    return '$topic in $subject is dragging your momentum.';
+  }
+
+  @override
+  String get announcementPracticeDropBody =>
+      'Your recent practice is below your baseline. Slow down and rebuild.';
+
+  @override
+  String announcementSolutionsActivityBody(int page, int question) {
+    return 'Your solution space is active on page $page, question $question. Check peer work or upload yours.';
+  }
+
+  @override
+  String get announcementAllGoodBody =>
+      'No major academic risks detected right now.';
+
+  @override
+  String get faqStartedQ1 => 'How do I log in?';
+
+  @override
+  String get faqStartedA1 =>
+      'Tap \"Sign in\" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You\'ll be asked to set a new password the first time.';
+
+  @override
+  String get faqStartedQ2 => 'I don\'t have a login yet.';
+
+  @override
+  String get faqStartedA2 =>
+      'Your school administrator creates accounts. Ask them to add you in their admin app, or to share a join code if your school uses self-enrolment.';
+
+  @override
+  String get faqStartedQ3 => 'Can I use the app in my language?';
+
+  @override
+  String get faqStartedA3 =>
+      'Yes — ClassMate supports English, Arabic, Hebrew, French, and Russian. Open Settings to switch language. You can also set a preferred name language in Profile.';
+
+  @override
+  String get faqStartedQ4 => 'How do I switch between dark and light mode?';
+
+  @override
+  String get faqStartedA4 =>
+      'Open Settings from the drawer and toggle the appearance switch. The app respects your system preference by default.';
+
+  @override
+  String get faqAccountQ1 => 'I forgot my password.';
+
+  @override
+  String get faqAccountA1 =>
+      'Tap \"Forgot password?\" on the login screen. You\'ll get a reset link by email or a code by SMS. If neither channel is verified yet, ask your school administrator to issue you a new temporary password.';
+
+  @override
+  String get faqAccountQ2 => 'How do I change my password?';
+
+  @override
+  String get faqAccountA2 =>
+      'Open Profile from the drawer, scroll to Security, and tap the password row. You\'ll need your current password to set a new one.';
+
+  @override
+  String get faqAccountQ3 => 'How do I change my email or phone number?';
+
+  @override
+  String get faqAccountA3 =>
+      'Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it\'s really you, then you can set the new value.';
+
+  @override
+  String get faqAccountQ4 =>
+      'My school administrator can change my password — how does that work?';
+
+  @override
+  String get faqAccountA4 =>
+      'When an administrator resets your password, you\'ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.';
+
+  @override
+  String get faqStudentsQ1 => 'Where do I see my schedule?';
+
+  @override
+  String get faqStudentsA1 =>
+      'Schedule is the first item in the drawer. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.';
+
+  @override
+  String get faqStudentsQ2 => 'How do I join a classroom?';
+
+  @override
+  String get faqStudentsA2 =>
+      'A teacher will add you directly, or share a join code. To use a join code, open Classrooms from the drawer and tap \"Join with code\".';
+
+  @override
+  String get faqStudentsQ3 => 'How do attendance and grades work?';
+
+  @override
+  String get faqStudentsA3 =>
+      'Teachers mark attendance during the lesson. Open Attendance or Grades from the drawer to see your records. Parents linked to your account see the same data.';
+
+  @override
+  String get faqStudentsQ4 => 'What is Nova?';
+
+  @override
+  String get faqStudentsA4 =>
+      'Nova is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open Nova from the drawer to start a session.';
+
+  @override
+  String get faqTeachersQ1 => 'How do I create a classroom?';
+
+  @override
+  String get faqTeachersA1 =>
+      'Open Classrooms from the drawer and tap the + button. Give it a name and subject; students can be added by hand or via a join code.';
+
+  @override
+  String get faqTeachersQ2 => 'How do I mark attendance?';
+
+  @override
+  String get faqTeachersA2 =>
+      'Open Attendance from the drawer, pick the date and period, then tap each student to set their status. Changes save automatically.';
+
+  @override
+  String get faqTeachersQ3 => 'How do I assign homework?';
+
+  @override
+  String get faqTeachersA3 =>
+      'Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it instantly in their drawer.';
+
+  @override
+  String get faqTeachersQ4 => 'Can I issue a diploma or certificate?';
+
+  @override
+  String get faqTeachersA4 =>
+      'Yes — open Diplomas from the drawer, tap +, pick the student, fill in the title and details, and save. The student sees it in their own Diplomas section.';
+
+  @override
+  String get faqAdminsQ1 => 'Where do I start setting up a school?';
+
+  @override
+  String get faqAdminsA1 =>
+      'Open the Admin Dashboard. The School Setup widget at the top shows a 7-step checklist (logo, name, subjects, bell schedule, cohorts, students, teachers). Each step deep-links to where you complete it.';
+
+  @override
+  String get faqAdminsQ2 => 'How do cohorts work?';
+
+  @override
+  String get faqAdminsA2 =>
+      'A cohort is a group of students that share a schedule. Open Cohorts from the drawer to create them, assign students, and generate join codes. A single cohort can span multiple grades.';
+
+  @override
+  String get faqAdminsQ3 => 'Can a cohort cover more than one grade?';
+
+  @override
+  String get faqAdminsA3 =>
+      'Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades\' filters and views, and announcements/templates targeted at any of those grades reach it.';
+
+  @override
+  String get faqAdminsQ4 => 'How do I build the weekly schedule?';
+
+  @override
+  String get faqAdminsA4 =>
+      'Open Schedule from the drawer. Tap any cell to add a period — pick the day/period, teacher, subject, and audience (cohort/student/grade). Bell-schedule times come from School Settings.';
+
+  @override
+  String get faqAdminsQ5 => 'How do I bulk-export students?';
+
+  @override
+  String get faqAdminsA5 =>
+      'Open Export Data from the drawer. Choose whether to select by student or by cohort, pick the rows, and tap Export. Optionally include current passwords during export.';
+
+  @override
+  String get faqAdminsQ6 =>
+      'A user asked me to reset their password. What do I do?';
+
+  @override
+  String get faqAdminsA6 =>
+      'You can either set their password directly (Profile of the user → Security) or wait for them to file a request via \"Forgot password\" and approve it from Password Requests in the drawer.';
+
+  @override
+  String get faqParentsQ1 => 'How do I link my account to my child?';
+
+  @override
+  String get faqParentsA1 =>
+      'Ask your child\'s school administrator to either add the link from their admin app, or share a one-time parent link code. Open Profile and enter the code under Family.';
+
+  @override
+  String get faqParentsQ2 => 'What can I see about my child?';
+
+  @override
+  String get faqParentsA2 =>
+      'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or Nova sessions.';
+
+  @override
+  String get faqPrivacyQ1 => 'Who can see my data?';
+
+  @override
+  String get faqPrivacyA1 =>
+      'Only people in your school. Teachers see their classrooms\' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.';
+
+  @override
+  String get faqPrivacyQ2 => 'How do I delete my account?';
+
+  @override
+  String get faqPrivacyA2 =>
+      'Ask your school administrator to delete it. They can remove the account from their admin app, which wipes your profile, schedule, and chats.';
+
+  @override
+  String solutionsPagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '$count page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMeetingEditTitle => 'Edit Meeting';
+
+  @override
+  String get teacherMeetingNewTitle => 'Schedule Meeting';
+
+  @override
+  String get teacherExamEditTitle => 'Edit Exam';
+
+  @override
+  String get teacherExamNewTitle => 'Create Exam';
+
+  @override
+  String get teacherAssignmentEditTitle => 'Edit Assignment';
+
+  @override
+  String get teacherAssignmentNewTitle => 'New Assignment';
+
+  @override
+  String get tooltipShowTabs => 'Show tabs';
+
+  @override
+  String get tooltipHideTabs => 'Hide tabs';
+
+  @override
+  String get examsCouldNotLoadForms => 'Could not load forms';
+
+  @override
+  String get examsCouldNotLoadExams => 'Could not load exams';
+
+  @override
+  String get messagesNoPeopleToAdd => 'No people to add';
+
+  @override
+  String commonNoResultsForQuery(String query) {
+    return 'No results for \"$query\"';
+  }
+
+  @override
+  String chatForwardedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Forwarded to $count chats',
+      one: 'Forwarded to 1 chat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commonReadMore => 'Read more';
+
+  @override
+  String get commonReadLess => 'Read less';
+
+  @override
+  String get chatComposerSlideToCancel => 'Slide to cancel';
+
+  @override
+  String adminNoRoleYet(String role) {
+    return 'No $role yet';
+  }
+
+  @override
+  String get profileVerified => 'Verified.';
+
+  @override
+  String get profileUpdatedPendingVerification =>
+      'Updated and pending re-verification.';
+
+  @override
+  String get adminSearchCohorts => 'Search cohorts…';
+
+  @override
+  String get commonAdding => 'Adding…';
+
+  @override
+  String get teacherDiplomaIssuing => 'Issuing…';
+
+  @override
+  String get teacherDiplomaIssue => 'Issue';
+
+  @override
+  String get formAccepting => 'Accepting';
+
+  @override
+  String get profileVerifiedShort => 'Verified';
+
+  @override
+  String get profileUnverified => 'Unverified';
+
+  @override
+  String get notificationNewGradePosted => 'New grade posted';
+
+  @override
+  String notificationNewGradePostedIn(String subject) {
+    return 'New grade posted in $subject';
+  }
+
+  @override
+  String messagesAddParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count participants',
+      one: 'Add 1 participant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationFallbackTitle => 'Notification';
+
+  @override
+  String adminCohortGradeRange(int from, int to) {
+    return 'Grade $from-$to';
+  }
+
+  @override
+  String adminCohortGradesList(String list) {
+    return 'Grades $list';
+  }
 }

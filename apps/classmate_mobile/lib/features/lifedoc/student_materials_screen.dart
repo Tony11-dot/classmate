@@ -54,7 +54,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                 const SizedBox(height: 16),
                 Text(l.studentMaterialsLoadError, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 6),
-                Text('$e', style: TextStyle(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
+                Text(AppLocalizations.of(context)!.commonErrorWith(e), style: TextStyle(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
               ],
             ),
           ),

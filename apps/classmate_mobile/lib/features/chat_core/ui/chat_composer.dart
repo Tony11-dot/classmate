@@ -601,7 +601,7 @@ class ChatComposer extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          cancelActive ? 'Release to cancel' : 'Slide to cancel',
+                          cancelActive ? AppLocalizations.of(context)!.chatComposerReleaseToCancel : AppLocalizations.of(context)!.chatComposerSlideToCancel,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: cancelTint,
                                 fontWeight: FontWeight.w600,

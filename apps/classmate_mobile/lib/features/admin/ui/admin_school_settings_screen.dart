@@ -216,7 +216,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
 
     return schoolAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
       data: (school) {
         if (!_initialized && school != null) {
           _initialized = true;

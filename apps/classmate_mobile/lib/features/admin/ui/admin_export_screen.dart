@@ -220,7 +220,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                 child: TextField(
                   onChanged: (v) => setState(() => _search = v),
                   decoration: InputDecoration(
-                    hintText: _mode == _PickerMode.cohorts ? 'Search cohorts…' : 'Search students…',
+                    hintText: _mode == _PickerMode.cohorts ? AppLocalizations.of(context)!.adminSearchCohorts : AppLocalizations.of(context)!.adminScheduleSearchStudents,
                     prefixIcon: const Icon(Icons.search_rounded, size: 18),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     isDense: true,

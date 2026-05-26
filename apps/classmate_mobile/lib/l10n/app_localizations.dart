@@ -7380,7 +7380,7 @@ abstract class AppLocalizations {
   /// No description provided for @formClosed.
   ///
   /// In en, this message translates to:
-  /// **'This form is closed.'**
+  /// **'Closed'**
   String get formClosed;
 
   /// No description provided for @formCompletion.
@@ -12932,6 +12932,564 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave classroom'**
   String get tooltipLeaveClassroom;
+
+  /// No description provided for @announcementGradeRiskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your average dropped below 70. Immediate action recommended.'**
+  String get announcementGradeRiskBody;
+
+  /// No description provided for @announcementWeakSubjectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{subject} needs attention.'**
+  String announcementWeakSubjectBody(String subject);
+
+  /// No description provided for @announcementLowAttendanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your attendance is dropping. This will impact grades.'**
+  String get announcementLowAttendanceBody;
+
+  /// No description provided for @announcementLatenessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have multiple late arrivals.'**
+  String get announcementLatenessBody;
+
+  /// No description provided for @announcementPracticeWeakTopicBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{topic} in {subject} is dragging your momentum.'**
+  String announcementPracticeWeakTopicBody(String topic, String subject);
+
+  /// No description provided for @announcementPracticeDropBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent practice is below your baseline. Slow down and rebuild.'**
+  String get announcementPracticeDropBody;
+
+  /// No description provided for @announcementSolutionsActivityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your solution space is active on page {page}, question {question}. Check peer work or upload yours.'**
+  String announcementSolutionsActivityBody(int page, int question);
+
+  /// No description provided for @announcementAllGoodBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No major academic risks detected right now.'**
+  String get announcementAllGoodBody;
+
+  /// No description provided for @faqStartedQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I log in?'**
+  String get faqStartedQ1;
+
+  /// No description provided for @faqStartedA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Sign in\" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You\'ll be asked to set a new password the first time.'**
+  String get faqStartedA1;
+
+  /// No description provided for @faqStartedQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'I don\'t have a login yet.'**
+  String get faqStartedQ2;
+
+  /// No description provided for @faqStartedA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school administrator creates accounts. Ask them to add you in their admin app, or to share a join code if your school uses self-enrolment.'**
+  String get faqStartedA2;
+
+  /// No description provided for @faqStartedQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I use the app in my language?'**
+  String get faqStartedQ3;
+
+  /// No description provided for @faqStartedA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes — ClassMate supports English, Arabic, Hebrew, French, and Russian. Open Settings to switch language. You can also set a preferred name language in Profile.'**
+  String get faqStartedA3;
+
+  /// No description provided for @faqStartedQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I switch between dark and light mode?'**
+  String get faqStartedQ4;
+
+  /// No description provided for @faqStartedA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings from the drawer and toggle the appearance switch. The app respects your system preference by default.'**
+  String get faqStartedA4;
+
+  /// No description provided for @faqAccountQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'I forgot my password.'**
+  String get faqAccountQ1;
+
+  /// No description provided for @faqAccountA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Forgot password?\" on the login screen. You\'ll get a reset link by email or a code by SMS. If neither channel is verified yet, ask your school administrator to issue you a new temporary password.'**
+  String get faqAccountA1;
+
+  /// No description provided for @faqAccountQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I change my password?'**
+  String get faqAccountQ2;
+
+  /// No description provided for @faqAccountA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Profile from the drawer, scroll to Security, and tap the password row. You\'ll need your current password to set a new one.'**
+  String get faqAccountA2;
+
+  /// No description provided for @faqAccountQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I change my email or phone number?'**
+  String get faqAccountQ3;
+
+  /// No description provided for @faqAccountA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it\'s really you, then you can set the new value.'**
+  String get faqAccountA3;
+
+  /// No description provided for @faqAccountQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'My school administrator can change my password — how does that work?'**
+  String get faqAccountQ4;
+
+  /// No description provided for @faqAccountA4.
+  ///
+  /// In en, this message translates to:
+  /// **'When an administrator resets your password, you\'ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.'**
+  String get faqAccountA4;
+
+  /// No description provided for @faqStudentsQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do I see my schedule?'**
+  String get faqStudentsQ1;
+
+  /// No description provided for @faqStudentsA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule is the first item in the drawer. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.'**
+  String get faqStudentsA1;
+
+  /// No description provided for @faqStudentsQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I join a classroom?'**
+  String get faqStudentsQ2;
+
+  /// No description provided for @faqStudentsA2.
+  ///
+  /// In en, this message translates to:
+  /// **'A teacher will add you directly, or share a join code. To use a join code, open Classrooms from the drawer and tap \"Join with code\".'**
+  String get faqStudentsA2;
+
+  /// No description provided for @faqStudentsQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'How do attendance and grades work?'**
+  String get faqStudentsQ3;
+
+  /// No description provided for @faqStudentsA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers mark attendance during the lesson. Open Attendance or Grades from the drawer to see your records. Parents linked to your account see the same data.'**
+  String get faqStudentsA3;
+
+  /// No description provided for @faqStudentsQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Nova?'**
+  String get faqStudentsQ4;
+
+  /// No description provided for @faqStudentsA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Nova is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open Nova from the drawer to start a session.'**
+  String get faqStudentsA4;
+
+  /// No description provided for @faqTeachersQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I create a classroom?'**
+  String get faqTeachersQ1;
+
+  /// No description provided for @faqTeachersA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Classrooms from the drawer and tap the + button. Give it a name and subject; students can be added by hand or via a join code.'**
+  String get faqTeachersA1;
+
+  /// No description provided for @faqTeachersQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I mark attendance?'**
+  String get faqTeachersQ2;
+
+  /// No description provided for @faqTeachersA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Attendance from the drawer, pick the date and period, then tap each student to set their status. Changes save automatically.'**
+  String get faqTeachersA2;
+
+  /// No description provided for @faqTeachersQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I assign homework?'**
+  String get faqTeachersQ3;
+
+  /// No description provided for @faqTeachersA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it instantly in their drawer.'**
+  String get faqTeachersA3;
+
+  /// No description provided for @faqTeachersQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I issue a diploma or certificate?'**
+  String get faqTeachersQ4;
+
+  /// No description provided for @faqTeachersA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes — open Diplomas from the drawer, tap +, pick the student, fill in the title and details, and save. The student sees it in their own Diplomas section.'**
+  String get faqTeachersA4;
+
+  /// No description provided for @faqAdminsQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do I start setting up a school?'**
+  String get faqAdminsQ1;
+
+  /// No description provided for @faqAdminsA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Admin Dashboard. The School Setup widget at the top shows a 7-step checklist (logo, name, subjects, bell schedule, cohorts, students, teachers). Each step deep-links to where you complete it.'**
+  String get faqAdminsA1;
+
+  /// No description provided for @faqAdminsQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do cohorts work?'**
+  String get faqAdminsQ2;
+
+  /// No description provided for @faqAdminsA2.
+  ///
+  /// In en, this message translates to:
+  /// **'A cohort is a group of students that share a schedule. Open Cohorts from the drawer to create them, assign students, and generate join codes. A single cohort can span multiple grades.'**
+  String get faqAdminsA2;
+
+  /// No description provided for @faqAdminsQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Can a cohort cover more than one grade?'**
+  String get faqAdminsQ3;
+
+  /// No description provided for @faqAdminsA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades\' filters and views, and announcements/templates targeted at any of those grades reach it.'**
+  String get faqAdminsA3;
+
+  /// No description provided for @faqAdminsQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I build the weekly schedule?'**
+  String get faqAdminsQ4;
+
+  /// No description provided for @faqAdminsA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Schedule from the drawer. Tap any cell to add a period — pick the day/period, teacher, subject, and audience (cohort/student/grade). Bell-schedule times come from School Settings.'**
+  String get faqAdminsA4;
+
+  /// No description provided for @faqAdminsQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I bulk-export students?'**
+  String get faqAdminsQ5;
+
+  /// No description provided for @faqAdminsA5.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Export Data from the drawer. Choose whether to select by student or by cohort, pick the rows, and tap Export. Optionally include current passwords during export.'**
+  String get faqAdminsA5;
+
+  /// No description provided for @faqAdminsQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'A user asked me to reset their password. What do I do?'**
+  String get faqAdminsQ6;
+
+  /// No description provided for @faqAdminsA6.
+  ///
+  /// In en, this message translates to:
+  /// **'You can either set their password directly (Profile of the user → Security) or wait for them to file a request via \"Forgot password\" and approve it from Password Requests in the drawer.'**
+  String get faqAdminsA6;
+
+  /// No description provided for @faqParentsQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I link my account to my child?'**
+  String get faqParentsQ1;
+
+  /// No description provided for @faqParentsA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your child\'s school administrator to either add the link from their admin app, or share a one-time parent link code. Open Profile and enter the code under Family.'**
+  String get faqParentsA1;
+
+  /// No description provided for @faqParentsQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'What can I see about my child?'**
+  String get faqParentsQ2;
+
+  /// No description provided for @faqParentsA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or Nova sessions.'**
+  String get faqParentsA2;
+
+  /// No description provided for @faqPrivacyQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see my data?'**
+  String get faqPrivacyQ1;
+
+  /// No description provided for @faqPrivacyA1.
+  ///
+  /// In en, this message translates to:
+  /// **'Only people in your school. Teachers see their classrooms\' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.'**
+  String get faqPrivacyA1;
+
+  /// No description provided for @faqPrivacyQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I delete my account?'**
+  String get faqPrivacyQ2;
+
+  /// No description provided for @faqPrivacyA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your school administrator to delete it. They can remove the account from their admin app, which wipes your profile, schedule, and chats.'**
+  String get faqPrivacyA2;
+
+  /// No description provided for @solutionsPagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} page} other{{count} pages}}'**
+  String solutionsPagesCount(int count);
+
+  /// No description provided for @teacherMeetingEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Meeting'**
+  String get teacherMeetingEditTitle;
+
+  /// No description provided for @teacherMeetingNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Meeting'**
+  String get teacherMeetingNewTitle;
+
+  /// No description provided for @teacherExamEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Exam'**
+  String get teacherExamEditTitle;
+
+  /// No description provided for @teacherExamNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Exam'**
+  String get teacherExamNewTitle;
+
+  /// No description provided for @teacherAssignmentEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Assignment'**
+  String get teacherAssignmentEditTitle;
+
+  /// No description provided for @teacherAssignmentNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Assignment'**
+  String get teacherAssignmentNewTitle;
+
+  /// No description provided for @tooltipShowTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Show tabs'**
+  String get tooltipShowTabs;
+
+  /// No description provided for @tooltipHideTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide tabs'**
+  String get tooltipHideTabs;
+
+  /// No description provided for @examsCouldNotLoadForms.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load forms'**
+  String get examsCouldNotLoadForms;
+
+  /// No description provided for @examsCouldNotLoadExams.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load exams'**
+  String get examsCouldNotLoadExams;
+
+  /// No description provided for @messagesNoPeopleToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'No people to add'**
+  String get messagesNoPeopleToAdd;
+
+  /// No description provided for @commonNoResultsForQuery.
+  ///
+  /// In en, this message translates to:
+  /// **'No results for \"{query}\"'**
+  String commonNoResultsForQuery(String query);
+
+  /// No description provided for @chatForwardedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Forwarded to 1 chat} other{Forwarded to {count} chats}}'**
+  String chatForwardedCount(int count);
+
+  /// No description provided for @commonReadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Read more'**
+  String get commonReadMore;
+
+  /// No description provided for @commonReadLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Read less'**
+  String get commonReadLess;
+
+  /// No description provided for @chatComposerSlideToCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide to cancel'**
+  String get chatComposerSlideToCancel;
+
+  /// No description provided for @adminNoRoleYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No {role} yet'**
+  String adminNoRoleYet(String role);
+
+  /// No description provided for @profileVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified.'**
+  String get profileVerified;
+
+  /// No description provided for @profileUpdatedPendingVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated and pending re-verification.'**
+  String get profileUpdatedPendingVerification;
+
+  /// No description provided for @adminSearchCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search cohorts…'**
+  String get adminSearchCohorts;
+
+  /// No description provided for @commonAdding.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding…'**
+  String get commonAdding;
+
+  /// No description provided for @teacherDiplomaIssuing.
+  ///
+  /// In en, this message translates to:
+  /// **'Issuing…'**
+  String get teacherDiplomaIssuing;
+
+  /// No description provided for @teacherDiplomaIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue'**
+  String get teacherDiplomaIssue;
+
+  /// No description provided for @formAccepting.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepting'**
+  String get formAccepting;
+
+  /// No description provided for @profileVerifiedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get profileVerifiedShort;
+
+  /// No description provided for @profileUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified'**
+  String get profileUnverified;
+
+  /// No description provided for @notificationNewGradePosted.
+  ///
+  /// In en, this message translates to:
+  /// **'New grade posted'**
+  String get notificationNewGradePosted;
+
+  /// No description provided for @notificationNewGradePostedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'New grade posted in {subject}'**
+  String notificationNewGradePostedIn(String subject);
+
+  /// No description provided for @messagesAddParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Add 1 participant} other{Add {count} participants}}'**
+  String messagesAddParticipants(int count);
+
+  /// No description provided for @notificationFallbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get notificationFallbackTitle;
+
+  /// No description provided for @adminCohortGradeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {from}-{to}'**
+  String adminCohortGradeRange(int from, int to);
+
+  /// No description provided for @adminCohortGradesList.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades {list}'**
+  String adminCohortGradesList(String list);
 }
 
 class _AppLocalizationsDelegate

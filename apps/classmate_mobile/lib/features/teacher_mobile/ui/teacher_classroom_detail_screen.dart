@@ -230,7 +230,7 @@ class _TopHeader extends StatelessWidget {
               ),
               visualDensity:
                   const VisualDensity(horizontal: -2, vertical: -2),
-              tooltip: tabsCollapsed ? 'Show tabs' : 'Hide tabs',
+              tooltip: tabsCollapsed ? AppLocalizations.of(context)!.tooltipShowTabs : AppLocalizations.of(context)!.tooltipHideTabs,
             ),
           ],
         ),

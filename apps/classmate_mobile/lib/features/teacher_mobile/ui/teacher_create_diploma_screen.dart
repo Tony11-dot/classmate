@@ -180,7 +180,7 @@ class _TeacherCreateDiplomaScreenState
                           strokeWidth: 2, color: Colors.white),
                     )
                   : const Icon(Icons.workspace_premium_rounded, size: 18),
-              label: Text(_saving ? 'Issuing…' : 'Issue'),
+              label: Text(_saving ? AppLocalizations.of(context)!.teacherDiplomaIssuing : AppLocalizations.of(context)!.teacherDiplomaIssue),
             ),
           ),
         ],

@@ -1,5 +1,14 @@
 enum StudentNotificationSeverity { info, warning, critical }
 
+/// Stable identifier for locally-generated notifications so the renderer
+/// can look up the translated title at display time. `null` means the
+/// item came from the server or is otherwise free-form — the `title` /
+/// `body` fields hold the literal text in that case.
+enum StudentNotificationTemplate {
+  newGradePosted,
+  newGradePostedIn,
+}
+
 class StudentNotificationItem {
   final String id;
   final String title;
@@ -9,6 +18,12 @@ class StudentNotificationItem {
   final StudentNotificationSeverity severity;
   final bool isRead;
   final bool isLocal;
+  /// Set for locally-generated rows; null for server-pushed items that
+  /// already carry translated copy. The widget translates against this
+  /// key + [templateArgs] at render time.
+  final StudentNotificationTemplate? template;
+  /// Substitution args for the template (e.g. {subject: 'Math'}).
+  final Map<String, Object?> templateArgs;
 
   const StudentNotificationItem({
     required this.id,
@@ -19,6 +34,8 @@ class StudentNotificationItem {
     required this.severity,
     required this.isRead,
     this.isLocal = false,
+    this.template,
+    this.templateArgs = const {},
   });
 
   StudentNotificationItem copyWith({
@@ -30,6 +47,8 @@ class StudentNotificationItem {
     StudentNotificationSeverity? severity,
     bool? isRead,
     bool? isLocal,
+    StudentNotificationTemplate? template,
+    Map<String, Object?>? templateArgs,
   }) {
     return StudentNotificationItem(
       id: id ?? this.id,
@@ -40,6 +59,8 @@ class StudentNotificationItem {
       severity: severity ?? this.severity,
       isRead: isRead ?? this.isRead,
       isLocal: isLocal ?? this.isLocal,
+      template: template ?? this.template,
+      templateArgs: templateArgs ?? this.templateArgs,
     );
   }
 

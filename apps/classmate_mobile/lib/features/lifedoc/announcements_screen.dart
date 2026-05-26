@@ -132,6 +132,63 @@ Color _severityTone(BuildContext context, AnnouncementSeverity severity) {
   }
 }
 
+/// Translates the title of a system-generated announcement. Falls back to
+/// the literal text stored on the item for free-form posts (template == null).
+String _announcementTitleLocalized(BuildContext context, AnnouncementItem item) {
+  final t = item.template;
+  if (t == null) return item.title;
+  final l = AppLocalizations.of(context)!;
+  switch (t) {
+    case AnnouncementTemplate.gradeRisk:
+      return l.announcementGradeRiskTitle;
+    case AnnouncementTemplate.weakSubject:
+      return l.announcementWeakSubjectTitle;
+    case AnnouncementTemplate.lowAttendance:
+      return l.announcementLowAttendanceTitle;
+    case AnnouncementTemplate.lateness:
+      return l.announcementRepeatedLatenessTitle;
+    case AnnouncementTemplate.practiceWeakTopic:
+      return l.announcementPracticeWeaknessTitle;
+    case AnnouncementTemplate.practiceDrop:
+      return l.announcementPracticeTrendDroppedTitle;
+    case AnnouncementTemplate.solutionsActivity:
+      return l.announcementSolutionsActivityTitle;
+    case AnnouncementTemplate.allGood:
+      return l.announcementAllGoodTitle;
+  }
+}
+
+String _announcementBodyLocalized(BuildContext context, AnnouncementItem item) {
+  final t = item.template;
+  if (t == null) return item.body;
+  final l = AppLocalizations.of(context)!;
+  final args = item.templateArgs;
+  switch (t) {
+    case AnnouncementTemplate.gradeRisk:
+      return l.announcementGradeRiskBody;
+    case AnnouncementTemplate.weakSubject:
+      return l.announcementWeakSubjectBody((args['subject'] ?? '').toString());
+    case AnnouncementTemplate.lowAttendance:
+      return l.announcementLowAttendanceBody;
+    case AnnouncementTemplate.lateness:
+      return l.announcementLatenessBody;
+    case AnnouncementTemplate.practiceWeakTopic:
+      return l.announcementPracticeWeakTopicBody(
+        (args['topic'] ?? '').toString(),
+        (args['subject'] ?? '').toString(),
+      );
+    case AnnouncementTemplate.practiceDrop:
+      return l.announcementPracticeDropBody;
+    case AnnouncementTemplate.solutionsActivity:
+      return l.announcementSolutionsActivityBody(
+        (args['page'] as int?) ?? 0,
+        (args['question'] as int?) ?? 0,
+      );
+    case AnnouncementTemplate.allGood:
+      return l.announcementAllGoodBody;
+  }
+}
+
 String _severityLabelLocalized(BuildContext context, AnnouncementSeverity severity) {
   final l = AppLocalizations.of(context)!;
   switch (severity) {
@@ -368,7 +425,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
                             : l.announcementsAllReadTitle,
                         body: latest == null
                             ? l.announcementsEmptyForAudience(accountLabel)
-                            : l.announcementsLatestBody(latest.title),
+                            : l.announcementsLatestBody(_announcementTitleLocalized(context, latest)),
                       ),
                       const SizedBox(height: 12),
                       Align(
@@ -646,7 +703,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    announcement.title,
+                                    _announcementTitleLocalized(context, announcement),
                                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                       fontWeight: FontWeight.w900,
                                       color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -709,7 +766,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                               subtitle: AppLocalizations.of(context)!
                                   .announcementsFullContentSubtitle,
                               child: Text(
-                                announcement.body,
+                                _announcementBodyLocalized(context, announcement),
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   height: 1.55,
@@ -849,7 +906,7 @@ class _AnnouncementCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          announcement.title,
+                          _announcementTitleLocalized(context, announcement),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

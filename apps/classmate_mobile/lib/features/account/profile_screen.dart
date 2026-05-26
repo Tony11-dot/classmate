@@ -1020,7 +1020,7 @@ class _VerifyBadge extends StatelessWidget {
           Icon(verified ? Icons.verified_rounded : Icons.priority_high_rounded, size: 11, color: fg),
           const SizedBox(width: 3),
           Text(
-            verified ? 'Verified' : 'Unverified',
+            verified ? AppLocalizations.of(context)!.profileVerifiedShort : AppLocalizations.of(context)!.profileUnverified,
             style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: fg),
           ),
         ],
@@ -1158,7 +1158,7 @@ Future<void> _showCodeSheet(
                             if (!ctx.mounted) return;
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(changed ? 'Updated and pending re-verification.' : 'Verified.')),
+                              SnackBar(content: Text(changed ? AppLocalizations.of(context)!.profileUpdatedPendingVerification : AppLocalizations.of(context)!.profileVerified)),
                             );
                             // Pull /auth/me so AuthSession's cached email stays in sync.
                             if (changed) {

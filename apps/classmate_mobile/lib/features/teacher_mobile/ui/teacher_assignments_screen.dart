@@ -245,7 +245,7 @@ class _TeacherAssignmentsScreenState
                                   children: [
                                     // Published badge
                                     _Chip(
-                                      label: published ? 'Published' : 'Draft',
+                                      label: published ? AppLocalizations.of(context)!.teacherMaterialPublished : AppLocalizations.of(context)!.teacherMaterialDraft,
                                       color: published ? cs.primary : cs.surfaceContainerHighest,
                                       textColor: published ? cs.onPrimary : cs.onSurfaceVariant,
                                     ),

@@ -185,7 +185,9 @@ class _UserTab extends ConsumerWidget {
                 Icon(Icons.people_outline_rounded, size: 56, color: cs.outlineVariant),
                 const SizedBox(height: 12),
                 Text(
-                  search.isEmpty ? 'No ${role.toLowerCase()}s yet' : 'No results for "$search"',
+                  search.isEmpty
+                      ? AppLocalizations.of(context)!.adminNoRoleYet(role.toLowerCase())
+                      : AppLocalizations.of(context)!.commonNoResultsForQuery(search),
                   style: theme.textTheme.titleSmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
