@@ -4871,7 +4871,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminCohortGrade => 'כיתה';
 
   @override
-  String get adminRenameCohort => 'שנה שם קבוצה';
+  String get adminRenameCohort => 'Rename';
 
   @override
   String get adminAddStudents => 'הוסף תלמידים';
@@ -5621,4 +5621,79 @@ class AppLocalizationsHe extends AppLocalizations {
   String aboutVersionLabel(Object version) {
     return 'ClassMate · v$version';
   }
+
+  @override
+  String get adminAddStudent => 'Add student';
+
+  @override
+  String get adminAddTeacher => 'Add teacher';
+
+  @override
+  String get adminAddParent => 'Add parent';
+
+  @override
+  String get adminAddSecretary => 'Add secretary';
+
+  @override
+  String get adminAddAdmin => 'Add admin';
+
+  @override
+  String get adminEditUser => 'Edit user';
+
+  @override
+  String get adminNoEmailPlaceholder => '(no email)';
+
+  @override
+  String get adminNameEnglishRequired => 'Full name (English) is required';
+
+  @override
+  String get adminUsernameRequired => 'Username is required';
+
+  @override
+  String get adminPasswordMinLength =>
+      'Password must be at least 8 characters (or leave blank to auto-generate)';
+
+  @override
+  String adminUserCreatedMsg(Object name) {
+    return '$name created.';
+  }
+
+  @override
+  String get adminCredsUsername => 'Username';
+
+  @override
+  String get adminCredsEmail => 'Email';
+
+  @override
+  String get adminCredsPassword => 'Password';
+
+  @override
+  String get adminShareCredsHint => 'Share these credentials with the student.';
+
+  @override
+  String get adminCopyCredsButton => 'Copy All';
+
+  @override
+  String get adminGradeLabel => 'Grade';
+
+  @override
+  String adminCohortGradeFormat(Object grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get adminCreateAndAddStudents => 'Create & Add Students';
+
+  @override
+  String get adminAddStudentsTitle => 'Add Students';
+
+  @override
+  String get adminSkipAdding => 'Skip';
+
+  @override
+  String get adminInCohortBadge => 'In cohort';
+
+  @override
+  String get adminNoStudentsFoundCohort =>
+      'No students found in this cohort\'s grades';
 }

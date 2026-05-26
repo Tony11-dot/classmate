@@ -80,7 +80,7 @@ class AdminCohortsScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                   child: Text(
-                    'Grade $grade',
+                    AppLocalizations.of(context)!.adminCohortGradeFormat(grade.toString()),
                     style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800, color: cs.primary, letterSpacing: 0.5),
                   ),
                 ),
@@ -199,7 +199,7 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
         icon: _saving
             ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
             : const Icon(Icons.arrow_forward_rounded),
-        label: const Text('Create & Add Students'),
+        label: Text(AppLocalizations.of(context)!.adminCreateAndAddStudents),
       ),
       body: SafeArea(
         child: ListView(
@@ -446,7 +446,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Add Students',
+                          AppLocalizations.of(context)!.adminAddStudentsTitle,
                           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         Text(
@@ -465,7 +465,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                       label: Text('Add ${widget.selected.length}'),
                     )
                   else
-                    TextButton(onPressed: widget.onBack, child: const Text('Skip')),
+                    TextButton(onPressed: widget.onBack, child: Text(AppLocalizations.of(context)!.adminSkipAdding)),
                 ],
               ),
             ),
@@ -615,7 +615,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                                           borderRadius: BorderRadius.circular(999),
                                         ),
                                         child: Text(
-                                          'In cohort',
+                                          AppLocalizations.of(context)!.adminInCohortBadge,
                                           style: theme.textTheme.labelSmall?.copyWith(
                                             color: cs.onTertiaryContainer,
                                             fontWeight: FontWeight.w700,
@@ -752,7 +752,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
           if (isAdmin)
             IconButton(
               icon: const Icon(Icons.edit_rounded),
-              tooltip: 'Rename',
+              tooltip: AppLocalizations.of(context)!.adminRenameCohort,
               onPressed: () => _showRenameSheet(context),
             ),
         ],

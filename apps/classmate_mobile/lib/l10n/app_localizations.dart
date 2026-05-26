@@ -8758,7 +8758,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminRenameCohort.
   ///
   /// In en, this message translates to:
-  /// **'Rename Cohort'**
+  /// **'Rename'**
   String get adminRenameCohort;
 
   /// No description provided for @adminAddStudents.
@@ -10110,6 +10110,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ClassMate · v{version}'**
   String aboutVersionLabel(Object version);
+
+  /// No description provided for @adminAddStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add student'**
+  String get adminAddStudent;
+
+  /// No description provided for @adminAddTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Add teacher'**
+  String get adminAddTeacher;
+
+  /// No description provided for @adminAddParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add parent'**
+  String get adminAddParent;
+
+  /// No description provided for @adminAddSecretary.
+  ///
+  /// In en, this message translates to:
+  /// **'Add secretary'**
+  String get adminAddSecretary;
+
+  /// No description provided for @adminAddAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Add admin'**
+  String get adminAddAdmin;
+
+  /// No description provided for @adminEditUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit user'**
+  String get adminEditUser;
+
+  /// No description provided for @adminNoEmailPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'(no email)'**
+  String get adminNoEmailPlaceholder;
+
+  /// No description provided for @adminNameEnglishRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name (English) is required'**
+  String get adminNameEnglishRequired;
+
+  /// No description provided for @adminUsernameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required'**
+  String get adminUsernameRequired;
+
+  /// No description provided for @adminPasswordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters (or leave blank to auto-generate)'**
+  String get adminPasswordMinLength;
+
+  /// No description provided for @adminUserCreatedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} created.'**
+  String adminUserCreatedMsg(Object name);
+
+  /// No description provided for @adminCredsUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get adminCredsUsername;
+
+  /// No description provided for @adminCredsEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get adminCredsEmail;
+
+  /// No description provided for @adminCredsPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get adminCredsPassword;
+
+  /// No description provided for @adminShareCredsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share these credentials with the student.'**
+  String get adminShareCredsHint;
+
+  /// No description provided for @adminCopyCredsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy All'**
+  String get adminCopyCredsButton;
+
+  /// No description provided for @adminGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get adminGradeLabel;
+
+  /// No description provided for @adminCohortGradeFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String adminCohortGradeFormat(Object grade);
+
+  /// No description provided for @adminCreateAndAddStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Create & Add Students'**
+  String get adminCreateAndAddStudents;
+
+  /// No description provided for @adminAddStudentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Students'**
+  String get adminAddStudentsTitle;
+
+  /// No description provided for @adminSkipAdding.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get adminSkipAdding;
+
+  /// No description provided for @adminInCohortBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'In cohort'**
+  String get adminInCohortBadge;
+
+  /// No description provided for @adminNoStudentsFoundCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found in this cohort\'s grades'**
+  String get adminNoStudentsFoundCohort;
 }
 
 class _AppLocalizationsDelegate

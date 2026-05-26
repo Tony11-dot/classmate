@@ -63,14 +63,15 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
 
     // Button copy + pre-selected role come from the currently-active tab:
     // on Students tab → "Add student" + STUDENT role; same for the rest.
+    final l = AppLocalizations.of(context)!;
     final activeRole = _roles[_tabs.index < _roles.length ? _tabs.index : 0];
     final addLabel = switch (activeRole) {
-      'STUDENT'   => 'Add student',
-      'TEACHER'   => 'Add teacher',
-      'PARENT'    => 'Add parent',
-      'SECRETARY' => 'Add secretary',
-      'ADMIN'     => 'Add admin',
-      _           => AppLocalizations.of(context)!.adminAddUser,
+      'STUDENT'   => l.adminAddStudent,
+      'TEACHER'   => l.adminAddTeacher,
+      'PARENT'    => l.adminAddParent,
+      'SECRETARY' => l.adminAddSecretary,
+      'ADMIN'     => l.adminAddAdmin,
+      _           => l.adminAddUser,
     };
 
     return Scaffold(
@@ -285,7 +286,7 @@ class _UserTile extends StatelessWidget {
         ),
         title: Text(user.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(
-          user.email.isNotEmpty ? user.email : '(no email)',
+          user.email.isNotEmpty ? user.email : AppLocalizations.of(context)!.adminNoEmailPlaceholder,
           style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
         ),
         trailing: IconButton(
@@ -333,7 +334,7 @@ Future<void> _openUserActions(
             const SizedBox(height: 14),
             _GlassAction(
               icon: Icons.edit_rounded,
-              label: 'Edit user',
+              label: l.adminEditUser,
               onTap: () { Navigator.pop(sCtx); onEdit(); },
             ),
             if (isAdmin) ...[
@@ -444,12 +445,12 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
   static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
 
-  String get _roleTitle => switch (_role) {
-    'TEACHER'   => 'Add teacher',
-    'PARENT'    => 'Add parent',
-    'SECRETARY' => 'Add secretary',
-    'ADMIN'     => 'Add admin',
-    _           => 'Add student',
+  String _roleTitleOf(AppLocalizations l) => switch (_role) {
+    'TEACHER'   => l.adminAddTeacher,
+    'PARENT'    => l.adminAddParent,
+    'SECRETARY' => l.adminAddSecretary,
+    'ADMIN'     => l.adminAddAdmin,
+    _           => l.adminAddStudent,
   };
 
   @override
@@ -465,18 +466,19 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     final email    = _emailCtrl.text.trim();
     final username = _usernameCtrl.text.trim();
     final password = _passwordCtrl.text; // intentionally NOT trimmed
+    final l = AppLocalizations.of(context)!;
     if (nameEn.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Full name (English) is required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminNameEnglishRequired)));
       return;
     }
     // Username is now mandatory — it's the universal login identifier.
     // Email stays optional (some students don't have one yet).
     if (username.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username is required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminUsernameRequired)));
       return;
     }
     if (password.isNotEmpty && password.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must be at least 8 characters (or leave blank to auto-generate)')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminPasswordMinLength)));
       return;
     }
     setState(() => _saving = true);
@@ -510,7 +512,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${result.user.name} created.'),
+                Text(dl.adminUserCreatedMsg(result.user.name)),
                 const SizedBox(height: 12),
                 // Login credentials card
                 Container(
@@ -523,18 +525,18 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _CredRow(label: 'Username', value: createdUsername),
+                      _CredRow(label: dl.adminCredsUsername, value: createdUsername),
                       if (email.isNotEmpty) ...[
                         const SizedBox(height: 6),
-                        _CredRow(label: 'Email', value: email),
+                        _CredRow(label: dl.adminCredsEmail, value: email),
                       ],
                       const SizedBox(height: 6),
-                      _CredRow(label: 'Password', value: result.tempPassword, mono: true),
+                      _CredRow(label: dl.adminCredsPassword, value: result.tempPassword, mono: true),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('Share these credentials with the student.', style: Theme.of(dCtx).textTheme.bodySmall?.copyWith(color: cs2.onSurfaceVariant)),
+                Text(dl.adminShareCredsHint, style: Theme.of(dCtx).textTheme.bodySmall?.copyWith(color: cs2.onSurfaceVariant)),
               ],
             ),
             actions: [
@@ -544,9 +546,9 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   Clipboard.setData(ClipboardData(text: text));
                   ScaffoldMessenger.of(dCtx).showSnackBar(SnackBar(content: Text(dl.adminCopied)));
                 },
-                child: const Text('Copy All'),
+                child: Text(dl.adminCopyCredsButton),
               ),
-              FilledButton(onPressed: () => Navigator.pop(dCtx), child: const Text('Done')),
+              FilledButton(onPressed: () => Navigator.pop(dCtx), child: Text(dl.commonDone)),
             ],
           );
         },
@@ -622,7 +624,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                       ),
                   const SizedBox(width: 4),
                       Text(
-                        _roleTitle,
+                        _roleTitleOf(l),
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ],
