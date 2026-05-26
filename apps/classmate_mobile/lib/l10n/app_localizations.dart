@@ -8836,8 +8836,8 @@ abstract class AppLocalizations {
   /// No description provided for @adminSchedulePeriodLabel.
   ///
   /// In en, this message translates to:
-  /// **'Period'**
-  String get adminSchedulePeriodLabel;
+  /// **'P{period}'**
+  String adminSchedulePeriodLabel(Object period);
 
   /// No description provided for @adminScheduleTeacherLabel.
   ///
@@ -10248,6 +10248,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No students found in this cohort\'s grades'**
   String get adminNoStudentsFoundCohort;
+
+  /// No description provided for @adminScheduleByCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'By Cohort ▾'**
+  String get adminScheduleByCohort;
+
+  /// No description provided for @adminScheduleByStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'By Student ▾'**
+  String get adminScheduleByStudent;
+
+  /// No description provided for @adminScheduleAddGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Add grade'**
+  String get adminScheduleAddGrade;
+
+  /// No description provided for @adminScheduleAddCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add cohort'**
+  String get adminScheduleAddCohort;
+
+  /// No description provided for @adminScheduleAddStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add student'**
+  String get adminScheduleAddStudent;
+
+  /// No description provided for @adminScheduleClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get adminScheduleClearFilters;
+
+  /// No description provided for @adminSchedulePickSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a subject before saving the period.'**
+  String get adminSchedulePickSubjectRequired;
+
+  /// No description provided for @adminSchedulePickDateOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date for a one-off period.'**
+  String get adminSchedulePickDateOnce;
+
+  /// No description provided for @adminSchedulePickDateRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a start date for the every-{freq}-weeks schedule.'**
+  String adminSchedulePickDateRecurring(Object freq);
+
+  /// No description provided for @adminSchoolLogoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'School Logo'**
+  String get adminSchoolLogoLabel;
+
+  /// No description provided for @adminSchoolLogoUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo uploaded'**
+  String get adminSchoolLogoUploaded;
+
+  /// No description provided for @adminSchoolNoLogoYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No logo yet'**
+  String get adminSchoolNoLogoYet;
+
+  /// No description provided for @adminSchoolLogoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears next to your school name in the app drawer.'**
+  String get adminSchoolLogoDescription;
+
+  /// No description provided for @adminSchoolLogoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get adminSchoolLogoChange;
+
+  /// No description provided for @adminSchoolLogoUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get adminSchoolLogoUpload;
+
+  /// No description provided for @adminSchoolLogoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get adminSchoolLogoRemove;
+
+  /// No description provided for @adminSchoolGradeRangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade range'**
+  String get adminSchoolGradeRangeLabel;
+
+  /// No description provided for @adminSchoolGradeRangeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades available across cohorts, students, and pickers.'**
+  String get adminSchoolGradeRangeDescription;
+
+  /// No description provided for @adminSchoolLowestGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest'**
+  String get adminSchoolLowestGrade;
+
+  /// No description provided for @adminSchoolHighestGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest'**
+  String get adminSchoolHighestGrade;
+
+  /// No description provided for @adminSchoolSubjectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'School Subjects'**
+  String get adminSchoolSubjectsTitle;
+
+  /// No description provided for @adminSchoolSubjectsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to all teachers when creating assignments.'**
+  String get adminSchoolSubjectsDescription;
+
+  /// No description provided for @adminSchoolNoTranslations.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add translations'**
+  String get adminSchoolNoTranslations;
+
+  /// No description provided for @adminSchoolBellHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set start and end times for each period. Add or remove periods as needed.'**
+  String get adminSchoolBellHint;
+
+  /// No description provided for @adminSchoolBellInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the start and end time for each period. These become the default times used when building the weekly schedule.'**
+  String get adminSchoolBellInfo;
+
+  /// No description provided for @adminSchoolStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get adminSchoolStartTime;
+
+  /// No description provided for @adminSchoolEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get adminSchoolEndTime;
 }
 
 class _AppLocalizationsDelegate

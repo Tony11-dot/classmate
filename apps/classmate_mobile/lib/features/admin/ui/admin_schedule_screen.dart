@@ -498,11 +498,11 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                     if (remaining.isEmpty) return;
                     final picked = await showLiquidGlassPicker<int>(
                       context: context,
-                      title: 'Add grade',
+                      title: l.adminScheduleAddGrade,
                       currentValue: -1,
                       items: remaining
                           .map((g) => LiquidGlassDropdownItem(
-                              value: g, label: 'Grade $g'))
+                              value: g, label: l.adminCohortGradeFormat(g.toString())))
                           .toList(),
                     );
                     if (picked != null) {
@@ -513,7 +513,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 const SizedBox(width: 6),
                 // Add Cohort
                 _FilterChipItem(
-                  label: 'By Cohort ▾',
+                  label: l.adminScheduleByCohort,
                   selected: false,
                   enabled: allCohorts.any((c) =>
                       !_filterCohortIds.contains(c['id']?.toString() ?? '')),
@@ -525,7 +525,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                     if (remaining.isEmpty) return;
                     final picked = await showLiquidGlassPicker<String>(
                       context: context,
-                      title: 'Add cohort',
+                      title: l.adminScheduleAddCohort,
                       currentValue: '',
                       items: remaining
                           .map((c) => LiquidGlassDropdownItem(
@@ -542,7 +542,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 const SizedBox(width: 6),
                 // Add Student
                 _FilterChipItem(
-                  label: 'By Student ▾',
+                  label: l.adminScheduleByStudent,
                   selected: false,
                   enabled: allStudents.any((s) =>
                       !_filterStudentIds.contains(s['id']?.toString() ?? '')),
@@ -554,7 +554,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                     if (remaining.isEmpty) return;
                     final picked = await showLiquidGlassPicker<String>(
                       context: context,
-                      title: 'Add student',
+                      title: l.adminScheduleAddStudent,
                       currentValue: '',
                       items: remaining
                           .map((s) => LiquidGlassDropdownItem(
@@ -571,7 +571,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 if (_hasAnyFilter) ...[
                   const SizedBox(width: 6),
                   _FilterChipItem(
-                    label: 'Clear',
+                    label: l.adminScheduleClearFilters,
                     selected: false,
                     onTap: () => setState(() {
                       _filterGrades.clear();

@@ -5038,7 +5038,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminScheduleDayLabel => 'Jour';
 
   @override
-  String get adminSchedulePeriodLabel => 'Heure';
+  String adminSchedulePeriodLabel(Object period) {
+    return 'P$period';
+  }
 
   @override
   String get adminScheduleTeacherLabel => 'Enseignant';
@@ -5815,4 +5817,93 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get adminNoStudentsFoundCohort =>
       'No students found in this cohort\'s grades';
+
+  @override
+  String get adminScheduleByCohort => 'By Cohort ▾';
+
+  @override
+  String get adminScheduleByStudent => 'By Student ▾';
+
+  @override
+  String get adminScheduleAddGrade => 'Add grade';
+
+  @override
+  String get adminScheduleAddCohort => 'Add cohort';
+
+  @override
+  String get adminScheduleAddStudent => 'Add student';
+
+  @override
+  String get adminScheduleClearFilters => 'Clear';
+
+  @override
+  String get adminSchedulePickSubjectRequired =>
+      'Pick a subject before saving the period.';
+
+  @override
+  String get adminSchedulePickDateOnce => 'Pick a date for a one-off period.';
+
+  @override
+  String adminSchedulePickDateRecurring(Object freq) {
+    return 'Pick a start date for the every-$freq-weeks schedule.';
+  }
+
+  @override
+  String get adminSchoolLogoLabel => 'School Logo';
+
+  @override
+  String get adminSchoolLogoUploaded => 'Logo uploaded';
+
+  @override
+  String get adminSchoolNoLogoYet => 'No logo yet';
+
+  @override
+  String get adminSchoolLogoDescription =>
+      'Appears next to your school name in the app drawer.';
+
+  @override
+  String get adminSchoolLogoChange => 'Change';
+
+  @override
+  String get adminSchoolLogoUpload => 'Upload';
+
+  @override
+  String get adminSchoolLogoRemove => 'Remove';
+
+  @override
+  String get adminSchoolGradeRangeLabel => 'Grade range';
+
+  @override
+  String get adminSchoolGradeRangeDescription =>
+      'Grades available across cohorts, students, and pickers.';
+
+  @override
+  String get adminSchoolLowestGrade => 'Lowest';
+
+  @override
+  String get adminSchoolHighestGrade => 'Highest';
+
+  @override
+  String get adminSchoolSubjectsTitle => 'School Subjects';
+
+  @override
+  String get adminSchoolSubjectsDescription =>
+      'Available to all teachers when creating assignments.';
+
+  @override
+  String get adminSchoolNoTranslations => 'Tap to add translations';
+
+  @override
+  String get adminSchoolBellHint =>
+      'Set start and end times for each period. Add or remove periods as needed.';
+
+  @override
+  String get adminSchoolBellInfo =>
+      'Set the start and end time for each period. These become the default times used when building the weekly schedule.';
+
+  @override
+  String get adminSchoolStartTime => 'Start';
+
+  @override
+  String get adminSchoolEndTime => 'End';
 }
