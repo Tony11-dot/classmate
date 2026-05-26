@@ -46,7 +46,7 @@ class AdminCohortsScreen extends ConsumerWidget {
           : null,
       body: cohortsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
         data: (cohorts) {
           if (cohorts.isEmpty) {
             return Center(
@@ -131,7 +131,7 @@ class AdminCohortsScreen extends ConsumerWidget {
       await ref.read(adminRepositoryProvider).deleteCohort(cohort.id);
       ref.invalidate(_cohortsProvider);
     } catch (e) {
-      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(AppLocalizations.of(ctx)!.commonErrorWith(e))));
     }
   }
 }
@@ -225,7 +225,7 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
               spacing: 8,
               runSpacing: 8,
               children: availableGrades.map((g) => FilterChip(
-                label: Text('Grade $g'),
+                label: Text(AppLocalizations.of(context)!.adminCohortGradeFormat(g.toString())),
                 selected: _grades.contains(g),
                 onSelected: (sel) => setState(() {
                   if (sel) {
@@ -294,7 +294,7 @@ class _AdminAddStudentsScreenState extends State<AdminAddStudentsScreen> {
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -392,14 +392,14 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
   String _search = '';
   bool _showGradeOnly = true; // default: filter by cohort's grade(s)
 
-  String get _gradeChipLabel {
+  String _gradeChipLabelOf(AppLocalizations l) {
     final gs = widget.cohortGrades;
-    if (gs.length <= 1) return 'Grade ${gs.isEmpty ? '?' : gs.first} only';
+    if (gs.length <= 1) return l.adminCohortsGradeOnly(gs.isEmpty ? '?' : gs.first.toString());
     final sorted = [...gs]..sort();
     final isRange = sorted.last - sorted.first == sorted.length - 1;
     return isRange
-        ? 'Grade ${sorted.first}-${sorted.last} only'
-        : 'Grades ${sorted.join(', ')} only';
+        ? l.adminCohortsGradeRangeOnly(sorted.first, sorted.last)
+        : l.adminCohortsGradeOnly(sorted.join(', '));
   }
 
   String get _emptyMsg {
@@ -412,6 +412,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     final gradeSet = widget.cohortGrades.toSet();
 
@@ -462,7 +463,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                       icon: widget.saving
                           ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : const Icon(Icons.check_rounded, size: 16),
-                      label: Text('Add ${widget.selected.length}'),
+                      label: Text(l.commonAddCount(widget.selected.length)),
                     )
                   else
                     TextButton(onPressed: widget.onBack, child: Text(AppLocalizations.of(context)!.adminSkipAdding)),
@@ -488,7 +489,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                   Row(
                     children: [
                       FilterChip(
-                        label: Text(_gradeChipLabel),
+                        label: Text(_gradeChipLabelOf(l)),
                         selected: _showGradeOnly,
                         onSelected: (v) => setState(() => _showGradeOnly = v),
                       ),
@@ -780,7 +781,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
       ),
       body: rosterAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
         data: (students) {
           if (students.isEmpty) {
             // AppBar already shows the cohort name + rename action; keep the
@@ -861,7 +862,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
       await ref.read(adminRepositoryProvider).removeStudentFromCohort(_cohort.id, student.id);
       ref.invalidate(_rosterProvider(_cohort.id));
     } catch (e) {
-      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(AppLocalizations.of(ctx)!.commonErrorWith(e))));
     }
   }
 
@@ -899,10 +900,10 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                     await ref.read(adminRepositoryProvider).updateCohort(_cohort.id, name: nameCtrl.text.trim());
                     Navigator.pop(bCtx, true);
                   } catch (e) {
-                    ScaffoldMessenger.of(bCtx).showSnackBar(SnackBar(content: Text('Error: $e')));
+                    ScaffoldMessenger.of(bCtx).showSnackBar(SnackBar(content: Text(AppLocalizations.of(bCtx)!.commonErrorWith(e))));
                   }
                 },
-                child: const Text('Save'),
+                child: Text(AppLocalizations.of(context)!.commonSave),
               ),
             ),
           ],

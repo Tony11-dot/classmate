@@ -2471,5 +2471,21 @@
   "adminPeriodsClassroomOptional": "Classe (optionnel)",
   "adminPeriodsCohortsLabel": "Groupes",
   "adminPeriodsStudentsOptional": "Élèves (optionnel)",
-  "adminPeriodsSearchByName": "Rechercher par nom…"
+  "adminPeriodsSearchByName": "Rechercher par nom…",
+
+  "commonErrorWith": "Erreur : {error}",
+  "commonAddCount": "Ajouter {count}",
+  "teacherStudentGradesSaved": "Notes enregistrées",
+  "teacherStudentToGrade": "À noter",
+  "teacherStudentGraded": "Noté",
+  "classroomFileNotAvailable": "Ce fichier n'est pas encore disponible.",
+  "classroomDeleteMaterialTitle": "Supprimer le document ?",
+  "classroomCodeLabel": "Code de classe",
+  "plansCouldNotOpenSubscription": "Impossible d'ouvrir les paramètres d'abonnement.",
+  "plansFailedToOpen": "Échec de l'ouverture : {error}",
+  "plansManageSubscription": "Gérer ou annuler l'abonnement",
+  "plansUpgrade": "Améliorer",
+  "plansTryAgain": "Réessayer",
+  "adminCohortsGradeOnly": "Niveau {grade} uniquement",
+  "adminCohortsGradeRangeOnly": "Niveaux {from}-{to} uniquement"
 }

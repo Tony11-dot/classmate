@@ -6339,4 +6339,59 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminPeriodsSearchByName => 'ابحث بالاسم…';
+
+  @override
+  String commonErrorWith(Object error) {
+    return 'خطأ: $error';
+  }
+
+  @override
+  String commonAddCount(int count) {
+    return 'إضافة $count';
+  }
+
+  @override
+  String get teacherStudentGradesSaved => 'تم حفظ الدرجات';
+
+  @override
+  String get teacherStudentToGrade => 'بانتظار التقدير';
+
+  @override
+  String get teacherStudentGraded => 'تم التقدير';
+
+  @override
+  String get classroomFileNotAvailable => 'هذا الملف غير متاح بعد.';
+
+  @override
+  String get classroomDeleteMaterialTitle => 'حذف المادة؟';
+
+  @override
+  String get classroomCodeLabel => 'رمز الصف';
+
+  @override
+  String get plansCouldNotOpenSubscription => 'تعذر فتح إعدادات الاشتراك.';
+
+  @override
+  String plansFailedToOpen(Object error) {
+    return 'فشل الفتح: $error';
+  }
+
+  @override
+  String get plansManageSubscription => 'إدارة الاشتراك أو إلغاؤه';
+
+  @override
+  String get plansUpgrade => 'ترقية';
+
+  @override
+  String get plansTryAgain => 'أعد المحاولة';
+
+  @override
+  String adminCohortsGradeOnly(String grade) {
+    return 'الصف $grade فقط';
+  }
+
+  @override
+  String adminCohortsGradeRangeOnly(int from, int to) {
+    return 'الصفوف $from-$to فقط';
+  }
 }

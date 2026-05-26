@@ -96,7 +96,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     if (trimmed.startsWith('/') || trimmed.startsWith('file:')) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This file is not yet available.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.classroomFileNotAvailable)),
       );
       return;
     }
@@ -358,13 +358,13 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                 final ok = await showDialog<bool>(
                                   context: context,
                                   builder: (ctx) => AlertDialog(
-                                    title: const Text('Delete material?'),
+                                    title: Text(AppLocalizations.of(ctx)!.classroomDeleteMaterialTitle),
                                     actions: [
-                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
                                       FilledButton(
                                         style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
                                         onPressed: () => Navigator.pop(ctx, true),
-                                        child: const Text('Delete'),
+                                        child: Text(AppLocalizations.of(ctx)!.commonDelete),
                                       ),
                                     ],
                                   ),
@@ -575,7 +575,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Classroom code',
+                    Text(AppLocalizations.of(context)!.classroomCodeLabel,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w700)),

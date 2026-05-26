@@ -6313,4 +6313,59 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminPeriodsSearchByName => 'חפש לפי שם…';
+
+  @override
+  String commonErrorWith(Object error) {
+    return 'שגיאה: $error';
+  }
+
+  @override
+  String commonAddCount(int count) {
+    return 'הוסף $count';
+  }
+
+  @override
+  String get teacherStudentGradesSaved => 'הציונים נשמרו';
+
+  @override
+  String get teacherStudentToGrade => 'לציון';
+
+  @override
+  String get teacherStudentGraded => 'צוין';
+
+  @override
+  String get classroomFileNotAvailable => 'הקובץ עדיין לא זמין.';
+
+  @override
+  String get classroomDeleteMaterialTitle => 'למחוק חומר?';
+
+  @override
+  String get classroomCodeLabel => 'קוד כיתה';
+
+  @override
+  String get plansCouldNotOpenSubscription => 'לא ניתן לפתוח את הגדרות המנוי.';
+
+  @override
+  String plansFailedToOpen(Object error) {
+    return 'הפתיחה נכשלה: $error';
+  }
+
+  @override
+  String get plansManageSubscription => 'נהל או בטל מנוי';
+
+  @override
+  String get plansUpgrade => 'שדרג';
+
+  @override
+  String get plansTryAgain => 'נסה שוב';
+
+  @override
+  String adminCohortsGradeOnly(String grade) {
+    return 'כיתה $grade בלבד';
+  }
+
+  @override
+  String adminCohortsGradeRangeOnly(int from, int to) {
+    return 'כיתות $from-$to בלבד';
+  }
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
 
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -162,14 +163,16 @@ class _TeacherStudentGradeDetailScreenState
         entry.grade = val;
       }
       if (!mounted) return;
+      final l = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Grades saved')),
+        SnackBar(content: Text(l.teacherStudentGradesSaved)),
       );
       setState(() {});
     } catch (e) {
       if (!mounted) return;
+      final l = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text(l.commonErrorWith(e))),
       );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -180,6 +183,7 @@ class _TeacherStudentGradeDetailScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
     final s = widget.student;
 
     // Group entries by subject.
@@ -231,7 +235,7 @@ class _TeacherStudentGradeDetailScreenState
                         ),
                       )
                     : const Icon(Icons.check_rounded, size: 18),
-                label: const Text('Save'),
+                label: Text(l.commonSave),
               ),
             ),
         ],
@@ -398,7 +402,7 @@ class _TeacherStudentGradeDetailScreenState
                                               child: Row(children: [
                                                 Icon(Icons.pending_rounded, size: 13, color: cs.onSurfaceVariant),
                                                 const SizedBox(width: 5),
-                                                Text('To grade', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
+                                                Text(l.teacherStudentToGrade, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
                                               ]),
                                             ),
                                             ...ungraded.map((e) => Padding(
@@ -413,7 +417,7 @@ class _TeacherStudentGradeDetailScreenState
                                               child: Row(children: [
                                                 Icon(Icons.check_circle_outline_rounded, size: 13, color: cs.primary),
                                                 const SizedBox(width: 5),
-                                                Text('Graded', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.primary)),
+                                                Text(l.teacherStudentGraded, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.primary)),
                                               ]),
                                             ),
                                           ],

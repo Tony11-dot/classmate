@@ -11376,6 +11376,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search by name…'**
   String get adminPeriodsSearchByName;
+
+  /// No description provided for @commonErrorWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String commonErrorWith(Object error);
+
+  /// No description provided for @commonAddCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count}'**
+  String commonAddCount(int count);
+
+  /// No description provided for @teacherStudentGradesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades saved'**
+  String get teacherStudentGradesSaved;
+
+  /// No description provided for @teacherStudentToGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'To grade'**
+  String get teacherStudentToGrade;
+
+  /// No description provided for @teacherStudentGraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded'**
+  String get teacherStudentGraded;
+
+  /// No description provided for @classroomFileNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not yet available.'**
+  String get classroomFileNotAvailable;
+
+  /// No description provided for @classroomDeleteMaterialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete material?'**
+  String get classroomDeleteMaterialTitle;
+
+  /// No description provided for @classroomCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom code'**
+  String get classroomCodeLabel;
+
+  /// No description provided for @plansCouldNotOpenSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open subscription settings.'**
+  String get plansCouldNotOpenSubscription;
+
+  /// No description provided for @plansFailedToOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open: {error}'**
+  String plansFailedToOpen(Object error);
+
+  /// No description provided for @plansManageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage or cancel subscription'**
+  String get plansManageSubscription;
+
+  /// No description provided for @plansUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get plansUpgrade;
+
+  /// No description provided for @plansTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get plansTryAgain;
+
+  /// No description provided for @adminCohortsGradeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade} only'**
+  String adminCohortsGradeOnly(String grade);
+
+  /// No description provided for @adminCohortsGradeRangeOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {from}-{to} only'**
+  String adminCohortsGradeRangeOnly(int from, int to);
 }
 
 class _AppLocalizationsDelegate

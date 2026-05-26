@@ -2678,5 +2678,21 @@
   "adminPeriodsClassroomOptional": "Класс (необязательно)",
   "adminPeriodsCohortsLabel": "Группы",
   "adminPeriodsStudentsOptional": "Ученики (необязательно)",
-  "adminPeriodsSearchByName": "Поиск по имени…"
+  "adminPeriodsSearchByName": "Поиск по имени…",
+
+  "commonErrorWith": "Ошибка: {error}",
+  "commonAddCount": "Добавить {count}",
+  "teacherStudentGradesSaved": "Оценки сохранены",
+  "teacherStudentToGrade": "Ожидает оценки",
+  "teacherStudentGraded": "Оценено",
+  "classroomFileNotAvailable": "Этот файл пока недоступен.",
+  "classroomDeleteMaterialTitle": "Удалить материал?",
+  "classroomCodeLabel": "Код класса",
+  "plansCouldNotOpenSubscription": "Не удалось открыть настройки подписки.",
+  "plansFailedToOpen": "Не удалось открыть: {error}",
+  "plansManageSubscription": "Управление подпиской или отмена",
+  "plansUpgrade": "Улучшить",
+  "plansTryAgain": "Повторить",
+  "adminCohortsGradeOnly": "Только {grade} класс",
+  "adminCohortsGradeRangeOnly": "Только классы {from}-{to}"
 }

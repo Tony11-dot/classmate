@@ -2471,5 +2471,21 @@
   "adminPeriodsClassroomOptional": "כיתה (אופציונלי)",
   "adminPeriodsCohortsLabel": "קבוצות",
   "adminPeriodsStudentsOptional": "תלמידים (אופציונלי)",
-  "adminPeriodsSearchByName": "חפש לפי שם…"
+  "adminPeriodsSearchByName": "חפש לפי שם…",
+
+  "commonErrorWith": "שגיאה: {error}",
+  "commonAddCount": "הוסף {count}",
+  "teacherStudentGradesSaved": "הציונים נשמרו",
+  "teacherStudentToGrade": "לציון",
+  "teacherStudentGraded": "צוין",
+  "classroomFileNotAvailable": "הקובץ עדיין לא זמין.",
+  "classroomDeleteMaterialTitle": "למחוק חומר?",
+  "classroomCodeLabel": "קוד כיתה",
+  "plansCouldNotOpenSubscription": "לא ניתן לפתוח את הגדרות המנוי.",
+  "plansFailedToOpen": "הפתיחה נכשלה: {error}",
+  "plansManageSubscription": "נהל או בטל מנוי",
+  "plansUpgrade": "שדרג",
+  "plansTryAgain": "נסה שוב",
+  "adminCohortsGradeOnly": "כיתה {grade} בלבד",
+  "adminCohortsGradeRangeOnly": "כיתות {from}-{to} בלבד"
 }

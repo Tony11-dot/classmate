@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/billing_repository.dart';
 import '../data/plan_models.dart';
 import 'paywall_sheet.dart';
@@ -214,6 +215,7 @@ class _ManageSubscriptionButton extends StatelessWidget {
 
   Future<void> _open(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l = AppLocalizations.of(context)!;
     Uri uri;
     if (Platform.isIOS) {
       uri = Uri.parse('itms-apps://apps.apple.com/account/subscriptions');
@@ -229,11 +231,11 @@ class _ManageSubscriptionButton extends StatelessWidget {
       final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!ok) {
         messenger.showSnackBar(
-          const SnackBar(content: Text('Could not open subscription settings.')),
+          SnackBar(content: Text(l.plansCouldNotOpenSubscription)),
         );
       }
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Failed to open: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(l.plansFailedToOpen(e))));
     }
   }
 
@@ -244,7 +246,7 @@ class _ManageSubscriptionButton extends StatelessWidget {
       child: OutlinedButton.icon(
         onPressed: () => _open(context),
         icon: const Icon(Icons.settings_rounded, size: 18),
-        label: const Text('Manage or cancel subscription'),
+        label: Text(AppLocalizations.of(context)!.plansManageSubscription),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12),
           side: BorderSide(color: cs.outlineVariant),
@@ -405,7 +407,7 @@ class _PlanTile extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => _openPaywall(context, plan: plan),
-                  child: const Text('Upgrade'),
+                  child: Text(AppLocalizations.of(context)!.plansUpgrade),
                 ),
               ),
             ],
@@ -528,7 +530,7 @@ class _Error extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            FilledButton.tonal(onPressed: onRetry, child: const Text('Try again')),
+            FilledButton.tonal(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.plansTryAgain)),
           ],
         ),
       ),

@@ -2678,5 +2678,36 @@
   "adminPeriodsClassroomOptional": "Classroom (optional)",
   "adminPeriodsCohortsLabel": "Cohorts",
   "adminPeriodsStudentsOptional": "Students (optional)",
-  "adminPeriodsSearchByName": "Search by name…"
+  "adminPeriodsSearchByName": "Search by name…",
+
+  "commonErrorWith": "Error: {error}",
+  "@commonErrorWith": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "commonAddCount": "Add {count}",
+  "@commonAddCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "teacherStudentGradesSaved": "Grades saved",
+  "teacherStudentToGrade": "To grade",
+  "teacherStudentGraded": "Graded",
+  "classroomFileNotAvailable": "This file is not yet available.",
+  "classroomDeleteMaterialTitle": "Delete material?",
+  "classroomCodeLabel": "Classroom code",
+  "plansCouldNotOpenSubscription": "Could not open subscription settings.",
+  "plansFailedToOpen": "Failed to open: {error}",
+  "@plansFailedToOpen": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "plansManageSubscription": "Manage or cancel subscription",
+  "plansUpgrade": "Upgrade",
+  "plansTryAgain": "Try again",
+  "adminCohortsGradeOnly": "Grade {grade} only",
+  "@adminCohortsGradeOnly": {
+    "placeholders": { "grade": { "type": "String" } }
+  },
+  "adminCohortsGradeRangeOnly": "Grade {from}-{to} only",
+  "@adminCohortsGradeRangeOnly": {
+    "placeholders": { "from": { "type": "int" }, "to": { "type": "int" } }
+  }
 }

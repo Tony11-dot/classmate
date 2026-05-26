@@ -2471,5 +2471,21 @@
   "adminPeriodsClassroomOptional": "الصف (اختياري)",
   "adminPeriodsCohortsLabel": "المجموعات",
   "adminPeriodsStudentsOptional": "الطلاب (اختياري)",
-  "adminPeriodsSearchByName": "ابحث بالاسم…"
+  "adminPeriodsSearchByName": "ابحث بالاسم…",
+
+  "commonErrorWith": "خطأ: {error}",
+  "commonAddCount": "إضافة {count}",
+  "teacherStudentGradesSaved": "تم حفظ الدرجات",
+  "teacherStudentToGrade": "بانتظار التقدير",
+  "teacherStudentGraded": "تم التقدير",
+  "classroomFileNotAvailable": "هذا الملف غير متاح بعد.",
+  "classroomDeleteMaterialTitle": "حذف المادة؟",
+  "classroomCodeLabel": "رمز الصف",
+  "plansCouldNotOpenSubscription": "تعذر فتح إعدادات الاشتراك.",
+  "plansFailedToOpen": "فشل الفتح: {error}",
+  "plansManageSubscription": "إدارة الاشتراك أو إلغاؤه",
+  "plansUpgrade": "ترقية",
+  "plansTryAgain": "أعد المحاولة",
+  "adminCohortsGradeOnly": "الصف {grade} فقط",
+  "adminCohortsGradeRangeOnly": "الصفوف {from}-{to} فقط"
 }

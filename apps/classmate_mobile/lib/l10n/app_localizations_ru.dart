@@ -6307,4 +6307,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminPeriodsSearchByName => 'Поиск по имени…';
+
+  @override
+  String commonErrorWith(Object error) {
+    return 'Ошибка: $error';
+  }
+
+  @override
+  String commonAddCount(int count) {
+    return 'Добавить $count';
+  }
+
+  @override
+  String get teacherStudentGradesSaved => 'Оценки сохранены';
+
+  @override
+  String get teacherStudentToGrade => 'Ожидает оценки';
+
+  @override
+  String get teacherStudentGraded => 'Оценено';
+
+  @override
+  String get classroomFileNotAvailable => 'Этот файл пока недоступен.';
+
+  @override
+  String get classroomDeleteMaterialTitle => 'Удалить материал?';
+
+  @override
+  String get classroomCodeLabel => 'Код класса';
+
+  @override
+  String get plansCouldNotOpenSubscription =>
+      'Не удалось открыть настройки подписки.';
+
+  @override
+  String plansFailedToOpen(Object error) {
+    return 'Не удалось открыть: $error';
+  }
+
+  @override
+  String get plansManageSubscription => 'Управление подпиской или отмена';
+
+  @override
+  String get plansUpgrade => 'Улучшить';
+
+  @override
+  String get plansTryAgain => 'Повторить';
+
+  @override
+  String adminCohortsGradeOnly(String grade) {
+    return 'Только $grade класс';
+  }
+
+  @override
+  String adminCohortsGradeRangeOnly(int from, int to) {
+    return 'Только классы $from-$to';
+  }
 }
