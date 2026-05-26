@@ -157,7 +157,7 @@ class _AdminBellScheduleScreenState
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Set the start and end time for each period. These become the default times used when building the weekly schedule.',
+                            l.adminSchoolBellInfo,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onSurface,
                               height: 1.4,
@@ -205,6 +205,7 @@ class _PeriodRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final hasTime = times.start.isNotEmpty && times.end.isNotEmpty;
 
     return Container(
@@ -230,7 +231,7 @@ class _PeriodRow extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'P$period',
+                l.adminSchedulePeriodLabel(period.toString()),
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
@@ -244,7 +245,7 @@ class _PeriodRow extends StatelessWidget {
           // Start time
           Expanded(
             child: _TimePicker(
-              label: 'Start',
+              label: l.adminSchoolStartTime,
               time: times.start,
               onTap: onPickStart,
             ),
@@ -264,7 +265,7 @@ class _PeriodRow extends StatelessWidget {
           // End time
           Expanded(
             child: _TimePicker(
-              label: 'End',
+              label: l.adminSchoolEndTime,
               time: times.end,
               onTap: onPickEnd,
             ),

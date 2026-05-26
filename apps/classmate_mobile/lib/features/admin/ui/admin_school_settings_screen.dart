@@ -240,7 +240,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel(label: 'School Logo'),
+                  _FieldLabel(label: l.adminSchoolLogoLabel),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -278,12 +278,12 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              hasLogo ? 'Logo uploaded' : 'No logo yet',
+                              hasLogo ? l.adminSchoolLogoUploaded : l.adminSchoolNoLogoYet,
                               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Appears next to your school name in the app drawer.',
+                              l.adminSchoolLogoDescription,
                               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, height: 1.4),
                             ),
                             const SizedBox(height: 8),
@@ -296,7 +296,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                                     minimumSize: Size.zero,
                                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  child: Text(hasLogo ? 'Change' : 'Upload'),
+                                  child: Text(hasLogo ? l.adminSchoolLogoChange : l.adminSchoolLogoUpload),
                                 ),
                                 if (hasLogo) ...[
                                   const SizedBox(width: 8),
@@ -308,7 +308,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                                       minimumSize: Size.zero,
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     ),
-                                    child: const Text('Remove'),
+                                    child: Text(l.adminSchoolLogoRemove),
                                   ),
                                 ],
                               ],
@@ -349,10 +349,10 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel(label: 'Grade range'),
+                  _FieldLabel(label: l.adminSchoolGradeRangeLabel),
                   const SizedBox(height: 4),
                   Text(
-                    'Grades available across cohorts, students, and pickers.',
+                    l.adminSchoolGradeRangeDescription,
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const SizedBox(height: 12),
@@ -360,7 +360,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                     children: [
                       Expanded(
                         child: _GradeStepper(
-                          label: 'Lowest',
+                          label: l.adminSchoolLowestGrade,
                           value: _minGrade,
                           onChanged: (v) {
                             if (v < 1 || v > _maxGrade) return;
@@ -371,7 +371,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _GradeStepper(
-                          label: 'Highest',
+                          label: l.adminSchoolHighestGrade,
                           value: _maxGrade,
                           onChanged: (v) {
                             if (v < _minGrade || v > 20) return;
@@ -542,11 +542,11 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'School Subjects',
+                    l.adminSchoolSubjectsTitle,
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   Text(
-                    'Available to all teachers when creating assignments.',
+                    l.adminSchoolSubjectsDescription,
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                 ],
