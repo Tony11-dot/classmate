@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -53,18 +54,21 @@ class _TeacherAssignmentsScreenState
   Future<void> _delete(String id) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete assignment?'),
-        content: const Text('This will permanently delete the assignment and all submissions.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l.teacherDeleteAssignmentTitle),
+          content: Text(l.teacherDeleteAssignmentBody),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l.commonCancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l.commonDelete),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
     try {
@@ -142,7 +146,7 @@ class _TeacherAssignmentsScreenState
                     Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                     const SizedBox(width: 10),
                     Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                    TextButton(onPressed: _load, child: const Text('Retry')),
+                    TextButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                   ],
                 ),
               ),
@@ -265,14 +269,14 @@ class _TeacherAssignmentsScreenState
                           Column(mainAxisSize: MainAxisSize.min, children: [
                             Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
                             IconButton(
-                              tooltip: 'Edit',
+                              tooltip: AppLocalizations.of(context)!.teacherEditTooltip,
                               icon: Icon(Icons.edit_rounded, size: 16, color: cs.primary),
                               onPressed: () => context.push('/teacher/assignments/add', extra: <String, dynamic>{'initialAssignment': a}).then((_) => _load()),
                               padding: const EdgeInsets.all(4),
                               constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
                             if (!published)
                               IconButton(
-                                tooltip: 'Publish',
+                                tooltip: AppLocalizations.of(context)!.teacherPublishTooltip,
                                 icon: Icon(Icons.publish_rounded, size: 16, color: cs.primary),
                                 onPressed: () async {
                                   try {
@@ -286,7 +290,7 @@ class _TeacherAssignmentsScreenState
                                 padding: const EdgeInsets.all(4),
                                 constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
                             IconButton(
-                              tooltip: 'Delete',
+                              tooltip: AppLocalizations.of(context)!.teacherDeleteTooltip,
                               icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error),
                               onPressed: () => _delete(id),
                               padding: const EdgeInsets.all(4),

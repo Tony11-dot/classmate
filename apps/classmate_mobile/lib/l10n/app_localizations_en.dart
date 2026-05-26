@@ -5923,4 +5923,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherPublishTooltip => 'Publish';
+
+  @override
+  String get teacherMeetingEnterTitle => 'Please enter a title.';
+
+  @override
+  String get teacherMeetingEnterLink => 'Please enter a meeting link.';
+
+  @override
+  String get teacherMeetingEnterValidUrl =>
+      'Please enter a valid URL (e.g. https://zoom.us/j/...)';
+
+  @override
+  String get teacherMeetingPickStartTime => 'Please pick a start time.';
+
+  @override
+  String get teacherMeetingVisibleToEveryone => 'Visible to everyone';
+
+  @override
+  String teacherMeetingDoneCount(int count) {
+    return 'Done ($count selected)';
+  }
+
+  @override
+  String get teacherDeleteAssignmentTitle => 'Delete assignment?';
+
+  @override
+  String get teacherDeleteAssignmentBody =>
+      'This will permanently delete the assignment and all submissions.';
+
+  @override
+  String get teacherEditTooltip => 'Edit';
+
+  @override
+  String get teacherDeleteTooltip => 'Delete';
 }

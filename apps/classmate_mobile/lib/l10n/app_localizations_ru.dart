@@ -5860,4 +5860,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherPublishTooltip => 'Опубликовать';
+
+  @override
+  String get teacherMeetingEnterTitle => 'Пожалуйста, введите название.';
+
+  @override
+  String get teacherMeetingEnterLink =>
+      'Пожалуйста, введите ссылку на встречу.';
+
+  @override
+  String get teacherMeetingEnterValidUrl =>
+      'Пожалуйста, введите корректный URL (например, https://zoom.us/j/...)';
+
+  @override
+  String get teacherMeetingPickStartTime =>
+      'Пожалуйста, выберите время начала.';
+
+  @override
+  String get teacherMeetingVisibleToEveryone => 'Видно всем';
+
+  @override
+  String teacherMeetingDoneCount(int count) {
+    return 'Готово (выбрано $count)';
+  }
+
+  @override
+  String get teacherDeleteAssignmentTitle => 'Удалить задание?';
+
+  @override
+  String get teacherDeleteAssignmentBody =>
+      'Это навсегда удалит задание и все сданные работы.';
+
+  @override
+  String get teacherEditTooltip => 'Изменить';
+
+  @override
+  String get teacherDeleteTooltip => 'Удалить';
 }

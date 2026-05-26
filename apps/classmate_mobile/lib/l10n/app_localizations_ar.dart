@@ -5895,4 +5895,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherPublishTooltip => 'نشر';
+
+  @override
+  String get teacherMeetingEnterTitle => 'يرجى إدخال عنوان.';
+
+  @override
+  String get teacherMeetingEnterLink => 'يرجى إدخال رابط الاجتماع.';
+
+  @override
+  String get teacherMeetingEnterValidUrl =>
+      'يرجى إدخال رابط صالح (مثال: https://zoom.us/j/...)';
+
+  @override
+  String get teacherMeetingPickStartTime => 'يرجى اختيار وقت البداية.';
+
+  @override
+  String get teacherMeetingVisibleToEveryone => 'مرئي للجميع';
+
+  @override
+  String teacherMeetingDoneCount(int count) {
+    return 'تم ($count محدد)';
+  }
+
+  @override
+  String get teacherDeleteAssignmentTitle => 'حذف الواجب؟';
+
+  @override
+  String get teacherDeleteAssignmentBody =>
+      'سيؤدي ذلك إلى حذف الواجب وكل التسليمات نهائيًا.';
+
+  @override
+  String get teacherEditTooltip => 'تعديل';
+
+  @override
+  String get teacherDeleteTooltip => 'حذف';
 }

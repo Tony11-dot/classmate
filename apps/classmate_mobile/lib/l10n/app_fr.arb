@@ -2299,5 +2299,18 @@
 
   "teacherDeleteItemConfirm": "Supprimer « {title} » ?",
   "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
-  "teacherPublishTooltip": "Publier"
+  "teacherPublishTooltip": "Publier",
+
+  "teacherMeetingEnterTitle": "Veuillez saisir un titre.",
+  "teacherMeetingEnterLink": "Veuillez saisir un lien de réunion.",
+  "teacherMeetingEnterValidUrl": "Veuillez saisir une URL valide (ex. https://zoom.us/j/...)",
+  "teacherMeetingPickStartTime": "Veuillez choisir une heure de début.",
+  "teacherMeetingVisibleToEveryone": "Visible par tous",
+  "teacherMeetingDoneCount": "Terminé ({count} sélectionné(s))",
+  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "teacherDeleteAssignmentTitle": "Supprimer le devoir ?",
+  "teacherDeleteAssignmentBody": "Cela supprimera définitivement le devoir et toutes les remises.",
+  "teacherEditTooltip": "Modifier",
+  "teacherDeleteTooltip": "Supprimer"
 }

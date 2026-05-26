@@ -2299,5 +2299,18 @@
 
   "teacherDeleteItemConfirm": "حذف \"{title}\"؟",
   "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
-  "teacherPublishTooltip": "نشر"
+  "teacherPublishTooltip": "نشر",
+
+  "teacherMeetingEnterTitle": "يرجى إدخال عنوان.",
+  "teacherMeetingEnterLink": "يرجى إدخال رابط الاجتماع.",
+  "teacherMeetingEnterValidUrl": "يرجى إدخال رابط صالح (مثال: https://zoom.us/j/...)",
+  "teacherMeetingPickStartTime": "يرجى اختيار وقت البداية.",
+  "teacherMeetingVisibleToEveryone": "مرئي للجميع",
+  "teacherMeetingDoneCount": "تم ({count} محدد)",
+  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "teacherDeleteAssignmentTitle": "حذف الواجب؟",
+  "teacherDeleteAssignmentBody": "سيؤدي ذلك إلى حذف الواجب وكل التسليمات نهائيًا.",
+  "teacherEditTooltip": "تعديل",
+  "teacherDeleteTooltip": "حذف"
 }

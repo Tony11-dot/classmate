@@ -6013,4 +6013,39 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherPublishTooltip => 'Publier';
+
+  @override
+  String get teacherMeetingEnterTitle => 'Veuillez saisir un titre.';
+
+  @override
+  String get teacherMeetingEnterLink => 'Veuillez saisir un lien de réunion.';
+
+  @override
+  String get teacherMeetingEnterValidUrl =>
+      'Veuillez saisir une URL valide (ex. https://zoom.us/j/...)';
+
+  @override
+  String get teacherMeetingPickStartTime =>
+      'Veuillez choisir une heure de début.';
+
+  @override
+  String get teacherMeetingVisibleToEveryone => 'Visible par tous';
+
+  @override
+  String teacherMeetingDoneCount(int count) {
+    return 'Terminé ($count sélectionné(s))';
+  }
+
+  @override
+  String get teacherDeleteAssignmentTitle => 'Supprimer le devoir ?';
+
+  @override
+  String get teacherDeleteAssignmentBody =>
+      'Cela supprimera définitivement le devoir et toutes les remises.';
+
+  @override
+  String get teacherEditTooltip => 'Modifier';
+
+  @override
+  String get teacherDeleteTooltip => 'Supprimer';
 }

@@ -2506,5 +2506,18 @@
 
   "teacherDeleteItemConfirm": "Delete \"{title}\"?",
   "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
-  "teacherPublishTooltip": "Publish"
+  "teacherPublishTooltip": "Publish",
+
+  "teacherMeetingEnterTitle": "Please enter a title.",
+  "teacherMeetingEnterLink": "Please enter a meeting link.",
+  "teacherMeetingEnterValidUrl": "Please enter a valid URL (e.g. https://zoom.us/j/...)",
+  "teacherMeetingPickStartTime": "Please pick a start time.",
+  "teacherMeetingVisibleToEveryone": "Visible to everyone",
+  "teacherMeetingDoneCount": "Done ({count} selected)",
+  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "teacherDeleteAssignmentTitle": "Delete assignment?",
+  "teacherDeleteAssignmentBody": "This will permanently delete the assignment and all submissions.",
+  "teacherEditTooltip": "Edit",
+  "teacherDeleteTooltip": "Delete"
 }

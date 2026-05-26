@@ -2506,5 +2506,18 @@
 
   "teacherDeleteItemConfirm": "Удалить «{title}»?",
   "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
-  "teacherPublishTooltip": "Опубликовать"
+  "teacherPublishTooltip": "Опубликовать",
+
+  "teacherMeetingEnterTitle": "Пожалуйста, введите название.",
+  "teacherMeetingEnterLink": "Пожалуйста, введите ссылку на встречу.",
+  "teacherMeetingEnterValidUrl": "Пожалуйста, введите корректный URL (например, https://zoom.us/j/...)",
+  "teacherMeetingPickStartTime": "Пожалуйста, выберите время начала.",
+  "teacherMeetingVisibleToEveryone": "Видно всем",
+  "teacherMeetingDoneCount": "Готово (выбрано {count})",
+  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "teacherDeleteAssignmentTitle": "Удалить задание?",
+  "teacherDeleteAssignmentBody": "Это навсегда удалит задание и все сданные работы.",
+  "teacherEditTooltip": "Изменить",
+  "teacherDeleteTooltip": "Удалить"
 }

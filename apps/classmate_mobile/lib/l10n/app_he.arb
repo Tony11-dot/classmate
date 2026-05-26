@@ -2299,5 +2299,18 @@
 
   "teacherDeleteItemConfirm": "למחוק את \"{title}\"?",
   "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
-  "teacherPublishTooltip": "פרסם"
+  "teacherPublishTooltip": "פרסם",
+
+  "teacherMeetingEnterTitle": "אנא הזן כותרת.",
+  "teacherMeetingEnterLink": "אנא הזן קישור לפגישה.",
+  "teacherMeetingEnterValidUrl": "אנא הזן כתובת תקינה (לדוגמה https://zoom.us/j/...)",
+  "teacherMeetingPickStartTime": "אנא בחר שעת התחלה.",
+  "teacherMeetingVisibleToEveryone": "גלוי לכולם",
+  "teacherMeetingDoneCount": "סיום ({count} נבחרו)",
+  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "teacherDeleteAssignmentTitle": "למחוק את המטלה?",
+  "teacherDeleteAssignmentBody": "פעולה זו תמחק את המטלה ואת כל ההגשות לצמיתות.",
+  "teacherEditTooltip": "ערוך",
+  "teacherDeleteTooltip": "מחק"
 }

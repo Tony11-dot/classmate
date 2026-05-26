@@ -425,23 +425,24 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     final title = _titleCtrl.text.trim();
     final link = _linkCtrl.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a title.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherMeetingEnterTitle)));
       return;
     }
     if (link.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a meeting link.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherMeetingEnterLink)));
       return;
     }
     final linkUri = Uri.tryParse(link);
     if (linkUri == null || !linkUri.isAbsolute || (!link.startsWith('http://') && !link.startsWith('https://'))) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid URL (e.g. https://zoom.us/j/...)')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherMeetingEnterValidUrl)));
       return;
     }
     if (_startsAt == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please pick a start time.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherMeetingPickStartTime)));
       return;
     }
     setState(() => _saving = true);
@@ -588,7 +589,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                       _selectedStudentIds.isEmpty &&
                       _selectedGrades.isEmpty) ...[
                     const SizedBox(height: 8),
-                    Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    Text(AppLocalizations.of(context)!.teacherMeetingVisibleToEveryone, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ])),
                 const SizedBox(height: 12),
@@ -611,16 +612,16 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                   TextField(
                     controller: _titleCtrl,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder())),
+                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMeetingTitleField, border: const OutlineInputBorder())),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _descCtrl, maxLines: 3,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(labelText: 'Description (optional)', alignLabelWithHint: true, border: OutlineInputBorder())),
+                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMaterialDescriptionLabel, alignLabelWithHint: true, border: const OutlineInputBorder())),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _linkCtrl,
-                    decoration: const InputDecoration(labelText: 'Meeting link *', prefixIcon: Icon(Icons.link_rounded), border: OutlineInputBorder(), hintText: 'https://meet.google.com/...')),
+                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMeetingLinkField, prefixIcon: const Icon(Icons.link_rounded), border: const OutlineInputBorder(), hintText: 'https://meet.google.com/...')),
                   const SizedBox(height: 12),
                   // Start time
                   InkWell(
@@ -628,7 +629,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     onTap: () => _pickDateTime(isStart: true),
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: 'Start time *', border: const OutlineInputBorder(),
+                        labelText: AppLocalizations.of(context)!.teacherMeetingStartTime, border: const OutlineInputBorder(),
                         suffixIcon: _startsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
                         _startsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_startsAt!) : 'Pick start time',
@@ -639,7 +640,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     onTap: () => _pickDateTime(isStart: false),
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: 'End time (optional)', border: const OutlineInputBorder(),
+                        labelText: AppLocalizations.of(context)!.teacherMeetingEndTime, border: const OutlineInputBorder(),
                         suffixIcon: _endsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
                         _endsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_endsAt!) : 'Pick end time',

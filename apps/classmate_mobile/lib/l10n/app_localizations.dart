@@ -10560,6 +10560,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Publish'**
   String get teacherPublishTooltip;
+
+  /// No description provided for @teacherMeetingEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title.'**
+  String get teacherMeetingEnterTitle;
+
+  /// No description provided for @teacherMeetingEnterLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a meeting link.'**
+  String get teacherMeetingEnterLink;
+
+  /// No description provided for @teacherMeetingEnterValidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid URL (e.g. https://zoom.us/j/...)'**
+  String get teacherMeetingEnterValidUrl;
+
+  /// No description provided for @teacherMeetingPickStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pick a start time.'**
+  String get teacherMeetingPickStartTime;
+
+  /// No description provided for @teacherMeetingVisibleToEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible to everyone'**
+  String get teacherMeetingVisibleToEveryone;
+
+  /// No description provided for @teacherMeetingDoneCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count} selected)'**
+  String teacherMeetingDoneCount(int count);
+
+  /// No description provided for @teacherDeleteAssignmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete assignment?'**
+  String get teacherDeleteAssignmentTitle;
+
+  /// No description provided for @teacherDeleteAssignmentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete the assignment and all submissions.'**
+  String get teacherDeleteAssignmentBody;
+
+  /// No description provided for @teacherEditTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get teacherEditTooltip;
+
+  /// No description provided for @teacherDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get teacherDeleteTooltip;
 }
 
 class _AppLocalizationsDelegate
