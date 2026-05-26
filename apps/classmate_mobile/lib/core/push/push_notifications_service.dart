@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' show jsonEncode;
 
+import '../../firebase_options.dart';
 import '../config/env.dart';
 
 /// Top-level handler — required by FCM for messages that arrive while
@@ -55,11 +56,12 @@ class PushNotificationsService {
   Future<void> init() async {
     if (_initialized) return;
     try {
-      // Firebase.initializeApp() without options works on platforms that
-      // have a native config file present (google-services.json /
-      // GoogleService-Info.plist). When the config files aren't there
-      // yet we throw and short-circuit out — push is purely additive.
-      await Firebase.initializeApp();
+      // Pass explicit options from the generated firebase_options.dart so
+      // init works the same way across iOS, Android, macOS, Web, and
+      // Windows. The native config files (google-services.json /
+      // GoogleService-Info.plist) still drive APNs token resolution on
+      // iOS — `options` covers everything else.
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     } catch (e) {
       if (kDebugMode) print('[push] Firebase init skipped: $e');
       return;

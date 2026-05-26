@@ -21,8 +21,10 @@ class ParentHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final children = ref.watch(parentChildrenProvider);
+    final greetingName = session.displayName.isNotEmpty ? session.displayName : 'there';
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -35,15 +37,15 @@ class ParentHomeScreen extends ConsumerWidget {
           children: [
             const SizedBox(height: 4),
             Text(
-              'Hi ${session.displayName.isNotEmpty ? session.displayName : 'there'} 👋',
+              l.parentHomeGreeting(greetingName),
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
             ),
             Text(
               session.schoolName.isNotEmpty
-                  ? 'Parent · ${session.schoolName}'
-                  : 'Parent',
+                  ? '${l.roleParent} · ${session.schoolName}'
+                  : l.roleParent,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
@@ -66,7 +68,7 @@ class ParentHomeScreen extends ConsumerWidget {
             const SizedBox(height: 22),
 
             Text(
-              'Your tools',
+              l.parentYourTools,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
@@ -102,7 +104,7 @@ class _ChildrenSection extends ConsumerWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'No approved children yet. Ask your school to link your account.',
+                AppLocalizations.of(context)!.parentNoApprovedChildren,
                 style: TextStyle(color: cs.onSurfaceVariant),
               ),
             ),
@@ -123,9 +125,9 @@ class _ToolsGrid extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final selected = ref.watch(selectedChildProvider);
     final disabledMsg = !hasChild
-        ? 'No child linked yet'
+        ? l.parentNoChildLinked
         : selected == null
-            ? 'Pick a child first'
+            ? l.parentPickChildFirst
             : null;
 
     final tiles = <_ToolDef>[

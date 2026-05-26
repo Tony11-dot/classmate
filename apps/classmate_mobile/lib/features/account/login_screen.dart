@@ -48,10 +48,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   Future<void> _submit() async {
+    final l = AppLocalizations.of(context)!;
     final identifier = _emailCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
     if (identifier.isEmpty || password.isEmpty) {
-      setState(() => _error = 'Please enter your email or username and password.');
+      setState(() => _error = l.loginEmptyFieldsError);
       return;
     }
     setState(() { _loading = true; _error = null; });
@@ -64,9 +65,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       if (!mounted) return;
       final raw = e.toString().toLowerCase();
       final friendly = raw.contains('socket') || raw.contains('connection refused') || raw.contains('network')
-          ? 'No connection. Check your internet and try again.'
+          ? l.loginConnectionError
           : raw.contains('timeout')
-              ? 'Request timed out. Please try again.'
+              ? l.loginTimeoutError
               : e.toString().replaceFirst('Exception: ', '');
       setState(() => _error = friendly);
     } finally {
@@ -110,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         autocorrect: false,
                         onSubmitted: (_) => _passwordFocus.requestFocus(),
                         decoration: InputDecoration(
-                          labelText: 'Email or username',
+                          labelText: AppLocalizations.of(context)!.loginEmailLabel,
                           prefixIcon: Icon(Icons.alternate_email_rounded, color: cs.onSurfaceVariant, size: 20),
                           filled: true,
                           fillColor: cs.surfaceContainerHighest,
@@ -178,7 +179,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           child: Text(
-                            'Forgot password?',
+                            AppLocalizations.of(context)!.loginForgotPasswordLink,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.primary,
                               fontWeight: FontWeight.w600,
