@@ -2592,5 +2592,17 @@
   "adminPeopleGrade": "כיתה",
   "adminSchoolSettingsTapToAddTranslations": "לחץ להוספת תרגומים",
   "adminSchoolSettingsAddPeriodNum": "הוסף שיעור (P{num})",
-  "adminVisibleToEveryone": "גלוי לכולם"
+  "adminVisibleToEveryone": "גלוי לכולם",
+
+  "navMaterials": "חומרי לימוד",
+  "navPlans": "תוכניות NOVA",
+  "navReports": "דיווחים",
+  "navExportData": "יצוא נתונים",
+  "navPasswordRequests": "בקשות סיסמה",
+  "sectionSecretaryTools": "כלי מזכירות",
+  "sectionSchoolToolsLabel": "כלי בית הספר",
+  "sectionAdminTools": "כלי מנהל",
+
+  "chatVideoTrimTitle": "קיצוץ סרטון",
+  "chatMediaPreviewTrimAction": "קצוץ"
 }

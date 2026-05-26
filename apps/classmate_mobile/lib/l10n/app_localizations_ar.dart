@@ -6753,4 +6753,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminVisibleToEveryone => 'مرئي للجميع';
+
+  @override
+  String get navMaterials => 'المواد التعليمية';
+
+  @override
+  String get navPlans => 'خطط NOVA';
+
+  @override
+  String get navReports => 'البلاغات';
+
+  @override
+  String get navExportData => 'تصدير البيانات';
+
+  @override
+  String get navPasswordRequests => 'طلبات كلمات المرور';
+
+  @override
+  String get sectionSecretaryTools => 'أدوات السكرتارية';
+
+  @override
+  String get sectionSchoolToolsLabel => 'أدوات المدرسة';
+
+  @override
+  String get sectionAdminTools => 'أدوات الإدارة';
+
+  @override
+  String get chatVideoTrimTitle => 'اقتطاع الفيديو';
+
+  @override
+  String get chatMediaPreviewTrimAction => 'اقتطاع';
 }

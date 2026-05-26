@@ -2799,5 +2799,17 @@
   "adminPeopleGrade": "Класс",
   "adminSchoolSettingsTapToAddTranslations": "Нажмите, чтобы добавить переводы",
   "adminSchoolSettingsAddPeriodNum": "Добавить урок (P{num})",
-  "adminVisibleToEveryone": "Видно всем"
+  "adminVisibleToEveryone": "Видно всем",
+
+  "navMaterials": "Материалы",
+  "navPlans": "Планы NOVA",
+  "navReports": "Жалобы",
+  "navExportData": "Экспорт данных",
+  "navPasswordRequests": "Запросы пароля",
+  "sectionSecretaryTools": "Инструменты секретаря",
+  "sectionSchoolToolsLabel": "Инструменты школы",
+  "sectionAdminTools": "Инструменты администратора",
+
+  "chatVideoTrimTitle": "Обрезать видео",
+  "chatMediaPreviewTrimAction": "Обрезать"
 }

@@ -10,6 +10,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import 'chat_video_trimmer_screen.dart';
 
 class ChatMediaPreviewResult {
   const ChatMediaPreviewResult({required this.paths, required this.caption});
@@ -174,6 +175,33 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       _quarterTurns[_index] = 0;
       _mirrored[_index] = false;
     });
+  }
+
+  Future<void> _trimCurrent() async {
+    if (_paths.isEmpty) return;
+    final currentPath = _paths[_index];
+    if (!_isVideo(currentPath)) return;
+
+    // Release the preview player so the trimmer can take exclusive access
+    // to the file. Without this the trimmer's own VideoPlayerController
+    // fails to initialize on iOS for the same path.
+    await _videoCtl?.dispose();
+    _videoCtl = null;
+    _videoPath = null;
+    if (mounted) setState(() {});
+
+    final trimmedPath = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => ChatVideoTrimmerScreen(videoPath: currentPath),
+      ),
+    );
+    if (!mounted) return;
+    if (trimmedPath != null && trimmedPath.isNotEmpty) {
+      setState(() {
+        _paths = List<String>.from(_paths)..[_index] = trimmedPath;
+      });
+    }
+    await _syncVideo();
   }
 
   Future<void> _removeCurrent() async {
@@ -369,10 +397,9 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
               Container(
                 width: 64,
                 height: 64,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white),
                 ),
                 child: IconButton(
                   onPressed: () async {
@@ -385,8 +412,8 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   },
                   icon: Icon(
                     c.value.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                    color: Colors.white,
-                    size: 32,
+                    color: Colors.black,
+                    size: 36,
                   ),
                 ),
               ),
@@ -431,6 +458,14 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
         scrollDirection: Axis.horizontal,
         children: [
+          if (isVideo) ...[
+            _toolButton(
+              icon: Icons.content_cut_rounded,
+              label: l.chatMediaPreviewTrimAction,
+              onTap: _trimCurrent,
+            ),
+            const SizedBox(width: 8),
+          ],
           if (!isVideo) ...[
             _toolButton(
               icon: Icons.draw_rounded,
@@ -505,7 +540,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
               child: Text(
                 '${_index + 1}/${_paths.length}',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),

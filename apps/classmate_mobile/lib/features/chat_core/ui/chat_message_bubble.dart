@@ -103,12 +103,12 @@ class ChatMessageBubble extends StatelessWidget {
   bool _isVoiceByMeta(String kind, String mime) {
     final k = kind.trim().toUpperCase();
     final m = mime.trim().toLowerCase();
+    if (k == 'VIDEO' || m.startsWith('video/')) return false;
     return k == 'VOICE' ||
         m.startsWith('audio/') ||
-        m.contains('mpeg') ||
-        m.contains('mp4') ||
-        m.contains('aac') ||
-        m.contains('wav');
+        m == 'mpeg' ||
+        m == 'aac' ||
+        m == 'wav';
   }
 
   bool _isVideoByMeta(String kind, String mime) {

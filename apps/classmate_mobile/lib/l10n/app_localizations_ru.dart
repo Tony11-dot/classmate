@@ -6738,4 +6738,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminVisibleToEveryone => 'Видно всем';
+
+  @override
+  String get navMaterials => 'Материалы';
+
+  @override
+  String get navPlans => 'Планы NOVA';
+
+  @override
+  String get navReports => 'Жалобы';
+
+  @override
+  String get navExportData => 'Экспорт данных';
+
+  @override
+  String get navPasswordRequests => 'Запросы пароля';
+
+  @override
+  String get sectionSecretaryTools => 'Инструменты секретаря';
+
+  @override
+  String get sectionSchoolToolsLabel => 'Инструменты школы';
+
+  @override
+  String get sectionAdminTools => 'Инструменты администратора';
+
+  @override
+  String get chatVideoTrimTitle => 'Обрезать видео';
+
+  @override
+  String get chatMediaPreviewTrimAction => 'Обрезать';
 }

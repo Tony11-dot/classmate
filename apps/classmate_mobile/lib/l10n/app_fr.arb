@@ -1894,7 +1894,7 @@
   "teacherDeleteExamBody": "Cet examen sera définitivement supprimé.",
   "teacherMeetingsEmpty": "Aucune réunion pour l'instant.\nAppuyez sur + pour en planifier une.",
   "teacherStudentsNoMatch": "Aucun élève ne correspond",
-  "teacherMaterialsTitle": "Matériaux",
+  "teacherMaterialsTitle": "Supports de cours",
   "profileNamesTitle": "Nom en langues",
   "profileDisplayNameLang": "Langue d'affichage",
   "navDashboard": "Tableau de bord",
@@ -2592,5 +2592,17 @@
   "adminPeopleGrade": "Niveau",
   "adminSchoolSettingsTapToAddTranslations": "Toucher pour ajouter des traductions",
   "adminSchoolSettingsAddPeriodNum": "Ajouter une période (P{num})",
-  "adminVisibleToEveryone": "Visible par tous"
+  "adminVisibleToEveryone": "Visible par tous",
+
+  "navMaterials": "Supports de cours",
+  "navPlans": "Forfaits NOVA",
+  "navReports": "Signalements",
+  "navExportData": "Exporter les données",
+  "navPasswordRequests": "Demandes de mot de passe",
+  "sectionSecretaryTools": "Outils du secrétariat",
+  "sectionSchoolToolsLabel": "Outils de l'école",
+  "sectionAdminTools": "Outils d'administration",
+
+  "chatVideoTrimTitle": "Rogner la vidéo",
+  "chatMediaPreviewTrimAction": "Rogner"
 }

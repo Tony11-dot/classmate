@@ -6725,4 +6725,34 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminVisibleToEveryone => 'גלוי לכולם';
+
+  @override
+  String get navMaterials => 'חומרי לימוד';
+
+  @override
+  String get navPlans => 'תוכניות NOVA';
+
+  @override
+  String get navReports => 'דיווחים';
+
+  @override
+  String get navExportData => 'יצוא נתונים';
+
+  @override
+  String get navPasswordRequests => 'בקשות סיסמה';
+
+  @override
+  String get sectionSecretaryTools => 'כלי מזכירות';
+
+  @override
+  String get sectionSchoolToolsLabel => 'כלי בית הספר';
+
+  @override
+  String get sectionAdminTools => 'כלי מנהל';
+
+  @override
+  String get chatVideoTrimTitle => 'קיצוץ סרטון';
+
+  @override
+  String get chatMediaPreviewTrimAction => 'קצוץ';
 }

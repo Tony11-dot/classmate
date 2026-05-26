@@ -4875,7 +4875,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherStudentsNoMatch => 'Aucun élève ne correspond';
 
   @override
-  String get teacherMaterialsTitle => 'Matériaux';
+  String get teacherMaterialsTitle => 'Supports de cours';
 
   @override
   String get profileNamesTitle => 'Nom en langues';
@@ -6884,4 +6884,34 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminVisibleToEveryone => 'Visible par tous';
+
+  @override
+  String get navMaterials => 'Supports de cours';
+
+  @override
+  String get navPlans => 'Forfaits NOVA';
+
+  @override
+  String get navReports => 'Signalements';
+
+  @override
+  String get navExportData => 'Exporter les données';
+
+  @override
+  String get navPasswordRequests => 'Demandes de mot de passe';
+
+  @override
+  String get sectionSecretaryTools => 'Outils du secrétariat';
+
+  @override
+  String get sectionSchoolToolsLabel => 'Outils de l\'école';
+
+  @override
+  String get sectionAdminTools => 'Outils d\'administration';
+
+  @override
+  String get chatVideoTrimTitle => 'Rogner la vidéo';
+
+  @override
+  String get chatMediaPreviewTrimAction => 'Rogner';
 }

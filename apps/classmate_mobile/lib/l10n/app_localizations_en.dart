@@ -6787,4 +6787,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminVisibleToEveryone => 'Visible to everyone';
+
+  @override
+  String get navMaterials => 'Materials';
+
+  @override
+  String get navPlans => 'NOVA Plans';
+
+  @override
+  String get navReports => 'Reports';
+
+  @override
+  String get navExportData => 'Export Data';
+
+  @override
+  String get navPasswordRequests => 'Password Requests';
+
+  @override
+  String get sectionSecretaryTools => 'Secretary Tools';
+
+  @override
+  String get sectionSchoolToolsLabel => 'School Tools';
+
+  @override
+  String get sectionAdminTools => 'Admin Tools';
+
+  @override
+  String get chatVideoTrimTitle => 'Trim video';
+
+  @override
+  String get chatMediaPreviewTrimAction => 'Trim';
 }

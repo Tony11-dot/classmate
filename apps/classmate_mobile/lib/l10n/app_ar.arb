@@ -2592,5 +2592,17 @@
   "adminPeopleGrade": "الصف",
   "adminSchoolSettingsTapToAddTranslations": "اضغط لإضافة الترجمات",
   "adminSchoolSettingsAddPeriodNum": "إضافة حصة (P{num})",
-  "adminVisibleToEveryone": "مرئي للجميع"
+  "adminVisibleToEveryone": "مرئي للجميع",
+
+  "navMaterials": "المواد التعليمية",
+  "navPlans": "خطط NOVA",
+  "navReports": "البلاغات",
+  "navExportData": "تصدير البيانات",
+  "navPasswordRequests": "طلبات كلمات المرور",
+  "sectionSecretaryTools": "أدوات السكرتارية",
+  "sectionSchoolToolsLabel": "أدوات المدرسة",
+  "sectionAdminTools": "أدوات الإدارة",
+
+  "chatVideoTrimTitle": "اقتطاع الفيديو",
+  "chatMediaPreviewTrimAction": "اقتطاع"
 }

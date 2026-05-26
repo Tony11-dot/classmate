@@ -2871,5 +2871,17 @@
   "@adminSchoolSettingsAddPeriodNum": {
     "placeholders": { "num": { "type": "int" } }
   },
-  "adminVisibleToEveryone": "Visible to everyone"
+  "adminVisibleToEveryone": "Visible to everyone",
+
+  "navMaterials": "Materials",
+  "navPlans": "NOVA Plans",
+  "navReports": "Reports",
+  "navExportData": "Export Data",
+  "navPasswordRequests": "Password Requests",
+  "sectionSecretaryTools": "Secretary Tools",
+  "sectionSchoolToolsLabel": "School Tools",
+  "sectionAdminTools": "Admin Tools",
+
+  "chatVideoTrimTitle": "Trim video",
+  "chatMediaPreviewTrimAction": "Trim"
 }

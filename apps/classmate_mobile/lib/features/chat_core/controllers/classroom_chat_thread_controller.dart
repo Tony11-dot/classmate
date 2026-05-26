@@ -648,6 +648,7 @@ class ClassroomChatThreadController extends ChatThreadController {
         return ChatMessageKind.image;
       case 'DOC':
       case 'FILE':
+      case 'VIDEO':
         return ChatMessageKind.file;
       case 'VOICE':
         return ChatMessageKind.voice;

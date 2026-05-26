@@ -12060,6 +12060,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Visible to everyone'**
   String get adminVisibleToEveryone;
+
+  /// No description provided for @navMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get navMaterials;
+
+  /// No description provided for @navPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA Plans'**
+  String get navPlans;
+
+  /// No description provided for @navReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get navReports;
+
+  /// No description provided for @navExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get navExportData;
+
+  /// No description provided for @navPasswordRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Requests'**
+  String get navPasswordRequests;
+
+  /// No description provided for @sectionSecretaryTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretary Tools'**
+  String get sectionSecretaryTools;
+
+  /// No description provided for @sectionSchoolToolsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'School Tools'**
+  String get sectionSchoolToolsLabel;
+
+  /// No description provided for @sectionAdminTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Tools'**
+  String get sectionAdminTools;
+
+  /// No description provided for @chatVideoTrimTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim video'**
+  String get chatVideoTrimTitle;
+
+  /// No description provided for @chatMediaPreviewTrimAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim'**
+  String get chatMediaPreviewTrimAction;
 }
 
 class _AppLocalizationsDelegate

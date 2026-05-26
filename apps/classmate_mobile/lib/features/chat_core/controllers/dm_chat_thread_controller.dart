@@ -604,6 +604,7 @@ class DmChatThreadController extends ChatThreadController {
       case 'IMAGE':
         return ChatMessageKind.image;
       case 'FILE':
+      case 'VIDEO':
         return ChatMessageKind.file;
       case 'VOICE':
         return ChatMessageKind.voice;
