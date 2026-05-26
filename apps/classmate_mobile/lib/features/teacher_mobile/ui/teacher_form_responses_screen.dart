@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -85,7 +86,7 @@ class _TeacherFormResponsesScreenState
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _load,
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context)!.commonRefresh,
           ),
         ],
       ),
@@ -100,7 +101,7 @@ class _TeacherFormResponsesScreenState
                       const SizedBox(height: 12),
                       Text(_error!, textAlign: TextAlign.center),
                       const SizedBox(height: 16),
-                      FilledButton(onPressed: _load, child: const Text('Retry')),
+                      FilledButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                     ],
                   ),
                 )

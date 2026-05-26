@@ -2562,5 +2562,21 @@
   "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
   "teacherExamEnterTitle": "Пожалуйста, введите название.",
   "teacherExamPickDate": "Пожалуйста, выберите дату экзамена.",
-  "teacherExamSelectSubject": "Пожалуйста, выберите предмет."
+  "teacherExamSelectSubject": "Пожалуйста, выберите предмет.",
+
+  "teacherSlotDetachFailed": "Не удалось открепить: {error}",
+  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachFailed": "Не удалось прикрепить: {error}",
+  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachMaterial": "Прикрепить материал",
+  "teacherSlotDetachTooltip": "Открепить",
+
+  "teacherDiplomaSelectStudent": "Сначала выберите ученика.",
+  "teacherDiplomaUploadingWait": "Пожалуйста, подождите — файлы ещё загружаются.",
+  "teacherDiplomaIssueFailed": "Не удалось выдать сертификат: {error}",
+  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "teacherDiplomaCertTitleLabel": "Название сертификата",
+  "teacherDiplomaSearchStudent": "Поиск ученика…",
+
+  "teacherProfileChatError": "Не удалось начать чат"
 }

@@ -2562,5 +2562,21 @@
   "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
   "teacherExamEnterTitle": "Please enter a title.",
   "teacherExamPickDate": "Please pick an exam date.",
-  "teacherExamSelectSubject": "Please select a subject."
+  "teacherExamSelectSubject": "Please select a subject.",
+
+  "teacherSlotDetachFailed": "Detach failed: {error}",
+  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachFailed": "Attach failed: {error}",
+  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachMaterial": "Attach material",
+  "teacherSlotDetachTooltip": "Detach",
+
+  "teacherDiplomaSelectStudent": "Select a student first.",
+  "teacherDiplomaUploadingWait": "Please wait — files are still uploading.",
+  "teacherDiplomaIssueFailed": "Failed to issue certificate: {error}",
+  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "teacherDiplomaCertTitleLabel": "Certificate title",
+  "teacherDiplomaSearchStudent": "Search student…",
+
+  "teacherProfileChatError": "Could not start chat"
 }

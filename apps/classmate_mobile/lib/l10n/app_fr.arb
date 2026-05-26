@@ -2355,5 +2355,21 @@
   "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
   "teacherExamEnterTitle": "Veuillez saisir un titre.",
   "teacherExamPickDate": "Veuillez choisir une date d'examen.",
-  "teacherExamSelectSubject": "Veuillez choisir une matière."
+  "teacherExamSelectSubject": "Veuillez choisir une matière.",
+
+  "teacherSlotDetachFailed": "Échec du détachement : {error}",
+  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachFailed": "Échec de la pièce jointe : {error}",
+  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachMaterial": "Joindre une ressource",
+  "teacherSlotDetachTooltip": "Détacher",
+
+  "teacherDiplomaSelectStudent": "Sélectionnez d'abord un élève.",
+  "teacherDiplomaUploadingWait": "Veuillez patienter — les fichiers sont encore en cours d'envoi.",
+  "teacherDiplomaIssueFailed": "Impossible de délivrer le certificat : {error}",
+  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "teacherDiplomaCertTitleLabel": "Titre du certificat",
+  "teacherDiplomaSearchStudent": "Rechercher un élève…",
+
+  "teacherProfileChatError": "Impossible de démarrer la conversation"
 }

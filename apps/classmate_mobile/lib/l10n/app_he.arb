@@ -2355,5 +2355,21 @@
   "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
   "teacherExamEnterTitle": "אנא הזן כותרת.",
   "teacherExamPickDate": "אנא בחר תאריך מבחן.",
-  "teacherExamSelectSubject": "אנא בחר מקצוע."
+  "teacherExamSelectSubject": "אנא בחר מקצוע.",
+
+  "teacherSlotDetachFailed": "ניתוק נכשל: {error}",
+  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachFailed": "צירוף נכשל: {error}",
+  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachMaterial": "צרף חומר",
+  "teacherSlotDetachTooltip": "נתק",
+
+  "teacherDiplomaSelectStudent": "בחר תלמיד תחילה.",
+  "teacherDiplomaUploadingWait": "אנא המתן — קבצים עדיין מועלים.",
+  "teacherDiplomaIssueFailed": "לא ניתן להנפיק תעודה: {error}",
+  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "teacherDiplomaCertTitleLabel": "כותרת התעודה",
+  "teacherDiplomaSearchStudent": "חפש תלמיד…",
+
+  "teacherProfileChatError": "לא ניתן להתחיל צ'אט"
 }

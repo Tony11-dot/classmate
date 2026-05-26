@@ -2355,5 +2355,21 @@
   "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
   "teacherExamEnterTitle": "يرجى إدخال عنوان.",
   "teacherExamPickDate": "يرجى اختيار تاريخ الامتحان.",
-  "teacherExamSelectSubject": "يرجى اختيار مادة."
+  "teacherExamSelectSubject": "يرجى اختيار مادة.",
+
+  "teacherSlotDetachFailed": "فشل الفصل: {error}",
+  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachFailed": "فشل الإرفاق: {error}",
+  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "teacherSlotAttachMaterial": "إرفاق مادة",
+  "teacherSlotDetachTooltip": "فصل",
+
+  "teacherDiplomaSelectStudent": "اختر طالبًا أولاً.",
+  "teacherDiplomaUploadingWait": "يرجى الانتظار — لا تزال الملفات تُرفع.",
+  "teacherDiplomaIssueFailed": "تعذّر إصدار الشهادة: {error}",
+  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "teacherDiplomaCertTitleLabel": "عنوان الشهادة",
+  "teacherDiplomaSearchStudent": "ابحث عن طالب…",
+
+  "teacherProfileChatError": "تعذّر بدء المحادثة"
 }

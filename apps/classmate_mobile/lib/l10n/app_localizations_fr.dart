@@ -6163,4 +6163,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherExamSelectSubject => 'Veuillez choisir une matière.';
+
+  @override
+  String teacherSlotDetachFailed(Object error) {
+    return 'Échec du détachement : $error';
+  }
+
+  @override
+  String teacherSlotAttachFailed(Object error) {
+    return 'Échec de la pièce jointe : $error';
+  }
+
+  @override
+  String get teacherSlotAttachMaterial => 'Joindre une ressource';
+
+  @override
+  String get teacherSlotDetachTooltip => 'Détacher';
+
+  @override
+  String get teacherDiplomaSelectStudent => 'Sélectionnez d\'abord un élève.';
+
+  @override
+  String get teacherDiplomaUploadingWait =>
+      'Veuillez patienter — les fichiers sont encore en cours d\'envoi.';
+
+  @override
+  String teacherDiplomaIssueFailed(Object error) {
+    return 'Impossible de délivrer le certificat : $error';
+  }
+
+  @override
+  String get teacherDiplomaCertTitleLabel => 'Titre du certificat';
+
+  @override
+  String get teacherDiplomaSearchStudent => 'Rechercher un élève…';
+
+  @override
+  String get teacherProfileChatError =>
+      'Impossible de démarrer la conversation';
 }

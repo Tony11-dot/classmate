@@ -10824,6 +10824,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a subject.'**
   String get teacherExamSelectSubject;
+
+  /// No description provided for @teacherSlotDetachFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Detach failed: {error}'**
+  String teacherSlotDetachFailed(Object error);
+
+  /// No description provided for @teacherSlotAttachFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach failed: {error}'**
+  String teacherSlotAttachFailed(Object error);
+
+  /// No description provided for @teacherSlotAttachMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach material'**
+  String get teacherSlotAttachMaterial;
+
+  /// No description provided for @teacherSlotDetachTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Detach'**
+  String get teacherSlotDetachTooltip;
+
+  /// No description provided for @teacherDiplomaSelectStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a student first.'**
+  String get teacherDiplomaSelectStudent;
+
+  /// No description provided for @teacherDiplomaUploadingWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait — files are still uploading.'**
+  String get teacherDiplomaUploadingWait;
+
+  /// No description provided for @teacherDiplomaIssueFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to issue certificate: {error}'**
+  String teacherDiplomaIssueFailed(Object error);
+
+  /// No description provided for @teacherDiplomaCertTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate title'**
+  String get teacherDiplomaCertTitleLabel;
+
+  /// No description provided for @teacherDiplomaSearchStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Search student…'**
+  String get teacherDiplomaSearchStudent;
+
+  /// No description provided for @teacherProfileChatError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start chat'**
+  String get teacherProfileChatError;
 }
 
 class _AppLocalizationsDelegate

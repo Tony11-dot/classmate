@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
@@ -108,15 +109,16 @@ class _TeacherCreateDiplomaScreenState
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     if (_selected == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select a student first.')),
+        SnackBar(content: Text(l.teacherDiplomaSelectStudent)),
       );
       return;
     }
     if (_uploading) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please wait — files are still uploading.')),
+        SnackBar(content: Text(l.teacherDiplomaUploadingWait)),
       );
       return;
     }
@@ -141,7 +143,7 @@ class _TeacherCreateDiplomaScreenState
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to issue certificate: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherDiplomaIssueFailed(e.toString()))),
       );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -193,7 +195,7 @@ class _TeacherCreateDiplomaScreenState
                 TextField(
                   controller: _titleCtrl,
                   decoration: InputDecoration(
-                    labelText: 'Certificate title',
+                    labelText: AppLocalizations.of(context)!.teacherDiplomaCertTitleLabel,
                     prefixIcon: const Icon(Icons.workspace_premium_rounded, size: 20),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
@@ -209,7 +211,7 @@ class _TeacherCreateDiplomaScreenState
             child: TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search student…',
+                hintText: AppLocalizations.of(context)!.teacherDiplomaSearchStudent,
                 prefixIcon:
                     const Icon(Icons.search_rounded, size: 20),
                 border: OutlineInputBorder(
@@ -226,7 +228,7 @@ class _TeacherCreateDiplomaScreenState
                 ? const Center(child: CmLoading())
                 : filtered.isEmpty
                     ? Center(
-                        child: Text('No students found',
+                        child: Text(AppLocalizations.of(context)!.teacherClassroomNoStudentsFound,
                             style: TextStyle(
                                 color: cs.onSurfaceVariant)),
                       )

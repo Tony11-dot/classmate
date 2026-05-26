@@ -334,7 +334,7 @@ class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not start chat')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherProfileChatError)),
       );
     } finally {
       if (mounted) setState(() => _dmLoading = false);

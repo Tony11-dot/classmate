@@ -6019,4 +6019,40 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherExamSelectSubject => 'אנא בחר מקצוע.';
+
+  @override
+  String teacherSlotDetachFailed(Object error) {
+    return 'ניתוק נכשל: $error';
+  }
+
+  @override
+  String teacherSlotAttachFailed(Object error) {
+    return 'צירוף נכשל: $error';
+  }
+
+  @override
+  String get teacherSlotAttachMaterial => 'צרף חומר';
+
+  @override
+  String get teacherSlotDetachTooltip => 'נתק';
+
+  @override
+  String get teacherDiplomaSelectStudent => 'בחר תלמיד תחילה.';
+
+  @override
+  String get teacherDiplomaUploadingWait => 'אנא המתן — קבצים עדיין מועלים.';
+
+  @override
+  String teacherDiplomaIssueFailed(Object error) {
+    return 'לא ניתן להנפיק תעודה: $error';
+  }
+
+  @override
+  String get teacherDiplomaCertTitleLabel => 'כותרת התעודה';
+
+  @override
+  String get teacherDiplomaSearchStudent => 'חפש תלמיד…';
+
+  @override
+  String get teacherProfileChatError => 'לא ניתן להתחיל צ\'אט';
 }

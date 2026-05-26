@@ -6072,4 +6072,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherExamSelectSubject => 'Please select a subject.';
+
+  @override
+  String teacherSlotDetachFailed(Object error) {
+    return 'Detach failed: $error';
+  }
+
+  @override
+  String teacherSlotAttachFailed(Object error) {
+    return 'Attach failed: $error';
+  }
+
+  @override
+  String get teacherSlotAttachMaterial => 'Attach material';
+
+  @override
+  String get teacherSlotDetachTooltip => 'Detach';
+
+  @override
+  String get teacherDiplomaSelectStudent => 'Select a student first.';
+
+  @override
+  String get teacherDiplomaUploadingWait =>
+      'Please wait — files are still uploading.';
+
+  @override
+  String teacherDiplomaIssueFailed(Object error) {
+    return 'Failed to issue certificate: $error';
+  }
+
+  @override
+  String get teacherDiplomaCertTitleLabel => 'Certificate title';
+
+  @override
+  String get teacherDiplomaSearchStudent => 'Search student…';
+
+  @override
+  String get teacherProfileChatError => 'Could not start chat';
 }

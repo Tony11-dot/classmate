@@ -6043,4 +6043,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherExamSelectSubject => 'يرجى اختيار مادة.';
+
+  @override
+  String teacherSlotDetachFailed(Object error) {
+    return 'فشل الفصل: $error';
+  }
+
+  @override
+  String teacherSlotAttachFailed(Object error) {
+    return 'فشل الإرفاق: $error';
+  }
+
+  @override
+  String get teacherSlotAttachMaterial => 'إرفاق مادة';
+
+  @override
+  String get teacherSlotDetachTooltip => 'فصل';
+
+  @override
+  String get teacherDiplomaSelectStudent => 'اختر طالبًا أولاً.';
+
+  @override
+  String get teacherDiplomaUploadingWait =>
+      'يرجى الانتظار — لا تزال الملفات تُرفع.';
+
+  @override
+  String teacherDiplomaIssueFailed(Object error) {
+    return 'تعذّر إصدار الشهادة: $error';
+  }
+
+  @override
+  String get teacherDiplomaCertTitleLabel => 'عنوان الشهادة';
+
+  @override
+  String get teacherDiplomaSearchStudent => 'ابحث عن طالب…';
+
+  @override
+  String get teacherProfileChatError => 'تعذّر بدء المحادثة';
 }

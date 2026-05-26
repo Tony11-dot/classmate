@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 
 /// Manages the materials attached to a single teacher schedule slot.
@@ -86,7 +87,7 @@ class _TeacherSlotAttachmentsScreenState
       await _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Detach failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherSlotDetachFailed(e.toString()))));
     }
   }
 
@@ -119,7 +120,7 @@ class _TeacherSlotAttachmentsScreenState
       await _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherSlotAttachFailed(e.toString()))));
     }
   }
 
@@ -129,7 +130,7 @@ class _TeacherSlotAttachmentsScreenState
     final cs = theme.colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Attachments'),
+        title: Text(AppLocalizations.of(context)!.commonAttachments),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(28),
           child: Padding(
@@ -147,7 +148,7 @@ class _TeacherSlotAttachmentsScreenState
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openAttachPicker,
         icon: const Icon(Icons.attach_file_rounded),
-        label: const Text('Attach material'),
+        label: Text(AppLocalizations.of(context)!.teacherSlotAttachMaterial),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -159,7 +160,7 @@ class _TeacherSlotAttachmentsScreenState
                     children: [
                       Text(_error!, style: TextStyle(color: cs.error)),
                       const SizedBox(height: 12),
-                      FilledButton(onPressed: _load, child: const Text('Retry')),
+                      FilledButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                     ],
                   ),
                 )
@@ -266,7 +267,7 @@ class _AttachedMaterialTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Detach',
+              tooltip: AppLocalizations.of(context)!.teacherSlotDetachTooltip,
               icon: const Icon(Icons.close_rounded),
               onPressed: onDetach,
             ),
@@ -397,7 +398,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
               child: TextField(
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
-                  hintText: 'Search materials…',
+                  hintText: AppLocalizations.of(context)!.teacherSearchMaterials,
                   prefixIcon: const Icon(Icons.search_rounded, size: 18),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   isDense: true,

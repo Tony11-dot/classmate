@@ -6010,4 +6010,41 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherExamSelectSubject => 'Пожалуйста, выберите предмет.';
+
+  @override
+  String teacherSlotDetachFailed(Object error) {
+    return 'Не удалось открепить: $error';
+  }
+
+  @override
+  String teacherSlotAttachFailed(Object error) {
+    return 'Не удалось прикрепить: $error';
+  }
+
+  @override
+  String get teacherSlotAttachMaterial => 'Прикрепить материал';
+
+  @override
+  String get teacherSlotDetachTooltip => 'Открепить';
+
+  @override
+  String get teacherDiplomaSelectStudent => 'Сначала выберите ученика.';
+
+  @override
+  String get teacherDiplomaUploadingWait =>
+      'Пожалуйста, подождите — файлы ещё загружаются.';
+
+  @override
+  String teacherDiplomaIssueFailed(Object error) {
+    return 'Не удалось выдать сертификат: $error';
+  }
+
+  @override
+  String get teacherDiplomaCertTitleLabel => 'Название сертификата';
+
+  @override
+  String get teacherDiplomaSearchStudent => 'Поиск ученика…';
+
+  @override
+  String get teacherProfileChatError => 'Не удалось начать чат';
 }
