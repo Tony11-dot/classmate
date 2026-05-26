@@ -615,7 +615,7 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
                             Text(s.name,
                                 style: theme.textTheme.bodyMedium
                                     ?.copyWith(fontWeight: FontWeight.w700)),
-                            Text('Grade ${cohort.grade}',
+                            Text(AppLocalizations.of(context)!.adminCohortGradeFormat(cohort.grade.toString()),
                                 style: theme.textTheme.labelSmall
                                     ?.copyWith(color: cs.onSurfaceVariant)),
                           ],
@@ -776,7 +776,7 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
 
         if (cohorts.length > 1) ...[
           const SizedBox(height: 16),
-          Text('All cohorts', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+          Text(AppLocalizations.of(context)!.secretaryAllCohorts, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           Wrap(
             spacing: 6,
@@ -792,7 +792,7 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
 
         if (classrooms.isNotEmpty) ...[
           const SizedBox(height: 16),
-          Text('Classrooms', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+          Text(AppLocalizations.of(context)!.secretaryClassrooms, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           ...classrooms.map((c) => Container(
                 margin: const EdgeInsets.only(bottom: 6),

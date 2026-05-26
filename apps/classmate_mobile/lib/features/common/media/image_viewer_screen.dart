@@ -66,7 +66,8 @@ class ImageViewerScreen extends StatelessWidget {
             box != null ? box.localToGlobal(Offset.zero) & box.size : null,
       );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Download failed: $e')));
+      if (!context.mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonDownloadFailed(e))));
     }
   }
 

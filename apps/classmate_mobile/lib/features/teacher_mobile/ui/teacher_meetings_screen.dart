@@ -885,7 +885,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
           Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: SizedBox(width: double.infinity,
               child: FilledButton(onPressed: () => Navigator.of(context).pop(),
-                child: Text('Done (${_localSelected.length} selected)')))),
+                child: Text(AppLocalizations.of(context)!.teacherDoneSelected(_localSelected.length))))),
         ]),
       ),
     );

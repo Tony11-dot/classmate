@@ -49,7 +49,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             Expanded(
               child: async.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(child: Text('Error: $e')),
+                error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
                 data: (reports) {
                   if (reports.isEmpty) {
                     return ListView(
@@ -222,7 +222,7 @@ class _ReportCard extends ConsumerWidget {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.commonFailedWith(e))),
       );
     }
   }

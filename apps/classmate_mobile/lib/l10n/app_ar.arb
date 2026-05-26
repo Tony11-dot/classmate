@@ -2572,5 +2572,25 @@
   "adminScheduleFailedToCreateSlots": "فشل إنشاء الفترات",
   "adminScheduleCreatedSlots": "تم إنشاء {created}/{total} فترات. {error}",
   "adminScheduleSavedLabelOnlyError": "تم الحفظ كتسمية فقط — تعذرت الإضافة إلى المكتبة: {error}",
-  "adminScheduleSavedLabelPickAudience": "تم الحفظ كتسمية. اختر جمهورًا أولاً لإضافة المادة إلى مكتبة المدرسة أيضًا."
+  "adminScheduleSavedLabelPickAudience": "تم الحفظ كتسمية. اختر جمهورًا أولاً لإضافة المادة إلى مكتبة المدرسة أيضًا.",
+
+  "commonNothingFound": "لم يتم العثور على شيء",
+  "commonDownloadFailed": "فشل التنزيل: {error}",
+  "commonFailedWith": "فشل: {error}",
+  "commonCreate": "إنشاء",
+  "commonAttachStudyMaterials": "إرفاق مواد الدراسة",
+  "teacherCreateClassroomNewTitle": "صف جديد",
+  "teacherCreateClassroomLoadingStudents": "جاري تحميل الطلاب…",
+  "teacherExamPublishedHint": "منشور — يمكن للطلاب رؤية هذا الامتحان",
+  "teacherDoneSelected": "تم ({count} محدد)",
+  "secretaryAllCohorts": "جميع المجموعات",
+  "secretaryClassrooms": "الصفوف",
+  "adminPasswordReqTitle": "طلبات كلمات المرور",
+  "adminPasswordReqWantsChange": "يريد تغيير كلمة المرور الخاصة به. كلمة المرور الجديدة مخفية.",
+  "adminPasswordReqReject": "رفض",
+  "adminPasswordReqApprove": "موافقة",
+  "adminPeopleGrade": "الصف",
+  "adminSchoolSettingsTapToAddTranslations": "اضغط لإضافة الترجمات",
+  "adminSchoolSettingsAddPeriodNum": "إضافة حصة (P{num})",
+  "adminVisibleToEveryone": "مرئي للجميع"
 }

@@ -6719,4 +6719,72 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get adminScheduleSavedLabelPickAudience =>
       'Saved as slot label. Pick an audience first to also add to the school library.';
+
+  @override
+  String get commonNothingFound => 'Nothing found';
+
+  @override
+  String commonDownloadFailed(Object error) {
+    return 'Download failed: $error';
+  }
+
+  @override
+  String commonFailedWith(Object error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String get commonCreate => 'Create';
+
+  @override
+  String get commonAttachStudyMaterials => 'Attach study materials';
+
+  @override
+  String get teacherCreateClassroomNewTitle => 'New Classroom';
+
+  @override
+  String get teacherCreateClassroomLoadingStudents => 'Loading students…';
+
+  @override
+  String get teacherExamPublishedHint =>
+      'Published — students can see this exam';
+
+  @override
+  String teacherDoneSelected(int count) {
+    return 'Done ($count selected)';
+  }
+
+  @override
+  String get secretaryAllCohorts => 'All cohorts';
+
+  @override
+  String get secretaryClassrooms => 'Classrooms';
+
+  @override
+  String get adminPasswordReqTitle => 'Password requests';
+
+  @override
+  String get adminPasswordReqWantsChange =>
+      'Wants their password changed. The new password is hidden.';
+
+  @override
+  String get adminPasswordReqReject => 'Reject';
+
+  @override
+  String get adminPasswordReqApprove => 'Approve';
+
+  @override
+  String get adminPeopleGrade => 'Grade';
+
+  @override
+  String get adminSchoolSettingsTapToAddTranslations =>
+      'Tap to add translations';
+
+  @override
+  String adminSchoolSettingsAddPeriodNum(int num) {
+    return 'Add Period (P$num)';
+  }
+
+  @override
+  String get adminVisibleToEveryone => 'Visible to everyone';
 }

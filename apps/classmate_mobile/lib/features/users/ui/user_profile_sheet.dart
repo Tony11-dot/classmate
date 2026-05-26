@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widgets/role_badge.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/user_profile.dart';
 import '../data/user_profile_repository.dart';
 
@@ -286,7 +287,7 @@ class _Error extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(AppLocalizations.of(context)!.commonRetry),
           ),
         ],
       ),

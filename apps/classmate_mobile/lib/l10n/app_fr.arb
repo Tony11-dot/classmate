@@ -2572,5 +2572,25 @@
   "adminScheduleFailedToCreateSlots": "Échec de la création des créneaux",
   "adminScheduleCreatedSlots": "{created}/{total} créneaux créés. {error}",
   "adminScheduleSavedLabelOnlyError": "Enregistré comme étiquette uniquement — impossible d'ajouter à la bibliothèque : {error}",
-  "adminScheduleSavedLabelPickAudience": "Enregistré comme étiquette. Choisissez d'abord une audience pour ajouter aussi à la bibliothèque de l'école."
+  "adminScheduleSavedLabelPickAudience": "Enregistré comme étiquette. Choisissez d'abord une audience pour ajouter aussi à la bibliothèque de l'école.",
+
+  "commonNothingFound": "Rien trouvé",
+  "commonDownloadFailed": "Échec du téléchargement : {error}",
+  "commonFailedWith": "Échec : {error}",
+  "commonCreate": "Créer",
+  "commonAttachStudyMaterials": "Joindre des supports de cours",
+  "teacherCreateClassroomNewTitle": "Nouvelle classe",
+  "teacherCreateClassroomLoadingStudents": "Chargement des élèves…",
+  "teacherExamPublishedHint": "Publié — les élèves peuvent voir cet examen",
+  "teacherDoneSelected": "Terminé ({count} sélectionné(s))",
+  "secretaryAllCohorts": "Tous les groupes",
+  "secretaryClassrooms": "Classes",
+  "adminPasswordReqTitle": "Demandes de mot de passe",
+  "adminPasswordReqWantsChange": "Souhaite changer son mot de passe. Le nouveau mot de passe est caché.",
+  "adminPasswordReqReject": "Refuser",
+  "adminPasswordReqApprove": "Approuver",
+  "adminPeopleGrade": "Niveau",
+  "adminSchoolSettingsTapToAddTranslations": "Toucher pour ajouter des traductions",
+  "adminSchoolSettingsAddPeriodNum": "Ajouter une période (P{num})",
+  "adminVisibleToEveryone": "Visible par tous"
 }

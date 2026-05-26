@@ -366,7 +366,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       SwitchListTile(
                         value: _published,
                         onChanged: (v) => setState(() => _published = v),
-                        title: const Text('Published — students can see this exam', style: TextStyle(fontWeight: FontWeight.w600)),
+                        title: Text(AppLocalizations.of(context)!.teacherExamPublishedHint, style: const TextStyle(fontWeight: FontWeight.w600)),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ],
@@ -409,7 +409,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       OutlinedButton.icon(
                         onPressed: _pickFiles,
                         icon: const Icon(Icons.file_upload_outlined, size: 18),
-                        label: const Text('Attach study materials'),
+                        label: Text(AppLocalizations.of(context)!.commonAttachStudyMaterials),
                       ),
                     ],
                   ),

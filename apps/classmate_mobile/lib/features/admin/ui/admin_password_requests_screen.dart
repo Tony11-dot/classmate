@@ -23,7 +23,7 @@ class AdminPasswordRequestsScreen extends ConsumerWidget {
       body: SafeArea(
         child: async.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
+          error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
           data: (requests) {
             if (requests.isEmpty) {
               return ListView(
@@ -166,7 +166,7 @@ class _Header extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Password requests',
+        Text(AppLocalizations.of(context)!.adminPasswordReqTitle,
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
         Text(
@@ -228,7 +228,7 @@ class _RequestCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text('Wants their password changed. The new password is hidden.',
+          Text(AppLocalizations.of(context)!.adminPasswordReqWantsChange,
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
           if ((request.requesterPhone ?? '').isNotEmpty) ...[
             const SizedBox(height: 10),
@@ -269,14 +269,14 @@ class _RequestCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onReject,
                   style: OutlinedButton.styleFrom(foregroundColor: cs.error),
-                  child: const Text('Reject'),
+                  child: Text(AppLocalizations.of(context)!.adminPasswordReqReject),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton(
                   onPressed: onApprove,
-                  child: const Text('Approve'),
+                  child: Text(AppLocalizations.of(context)!.adminPasswordReqApprove),
                 ),
               ),
             ],

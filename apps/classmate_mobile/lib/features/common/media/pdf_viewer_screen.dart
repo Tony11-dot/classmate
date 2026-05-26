@@ -94,7 +94,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Download failed: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.commonDownloadFailed(e))),
       );
     }
   }

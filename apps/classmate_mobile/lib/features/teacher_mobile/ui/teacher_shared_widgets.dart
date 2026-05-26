@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 
 class TeacherErrorBanner extends StatelessWidget {
@@ -21,7 +22,7 @@ class TeacherErrorBanner extends StatelessWidget {
             Expanded(
               child: Text(message, style: TextStyle(color: cs.onErrorContainer, fontSize: 13)),
             ),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.commonRetry)),
           ],
         ),
       ),

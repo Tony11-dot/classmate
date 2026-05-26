@@ -6670,4 +6670,72 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get adminScheduleSavedLabelPickAudience =>
       'Сохранено как метка. Сначала выберите аудиторию, чтобы добавить также в библиотеку школы.';
+
+  @override
+  String get commonNothingFound => 'Ничего не найдено';
+
+  @override
+  String commonDownloadFailed(Object error) {
+    return 'Не удалось скачать: $error';
+  }
+
+  @override
+  String commonFailedWith(Object error) {
+    return 'Не удалось: $error';
+  }
+
+  @override
+  String get commonCreate => 'Создать';
+
+  @override
+  String get commonAttachStudyMaterials => 'Прикрепить учебные материалы';
+
+  @override
+  String get teacherCreateClassroomNewTitle => 'Новый класс';
+
+  @override
+  String get teacherCreateClassroomLoadingStudents => 'Загрузка учеников…';
+
+  @override
+  String get teacherExamPublishedHint =>
+      'Опубликован — ученики видят этот экзамен';
+
+  @override
+  String teacherDoneSelected(int count) {
+    return 'Готово (выбрано $count)';
+  }
+
+  @override
+  String get secretaryAllCohorts => 'Все группы';
+
+  @override
+  String get secretaryClassrooms => 'Классы';
+
+  @override
+  String get adminPasswordReqTitle => 'Запросы пароля';
+
+  @override
+  String get adminPasswordReqWantsChange =>
+      'Хочет изменить пароль. Новый пароль скрыт.';
+
+  @override
+  String get adminPasswordReqReject => 'Отклонить';
+
+  @override
+  String get adminPasswordReqApprove => 'Одобрить';
+
+  @override
+  String get adminPeopleGrade => 'Класс';
+
+  @override
+  String get adminSchoolSettingsTapToAddTranslations =>
+      'Нажмите, чтобы добавить переводы';
+
+  @override
+  String adminSchoolSettingsAddPeriodNum(int num) {
+    return 'Добавить урок (P$num)';
+  }
+
+  @override
+  String get adminVisibleToEveryone => 'Видно всем';
 }

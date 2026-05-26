@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../data/teacher_mobile_repository.dart';
 
 /// Reusable audience section: cohort DDL + grade DDL + student DDL + member
@@ -232,7 +233,7 @@ class _AudienceSectionState extends State<AudienceSection> {
             widget.selectedStudentIds.isEmpty &&
             widget.selectedGrades.isEmpty) ...[
           const SizedBox(height: 8),
-          Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+          Text(AppLocalizations.of(context)!.adminVisibleToEveryone, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
         ],
       ],
     );
@@ -335,11 +336,11 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: TextField(onChanged: (v) => setState(() => _query = v), decoration: InputDecoration(hintText: 'Search…', prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14))),
+          child: TextField(onChanged: (v) => setState(() => _query = v), decoration: InputDecoration(hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint, prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14))),
         ),
         Expanded(
           child: filtered.isEmpty
-              ? Center(child: Text('Nothing found', style: TextStyle(color: cs.onSurfaceVariant)))
+              ? Center(child: Text(AppLocalizations.of(context)!.commonNothingFound, style: TextStyle(color: cs.onSurfaceVariant)))
               : ListView.builder(
                   controller: sc,
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),

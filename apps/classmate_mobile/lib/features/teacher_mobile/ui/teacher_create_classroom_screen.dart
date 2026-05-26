@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -190,7 +191,7 @@ class _TeacherCreateClassroomScreenState
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('New Classroom',
+        title: Text(AppLocalizations.of(context)!.teacherCreateClassroomNewTitle,
             style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
           Padding(
@@ -200,7 +201,7 @@ class _TeacherCreateClassroomScreenState
               icon: _saving
                   ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.check_rounded, size: 18),
-              label: const Text('Create'),
+              label: Text(AppLocalizations.of(context)!.commonCreate),
             ),
           ),
         ],
@@ -274,7 +275,7 @@ class _TeacherCreateClassroomScreenState
                         ? Row(children: [
                             SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary)),
                             const SizedBox(width: 10),
-                            Text('Loading students…', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                            Text(AppLocalizations.of(context)!.teacherCreateClassroomLoadingStudents, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                           ])
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,7 +475,7 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         ),
         Expanded(
           child: filtered.isEmpty
-              ? Center(child: Text('Nothing found', style: TextStyle(color: cs.onSurfaceVariant)))
+              ? Center(child: Text(AppLocalizations.of(context)!.commonNothingFound, style: TextStyle(color: cs.onSurfaceVariant)))
               : ListView.builder(
                   controller: scrollCtrl,
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),

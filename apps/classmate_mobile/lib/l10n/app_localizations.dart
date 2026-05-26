@@ -11946,6 +11946,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved as slot label. Pick an audience first to also add to the school library.'**
   String get adminScheduleSavedLabelPickAudience;
+
+  /// No description provided for @commonNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get commonNothingFound;
+
+  /// No description provided for @commonDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed: {error}'**
+  String commonDownloadFailed(Object error);
+
+  /// No description provided for @commonFailedWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {error}'**
+  String commonFailedWith(Object error);
+
+  /// No description provided for @commonCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get commonCreate;
+
+  /// No description provided for @commonAttachStudyMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach study materials'**
+  String get commonAttachStudyMaterials;
+
+  /// No description provided for @teacherCreateClassroomNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Classroom'**
+  String get teacherCreateClassroomNewTitle;
+
+  /// No description provided for @teacherCreateClassroomLoadingStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading students…'**
+  String get teacherCreateClassroomLoadingStudents;
+
+  /// No description provided for @teacherExamPublishedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Published — students can see this exam'**
+  String get teacherExamPublishedHint;
+
+  /// No description provided for @teacherDoneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count} selected)'**
+  String teacherDoneSelected(int count);
+
+  /// No description provided for @secretaryAllCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'All cohorts'**
+  String get secretaryAllCohorts;
+
+  /// No description provided for @secretaryClassrooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Classrooms'**
+  String get secretaryClassrooms;
+
+  /// No description provided for @adminPasswordReqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Password requests'**
+  String get adminPasswordReqTitle;
+
+  /// No description provided for @adminPasswordReqWantsChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Wants their password changed. The new password is hidden.'**
+  String get adminPasswordReqWantsChange;
+
+  /// No description provided for @adminPasswordReqReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get adminPasswordReqReject;
+
+  /// No description provided for @adminPasswordReqApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get adminPasswordReqApprove;
+
+  /// No description provided for @adminPeopleGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get adminPeopleGrade;
+
+  /// No description provided for @adminSchoolSettingsTapToAddTranslations.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add translations'**
+  String get adminSchoolSettingsTapToAddTranslations;
+
+  /// No description provided for @adminSchoolSettingsAddPeriodNum.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Period (P{num})'**
+  String adminSchoolSettingsAddPeriodNum(int num);
+
+  /// No description provided for @adminVisibleToEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible to everyone'**
+  String get adminVisibleToEveryone;
 }
 
 class _AppLocalizationsDelegate

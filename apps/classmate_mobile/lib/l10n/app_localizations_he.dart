@@ -6659,4 +6659,70 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get adminScheduleSavedLabelPickAudience =>
       'נשמר ככותרת. בחר תחילה קהל כדי להוסיף גם לספריית בית הספר.';
+
+  @override
+  String get commonNothingFound => 'לא נמצא דבר';
+
+  @override
+  String commonDownloadFailed(Object error) {
+    return 'ההורדה נכשלה: $error';
+  }
+
+  @override
+  String commonFailedWith(Object error) {
+    return 'נכשל: $error';
+  }
+
+  @override
+  String get commonCreate => 'צור';
+
+  @override
+  String get commonAttachStudyMaterials => 'צרף חומרי לימוד';
+
+  @override
+  String get teacherCreateClassroomNewTitle => 'כיתה חדשה';
+
+  @override
+  String get teacherCreateClassroomLoadingStudents => 'טוען תלמידים…';
+
+  @override
+  String get teacherExamPublishedHint => 'פורסם — תלמידים יכולים לראות מבחן זה';
+
+  @override
+  String teacherDoneSelected(int count) {
+    return 'בוצע ($count נבחרו)';
+  }
+
+  @override
+  String get secretaryAllCohorts => 'כל הקבוצות';
+
+  @override
+  String get secretaryClassrooms => 'כיתות';
+
+  @override
+  String get adminPasswordReqTitle => 'בקשות סיסמה';
+
+  @override
+  String get adminPasswordReqWantsChange =>
+      'רוצה לשנות את הסיסמה. הסיסמה החדשה מוסתרת.';
+
+  @override
+  String get adminPasswordReqReject => 'דחה';
+
+  @override
+  String get adminPasswordReqApprove => 'אשר';
+
+  @override
+  String get adminPeopleGrade => 'כיתה';
+
+  @override
+  String get adminSchoolSettingsTapToAddTranslations => 'לחץ להוספת תרגומים';
+
+  @override
+  String adminSchoolSettingsAddPeriodNum(int num) {
+    return 'הוסף שיעור (P$num)';
+  }
+
+  @override
+  String get adminVisibleToEveryone => 'גלוי לכולם';
 }

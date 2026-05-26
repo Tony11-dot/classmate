@@ -2572,5 +2572,25 @@
   "adminScheduleFailedToCreateSlots": "יצירת המשבצות נכשלה",
   "adminScheduleCreatedSlots": "נוצרו {created}/{total} משבצות. {error}",
   "adminScheduleSavedLabelOnlyError": "נשמר ככותרת בלבד — לא ניתן היה להוסיף לספריה: {error}",
-  "adminScheduleSavedLabelPickAudience": "נשמר ככותרת. בחר תחילה קהל כדי להוסיף גם לספריית בית הספר."
+  "adminScheduleSavedLabelPickAudience": "נשמר ככותרת. בחר תחילה קהל כדי להוסיף גם לספריית בית הספר.",
+
+  "commonNothingFound": "לא נמצא דבר",
+  "commonDownloadFailed": "ההורדה נכשלה: {error}",
+  "commonFailedWith": "נכשל: {error}",
+  "commonCreate": "צור",
+  "commonAttachStudyMaterials": "צרף חומרי לימוד",
+  "teacherCreateClassroomNewTitle": "כיתה חדשה",
+  "teacherCreateClassroomLoadingStudents": "טוען תלמידים…",
+  "teacherExamPublishedHint": "פורסם — תלמידים יכולים לראות מבחן זה",
+  "teacherDoneSelected": "בוצע ({count} נבחרו)",
+  "secretaryAllCohorts": "כל הקבוצות",
+  "secretaryClassrooms": "כיתות",
+  "adminPasswordReqTitle": "בקשות סיסמה",
+  "adminPasswordReqWantsChange": "רוצה לשנות את הסיסמה. הסיסמה החדשה מוסתרת.",
+  "adminPasswordReqReject": "דחה",
+  "adminPasswordReqApprove": "אשר",
+  "adminPeopleGrade": "כיתה",
+  "adminSchoolSettingsTapToAddTranslations": "לחץ להוספת תרגומים",
+  "adminSchoolSettingsAddPeriodNum": "הוסף שיעור (P{num})",
+  "adminVisibleToEveryone": "גלוי לכולם"
 }

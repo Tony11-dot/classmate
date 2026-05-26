@@ -2779,5 +2779,25 @@
   "adminScheduleFailedToCreateSlots": "Не удалось создать слоты",
   "adminScheduleCreatedSlots": "Создано {created}/{total} слотов. {error}",
   "adminScheduleSavedLabelOnlyError": "Сохранено как метка — не удалось добавить в библиотеку: {error}",
-  "adminScheduleSavedLabelPickAudience": "Сохранено как метка. Сначала выберите аудиторию, чтобы добавить также в библиотеку школы."
+  "adminScheduleSavedLabelPickAudience": "Сохранено как метка. Сначала выберите аудиторию, чтобы добавить также в библиотеку школы.",
+
+  "commonNothingFound": "Ничего не найдено",
+  "commonDownloadFailed": "Не удалось скачать: {error}",
+  "commonFailedWith": "Не удалось: {error}",
+  "commonCreate": "Создать",
+  "commonAttachStudyMaterials": "Прикрепить учебные материалы",
+  "teacherCreateClassroomNewTitle": "Новый класс",
+  "teacherCreateClassroomLoadingStudents": "Загрузка учеников…",
+  "teacherExamPublishedHint": "Опубликован — ученики видят этот экзамен",
+  "teacherDoneSelected": "Готово (выбрано {count})",
+  "secretaryAllCohorts": "Все группы",
+  "secretaryClassrooms": "Классы",
+  "adminPasswordReqTitle": "Запросы пароля",
+  "adminPasswordReqWantsChange": "Хочет изменить пароль. Новый пароль скрыт.",
+  "adminPasswordReqReject": "Отклонить",
+  "adminPasswordReqApprove": "Одобрить",
+  "adminPeopleGrade": "Класс",
+  "adminSchoolSettingsTapToAddTranslations": "Нажмите, чтобы добавить переводы",
+  "adminSchoolSettingsAddPeriodNum": "Добавить урок (P{num})",
+  "adminVisibleToEveryone": "Видно всем"
 }

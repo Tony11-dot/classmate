@@ -6816,4 +6816,72 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get adminScheduleSavedLabelPickAudience =>
       'Enregistré comme étiquette. Choisissez d\'abord une audience pour ajouter aussi à la bibliothèque de l\'école.';
+
+  @override
+  String get commonNothingFound => 'Rien trouvé';
+
+  @override
+  String commonDownloadFailed(Object error) {
+    return 'Échec du téléchargement : $error';
+  }
+
+  @override
+  String commonFailedWith(Object error) {
+    return 'Échec : $error';
+  }
+
+  @override
+  String get commonCreate => 'Créer';
+
+  @override
+  String get commonAttachStudyMaterials => 'Joindre des supports de cours';
+
+  @override
+  String get teacherCreateClassroomNewTitle => 'Nouvelle classe';
+
+  @override
+  String get teacherCreateClassroomLoadingStudents => 'Chargement des élèves…';
+
+  @override
+  String get teacherExamPublishedHint =>
+      'Publié — les élèves peuvent voir cet examen';
+
+  @override
+  String teacherDoneSelected(int count) {
+    return 'Terminé ($count sélectionné(s))';
+  }
+
+  @override
+  String get secretaryAllCohorts => 'Tous les groupes';
+
+  @override
+  String get secretaryClassrooms => 'Classes';
+
+  @override
+  String get adminPasswordReqTitle => 'Demandes de mot de passe';
+
+  @override
+  String get adminPasswordReqWantsChange =>
+      'Souhaite changer son mot de passe. Le nouveau mot de passe est caché.';
+
+  @override
+  String get adminPasswordReqReject => 'Refuser';
+
+  @override
+  String get adminPasswordReqApprove => 'Approuver';
+
+  @override
+  String get adminPeopleGrade => 'Niveau';
+
+  @override
+  String get adminSchoolSettingsTapToAddTranslations =>
+      'Toucher pour ajouter des traductions';
+
+  @override
+  String adminSchoolSettingsAddPeriodNum(int num) {
+    return 'Ajouter une période (P$num)';
+  }
+
+  @override
+  String get adminVisibleToEveryone => 'Visible par tous';
 }

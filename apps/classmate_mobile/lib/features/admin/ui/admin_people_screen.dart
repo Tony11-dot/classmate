@@ -169,7 +169,7 @@ class _UserTab extends ConsumerWidget {
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
       data: (list) {
         final filtered = search.isEmpty
             ? list.users
@@ -693,12 +693,12 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   // ── Grade (students only) ──────────────────────────────────
                   if (_role == 'STUDENT') ...[
                     const SizedBox(height: 16),
-                    Text('Grade', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                    Text(AppLocalizations.of(context)!.adminPeopleGrade, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8, runSpacing: 8,
                       children: ref.watch(authSessionProvider).schoolGrades.map((g) => ChoiceChip(
-                        label: Text('Grade $g'),
+                        label: Text(AppLocalizations.of(context)!.adminCohortGradeFormat(g.toString())),
                         selected: _grade == g,
                         onSelected: (_) => setState(() => _grade = g),
                       )).toList(),

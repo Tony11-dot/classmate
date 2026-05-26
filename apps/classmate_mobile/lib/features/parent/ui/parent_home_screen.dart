@@ -296,7 +296,7 @@ class _ErrorTile extends StatelessWidget {
           Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
           const SizedBox(width: 10),
           Expanded(child: Text(message, style: TextStyle(color: cs.onErrorContainer))),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+          TextButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.commonRetry)),
         ],
       ),
     );

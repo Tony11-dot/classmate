@@ -2839,5 +2839,37 @@
   "@adminScheduleSavedLabelOnlyError": {
     "placeholders": { "error": { "type": "Object" } }
   },
-  "adminScheduleSavedLabelPickAudience": "Saved as slot label. Pick an audience first to also add to the school library."
+  "adminScheduleSavedLabelPickAudience": "Saved as slot label. Pick an audience first to also add to the school library.",
+
+  "commonNothingFound": "Nothing found",
+  "commonDownloadFailed": "Download failed: {error}",
+  "@commonDownloadFailed": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "commonFailedWith": "Failed: {error}",
+  "@commonFailedWith": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "commonCreate": "Create",
+  "commonAttachStudyMaterials": "Attach study materials",
+  "teacherCreateClassroomNewTitle": "New Classroom",
+  "teacherCreateClassroomLoadingStudents": "Loading students…",
+  "teacherExamPublishedHint": "Published — students can see this exam",
+  "teacherDoneSelected": "Done ({count} selected)",
+  "@teacherDoneSelected": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "secretaryAllCohorts": "All cohorts",
+  "secretaryClassrooms": "Classrooms",
+  "adminPasswordReqTitle": "Password requests",
+  "adminPasswordReqWantsChange": "Wants their password changed. The new password is hidden.",
+  "adminPasswordReqReject": "Reject",
+  "adminPasswordReqApprove": "Approve",
+  "adminPeopleGrade": "Grade",
+  "adminSchoolSettingsTapToAddTranslations": "Tap to add translations",
+  "adminSchoolSettingsAddPeriodNum": "Add Period (P{num})",
+  "@adminSchoolSettingsAddPeriodNum": {
+    "placeholders": { "num": { "type": "int" } }
+  },
+  "adminVisibleToEveryone": "Visible to everyone"
 }

@@ -663,7 +663,7 @@ class _SubjectSection extends StatelessWidget {
                 .where((s) => (s ?? '').trim().isNotEmpty)
                 .toList();
             if (extras.isEmpty) {
-              return Text('Tap to add translations', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant));
+              return Text(AppLocalizations.of(context)!.adminSchoolSettingsTapToAddTranslations, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant));
             }
             return Text(extras.join(' · '), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis);
           }),
@@ -856,7 +856,7 @@ class _BellScheduleTabState extends ConsumerState<_BellScheduleTab> {
         TextButton.icon(
           onPressed: _addPeriod,
           icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text('Add Period (P${(_periods.isEmpty ? 0 : _periods.last) + 1})'),
+          label: Text(AppLocalizations.of(context)!.adminSchoolSettingsAddPeriodNum((_periods.isEmpty ? 0 : _periods.last) + 1)),
         ),
         const SizedBox(height: 12),
         SizedBox(
@@ -1042,7 +1042,7 @@ class _GradeStepper extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                Text('Grade $value', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                Text(AppLocalizations.of(context)!.adminCohortGradeFormat(value.toString()), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               ],
             ),
           ),
