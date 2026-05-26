@@ -7202,4 +7202,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get forgotPasswordNewPasswordHelper =>
       'Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas.';
+
+  @override
+  String adminExportPasswordsWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Le fichier contiendra les identifiants de connexion de $count élèves, y compris les mots de passe actuels. Toute personne ayant le fichier peut se connecter en tant que l\'un de ces élèves — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu\'à la prochaine connexion ou réinitialisation de chaque utilisateur.',
+      one:
+          'Le fichier contiendra les identifiants de connexion d\'$count élève, y compris le mot de passe actuel. Toute personne ayant le fichier peut se connecter en tant que cet élève — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu\'à la prochaine connexion ou réinitialisation de l\'utilisateur.',
+    );
+    return '$_temp0';
+  }
 }

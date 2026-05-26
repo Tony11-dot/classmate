@@ -346,6 +346,7 @@ export class PasswordResetService {
         userId: user.id,
         toAdminId: admin.id,
         passwordHash,
+        plainPassword: pw,
         expiresAt,
         ...(cleanPhone ? { requesterPhone: cleanPhone } : {}),
       } as any,
@@ -441,7 +442,7 @@ export class PasswordResetService {
     }
     await this.prisma.passwordChangeRequest.update({
       where: { id: requestId },
-      data: { status: 'REJECTED', resolvedAt: new Date() },
+      data: { status: 'REJECTED', resolvedAt: new Date(), plainPassword: null } as any,
     });
     return 'rejected';
   }
@@ -469,10 +470,19 @@ export class PasswordResetService {
     }
 
     await this.prisma.$transaction([
-      this.prisma.user.update({ where: { id: req.userId }, data: { password: req.passwordHash } }),
+      this.prisma.user.update({
+        where: { id: req.userId },
+        data: {
+          password: req.passwordHash,
+          // Only overwrite plainPassword if the request carried it (older
+          // pending requests pre-migration may not have one).
+          ...((req as any).plainPassword ? { plainPassword: (req as any).plainPassword } : {}),
+        },
+      }),
+      // Clear plainPassword from the request once consumed.
       this.prisma.passwordChangeRequest.update({
         where: { id: requestId },
-        data: { status: 'APPROVED', resolvedAt: new Date() },
+        data: { status: 'APPROVED', resolvedAt: new Date(), plainPassword: null } as any,
       }),
       // Invalidate any of the user's still-pending self-service reset tokens.
       this.prisma.passwordResetToken.updateMany({
@@ -493,7 +503,7 @@ export class PasswordResetService {
 
     await this.prisma.passwordChangeRequest.update({
       where: { id: requestId },
-      data: { status: 'REJECTED', resolvedAt: new Date() },
+      data: { status: 'REJECTED', resolvedAt: new Date(), plainPassword: null } as any,
     });
   }
 
@@ -538,7 +548,7 @@ export class PasswordResetService {
 
     const hash = await bcrypt.hash(pw, 10);
     await this.prisma.$transaction([
-      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash } }),
+      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash, plainPassword: pw } }),
       this.prisma.passwordResetToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
       // Invalidate any sibling tokens so they can't be redeemed either.
       this.prisma.passwordResetToken.updateMany({

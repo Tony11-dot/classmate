@@ -7100,4 +7100,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forgotPasswordNewPasswordHelper =>
       'At least 8 characters. Stored hashed — your admin will not see it.';
+
+  @override
+  String adminExportPasswordsWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'The file will contain $count students\' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.',
+      one:
+          'The file will contain $count student\'s login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.',
+    );
+    return '$_temp0';
+  }
 }

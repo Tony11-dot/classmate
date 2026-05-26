@@ -250,6 +250,7 @@ export class SetupController {
           ...(adminEmail    ? { email: adminEmail }       : {}),
           ...(adminUsername ? { username: adminUsername } : {}),
           password: hash,
+          plainPassword: adminPassword,
           schoolId: school.id,
           status: 'ACTIVE',
           roles: { create: [{ role: 'ADMIN' }] },
@@ -258,7 +259,7 @@ export class SetupController {
     } else {
       await this.prisma.user.update({
         where: { id: adminUser.id },
-        data: { schoolId: school.id, name: adminName, nameEn: adminName, password: hash } as any,
+        data: { schoolId: school.id, name: adminName, nameEn: adminName, password: hash, plainPassword: adminPassword } as any,
       });
       await this.prisma.userRole.upsert({
         where: { userId_role: { userId: adminUser.id, role: 'ADMIN' as any } },

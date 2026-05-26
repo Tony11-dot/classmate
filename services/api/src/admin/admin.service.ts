@@ -1013,6 +1013,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         email: true,
         username: true,
         phone: true,
+        plainPassword: true,
         studentProfile: {
           select: {
             cohort: { select: { id: true, name: true, grade: true } },
@@ -1049,7 +1050,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       );
     }
 
-    const generatePasswords = query?.generatePasswords === 'true';
+    // Non-destructive: when the admin asks for passwords, we read the
+    // plaintext copy maintained alongside the bcrypt hash. Users who
+    // existed before plainPassword was introduced will show an empty
+    // password column until they next change/reset their password
+    // (which is the only path that can backfill plaintext safely).
+    const includePasswords = query?.generatePasswords === 'true';
     const result: Array<{
       id: string; nameEn: string; nameAr: string; nameHe: string; nameFr: string; nameRu: string;
       email: string | null; username?: string | null; phone: string | null;
@@ -1091,14 +1097,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         cohortName: cohortList[0]?.name ?? '',
         cohortNames,
         schoolName,
-        tempPassword: undefined as string | undefined,
+        tempPassword: includePasswords ? ((r as any).plainPassword ?? '') : undefined,
       };
-      if (generatePasswords) {
-        const tempPassword = `Classmate${randomDigits(6)}!`;
-        const hash = await bcrypt.hash(tempPassword, 10);
-        await this.prisma.user.update({ where: { id: r.id }, data: { password: hash } });
-        entry.tempPassword = tempPassword;
-      }
       result.push(entry);
     }
 
@@ -1311,6 +1311,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ...(rawPhone ? { phone: rawPhone } : {}),
         username,
         password: hash,
+        plainPassword: tempPassword,
         schoolId,
         status: 'ACTIVE',
         roles: { create: [{ role: role as any }] },
@@ -1462,7 +1463,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!target) throw new NotFoundException('User not found');
 
     const hash = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({ where: { id }, data: { password: hash } });
+    await this.prisma.user.update({ where: { id }, data: { password: hash, plainPassword: newPassword } });
 
     // Invalidate any pending password-reset tokens for this user — the admin
     // just set the password, so old reset links shouldn't work anymore.

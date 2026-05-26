@@ -50,6 +50,7 @@ export class AuthController {
         email,
         name,
         password: hash,
+        plainPassword: password,
         status: 'ACTIVE',
         ...(schoolId ? { schoolId } : {}),
         roles: { create: [{ role: 'STUDENT' }] },
@@ -274,7 +275,7 @@ export class AuthController {
     if (!isValid) throw new BadRequestException('WRONG_PASSWORD');
 
     const hash = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({ where: { id: userId }, data: { password: hash } });
+    await this.prisma.user.update({ where: { id: userId }, data: { password: hash, plainPassword: newPassword } });
     return { ok: true };
   }
 }

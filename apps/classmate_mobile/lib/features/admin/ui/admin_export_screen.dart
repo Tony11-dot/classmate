@@ -631,30 +631,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'The file will contain ${widget.studentCount} '
-                'student${widget.studentCount == 1 ? '' : 's'}\' login info. '
-                'Anyone with access can sign in as those students — share with '
-                'care and delete the file when done.',
-                style: const TextStyle(height: 1.4),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: cs.errorContainer.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'New temporary passwords will be generated for every selected student. Their previous passwords stop working.',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-            ],
+          content: Text(
+            AppLocalizations.of(context)!.adminExportPasswordsWarning(widget.studentCount),
+            style: const TextStyle(height: 1.4),
           ),
           actions: [
             TextButton(
@@ -663,8 +642,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ),
             FilledButton(
               onPressed: () => Navigator.pop(d, true),
-              style: FilledButton.styleFrom(backgroundColor: cs.error),
-              child: Text(AppLocalizations.of(context)!.adminExportAnyway),
+              child: Text(AppLocalizations.of(context)!.adminExportButton(widget.studentCount)),
             ),
           ],
         );

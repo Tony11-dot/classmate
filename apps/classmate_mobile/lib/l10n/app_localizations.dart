@@ -12588,6 +12588,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At least 8 characters. Stored hashed — your admin will not see it.'**
   String get forgotPasswordNewPasswordHelper;
+
+  /// No description provided for @adminExportPasswordsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{The file will contain {count} student\'s login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students\' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}'**
+  String adminExportPasswordsWarning(int count);
 }
 
 class _AppLocalizationsDelegate

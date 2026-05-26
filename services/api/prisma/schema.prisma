@@ -58,6 +58,11 @@ model User {
   email                   String?                  @unique
   username                String?                  @unique // login identifier when no email
   password                String
+  /// Plaintext of the current password, kept so admins can re-export login
+  /// credentials without resetting them. Updated on every write path that
+  /// changes `password` (signup, admin create/set, user change, reset). Only
+  /// read by the admin export endpoint, never returned to clients.
+  plainPassword           String?
   name                    String
   parentNotificationState ParentNotificationState?
 
@@ -235,6 +240,10 @@ model PasswordChangeRequest {
   toAdminId      String
   /// Bcrypt hash of the user's desired password. Admin never sees plaintext.
   passwordHash   String
+  /// Plaintext of the user's desired password. Stored only so the admin
+  /// export can pick up the new value after approval — never read by any
+  /// API that returns to clients. Cleared (or row deleted) on resolve.
+  plainPassword  String?
   /// Phone number the requester typed when filing the request — surfaced to
   /// the admin so they can call/text it to verify identity before approving.
   /// Optional: blank when the requester didn't provide one.

@@ -56,6 +56,7 @@ export class AuthService {
         email,
         name,
         password: hash,
+        plainPassword: nPassword,
         roles: { create: [{ role: 'STUDENT' }] },
       },
       include: { roles: true },
