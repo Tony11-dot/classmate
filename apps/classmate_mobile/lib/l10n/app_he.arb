@@ -2384,5 +2384,10 @@
   "teacherMaterialAddFile": "הוסף קובץ",
   "teacherMaterialSearchStudentsGrade": "חפש תלמידים או שכבה...",
   "teacherMaterialDoneSelected": "סיום ({count} נבחרו)",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
+
+  "adminSubjectEnglishNameRequired": "שם באנגלית נדרש",
+  "adminSubjectNameInLang": "שם ב{language}",
+  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "adminSubjectResetButton": "אפס"
 }

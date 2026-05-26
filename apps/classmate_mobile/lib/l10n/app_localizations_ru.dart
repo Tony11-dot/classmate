@@ -6083,4 +6083,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String teacherMaterialDoneSelected(int count) {
     return 'Готово (выбрано $count)';
   }
+
+  @override
+  String get adminSubjectEnglishNameRequired =>
+      'Требуется название на английском';
+
+  @override
+  String adminSubjectNameInLang(Object language) {
+    return 'Название на $language';
+  }
+
+  @override
+  String get adminSubjectResetButton => 'Сбросить';
 }

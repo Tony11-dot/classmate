@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/contracts/school_subject.dart';
 import '../../../core/util/subject_color.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Edits the 5-language names for a single school subject. Returns the
 /// updated [SchoolSubject] via Navigator.pop when the user taps save.
@@ -44,7 +45,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
     final nameEn = _en.text.trim();
     if (nameEn.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('English name is required')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminSubjectEnglishNameRequired)),
       );
       return;
     }
@@ -63,7 +64,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
     return t.isEmpty ? null : t;
   }
 
-  Widget _field(TextEditingController c, String label, String langCode, {TextDirection? dir}) {
+  Widget _field(BuildContext context, TextEditingController c, String label, String langCode, {TextDirection? dir}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
@@ -72,7 +73,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
           labelText: label,
-          hintText: 'Name in $label',
+          hintText: AppLocalizations.of(context)!.adminSubjectNameInLang(label),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixText: langCode,
         ),
@@ -92,7 +93,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
         heroTag: 'fab_subject_detail',
         onPressed: _save,
         icon: const Icon(Icons.check_rounded),
-        label: const Text('Save'),
+        label: Text(AppLocalizations.of(context)!.commonSave),
       ),
       body: SafeArea(
         child: ListView(
@@ -142,11 +143,11 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 16),
-            _field(_en, 'English', 'EN'),
-            _field(_ar, 'Arabic',  'AR', dir: TextDirection.rtl),
-            _field(_he, 'Hebrew',  'HE', dir: TextDirection.rtl),
-            _field(_fr, 'French',  'FR'),
-            _field(_ru, 'Russian', 'RU'),
+            _field(context, _en, 'English', 'EN'),
+            _field(context, _ar, 'Arabic',  'AR', dir: TextDirection.rtl),
+            _field(context, _he, 'Hebrew',  'HE', dir: TextDirection.rtl),
+            _field(context, _fr, 'French',  'FR'),
+            _field(context, _ru, 'Russian', 'RU'),
             const SizedBox(height: 4),
             Text(
               'Color',
@@ -215,7 +216,7 @@ class _ColorSwatchPicker extends StatelessWidget {
               minimumSize: const Size(0, 32),
               foregroundColor: cs.onSurfaceVariant,
             ),
-            child: Text('Reset', style: theme.textTheme.labelSmall),
+            child: Text(AppLocalizations.of(context)!.adminSubjectResetButton, style: theme.textTheme.labelSmall),
           ),
       ],
     );

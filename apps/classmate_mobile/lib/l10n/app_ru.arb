@@ -2591,5 +2591,10 @@
   "teacherMaterialAddFile": "Добавить файл",
   "teacherMaterialSearchStudentsGrade": "Поиск учеников или класса...",
   "teacherMaterialDoneSelected": "Готово (выбрано {count})",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
+
+  "adminSubjectEnglishNameRequired": "Требуется название на английском",
+  "adminSubjectNameInLang": "Название на {language}",
+  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "adminSubjectResetButton": "Сбросить"
 }

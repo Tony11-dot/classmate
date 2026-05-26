@@ -2384,5 +2384,10 @@
   "teacherMaterialAddFile": "Ajouter un fichier",
   "teacherMaterialSearchStudentsGrade": "Rechercher des élèves ou un niveau...",
   "teacherMaterialDoneSelected": "Terminé ({count} sélectionné(s))",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
+
+  "adminSubjectEnglishNameRequired": "Le nom en anglais est requis",
+  "adminSubjectNameInLang": "Nom en {language}",
+  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "adminSubjectResetButton": "Réinitialiser"
 }

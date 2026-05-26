@@ -2384,5 +2384,10 @@
   "teacherMaterialAddFile": "إضافة ملف",
   "teacherMaterialSearchStudentsGrade": "ابحث عن الطلاب أو الصف...",
   "teacherMaterialDoneSelected": "تم ({count} محدد)",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
+
+  "adminSubjectEnglishNameRequired": "الاسم بالإنجليزية مطلوب",
+  "adminSubjectNameInLang": "الاسم بـ {language}",
+  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "adminSubjectResetButton": "إعادة تعيين"
 }

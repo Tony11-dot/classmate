@@ -6237,4 +6237,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String teacherMaterialDoneSelected(int count) {
     return 'Terminé ($count sélectionné(s))';
   }
+
+  @override
+  String get adminSubjectEnglishNameRequired => 'Le nom en anglais est requis';
+
+  @override
+  String adminSubjectNameInLang(Object language) {
+    return 'Nom en $language';
+  }
+
+  @override
+  String get adminSubjectResetButton => 'Réinitialiser';
 }

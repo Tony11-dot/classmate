@@ -6090,4 +6090,15 @@ class AppLocalizationsHe extends AppLocalizations {
   String teacherMaterialDoneSelected(int count) {
     return 'סיום ($count נבחרו)';
   }
+
+  @override
+  String get adminSubjectEnglishNameRequired => 'שם באנגלית נדרש';
+
+  @override
+  String adminSubjectNameInLang(Object language) {
+    return 'שם ב$language';
+  }
+
+  @override
+  String get adminSubjectResetButton => 'אפס';
 }

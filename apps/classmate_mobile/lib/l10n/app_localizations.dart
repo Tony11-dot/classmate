@@ -10950,6 +10950,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done ({count} selected)'**
   String teacherMaterialDoneSelected(int count);
+
+  /// No description provided for @adminSubjectEnglishNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'English name is required'**
+  String get adminSubjectEnglishNameRequired;
+
+  /// No description provided for @adminSubjectNameInLang.
+  ///
+  /// In en, this message translates to:
+  /// **'Name in {language}'**
+  String adminSubjectNameInLang(Object language);
+
+  /// No description provided for @adminSubjectResetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get adminSubjectResetButton;
 }
 
 class _AppLocalizationsDelegate

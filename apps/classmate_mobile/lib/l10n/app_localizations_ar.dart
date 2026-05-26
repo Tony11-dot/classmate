@@ -6115,4 +6115,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String teacherMaterialDoneSelected(int count) {
     return 'تم ($count محدد)';
   }
+
+  @override
+  String get adminSubjectEnglishNameRequired => 'الاسم بالإنجليزية مطلوب';
+
+  @override
+  String adminSubjectNameInLang(Object language) {
+    return 'الاسم بـ $language';
+  }
+
+  @override
+  String get adminSubjectResetButton => 'إعادة تعيين';
 }

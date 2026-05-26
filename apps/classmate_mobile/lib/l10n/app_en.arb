@@ -2591,5 +2591,10 @@
   "teacherMaterialAddFile": "Add file",
   "teacherMaterialSearchStudentsGrade": "Search students or grade...",
   "teacherMaterialDoneSelected": "Done ({count} selected)",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}}
+  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
+
+  "adminSubjectEnglishNameRequired": "English name is required",
+  "adminSubjectNameInLang": "Name in {language}",
+  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "adminSubjectResetButton": "Reset"
 }
