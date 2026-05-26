@@ -594,7 +594,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginSigningIn => 'Вход…';
 
   @override
-  String get loginEmailLabel => 'Email or username';
+  String get loginEmailLabel => 'Email или имя пользователя';
 
   @override
   String get loginPasswordLabel => 'Пароль';
@@ -4202,7 +4202,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherStudentsLabel => 'Ученики';
 
   @override
-  String get teacherSearchStudents => 'Search students…';
+  String get teacherSearchStudents => 'Поиск учеников…';
 
   @override
   String get teacherNoStudentsLoaded => 'В этой школе нет учеников.';
@@ -4281,13 +4281,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Задание будет удалено для всех учеников.';
 
   @override
-  String get teacherShareMaterialTitle => 'Share Material';
+  String get teacherShareMaterialTitle => 'Поделиться материалом';
 
   @override
   String get teacherRemoveMaterial => 'Убрать материал?';
 
   @override
-  String get teacherScheduleMeetingTitle => 'Schedule Meeting';
+  String get teacherScheduleMeetingTitle => 'Запланировать встречу';
 
   @override
   String get teacherCancelMeetingTitle => 'Отменить встречу?';
@@ -4843,7 +4843,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminCohortGrade => 'Класс';
 
   @override
-  String get adminRenameCohort => 'Rename';
+  String get adminRenameCohort => 'Переименовать';
 
   @override
   String get adminAddStudents => 'Добавить учеников';
@@ -4895,7 +4895,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminSchedulePeriodLabel(Object period) {
-    return 'P$period';
+    return 'У$period';
   }
 
   @override
@@ -5032,146 +5032,145 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get commonRetry => 'Retry';
+  String get commonRetry => 'Повторить';
 
   @override
-  String get commonBack => 'Back';
+  String get commonBack => 'Назад';
 
   @override
-  String get commonClose => 'Close';
+  String get commonClose => 'Закрыть';
 
   @override
-  String get commonDownload => 'Download';
+  String get commonDownload => 'Скачать';
 
   @override
-  String get commonOpenExternally => 'Open externally';
+  String get commonOpenExternally => 'Открыть внешне';
 
   @override
-  String get commonSave => 'Save';
+  String get commonSave => 'Сохранить';
 
   @override
-  String get commonCancel => 'Cancel';
+  String get commonCancel => 'Отмена';
 
   @override
-  String get commonDone => 'Done';
+  String get commonDone => 'Готово';
 
   @override
-  String get commonDelete => 'Delete';
+  String get commonDelete => 'Удалить';
 
   @override
-  String get commonEdit => 'Edit';
+  String get commonEdit => 'Изменить';
 
   @override
-  String get commonSearch => 'Search…';
+  String get commonSearch => 'Поиск…';
 
   @override
-  String get commonShare => 'Share';
+  String get commonShare => 'Поделиться';
 
   @override
-  String get commonLoading => 'Loading…';
+  String get commonLoading => 'Загрузка…';
 
   @override
-  String get commonError => 'Something went wrong';
+  String get commonError => 'Что-то пошло не так';
 
   @override
-  String get commonTryAgain => 'Try again';
+  String get commonTryAgain => 'Попробуйте снова';
 
   @override
-  String get studentMaterialsTitle => 'Materials';
+  String get studentMaterialsTitle => 'Материалы';
 
   @override
-  String get studentMaterialsEmptyTitle => 'No materials shared yet';
+  String get studentMaterialsEmptyTitle => 'Материалы ещё не добавлены';
 
   @override
-  String get studentMaterialsEmptyHint =>
-      'Your teacher will share resources here.';
+  String get studentMaterialsEmptyHint => 'Учитель добавит материалы здесь.';
 
   @override
-  String get studentMaterialsLoadError => 'Could not load materials';
+  String get studentMaterialsLoadError => 'Не удалось загрузить материалы';
 
   @override
-  String get studentAssignmentSubmittedSnackbar => 'Assignment handed in!';
+  String get studentAssignmentSubmittedSnackbar => 'Задание сдано!';
 
   @override
   String get studentAssignmentSubmitFailed =>
-      'Could not submit — please try again.';
+      'Не удалось сдать — попробуйте снова.';
 
   @override
   String get studentAssignmentUploadFailed =>
-      'File upload failed — please try again.';
+      'Не удалось загрузить файл — попробуйте снова.';
 
   @override
-  String get studentAssignmentHandedInBadge => 'Handed in';
+  String get studentAssignmentHandedInBadge => 'Сдано';
 
   @override
-  String get studentAssignmentSubmitButton => 'Hand in';
+  String get studentAssignmentSubmitButton => 'Сдать';
 
   @override
-  String get studentAssignmentSubmitting => 'Handing in…';
+  String get studentAssignmentSubmitting => 'Сдаём…';
 
   @override
-  String get studentAssignmentAttachFile => 'Attach file';
+  String get studentAssignmentAttachFile => 'Прикрепить файл';
 
   @override
-  String get studentAssignmentAddMoreFiles => 'Add more files';
+  String get studentAssignmentAddMoreFiles => 'Добавить ещё файлы';
 
   @override
-  String get studentAssignmentYourSubmission => 'Your submission';
+  String get studentAssignmentYourSubmission => 'Ваша работа';
 
   @override
-  String get studentAssignmentTeacherAttachments => 'Attachments';
+  String get studentAssignmentTeacherAttachments => 'Вложения';
 
   @override
   String secretaryWelcomeGreeting(Object name) {
-    return 'Hi $name 👋';
+    return 'Привет, $name 👋';
   }
 
   @override
-  String get secretaryYourTools => 'Your tools';
+  String get secretaryYourTools => 'Ваши инструменты';
 
   @override
-  String get secretaryReports => 'Reports';
+  String get secretaryReports => 'Жалобы';
 
   @override
-  String get secretaryExportData => 'Export Data';
+  String get secretaryExportData => 'Экспорт данных';
 
   @override
-  String get secretaryHomeTile => 'Home';
+  String get secretaryHomeTile => 'Главная';
 
   @override
   String parentHomeGreeting(Object name) {
-    return 'Hi $name 👋';
+    return 'Привет, $name 👋';
   }
 
   @override
-  String get parentYourTools => 'Your tools';
+  String get parentYourTools => 'Ваши инструменты';
 
   @override
-  String get parentNoChildLinked => 'No child linked yet';
+  String get parentNoChildLinked => 'Дети ещё не привязаны';
 
   @override
-  String get parentPickChildFirst => 'Pick a child first';
+  String get parentPickChildFirst => 'Сначала выберите ребёнка';
 
   @override
   String get parentNoApprovedChildren =>
-      'No approved children yet. Ask your school to link your account.';
+      'Подтверждённых детей пока нет. Попросите школу привязать ваш аккаунт.';
 
   @override
   String get loginEmptyFieldsError =>
-      'Please enter your email or username and password.';
+      'Введите email или имя пользователя и пароль.';
 
   @override
   String get loginConnectionError =>
-      'No connection. Check your internet and try again.';
+      'Нет подключения. Проверьте интернет и попробуйте снова.';
 
   @override
-  String get loginTimeoutError => 'Request timed out. Please try again.';
+  String get loginTimeoutError => 'Время запроса истекло. Попробуйте снова.';
 
   @override
-  String get loginForgotPasswordLink => 'Forgot password?';
+  String get loginForgotPasswordLink => 'Забыли пароль?';
 
   @override
-  String get forgotPasswordTitle => 'Reset your password';
+  String get forgotPasswordTitle => 'Сброс пароля';
 
   @override
   String get forgotPasswordModeEmail => 'Email';
@@ -5180,615 +5179,617 @@ class AppLocalizationsRu extends AppLocalizations {
   String get forgotPasswordModeSms => 'SMS';
 
   @override
-  String get forgotPasswordModeAdmin => 'Admin';
+  String get forgotPasswordModeAdmin => 'Администратор';
 
   @override
   String get forgotPasswordEmailSent =>
-      'Reset link sent (if an account matches).';
+      'Ссылка для сброса отправлена (если аккаунт найден).';
 
   @override
   String get forgotPasswordEmptyError =>
-      'Enter your email or username to continue.';
+      'Введите email или имя пользователя, чтобы продолжить.';
 
   @override
-  String get forgotPasswordEmailButton => 'Email me a reset link';
+  String get forgotPasswordEmailButton => 'Отправить ссылку по email';
 
   @override
-  String get forgotPasswordSmsButton => 'Text me a reset link';
+  String get forgotPasswordSmsButton => 'Отправить ссылку по SMS';
 
   @override
   String get forgotPasswordLinkExpires =>
-      'The link expires in 1 hour and can only be used once.';
+      'Срок действия ссылки — 1 час, использовать можно только один раз.';
 
   @override
-  String get pushPermissionTitle => 'Stay in the loop';
+  String get pushPermissionTitle => 'Будьте в курсе';
 
   @override
   String get pushPermissionBody =>
-      'Turn on notifications so you don\'t miss grades, messages, or schedule changes.';
+      'Включите уведомления, чтобы не пропустить оценки, сообщения или изменения в расписании.';
 
   @override
   String commonRequiredField(Object field) {
-    return '$field required';
+    return '$field обязательно';
   }
 
   @override
-  String get commonAttachments => 'Attachments';
+  String get commonAttachments => 'Вложения';
 
   @override
-  String get commonAttachFile => 'Attach file';
+  String get commonAttachFile => 'Прикрепить файл';
 
   @override
-  String get commonReplaceFile => 'Replace file';
+  String get commonReplaceFile => 'Заменить файл';
 
   @override
-  String get commonTitleRequired => 'Title required';
+  String get commonTitleRequired => 'Название обязательно';
 
   @override
-  String get commonPublish => 'Publish';
+  String get commonPublish => 'Опубликовать';
 
   @override
-  String get commonContinue => 'Continue';
+  String get commonContinue => 'Продолжить';
 
   @override
-  String get commonNext => 'Next';
+  String get commonNext => 'Далее';
 
   @override
-  String get commonStart => 'Start';
+  String get commonStart => 'Начало';
 
   @override
-  String get commonEnd => 'End';
+  String get commonEnd => 'Конец';
 
   @override
-  String get commonRefresh => 'Refresh';
+  String get commonRefresh => 'Обновить';
 
   @override
-  String get commonRemove => 'Remove';
+  String get commonRemove => 'Удалить';
 
   @override
-  String get commonOpen => 'Open';
+  String get commonOpen => 'Открыть';
 
   @override
-  String get commonView => 'View';
+  String get commonView => 'Просмотр';
 
   @override
-  String get commonCopy => 'Copy';
+  String get commonCopy => 'Копировать';
 
   @override
-  String get commonAdd => 'Add';
+  String get commonAdd => 'Добавить';
 
   @override
-  String get commonOptional => 'Optional';
+  String get commonOptional => 'Необязательно';
 
   @override
-  String get commonRequired => 'Required';
+  String get commonRequired => 'Обязательно';
 
   @override
-  String get commonAuto => 'Auto';
+  String get commonAuto => 'Авто';
 
   @override
-  String get teacherShareButton => 'Share';
+  String get teacherShareButton => 'Поделиться';
 
   @override
-  String get teacherMaterialDetails => 'Material Details';
+  String get teacherMaterialDetails => 'Сведения о материале';
 
   @override
-  String get teacherMaterialTitleLabel => 'Title *';
+  String get teacherMaterialTitleLabel => 'Название *';
 
   @override
-  String get teacherMaterialDescriptionLabel => 'Description (optional)';
+  String get teacherMaterialDescriptionLabel => 'Описание (необязательно)';
 
   @override
-  String get teacherMaterialContentSection => 'Content';
+  String get teacherMaterialContentSection => 'Содержимое';
 
   @override
   String get teacherMaterialContentRequired =>
-      'Please attach a file or add a link';
+      'Прикрепите файл или добавьте ссылку';
 
   @override
   String teacherFilePickError(Object error) {
-    return 'Could not pick file: $error';
+    return 'Не удалось выбрать файл: $error';
   }
 
   @override
-  String get teacherScheduleButton => 'Schedule';
+  String get teacherScheduleButton => 'Запланировать';
 
   @override
-  String get teacherMeetingTitleField => 'Meeting title *';
+  String get teacherMeetingTitleField => 'Название встречи *';
 
   @override
-  String get teacherMeetingLinkField => 'Meeting link *';
+  String get teacherMeetingLinkField => 'Ссылка на встречу *';
 
   @override
-  String get teacherMeetingLinkRequired => 'Meeting link required';
+  String get teacherMeetingLinkRequired => 'Ссылка на встречу обязательна';
 
   @override
-  String get teacherMeetingTitleRequired => 'Meeting title required';
+  String get teacherMeetingTitleRequired => 'Название встречи обязательно';
 
   @override
-  String get teacherMeetingDateTimeRequired => 'Start date and time required';
+  String get teacherMeetingDateTimeRequired =>
+      'Дата и время начала обязательны';
 
   @override
-  String get teacherMeetingStartDate => 'Start date *';
+  String get teacherMeetingStartDate => 'Дата начала *';
 
   @override
-  String get teacherMeetingStartTime => 'Start time *';
+  String get teacherMeetingStartTime => 'Время начала *';
 
   @override
-  String get teacherMeetingEndDate => 'End date (optional)';
+  String get teacherMeetingEndDate => 'Дата окончания (необязательно)';
 
   @override
-  String get teacherMeetingEndTime => 'End time (optional)';
+  String get teacherMeetingEndTime => 'Время окончания (необязательно)';
 
   @override
-  String get teacherClearEndTime => 'Clear end time';
+  String get teacherClearEndTime => 'Очистить время окончания';
 
   @override
-  String get teacherAssignmentTitleField => 'Title *';
+  String get teacherAssignmentTitleField => 'Название *';
 
   @override
-  String get teacherAssignmentInstructions => 'Instructions (optional)';
+  String get teacherAssignmentInstructions => 'Инструкции (необязательно)';
 
   @override
-  String get teacherAssignmentDueDate => 'Due date (optional)';
+  String get teacherAssignmentDueDate => 'Срок сдачи (необязательно)';
 
   @override
-  String get teacherAssignmentClearDueDate => 'Clear due date';
+  String get teacherAssignmentClearDueDate => 'Очистить срок';
 
   @override
-  String get teacherAssignmentMaxGrade => 'Max grade (optional)';
+  String get teacherAssignmentMaxGrade => 'Максимальная оценка (необязательно)';
 
   @override
-  String get teacherAssignmentPublished => 'Assignment published.';
+  String get teacherAssignmentPublished => 'Задание опубликовано.';
 
   @override
-  String get teacherAssignmentDraftSaved => 'Draft saved.';
+  String get teacherAssignmentDraftSaved => 'Черновик сохранён.';
 
   @override
-  String get teacherCreateAssignment => 'Create';
+  String get teacherCreateAssignment => 'Создать';
 
   @override
-  String get teacherExamSubject => 'Subject *';
+  String get teacherExamSubject => 'Предмет *';
 
   @override
-  String get teacherExamDate => 'Exam date *';
+  String get teacherExamDate => 'Дата экзамена *';
 
   @override
-  String get teacherSelectSubject => 'Select subject';
+  String get teacherSelectSubject => 'Выберите предмет';
 
   @override
-  String get teacherNoSubjectOption => 'No subject';
+  String get teacherNoSubjectOption => 'Без предмета';
 
   @override
-  String get teacherOtherSubjectOption => 'Other';
+  String get teacherOtherSubjectOption => 'Другое';
 
   @override
-  String get teacherSearchClassrooms => 'Search classrooms…';
+  String get teacherSearchClassrooms => 'Поиск классов…';
 
   @override
-  String get teacherSearchMaterials => 'Search materials…';
+  String get teacherSearchMaterials => 'Поиск материалов…';
 
   @override
-  String get teacherClassroomName => 'Classroom name *';
+  String get teacherClassroomName => 'Название класса *';
 
   @override
-  String get adminReportsOpenTab => 'Open';
+  String get adminReportsOpenTab => 'Открытые';
 
   @override
-  String get adminReportsResolvedTab => 'Resolved';
+  String get adminReportsResolvedTab => 'Решённые';
 
   @override
-  String get adminReportsDismissedTab => 'Dismissed';
+  String get adminReportsDismissedTab => 'Отклонённые';
 
   @override
-  String get adminReportsNoOpen => 'No open reports';
+  String get adminReportsNoOpen => 'Нет открытых жалоб';
 
   @override
-  String get adminReportsNoInView => 'No reports in this view';
+  String get adminReportsNoInView => 'Нет жалоб в этом виде';
 
   @override
-  String get adminReportsMediaAttachment => '[Media attachment]';
+  String get adminReportsMediaAttachment => '[Медиа-вложение]';
 
   @override
-  String get adminReportsEmptyMessage => '(empty message)';
+  String get adminReportsEmptyMessage => '(пустое сообщение)';
 
   @override
-  String get adminReportsDismiss => 'Dismiss';
+  String get adminReportsDismiss => 'Отклонить';
 
   @override
-  String get adminReportsResolve => 'Resolve';
+  String get adminReportsResolve => 'Решить';
 
   @override
   String adminReportsReason(Object reason) {
-    return 'Reason: $reason';
+    return 'Причина: $reason';
   }
 
   @override
-  String get chatReportTitle => 'Report message';
+  String get chatReportTitle => 'Пожаловаться на сообщение';
 
   @override
-  String get chatReportButton => 'Report';
+  String get chatReportButton => 'Пожаловаться';
 
   @override
-  String get chatReportSuccess => 'Reported. Thank you — an admin will review.';
+  String get chatReportSuccess =>
+      'Жалоба отправлена. Спасибо — администратор рассмотрит.';
 
   @override
   String chatReportFailed(Object error) {
-    return 'Report failed: $error';
+    return 'Не удалось отправить жалобу: $error';
   }
 
   @override
   String chatSendError(Object message) {
-    return 'Couldn\'t send: $message';
+    return 'Не удалось отправить: $message';
   }
 
   @override
   String chatForwardLabel(Object count) {
-    return 'Forward $count';
+    return 'Переслать $count';
   }
 
   @override
   String chatDeleteLabel(Object count) {
-    return 'Delete $count';
+    return 'Удалить $count';
   }
 
   @override
   String chatSelectedCount(Object count) {
-    return '$count selected';
+    return 'Выбрано: $count';
   }
 
   @override
-  String get adminPasswordReqEmpty => 'No pending requests';
+  String get adminPasswordReqEmpty => 'Нет ожидающих запросов';
 
   @override
   String get adminPasswordReqExplainer =>
-      'Users you have approved or rejected won\'t appear here. Pending requests expire after 24 hours.';
+      'Пользователи, которых вы одобрили или отклонили, здесь не появятся. Ожидающие запросы истекают через 24 часа.';
 
   @override
-  String get adminPasswordReqApproveTitle => 'Approve password change?';
+  String get adminPasswordReqApproveTitle => 'Одобрить смену пароля?';
 
   @override
   String adminPasswordReqApproveExplain(Object name) {
-    return 'This sets $name\'s password to the one they typed (you don\'t see it).';
+    return 'Это установит пароль $name тот, который он ввёл (вы его не видите).';
   }
 
   @override
   String adminPasswordReqVerifyWarning(Object name) {
-    return 'Only approve if you have verified the requester is really $name — call them, or confirm in person. Anyone who knows a username can file this request.';
+    return 'Одобряйте только если вы убедились, что заявитель действительно $name — позвоните ему или подтвердите лично. Любой, кто знает имя пользователя, может подать такой запрос.';
   }
 
   @override
-  String get adminPasswordReqConfirmApprove => 'I verified — approve';
+  String get adminPasswordReqConfirmApprove => 'Подтвердил — одобрить';
 
   @override
   String adminPasswordReqApproveSnackbar(Object name) {
-    return 'Approved — $name can sign in now.';
+    return 'Одобрено — $name теперь может войти.';
   }
 
   @override
-  String get adminPasswordReqRejectTitle => 'Reject password change?';
+  String get adminPasswordReqRejectTitle => 'Отклонить смену пароля?';
 
   @override
   String adminPasswordReqRejectExplain(Object name) {
-    return '$name\'s password won\'t change. They can submit a new request if needed.';
+    return 'Пароль $name не изменится. При необходимости он может подать новый запрос.';
   }
 
   @override
-  String get adminPasswordReqRejectSnackbar => 'Rejected.';
+  String get adminPasswordReqRejectSnackbar => 'Отклонено.';
 
   @override
-  String get adminPasswordReqRejectButton => 'Reject';
+  String get adminPasswordReqRejectButton => 'Отклонить';
 
   @override
-  String get adminPasswordReqApproveButton => 'Approve';
+  String get adminPasswordReqApproveButton => 'Одобрить';
 
   @override
   String get adminPasswordReqCardCopy =>
-      'Wants their password changed. The new password is hidden.';
+      'Хочет сменить пароль. Новый пароль скрыт.';
 
   @override
-  String get adminPasswordReqCallTooltip => 'Call';
+  String get adminPasswordReqCallTooltip => 'Позвонить';
 
   @override
   String get adminPasswordReqSmsTooltip => 'SMS';
 
   @override
-  String get adminSetupSchoolSetup => 'School Setup';
+  String get adminSetupSchoolSetup => 'Настройка школы';
 
   @override
   String get adminSetupComplete =>
-      'You\'re all set. Tap any item to revisit or refine it.';
+      'Всё готово. Нажмите на любой пункт, чтобы вернуться или уточнить.';
 
   @override
   String get adminSetupInstructions =>
-      'Complete these steps to fully set up your school.';
+      'Завершите эти шаги для полной настройки школы.';
 
   @override
-  String get adminSetupLogoTitle => 'Upload school logo';
+  String get adminSetupLogoTitle => 'Загрузить логотип школы';
 
   @override
-  String get adminSetupLogoSubtitle => 'Appears in headers and the drawer';
+  String get adminSetupLogoSubtitle =>
+      'Отображается в заголовках и боковом меню';
 
   @override
-  String get adminSetupNameTitle => 'Set school name';
+  String get adminSetupNameTitle => 'Указать название школы';
 
   @override
-  String get adminSetupNameSubtitle =>
-      'Shown to students, teachers, and parents';
+  String get adminSetupNameSubtitle => 'Видно ученикам, учителям и родителям';
 
   @override
-  String get adminSetupSubjectsTitle => 'Define subjects';
+  String get adminSetupSubjectsTitle => 'Определить предметы';
 
   @override
   String get adminSetupSubjectsSubtitle =>
-      'At least one grade with subjects configured';
+      'Минимум один класс с настроенными предметами';
 
   @override
-  String get adminSetupBellTitle => 'Set bell schedule';
+  String get adminSetupBellTitle => 'Настроить расписание звонков';
 
   @override
-  String get adminSetupBellSubtitle => 'Start/end times for each period';
+  String get adminSetupBellSubtitle => 'Время начала и окончания каждого урока';
 
   @override
-  String get adminSetupCohortsTitle => 'Create cohorts';
+  String get adminSetupCohortsTitle => 'Создать группы';
 
   @override
-  String get adminSetupCohortsSubtitle => 'Set up your class groups';
+  String get adminSetupCohortsSubtitle => 'Настройте группы классов';
 
   @override
-  String get adminSetupStudentsTitle => 'Add students';
+  String get adminSetupStudentsTitle => 'Добавить учеников';
 
   @override
   String get adminSetupStudentsSubtitle =>
-      'Create accounts or generate join codes';
+      'Создайте аккаунты или сгенерируйте коды присоединения';
 
   @override
-  String get adminSetupTeachersTitle => 'Add teachers';
+  String get adminSetupTeachersTitle => 'Добавить учителей';
 
   @override
-  String get adminSetupTeachersSubtitle => 'Create teacher accounts';
+  String get adminSetupTeachersSubtitle => 'Создайте аккаунты учителей';
 
   @override
-  String get supportContactTitle => 'Talk to us';
+  String get supportContactTitle => 'Свяжитесь с нами';
 
   @override
   String get supportContactDescription =>
-      'Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.';
+      'Не нашли ответ ниже? Напишите нам, и мы ответим в течение рабочего дня.';
 
   @override
   String get supportEmailLabel => 'Email';
 
   @override
-  String get supportPhoneLabel => 'Phone';
+  String get supportPhoneLabel => 'Телефон';
 
   @override
-  String get supportSmsLabel => 'Message';
+  String get supportSmsLabel => 'Сообщение';
 
   @override
-  String get aboutWhatIsClassmate => 'What is ClassMate?';
+  String get aboutWhatIsClassmate => 'Что такое ClassMate?';
 
   @override
   String get aboutClassmateDescription =>
-      'ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.';
+      'ClassMate — это операционная система школы для учеников, учителей, администраторов и родителей. Одно приложение, четыре роли, все стороны учебного дня в одном месте — расписание, посещаемость, оценки, классы, задания, сообщения и AI-помощник.';
 
   @override
   String get aboutMultilingualTitle =>
-      'Built for schools that speak more than one language';
+      'Создано для школ, где говорят на нескольких языках';
 
   @override
   String get aboutMultilingualDescription =>
-      'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.';
+      'Каждое имя, предмет и объявление может иметь до пяти языковых вариантов (английский, арабский, иврит, французский, русский). Ученики видят язык, который им удобнее; учителя управляют на своём.';
 
   @override
-  String get aboutPrivacyTitle => 'Privacy first';
+  String get aboutPrivacyTitle => 'Сначала конфиденциальность';
 
   @override
   String get aboutPrivacyDescription =>
-      'School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.';
+      'Данные школы остаются в школе. Роли чётко соответствуют тому, что каждый видит — учителя видят свои классы, администраторы — свою школу, родители — своих детей. Без сторонних трекеров и рекламных сетей.';
 
   @override
-  String get aboutContactTitle => 'Contact';
+  String get aboutContactTitle => 'Контакты';
 
   @override
   String get aboutContactDescription =>
-      'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org';
+      'Создано Tony Aboud и командой ClassMate.\nВопросы: tony@classmateapp.org';
 
   @override
   String aboutVersionLabel(Object version) {
-    return 'ClassMate · v$version';
+    return 'ClassMate · в. $version';
   }
 
   @override
-  String get adminAddStudent => 'Add student';
+  String get adminAddStudent => 'Добавить ученика';
 
   @override
-  String get adminAddTeacher => 'Add teacher';
+  String get adminAddTeacher => 'Добавить учителя';
 
   @override
-  String get adminAddParent => 'Add parent';
+  String get adminAddParent => 'Добавить родителя';
 
   @override
-  String get adminAddSecretary => 'Add secretary';
+  String get adminAddSecretary => 'Добавить секретаря';
 
   @override
-  String get adminAddAdmin => 'Add admin';
+  String get adminAddAdmin => 'Добавить администратора';
 
   @override
-  String get adminEditUser => 'Edit user';
+  String get adminEditUser => 'Изменить пользователя';
 
   @override
-  String get adminNoEmailPlaceholder => '(no email)';
+  String get adminNoEmailPlaceholder => '(нет email)';
 
   @override
-  String get adminNameEnglishRequired => 'Full name (English) is required';
+  String get adminNameEnglishRequired => 'Требуется полное имя (на английском)';
 
   @override
-  String get adminUsernameRequired => 'Username is required';
+  String get adminUsernameRequired => 'Требуется имя пользователя';
 
   @override
   String get adminPasswordMinLength =>
-      'Password must be at least 8 characters (or leave blank to auto-generate)';
+      'Пароль должен содержать не менее 8 символов (или оставьте пустым для авто-генерации)';
 
   @override
   String adminUserCreatedMsg(Object name) {
-    return '$name created.';
+    return '$name создан.';
   }
 
   @override
-  String get adminCredsUsername => 'Username';
+  String get adminCredsUsername => 'Имя пользователя';
 
   @override
   String get adminCredsEmail => 'Email';
 
   @override
-  String get adminCredsPassword => 'Password';
+  String get adminCredsPassword => 'Пароль';
 
   @override
-  String get adminShareCredsHint => 'Share these credentials with the student.';
+  String get adminShareCredsHint => 'Передайте эти данные ученику.';
 
   @override
-  String get adminCopyCredsButton => 'Copy All';
+  String get adminCopyCredsButton => 'Копировать всё';
 
   @override
-  String get adminGradeLabel => 'Grade';
+  String get adminGradeLabel => 'Класс';
 
   @override
   String adminCohortGradeFormat(Object grade) {
-    return 'Grade $grade';
+    return 'Класс $grade';
   }
 
   @override
-  String get adminCreateAndAddStudents => 'Create & Add Students';
+  String get adminCreateAndAddStudents => 'Создать и добавить учеников';
 
   @override
-  String get adminAddStudentsTitle => 'Add Students';
+  String get adminAddStudentsTitle => 'Добавить учеников';
 
   @override
-  String get adminSkipAdding => 'Skip';
+  String get adminSkipAdding => 'Пропустить';
 
   @override
-  String get adminInCohortBadge => 'In cohort';
+  String get adminInCohortBadge => 'В группе';
 
   @override
   String get adminNoStudentsFoundCohort =>
-      'No students found in this cohort\'s grades';
+      'Ученики не найдены в классах этой группы';
 
   @override
-  String get adminScheduleByCohort => 'By Cohort ▾';
+  String get adminScheduleByCohort => 'По группе ▾';
 
   @override
-  String get adminScheduleByStudent => 'By Student ▾';
+  String get adminScheduleByStudent => 'По ученику ▾';
 
   @override
-  String get adminScheduleAddGrade => 'Add grade';
+  String get adminScheduleAddGrade => 'Добавить класс';
 
   @override
-  String get adminScheduleAddCohort => 'Add cohort';
+  String get adminScheduleAddCohort => 'Добавить группу';
 
   @override
-  String get adminScheduleAddStudent => 'Add student';
+  String get adminScheduleAddStudent => 'Добавить ученика';
 
   @override
-  String get adminScheduleClearFilters => 'Clear';
+  String get adminScheduleClearFilters => 'Очистить';
 
   @override
   String get adminSchedulePickSubjectRequired =>
-      'Pick a subject before saving the period.';
+      'Выберите предмет перед сохранением урока.';
 
   @override
-  String get adminSchedulePickDateOnce => 'Pick a date for a one-off period.';
+  String get adminSchedulePickDateOnce => 'Выберите дату для разового урока.';
 
   @override
   String adminSchedulePickDateRecurring(Object freq) {
-    return 'Pick a start date for the every-$freq-weeks schedule.';
+    return 'Выберите дату начала для расписания каждые $freq нед.';
   }
 
   @override
-  String get adminSchoolLogoLabel => 'School Logo';
+  String get adminSchoolLogoLabel => 'Логотип школы';
 
   @override
-  String get adminSchoolLogoUploaded => 'Logo uploaded';
+  String get adminSchoolLogoUploaded => 'Логотип загружен';
 
   @override
-  String get adminSchoolNoLogoYet => 'No logo yet';
+  String get adminSchoolNoLogoYet => 'Логотипа ещё нет';
 
   @override
   String get adminSchoolLogoDescription =>
-      'Appears next to your school name in the app drawer.';
+      'Отображается рядом с названием школы в боковом меню.';
 
   @override
-  String get adminSchoolLogoChange => 'Change';
+  String get adminSchoolLogoChange => 'Изменить';
 
   @override
-  String get adminSchoolLogoUpload => 'Upload';
+  String get adminSchoolLogoUpload => 'Загрузить';
 
   @override
-  String get adminSchoolLogoRemove => 'Remove';
+  String get adminSchoolLogoRemove => 'Удалить';
 
   @override
-  String get adminSchoolGradeRangeLabel => 'Grade range';
+  String get adminSchoolGradeRangeLabel => 'Диапазон классов';
 
   @override
   String get adminSchoolGradeRangeDescription =>
-      'Grades available across cohorts, students, and pickers.';
+      'Классы, доступные в группах, учениках и выпадающих списках.';
 
   @override
-  String get adminSchoolLowestGrade => 'Lowest';
+  String get adminSchoolLowestGrade => 'Минимум';
 
   @override
-  String get adminSchoolHighestGrade => 'Highest';
+  String get adminSchoolHighestGrade => 'Максимум';
 
   @override
-  String get adminSchoolSubjectsTitle => 'School Subjects';
+  String get adminSchoolSubjectsTitle => 'Предметы школы';
 
   @override
   String get adminSchoolSubjectsDescription =>
-      'Available to all teachers when creating assignments.';
+      'Доступны всем учителям при создании заданий.';
 
   @override
-  String get adminSchoolNoTranslations => 'Tap to add translations';
+  String get adminSchoolNoTranslations => 'Нажмите, чтобы добавить переводы';
 
   @override
   String get adminSchoolBellHint =>
-      'Set start and end times for each period. Add or remove periods as needed.';
+      'Установите время начала и окончания каждого урока. Добавьте или удалите уроки по необходимости.';
 
   @override
   String get adminSchoolBellInfo =>
-      'Set the start and end time for each period. These become the default times used when building the weekly schedule.';
+      'Установите время начала и окончания каждого урока. Это время будет использоваться по умолчанию при построении недельного расписания.';
 
   @override
-  String get adminSchoolStartTime => 'Start';
+  String get adminSchoolStartTime => 'Начало';
 
   @override
-  String get adminSchoolEndTime => 'End';
+  String get adminSchoolEndTime => 'Конец';
 
   @override
-  String get adminExportStudentsTab => 'Students';
+  String get adminExportStudentsTab => 'Ученики';
 
   @override
-  String get adminExportCohortsTab => 'Cohorts';
+  String get adminExportCohortsTab => 'Группы';
 
   @override
-  String get adminExportGradesTab => 'Grades';
+  String get adminExportGradesTab => 'Классы';
 
   @override
-  String get adminExportOptionsTitle => 'Export Options';
+  String get adminExportOptionsTitle => 'Параметры экспорта';
 
   @override
-  String get adminExportIncludePasswords => 'Include Passwords';
+  String get adminExportIncludePasswords => 'Включить пароли';
 
   @override
-  String get adminExportCsvButton => 'Export CSV';
+  String get adminExportCsvButton => 'Экспорт CSV';
 
   @override
-  String get adminExportPdfButton => 'Export PDF';
+  String get adminExportPdfButton => 'Экспорт PDF';
 
   @override
-  String get teacherCreateClassroomTooltip => 'Create classroom';
+  String get teacherCreateClassroomTooltip => 'Создать класс';
 
   @override
-  String get teacherClassroomNameRequired => 'Classroom name *';
+  String get teacherClassroomNameRequired => 'Название класса *';
 
   @override
-  String get teacherSubjectRequired => 'Subject *';
+  String get teacherSubjectRequired => 'Предмет *';
 }

@@ -596,7 +596,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get loginSigningIn => 'מתחבר...';
 
   @override
-  String get loginEmailLabel => 'Email or username';
+  String get loginEmailLabel => 'דוא\"ל או שם משתמש';
 
   @override
   String get loginPasswordLabel => 'סיסמה';
@@ -4238,7 +4238,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherStudentsLabel => 'תלמידים';
 
   @override
-  String get teacherSearchStudents => 'Search students…';
+  String get teacherSearchStudents => 'חפש תלמידים…';
 
   @override
   String get teacherNoStudentsLoaded => 'לא נמצאו תלמידים בבית ספר זה.';
@@ -4318,13 +4318,13 @@ class AppLocalizationsHe extends AppLocalizations {
       'פעולה זו תסיר אותה לכל התלמידים.';
 
   @override
-  String get teacherShareMaterialTitle => 'Share Material';
+  String get teacherShareMaterialTitle => 'שתף חומר';
 
   @override
   String get teacherRemoveMaterial => 'להסיר חומר?';
 
   @override
-  String get teacherScheduleMeetingTitle => 'Schedule Meeting';
+  String get teacherScheduleMeetingTitle => 'תזמן פגישה';
 
   @override
   String get teacherCancelMeetingTitle => 'לבטל פגישה?';
@@ -4871,7 +4871,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminCohortGrade => 'כיתה';
 
   @override
-  String get adminRenameCohort => 'Rename';
+  String get adminRenameCohort => 'שנה שם';
 
   @override
   String get adminAddStudents => 'הוסף תלמידים';
@@ -4923,7 +4923,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String adminSchedulePeriodLabel(Object period) {
-    return 'P$period';
+    return 'ש$period';
   }
 
   @override
@@ -5058,763 +5058,751 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get commonRetry => 'Retry';
+  String get commonRetry => 'נסה שוב';
 
   @override
-  String get commonBack => 'Back';
+  String get commonBack => 'חזרה';
 
   @override
-  String get commonClose => 'Close';
+  String get commonClose => 'סגירה';
 
   @override
-  String get commonDownload => 'Download';
+  String get commonDownload => 'הורדה';
 
   @override
-  String get commonOpenExternally => 'Open externally';
+  String get commonOpenExternally => 'פתח חיצונית';
 
   @override
-  String get commonSave => 'Save';
+  String get commonSave => 'שמור';
 
   @override
-  String get commonCancel => 'Cancel';
+  String get commonCancel => 'ביטול';
 
   @override
-  String get commonDone => 'Done';
+  String get commonDone => 'סיום';
 
   @override
-  String get commonDelete => 'Delete';
+  String get commonDelete => 'מחק';
 
   @override
-  String get commonEdit => 'Edit';
+  String get commonEdit => 'ערוך';
 
   @override
-  String get commonSearch => 'Search…';
+  String get commonSearch => 'חיפוש…';
 
   @override
-  String get commonShare => 'Share';
+  String get commonShare => 'שתף';
 
   @override
-  String get commonLoading => 'Loading…';
+  String get commonLoading => 'טוען…';
 
   @override
-  String get commonError => 'Something went wrong';
+  String get commonError => 'משהו השתבש';
 
   @override
-  String get commonTryAgain => 'Try again';
+  String get commonTryAgain => 'נסה שוב';
 
   @override
-  String get studentMaterialsTitle => 'Materials';
+  String get studentMaterialsTitle => 'חומרים';
 
   @override
-  String get studentMaterialsEmptyTitle => 'No materials shared yet';
+  String get studentMaterialsEmptyTitle => 'אין חומרים שותפו עדיין';
 
   @override
-  String get studentMaterialsEmptyHint =>
-      'Your teacher will share resources here.';
+  String get studentMaterialsEmptyHint => 'המורה ישתף משאבים כאן.';
 
   @override
-  String get studentMaterialsLoadError => 'Could not load materials';
+  String get studentMaterialsLoadError => 'לא ניתן לטעון את החומרים';
 
   @override
-  String get studentAssignmentSubmittedSnackbar => 'Assignment handed in!';
+  String get studentAssignmentSubmittedSnackbar => 'המטלה הוגשה!';
 
   @override
-  String get studentAssignmentSubmitFailed =>
-      'Could not submit — please try again.';
+  String get studentAssignmentSubmitFailed => 'לא ניתן להגיש — נסה שוב.';
 
   @override
-  String get studentAssignmentUploadFailed =>
-      'File upload failed — please try again.';
+  String get studentAssignmentUploadFailed => 'העלאת הקובץ נכשלה — נסה שוב.';
 
   @override
-  String get studentAssignmentHandedInBadge => 'Handed in';
+  String get studentAssignmentHandedInBadge => 'הוגש';
 
   @override
-  String get studentAssignmentSubmitButton => 'Hand in';
+  String get studentAssignmentSubmitButton => 'הגשה';
 
   @override
-  String get studentAssignmentSubmitting => 'Handing in…';
+  String get studentAssignmentSubmitting => 'מגיש…';
 
   @override
-  String get studentAssignmentAttachFile => 'Attach file';
+  String get studentAssignmentAttachFile => 'צרף קובץ';
 
   @override
-  String get studentAssignmentAddMoreFiles => 'Add more files';
+  String get studentAssignmentAddMoreFiles => 'הוסף קבצים נוספים';
 
   @override
-  String get studentAssignmentYourSubmission => 'Your submission';
+  String get studentAssignmentYourSubmission => 'ההגשה שלך';
 
   @override
-  String get studentAssignmentTeacherAttachments => 'Attachments';
+  String get studentAssignmentTeacherAttachments => 'קבצים מצורפים';
 
   @override
   String secretaryWelcomeGreeting(Object name) {
-    return 'Hi $name 👋';
+    return 'שלום $name 👋';
   }
 
   @override
-  String get secretaryYourTools => 'Your tools';
+  String get secretaryYourTools => 'הכלים שלך';
 
   @override
-  String get secretaryReports => 'Reports';
+  String get secretaryReports => 'דיווחים';
 
   @override
-  String get secretaryExportData => 'Export Data';
+  String get secretaryExportData => 'ייצוא נתונים';
 
   @override
-  String get secretaryHomeTile => 'Home';
+  String get secretaryHomeTile => 'בית';
 
   @override
   String parentHomeGreeting(Object name) {
-    return 'Hi $name 👋';
+    return 'שלום $name 👋';
   }
 
   @override
-  String get parentYourTools => 'Your tools';
+  String get parentYourTools => 'הכלים שלך';
 
   @override
-  String get parentNoChildLinked => 'No child linked yet';
+  String get parentNoChildLinked => 'אין ילד מקושר עדיין';
 
   @override
-  String get parentPickChildFirst => 'Pick a child first';
+  String get parentPickChildFirst => 'בחר ילד תחילה';
 
   @override
   String get parentNoApprovedChildren =>
-      'No approved children yet. Ask your school to link your account.';
+      'אין ילדים מאושרים עדיין. בקש מבית הספר לקשר את חשבונך.';
 
   @override
-  String get loginEmptyFieldsError =>
-      'Please enter your email or username and password.';
+  String get loginEmptyFieldsError => 'הזן דוא\"ל או שם משתמש וסיסמה.';
 
   @override
-  String get loginConnectionError =>
-      'No connection. Check your internet and try again.';
+  String get loginConnectionError => 'אין חיבור. בדוק את האינטרנט ונסה שוב.';
 
   @override
-  String get loginTimeoutError => 'Request timed out. Please try again.';
+  String get loginTimeoutError => 'הבקשה נכשלה בגלל פסק זמן. נסה שוב.';
 
   @override
-  String get loginForgotPasswordLink => 'Forgot password?';
+  String get loginForgotPasswordLink => 'שכחת סיסמה?';
 
   @override
-  String get forgotPasswordTitle => 'Reset your password';
+  String get forgotPasswordTitle => 'איפוס סיסמה';
 
   @override
-  String get forgotPasswordModeEmail => 'Email';
+  String get forgotPasswordModeEmail => 'דוא\"ל';
 
   @override
   String get forgotPasswordModeSms => 'SMS';
 
   @override
-  String get forgotPasswordModeAdmin => 'Admin';
+  String get forgotPasswordModeAdmin => 'מנהל';
 
   @override
   String get forgotPasswordEmailSent =>
-      'Reset link sent (if an account matches).';
+      'קישור איפוס נשלח (אם נמצא חשבון תואם).';
 
   @override
-  String get forgotPasswordEmptyError =>
-      'Enter your email or username to continue.';
+  String get forgotPasswordEmptyError => 'הזן דוא\"ל או שם משתמש כדי להמשיך.';
 
   @override
-  String get forgotPasswordEmailButton => 'Email me a reset link';
+  String get forgotPasswordEmailButton => 'שלח לי קישור איפוס בדוא\"ל';
 
   @override
-  String get forgotPasswordSmsButton => 'Text me a reset link';
+  String get forgotPasswordSmsButton => 'שלח לי קישור איפוס ב-SMS';
 
   @override
   String get forgotPasswordLinkExpires =>
-      'The link expires in 1 hour and can only be used once.';
+      'תוקף הקישור יפוג בעוד שעה וניתן לשימוש פעם אחת בלבד.';
 
   @override
-  String get pushPermissionTitle => 'Stay in the loop';
+  String get pushPermissionTitle => 'הישאר מעודכן';
 
   @override
   String get pushPermissionBody =>
-      'Turn on notifications so you don\'t miss grades, messages, or schedule changes.';
+      'הפעל התראות כדי שלא תפספס ציונים, הודעות או שינויים במערכת השעות.';
 
   @override
   String commonRequiredField(Object field) {
-    return '$field required';
+    return '$field נדרש';
   }
 
   @override
-  String get commonAttachments => 'Attachments';
+  String get commonAttachments => 'קבצים מצורפים';
 
   @override
-  String get commonAttachFile => 'Attach file';
+  String get commonAttachFile => 'צרף קובץ';
 
   @override
-  String get commonReplaceFile => 'Replace file';
+  String get commonReplaceFile => 'החלף קובץ';
 
   @override
-  String get commonTitleRequired => 'Title required';
+  String get commonTitleRequired => 'נדרש כותרת';
 
   @override
-  String get commonPublish => 'Publish';
+  String get commonPublish => 'פרסם';
 
   @override
-  String get commonContinue => 'Continue';
+  String get commonContinue => 'המשך';
 
   @override
-  String get commonNext => 'Next';
+  String get commonNext => 'הבא';
 
   @override
-  String get commonStart => 'Start';
+  String get commonStart => 'התחלה';
 
   @override
-  String get commonEnd => 'End';
+  String get commonEnd => 'סיום';
 
   @override
-  String get commonRefresh => 'Refresh';
+  String get commonRefresh => 'רענן';
 
   @override
-  String get commonRemove => 'Remove';
+  String get commonRemove => 'הסר';
 
   @override
-  String get commonOpen => 'Open';
+  String get commonOpen => 'פתח';
 
   @override
-  String get commonView => 'View';
+  String get commonView => 'הצג';
 
   @override
-  String get commonCopy => 'Copy';
+  String get commonCopy => 'העתק';
 
   @override
-  String get commonAdd => 'Add';
+  String get commonAdd => 'הוסף';
 
   @override
-  String get commonOptional => 'Optional';
+  String get commonOptional => 'אופציונלי';
 
   @override
-  String get commonRequired => 'Required';
+  String get commonRequired => 'חובה';
 
   @override
-  String get commonAuto => 'Auto';
+  String get commonAuto => 'אוטומטי';
 
   @override
-  String get teacherShareButton => 'Share';
+  String get teacherShareButton => 'שתף';
 
   @override
-  String get teacherMaterialDetails => 'Material Details';
+  String get teacherMaterialDetails => 'פרטי החומר';
 
   @override
-  String get teacherMaterialTitleLabel => 'Title *';
+  String get teacherMaterialTitleLabel => 'כותרת *';
 
   @override
-  String get teacherMaterialDescriptionLabel => 'Description (optional)';
+  String get teacherMaterialDescriptionLabel => 'תיאור (אופציונלי)';
 
   @override
-  String get teacherMaterialContentSection => 'Content';
+  String get teacherMaterialContentSection => 'תוכן';
 
   @override
-  String get teacherMaterialContentRequired =>
-      'Please attach a file or add a link';
+  String get teacherMaterialContentRequired => 'אנא צרף קובץ או הוסף קישור';
 
   @override
   String teacherFilePickError(Object error) {
-    return 'Could not pick file: $error';
+    return 'לא ניתן לבחור קובץ: $error';
   }
 
   @override
-  String get teacherScheduleButton => 'Schedule';
+  String get teacherScheduleButton => 'תזמן';
 
   @override
-  String get teacherMeetingTitleField => 'Meeting title *';
+  String get teacherMeetingTitleField => 'כותרת הפגישה *';
 
   @override
-  String get teacherMeetingLinkField => 'Meeting link *';
+  String get teacherMeetingLinkField => 'קישור לפגישה *';
 
   @override
-  String get teacherMeetingLinkRequired => 'Meeting link required';
+  String get teacherMeetingLinkRequired => 'נדרש קישור לפגישה';
 
   @override
-  String get teacherMeetingTitleRequired => 'Meeting title required';
+  String get teacherMeetingTitleRequired => 'נדרשת כותרת לפגישה';
 
   @override
-  String get teacherMeetingDateTimeRequired => 'Start date and time required';
+  String get teacherMeetingDateTimeRequired => 'נדרשים תאריך ושעת התחלה';
 
   @override
-  String get teacherMeetingStartDate => 'Start date *';
+  String get teacherMeetingStartDate => 'תאריך התחלה *';
 
   @override
-  String get teacherMeetingStartTime => 'Start time *';
+  String get teacherMeetingStartTime => 'שעת התחלה *';
 
   @override
-  String get teacherMeetingEndDate => 'End date (optional)';
+  String get teacherMeetingEndDate => 'תאריך סיום (אופציונלי)';
 
   @override
-  String get teacherMeetingEndTime => 'End time (optional)';
+  String get teacherMeetingEndTime => 'שעת סיום (אופציונלי)';
 
   @override
-  String get teacherClearEndTime => 'Clear end time';
+  String get teacherClearEndTime => 'נקה שעת סיום';
 
   @override
-  String get teacherAssignmentTitleField => 'Title *';
+  String get teacherAssignmentTitleField => 'כותרת *';
 
   @override
-  String get teacherAssignmentInstructions => 'Instructions (optional)';
+  String get teacherAssignmentInstructions => 'הוראות (אופציונלי)';
 
   @override
-  String get teacherAssignmentDueDate => 'Due date (optional)';
+  String get teacherAssignmentDueDate => 'תאריך הגשה (אופציונלי)';
 
   @override
-  String get teacherAssignmentClearDueDate => 'Clear due date';
+  String get teacherAssignmentClearDueDate => 'נקה תאריך הגשה';
 
   @override
-  String get teacherAssignmentMaxGrade => 'Max grade (optional)';
+  String get teacherAssignmentMaxGrade => 'ציון מקסימלי (אופציונלי)';
 
   @override
-  String get teacherAssignmentPublished => 'Assignment published.';
+  String get teacherAssignmentPublished => 'המטלה פורסמה.';
 
   @override
-  String get teacherAssignmentDraftSaved => 'Draft saved.';
+  String get teacherAssignmentDraftSaved => 'טיוטה נשמרה.';
 
   @override
-  String get teacherCreateAssignment => 'Create';
+  String get teacherCreateAssignment => 'צור';
 
   @override
-  String get teacherExamSubject => 'Subject *';
+  String get teacherExamSubject => 'מקצוע *';
 
   @override
-  String get teacherExamDate => 'Exam date *';
+  String get teacherExamDate => 'תאריך מבחן *';
 
   @override
-  String get teacherSelectSubject => 'Select subject';
+  String get teacherSelectSubject => 'בחר מקצוע';
 
   @override
-  String get teacherNoSubjectOption => 'No subject';
+  String get teacherNoSubjectOption => 'ללא מקצוע';
 
   @override
-  String get teacherOtherSubjectOption => 'Other';
+  String get teacherOtherSubjectOption => 'אחר';
 
   @override
-  String get teacherSearchClassrooms => 'Search classrooms…';
+  String get teacherSearchClassrooms => 'חפש כיתות…';
 
   @override
-  String get teacherSearchMaterials => 'Search materials…';
+  String get teacherSearchMaterials => 'חפש חומרים…';
 
   @override
-  String get teacherClassroomName => 'Classroom name *';
+  String get teacherClassroomName => 'שם הכיתה *';
 
   @override
-  String get adminReportsOpenTab => 'Open';
+  String get adminReportsOpenTab => 'פתוחים';
 
   @override
-  String get adminReportsResolvedTab => 'Resolved';
+  String get adminReportsResolvedTab => 'טופלו';
 
   @override
-  String get adminReportsDismissedTab => 'Dismissed';
+  String get adminReportsDismissedTab => 'נדחו';
 
   @override
-  String get adminReportsNoOpen => 'No open reports';
+  String get adminReportsNoOpen => 'אין דיווחים פתוחים';
 
   @override
-  String get adminReportsNoInView => 'No reports in this view';
+  String get adminReportsNoInView => 'אין דיווחים בתצוגה זו';
 
   @override
-  String get adminReportsMediaAttachment => '[Media attachment]';
+  String get adminReportsMediaAttachment => '[קובץ מדיה]';
 
   @override
-  String get adminReportsEmptyMessage => '(empty message)';
+  String get adminReportsEmptyMessage => '(הודעה ריקה)';
 
   @override
-  String get adminReportsDismiss => 'Dismiss';
+  String get adminReportsDismiss => 'דחה';
 
   @override
-  String get adminReportsResolve => 'Resolve';
+  String get adminReportsResolve => 'טפל';
 
   @override
   String adminReportsReason(Object reason) {
-    return 'Reason: $reason';
+    return 'סיבה: $reason';
   }
 
   @override
-  String get chatReportTitle => 'Report message';
+  String get chatReportTitle => 'דווח על הודעה';
 
   @override
-  String get chatReportButton => 'Report';
+  String get chatReportButton => 'דווח';
 
   @override
-  String get chatReportSuccess => 'Reported. Thank you — an admin will review.';
+  String get chatReportSuccess => 'הדיווח התקבל. תודה — מנהל יבדוק.';
 
   @override
   String chatReportFailed(Object error) {
-    return 'Report failed: $error';
+    return 'הדיווח נכשל: $error';
   }
 
   @override
   String chatSendError(Object message) {
-    return 'Couldn\'t send: $message';
+    return 'לא ניתן לשלוח: $message';
   }
 
   @override
   String chatForwardLabel(Object count) {
-    return 'Forward $count';
+    return 'העבר $count';
   }
 
   @override
   String chatDeleteLabel(Object count) {
-    return 'Delete $count';
+    return 'מחק $count';
   }
 
   @override
   String chatSelectedCount(Object count) {
-    return '$count selected';
+    return '$count נבחרו';
   }
 
   @override
-  String get adminPasswordReqEmpty => 'No pending requests';
+  String get adminPasswordReqEmpty => 'אין בקשות ממתינות';
 
   @override
   String get adminPasswordReqExplainer =>
-      'Users you have approved or rejected won\'t appear here. Pending requests expire after 24 hours.';
+      'משתמשים שאישרת או דחית לא יופיעו כאן. בקשות ממתינות פגות לאחר 24 שעות.';
 
   @override
-  String get adminPasswordReqApproveTitle => 'Approve password change?';
+  String get adminPasswordReqApproveTitle => 'לאשר שינוי סיסמה?';
 
   @override
   String adminPasswordReqApproveExplain(Object name) {
-    return 'This sets $name\'s password to the one they typed (you don\'t see it).';
+    return 'פעולה זו תגדיר את הסיסמה של $name לזו שהוא הקליד (אתה לא רואה אותה).';
   }
 
   @override
   String adminPasswordReqVerifyWarning(Object name) {
-    return 'Only approve if you have verified the requester is really $name — call them, or confirm in person. Anyone who knows a username can file this request.';
+    return 'אשר רק לאחר שאימתת שמגיש הבקשה הוא באמת $name — התקשר אליו או אמת אישית. כל מי שיודע שם משתמש יכול להגיש בקשה כזו.';
   }
 
   @override
-  String get adminPasswordReqConfirmApprove => 'I verified — approve';
+  String get adminPasswordReqConfirmApprove => 'אימתתי — אשר';
 
   @override
   String adminPasswordReqApproveSnackbar(Object name) {
-    return 'Approved — $name can sign in now.';
+    return 'אושר — $name יכול להתחבר עכשיו.';
   }
 
   @override
-  String get adminPasswordReqRejectTitle => 'Reject password change?';
+  String get adminPasswordReqRejectTitle => 'לדחות שינוי סיסמה?';
 
   @override
   String adminPasswordReqRejectExplain(Object name) {
-    return '$name\'s password won\'t change. They can submit a new request if needed.';
+    return 'הסיסמה של $name לא תשתנה. הוא יכול להגיש בקשה חדשה במידת הצורך.';
   }
 
   @override
-  String get adminPasswordReqRejectSnackbar => 'Rejected.';
+  String get adminPasswordReqRejectSnackbar => 'נדחה.';
 
   @override
-  String get adminPasswordReqRejectButton => 'Reject';
+  String get adminPasswordReqRejectButton => 'דחה';
 
   @override
-  String get adminPasswordReqApproveButton => 'Approve';
+  String get adminPasswordReqApproveButton => 'אשר';
 
   @override
   String get adminPasswordReqCardCopy =>
-      'Wants their password changed. The new password is hidden.';
+      'מעוניין בשינוי סיסמה. הסיסמה החדשה מוסתרת.';
 
   @override
-  String get adminPasswordReqCallTooltip => 'Call';
+  String get adminPasswordReqCallTooltip => 'התקשר';
 
   @override
   String get adminPasswordReqSmsTooltip => 'SMS';
 
   @override
-  String get adminSetupSchoolSetup => 'School Setup';
+  String get adminSetupSchoolSetup => 'הגדרת בית הספר';
 
   @override
   String get adminSetupComplete =>
-      'You\'re all set. Tap any item to revisit or refine it.';
+      'הכול מוכן. הקש על כל פריט כדי לחזור אליו או לעדכן.';
 
   @override
   String get adminSetupInstructions =>
-      'Complete these steps to fully set up your school.';
+      'השלם שלבים אלה כדי להגדיר את בית הספר במלואו.';
 
   @override
-  String get adminSetupLogoTitle => 'Upload school logo';
+  String get adminSetupLogoTitle => 'העלאת לוגו בית הספר';
 
   @override
-  String get adminSetupLogoSubtitle => 'Appears in headers and the drawer';
+  String get adminSetupLogoSubtitle => 'מופיע בכותרות ובתפריט הצדדי';
 
   @override
-  String get adminSetupNameTitle => 'Set school name';
+  String get adminSetupNameTitle => 'הגדרת שם בית הספר';
 
   @override
-  String get adminSetupNameSubtitle =>
-      'Shown to students, teachers, and parents';
+  String get adminSetupNameSubtitle => 'מוצג לתלמידים, מורים והורים';
 
   @override
-  String get adminSetupSubjectsTitle => 'Define subjects';
+  String get adminSetupSubjectsTitle => 'הגדרת מקצועות';
 
   @override
-  String get adminSetupSubjectsSubtitle =>
-      'At least one grade with subjects configured';
+  String get adminSetupSubjectsSubtitle => 'לפחות שכבה אחת עם מקצועות מוגדרים';
 
   @override
-  String get adminSetupBellTitle => 'Set bell schedule';
+  String get adminSetupBellTitle => 'הגדרת מערכת שעות';
 
   @override
-  String get adminSetupBellSubtitle => 'Start/end times for each period';
+  String get adminSetupBellSubtitle => 'שעות התחלה וסיום לכל שיעור';
 
   @override
-  String get adminSetupCohortsTitle => 'Create cohorts';
+  String get adminSetupCohortsTitle => 'יצירת קבוצות';
 
   @override
-  String get adminSetupCohortsSubtitle => 'Set up your class groups';
+  String get adminSetupCohortsSubtitle => 'הגדר את קבוצות הכיתות שלך';
 
   @override
-  String get adminSetupStudentsTitle => 'Add students';
+  String get adminSetupStudentsTitle => 'הוספת תלמידים';
 
   @override
-  String get adminSetupStudentsSubtitle =>
-      'Create accounts or generate join codes';
+  String get adminSetupStudentsSubtitle => 'צור חשבונות או הפק קודי הצטרפות';
 
   @override
-  String get adminSetupTeachersTitle => 'Add teachers';
+  String get adminSetupTeachersTitle => 'הוספת מורים';
 
   @override
-  String get adminSetupTeachersSubtitle => 'Create teacher accounts';
+  String get adminSetupTeachersSubtitle => 'צור חשבונות למורים';
 
   @override
-  String get supportContactTitle => 'Talk to us';
+  String get supportContactTitle => 'דבר איתנו';
 
   @override
   String get supportContactDescription =>
-      'Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.';
+      'לא מצאת את התשובה למטה? צור קשר ונחזור אליך תוך יום עסקים.';
 
   @override
-  String get supportEmailLabel => 'Email';
+  String get supportEmailLabel => 'דוא\"ל';
 
   @override
-  String get supportPhoneLabel => 'Phone';
+  String get supportPhoneLabel => 'טלפון';
 
   @override
-  String get supportSmsLabel => 'Message';
+  String get supportSmsLabel => 'הודעה';
 
   @override
-  String get aboutWhatIsClassmate => 'What is ClassMate?';
+  String get aboutWhatIsClassmate => 'מהו ClassMate?';
 
   @override
   String get aboutClassmateDescription =>
-      'ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.';
+      'ClassMate הוא מערכת ההפעלה של בית הספר עבור תלמידים, מורים, מנהלים והורים. אפליקציה אחת, ארבעה תפקידים, וכל היבט של יום הלימודים במקום אחד — מערכת שעות, נוכחות, ציונים, כיתות, מטלות, הודעות, ושותף לימוד מבוסס בינה מלאכותית.';
 
   @override
-  String get aboutMultilingualTitle =>
-      'Built for schools that speak more than one language';
+  String get aboutMultilingualTitle => 'בנוי לבתי ספר שמדברים יותר משפה אחת';
 
   @override
   String get aboutMultilingualDescription =>
-      'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.';
+      'כל שם, מקצוע והודעה יכולים לשאת עד חמש שפות (אנגלית, ערבית, עברית, צרפתית, רוסית). תלמידים רואים את השפה הנוחה להם; מורים מנהלים בשפה שלהם.';
 
   @override
-  String get aboutPrivacyTitle => 'Privacy first';
+  String get aboutPrivacyTitle => 'פרטיות תחילה';
 
   @override
   String get aboutPrivacyDescription =>
-      'School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.';
+      'נתוני בית הספר נשארים בתוך בית הספר. תפקידים תואמים את מה שכל אחד יכול לראות — מורים רואים את הכיתות שלהם, מנהלים רואים את בית ספרם, הורים רואים את ילדיהם. ללא מעקב צד שלישי וללא רשתות פרסום.';
 
   @override
-  String get aboutContactTitle => 'Contact';
+  String get aboutContactTitle => 'צור קשר';
 
   @override
   String get aboutContactDescription =>
-      'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org';
+      'נבנה על ידי Tony Aboud וצוות ClassMate.\nשאלות: tony@classmateapp.org';
 
   @override
   String aboutVersionLabel(Object version) {
-    return 'ClassMate · v$version';
+    return 'ClassMate · גרסה $version';
   }
 
   @override
-  String get adminAddStudent => 'Add student';
+  String get adminAddStudent => 'הוסף תלמיד';
 
   @override
-  String get adminAddTeacher => 'Add teacher';
+  String get adminAddTeacher => 'הוסף מורה';
 
   @override
-  String get adminAddParent => 'Add parent';
+  String get adminAddParent => 'הוסף הורה';
 
   @override
-  String get adminAddSecretary => 'Add secretary';
+  String get adminAddSecretary => 'הוסף מזכיר/ה';
 
   @override
-  String get adminAddAdmin => 'Add admin';
+  String get adminAddAdmin => 'הוסף מנהל';
 
   @override
-  String get adminEditUser => 'Edit user';
+  String get adminEditUser => 'ערוך משתמש';
 
   @override
-  String get adminNoEmailPlaceholder => '(no email)';
+  String get adminNoEmailPlaceholder => '(אין דוא\"ל)';
 
   @override
-  String get adminNameEnglishRequired => 'Full name (English) is required';
+  String get adminNameEnglishRequired => 'נדרש שם מלא (באנגלית)';
 
   @override
-  String get adminUsernameRequired => 'Username is required';
+  String get adminUsernameRequired => 'נדרש שם משתמש';
 
   @override
   String get adminPasswordMinLength =>
-      'Password must be at least 8 characters (or leave blank to auto-generate)';
+      'הסיסמה חייבת להיות בת 8 תווים לפחות (או השאר ריק לייצור אוטומטי)';
 
   @override
   String adminUserCreatedMsg(Object name) {
-    return '$name created.';
+    return '$name נוצר.';
   }
 
   @override
-  String get adminCredsUsername => 'Username';
+  String get adminCredsUsername => 'שם משתמש';
 
   @override
-  String get adminCredsEmail => 'Email';
+  String get adminCredsEmail => 'דוא\"ל';
 
   @override
-  String get adminCredsPassword => 'Password';
+  String get adminCredsPassword => 'סיסמה';
 
   @override
-  String get adminShareCredsHint => 'Share these credentials with the student.';
+  String get adminShareCredsHint => 'שתף את פרטי הגישה עם התלמיד.';
 
   @override
-  String get adminCopyCredsButton => 'Copy All';
+  String get adminCopyCredsButton => 'העתק הכול';
 
   @override
-  String get adminGradeLabel => 'Grade';
+  String get adminGradeLabel => 'שכבה';
 
   @override
   String adminCohortGradeFormat(Object grade) {
-    return 'Grade $grade';
+    return 'שכבה $grade';
   }
 
   @override
-  String get adminCreateAndAddStudents => 'Create & Add Students';
+  String get adminCreateAndAddStudents => 'צור והוסף תלמידים';
 
   @override
-  String get adminAddStudentsTitle => 'Add Students';
+  String get adminAddStudentsTitle => 'הוספת תלמידים';
 
   @override
-  String get adminSkipAdding => 'Skip';
+  String get adminSkipAdding => 'דלג';
 
   @override
-  String get adminInCohortBadge => 'In cohort';
+  String get adminInCohortBadge => 'בקבוצה';
 
   @override
   String get adminNoStudentsFoundCohort =>
-      'No students found in this cohort\'s grades';
+      'לא נמצאו תלמידים בשכבות של קבוצה זו';
 
   @override
-  String get adminScheduleByCohort => 'By Cohort ▾';
+  String get adminScheduleByCohort => 'לפי קבוצה ▾';
 
   @override
-  String get adminScheduleByStudent => 'By Student ▾';
+  String get adminScheduleByStudent => 'לפי תלמיד ▾';
 
   @override
-  String get adminScheduleAddGrade => 'Add grade';
+  String get adminScheduleAddGrade => 'הוסף שכבה';
 
   @override
-  String get adminScheduleAddCohort => 'Add cohort';
+  String get adminScheduleAddCohort => 'הוסף קבוצה';
 
   @override
-  String get adminScheduleAddStudent => 'Add student';
+  String get adminScheduleAddStudent => 'הוסף תלמיד';
 
   @override
-  String get adminScheduleClearFilters => 'Clear';
+  String get adminScheduleClearFilters => 'נקה';
 
   @override
-  String get adminSchedulePickSubjectRequired =>
-      'Pick a subject before saving the period.';
+  String get adminSchedulePickSubjectRequired => 'בחר מקצוע לפני שמירת השיעור.';
 
   @override
-  String get adminSchedulePickDateOnce => 'Pick a date for a one-off period.';
+  String get adminSchedulePickDateOnce => 'בחר תאריך לשיעור חד-פעמי.';
 
   @override
   String adminSchedulePickDateRecurring(Object freq) {
-    return 'Pick a start date for the every-$freq-weeks schedule.';
+    return 'בחר תאריך התחלה ללוז של כל $freq שבועות.';
   }
 
   @override
-  String get adminSchoolLogoLabel => 'School Logo';
+  String get adminSchoolLogoLabel => 'לוגו בית הספר';
 
   @override
-  String get adminSchoolLogoUploaded => 'Logo uploaded';
+  String get adminSchoolLogoUploaded => 'הלוגו הועלה';
 
   @override
-  String get adminSchoolNoLogoYet => 'No logo yet';
+  String get adminSchoolNoLogoYet => 'אין לוגו עדיין';
 
   @override
   String get adminSchoolLogoDescription =>
-      'Appears next to your school name in the app drawer.';
+      'מופיע ליד שם בית הספר בתפריט הצדדי.';
 
   @override
-  String get adminSchoolLogoChange => 'Change';
+  String get adminSchoolLogoChange => 'החלף';
 
   @override
-  String get adminSchoolLogoUpload => 'Upload';
+  String get adminSchoolLogoUpload => 'העלה';
 
   @override
-  String get adminSchoolLogoRemove => 'Remove';
+  String get adminSchoolLogoRemove => 'הסר';
 
   @override
-  String get adminSchoolGradeRangeLabel => 'Grade range';
+  String get adminSchoolGradeRangeLabel => 'טווח שכבות';
 
   @override
   String get adminSchoolGradeRangeDescription =>
-      'Grades available across cohorts, students, and pickers.';
+      'שכבות זמינות בקבוצות, תלמידים ובתפריטים.';
 
   @override
-  String get adminSchoolLowestGrade => 'Lowest';
+  String get adminSchoolLowestGrade => 'נמוכה ביותר';
 
   @override
-  String get adminSchoolHighestGrade => 'Highest';
+  String get adminSchoolHighestGrade => 'גבוהה ביותר';
 
   @override
-  String get adminSchoolSubjectsTitle => 'School Subjects';
+  String get adminSchoolSubjectsTitle => 'מקצועות בית הספר';
 
   @override
   String get adminSchoolSubjectsDescription =>
-      'Available to all teachers when creating assignments.';
+      'זמינים לכל המורים בעת יצירת מטלות.';
 
   @override
-  String get adminSchoolNoTranslations => 'Tap to add translations';
+  String get adminSchoolNoTranslations => 'הקש להוספת תרגומים';
 
   @override
   String get adminSchoolBellHint =>
-      'Set start and end times for each period. Add or remove periods as needed.';
+      'הגדר שעות התחלה וסיום לכל שיעור. הוסף או הסר שיעורים לפי הצורך.';
 
   @override
   String get adminSchoolBellInfo =>
-      'Set the start and end time for each period. These become the default times used when building the weekly schedule.';
+      'הגדר את שעות ההתחלה והסיום לכל שיעור. אלו הופכות לשעות ברירת המחדל לבניית המערכת השבועית.';
 
   @override
-  String get adminSchoolStartTime => 'Start';
+  String get adminSchoolStartTime => 'התחלה';
 
   @override
-  String get adminSchoolEndTime => 'End';
+  String get adminSchoolEndTime => 'סיום';
 
   @override
-  String get adminExportStudentsTab => 'Students';
+  String get adminExportStudentsTab => 'תלמידים';
 
   @override
-  String get adminExportCohortsTab => 'Cohorts';
+  String get adminExportCohortsTab => 'קבוצות';
 
   @override
-  String get adminExportGradesTab => 'Grades';
+  String get adminExportGradesTab => 'שכבות';
 
   @override
-  String get adminExportOptionsTitle => 'Export Options';
+  String get adminExportOptionsTitle => 'אפשרויות ייצוא';
 
   @override
-  String get adminExportIncludePasswords => 'Include Passwords';
+  String get adminExportIncludePasswords => 'כלול סיסמאות';
 
   @override
-  String get adminExportCsvButton => 'Export CSV';
+  String get adminExportCsvButton => 'ייצא CSV';
 
   @override
-  String get adminExportPdfButton => 'Export PDF';
+  String get adminExportPdfButton => 'ייצא PDF';
 
   @override
-  String get teacherCreateClassroomTooltip => 'Create classroom';
+  String get teacherCreateClassroomTooltip => 'יצירת כיתה';
 
   @override
-  String get teacherClassroomNameRequired => 'Classroom name *';
+  String get teacherClassroomNameRequired => 'שם הכיתה *';
 
   @override
-  String get teacherSubjectRequired => 'Subject *';
+  String get teacherSubjectRequired => 'מקצוע *';
 }
