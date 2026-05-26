@@ -7113,4 +7113,172 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pickerSelectStudents => 'Select students';
+
+  @override
+  String get pickerSelectCohorts => 'Select cohorts';
+
+  @override
+  String get pickerSelectGrades => 'Select grades';
+
+  @override
+  String get pickerSelectClassroom => 'Select classroom';
+
+  @override
+  String get pickerSelectClasses => 'Select classes';
+
+  @override
+  String get drawerLoadingChildren => 'Loading children…';
+
+  @override
+  String get drawerCouldNotLoadChildren => 'Could not load children';
+
+  @override
+  String get drawerNoChildrenLinked => 'No children linked';
+
+  @override
+  String get drawerSwitchChild => 'Switch child';
+
+  @override
+  String get shellAssessmentCreated => 'Assessment created';
+
+  @override
+  String commonCouldNotOpenLink(String scheme) {
+    return 'Couldn\'t open $scheme link';
+  }
+
+  @override
+  String commonCouldntSend(String error) {
+    return 'Couldn\'t send: $error';
+  }
+
+  @override
+  String get teacherExamDetailsSection => 'Exam Details';
+
+  @override
+  String teacherExamStudyMaterialsWithCount(int count) {
+    return 'Study Materials ($count)';
+  }
+
+  @override
+  String get teacherMeetingDetailsSection => 'Meeting Details';
+
+  @override
+  String get teacherClassroomNameSection => 'Classroom name';
+
+  @override
+  String get teacherAddByCohortSection => 'Add by cohort';
+
+  @override
+  String get teacherAddIndividualStudentsSection => 'Add individual students';
+
+  @override
+  String get teacherGradeTypeSection => 'Grade type';
+
+  @override
+  String get teacherOtherGradeSection => 'Other grade';
+
+  @override
+  String get teacherEnterGradesSection => 'Enter grades';
+
+  @override
+  String teacherAttachmentsWithCount(int count) {
+    return 'Attachments ($count)';
+  }
+
+  @override
+  String get studentFilesSharedByTeacher => 'Files shared by your teacher';
+
+  @override
+  String get studentYourSubmission => 'Your submission';
+
+  @override
+  String get studentFilesSharedWithAnnouncement =>
+      'Files shared with this announcement.';
+
+  @override
+  String get announcementGradeRiskTitle => 'Grade risk detected';
+
+  @override
+  String get announcementWeakSubjectTitle => 'Weak subject detected';
+
+  @override
+  String get announcementLowAttendanceTitle => 'Low attendance';
+
+  @override
+  String get announcementRepeatedLatenessTitle => 'Repeated lateness';
+
+  @override
+  String get announcementPracticeWeaknessTitle => 'Practice weakness found';
+
+  @override
+  String get announcementPracticeTrendDroppedTitle => 'Practice trend dropped';
+
+  @override
+  String get announcementSolutionsActivityTitle => 'Solutions activity is live';
+
+  @override
+  String get announcementAllGoodTitle => 'All good';
+
+  @override
+  String get supportSectionGettingStarted => 'Getting started';
+
+  @override
+  String get supportSectionAccountPassword => 'Account & password';
+
+  @override
+  String get supportSectionForStudents => 'For students';
+
+  @override
+  String get supportSectionForTeachers => 'For teachers';
+
+  @override
+  String get supportSectionForAdministrators => 'For administrators';
+
+  @override
+  String get supportSectionForParents => 'For parents';
+
+  @override
+  String get supportSectionPrivacyData => 'Privacy & data';
+
+  @override
+  String get novaDisclaimerCanMakeMistakes => 'Can make mistakes';
+
+  @override
+  String get novaDisclaimerEducationalUseOnly => 'Educational use only';
+
+  @override
+  String get novaDisclaimerYourPrivacy => 'Your privacy';
+
+  @override
+  String profileNameInLanguage(String language) {
+    return 'Name in $language';
+  }
+
+  @override
+  String get adminSettingsScheduleSubtitle =>
+      'Assign teachers and cohorts to weekly time slots';
+
+  @override
+  String get practiceModeBalancedSubtitle => 'Balanced daily practice';
+
+  @override
+  String get practiceModeRevealSubtitle => 'Reveal and self-recall';
+
+  @override
+  String get practiceModeFastSubtitle => 'Fast pressure drill';
+
+  @override
+  String get practiceModeExamSubtitle => 'Calm exam-style flow';
+
+  @override
+  String get practiceModeConceptSubtitle => 'Concept first, solve later';
+
+  @override
+  String get practiceModeAdaptiveSubtitle => 'Difficulty shifts live';
+
+  @override
+  String get practiceModeStrictSubtitle => 'Strict official style';
 }

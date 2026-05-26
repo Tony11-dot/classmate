@@ -7045,4 +7045,172 @@ class AppLocalizationsHe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pickerSelectStudents => 'בחר תלמידים';
+
+  @override
+  String get pickerSelectCohorts => 'בחר קבוצות';
+
+  @override
+  String get pickerSelectGrades => 'בחר כיתות';
+
+  @override
+  String get pickerSelectClassroom => 'בחר כיתה';
+
+  @override
+  String get pickerSelectClasses => 'בחר כיתות';
+
+  @override
+  String get drawerLoadingChildren => 'טוען ילדים…';
+
+  @override
+  String get drawerCouldNotLoadChildren => 'לא ניתן לטעון את הילדים';
+
+  @override
+  String get drawerNoChildrenLinked => 'אין ילדים מקושרים';
+
+  @override
+  String get drawerSwitchChild => 'החלף ילד';
+
+  @override
+  String get shellAssessmentCreated => 'ההערכה נוצרה';
+
+  @override
+  String commonCouldNotOpenLink(String scheme) {
+    return 'לא ניתן לפתוח קישור $scheme';
+  }
+
+  @override
+  String commonCouldntSend(String error) {
+    return 'לא ניתן לשלוח: $error';
+  }
+
+  @override
+  String get teacherExamDetailsSection => 'פרטי המבחן';
+
+  @override
+  String teacherExamStudyMaterialsWithCount(int count) {
+    return 'חומרי לימוד ($count)';
+  }
+
+  @override
+  String get teacherMeetingDetailsSection => 'פרטי המפגש';
+
+  @override
+  String get teacherClassroomNameSection => 'שם הכיתה';
+
+  @override
+  String get teacherAddByCohortSection => 'הוסף לפי קבוצה';
+
+  @override
+  String get teacherAddIndividualStudentsSection => 'הוסף תלמידים בודדים';
+
+  @override
+  String get teacherGradeTypeSection => 'סוג ציון';
+
+  @override
+  String get teacherOtherGradeSection => 'ציון אחר';
+
+  @override
+  String get teacherEnterGradesSection => 'הזן ציונים';
+
+  @override
+  String teacherAttachmentsWithCount(int count) {
+    return 'קבצים מצורפים ($count)';
+  }
+
+  @override
+  String get studentFilesSharedByTeacher => 'קבצים ששיתף המורה שלך';
+
+  @override
+  String get studentYourSubmission => 'ההגשה שלך';
+
+  @override
+  String get studentFilesSharedWithAnnouncement =>
+      'קבצים ששותפו עם ההודעה הזו.';
+
+  @override
+  String get announcementGradeRiskTitle => 'זוהה סיכון בציונים';
+
+  @override
+  String get announcementWeakSubjectTitle => 'זוהה מקצוע חלש';
+
+  @override
+  String get announcementLowAttendanceTitle => 'נוכחות נמוכה';
+
+  @override
+  String get announcementRepeatedLatenessTitle => 'איחורים חוזרים';
+
+  @override
+  String get announcementPracticeWeaknessTitle => 'התגלתה חולשה בתרגול';
+
+  @override
+  String get announcementPracticeTrendDroppedTitle => 'מגמת התרגול ירדה';
+
+  @override
+  String get announcementSolutionsActivityTitle => 'פעילות פתרונות פעילה';
+
+  @override
+  String get announcementAllGoodTitle => 'הכל בסדר';
+
+  @override
+  String get supportSectionGettingStarted => 'התחלת השימוש';
+
+  @override
+  String get supportSectionAccountPassword => 'חשבון וסיסמה';
+
+  @override
+  String get supportSectionForStudents => 'לתלמידים';
+
+  @override
+  String get supportSectionForTeachers => 'למורים';
+
+  @override
+  String get supportSectionForAdministrators => 'למנהלים';
+
+  @override
+  String get supportSectionForParents => 'להורים';
+
+  @override
+  String get supportSectionPrivacyData => 'פרטיות ונתונים';
+
+  @override
+  String get novaDisclaimerCanMakeMistakes => 'יכול לטעות';
+
+  @override
+  String get novaDisclaimerEducationalUseOnly => 'לשימוש חינוכי בלבד';
+
+  @override
+  String get novaDisclaimerYourPrivacy => 'הפרטיות שלך';
+
+  @override
+  String profileNameInLanguage(String language) {
+    return 'שם ב$language';
+  }
+
+  @override
+  String get adminSettingsScheduleSubtitle =>
+      'שייך מורים וקבוצות למשבצות זמן שבועיות';
+
+  @override
+  String get practiceModeBalancedSubtitle => 'תרגול יומי מאוזן';
+
+  @override
+  String get practiceModeRevealSubtitle => 'חשיפה והיזכרות עצמית';
+
+  @override
+  String get practiceModeFastSubtitle => 'אימון מהיר בלחץ';
+
+  @override
+  String get practiceModeExamSubtitle => 'זרימה רגועה בסגנון מבחן';
+
+  @override
+  String get practiceModeConceptSubtitle => 'מושג קודם, פתרון אחר כך';
+
+  @override
+  String get practiceModeAdaptiveSubtitle => 'הקושי משתנה בזמן אמת';
+
+  @override
+  String get practiceModeStrictSubtitle => 'סגנון רשמי מחמיר';
 }

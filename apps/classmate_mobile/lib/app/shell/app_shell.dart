@@ -1439,7 +1439,7 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Assessment created')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.shellAssessmentCreated)),
       );
     } catch (e) {
       if (!mounted) return;

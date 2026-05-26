@@ -9,9 +9,9 @@ const _supportPhone = '+972525488441';
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
-  static const _categories = <_FaqCategory>[
+  List<_FaqCategory> _categoriesFor(AppLocalizations l) => <_FaqCategory>[
     _FaqCategory(
-      title: 'Getting started',
+      title: l.supportSectionGettingStarted,
       icon: Icons.rocket_launch_rounded,
       faqs: [
         _Faq(
@@ -33,7 +33,7 @@ class SupportScreen extends StatelessWidget {
       ],
     ),
     _FaqCategory(
-      title: 'Account & password',
+      title: l.supportSectionAccountPassword,
       icon: Icons.lock_outline_rounded,
       faqs: [
         _Faq(
@@ -55,7 +55,7 @@ class SupportScreen extends StatelessWidget {
       ],
     ),
     _FaqCategory(
-      title: 'For students',
+      title: l.supportSectionForStudents,
       icon: Icons.school_rounded,
       faqs: [
         _Faq(
@@ -77,7 +77,7 @@ class SupportScreen extends StatelessWidget {
       ],
     ),
     _FaqCategory(
-      title: 'For teachers',
+      title: l.supportSectionForTeachers,
       icon: Icons.co_present_rounded,
       faqs: [
         _Faq(
@@ -99,7 +99,7 @@ class SupportScreen extends StatelessWidget {
       ],
     ),
     _FaqCategory(
-      title: 'For administrators',
+      title: l.supportSectionForAdministrators,
       icon: Icons.admin_panel_settings_rounded,
       faqs: [
         _Faq(
@@ -129,7 +129,7 @@ class SupportScreen extends StatelessWidget {
       ],
     ),
     _FaqCategory(
-      title: 'For parents',
+      title: l.supportSectionForParents,
       icon: Icons.family_restroom_rounded,
       faqs: [
         _Faq(
@@ -143,7 +143,7 @@ class SupportScreen extends StatelessWidget {
       ],
     ),
     _FaqCategory(
-      title: 'Privacy & data',
+      title: l.supportSectionPrivacyData,
       icon: Icons.privacy_tip_rounded,
       faqs: [
         _Faq(
@@ -162,7 +162,7 @@ class SupportScreen extends StatelessWidget {
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (ctx.mounted) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text("Couldn't open ${uri.scheme} link")),
+          SnackBar(content: Text(AppLocalizations.of(ctx)!.commonCouldNotOpenLink(uri.scheme))),
         );
       }
     }
@@ -172,6 +172,8 @@ class SupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+    final categories = _categoriesFor(l);
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -242,7 +244,7 @@ class SupportScreen extends StatelessWidget {
           const SizedBox(height: 20),
           // ── FAQ by category ──────────────────────────────────────────────
           ...{
-            for (final cat in _categories)
+            for (final cat in categories)
               cat: cat.faqs,
           }.entries.map((entry) => _CategoryBlock(category: entry.key, faqs: entry.value)),
         ],

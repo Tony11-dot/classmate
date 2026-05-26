@@ -697,7 +697,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       final m = RegExp(r'"message":"([^"]+)"').firstMatch(raw);
       final msg = m?.group(1) ?? raw.replaceFirst(RegExp(r'^Exception: '), '');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Couldn\'t send: $msg')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.commonCouldntSend(msg))),
       );
     });
   }
@@ -1636,7 +1636,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 : const Center(child: CmLoading()),
             error: (err, _) => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
-                : Center(child: Text('Error: $err')),
+                : Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(err))),
           ),
         ),
         if (_isForwardSelectionMode)

@@ -7215,4 +7215,178 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pickerSelectStudents => 'Sélectionner les élèves';
+
+  @override
+  String get pickerSelectCohorts => 'Sélectionner les groupes';
+
+  @override
+  String get pickerSelectGrades => 'Sélectionner les niveaux';
+
+  @override
+  String get pickerSelectClassroom => 'Sélectionner la classe';
+
+  @override
+  String get pickerSelectClasses => 'Sélectionner les classes';
+
+  @override
+  String get drawerLoadingChildren => 'Chargement des enfants…';
+
+  @override
+  String get drawerCouldNotLoadChildren => 'Impossible de charger les enfants';
+
+  @override
+  String get drawerNoChildrenLinked => 'Aucun enfant lié';
+
+  @override
+  String get drawerSwitchChild => 'Changer d\'enfant';
+
+  @override
+  String get shellAssessmentCreated => 'Évaluation créée';
+
+  @override
+  String commonCouldNotOpenLink(String scheme) {
+    return 'Impossible d\'ouvrir le lien $scheme';
+  }
+
+  @override
+  String commonCouldntSend(String error) {
+    return 'Échec de l\'envoi : $error';
+  }
+
+  @override
+  String get teacherExamDetailsSection => 'Détails de l\'examen';
+
+  @override
+  String teacherExamStudyMaterialsWithCount(int count) {
+    return 'Supports d\'étude ($count)';
+  }
+
+  @override
+  String get teacherMeetingDetailsSection => 'Détails de la réunion';
+
+  @override
+  String get teacherClassroomNameSection => 'Nom de la classe';
+
+  @override
+  String get teacherAddByCohortSection => 'Ajouter par groupe';
+
+  @override
+  String get teacherAddIndividualStudentsSection =>
+      'Ajouter des élèves individuels';
+
+  @override
+  String get teacherGradeTypeSection => 'Type de note';
+
+  @override
+  String get teacherOtherGradeSection => 'Autre note';
+
+  @override
+  String get teacherEnterGradesSection => 'Saisir les notes';
+
+  @override
+  String teacherAttachmentsWithCount(int count) {
+    return 'Pièces jointes ($count)';
+  }
+
+  @override
+  String get studentFilesSharedByTeacher =>
+      'Fichiers partagés par votre enseignant';
+
+  @override
+  String get studentYourSubmission => 'Votre soumission';
+
+  @override
+  String get studentFilesSharedWithAnnouncement =>
+      'Fichiers partagés avec cette annonce.';
+
+  @override
+  String get announcementGradeRiskTitle => 'Risque de note détecté';
+
+  @override
+  String get announcementWeakSubjectTitle => 'Matière faible détectée';
+
+  @override
+  String get announcementLowAttendanceTitle => 'Faible présence';
+
+  @override
+  String get announcementRepeatedLatenessTitle => 'Retards répétés';
+
+  @override
+  String get announcementPracticeWeaknessTitle =>
+      'Faiblesse de pratique détectée';
+
+  @override
+  String get announcementPracticeTrendDroppedTitle =>
+      'Tendance de pratique en baisse';
+
+  @override
+  String get announcementSolutionsActivityTitle =>
+      'Activité Solutions en direct';
+
+  @override
+  String get announcementAllGoodTitle => 'Tout va bien';
+
+  @override
+  String get supportSectionGettingStarted => 'Commencer';
+
+  @override
+  String get supportSectionAccountPassword => 'Compte et mot de passe';
+
+  @override
+  String get supportSectionForStudents => 'Pour les élèves';
+
+  @override
+  String get supportSectionForTeachers => 'Pour les enseignants';
+
+  @override
+  String get supportSectionForAdministrators => 'Pour les administrateurs';
+
+  @override
+  String get supportSectionForParents => 'Pour les parents';
+
+  @override
+  String get supportSectionPrivacyData => 'Confidentialité et données';
+
+  @override
+  String get novaDisclaimerCanMakeMistakes => 'Peut faire des erreurs';
+
+  @override
+  String get novaDisclaimerEducationalUseOnly => 'Usage éducatif uniquement';
+
+  @override
+  String get novaDisclaimerYourPrivacy => 'Votre vie privée';
+
+  @override
+  String profileNameInLanguage(String language) {
+    return 'Nom en $language';
+  }
+
+  @override
+  String get adminSettingsScheduleSubtitle =>
+      'Assigner enseignants et groupes aux créneaux hebdomadaires';
+
+  @override
+  String get practiceModeBalancedSubtitle => 'Pratique quotidienne équilibrée';
+
+  @override
+  String get practiceModeRevealSubtitle => 'Révéler et auto-restituer';
+
+  @override
+  String get practiceModeFastSubtitle => 'Exercice rapide sous pression';
+
+  @override
+  String get practiceModeExamSubtitle => 'Flux calme façon examen';
+
+  @override
+  String get practiceModeConceptSubtitle =>
+      'Concept d\'abord, résolution ensuite';
+
+  @override
+  String get practiceModeAdaptiveSubtitle => 'La difficulté change en direct';
+
+  @override
+  String get practiceModeStrictSubtitle => 'Style officiel strict';
 }

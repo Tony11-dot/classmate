@@ -3009,5 +3009,82 @@
   "adminExportPasswordsWarning": "{count, plural, one{The file will contain {count} student's login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}",
   "@adminExportPasswordsWarning": {
     "placeholders": { "count": { "type": "int" } }
-  }
+  },
+
+  "pickerSelectStudents": "Select students",
+  "pickerSelectCohorts": "Select cohorts",
+  "pickerSelectGrades": "Select grades",
+  "pickerSelectClassroom": "Select classroom",
+  "pickerSelectClasses": "Select classes",
+
+  "drawerLoadingChildren": "Loading children…",
+  "drawerCouldNotLoadChildren": "Could not load children",
+  "drawerNoChildrenLinked": "No children linked",
+  "drawerSwitchChild": "Switch child",
+
+  "shellAssessmentCreated": "Assessment created",
+  "commonCouldNotOpenLink": "Couldn't open {scheme} link",
+  "@commonCouldNotOpenLink": {
+    "placeholders": { "scheme": { "type": "String" } }
+  },
+  "commonCouldntSend": "Couldn't send: {error}",
+  "@commonCouldntSend": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "teacherExamDetailsSection": "Exam Details",
+  "teacherExamStudyMaterialsWithCount": "Study Materials ({count})",
+  "@teacherExamStudyMaterialsWithCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "teacherMeetingDetailsSection": "Meeting Details",
+  "teacherClassroomNameSection": "Classroom name",
+  "teacherAddByCohortSection": "Add by cohort",
+  "teacherAddIndividualStudentsSection": "Add individual students",
+  "teacherGradeTypeSection": "Grade type",
+  "teacherOtherGradeSection": "Other grade",
+  "teacherEnterGradesSection": "Enter grades",
+  "teacherAttachmentsWithCount": "Attachments ({count})",
+  "@teacherAttachmentsWithCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "studentFilesSharedByTeacher": "Files shared by your teacher",
+  "studentYourSubmission": "Your submission",
+  "studentFilesSharedWithAnnouncement": "Files shared with this announcement.",
+
+  "announcementGradeRiskTitle": "Grade risk detected",
+  "announcementWeakSubjectTitle": "Weak subject detected",
+  "announcementLowAttendanceTitle": "Low attendance",
+  "announcementRepeatedLatenessTitle": "Repeated lateness",
+  "announcementPracticeWeaknessTitle": "Practice weakness found",
+  "announcementPracticeTrendDroppedTitle": "Practice trend dropped",
+  "announcementSolutionsActivityTitle": "Solutions activity is live",
+  "announcementAllGoodTitle": "All good",
+
+  "supportSectionGettingStarted": "Getting started",
+  "supportSectionAccountPassword": "Account & password",
+  "supportSectionForStudents": "For students",
+  "supportSectionForTeachers": "For teachers",
+  "supportSectionForAdministrators": "For administrators",
+  "supportSectionForParents": "For parents",
+  "supportSectionPrivacyData": "Privacy & data",
+
+  "novaDisclaimerCanMakeMistakes": "Can make mistakes",
+  "novaDisclaimerEducationalUseOnly": "Educational use only",
+  "novaDisclaimerYourPrivacy": "Your privacy",
+
+  "profileNameInLanguage": "Name in {language}",
+  "@profileNameInLanguage": {
+    "placeholders": { "language": { "type": "String" } }
+  },
+
+  "adminSettingsScheduleSubtitle": "Assign teachers and cohorts to weekly time slots",
+
+  "practiceModeBalancedSubtitle": "Balanced daily practice",
+  "practiceModeRevealSubtitle": "Reveal and self-recall",
+  "practiceModeFastSubtitle": "Fast pressure drill",
+  "practiceModeExamSubtitle": "Calm exam-style flow",
+  "practiceModeConceptSubtitle": "Concept first, solve later",
+  "practiceModeAdaptiveSubtitle": "Difficulty shifts live",
+  "practiceModeStrictSubtitle": "Strict official style"
 }

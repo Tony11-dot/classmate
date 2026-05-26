@@ -2691,5 +2691,67 @@
   "forgotPasswordPhoneHelper": "سيتصل المدير أو يرسل رسالة نصية إلى هذا الرقم قبل الموافقة.",
   "forgotPasswordNewPasswordHelper": "على الأقل 8 أحرف. تُخزن مشفّرة — لن يراها المدير.",
 
-  "adminExportPasswordsWarning": "{count, plural, one{سيحتوي الملف على معلومات تسجيل الدخول لطالب واحد، بما في ذلك كلمة المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كهذا الطالب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم المستخدم بتسجيل الدخول التالي أو إعادة التعيين.} other{سيحتوي الملف على معلومات تسجيل الدخول لـ {count} طلاب، بما في ذلك كلمات المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كأحد هؤلاء الطلاب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم كل مستخدم بتسجيل الدخول التالي أو إعادة التعيين.}}"
+  "adminExportPasswordsWarning": "{count, plural, one{سيحتوي الملف على معلومات تسجيل الدخول لطالب واحد، بما في ذلك كلمة المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كهذا الطالب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم المستخدم بتسجيل الدخول التالي أو إعادة التعيين.} other{سيحتوي الملف على معلومات تسجيل الدخول لـ {count} طلاب، بما في ذلك كلمات المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كأحد هؤلاء الطلاب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم كل مستخدم بتسجيل الدخول التالي أو إعادة التعيين.}}",
+
+  "pickerSelectStudents": "اختر الطلاب",
+  "pickerSelectCohorts": "اختر المجموعات",
+  "pickerSelectGrades": "اختر الصفوف",
+  "pickerSelectClassroom": "اختر الصف",
+  "pickerSelectClasses": "اختر الصفوف",
+
+  "drawerLoadingChildren": "جاري تحميل الأبناء…",
+  "drawerCouldNotLoadChildren": "تعذر تحميل الأبناء",
+  "drawerNoChildrenLinked": "لا يوجد أبناء مرتبطون",
+  "drawerSwitchChild": "تبديل الابن",
+
+  "shellAssessmentCreated": "تم إنشاء التقييم",
+  "commonCouldNotOpenLink": "تعذر فتح رابط {scheme}",
+  "commonCouldntSend": "تعذر الإرسال: {error}",
+
+  "teacherExamDetailsSection": "تفاصيل الامتحان",
+  "teacherExamStudyMaterialsWithCount": "مواد الدراسة ({count})",
+  "teacherMeetingDetailsSection": "تفاصيل الاجتماع",
+  "teacherClassroomNameSection": "اسم الصف",
+  "teacherAddByCohortSection": "إضافة بحسب المجموعة",
+  "teacherAddIndividualStudentsSection": "إضافة طلاب فرديين",
+  "teacherGradeTypeSection": "نوع الدرجة",
+  "teacherOtherGradeSection": "درجة أخرى",
+  "teacherEnterGradesSection": "أدخل الدرجات",
+  "teacherAttachmentsWithCount": "المرفقات ({count})",
+  "studentFilesSharedByTeacher": "ملفات شاركها معلمك",
+  "studentYourSubmission": "تسليمك",
+  "studentFilesSharedWithAnnouncement": "ملفات مشاركة مع هذا الإعلان.",
+
+  "announcementGradeRiskTitle": "تم رصد خطر في الدرجات",
+  "announcementWeakSubjectTitle": "تم رصد مادة ضعيفة",
+  "announcementLowAttendanceTitle": "حضور منخفض",
+  "announcementRepeatedLatenessTitle": "تأخر متكرر",
+  "announcementPracticeWeaknessTitle": "تم اكتشاف ضعف في التدريب",
+  "announcementPracticeTrendDroppedTitle": "انخفض اتجاه التدريب",
+  "announcementSolutionsActivityTitle": "نشاط الحلول مباشر",
+  "announcementAllGoodTitle": "كل شيء بخير",
+
+  "supportSectionGettingStarted": "البدء",
+  "supportSectionAccountPassword": "الحساب وكلمة المرور",
+  "supportSectionForStudents": "للطلاب",
+  "supportSectionForTeachers": "للمعلمين",
+  "supportSectionForAdministrators": "للإداريين",
+  "supportSectionForParents": "للأهالي",
+  "supportSectionPrivacyData": "الخصوصية والبيانات",
+
+  "novaDisclaimerCanMakeMistakes": "قد يخطئ",
+  "novaDisclaimerEducationalUseOnly": "للاستخدام التعليمي فقط",
+  "novaDisclaimerYourPrivacy": "خصوصيتك",
+
+  "profileNameInLanguage": "الاسم بـ{language}",
+
+  "adminSettingsScheduleSubtitle": "تعيين المعلمين والمجموعات في فترات أسبوعية",
+
+  "practiceModeBalancedSubtitle": "تدريب يومي متوازن",
+  "practiceModeRevealSubtitle": "كشف واسترجاع ذاتي",
+  "practiceModeFastSubtitle": "تدريب سريع بضغط",
+  "practiceModeExamSubtitle": "تدفق هادئ بنمط الامتحان",
+  "practiceModeConceptSubtitle": "المفهوم أولاً، الحل لاحقًا",
+  "practiceModeAdaptiveSubtitle": "تتغير الصعوبة مباشرة",
+  "practiceModeStrictSubtitle": "نمط رسمي صارم"
 }

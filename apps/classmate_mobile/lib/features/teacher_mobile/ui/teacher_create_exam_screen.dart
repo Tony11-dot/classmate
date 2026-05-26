@@ -296,7 +296,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
                 // ── Exam details ────────────────────────────────────────────
                 _Card(
-                  title: 'Exam Details',
+                  title: AppLocalizations.of(context)!.teacherExamDetailsSection,
                   child: Column(
                     children: [
                       // Subject DDL
@@ -376,7 +376,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
                 // ── Materials ────────────────────────────────────────────────
                 _Card(
-                  title: 'Study Materials  (${_attachments.length})',
+                  title: AppLocalizations.of(context)!.teacherExamStudyMaterialsWithCount(_attachments.length),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

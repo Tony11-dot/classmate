@@ -12594,6 +12594,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{The file will contain {count} student\'s login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students\' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}'**
   String adminExportPasswordsWarning(int count);
+
+  /// No description provided for @pickerSelectStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Select students'**
+  String get pickerSelectStudents;
+
+  /// No description provided for @pickerSelectCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cohorts'**
+  String get pickerSelectCohorts;
+
+  /// No description provided for @pickerSelectGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Select grades'**
+  String get pickerSelectGrades;
+
+  /// No description provided for @pickerSelectClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Select classroom'**
+  String get pickerSelectClassroom;
+
+  /// No description provided for @pickerSelectClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Select classes'**
+  String get pickerSelectClasses;
+
+  /// No description provided for @drawerLoadingChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading children…'**
+  String get drawerLoadingChildren;
+
+  /// No description provided for @drawerCouldNotLoadChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load children'**
+  String get drawerCouldNotLoadChildren;
+
+  /// No description provided for @drawerNoChildrenLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'No children linked'**
+  String get drawerNoChildrenLinked;
+
+  /// No description provided for @drawerSwitchChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch child'**
+  String get drawerSwitchChild;
+
+  /// No description provided for @shellAssessmentCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Assessment created'**
+  String get shellAssessmentCreated;
+
+  /// No description provided for @commonCouldNotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open {scheme} link'**
+  String commonCouldNotOpenLink(String scheme);
+
+  /// No description provided for @commonCouldntSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send: {error}'**
+  String commonCouldntSend(String error);
+
+  /// No description provided for @teacherExamDetailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam Details'**
+  String get teacherExamDetailsSection;
+
+  /// No description provided for @teacherExamStudyMaterialsWithCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Study Materials ({count})'**
+  String teacherExamStudyMaterialsWithCount(int count);
+
+  /// No description provided for @teacherMeetingDetailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting Details'**
+  String get teacherMeetingDetailsSection;
+
+  /// No description provided for @teacherClassroomNameSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom name'**
+  String get teacherClassroomNameSection;
+
+  /// No description provided for @teacherAddByCohortSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add by cohort'**
+  String get teacherAddByCohortSection;
+
+  /// No description provided for @teacherAddIndividualStudentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add individual students'**
+  String get teacherAddIndividualStudentsSection;
+
+  /// No description provided for @teacherGradeTypeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade type'**
+  String get teacherGradeTypeSection;
+
+  /// No description provided for @teacherOtherGradeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Other grade'**
+  String get teacherOtherGradeSection;
+
+  /// No description provided for @teacherEnterGradesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter grades'**
+  String get teacherEnterGradesSection;
+
+  /// No description provided for @teacherAttachmentsWithCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments ({count})'**
+  String teacherAttachmentsWithCount(int count);
+
+  /// No description provided for @studentFilesSharedByTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Files shared by your teacher'**
+  String get studentFilesSharedByTeacher;
+
+  /// No description provided for @studentYourSubmission.
+  ///
+  /// In en, this message translates to:
+  /// **'Your submission'**
+  String get studentYourSubmission;
+
+  /// No description provided for @studentFilesSharedWithAnnouncement.
+  ///
+  /// In en, this message translates to:
+  /// **'Files shared with this announcement.'**
+  String get studentFilesSharedWithAnnouncement;
+
+  /// No description provided for @announcementGradeRiskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade risk detected'**
+  String get announcementGradeRiskTitle;
+
+  /// No description provided for @announcementWeakSubjectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak subject detected'**
+  String get announcementWeakSubjectTitle;
+
+  /// No description provided for @announcementLowAttendanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Low attendance'**
+  String get announcementLowAttendanceTitle;
+
+  /// No description provided for @announcementRepeatedLatenessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated lateness'**
+  String get announcementRepeatedLatenessTitle;
+
+  /// No description provided for @announcementPracticeWeaknessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice weakness found'**
+  String get announcementPracticeWeaknessTitle;
+
+  /// No description provided for @announcementPracticeTrendDroppedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice trend dropped'**
+  String get announcementPracticeTrendDroppedTitle;
+
+  /// No description provided for @announcementSolutionsActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Solutions activity is live'**
+  String get announcementSolutionsActivityTitle;
+
+  /// No description provided for @announcementAllGoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All good'**
+  String get announcementAllGoodTitle;
+
+  /// No description provided for @supportSectionGettingStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get supportSectionGettingStarted;
+
+  /// No description provided for @supportSectionAccountPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Account & password'**
+  String get supportSectionAccountPassword;
+
+  /// No description provided for @supportSectionForStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'For students'**
+  String get supportSectionForStudents;
+
+  /// No description provided for @supportSectionForTeachers.
+  ///
+  /// In en, this message translates to:
+  /// **'For teachers'**
+  String get supportSectionForTeachers;
+
+  /// No description provided for @supportSectionForAdministrators.
+  ///
+  /// In en, this message translates to:
+  /// **'For administrators'**
+  String get supportSectionForAdministrators;
+
+  /// No description provided for @supportSectionForParents.
+  ///
+  /// In en, this message translates to:
+  /// **'For parents'**
+  String get supportSectionForParents;
+
+  /// No description provided for @supportSectionPrivacyData.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & data'**
+  String get supportSectionPrivacyData;
+
+  /// No description provided for @novaDisclaimerCanMakeMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Can make mistakes'**
+  String get novaDisclaimerCanMakeMistakes;
+
+  /// No description provided for @novaDisclaimerEducationalUseOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational use only'**
+  String get novaDisclaimerEducationalUseOnly;
+
+  /// No description provided for @novaDisclaimerYourPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your privacy'**
+  String get novaDisclaimerYourPrivacy;
+
+  /// No description provided for @profileNameInLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Name in {language}'**
+  String profileNameInLanguage(String language);
+
+  /// No description provided for @adminSettingsScheduleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign teachers and cohorts to weekly time slots'**
+  String get adminSettingsScheduleSubtitle;
+
+  /// No description provided for @practiceModeBalancedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced daily practice'**
+  String get practiceModeBalancedSubtitle;
+
+  /// No description provided for @practiceModeRevealSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal and self-recall'**
+  String get practiceModeRevealSubtitle;
+
+  /// No description provided for @practiceModeFastSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast pressure drill'**
+  String get practiceModeFastSubtitle;
+
+  /// No description provided for @practiceModeExamSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm exam-style flow'**
+  String get practiceModeExamSubtitle;
+
+  /// No description provided for @practiceModeConceptSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Concept first, solve later'**
+  String get practiceModeConceptSubtitle;
+
+  /// No description provided for @practiceModeAdaptiveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty shifts live'**
+  String get practiceModeAdaptiveSubtitle;
+
+  /// No description provided for @practiceModeStrictSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strict official style'**
+  String get practiceModeStrictSubtitle;
 }
 
 class _AppLocalizationsDelegate

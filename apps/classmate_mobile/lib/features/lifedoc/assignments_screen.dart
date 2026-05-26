@@ -846,8 +846,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                               return Padding(
                                 padding: const EdgeInsets.only(top: 0, bottom: 16),
                                 child: _SectionCard(
-                                  title: 'Attachments',
-                                  subtitle: 'Files shared by your teacher',
+                                  title: AppLocalizations.of(context)!.teacherMaterialAttachmentsTitle,
+                                  subtitle: AppLocalizations.of(context)!.studentFilesSharedByTeacher,
                                   child: AttachmentPills(attachments: pills),
                                 ),
                               );
@@ -861,7 +861,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                               const SizedBox.shrink()
                             else
                             _SectionCard(
-                              title: 'Your submission',
+                              title: AppLocalizations.of(context)!.studentYourSubmission,
                               subtitle: _submitted
                                   ? 'You have already handed in this assignment.'
                                   : 'Add a note or attach files, then press Hand in.',

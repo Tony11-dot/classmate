@@ -43,7 +43,7 @@ class AdminSettingsScreen extends ConsumerWidget {
           _SettingsNavTile(
             icon: Icons.manage_history_rounded,
             label: l.adminSettingsPeriodDefaults,
-            subtitle: 'Assign teachers and cohorts to weekly time slots',
+            subtitle: l.adminSettingsScheduleSubtitle,
             onTap: () => context.push('/admin/periods'),
           ),
           const SizedBox(height: 24),

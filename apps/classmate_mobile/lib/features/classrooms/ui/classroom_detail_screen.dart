@@ -374,7 +374,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                                   await ref.read(classroomsRepoProvider).deleteClassroomMaterial(widget.courseId, id);
                                   ref.invalidate(classroomMaterialsProvider(widget.courseId));
                                 } catch (e) {
-                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
                                 }
                               }
                             : null,

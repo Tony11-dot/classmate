@@ -461,9 +461,9 @@ class _TeacherAddGradeScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const _SectionHeader(
+                          _SectionHeader(
                             icon: Icons.grade_outlined,
-                            title: 'Grade type',
+                            title: AppLocalizations.of(context)!.teacherGradeTypeSection,
                           ),
                           const SizedBox(height: 14),
                           SegmentedButton<_GradeType>(
@@ -670,9 +670,9 @@ class _TeacherAddGradeScreenState
                             ],
                           ],
                           if (_gradeType == _GradeType.other) ...[
-                            const _SectionHeader(
+                            _SectionHeader(
                               icon: Icons.star_outline_rounded,
-                              title: 'Other grade',
+                              title: AppLocalizations.of(context)!.teacherOtherGradeSection,
                             ),
                             const SizedBox(height: 14),
                             TextField(
@@ -704,9 +704,9 @@ class _TeacherAddGradeScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const _SectionHeader(
+                            _SectionHeader(
                               icon: Icons.edit_note_rounded,
-                              title: 'Enter grades',
+                              title: AppLocalizations.of(context)!.teacherEnterGradesSection,
                             ),
                             const SizedBox(height: 14),
                             ...selectedStudents.asMap().entries.map(

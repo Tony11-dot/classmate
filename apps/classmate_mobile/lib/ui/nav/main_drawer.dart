@@ -500,15 +500,15 @@ class _ParentChildDropdown extends ConsumerWidget {
 
     return async.when(
       loading: () => _shell(cs, isDark,
-          child: Text('Loading children…',
+          child: Text(AppLocalizations.of(context)!.drawerLoadingChildren,
               style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant))),
       error: (err, _) => _shell(cs, isDark,
-          child: Text('Could not load children',
+          child: Text(AppLocalizations.of(context)!.drawerCouldNotLoadChildren,
               style: TextStyle(fontSize: 12, color: cs.error))),
       data: (children) {
         if (children.isEmpty) {
           return _shell(cs, isDark,
-              child: Text('No children linked',
+              child: Text(AppLocalizations.of(context)!.drawerNoChildrenLinked,
                   style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)));
         }
         final selected = children.firstWhere(
@@ -520,7 +520,7 @@ class _ParentChildDropdown extends ConsumerWidget {
           onTap: () async {
             final picked = await showLiquidGlassPicker<String>(
               context: context,
-              title: 'Switch child',
+              title: AppLocalizations.of(context)!.drawerSwitchChild,
               currentValue: selected.studentId,
               items: [
                 for (final c in children)

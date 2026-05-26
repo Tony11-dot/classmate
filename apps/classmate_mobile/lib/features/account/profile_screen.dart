@@ -285,9 +285,9 @@ class ProfileScreen extends ConsumerWidget {
       isScrollControlled: true,
       useSafeArea: true,
       builder: (_) => _EditSheet(
-        title: 'Name in $label',
+        title: AppLocalizations.of(context)!.profileNameInLanguage(label),
         icon: Icons.translate_rounded,
-        hint: 'Full name in $label',
+        hint: AppLocalizations.of(context)!.profileNameInLanguage(label),
         initial: current,
       ),
     );

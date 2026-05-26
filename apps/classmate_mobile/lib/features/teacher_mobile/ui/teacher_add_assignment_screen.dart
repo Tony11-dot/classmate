@@ -306,12 +306,12 @@ class _TeacherAddAssignmentScreenState
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select classes',
+        title: AppLocalizations.of(context)!.pickerSelectClasses,
         items: _cohorts
             .map((c) => _PickerItem(
                   id: c.id,
                   label: c.name,
-                  subtitle: c.grade > 0 ? 'Grade ${c.grade}' : '',
+                  subtitle: c.grade > 0 ? AppLocalizations.of(context)!.adminCohortGradeFormat(c.grade.toString()) : '',
                 ))
             .toList(),
         selected: Set.from(_selectedCohortIds),
@@ -333,12 +333,12 @@ class _TeacherAddAssignmentScreenState
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select students',
+        title: AppLocalizations.of(context)!.pickerSelectStudents,
         items: _allStudents
             .map((s) => _PickerItem(
                   id: s.studentId,
                   label: s.name,
-                  subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : '',
+                  subtitle: s.gradeLevel != null ? AppLocalizations.of(context)!.adminCohortGradeFormat(s.gradeLevel.toString()) : '',
                 ))
             .toList(),
         selected: Set.from(_selectedStudentIds),
@@ -360,9 +360,9 @@ class _TeacherAddAssignmentScreenState
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select grades',
+        title: AppLocalizations.of(context)!.pickerSelectGrades,
         items: _availableGrades
-            .map((g) => _PickerItem(id: g.toString(), label: 'Grade $g'))
+            .map((g) => _PickerItem(id: g.toString(), label: AppLocalizations.of(context)!.adminCohortGradeFormat(g.toString())))
             .toList(),
         selected: _selectedGrades.map((g) => g.toString()).toSet(),
         onToggle: (id) => setState(() {
@@ -443,9 +443,9 @@ class _TeacherAddAssignmentScreenState
                             backgroundColor: cs.surfaceContainerLow,
                             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
                             builder: (_) => _SinglePickerSheet(
-                              title: 'Select classroom',
+                              title: AppLocalizations.of(context)!.pickerSelectClassroom,
                               items: [
-                                _PickerItem(id: '', label: 'None', subtitle: ''),
+                                _PickerItem(id: '', label: AppLocalizations.of(context)!.teacherMaterialPickerNone, subtitle: ''),
                                 ..._courses.map((c) => _PickerItem(id: c.id, label: c.name, subtitle: c.subject)),
                               ],
                               selected: _selectedCourseId ?? '',
@@ -650,7 +650,7 @@ class _TeacherAddAssignmentScreenState
 
                 // ── Attachments card ────────────────────────────────────────
                 _SectionCard(
-                  title: 'Attachments  (${_attachments.length})',
+                  title: AppLocalizations.of(context)!.teacherAttachmentsWithCount(_attachments.length),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

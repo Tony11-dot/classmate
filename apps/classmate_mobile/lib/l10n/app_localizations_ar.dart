@@ -7077,4 +7077,172 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pickerSelectStudents => 'اختر الطلاب';
+
+  @override
+  String get pickerSelectCohorts => 'اختر المجموعات';
+
+  @override
+  String get pickerSelectGrades => 'اختر الصفوف';
+
+  @override
+  String get pickerSelectClassroom => 'اختر الصف';
+
+  @override
+  String get pickerSelectClasses => 'اختر الصفوف';
+
+  @override
+  String get drawerLoadingChildren => 'جاري تحميل الأبناء…';
+
+  @override
+  String get drawerCouldNotLoadChildren => 'تعذر تحميل الأبناء';
+
+  @override
+  String get drawerNoChildrenLinked => 'لا يوجد أبناء مرتبطون';
+
+  @override
+  String get drawerSwitchChild => 'تبديل الابن';
+
+  @override
+  String get shellAssessmentCreated => 'تم إنشاء التقييم';
+
+  @override
+  String commonCouldNotOpenLink(String scheme) {
+    return 'تعذر فتح رابط $scheme';
+  }
+
+  @override
+  String commonCouldntSend(String error) {
+    return 'تعذر الإرسال: $error';
+  }
+
+  @override
+  String get teacherExamDetailsSection => 'تفاصيل الامتحان';
+
+  @override
+  String teacherExamStudyMaterialsWithCount(int count) {
+    return 'مواد الدراسة ($count)';
+  }
+
+  @override
+  String get teacherMeetingDetailsSection => 'تفاصيل الاجتماع';
+
+  @override
+  String get teacherClassroomNameSection => 'اسم الصف';
+
+  @override
+  String get teacherAddByCohortSection => 'إضافة بحسب المجموعة';
+
+  @override
+  String get teacherAddIndividualStudentsSection => 'إضافة طلاب فرديين';
+
+  @override
+  String get teacherGradeTypeSection => 'نوع الدرجة';
+
+  @override
+  String get teacherOtherGradeSection => 'درجة أخرى';
+
+  @override
+  String get teacherEnterGradesSection => 'أدخل الدرجات';
+
+  @override
+  String teacherAttachmentsWithCount(int count) {
+    return 'المرفقات ($count)';
+  }
+
+  @override
+  String get studentFilesSharedByTeacher => 'ملفات شاركها معلمك';
+
+  @override
+  String get studentYourSubmission => 'تسليمك';
+
+  @override
+  String get studentFilesSharedWithAnnouncement =>
+      'ملفات مشاركة مع هذا الإعلان.';
+
+  @override
+  String get announcementGradeRiskTitle => 'تم رصد خطر في الدرجات';
+
+  @override
+  String get announcementWeakSubjectTitle => 'تم رصد مادة ضعيفة';
+
+  @override
+  String get announcementLowAttendanceTitle => 'حضور منخفض';
+
+  @override
+  String get announcementRepeatedLatenessTitle => 'تأخر متكرر';
+
+  @override
+  String get announcementPracticeWeaknessTitle => 'تم اكتشاف ضعف في التدريب';
+
+  @override
+  String get announcementPracticeTrendDroppedTitle => 'انخفض اتجاه التدريب';
+
+  @override
+  String get announcementSolutionsActivityTitle => 'نشاط الحلول مباشر';
+
+  @override
+  String get announcementAllGoodTitle => 'كل شيء بخير';
+
+  @override
+  String get supportSectionGettingStarted => 'البدء';
+
+  @override
+  String get supportSectionAccountPassword => 'الحساب وكلمة المرور';
+
+  @override
+  String get supportSectionForStudents => 'للطلاب';
+
+  @override
+  String get supportSectionForTeachers => 'للمعلمين';
+
+  @override
+  String get supportSectionForAdministrators => 'للإداريين';
+
+  @override
+  String get supportSectionForParents => 'للأهالي';
+
+  @override
+  String get supportSectionPrivacyData => 'الخصوصية والبيانات';
+
+  @override
+  String get novaDisclaimerCanMakeMistakes => 'قد يخطئ';
+
+  @override
+  String get novaDisclaimerEducationalUseOnly => 'للاستخدام التعليمي فقط';
+
+  @override
+  String get novaDisclaimerYourPrivacy => 'خصوصيتك';
+
+  @override
+  String profileNameInLanguage(String language) {
+    return 'الاسم بـ$language';
+  }
+
+  @override
+  String get adminSettingsScheduleSubtitle =>
+      'تعيين المعلمين والمجموعات في فترات أسبوعية';
+
+  @override
+  String get practiceModeBalancedSubtitle => 'تدريب يومي متوازن';
+
+  @override
+  String get practiceModeRevealSubtitle => 'كشف واسترجاع ذاتي';
+
+  @override
+  String get practiceModeFastSubtitle => 'تدريب سريع بضغط';
+
+  @override
+  String get practiceModeExamSubtitle => 'تدفق هادئ بنمط الامتحان';
+
+  @override
+  String get practiceModeConceptSubtitle => 'المفهوم أولاً، الحل لاحقًا';
+
+  @override
+  String get practiceModeAdaptiveSubtitle => 'تتغير الصعوبة مباشرة';
+
+  @override
+  String get practiceModeStrictSubtitle => 'نمط رسمي صارم';
 }

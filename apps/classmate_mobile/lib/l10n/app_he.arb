@@ -2691,5 +2691,67 @@
   "forgotPasswordPhoneHelper": "המנהל יתקשר או ישלח הודעה למספר זה לפני האישור.",
   "forgotPasswordNewPasswordHelper": "לפחות 8 תווים. נשמר מוצפן — המנהל לא יראה אותה.",
 
-  "adminExportPasswordsWarning": "{count, plural, one{הקובץ יכיל את פרטי הכניסה של תלמיד אחד, כולל הסיסמה הנוכחית. כל מי שיש לו גישה לקובץ יכול להתחבר כתלמיד הזה — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שהמשתמש יתחבר שוב או יאפס.} other{הקובץ יכיל את פרטי הכניסה של {count} תלמידים, כולל סיסמאות נוכחיות. כל מי שיש לו גישה לקובץ יכול להתחבר כאחד התלמידים — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שכל משתמש יתחבר שוב או יאפס.}}"
+  "adminExportPasswordsWarning": "{count, plural, one{הקובץ יכיל את פרטי הכניסה של תלמיד אחד, כולל הסיסמה הנוכחית. כל מי שיש לו גישה לקובץ יכול להתחבר כתלמיד הזה — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שהמשתמש יתחבר שוב או יאפס.} other{הקובץ יכיל את פרטי הכניסה של {count} תלמידים, כולל סיסמאות נוכחיות. כל מי שיש לו גישה לקובץ יכול להתחבר כאחד התלמידים — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שכל משתמש יתחבר שוב או יאפס.}}",
+
+  "pickerSelectStudents": "בחר תלמידים",
+  "pickerSelectCohorts": "בחר קבוצות",
+  "pickerSelectGrades": "בחר כיתות",
+  "pickerSelectClassroom": "בחר כיתה",
+  "pickerSelectClasses": "בחר כיתות",
+
+  "drawerLoadingChildren": "טוען ילדים…",
+  "drawerCouldNotLoadChildren": "לא ניתן לטעון את הילדים",
+  "drawerNoChildrenLinked": "אין ילדים מקושרים",
+  "drawerSwitchChild": "החלף ילד",
+
+  "shellAssessmentCreated": "ההערכה נוצרה",
+  "commonCouldNotOpenLink": "לא ניתן לפתוח קישור {scheme}",
+  "commonCouldntSend": "לא ניתן לשלוח: {error}",
+
+  "teacherExamDetailsSection": "פרטי המבחן",
+  "teacherExamStudyMaterialsWithCount": "חומרי לימוד ({count})",
+  "teacherMeetingDetailsSection": "פרטי המפגש",
+  "teacherClassroomNameSection": "שם הכיתה",
+  "teacherAddByCohortSection": "הוסף לפי קבוצה",
+  "teacherAddIndividualStudentsSection": "הוסף תלמידים בודדים",
+  "teacherGradeTypeSection": "סוג ציון",
+  "teacherOtherGradeSection": "ציון אחר",
+  "teacherEnterGradesSection": "הזן ציונים",
+  "teacherAttachmentsWithCount": "קבצים מצורפים ({count})",
+  "studentFilesSharedByTeacher": "קבצים ששיתף המורה שלך",
+  "studentYourSubmission": "ההגשה שלך",
+  "studentFilesSharedWithAnnouncement": "קבצים ששותפו עם ההודעה הזו.",
+
+  "announcementGradeRiskTitle": "זוהה סיכון בציונים",
+  "announcementWeakSubjectTitle": "זוהה מקצוע חלש",
+  "announcementLowAttendanceTitle": "נוכחות נמוכה",
+  "announcementRepeatedLatenessTitle": "איחורים חוזרים",
+  "announcementPracticeWeaknessTitle": "התגלתה חולשה בתרגול",
+  "announcementPracticeTrendDroppedTitle": "מגמת התרגול ירדה",
+  "announcementSolutionsActivityTitle": "פעילות פתרונות פעילה",
+  "announcementAllGoodTitle": "הכל בסדר",
+
+  "supportSectionGettingStarted": "התחלת השימוש",
+  "supportSectionAccountPassword": "חשבון וסיסמה",
+  "supportSectionForStudents": "לתלמידים",
+  "supportSectionForTeachers": "למורים",
+  "supportSectionForAdministrators": "למנהלים",
+  "supportSectionForParents": "להורים",
+  "supportSectionPrivacyData": "פרטיות ונתונים",
+
+  "novaDisclaimerCanMakeMistakes": "יכול לטעות",
+  "novaDisclaimerEducationalUseOnly": "לשימוש חינוכי בלבד",
+  "novaDisclaimerYourPrivacy": "הפרטיות שלך",
+
+  "profileNameInLanguage": "שם ב{language}",
+
+  "adminSettingsScheduleSubtitle": "שייך מורים וקבוצות למשבצות זמן שבועיות",
+
+  "practiceModeBalancedSubtitle": "תרגול יומי מאוזן",
+  "practiceModeRevealSubtitle": "חשיפה והיזכרות עצמית",
+  "practiceModeFastSubtitle": "אימון מהיר בלחץ",
+  "practiceModeExamSubtitle": "זרימה רגועה בסגנון מבחן",
+  "practiceModeConceptSubtitle": "מושג קודם, פתרון אחר כך",
+  "practiceModeAdaptiveSubtitle": "הקושי משתנה בזמן אמת",
+  "practiceModeStrictSubtitle": "סגנון רשמי מחמיר"
 }

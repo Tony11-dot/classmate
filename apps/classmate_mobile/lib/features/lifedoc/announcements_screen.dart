@@ -719,8 +719,8 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                             if (announcement.attachments.isNotEmpty) ...[
                               const SizedBox(height: 16),
                               _SectionCard(
-                                title: 'Attachments',
-                                subtitle: 'Files shared with this announcement.',
+                                title: AppLocalizations.of(context)!.teacherMaterialAttachmentsTitle,
+                                subtitle: AppLocalizations.of(context)!.studentFilesSharedWithAnnouncement,
                                 child: AttachmentPills(attachments: announcement.attachments),
                               ),
                             ],

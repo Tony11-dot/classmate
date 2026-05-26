@@ -73,9 +73,9 @@ class _AudienceSectionState extends State<AudienceSection> {
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MultiPickerSheet(
-        title: 'Select cohorts',
+        title: AppLocalizations.of(context)!.pickerSelectCohorts,
         items: widget.cohorts
-            .map((c) => _Item(id: c.id, label: c.name, subtitle: c.grade > 0 ? 'Grade ${c.grade}' : ''))
+            .map((c) => _Item(id: c.id, label: c.name, subtitle: c.grade > 0 ? AppLocalizations.of(context)!.adminCohortGradeFormat(c.grade.toString()) : ''))
             .toList(),
         selected: Set.from(widget.selectedCohortIds),
         onToggle: (id) {
@@ -100,9 +100,9 @@ class _AudienceSectionState extends State<AudienceSection> {
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MultiPickerSheet(
-        title: 'Select students',
+        title: AppLocalizations.of(context)!.pickerSelectStudents,
         items: widget.allStudents
-            .map((s) => _Item(id: s.studentId, label: s.name, subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : ''))
+            .map((s) => _Item(id: s.studentId, label: s.name, subtitle: s.gradeLevel != null ? AppLocalizations.of(context)!.adminCohortGradeFormat(s.gradeLevel.toString()) : ''))
             .toList(),
         selected: Set.from(widget.selectedStudentIds),
         onToggle: (id) {
@@ -127,9 +127,9 @@ class _AudienceSectionState extends State<AudienceSection> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MultiPickerSheet(
-        title: 'Select grades',
+        title: AppLocalizations.of(context)!.pickerSelectGrades,
         items: widget.availableGrades
-            .map((g) => _Item(id: g.toString(), label: 'Grade $g'))
+            .map((g) => _Item(id: g.toString(), label: AppLocalizations.of(context)!.adminCohortGradeFormat(g.toString())))
             .toList(),
         selected: widget.selectedGrades.map((g) => g.toString()).toSet(),
         onToggle: (id) {

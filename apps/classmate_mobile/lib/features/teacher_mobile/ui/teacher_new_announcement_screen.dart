@@ -216,7 +216,7 @@ class _TeacherNewAnnouncementScreenState
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select students',
+        title: AppLocalizations.of(context)!.pickerSelectStudents,
         items: _allStudents
             .map((s) => _PickerItem(
                   id: s.studentId,
@@ -285,7 +285,7 @@ class _TeacherNewAnnouncementScreenState
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select cohorts',
+        title: AppLocalizations.of(context)!.pickerSelectCohorts,
         items: _cohorts
             .map((c) => _PickerItem(
                   id: c.id,

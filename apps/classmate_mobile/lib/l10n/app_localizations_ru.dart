@@ -7071,4 +7071,177 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pickerSelectStudents => 'Выберите учеников';
+
+  @override
+  String get pickerSelectCohorts => 'Выберите группы';
+
+  @override
+  String get pickerSelectGrades => 'Выберите классы';
+
+  @override
+  String get pickerSelectClassroom => 'Выберите класс';
+
+  @override
+  String get pickerSelectClasses => 'Выберите классы';
+
+  @override
+  String get drawerLoadingChildren => 'Загрузка детей…';
+
+  @override
+  String get drawerCouldNotLoadChildren => 'Не удалось загрузить детей';
+
+  @override
+  String get drawerNoChildrenLinked => 'Нет привязанных детей';
+
+  @override
+  String get drawerSwitchChild => 'Сменить ребёнка';
+
+  @override
+  String get shellAssessmentCreated => 'Оценка создана';
+
+  @override
+  String commonCouldNotOpenLink(String scheme) {
+    return 'Не удалось открыть ссылку $scheme';
+  }
+
+  @override
+  String commonCouldntSend(String error) {
+    return 'Не удалось отправить: $error';
+  }
+
+  @override
+  String get teacherExamDetailsSection => 'Детали экзамена';
+
+  @override
+  String teacherExamStudyMaterialsWithCount(int count) {
+    return 'Учебные материалы ($count)';
+  }
+
+  @override
+  String get teacherMeetingDetailsSection => 'Детали встречи';
+
+  @override
+  String get teacherClassroomNameSection => 'Название класса';
+
+  @override
+  String get teacherAddByCohortSection => 'Добавить по группе';
+
+  @override
+  String get teacherAddIndividualStudentsSection =>
+      'Добавить отдельных учеников';
+
+  @override
+  String get teacherGradeTypeSection => 'Тип оценки';
+
+  @override
+  String get teacherOtherGradeSection => 'Другая оценка';
+
+  @override
+  String get teacherEnterGradesSection => 'Введите оценки';
+
+  @override
+  String teacherAttachmentsWithCount(int count) {
+    return 'Вложения ($count)';
+  }
+
+  @override
+  String get studentFilesSharedByTeacher => 'Файлы, поделённые учителем';
+
+  @override
+  String get studentYourSubmission => 'Ваша работа';
+
+  @override
+  String get studentFilesSharedWithAnnouncement =>
+      'Файлы, прикреплённые к этому объявлению.';
+
+  @override
+  String get announcementGradeRiskTitle => 'Обнаружен риск по оценкам';
+
+  @override
+  String get announcementWeakSubjectTitle => 'Обнаружен слабый предмет';
+
+  @override
+  String get announcementLowAttendanceTitle => 'Низкая посещаемость';
+
+  @override
+  String get announcementRepeatedLatenessTitle => 'Повторные опоздания';
+
+  @override
+  String get announcementPracticeWeaknessTitle =>
+      'Обнаружены слабые места в тренировке';
+
+  @override
+  String get announcementPracticeTrendDroppedTitle => 'Тренд тренировок упал';
+
+  @override
+  String get announcementSolutionsActivityTitle =>
+      'Активность Solutions в эфире';
+
+  @override
+  String get announcementAllGoodTitle => 'Всё в порядке';
+
+  @override
+  String get supportSectionGettingStarted => 'Начало работы';
+
+  @override
+  String get supportSectionAccountPassword => 'Аккаунт и пароль';
+
+  @override
+  String get supportSectionForStudents => 'Для учеников';
+
+  @override
+  String get supportSectionForTeachers => 'Для учителей';
+
+  @override
+  String get supportSectionForAdministrators => 'Для администраторов';
+
+  @override
+  String get supportSectionForParents => 'Для родителей';
+
+  @override
+  String get supportSectionPrivacyData => 'Конфиденциальность и данные';
+
+  @override
+  String get novaDisclaimerCanMakeMistakes => 'Может ошибаться';
+
+  @override
+  String get novaDisclaimerEducationalUseOnly => 'Только для учебных целей';
+
+  @override
+  String get novaDisclaimerYourPrivacy => 'Ваша приватность';
+
+  @override
+  String profileNameInLanguage(String language) {
+    return 'Имя на $language';
+  }
+
+  @override
+  String get adminSettingsScheduleSubtitle =>
+      'Привязать учителей и группы к еженедельным временным слотам';
+
+  @override
+  String get practiceModeBalancedSubtitle =>
+      'Сбалансированная ежедневная тренировка';
+
+  @override
+  String get practiceModeRevealSubtitle => 'Открытие и самопроверка';
+
+  @override
+  String get practiceModeFastSubtitle => 'Быстрая тренировка под давлением';
+
+  @override
+  String get practiceModeExamSubtitle => 'Спокойный экзаменационный поток';
+
+  @override
+  String get practiceModeConceptSubtitle => 'Сначала концепция, потом решение';
+
+  @override
+  String get practiceModeAdaptiveSubtitle =>
+      'Сложность меняется в реальном времени';
+
+  @override
+  String get practiceModeStrictSubtitle => 'Строгий официальный стиль';
 }

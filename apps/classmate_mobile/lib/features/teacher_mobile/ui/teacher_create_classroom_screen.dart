@@ -138,11 +138,11 @@ class _TeacherCreateClassroomScreenState
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (ctx) => _MultiPickerSheet(
-        title: 'Select cohorts',
+        title: AppLocalizations.of(context)!.pickerSelectCohorts,
         items: _allCohorts.map((c) => _PickerItem(
           id: c['id']?.toString() ?? '',
           label: (c['name'] ?? '').toString().replaceFirst(RegExp(r'^\d+\s*-\s*'), ''),
-          subtitle: c['grade'] != null ? 'Grade ${c['grade']}' : '',
+          subtitle: c['grade'] != null ? AppLocalizations.of(context)!.adminCohortGradeFormat(c['grade'].toString()) : '',
         )).toList(),
         selected: Set.from(_selectedCohortIds),
         onToggle: (id) => _toggleCohort(id),
@@ -158,7 +158,7 @@ class _TeacherCreateClassroomScreenState
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (ctx) => _MultiPickerSheet(
-        title: 'Select students',
+        title: AppLocalizations.of(context)!.pickerSelectStudents,
         items: _allStudents.map((s) => _PickerItem(
           id: s.studentId,
           label: s.name,
@@ -213,7 +213,7 @@ class _TeacherCreateClassroomScreenState
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
                 // ── Name ──────────────────────────────────────────────────────
-                _SectionHeader(icon: Icons.class_rounded, title: 'Classroom name'),
+                _SectionHeader(icon: Icons.class_rounded, title: AppLocalizations.of(context)!.teacherClassroomNameSection),
                 const SizedBox(height: 10),
                 TextField(
                   controller: _nameCtrl,
@@ -243,7 +243,7 @@ class _TeacherCreateClassroomScreenState
 
                 // ── Cohorts DDL ────────────────────────────────────────────────
                 Row(children: [
-                  _SectionHeader(icon: Icons.groups_rounded, title: 'Add by cohort'),
+                  _SectionHeader(icon: Icons.groups_rounded, title: AppLocalizations.of(context)!.teacherAddByCohortSection),
                   const Spacer(),
                   if (_selectedCohortIds.isNotEmpty)
                     _CountPill(count: _selectedCohortIds.length, cs: cs),
@@ -301,7 +301,7 @@ class _TeacherCreateClassroomScreenState
 
                 // ── Students DDL ───────────────────────────────────────────────
                 Row(children: [
-                  _SectionHeader(icon: Icons.person_add_rounded, title: 'Add individual students'),
+                  _SectionHeader(icon: Icons.person_add_rounded, title: AppLocalizations.of(context)!.teacherAddIndividualStudentsSection),
                   const Spacer(),
                   if (_selectedStudentIds.isNotEmpty)
                     _CountPill(count: _selectedStudentIds.length, cs: cs),

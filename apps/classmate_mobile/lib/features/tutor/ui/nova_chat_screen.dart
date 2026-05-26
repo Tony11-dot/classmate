@@ -2064,7 +2064,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               const SizedBox(height: 12),
               _AboutRow(
                 icon: Icons.warning_amber_rounded,
-                title: 'Can make mistakes',
+                title: AppLocalizations.of(context)!.novaDisclaimerCanMakeMistakes,
                 body: 'NOVA may produce inaccurate, incomplete, or outdated '
                     'information. Always verify important answers with your '
                     'teacher or a trusted source.',
@@ -2072,14 +2072,14 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               const SizedBox(height: 12),
               _AboutRow(
                 icon: Icons.school_rounded,
-                title: 'Educational use only',
+                title: AppLocalizations.of(context)!.novaDisclaimerEducationalUseOnly,
                 body: 'NOVA is designed for learning support and is not a '
                     'substitute for professional medical, legal, or financial advice.',
               ),
               const SizedBox(height: 12),
               _AboutRow(
                 icon: Icons.lock_outline_rounded,
-                title: 'Your privacy',
+                title: AppLocalizations.of(context)!.novaDisclaimerYourPrivacy,
                 body: 'Conversations are used to generate responses. '
                     'Do not share sensitive personal information.',
               ),

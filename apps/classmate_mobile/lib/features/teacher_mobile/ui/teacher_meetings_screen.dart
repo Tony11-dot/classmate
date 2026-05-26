@@ -386,8 +386,8 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MtgCohortSheet(
-        title: 'Select cohorts',
-        items: _cohorts.map((c) => _MtgItem(id: c.id, label: c.name, subtitle: c.grade > 0 ? 'Grade ${c.grade}' : '')).toList(),
+        title: AppLocalizations.of(context)!.pickerSelectCohorts,
+        items: _cohorts.map((c) => _MtgItem(id: c.id, label: c.name, subtitle: c.grade > 0 ? AppLocalizations.of(context)!.adminCohortGradeFormat(c.grade.toString()) : '')).toList(),
         selected: Set.from(_selectedCohortIds),
         onToggle: (id) => setState(() => _selectedCohortIds.contains(id) ? _selectedCohortIds.remove(id) : _selectedCohortIds.add(id)),
       ),
@@ -401,7 +401,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MtgSingleSheet(
-        title: 'Select classroom',
+        title: AppLocalizations.of(context)!.pickerSelectClassroom,
         items: [_MtgItem(id: '', label: 'None', subtitle: ''), ..._courses.map((c) => _MtgItem(id: c.id, label: c.name, subtitle: c.subject))],
         selected: _selectedCourseId ?? '',
         onSelect: (id) => setState(() => _selectedCourseId = id.isEmpty ? null : id),
@@ -491,7 +491,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select students',
+        title: AppLocalizations.of(context)!.pickerSelectStudents,
         items: _allStudents.map((s) => _PickerItem(
           id: s.studentId, label: s.name,
           subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : s.cohortName)).toList(),
@@ -511,7 +511,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select grades',
+        title: AppLocalizations.of(context)!.pickerSelectGrades,
         items: _availableGrades
             .map((g) => _PickerItem(id: g.toString(), label: 'Grade $g'))
             .toList(),
@@ -595,7 +595,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                 const SizedBox(height: 12),
 
                 // ── Details ─────────────────────────────────────────────────
-                _SectionCard(title: 'Meeting Details', child: Column(children: [
+                _SectionCard(title: AppLocalizations.of(context)!.teacherMeetingDetailsSection, child: Column(children: [
                   if (_subjects.isNotEmpty) ...[
                     LiquidGlassDropdown<String?>(
                       label: 'Subject',

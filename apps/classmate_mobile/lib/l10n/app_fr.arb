@@ -2691,5 +2691,67 @@
   "forgotPasswordPhoneHelper": "L'administrateur appellera ou enverra un SMS à ce numéro avant d'approuver.",
   "forgotPasswordNewPasswordHelper": "Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas.",
 
-  "adminExportPasswordsWarning": "{count, plural, one{Le fichier contiendra les identifiants de connexion d'{count} élève, y compris le mot de passe actuel. Toute personne ayant le fichier peut se connecter en tant que cet élève — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de l'utilisateur.} other{Le fichier contiendra les identifiants de connexion de {count} élèves, y compris les mots de passe actuels. Toute personne ayant le fichier peut se connecter en tant que l'un de ces élèves — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de chaque utilisateur.}}"
+  "adminExportPasswordsWarning": "{count, plural, one{Le fichier contiendra les identifiants de connexion d'{count} élève, y compris le mot de passe actuel. Toute personne ayant le fichier peut se connecter en tant que cet élève — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de l'utilisateur.} other{Le fichier contiendra les identifiants de connexion de {count} élèves, y compris les mots de passe actuels. Toute personne ayant le fichier peut se connecter en tant que l'un de ces élèves — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de chaque utilisateur.}}",
+
+  "pickerSelectStudents": "Sélectionner les élèves",
+  "pickerSelectCohorts": "Sélectionner les groupes",
+  "pickerSelectGrades": "Sélectionner les niveaux",
+  "pickerSelectClassroom": "Sélectionner la classe",
+  "pickerSelectClasses": "Sélectionner les classes",
+
+  "drawerLoadingChildren": "Chargement des enfants…",
+  "drawerCouldNotLoadChildren": "Impossible de charger les enfants",
+  "drawerNoChildrenLinked": "Aucun enfant lié",
+  "drawerSwitchChild": "Changer d'enfant",
+
+  "shellAssessmentCreated": "Évaluation créée",
+  "commonCouldNotOpenLink": "Impossible d'ouvrir le lien {scheme}",
+  "commonCouldntSend": "Échec de l'envoi : {error}",
+
+  "teacherExamDetailsSection": "Détails de l'examen",
+  "teacherExamStudyMaterialsWithCount": "Supports d'étude ({count})",
+  "teacherMeetingDetailsSection": "Détails de la réunion",
+  "teacherClassroomNameSection": "Nom de la classe",
+  "teacherAddByCohortSection": "Ajouter par groupe",
+  "teacherAddIndividualStudentsSection": "Ajouter des élèves individuels",
+  "teacherGradeTypeSection": "Type de note",
+  "teacherOtherGradeSection": "Autre note",
+  "teacherEnterGradesSection": "Saisir les notes",
+  "teacherAttachmentsWithCount": "Pièces jointes ({count})",
+  "studentFilesSharedByTeacher": "Fichiers partagés par votre enseignant",
+  "studentYourSubmission": "Votre soumission",
+  "studentFilesSharedWithAnnouncement": "Fichiers partagés avec cette annonce.",
+
+  "announcementGradeRiskTitle": "Risque de note détecté",
+  "announcementWeakSubjectTitle": "Matière faible détectée",
+  "announcementLowAttendanceTitle": "Faible présence",
+  "announcementRepeatedLatenessTitle": "Retards répétés",
+  "announcementPracticeWeaknessTitle": "Faiblesse de pratique détectée",
+  "announcementPracticeTrendDroppedTitle": "Tendance de pratique en baisse",
+  "announcementSolutionsActivityTitle": "Activité Solutions en direct",
+  "announcementAllGoodTitle": "Tout va bien",
+
+  "supportSectionGettingStarted": "Commencer",
+  "supportSectionAccountPassword": "Compte et mot de passe",
+  "supportSectionForStudents": "Pour les élèves",
+  "supportSectionForTeachers": "Pour les enseignants",
+  "supportSectionForAdministrators": "Pour les administrateurs",
+  "supportSectionForParents": "Pour les parents",
+  "supportSectionPrivacyData": "Confidentialité et données",
+
+  "novaDisclaimerCanMakeMistakes": "Peut faire des erreurs",
+  "novaDisclaimerEducationalUseOnly": "Usage éducatif uniquement",
+  "novaDisclaimerYourPrivacy": "Votre vie privée",
+
+  "profileNameInLanguage": "Nom en {language}",
+
+  "adminSettingsScheduleSubtitle": "Assigner enseignants et groupes aux créneaux hebdomadaires",
+
+  "practiceModeBalancedSubtitle": "Pratique quotidienne équilibrée",
+  "practiceModeRevealSubtitle": "Révéler et auto-restituer",
+  "practiceModeFastSubtitle": "Exercice rapide sous pression",
+  "practiceModeExamSubtitle": "Flux calme façon examen",
+  "practiceModeConceptSubtitle": "Concept d'abord, résolution ensuite",
+  "practiceModeAdaptiveSubtitle": "La difficulté change en direct",
+  "practiceModeStrictSubtitle": "Style officiel strict"
 }

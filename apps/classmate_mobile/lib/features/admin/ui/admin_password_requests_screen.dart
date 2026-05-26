@@ -297,7 +297,7 @@ class _PhoneActionRow extends StatelessWidget {
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (ctx.mounted) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text("Couldn't open ${uri.scheme} link")),
+          SnackBar(content: Text(AppLocalizations.of(ctx)!.commonCouldNotOpenLink(uri.scheme))),
         );
       }
     }
