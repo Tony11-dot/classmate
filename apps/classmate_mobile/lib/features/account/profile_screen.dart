@@ -694,7 +694,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
                     router.push('/forgot-password');
                   },
             icon: const Icon(Icons.help_outline_rounded, size: 18),
-            label: const Text('Forgot password?'),
+            label: Text(AppLocalizations.of(context)!.loginForgotPasswordLink),
           ),
         ],
       ),
@@ -988,7 +988,7 @@ class _VerifiableRow extends ConsumerWidget {
                   minimumSize: const Size(0, 32),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text('Verify'),
+                child: Text(AppLocalizations.of(context)!.accountVerifyButton),
               )
             else
               Icon(Icons.edit_outlined, size: 16, color: cs.primary),
@@ -1173,7 +1173,7 @@ Future<void> _showCodeSheet(
                           dimension: 16,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text('Confirm'),
+                      : Text(AppLocalizations.of(ctx)!.accountConfirmButton),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1189,13 +1189,13 @@ Future<void> _showCodeSheet(
                                 .startVerify(channel, newValue: newValue);
                             if (!ctx.mounted) return;
                             ScaffoldMessenger.of(ctx).showSnackBar(
-                              const SnackBar(content: Text('Sent a fresh code.')),
+                              SnackBar(content: Text(AppLocalizations.of(ctx)!.accountCodeResent)),
                             );
                           } catch (e) {
                             setSt(() => error = _humanizeError(e));
                           }
                         },
-                  child: const Text('Resend code'),
+                  child: Text(AppLocalizations.of(ctx)!.accountResendCode),
                 ),
               ),
             ],
@@ -1312,7 +1312,7 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.commonCancel)),
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: () {
@@ -1320,7 +1320,7 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
                   if (v == null || v.isEmpty) return;
                   Navigator.pop(context, v);
                 },
-                child: const Text('Continue'),
+                child: Text(AppLocalizations.of(context)!.accountContinueButton),
               ),
             ],
           ),

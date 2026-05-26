@@ -2419,5 +2419,23 @@
   "teacherAssignmentEnterTitle": "يرجى إدخال عنوان.",
   "teacherAssignmentSelectSubject": "يرجى اختيار مادة.",
   "teacherAssignmentInstructionsLabel": "التعليمات / الوصف",
-  "teacherAttachFilesButton": "إرفاق ملفات"
+  "teacherAttachFilesButton": "إرفاق ملفات",
+
+  "tutorDeleteConversationTitle": "حذف المحادثة؟",
+  "tutorDeleteConversationButton": "حذف نهائيًا",
+  "tutorDeleteFailed": "تعذّر الحذف: {error}",
+  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "tutorDeleteMenuTitle": "حذف المحادثة",
+  "tutorDeleteMenuSubtitle": "يحذف المحادثة نهائيًا من الخادم",
+
+  "accountVerifyButton": "تحقق",
+  "accountConfirmButton": "تأكيد",
+  "accountResendCode": "إعادة إرسال الرمز",
+  "accountCodeResent": "تم إرسال رمز جديد.",
+  "accountContinueButton": "متابعة",
+
+  "studentClassroomFileUnavailable": "هذا الملف غير متاح حاليًا.",
+  "studentClassroomDeleteMaterial": "حذف المادة؟",
+  "studentClassroomCodeLabel": "رمز الصف",
+  "studentClassroomLeaveTooltip": "مغادرة الصف"
 }

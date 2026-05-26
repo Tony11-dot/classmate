@@ -6168,4 +6168,48 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherAttachFilesButton => 'Прикрепить файлы';
+
+  @override
+  String get tutorDeleteConversationTitle => 'Удалить разговор?';
+
+  @override
+  String get tutorDeleteConversationButton => 'Удалить навсегда';
+
+  @override
+  String tutorDeleteFailed(Object error) {
+    return 'Не удалось удалить: $error';
+  }
+
+  @override
+  String get tutorDeleteMenuTitle => 'Удалить разговор';
+
+  @override
+  String get tutorDeleteMenuSubtitle => 'Безвозвратно удаляет с сервера';
+
+  @override
+  String get accountVerifyButton => 'Проверить';
+
+  @override
+  String get accountConfirmButton => 'Подтвердить';
+
+  @override
+  String get accountResendCode => 'Отправить код снова';
+
+  @override
+  String get accountCodeResent => 'Отправлен новый код.';
+
+  @override
+  String get accountContinueButton => 'Продолжить';
+
+  @override
+  String get studentClassroomFileUnavailable => 'Этот файл пока недоступен.';
+
+  @override
+  String get studentClassroomDeleteMaterial => 'Удалить материал?';
+
+  @override
+  String get studentClassroomCodeLabel => 'Код класса';
+
+  @override
+  String get studentClassroomLeaveTooltip => 'Покинуть класс';
 }

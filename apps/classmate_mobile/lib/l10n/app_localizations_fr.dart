@@ -6322,4 +6322,49 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherAttachFilesButton => 'Joindre des fichiers';
+
+  @override
+  String get tutorDeleteConversationTitle => 'Supprimer la conversation ?';
+
+  @override
+  String get tutorDeleteConversationButton => 'Supprimer définitivement';
+
+  @override
+  String tutorDeleteFailed(Object error) {
+    return 'Impossible de supprimer : $error';
+  }
+
+  @override
+  String get tutorDeleteMenuTitle => 'Supprimer la conversation';
+
+  @override
+  String get tutorDeleteMenuSubtitle => 'La supprime définitivement du serveur';
+
+  @override
+  String get accountVerifyButton => 'Vérifier';
+
+  @override
+  String get accountConfirmButton => 'Confirmer';
+
+  @override
+  String get accountResendCode => 'Renvoyer le code';
+
+  @override
+  String get accountCodeResent => 'Nouveau code envoyé.';
+
+  @override
+  String get accountContinueButton => 'Continuer';
+
+  @override
+  String get studentClassroomFileUnavailable =>
+      'Ce fichier n\'est pas encore disponible.';
+
+  @override
+  String get studentClassroomDeleteMaterial => 'Supprimer la ressource ?';
+
+  @override
+  String get studentClassroomCodeLabel => 'Code de la classe';
+
+  @override
+  String get studentClassroomLeaveTooltip => 'Quitter la classe';
 }

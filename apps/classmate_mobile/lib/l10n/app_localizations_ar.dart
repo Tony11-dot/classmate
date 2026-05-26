@@ -6200,4 +6200,48 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherAttachFilesButton => 'إرفاق ملفات';
+
+  @override
+  String get tutorDeleteConversationTitle => 'حذف المحادثة؟';
+
+  @override
+  String get tutorDeleteConversationButton => 'حذف نهائيًا';
+
+  @override
+  String tutorDeleteFailed(Object error) {
+    return 'تعذّر الحذف: $error';
+  }
+
+  @override
+  String get tutorDeleteMenuTitle => 'حذف المحادثة';
+
+  @override
+  String get tutorDeleteMenuSubtitle => 'يحذف المحادثة نهائيًا من الخادم';
+
+  @override
+  String get accountVerifyButton => 'تحقق';
+
+  @override
+  String get accountConfirmButton => 'تأكيد';
+
+  @override
+  String get accountResendCode => 'إعادة إرسال الرمز';
+
+  @override
+  String get accountCodeResent => 'تم إرسال رمز جديد.';
+
+  @override
+  String get accountContinueButton => 'متابعة';
+
+  @override
+  String get studentClassroomFileUnavailable => 'هذا الملف غير متاح حاليًا.';
+
+  @override
+  String get studentClassroomDeleteMaterial => 'حذف المادة؟';
+
+  @override
+  String get studentClassroomCodeLabel => 'رمز الصف';
+
+  @override
+  String get studentClassroomLeaveTooltip => 'مغادرة الصف';
 }

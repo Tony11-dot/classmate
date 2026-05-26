@@ -2419,5 +2419,23 @@
   "teacherAssignmentEnterTitle": "Veuillez saisir un titre.",
   "teacherAssignmentSelectSubject": "Veuillez choisir une matière.",
   "teacherAssignmentInstructionsLabel": "Instructions / Description",
-  "teacherAttachFilesButton": "Joindre des fichiers"
+  "teacherAttachFilesButton": "Joindre des fichiers",
+
+  "tutorDeleteConversationTitle": "Supprimer la conversation ?",
+  "tutorDeleteConversationButton": "Supprimer définitivement",
+  "tutorDeleteFailed": "Impossible de supprimer : {error}",
+  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "tutorDeleteMenuTitle": "Supprimer la conversation",
+  "tutorDeleteMenuSubtitle": "La supprime définitivement du serveur",
+
+  "accountVerifyButton": "Vérifier",
+  "accountConfirmButton": "Confirmer",
+  "accountResendCode": "Renvoyer le code",
+  "accountCodeResent": "Nouveau code envoyé.",
+  "accountContinueButton": "Continuer",
+
+  "studentClassroomFileUnavailable": "Ce fichier n'est pas encore disponible.",
+  "studentClassroomDeleteMaterial": "Supprimer la ressource ?",
+  "studentClassroomCodeLabel": "Code de la classe",
+  "studentClassroomLeaveTooltip": "Quitter la classe"
 }

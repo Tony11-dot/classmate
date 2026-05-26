@@ -11106,6 +11106,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attach files'**
   String get teacherAttachFilesButton;
+
+  /// No description provided for @tutorDeleteConversationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete conversation?'**
+  String get tutorDeleteConversationTitle;
+
+  /// No description provided for @tutorDeleteConversationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get tutorDeleteConversationButton;
+
+  /// No description provided for @tutorDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete: {error}'**
+  String tutorDeleteFailed(Object error);
+
+  /// No description provided for @tutorDeleteMenuTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete conversation'**
+  String get tutorDeleteMenuTitle;
+
+  /// No description provided for @tutorDeleteMenuSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently removes it from the server'**
+  String get tutorDeleteMenuSubtitle;
+
+  /// No description provided for @accountVerifyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get accountVerifyButton;
+
+  /// No description provided for @accountConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get accountConfirmButton;
+
+  /// No description provided for @accountResendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get accountResendCode;
+
+  /// No description provided for @accountCodeResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent a fresh code.'**
+  String get accountCodeResent;
+
+  /// No description provided for @accountContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get accountContinueButton;
+
+  /// No description provided for @studentClassroomFileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not yet available.'**
+  String get studentClassroomFileUnavailable;
+
+  /// No description provided for @studentClassroomDeleteMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete material?'**
+  String get studentClassroomDeleteMaterial;
+
+  /// No description provided for @studentClassroomCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom code'**
+  String get studentClassroomCodeLabel;
+
+  /// No description provided for @studentClassroomLeaveTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave classroom'**
+  String get studentClassroomLeaveTooltip;
 }
 
 class _AppLocalizationsDelegate

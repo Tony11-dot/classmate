@@ -2626,5 +2626,23 @@
   "teacherAssignmentEnterTitle": "Please enter a title.",
   "teacherAssignmentSelectSubject": "Please select a subject.",
   "teacherAssignmentInstructionsLabel": "Instructions / Description",
-  "teacherAttachFilesButton": "Attach files"
+  "teacherAttachFilesButton": "Attach files",
+
+  "tutorDeleteConversationTitle": "Delete conversation?",
+  "tutorDeleteConversationButton": "Delete permanently",
+  "tutorDeleteFailed": "Could not delete: {error}",
+  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "tutorDeleteMenuTitle": "Delete conversation",
+  "tutorDeleteMenuSubtitle": "Permanently removes it from the server",
+
+  "accountVerifyButton": "Verify",
+  "accountConfirmButton": "Confirm",
+  "accountResendCode": "Resend code",
+  "accountCodeResent": "Sent a fresh code.",
+  "accountContinueButton": "Continue",
+
+  "studentClassroomFileUnavailable": "This file is not yet available.",
+  "studentClassroomDeleteMaterial": "Delete material?",
+  "studentClassroomCodeLabel": "Classroom code",
+  "studentClassroomLeaveTooltip": "Leave classroom"
 }

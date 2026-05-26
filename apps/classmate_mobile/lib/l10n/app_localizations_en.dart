@@ -6229,4 +6229,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherAttachFilesButton => 'Attach files';
+
+  @override
+  String get tutorDeleteConversationTitle => 'Delete conversation?';
+
+  @override
+  String get tutorDeleteConversationButton => 'Delete permanently';
+
+  @override
+  String tutorDeleteFailed(Object error) {
+    return 'Could not delete: $error';
+  }
+
+  @override
+  String get tutorDeleteMenuTitle => 'Delete conversation';
+
+  @override
+  String get tutorDeleteMenuSubtitle =>
+      'Permanently removes it from the server';
+
+  @override
+  String get accountVerifyButton => 'Verify';
+
+  @override
+  String get accountConfirmButton => 'Confirm';
+
+  @override
+  String get accountResendCode => 'Resend code';
+
+  @override
+  String get accountCodeResent => 'Sent a fresh code.';
+
+  @override
+  String get accountContinueButton => 'Continue';
+
+  @override
+  String get studentClassroomFileUnavailable =>
+      'This file is not yet available.';
+
+  @override
+  String get studentClassroomDeleteMaterial => 'Delete material?';
+
+  @override
+  String get studentClassroomCodeLabel => 'Classroom code';
+
+  @override
+  String get studentClassroomLeaveTooltip => 'Leave classroom';
 }

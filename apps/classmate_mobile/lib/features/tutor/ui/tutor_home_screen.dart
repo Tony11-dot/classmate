@@ -356,7 +356,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Delete conversation?'),
+            title: Text(AppLocalizations.of(ctx)!.tutorDeleteConversationTitle),
             content: const Text(
               'This will permanently delete the conversation and all its messages from the server. This cannot be undone.',
             ),
@@ -368,7 +368,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               FilledButton(
                 style: FilledButton.styleFrom(backgroundColor: cs.error),
                 onPressed: () => Navigator.of(ctx).pop(true),
-                child: const Text('Delete permanently'),
+                child: Text(AppLocalizations.of(ctx)!.tutorDeleteConversationButton),
               ),
             ],
           ),
@@ -387,7 +387,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not delete: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.tutorDeleteFailed(e.toString()))),
       );
     }
   }
@@ -409,8 +409,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.delete_forever_rounded, color: Theme.of(context).colorScheme.error),
-                title: const Text('Delete conversation'),
-                subtitle: const Text('Permanently removes it from the server'),
+                title: Text(AppLocalizations.of(context)!.tutorDeleteMenuTitle),
+                subtitle: Text(AppLocalizations.of(context)!.tutorDeleteMenuSubtitle),
                 onTap: () => Navigator.of(context).pop('delete'),
               ),
             ],

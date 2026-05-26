@@ -6174,4 +6174,48 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherAttachFilesButton => 'צרף קבצים';
+
+  @override
+  String get tutorDeleteConversationTitle => 'למחוק שיחה?';
+
+  @override
+  String get tutorDeleteConversationButton => 'מחק לצמיתות';
+
+  @override
+  String tutorDeleteFailed(Object error) {
+    return 'לא ניתן למחוק: $error';
+  }
+
+  @override
+  String get tutorDeleteMenuTitle => 'מחק שיחה';
+
+  @override
+  String get tutorDeleteMenuSubtitle => 'מוחק לצמיתות מהשרת';
+
+  @override
+  String get accountVerifyButton => 'אמת';
+
+  @override
+  String get accountConfirmButton => 'אשר';
+
+  @override
+  String get accountResendCode => 'שלח קוד מחדש';
+
+  @override
+  String get accountCodeResent => 'נשלח קוד חדש.';
+
+  @override
+  String get accountContinueButton => 'המשך';
+
+  @override
+  String get studentClassroomFileUnavailable => 'הקובץ אינו זמין כעת.';
+
+  @override
+  String get studentClassroomDeleteMaterial => 'למחוק חומר?';
+
+  @override
+  String get studentClassroomCodeLabel => 'קוד הכיתה';
+
+  @override
+  String get studentClassroomLeaveTooltip => 'עזוב כיתה';
 }

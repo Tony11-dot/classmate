@@ -2419,5 +2419,23 @@
   "teacherAssignmentEnterTitle": "אנא הזן כותרת.",
   "teacherAssignmentSelectSubject": "אנא בחר מקצוע.",
   "teacherAssignmentInstructionsLabel": "הוראות / תיאור",
-  "teacherAttachFilesButton": "צרף קבצים"
+  "teacherAttachFilesButton": "צרף קבצים",
+
+  "tutorDeleteConversationTitle": "למחוק שיחה?",
+  "tutorDeleteConversationButton": "מחק לצמיתות",
+  "tutorDeleteFailed": "לא ניתן למחוק: {error}",
+  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "tutorDeleteMenuTitle": "מחק שיחה",
+  "tutorDeleteMenuSubtitle": "מוחק לצמיתות מהשרת",
+
+  "accountVerifyButton": "אמת",
+  "accountConfirmButton": "אשר",
+  "accountResendCode": "שלח קוד מחדש",
+  "accountCodeResent": "נשלח קוד חדש.",
+  "accountContinueButton": "המשך",
+
+  "studentClassroomFileUnavailable": "הקובץ אינו זמין כעת.",
+  "studentClassroomDeleteMaterial": "למחוק חומר?",
+  "studentClassroomCodeLabel": "קוד הכיתה",
+  "studentClassroomLeaveTooltip": "עזוב כיתה"
 }

@@ -2626,5 +2626,23 @@
   "teacherAssignmentEnterTitle": "Пожалуйста, введите название.",
   "teacherAssignmentSelectSubject": "Пожалуйста, выберите предмет.",
   "teacherAssignmentInstructionsLabel": "Инструкции / Описание",
-  "teacherAttachFilesButton": "Прикрепить файлы"
+  "teacherAttachFilesButton": "Прикрепить файлы",
+
+  "tutorDeleteConversationTitle": "Удалить разговор?",
+  "tutorDeleteConversationButton": "Удалить навсегда",
+  "tutorDeleteFailed": "Не удалось удалить: {error}",
+  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "tutorDeleteMenuTitle": "Удалить разговор",
+  "tutorDeleteMenuSubtitle": "Безвозвратно удаляет с сервера",
+
+  "accountVerifyButton": "Проверить",
+  "accountConfirmButton": "Подтвердить",
+  "accountResendCode": "Отправить код снова",
+  "accountCodeResent": "Отправлен новый код.",
+  "accountContinueButton": "Продолжить",
+
+  "studentClassroomFileUnavailable": "Этот файл пока недоступен.",
+  "studentClassroomDeleteMaterial": "Удалить материал?",
+  "studentClassroomCodeLabel": "Код класса",
+  "studentClassroomLeaveTooltip": "Покинуть класс"
 }
