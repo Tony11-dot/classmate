@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/parent_models.dart';
 import '../data/parent_repository.dart';
 
@@ -22,9 +23,9 @@ class ParentNotificationsScreen extends ConsumerWidget {
           data: (items) {
             if (items.isEmpty) {
               return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  Center(child: Text('No notifications yet.')),
+                children: [
+                  const SizedBox(height: 120),
+                  Center(child: Text(AppLocalizations.of(context)!.parentNoNotificationsYet)),
                 ],
               );
             }

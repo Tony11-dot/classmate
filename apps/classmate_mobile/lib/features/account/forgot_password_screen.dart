@@ -301,7 +301,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 icon: _lookingUp
                     ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.search_rounded),
-                label: const Text('Find my school\'s admins'),
+                label: Text(AppLocalizations.of(context)!.forgotPasswordFindAdmins),
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               ),
               if (_admins.isNotEmpty) ...[
@@ -309,7 +309,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 if (_schoolName != null && _schoolName!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Text('Choose an admin from $_schoolName:',
+                    child: Text(AppLocalizations.of(context)!.forgotPasswordChooseAdmin(_schoolName ?? ''),
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ),
                 LiquidGlassDropdown<String>(
@@ -374,7 +374,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   icon: _submitting
                       ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : const Icon(Icons.send_rounded),
-                  label: const Text('Send password request'),
+                  label: Text(AppLocalizations.of(context)!.forgotPasswordSendRequest),
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 ),
               ],

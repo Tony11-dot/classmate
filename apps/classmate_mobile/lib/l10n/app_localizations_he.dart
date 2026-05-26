@@ -6755,4 +6755,212 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get chatMediaPreviewTrimAction => 'קצוץ';
+
+  @override
+  String get commonUntitled => 'ללא כותרת';
+
+  @override
+  String get plansMonthlyPlans => 'תוכניות חודשיות';
+
+  @override
+  String get plansTokenTopups => 'חבילות אסימונים';
+
+  @override
+  String get plansTopupsSubtitle =>
+      'רכישות חד-פעמיות. לא פגות. נצברות מעל לתוכנית שלך.';
+
+  @override
+  String get plansCouldntLoadBalance => 'לא ניתן לטעון את היתרה';
+
+  @override
+  String get plansFreePlan => 'תוכנית חינמית';
+
+  @override
+  String get plansTokensRemaining => 'אסימונים נותרו';
+
+  @override
+  String plansPlanResetsAt(String when) {
+    return 'התוכנית מתאפסת $when';
+  }
+
+  @override
+  String plansTopupTokensInfo(String tokens) {
+    return '$tokens אסימוני חבילה (ללא תפוגה)';
+  }
+
+  @override
+  String get plansHowTokensWorkTitle => 'איך אסימונים עובדים';
+
+  @override
+  String get plansHowTokensWorkBody =>
+      'אסימונים הם הדרך שבה ה-AI סופר את עבודתו.\n• שאלה קצרה ≈ 2,000 אסימונים\n• הסבר ארוך או תרגול ≈ 5,000–10,000\n• ניתוח תמונות עולה מעט יותר\n\nהאסימונים החודשיים מתאפסים בראשון לחודש. אסימוני חבילה לא פגים.';
+
+  @override
+  String get plansPerMonthSuffix => ' / לחודש';
+
+  @override
+  String get plansCurrentBadge => 'נוכחית';
+
+  @override
+  String get plansCouldntLoadPlans => 'לא ניתן לטעון תוכניות';
+
+  @override
+  String get paywallPlansUnavailable => 'התוכניות לא זמינות. נסה שוב בעוד רגע.';
+
+  @override
+  String get paywallTopupUnavailable =>
+      'החבילה לא זמינה. החנות עוד לא אישרה את המוצר.';
+
+  @override
+  String get paywallRestored => 'המנוי שלך שוחזר.';
+
+  @override
+  String get paywallNoRestores => 'לא נמצאו רכישות קודמות במזהה Apple זה.';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return 'השחזור נכשל: $error';
+  }
+
+  @override
+  String get paywallPurchasesRestricted => 'רכישות מוגבלות במכשיר זה.';
+
+  @override
+  String get paywallPurchaseInvalid =>
+      'הרכישה אינה חוקית. נסה אמצעי תשלום אחר.';
+
+  @override
+  String get paywallProductNotAvailable =>
+      'התוכנית הזו לא זמינה כעת. נסה מאוחר יותר.';
+
+  @override
+  String get paywallNetworkError => 'בעיית רשת. בדוק את החיבור ונסה שוב.';
+
+  @override
+  String get paywallPaymentPending =>
+      'התשלום ממתין לאישור (בקרת הורים וכו\'). יופעל לאחר אישור.';
+
+  @override
+  String get paywallStoreProblem => 'ב-App Store הייתה בעיה. נסה שוב בעוד דקה.';
+
+  @override
+  String get paywallGenericError => 'משהו השתבש. נסה שוב.';
+
+  @override
+  String paywallWelcomeMessage(String plan) {
+    return 'ברוך הבא ל-$plan! האסימונים בדרך.';
+  }
+
+  @override
+  String get paywallWelcomeFallback => 'התוכנית החדשה שלך';
+
+  @override
+  String get paywallTopupAdded => 'החבילה נוספה. האסימונים בדרך.';
+
+  @override
+  String get paywallPurchaseProcessed =>
+      'הרכישה עובדה. האסימונים יופיעו בקרוב.';
+
+  @override
+  String paywallSubscribeTo(String plan) {
+    return 'הירשם ל-$plan';
+  }
+
+  @override
+  String paywallBuyTopupNamed(String topup) {
+    return 'קנה $topup';
+  }
+
+  @override
+  String get paywallPlanFallback => 'תוכנית';
+
+  @override
+  String get paywallTopupFallback => 'חבילה';
+
+  @override
+  String get paywallTopupBlurb =>
+      'רכישה חד-פעמית. האסימונים לא פגים ונצברים מעל לתוכנית.';
+
+  @override
+  String paywallPerMonthWithTokens(String tokens) {
+    return 'לחודש · $tokens';
+  }
+
+  @override
+  String paywallOneTimeWithTokens(String tokens) {
+    return 'חד-פעמי · $tokens';
+  }
+
+  @override
+  String get paywallSubscribeButton => 'הירשם';
+
+  @override
+  String get paywallBuyButton => 'קנה';
+
+  @override
+  String get paywallRestoreButton => 'שחזר רכישות';
+
+  @override
+  String get paywallNotNow => 'לא עכשיו';
+
+  @override
+  String get paywallTermsSubscription =>
+      'בהרשמה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. המנויים מתחדשים אוטומטית מדי חודש עד שיבוטלו. ניהול בכל עת מחשבון App Store.';
+
+  @override
+  String get paywallTermsTopup =>
+      'ברכישה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. אסימוני חבילה אינם ניתנים להחזרה לאחר השימוש.';
+
+  @override
+  String get paywallFeatureTokens => 'השתמש באסימונים ב-NOVA ובתרגול';
+
+  @override
+  String get paywallFeatureImages => 'ניתוח תמונות והעלאת קבצים כלולים';
+
+  @override
+  String get paywallFeatureReset => 'האסימונים מתאפסים בתחילת כל חודש';
+
+  @override
+  String get paywallFeatureCancel => 'בטל בכל עת — ללא התחייבות';
+
+  @override
+  String get studentMaterialsGeneralSubject => 'כללי';
+
+  @override
+  String studentMaterialsResourceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משאבים מהמורים שלך',
+      one: 'משאב אחד מהמורים שלך',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classroomsCouldNotLoadWithError(String error) {
+    return 'לא ניתן לטעון את הכיתות\n$error';
+  }
+
+  @override
+  String get parentNoNotificationsYet => 'אין התראות עדיין.';
+
+  @override
+  String forwardCouldNotLoadChats(Object error) {
+    return 'לא ניתן לטעון את הצ\'אטים: $error';
+  }
+
+  @override
+  String get forwardNoChats => 'אין צ\'אטים';
+
+  @override
+  String get forgotPasswordFindAdmins => 'מצא את מנהלי בית הספר שלי';
+
+  @override
+  String forgotPasswordChooseAdmin(String school) {
+    return 'בחר מנהל מתוך $school:';
+  }
+
+  @override
+  String get forgotPasswordSendRequest => 'שלח בקשת סיסמה';
 }

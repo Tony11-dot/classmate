@@ -96,7 +96,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
           final grouped = <String, List<Map<String, dynamic>>>{};
           for (final item in items) {
             final subject = (item['subject'] as String? ?? '').trim();
-            final key = subject.isNotEmpty ? subject : 'General';
+            final key = subject.isNotEmpty ? subject : l.studentMaterialsGeneralSubject;
             grouped.putIfAbsent(key, () => []).add(item);
           }
           final subjects = grouped.keys.toList()..sort();
@@ -113,7 +113,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
                     const SizedBox(height: 4),
-                    Text('${items.length} resource${items.length == 1 ? '' : 's'} from your teachers',
+                    Text(l.studentMaterialsResourceCount(items.length),
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ])),
                   Container(width: 46, height: 46,
@@ -254,7 +254,7 @@ class _MaterialCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
-                title.isEmpty ? 'Untitled' : title,
+                title.isEmpty ? AppLocalizations.of(context)!.commonUntitled : title,
                 style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

@@ -6914,4 +6914,221 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get chatMediaPreviewTrimAction => 'Rogner';
+
+  @override
+  String get commonUntitled => 'Sans titre';
+
+  @override
+  String get plansMonthlyPlans => 'Forfaits mensuels';
+
+  @override
+  String get plansTokenTopups => 'Recharges de jetons';
+
+  @override
+  String get plansTopupsSubtitle =>
+      'Achats uniques. Sans expiration. Cumulables avec votre forfait.';
+
+  @override
+  String get plansCouldntLoadBalance => 'Impossible de charger votre solde';
+
+  @override
+  String get plansFreePlan => 'Forfait gratuit';
+
+  @override
+  String get plansTokensRemaining => 'jetons restants';
+
+  @override
+  String plansPlanResetsAt(String when) {
+    return 'Le forfait se réinitialise $when';
+  }
+
+  @override
+  String plansTopupTokensInfo(String tokens) {
+    return '$tokens jetons de recharge (sans expiration)';
+  }
+
+  @override
+  String get plansHowTokensWorkTitle => 'Comment fonctionnent les jetons';
+
+  @override
+  String get plansHowTokensWorkBody =>
+      'Les jetons mesurent le travail de l\'IA.\n• Une question courte ≈ 2 000 jetons\n• Une explication longue ou une session de pratique ≈ 5 000–10 000\n• L\'analyse d\'images coûte un peu plus\n\nVos jetons mensuels se réinitialisent le 1er. Les jetons de recharge n\'expirent jamais.';
+
+  @override
+  String get plansPerMonthSuffix => ' / mois';
+
+  @override
+  String get plansCurrentBadge => 'ACTUEL';
+
+  @override
+  String get plansCouldntLoadPlans => 'Impossible de charger les forfaits';
+
+  @override
+  String get paywallPlansUnavailable =>
+      'Forfaits indisponibles. Réessayez dans un instant.';
+
+  @override
+  String get paywallTopupUnavailable =>
+      'Recharge indisponible. Le store n\'a pas fini d\'approuver ce produit.';
+
+  @override
+  String get paywallRestored => 'Votre abonnement a été restauré.';
+
+  @override
+  String get paywallNoRestores =>
+      'Aucun achat précédent trouvé sur cet identifiant Apple.';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return 'Échec de la restauration : $error';
+  }
+
+  @override
+  String get paywallPurchasesRestricted =>
+      'Les achats sont restreints sur cet appareil.';
+
+  @override
+  String get paywallPurchaseInvalid =>
+      'Cet achat n\'est pas valide. Essayez un autre moyen de paiement.';
+
+  @override
+  String get paywallProductNotAvailable =>
+      'Ce forfait n\'est pas disponible pour le moment. Réessayez plus tard.';
+
+  @override
+  String get paywallNetworkError =>
+      'Problème réseau. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get paywallPaymentPending =>
+      'Paiement en attente d\'approbation (contrôle parental, etc.). Il sera activé après approbation.';
+
+  @override
+  String get paywallStoreProblem =>
+      'Un problème est survenu sur l\'App Store. Réessayez dans une minute.';
+
+  @override
+  String get paywallGenericError => 'Une erreur est survenue. Réessayez.';
+
+  @override
+  String paywallWelcomeMessage(String plan) {
+    return 'Bienvenue dans $plan ! Les jetons arrivent.';
+  }
+
+  @override
+  String get paywallWelcomeFallback => 'votre nouveau forfait';
+
+  @override
+  String get paywallTopupAdded => 'Recharge ajoutée. Les jetons arrivent.';
+
+  @override
+  String get paywallPurchaseProcessed =>
+      'Achat traité. Les jetons apparaîtront bientôt.';
+
+  @override
+  String paywallSubscribeTo(String plan) {
+    return 'S\'abonner à $plan';
+  }
+
+  @override
+  String paywallBuyTopupNamed(String topup) {
+    return 'Acheter $topup';
+  }
+
+  @override
+  String get paywallPlanFallback => 'forfait';
+
+  @override
+  String get paywallTopupFallback => 'recharge';
+
+  @override
+  String get paywallTopupBlurb =>
+      'Achat unique. Les jetons n\'expirent jamais et s\'ajoutent à votre forfait.';
+
+  @override
+  String paywallPerMonthWithTokens(String tokens) {
+    return 'par mois · $tokens';
+  }
+
+  @override
+  String paywallOneTimeWithTokens(String tokens) {
+    return 'unique · $tokens';
+  }
+
+  @override
+  String get paywallSubscribeButton => 'S\'abonner';
+
+  @override
+  String get paywallBuyButton => 'Acheter';
+
+  @override
+  String get paywallRestoreButton => 'Restaurer les achats';
+
+  @override
+  String get paywallNotNow => 'Pas maintenant';
+
+  @override
+  String get paywallTermsSubscription =>
+      'En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu\'à annulation. Gérez à tout moment depuis votre compte App Store.';
+
+  @override
+  String get paywallTermsTopup =>
+      'En achetant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les jetons de recharge ne sont pas remboursables une fois consommés.';
+
+  @override
+  String get paywallFeatureTokens =>
+      'Utilisez les jetons dans NOVA et les sessions de pratique';
+
+  @override
+  String get paywallFeatureImages =>
+      'Analyse d\'images et envoi de fichiers inclus';
+
+  @override
+  String get paywallFeatureReset =>
+      'Les jetons se réinitialisent au début de chaque mois';
+
+  @override
+  String get paywallFeatureCancel => 'Annulez à tout moment — sans engagement';
+
+  @override
+  String get studentMaterialsGeneralSubject => 'Général';
+
+  @override
+  String studentMaterialsResourceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ressources de vos enseignants',
+      one: '$count ressource de vos enseignants',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classroomsCouldNotLoadWithError(String error) {
+    return 'Impossible de charger les classes\n$error';
+  }
+
+  @override
+  String get parentNoNotificationsYet => 'Aucune notification pour l\'instant.';
+
+  @override
+  String forwardCouldNotLoadChats(Object error) {
+    return 'Impossible de charger les discussions : $error';
+  }
+
+  @override
+  String get forwardNoChats => 'Aucune discussion';
+
+  @override
+  String get forgotPasswordFindAdmins =>
+      'Trouver les administrateurs de mon école';
+
+  @override
+  String forgotPasswordChooseAdmin(String school) {
+    return 'Choisissez un administrateur dans $school :';
+  }
+
+  @override
+  String get forgotPasswordSendRequest => 'Envoyer la demande de mot de passe';
 }

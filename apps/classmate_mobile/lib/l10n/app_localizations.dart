@@ -12120,6 +12120,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trim'**
   String get chatMediaPreviewTrimAction;
+
+  /// No description provided for @commonUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled'**
+  String get commonUntitled;
+
+  /// No description provided for @plansMonthlyPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly plans'**
+  String get plansMonthlyPlans;
+
+  /// No description provided for @plansTokenTopups.
+  ///
+  /// In en, this message translates to:
+  /// **'Token top-ups'**
+  String get plansTokenTopups;
+
+  /// No description provided for @plansTopupsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchases. Never expire. Stack on top of your plan.'**
+  String get plansTopupsSubtitle;
+
+  /// No description provided for @plansCouldntLoadBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your balance'**
+  String get plansCouldntLoadBalance;
+
+  /// No description provided for @plansFreePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan'**
+  String get plansFreePlan;
+
+  /// No description provided for @plansTokensRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'tokens remaining'**
+  String get plansTokensRemaining;
+
+  /// No description provided for @plansPlanResetsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan resets {when}'**
+  String plansPlanResetsAt(String when);
+
+  /// No description provided for @plansTopupTokensInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} top-up tokens (no expiry)'**
+  String plansTopupTokensInfo(String tokens);
+
+  /// No description provided for @plansHowTokensWorkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How tokens work'**
+  String get plansHowTokensWorkTitle;
+
+  /// No description provided for @plansHowTokensWorkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens are how AI counts its work.\n• A short question ≈ 2,000 tokens\n• A long explanation or practice session ≈ 5,000–10,000\n• Image analysis costs a bit more\n\nYour monthly tokens reset on the 1st. Top-up tokens never expire.'**
+  String get plansHowTokensWorkBody;
+
+  /// No description provided for @plansPerMonthSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' / mo'**
+  String get plansPerMonthSuffix;
+
+  /// No description provided for @plansCurrentBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT'**
+  String get plansCurrentBadge;
+
+  /// No description provided for @plansCouldntLoadPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load plans'**
+  String get plansCouldntLoadPlans;
+
+  /// No description provided for @paywallPlansUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans unavailable. Try again in a moment.'**
+  String get paywallPlansUnavailable;
+
+  /// No description provided for @paywallTopupUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-up unavailable. The store hasn\'t finished approving this product.'**
+  String get paywallTopupUnavailable;
+
+  /// No description provided for @paywallRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription was restored.'**
+  String get paywallRestored;
+
+  /// No description provided for @paywallNoRestores.
+  ///
+  /// In en, this message translates to:
+  /// **'No previous purchases found on this Apple ID.'**
+  String get paywallNoRestores;
+
+  /// No description provided for @paywallRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {error}'**
+  String paywallRestoreFailed(String error);
+
+  /// No description provided for @paywallPurchasesRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases are restricted on this device.'**
+  String get paywallPurchasesRestricted;
+
+  /// No description provided for @paywallPurchaseInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This purchase isn\'t valid. Try a different payment method.'**
+  String get paywallPurchaseInvalid;
+
+  /// No description provided for @paywallProductNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan isn\'t available right now. Try again later.'**
+  String get paywallProductNotAvailable;
+
+  /// No description provided for @paywallNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network issue. Check your connection and try again.'**
+  String get paywallNetworkError;
+
+  /// No description provided for @paywallPaymentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment is pending approval (parental controls, etc.). It\'ll activate once approved.'**
+  String get paywallPaymentPending;
+
+  /// No description provided for @paywallStoreProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'The App Store had a problem. Try again in a minute.'**
+  String get paywallStoreProblem;
+
+  /// No description provided for @paywallGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get paywallGenericError;
+
+  /// No description provided for @paywallWelcomeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to {plan}! Tokens are on the way.'**
+  String paywallWelcomeMessage(String plan);
+
+  /// No description provided for @paywallWelcomeFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'your new plan'**
+  String get paywallWelcomeFallback;
+
+  /// No description provided for @paywallTopupAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-up added. Tokens are on the way.'**
+  String get paywallTopupAdded;
+
+  /// No description provided for @paywallPurchaseProcessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase processed. Tokens will appear shortly.'**
+  String get paywallPurchaseProcessed;
+
+  /// No description provided for @paywallSubscribeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to {plan}'**
+  String paywallSubscribeTo(String plan);
+
+  /// No description provided for @paywallBuyTopupNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {topup}'**
+  String paywallBuyTopupNamed(String topup);
+
+  /// No description provided for @paywallPlanFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'plan'**
+  String get paywallPlanFallback;
+
+  /// No description provided for @paywallTopupFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'top-up'**
+  String get paywallTopupFallback;
+
+  /// No description provided for @paywallTopupBlurb.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase. Tokens never expire and stack on top of your plan.'**
+  String get paywallTopupBlurb;
+
+  /// No description provided for @paywallPerMonthWithTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'per month · {tokens}'**
+  String paywallPerMonthWithTokens(String tokens);
+
+  /// No description provided for @paywallOneTimeWithTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'one-time · {tokens}'**
+  String paywallOneTimeWithTokens(String tokens);
+
+  /// No description provided for @paywallSubscribeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get paywallSubscribeButton;
+
+  /// No description provided for @paywallBuyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get paywallBuyButton;
+
+  /// No description provided for @paywallRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get paywallRestoreButton;
+
+  /// No description provided for @paywallNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get paywallNotNow;
+
+  /// No description provided for @paywallTermsSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.'**
+  String get paywallTermsSubscription;
+
+  /// No description provided for @paywallTermsTopup.
+  ///
+  /// In en, this message translates to:
+  /// **'By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.'**
+  String get paywallTermsTopup;
+
+  /// No description provided for @paywallFeatureTokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Use tokens across NOVA chat and Practice sessions'**
+  String get paywallFeatureTokens;
+
+  /// No description provided for @paywallFeatureImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Image analysis and file upload included'**
+  String get paywallFeatureImages;
+
+  /// No description provided for @paywallFeatureReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokens reset at the start of each month'**
+  String get paywallFeatureReset;
+
+  /// No description provided for @paywallFeatureCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime — no commitment'**
+  String get paywallFeatureCancel;
+
+  /// No description provided for @studentMaterialsGeneralSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get studentMaterialsGeneralSubject;
+
+  /// No description provided for @studentMaterialsResourceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} resource from your teachers} other{{count} resources from your teachers}}'**
+  String studentMaterialsResourceCount(int count);
+
+  /// No description provided for @classroomsCouldNotLoadWithError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load classrooms\n{error}'**
+  String classroomsCouldNotLoadWithError(String error);
+
+  /// No description provided for @parentNoNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet.'**
+  String get parentNoNotificationsYet;
+
+  /// No description provided for @forwardCouldNotLoadChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load chats: {error}'**
+  String forwardCouldNotLoadChats(Object error);
+
+  /// No description provided for @forwardNoChats.
+  ///
+  /// In en, this message translates to:
+  /// **'No chats'**
+  String get forwardNoChats;
+
+  /// No description provided for @forgotPasswordFindAdmins.
+  ///
+  /// In en, this message translates to:
+  /// **'Find my school\'s admins'**
+  String get forgotPasswordFindAdmins;
+
+  /// No description provided for @forgotPasswordChooseAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an admin from {school}:'**
+  String forgotPasswordChooseAdmin(String school);
+
+  /// No description provided for @forgotPasswordSendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send password request'**
+  String get forgotPasswordSendRequest;
 }
 
 class _AppLocalizationsDelegate

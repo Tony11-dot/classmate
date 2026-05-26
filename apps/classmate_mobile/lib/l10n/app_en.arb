@@ -2883,5 +2883,102 @@
   "sectionAdminTools": "Admin Tools",
 
   "chatVideoTrimTitle": "Trim video",
-  "chatMediaPreviewTrimAction": "Trim"
+  "chatMediaPreviewTrimAction": "Trim",
+
+  "commonUntitled": "Untitled",
+
+  "plansMonthlyPlans": "Monthly plans",
+  "plansTokenTopups": "Token top-ups",
+  "plansTopupsSubtitle": "One-time purchases. Never expire. Stack on top of your plan.",
+  "plansCouldntLoadBalance": "Couldn't load your balance",
+  "plansFreePlan": "Free plan",
+  "plansTokensRemaining": "tokens remaining",
+  "plansPlanResetsAt": "Plan resets {when}",
+  "@plansPlanResetsAt": {
+    "placeholders": { "when": { "type": "String" } }
+  },
+  "plansTopupTokensInfo": "{tokens} top-up tokens (no expiry)",
+  "@plansTopupTokensInfo": {
+    "placeholders": { "tokens": { "type": "String" } }
+  },
+  "plansHowTokensWorkTitle": "How tokens work",
+  "plansHowTokensWorkBody": "Tokens are how AI counts its work.\n• A short question ≈ 2,000 tokens\n• A long explanation or practice session ≈ 5,000–10,000\n• Image analysis costs a bit more\n\nYour monthly tokens reset on the 1st. Top-up tokens never expire.",
+  "plansPerMonthSuffix": " / mo",
+  "plansCurrentBadge": "CURRENT",
+  "plansCouldntLoadPlans": "Couldn't load plans",
+
+  "paywallPlansUnavailable": "Plans unavailable. Try again in a moment.",
+  "paywallTopupUnavailable": "Top-up unavailable. The store hasn't finished approving this product.",
+  "paywallRestored": "Your subscription was restored.",
+  "paywallNoRestores": "No previous purchases found on this Apple ID.",
+  "paywallRestoreFailed": "Restore failed: {error}",
+  "@paywallRestoreFailed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "paywallPurchasesRestricted": "Purchases are restricted on this device.",
+  "paywallPurchaseInvalid": "This purchase isn't valid. Try a different payment method.",
+  "paywallProductNotAvailable": "This plan isn't available right now. Try again later.",
+  "paywallNetworkError": "Network issue. Check your connection and try again.",
+  "paywallPaymentPending": "Payment is pending approval (parental controls, etc.). It'll activate once approved.",
+  "paywallStoreProblem": "The App Store had a problem. Try again in a minute.",
+  "paywallGenericError": "Something went wrong. Try again.",
+  "paywallWelcomeMessage": "Welcome to {plan}! Tokens are on the way.",
+  "@paywallWelcomeMessage": {
+    "placeholders": { "plan": { "type": "String" } }
+  },
+  "paywallWelcomeFallback": "your new plan",
+  "paywallTopupAdded": "Top-up added. Tokens are on the way.",
+  "paywallPurchaseProcessed": "Purchase processed. Tokens will appear shortly.",
+  "paywallSubscribeTo": "Subscribe to {plan}",
+  "@paywallSubscribeTo": {
+    "placeholders": { "plan": { "type": "String" } }
+  },
+  "paywallBuyTopupNamed": "Buy {topup}",
+  "@paywallBuyTopupNamed": {
+    "placeholders": { "topup": { "type": "String" } }
+  },
+  "paywallPlanFallback": "plan",
+  "paywallTopupFallback": "top-up",
+  "paywallTopupBlurb": "One-time purchase. Tokens never expire and stack on top of your plan.",
+  "paywallPerMonthWithTokens": "per month · {tokens}",
+  "@paywallPerMonthWithTokens": {
+    "placeholders": { "tokens": { "type": "String" } }
+  },
+  "paywallOneTimeWithTokens": "one-time · {tokens}",
+  "@paywallOneTimeWithTokens": {
+    "placeholders": { "tokens": { "type": "String" } }
+  },
+  "paywallSubscribeButton": "Subscribe",
+  "paywallBuyButton": "Buy",
+  "paywallRestoreButton": "Restore purchases",
+  "paywallNotNow": "Not now",
+  "paywallTermsSubscription": "By subscribing you agree to ClassMate's Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.",
+  "paywallTermsTopup": "By purchasing you agree to ClassMate's Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.",
+  "paywallFeatureTokens": "Use tokens across NOVA chat and Practice sessions",
+  "paywallFeatureImages": "Image analysis and file upload included",
+  "paywallFeatureReset": "Tokens reset at the start of each month",
+  "paywallFeatureCancel": "Cancel anytime — no commitment",
+
+  "studentMaterialsGeneralSubject": "General",
+  "studentMaterialsResourceCount": "{count, plural, one{{count} resource from your teachers} other{{count} resources from your teachers}}",
+  "@studentMaterialsResourceCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "classroomsCouldNotLoadWithError": "Could not load classrooms\n{error}",
+  "@classroomsCouldNotLoadWithError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "parentNoNotificationsYet": "No notifications yet.",
+  "forwardCouldNotLoadChats": "Could not load chats: {error}",
+  "@forwardCouldNotLoadChats": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "forwardNoChats": "No chats",
+  "forgotPasswordFindAdmins": "Find my school's admins",
+  "forgotPasswordChooseAdmin": "Choose an admin from {school}:",
+  "@forgotPasswordChooseAdmin": {
+    "placeholders": { "school": { "type": "String" } }
+  },
+  "forgotPasswordSendRequest": "Send password request"
 }

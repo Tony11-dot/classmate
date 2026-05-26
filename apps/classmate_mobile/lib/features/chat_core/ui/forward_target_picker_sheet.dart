@@ -235,7 +235,7 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
           Expanded(
             child: inbox.when(
               loading: () => const Center(child: CmLoading()),
-              error: (e, _) => Center(child: Text('Could not load chats: $e')),
+              error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.forwardCouldNotLoadChats(e))),
               data: (_) {
                 if (allItems.isEmpty) {
                   return Center(
@@ -244,7 +244,7 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
                       children: [
                         Icon(Icons.chat_bubble_outline_rounded, size: 36, color: cs.onSurfaceVariant),
                         const SizedBox(height: 10),
-                        Text('No chats', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                        Text(AppLocalizations.of(context)!.forwardNoChats, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                       ],
                     ),
                   );

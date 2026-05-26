@@ -6817,4 +6817,218 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatMediaPreviewTrimAction => 'Trim';
+
+  @override
+  String get commonUntitled => 'Untitled';
+
+  @override
+  String get plansMonthlyPlans => 'Monthly plans';
+
+  @override
+  String get plansTokenTopups => 'Token top-ups';
+
+  @override
+  String get plansTopupsSubtitle =>
+      'One-time purchases. Never expire. Stack on top of your plan.';
+
+  @override
+  String get plansCouldntLoadBalance => 'Couldn\'t load your balance';
+
+  @override
+  String get plansFreePlan => 'Free plan';
+
+  @override
+  String get plansTokensRemaining => 'tokens remaining';
+
+  @override
+  String plansPlanResetsAt(String when) {
+    return 'Plan resets $when';
+  }
+
+  @override
+  String plansTopupTokensInfo(String tokens) {
+    return '$tokens top-up tokens (no expiry)';
+  }
+
+  @override
+  String get plansHowTokensWorkTitle => 'How tokens work';
+
+  @override
+  String get plansHowTokensWorkBody =>
+      'Tokens are how AI counts its work.\n• A short question ≈ 2,000 tokens\n• A long explanation or practice session ≈ 5,000–10,000\n• Image analysis costs a bit more\n\nYour monthly tokens reset on the 1st. Top-up tokens never expire.';
+
+  @override
+  String get plansPerMonthSuffix => ' / mo';
+
+  @override
+  String get plansCurrentBadge => 'CURRENT';
+
+  @override
+  String get plansCouldntLoadPlans => 'Couldn\'t load plans';
+
+  @override
+  String get paywallPlansUnavailable =>
+      'Plans unavailable. Try again in a moment.';
+
+  @override
+  String get paywallTopupUnavailable =>
+      'Top-up unavailable. The store hasn\'t finished approving this product.';
+
+  @override
+  String get paywallRestored => 'Your subscription was restored.';
+
+  @override
+  String get paywallNoRestores =>
+      'No previous purchases found on this Apple ID.';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return 'Restore failed: $error';
+  }
+
+  @override
+  String get paywallPurchasesRestricted =>
+      'Purchases are restricted on this device.';
+
+  @override
+  String get paywallPurchaseInvalid =>
+      'This purchase isn\'t valid. Try a different payment method.';
+
+  @override
+  String get paywallProductNotAvailable =>
+      'This plan isn\'t available right now. Try again later.';
+
+  @override
+  String get paywallNetworkError =>
+      'Network issue. Check your connection and try again.';
+
+  @override
+  String get paywallPaymentPending =>
+      'Payment is pending approval (parental controls, etc.). It\'ll activate once approved.';
+
+  @override
+  String get paywallStoreProblem =>
+      'The App Store had a problem. Try again in a minute.';
+
+  @override
+  String get paywallGenericError => 'Something went wrong. Try again.';
+
+  @override
+  String paywallWelcomeMessage(String plan) {
+    return 'Welcome to $plan! Tokens are on the way.';
+  }
+
+  @override
+  String get paywallWelcomeFallback => 'your new plan';
+
+  @override
+  String get paywallTopupAdded => 'Top-up added. Tokens are on the way.';
+
+  @override
+  String get paywallPurchaseProcessed =>
+      'Purchase processed. Tokens will appear shortly.';
+
+  @override
+  String paywallSubscribeTo(String plan) {
+    return 'Subscribe to $plan';
+  }
+
+  @override
+  String paywallBuyTopupNamed(String topup) {
+    return 'Buy $topup';
+  }
+
+  @override
+  String get paywallPlanFallback => 'plan';
+
+  @override
+  String get paywallTopupFallback => 'top-up';
+
+  @override
+  String get paywallTopupBlurb =>
+      'One-time purchase. Tokens never expire and stack on top of your plan.';
+
+  @override
+  String paywallPerMonthWithTokens(String tokens) {
+    return 'per month · $tokens';
+  }
+
+  @override
+  String paywallOneTimeWithTokens(String tokens) {
+    return 'one-time · $tokens';
+  }
+
+  @override
+  String get paywallSubscribeButton => 'Subscribe';
+
+  @override
+  String get paywallBuyButton => 'Buy';
+
+  @override
+  String get paywallRestoreButton => 'Restore purchases';
+
+  @override
+  String get paywallNotNow => 'Not now';
+
+  @override
+  String get paywallTermsSubscription =>
+      'By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.';
+
+  @override
+  String get paywallTermsTopup =>
+      'By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.';
+
+  @override
+  String get paywallFeatureTokens =>
+      'Use tokens across NOVA chat and Practice sessions';
+
+  @override
+  String get paywallFeatureImages => 'Image analysis and file upload included';
+
+  @override
+  String get paywallFeatureReset => 'Tokens reset at the start of each month';
+
+  @override
+  String get paywallFeatureCancel => 'Cancel anytime — no commitment';
+
+  @override
+  String get studentMaterialsGeneralSubject => 'General';
+
+  @override
+  String studentMaterialsResourceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count resources from your teachers',
+      one: '$count resource from your teachers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classroomsCouldNotLoadWithError(String error) {
+    return 'Could not load classrooms\n$error';
+  }
+
+  @override
+  String get parentNoNotificationsYet => 'No notifications yet.';
+
+  @override
+  String forwardCouldNotLoadChats(Object error) {
+    return 'Could not load chats: $error';
+  }
+
+  @override
+  String get forwardNoChats => 'No chats';
+
+  @override
+  String get forgotPasswordFindAdmins => 'Find my school\'s admins';
+
+  @override
+  String forgotPasswordChooseAdmin(String school) {
+    return 'Choose an admin from $school:';
+  }
+
+  @override
+  String get forgotPasswordSendRequest => 'Send password request';
 }

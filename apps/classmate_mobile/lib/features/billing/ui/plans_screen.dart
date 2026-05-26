@@ -58,7 +58,7 @@ class PlansScreen extends ConsumerWidget {
 
               // ── Subscription tiers ───────────────────────────────────
               Text(
-                'Monthly plans',
+                AppLocalizations.of(context)!.plansMonthlyPlans,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -76,14 +76,14 @@ class PlansScreen extends ConsumerWidget {
 
               // ── Top-up packs ─────────────────────────────────────────
               Text(
-                'Token top-ups',
+                AppLocalizations.of(context)!.plansTokenTopups,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'One-time purchases. Never expire. Stack on top of your plan.',
+                AppLocalizations.of(context)!.plansTopupsSubtitle,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
                 ),
@@ -120,7 +120,7 @@ class _BalanceCard extends StatelessWidget {
           child: Center(child: CircularProgressIndicator()),
         ),
         error: (_, _) => Text(
-          'Couldn\'t load your balance',
+          AppLocalizations.of(context)!.plansCouldntLoadBalance,
           style: TextStyle(color: cs.onPrimaryContainer),
         ),
         data: (b) {
@@ -140,7 +140,7 @@ class _BalanceCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      b.activeTier == 'FREE' ? 'Free plan' : b.activeTier,
+                      b.activeTier == 'FREE' ? AppLocalizations.of(context)!.plansFreePlan : b.activeTier,
                       style: TextStyle(
                         color: cs.onPrimary,
                         fontWeight: FontWeight.w800,
@@ -160,7 +160,7 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'tokens remaining',
+                AppLocalizations.of(context)!.plansTokensRemaining,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: cs.onPrimaryContainer.withValues(alpha: 0.75),
                 ),
@@ -173,7 +173,7 @@ class _BalanceCard extends StatelessWidget {
                     Icon(Icons.refresh_rounded, size: 14, color: cs.onPrimaryContainer.withValues(alpha: 0.6)),
                     const SizedBox(width: 4),
                     Text(
-                      'Plan resets ${b.resetLabel}',
+                      AppLocalizations.of(context)!.plansPlanResetsAt(b.resetLabel),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onPrimaryContainer.withValues(alpha: 0.7),
                       ),
@@ -189,7 +189,9 @@ class _BalanceCard extends StatelessWidget {
                     Icon(Icons.add_circle_outline_rounded, size: 14, color: cs.onPrimaryContainer.withValues(alpha: 0.6)),
                     const SizedBox(width: 4),
                     Text(
-                      '${b.topupTokensRemaining.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},')} top-up tokens (no expiry)',
+                      AppLocalizations.of(context)!.plansTopupTokensInfo(
+                        b.topupTokensRemaining.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},'),
+                      ),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onPrimaryContainer.withValues(alpha: 0.7),
                       ),
@@ -279,7 +281,7 @@ class _TokenExplainer extends StatelessWidget {
               Icon(Icons.psychology_outlined, size: 18, color: cs.primary),
               const SizedBox(width: 6),
               Text(
-                'How tokens work',
+                AppLocalizations.of(context)!.plansHowTokensWorkTitle,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -288,11 +290,7 @@ class _TokenExplainer extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tokens are how AI counts its work.\n'
-            '• A short question ≈ 2,000 tokens\n'
-            '• A long explanation or practice session ≈ 5,000–10,000\n'
-            '• Image analysis costs a bit more\n\n'
-            'Your monthly tokens reset on the 1st. Top-up tokens never expire.',
+            AppLocalizations.of(context)!.plansHowTokensWorkBody,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: cs.onSurfaceVariant,
               height: 1.4,
@@ -352,7 +350,7 @@ class _PlanTile extends StatelessWidget {
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
-                            'CURRENT',
+                            AppLocalizations.of(context)!.plansCurrentBadge,
                             style: TextStyle(
                               color: cs.onPrimary,
                               fontSize: 10,
@@ -374,7 +372,7 @@ class _PlanTile extends StatelessWidget {
                 ),
                 if (!plan.isFree)
                   Text(
-                    ' / mo',
+                    AppLocalizations.of(context)!.plansPerMonthSuffix,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
@@ -526,7 +524,7 @@ class _Error extends StatelessWidget {
             Icon(Icons.cloud_off_rounded, size: 40, color: cs.error),
             const SizedBox(height: 12),
             Text(
-              'Couldn\'t load plans',
+              AppLocalizations.of(context)!.plansCouldntLoadPlans,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as rc;
 
+import '../../../l10n/app_localizations.dart';
 import '../data/plan_models.dart';
 import '../data/billing_repository.dart';
 import '../data/revenuecat_service.dart';
@@ -50,6 +51,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
   }
 
   Future<void> _loadProduct() async {
+    final l = AppLocalizations.of(context)!;
     setState(() {
       _loading = true;
       _error = null;
@@ -58,13 +60,13 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
       if (widget.mode == PaywallMode.subscription) {
         final offering = await RevenueCatService.instance.currentOffering();
         if (offering == null) {
-          throw Exception('Plans unavailable. Try again in a moment.');
+          throw Exception(l.paywallPlansUnavailable);
         }
         final targetId = widget.initialPlan?.storeProductId ?? '';
         final pkg = offering.availablePackages.firstWhere(
           (p) => p.storeProduct.identifier == targetId,
           orElse: () => offering.availablePackages.isEmpty
-              ? throw Exception('No packages found in offering')
+              ? throw Exception(l.paywallPlansUnavailable)
               : offering.availablePackages.first,
         );
         if (mounted) {
@@ -77,8 +79,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
         final productId = widget.initialTopup?.storeProductId ?? '';
         final prod = await RevenueCatService.instance.topupProduct(productId);
         if (prod == null) {
-          throw Exception(
-              'Top-up unavailable. The store hasn\'t finished approving this product.');
+          throw Exception(l.paywallTopupUnavailable);
         }
         if (mounted) {
           setState(() {
@@ -98,6 +99,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
   }
 
   Future<void> _purchase() async {
+    final l = AppLocalizations.of(context)!;
     setState(() => _purchasing = true);
     try {
       rc.CustomerInfo info;
@@ -106,7 +108,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
       } else if (widget.mode == PaywallMode.topup && _topupProduct != null) {
         info = await RevenueCatService.instance.purchaseProduct(_topupProduct!);
       } else {
-        throw Exception('Nothing to purchase');
+        throw Exception(l.paywallGenericError);
       }
       // RC fires the webhook server-side which credits tokens via our
       // /billing/webhooks/revenuecat endpoint. There's a small window
@@ -133,7 +135,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
       }
       setState(() {
         _purchasing = false;
-        _error = _humanizeError(code, e.message);
+        _error = _humanizeError(l, code, e.message);
       });
     } catch (e) {
       if (!mounted) return;
@@ -145,6 +147,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
   }
 
   Future<void> _restorePurchases() async {
+    final l = AppLocalizations.of(context)!;
     setState(() => _purchasing = true);
     try {
       final info = await RevenueCatService.instance.restorePurchases();
@@ -153,8 +156,8 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
       final restored = info.entitlements.active.containsKey('pro_access');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(restored
-            ? 'Your subscription was restored.'
-            : 'No previous purchases found on this Apple ID.'),
+            ? l.paywallRestored
+            : l.paywallNoRestores),
       ));
       setState(() => _purchasing = false);
       if (restored) Navigator.of(context).pop(true);
@@ -162,38 +165,39 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
       if (!mounted) return;
       setState(() {
         _purchasing = false;
-        _error = 'Restore failed: ${e.toString().replaceFirst('Exception: ', '')}';
+        _error = l.paywallRestoreFailed(e.toString().replaceFirst('Exception: ', ''));
       });
     }
   }
 
-  String _humanizeError(rc.PurchasesErrorCode code, String? raw) {
+  String _humanizeError(AppLocalizations l, rc.PurchasesErrorCode code, String? raw) {
     switch (code) {
       case rc.PurchasesErrorCode.purchaseNotAllowedError:
-        return 'Purchases are restricted on this device.';
+        return l.paywallPurchasesRestricted;
       case rc.PurchasesErrorCode.purchaseInvalidError:
-        return 'This purchase isn\'t valid. Try a different payment method.';
+        return l.paywallPurchaseInvalid;
       case rc.PurchasesErrorCode.productNotAvailableForPurchaseError:
-        return 'This plan isn\'t available right now. Try again later.';
+        return l.paywallProductNotAvailable;
       case rc.PurchasesErrorCode.networkError:
-        return 'Network issue. Check your connection and try again.';
+        return l.paywallNetworkError;
       case rc.PurchasesErrorCode.paymentPendingError:
-        return 'Payment is pending approval (parental controls, etc.). It\'ll activate once approved.';
+        return l.paywallPaymentPending;
       case rc.PurchasesErrorCode.storeProblemError:
-        return 'The App Store had a problem. Try again in a minute.';
+        return l.paywallStoreProblem;
       default:
-        return raw ?? 'Something went wrong. Try again.';
+        return raw ?? l.paywallGenericError;
     }
   }
 
   void _showResultBanner({required bool success}) {
+    final l = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(SnackBar(
       content: Text(success
           ? (widget.mode == PaywallMode.subscription
-              ? 'Welcome to ${widget.initialPlan?.label ?? 'your new plan'}! Tokens are on the way.'
-              : 'Top-up added. Tokens are on the way.')
-          : 'Purchase processed. Tokens will appear shortly.'),
+              ? l.paywallWelcomeMessage(widget.initialPlan?.label ?? l.paywallWelcomeFallback)
+              : l.paywallTopupAdded)
+          : l.paywallPurchaseProcessed),
       duration: const Duration(seconds: 4),
     ));
   }
@@ -202,13 +206,14 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     final priceLabel = widget.mode == PaywallMode.subscription
         ? (_package?.storeProduct.priceString ?? widget.initialPlan?.priceLabel ?? '')
         : (_topupProduct?.priceString ?? widget.initialTopup?.priceLabel ?? '');
     final subtitle = widget.mode == PaywallMode.subscription
-        ? 'per month · ${widget.initialPlan?.tokensLabel ?? ''}'
-        : 'one-time · ${widget.initialTopup?.tokensLabel ?? ''}';
+        ? l.paywallPerMonthWithTokens(widget.initialPlan?.tokensLabel ?? '')
+        : l.paywallOneTimeWithTokens(widget.initialTopup?.tokensLabel ?? '');
 
     return DraggableScrollableSheet(
       expand: false,
@@ -236,8 +241,8 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                 children: [
                   Text(
                     widget.mode == PaywallMode.subscription
-                        ? 'Subscribe to ${widget.initialPlan?.label ?? 'plan'}'
-                        : 'Buy ${widget.initialTopup?.label ?? 'top-up'}',
+                        ? l.paywallSubscribeTo(widget.initialPlan?.label ?? l.paywallPlanFallback)
+                        : l.paywallBuyTopupNamed(widget.initialTopup?.label ?? l.paywallTopupFallback),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
@@ -252,7 +257,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                     ),
                   if (widget.initialTopup != null)
                     Text(
-                      'One-time purchase. Tokens never expire and stack on top of your plan.',
+                      l.paywallTopupBlurb,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -287,8 +292,8 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                             )
                           : Text(
                               widget.mode == PaywallMode.subscription
-                                  ? 'Subscribe'
-                                  : 'Buy',
+                                  ? l.paywallSubscribeButton
+                                  : l.paywallBuyButton,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
@@ -300,17 +305,17 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                   if (widget.mode == PaywallMode.subscription)
                     TextButton(
                       onPressed: _purchasing ? null : _restorePurchases,
-                      child: const Text('Restore purchases'),
+                      child: Text(l.paywallRestoreButton),
                     ),
                   TextButton(
                     onPressed: _purchasing ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Not now'),
+                    child: Text(l.paywallNotNow),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     widget.mode == PaywallMode.subscription
-                        ? 'By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.'
-                        : 'By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.',
+                        ? l.paywallTermsSubscription
+                        : l.paywallTermsTopup,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: cs.onSurfaceVariant,
@@ -370,11 +375,12 @@ class _FeaturesList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final features = const [
-      'Use tokens across NOVA chat and Practice sessions',
-      'Image analysis and file upload included',
-      'Tokens reset at the start of each month',
-      'Cancel anytime — no commitment',
+    final l = AppLocalizations.of(context)!;
+    final features = [
+      l.paywallFeatureTokens,
+      l.paywallFeatureImages,
+      l.paywallFeatureReset,
+      l.paywallFeatureCancel,
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,7 +428,7 @@ class _ErrorBanner extends StatelessWidget {
           if (onRetry != null)
             TextButton(
               onPressed: onRetry,
-              child: const Text('Retry'),
+              child: Text(AppLocalizations.of(context)!.commonRetry),
             ),
         ],
       ),

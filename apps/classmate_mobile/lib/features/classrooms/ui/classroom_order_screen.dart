@@ -82,7 +82,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('Could not load classrooms\n$e', textAlign: TextAlign.center),
+            child: Text(AppLocalizations.of(context)!.classroomsCouldNotLoadWithError(e.toString()), textAlign: TextAlign.center),
           ),
         ),
         data: (items) {

@@ -6783,4 +6783,216 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chatMediaPreviewTrimAction => 'اقتطاع';
+
+  @override
+  String get commonUntitled => 'بدون عنوان';
+
+  @override
+  String get plansMonthlyPlans => 'الخطط الشهرية';
+
+  @override
+  String get plansTokenTopups => 'حزم الرموز';
+
+  @override
+  String get plansTopupsSubtitle =>
+      'عمليات شراء لمرة واحدة. لا تنتهي صلاحيتها. تُضاف فوق خطتك.';
+
+  @override
+  String get plansCouldntLoadBalance => 'تعذر تحميل رصيدك';
+
+  @override
+  String get plansFreePlan => 'الخطة المجانية';
+
+  @override
+  String get plansTokensRemaining => 'رموز متبقية';
+
+  @override
+  String plansPlanResetsAt(String when) {
+    return 'تُعاد تهيئة الخطة $when';
+  }
+
+  @override
+  String plansTopupTokensInfo(String tokens) {
+    return '$tokens رموز إضافية (بدون انتهاء)';
+  }
+
+  @override
+  String get plansHowTokensWorkTitle => 'كيف تعمل الرموز';
+
+  @override
+  String get plansHowTokensWorkBody =>
+      'الرموز هي الطريقة التي يحسب بها الذكاء الاصطناعي عمله.\n• سؤال قصير ≈ 2,000 رمز\n• شرح طويل أو جلسة تدريب ≈ 5,000–10,000\n• تحليل الصور يكلف أكثر قليلاً\n\nتُعاد تهيئة رموزك الشهرية في اليوم الأول. الرموز الإضافية لا تنتهي أبدًا.';
+
+  @override
+  String get plansPerMonthSuffix => ' / شهريًا';
+
+  @override
+  String get plansCurrentBadge => 'الحالية';
+
+  @override
+  String get plansCouldntLoadPlans => 'تعذر تحميل الخطط';
+
+  @override
+  String get paywallPlansUnavailable =>
+      'الخطط غير متاحة. حاول مرة أخرى بعد قليل.';
+
+  @override
+  String get paywallTopupUnavailable =>
+      'الحزمة غير متاحة. لم يكتمل اعتماد المنتج من قبل المتجر.';
+
+  @override
+  String get paywallRestored => 'تمت استعادة اشتراكك.';
+
+  @override
+  String get paywallNoRestores =>
+      'لم يتم العثور على مشتريات سابقة على معرف Apple هذا.';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return 'فشلت الاستعادة: $error';
+  }
+
+  @override
+  String get paywallPurchasesRestricted => 'المشتريات مقيدة على هذا الجهاز.';
+
+  @override
+  String get paywallPurchaseInvalid =>
+      'هذه العملية غير صالحة. جرب طريقة دفع أخرى.';
+
+  @override
+  String get paywallProductNotAvailable =>
+      'هذه الخطة غير متاحة الآن. حاول لاحقًا.';
+
+  @override
+  String get paywallNetworkError =>
+      'مشكلة في الشبكة. تحقق من اتصالك وحاول مرة أخرى.';
+
+  @override
+  String get paywallPaymentPending =>
+      'الدفع قيد الموافقة (الرقابة الأبوية، إلخ.). سيتم التفعيل بعد الموافقة.';
+
+  @override
+  String get paywallStoreProblem =>
+      'حدثت مشكلة في App Store. حاول مرة أخرى بعد قليل.';
+
+  @override
+  String get paywallGenericError => 'حدث خطأ. حاول مرة أخرى.';
+
+  @override
+  String paywallWelcomeMessage(String plan) {
+    return 'أهلاً بك في $plan! الرموز في الطريق.';
+  }
+
+  @override
+  String get paywallWelcomeFallback => 'خطتك الجديدة';
+
+  @override
+  String get paywallTopupAdded => 'تمت إضافة الحزمة. الرموز في الطريق.';
+
+  @override
+  String get paywallPurchaseProcessed =>
+      'تمت معالجة عملية الشراء. ستظهر الرموز قريبًا.';
+
+  @override
+  String paywallSubscribeTo(String plan) {
+    return 'اشترك في $plan';
+  }
+
+  @override
+  String paywallBuyTopupNamed(String topup) {
+    return 'اشترِ $topup';
+  }
+
+  @override
+  String get paywallPlanFallback => 'الخطة';
+
+  @override
+  String get paywallTopupFallback => 'الحزمة';
+
+  @override
+  String get paywallTopupBlurb =>
+      'شراء لمرة واحدة. الرموز لا تنتهي صلاحيتها وتُضاف فوق خطتك.';
+
+  @override
+  String paywallPerMonthWithTokens(String tokens) {
+    return 'شهريًا · $tokens';
+  }
+
+  @override
+  String paywallOneTimeWithTokens(String tokens) {
+    return 'لمرة واحدة · $tokens';
+  }
+
+  @override
+  String get paywallSubscribeButton => 'اشتراك';
+
+  @override
+  String get paywallBuyButton => 'شراء';
+
+  @override
+  String get paywallRestoreButton => 'استعادة المشتريات';
+
+  @override
+  String get paywallNotNow => 'ليس الآن';
+
+  @override
+  String get paywallTermsSubscription =>
+      'بالاشتراك فإنك توافق على شروط ClassMate وسياسة الخصوصية. تتجدد الاشتراكات شهريًا تلقائيًا حتى يتم إلغاؤها. تتم الإدارة في أي وقت من حساب App Store الخاص بك.';
+
+  @override
+  String get paywallTermsTopup =>
+      'بالشراء فإنك توافق على شروط ClassMate وسياسة الخصوصية. الرموز الإضافية غير قابلة للاسترداد بعد الاستخدام.';
+
+  @override
+  String get paywallFeatureTokens => 'استخدم الرموز في NOVA والتمارين';
+
+  @override
+  String get paywallFeatureImages => 'تحليل الصور ورفع الملفات مشمولان';
+
+  @override
+  String get paywallFeatureReset => 'تُعاد تهيئة الرموز في بداية كل شهر';
+
+  @override
+  String get paywallFeatureCancel => 'ألغِ في أي وقت — دون التزام';
+
+  @override
+  String get studentMaterialsGeneralSubject => 'عام';
+
+  @override
+  String studentMaterialsResourceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مصادر من معلميك',
+      one: 'مصدر واحد من معلميك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classroomsCouldNotLoadWithError(String error) {
+    return 'تعذر تحميل الصفوف\n$error';
+  }
+
+  @override
+  String get parentNoNotificationsYet => 'لا توجد إشعارات بعد.';
+
+  @override
+  String forwardCouldNotLoadChats(Object error) {
+    return 'تعذر تحميل المحادثات: $error';
+  }
+
+  @override
+  String get forwardNoChats => 'لا توجد محادثات';
+
+  @override
+  String get forgotPasswordFindAdmins => 'ابحث عن مديري مدرستي';
+
+  @override
+  String forgotPasswordChooseAdmin(String school) {
+    return 'اختر مديرًا من $school:';
+  }
+
+  @override
+  String get forgotPasswordSendRequest => 'إرسال طلب كلمة المرور';
 }

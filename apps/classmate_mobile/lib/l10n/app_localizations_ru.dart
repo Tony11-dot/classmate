@@ -6768,4 +6768,220 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatMediaPreviewTrimAction => 'Обрезать';
+
+  @override
+  String get commonUntitled => 'Без названия';
+
+  @override
+  String get plansMonthlyPlans => 'Месячные планы';
+
+  @override
+  String get plansTokenTopups => 'Пакеты токенов';
+
+  @override
+  String get plansTopupsSubtitle =>
+      'Разовые покупки. Не истекают. Добавляются к вашему плану.';
+
+  @override
+  String get plansCouldntLoadBalance => 'Не удалось загрузить ваш баланс';
+
+  @override
+  String get plansFreePlan => 'Бесплатный план';
+
+  @override
+  String get plansTokensRemaining => 'токенов осталось';
+
+  @override
+  String plansPlanResetsAt(String when) {
+    return 'План обнуляется $when';
+  }
+
+  @override
+  String plansTopupTokensInfo(String tokens) {
+    return '$tokens токенов пакета (без срока)';
+  }
+
+  @override
+  String get plansHowTokensWorkTitle => 'Как работают токены';
+
+  @override
+  String get plansHowTokensWorkBody =>
+      'Токены — это то, как ИИ измеряет свою работу.\n• Короткий вопрос ≈ 2 000 токенов\n• Длинное объяснение или тренировка ≈ 5 000–10 000\n• Анализ изображений стоит чуть больше\n\nМесячные токены обнуляются 1-го числа. Токены пакетов никогда не истекают.';
+
+  @override
+  String get plansPerMonthSuffix => ' / мес';
+
+  @override
+  String get plansCurrentBadge => 'ТЕКУЩИЙ';
+
+  @override
+  String get plansCouldntLoadPlans => 'Не удалось загрузить планы';
+
+  @override
+  String get paywallPlansUnavailable =>
+      'Планы недоступны. Попробуйте через мгновение.';
+
+  @override
+  String get paywallTopupUnavailable =>
+      'Пакет недоступен. Магазин ещё не одобрил этот продукт.';
+
+  @override
+  String get paywallRestored => 'Ваша подписка восстановлена.';
+
+  @override
+  String get paywallNoRestores =>
+      'Прошлые покупки на этом Apple ID не найдены.';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return 'Не удалось восстановить: $error';
+  }
+
+  @override
+  String get paywallPurchasesRestricted =>
+      'Покупки ограничены на этом устройстве.';
+
+  @override
+  String get paywallPurchaseInvalid =>
+      'Эта покупка недействительна. Попробуйте другой способ оплаты.';
+
+  @override
+  String get paywallProductNotAvailable =>
+      'Этот план сейчас недоступен. Попробуйте позже.';
+
+  @override
+  String get paywallNetworkError =>
+      'Проблема с сетью. Проверьте соединение и повторите.';
+
+  @override
+  String get paywallPaymentPending =>
+      'Оплата ожидает одобрения (родительский контроль и т.п.). Активируется после одобрения.';
+
+  @override
+  String get paywallStoreProblem =>
+      'Возникла проблема в App Store. Повторите через минуту.';
+
+  @override
+  String get paywallGenericError => 'Что-то пошло не так. Повторите.';
+
+  @override
+  String paywallWelcomeMessage(String plan) {
+    return 'Добро пожаловать в $plan! Токены уже в пути.';
+  }
+
+  @override
+  String get paywallWelcomeFallback => 'ваш новый план';
+
+  @override
+  String get paywallTopupAdded => 'Пакет добавлен. Токены уже в пути.';
+
+  @override
+  String get paywallPurchaseProcessed =>
+      'Покупка обработана. Токены скоро появятся.';
+
+  @override
+  String paywallSubscribeTo(String plan) {
+    return 'Подписаться на $plan';
+  }
+
+  @override
+  String paywallBuyTopupNamed(String topup) {
+    return 'Купить $topup';
+  }
+
+  @override
+  String get paywallPlanFallback => 'план';
+
+  @override
+  String get paywallTopupFallback => 'пакет';
+
+  @override
+  String get paywallTopupBlurb =>
+      'Разовая покупка. Токены не истекают и добавляются к вашему плану.';
+
+  @override
+  String paywallPerMonthWithTokens(String tokens) {
+    return 'в месяц · $tokens';
+  }
+
+  @override
+  String paywallOneTimeWithTokens(String tokens) {
+    return 'разово · $tokens';
+  }
+
+  @override
+  String get paywallSubscribeButton => 'Подписаться';
+
+  @override
+  String get paywallBuyButton => 'Купить';
+
+  @override
+  String get paywallRestoreButton => 'Восстановить покупки';
+
+  @override
+  String get paywallNotNow => 'Не сейчас';
+
+  @override
+  String get paywallTermsSubscription =>
+      'Подписываясь, вы соглашаетесь с Условиями и Политикой конфиденциальности ClassMate. Подписки продлеваются автоматически каждый месяц до отмены. Управление в любое время через ваш аккаунт App Store.';
+
+  @override
+  String get paywallTermsTopup =>
+      'Покупая, вы соглашаетесь с Условиями и Политикой конфиденциальности ClassMate. Токены пакетов не подлежат возврату после использования.';
+
+  @override
+  String get paywallFeatureTokens => 'Используйте токены в NOVA и тренировках';
+
+  @override
+  String get paywallFeatureImages =>
+      'Анализ изображений и загрузка файлов включены';
+
+  @override
+  String get paywallFeatureReset => 'Токены обнуляются в начале каждого месяца';
+
+  @override
+  String get paywallFeatureCancel => 'Отмена в любое время — без обязательств';
+
+  @override
+  String get studentMaterialsGeneralSubject => 'Общие';
+
+  @override
+  String studentMaterialsResourceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count материалов от ваших учителей',
+      many: '$count материалов от ваших учителей',
+      few: '$count материала от ваших учителей',
+      one: '$count материал от ваших учителей',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classroomsCouldNotLoadWithError(String error) {
+    return 'Не удалось загрузить классы\n$error';
+  }
+
+  @override
+  String get parentNoNotificationsYet => 'Уведомлений пока нет.';
+
+  @override
+  String forwardCouldNotLoadChats(Object error) {
+    return 'Не удалось загрузить чаты: $error';
+  }
+
+  @override
+  String get forwardNoChats => 'Нет чатов';
+
+  @override
+  String get forgotPasswordFindAdmins => 'Найти администраторов моей школы';
+
+  @override
+  String forgotPasswordChooseAdmin(String school) {
+    return 'Выберите администратора из $school:';
+  }
+
+  @override
+  String get forgotPasswordSendRequest => 'Отправить запрос пароля';
 }
