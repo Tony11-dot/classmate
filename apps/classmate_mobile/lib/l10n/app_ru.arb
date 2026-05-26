@@ -2519,5 +2519,20 @@
   "teacherDeleteAssignmentTitle": "Удалить задание?",
   "teacherDeleteAssignmentBody": "Это навсегда удалит задание и все сданные работы.",
   "teacherEditTooltip": "Изменить",
-  "teacherDeleteTooltip": "Удалить"
+  "teacherDeleteTooltip": "Удалить",
+
+  "teacherClassroomBackTooltip": "Назад",
+  "teacherClassroomGenericError": "Ошибка: {error}",
+  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "teacherClassroomAttachFailed": "Не удалось прикрепить: {error}",
+  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "teacherClassroomFileUnavailable": "Этот файл недоступен — учителю нужно загрузить его заново.",
+  "teacherClassroomCodeLabel": "Код класса",
+  "teacherClassroomCodeCopied": "Код скопирован",
+  "teacherClassroomCopyCodeTooltip": "Копировать код",
+  "teacherClassroomCouldNotAdd": "Не удалось добавить: {emails} — проверьте их email.",
+  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "teacherClassroomAddStudents": "Добавить учеников",
+  "teacherClassroomSearchNameGrade": "Поиск по имени или классу…",
+  "teacherClassroomNoStudentsFound": "Ученики не найдены"
 }

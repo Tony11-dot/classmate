@@ -10620,6 +10620,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get teacherDeleteTooltip;
+
+  /// No description provided for @teacherClassroomBackTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get teacherClassroomBackTooltip;
+
+  /// No description provided for @teacherClassroomGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String teacherClassroomGenericError(Object error);
+
+  /// No description provided for @teacherClassroomAttachFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach failed: {error}'**
+  String teacherClassroomAttachFailed(Object error);
+
+  /// No description provided for @teacherClassroomFileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not available — the teacher should re-upload it.'**
+  String get teacherClassroomFileUnavailable;
+
+  /// No description provided for @teacherClassroomCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom code'**
+  String get teacherClassroomCodeLabel;
+
+  /// No description provided for @teacherClassroomCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get teacherClassroomCodeCopied;
+
+  /// No description provided for @teacherClassroomCopyCodeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get teacherClassroomCopyCodeTooltip;
+
+  /// No description provided for @teacherClassroomCouldNotAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add: {emails} — check their email address.'**
+  String teacherClassroomCouldNotAdd(Object emails);
+
+  /// No description provided for @teacherClassroomAddStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Add students'**
+  String get teacherClassroomAddStudents;
+
+  /// No description provided for @teacherClassroomSearchNameGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or grade…'**
+  String get teacherClassroomSearchNameGrade;
+
+  /// No description provided for @teacherClassroomNoStudentsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found'**
+  String get teacherClassroomNoStudentsFound;
 }
 
 class _AppLocalizationsDelegate

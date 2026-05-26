@@ -2312,5 +2312,20 @@
   "teacherDeleteAssignmentTitle": "למחוק את המטלה?",
   "teacherDeleteAssignmentBody": "פעולה זו תמחק את המטלה ואת כל ההגשות לצמיתות.",
   "teacherEditTooltip": "ערוך",
-  "teacherDeleteTooltip": "מחק"
+  "teacherDeleteTooltip": "מחק",
+
+  "teacherClassroomBackTooltip": "חזרה",
+  "teacherClassroomGenericError": "שגיאה: {error}",
+  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "teacherClassroomAttachFailed": "צירוף נכשל: {error}",
+  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "teacherClassroomFileUnavailable": "הקובץ אינו זמין — המורה צריך להעלות אותו מחדש.",
+  "teacherClassroomCodeLabel": "קוד הכיתה",
+  "teacherClassroomCodeCopied": "הקוד הועתק",
+  "teacherClassroomCopyCodeTooltip": "העתק קוד",
+  "teacherClassroomCouldNotAdd": "לא ניתן להוסיף: {emails} — בדוק את כתובת הדוא\"ל שלהם.",
+  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "teacherClassroomAddStudents": "הוספת תלמידים",
+  "teacherClassroomSearchNameGrade": "חפש לפי שם או שכבה…",
+  "teacherClassroomNoStudentsFound": "לא נמצאו תלמידים"
 }

@@ -5896,4 +5896,44 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherDeleteTooltip => 'Удалить';
+
+  @override
+  String get teacherClassroomBackTooltip => 'Назад';
+
+  @override
+  String teacherClassroomGenericError(Object error) {
+    return 'Ошибка: $error';
+  }
+
+  @override
+  String teacherClassroomAttachFailed(Object error) {
+    return 'Не удалось прикрепить: $error';
+  }
+
+  @override
+  String get teacherClassroomFileUnavailable =>
+      'Этот файл недоступен — учителю нужно загрузить его заново.';
+
+  @override
+  String get teacherClassroomCodeLabel => 'Код класса';
+
+  @override
+  String get teacherClassroomCodeCopied => 'Код скопирован';
+
+  @override
+  String get teacherClassroomCopyCodeTooltip => 'Копировать код';
+
+  @override
+  String teacherClassroomCouldNotAdd(Object emails) {
+    return 'Не удалось добавить: $emails — проверьте их email.';
+  }
+
+  @override
+  String get teacherClassroomAddStudents => 'Добавить учеников';
+
+  @override
+  String get teacherClassroomSearchNameGrade => 'Поиск по имени или классу…';
+
+  @override
+  String get teacherClassroomNoStudentsFound => 'Ученики не найдены';
 }

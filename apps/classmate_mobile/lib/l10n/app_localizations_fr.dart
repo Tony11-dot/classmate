@@ -6048,4 +6048,44 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherDeleteTooltip => 'Supprimer';
+
+  @override
+  String get teacherClassroomBackTooltip => 'Retour';
+
+  @override
+  String teacherClassroomGenericError(Object error) {
+    return 'Erreur : $error';
+  }
+
+  @override
+  String teacherClassroomAttachFailed(Object error) {
+    return 'Échec de la pièce jointe : $error';
+  }
+
+  @override
+  String get teacherClassroomFileUnavailable =>
+      'Ce fichier n\'est pas disponible — l\'enseignant doit le réimporter.';
+
+  @override
+  String get teacherClassroomCodeLabel => 'Code de la classe';
+
+  @override
+  String get teacherClassroomCodeCopied => 'Code copié';
+
+  @override
+  String get teacherClassroomCopyCodeTooltip => 'Copier le code';
+
+  @override
+  String teacherClassroomCouldNotAdd(Object emails) {
+    return 'Impossible d\'ajouter : $emails — vérifiez leur adresse e-mail.';
+  }
+
+  @override
+  String get teacherClassroomAddStudents => 'Ajouter des élèves';
+
+  @override
+  String get teacherClassroomSearchNameGrade => 'Rechercher par nom ou niveau…';
+
+  @override
+  String get teacherClassroomNoStudentsFound => 'Aucun élève trouvé';
 }

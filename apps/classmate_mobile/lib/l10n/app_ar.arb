@@ -2312,5 +2312,20 @@
   "teacherDeleteAssignmentTitle": "حذف الواجب؟",
   "teacherDeleteAssignmentBody": "سيؤدي ذلك إلى حذف الواجب وكل التسليمات نهائيًا.",
   "teacherEditTooltip": "تعديل",
-  "teacherDeleteTooltip": "حذف"
+  "teacherDeleteTooltip": "حذف",
+
+  "teacherClassroomBackTooltip": "رجوع",
+  "teacherClassroomGenericError": "خطأ: {error}",
+  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "teacherClassroomAttachFailed": "فشل الإرفاق: {error}",
+  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "teacherClassroomFileUnavailable": "هذا الملف غير متاح — يجب على المعلم إعادة رفعه.",
+  "teacherClassroomCodeLabel": "رمز الصف",
+  "teacherClassroomCodeCopied": "تم نسخ الرمز",
+  "teacherClassroomCopyCodeTooltip": "نسخ الرمز",
+  "teacherClassroomCouldNotAdd": "تعذّر إضافة: {emails} — تحقق من بريدهم الإلكتروني.",
+  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "teacherClassroomAddStudents": "إضافة طلاب",
+  "teacherClassroomSearchNameGrade": "ابحث بالاسم أو الصف…",
+  "teacherClassroomNoStudentsFound": "لم يتم العثور على طلاب"
 }

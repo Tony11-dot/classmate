@@ -5957,4 +5957,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherDeleteTooltip => 'Delete';
+
+  @override
+  String get teacherClassroomBackTooltip => 'Back';
+
+  @override
+  String teacherClassroomGenericError(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String teacherClassroomAttachFailed(Object error) {
+    return 'Attach failed: $error';
+  }
+
+  @override
+  String get teacherClassroomFileUnavailable =>
+      'This file is not available — the teacher should re-upload it.';
+
+  @override
+  String get teacherClassroomCodeLabel => 'Classroom code';
+
+  @override
+  String get teacherClassroomCodeCopied => 'Code copied';
+
+  @override
+  String get teacherClassroomCopyCodeTooltip => 'Copy code';
+
+  @override
+  String teacherClassroomCouldNotAdd(Object emails) {
+    return 'Could not add: $emails — check their email address.';
+  }
+
+  @override
+  String get teacherClassroomAddStudents => 'Add students';
+
+  @override
+  String get teacherClassroomSearchNameGrade => 'Search by name or grade…';
+
+  @override
+  String get teacherClassroomNoStudentsFound => 'No students found';
 }

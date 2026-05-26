@@ -2312,5 +2312,20 @@
   "teacherDeleteAssignmentTitle": "Supprimer le devoir ?",
   "teacherDeleteAssignmentBody": "Cela supprimera définitivement le devoir et toutes les remises.",
   "teacherEditTooltip": "Modifier",
-  "teacherDeleteTooltip": "Supprimer"
+  "teacherDeleteTooltip": "Supprimer",
+
+  "teacherClassroomBackTooltip": "Retour",
+  "teacherClassroomGenericError": "Erreur : {error}",
+  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "teacherClassroomAttachFailed": "Échec de la pièce jointe : {error}",
+  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "teacherClassroomFileUnavailable": "Ce fichier n'est pas disponible — l'enseignant doit le réimporter.",
+  "teacherClassroomCodeLabel": "Code de la classe",
+  "teacherClassroomCodeCopied": "Code copié",
+  "teacherClassroomCopyCodeTooltip": "Copier le code",
+  "teacherClassroomCouldNotAdd": "Impossible d'ajouter : {emails} — vérifiez leur adresse e-mail.",
+  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "teacherClassroomAddStudents": "Ajouter des élèves",
+  "teacherClassroomSearchNameGrade": "Rechercher par nom ou niveau…",
+  "teacherClassroomNoStudentsFound": "Aucun élève trouvé"
 }

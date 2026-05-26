@@ -5929,4 +5929,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherDeleteTooltip => 'حذف';
+
+  @override
+  String get teacherClassroomBackTooltip => 'رجوع';
+
+  @override
+  String teacherClassroomGenericError(Object error) {
+    return 'خطأ: $error';
+  }
+
+  @override
+  String teacherClassroomAttachFailed(Object error) {
+    return 'فشل الإرفاق: $error';
+  }
+
+  @override
+  String get teacherClassroomFileUnavailable =>
+      'هذا الملف غير متاح — يجب على المعلم إعادة رفعه.';
+
+  @override
+  String get teacherClassroomCodeLabel => 'رمز الصف';
+
+  @override
+  String get teacherClassroomCodeCopied => 'تم نسخ الرمز';
+
+  @override
+  String get teacherClassroomCopyCodeTooltip => 'نسخ الرمز';
+
+  @override
+  String teacherClassroomCouldNotAdd(Object emails) {
+    return 'تعذّر إضافة: $emails — تحقق من بريدهم الإلكتروني.';
+  }
+
+  @override
+  String get teacherClassroomAddStudents => 'إضافة طلاب';
+
+  @override
+  String get teacherClassroomSearchNameGrade => 'ابحث بالاسم أو الصف…';
+
+  @override
+  String get teacherClassroomNoStudentsFound => 'لم يتم العثور على طلاب';
 }

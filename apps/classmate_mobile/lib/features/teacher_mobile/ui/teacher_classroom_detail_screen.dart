@@ -193,7 +193,7 @@ class _TopHeader extends StatelessWidget {
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
               visualDensity:
                   const VisualDensity(horizontal: -2, vertical: -2),
-              tooltip: 'Back',
+              tooltip: AppLocalizations.of(context)!.teacherClassroomBackTooltip,
             ),
             const SizedBox(width: 4),
             Expanded(
@@ -589,7 +589,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))));
     }
   }
 
@@ -618,7 +618,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomAttachFailed(e.toString()))));
     }
   }
 
@@ -762,7 +762,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))));
     }
   }
 
@@ -773,7 +773,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
     if (trimmed.startsWith('/') || trimmed.startsWith('file:')) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('This file is not available — the teacher should re-upload it.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomFileUnavailable)),
         );
       }
       return;
@@ -812,7 +812,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomAttachFailed(e.toString()))));
     }
   }
 
@@ -960,7 +960,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))));
     }
   }
 
@@ -986,7 +986,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Attach failed: $e')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomAttachFailed(e.toString()))));
     }
   }
 
@@ -1151,7 +1151,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Classroom code', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
+                      Text(AppLocalizations.of(context)!.teacherClassroomCodeLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
                       Text(_classCode, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 3, color: cs.onSecondaryContainer)),
                     ],
@@ -1163,10 +1163,10 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
                     await Clipboard.setData(ClipboardData(text: _classCode));
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Code copied'), duration: Duration(seconds: 2)),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomCodeCopied), duration: const Duration(seconds: 2)),
                     );
                   },
-                  tooltip: 'Copy code',
+                  tooltip: AppLocalizations.of(context)!.teacherClassroomCopyCodeTooltip,
                 ),
               ],
             ),
@@ -1323,7 +1323,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
     if (added > 0) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherStudentAdded)));
     if (failed.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Could not add: ${failed.join(', ')} — check their email address.'),
+        content: Text(AppLocalizations.of(context)!.teacherClassroomCouldNotAdd(failed.join(', '))),
         backgroundColor: Theme.of(context).colorScheme.error,
         duration: const Duration(seconds: 4),
       ));
@@ -1354,7 +1354,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
       _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))));
     }
   }
 }
@@ -1406,7 +1406,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Row(
               children: [
-                Text('Add students', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                Text(AppLocalizations.of(context)!.teacherClassroomAddStudents, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                 const Spacer(),
                 if (_selected.isNotEmpty)
                   Container(
@@ -1423,7 +1423,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
             child: TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search by name or grade…',
+                hintText: AppLocalizations.of(context)!.teacherClassroomSearchNameGrade,
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
@@ -1432,7 +1432,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
           ),
           Expanded(
             child: filtered.isEmpty
-                ? Center(child: Text('No students found', style: TextStyle(color: cs.onSurfaceVariant)))
+                ? Center(child: Text(AppLocalizations.of(context)!.teacherClassroomNoStudentsFound, style: TextStyle(color: cs.onSurfaceVariant)))
                 : ListView.builder(
                     controller: scrollCtrl,
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),

@@ -2519,5 +2519,20 @@
   "teacherDeleteAssignmentTitle": "Delete assignment?",
   "teacherDeleteAssignmentBody": "This will permanently delete the assignment and all submissions.",
   "teacherEditTooltip": "Edit",
-  "teacherDeleteTooltip": "Delete"
+  "teacherDeleteTooltip": "Delete",
+
+  "teacherClassroomBackTooltip": "Back",
+  "teacherClassroomGenericError": "Error: {error}",
+  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "teacherClassroomAttachFailed": "Attach failed: {error}",
+  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "teacherClassroomFileUnavailable": "This file is not available — the teacher should re-upload it.",
+  "teacherClassroomCodeLabel": "Classroom code",
+  "teacherClassroomCodeCopied": "Code copied",
+  "teacherClassroomCopyCodeTooltip": "Copy code",
+  "teacherClassroomCouldNotAdd": "Could not add: {emails} — check their email address.",
+  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "teacherClassroomAddStudents": "Add students",
+  "teacherClassroomSearchNameGrade": "Search by name or grade…",
+  "teacherClassroomNoStudentsFound": "No students found"
 }

@@ -5905,4 +5905,44 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherDeleteTooltip => 'מחק';
+
+  @override
+  String get teacherClassroomBackTooltip => 'חזרה';
+
+  @override
+  String teacherClassroomGenericError(Object error) {
+    return 'שגיאה: $error';
+  }
+
+  @override
+  String teacherClassroomAttachFailed(Object error) {
+    return 'צירוף נכשל: $error';
+  }
+
+  @override
+  String get teacherClassroomFileUnavailable =>
+      'הקובץ אינו זמין — המורה צריך להעלות אותו מחדש.';
+
+  @override
+  String get teacherClassroomCodeLabel => 'קוד הכיתה';
+
+  @override
+  String get teacherClassroomCodeCopied => 'הקוד הועתק';
+
+  @override
+  String get teacherClassroomCopyCodeTooltip => 'העתק קוד';
+
+  @override
+  String teacherClassroomCouldNotAdd(Object emails) {
+    return 'לא ניתן להוסיף: $emails — בדוק את כתובת הדוא\"ל שלהם.';
+  }
+
+  @override
+  String get teacherClassroomAddStudents => 'הוספת תלמידים';
+
+  @override
+  String get teacherClassroomSearchNameGrade => 'חפש לפי שם או שכבה…';
+
+  @override
+  String get teacherClassroomNoStudentsFound => 'לא נמצאו תלמידים';
 }
