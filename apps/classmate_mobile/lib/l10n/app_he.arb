@@ -2437,5 +2437,25 @@
   "studentClassroomFileUnavailable": "הקובץ אינו זמין כעת.",
   "studentClassroomDeleteMaterial": "למחוק חומר?",
   "studentClassroomCodeLabel": "קוד הכיתה",
-  "studentClassroomLeaveTooltip": "עזוב כיתה"
+  "studentClassroomLeaveTooltip": "עזוב כיתה",
+
+  "adminEditUserEnglishNameRequired": "שם באנגלית נדרש",
+  "adminEditUserSaved": "נשמר",
+  "adminEditUserPasswordChanged": "הסיסמה של {name} שונתה.",
+  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "adminEditUserLoginSection": "התחברות",
+  "adminEditUserUsernameLabel": "שם משתמש",
+  "adminEditUserEmailOptional": "דוא\"ל (אופציונלי)",
+  "adminEditUserChangePassword": "שנה סיסמה",
+  "adminEditUserNameSection": "שם",
+  "adminEditUserAtLeastEnglish": "אנגלית נדרשת לפחות.",
+  "adminEditUserGradeSection": "שכבה",
+  "adminEditUserCohortsSection": "קבוצות",
+  "adminEditUserLinkedChildren": "ילדים מקושרים",
+  "adminEditUserLinkButton": "קשר",
+  "adminEditUserNoChildren": "לא קושרו ילדים עדיין.",
+  "adminEditUserSetPasswordTitle": "הגדרת סיסמה חדשה",
+  "adminEditUserNewPasswordLabel": "סיסמה חדשה",
+  "adminEditUserConfirmPasswordLabel": "אישור סיסמה",
+  "adminEditUserSetPasswordButton": "הגדר סיסמה"
 }

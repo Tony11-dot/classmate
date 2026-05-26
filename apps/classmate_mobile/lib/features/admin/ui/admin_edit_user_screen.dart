@@ -111,9 +111,10 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     final nameEn = _nameEnCtrl.text.trim();
     if (nameEn.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('English name required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserEnglishNameRequired)));
       return;
     }
     setState(() => _saving = true);
@@ -132,7 +133,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         grade: _grade,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserSaved)));
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
@@ -154,7 +155,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       await widget.repo.setUserPassword(widget.userId, newPassword);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Password changed for ${_nameEnCtrl.text}.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminEditUserPasswordChanged(_nameEnCtrl.text))),
       );
     } catch (e) {
       if (!mounted) return;
@@ -260,13 +261,13 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   ),
                   const SizedBox(height: 16),
                   // ── Login credentials ──────────────────────────────────────
-                  Text('Login', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  Text(l.adminEditUserLoginSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _usernameCtrl,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Username',
+                      labelText: l.adminEditUserUsernameLabel,
                       prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -277,7 +278,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Email (optional)',
+                      labelText: l.adminEditUserEmailOptional,
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -293,15 +294,15 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   OutlinedButton.icon(
                     onPressed: _resetting ? null : _changePassword,
                     icon: _resetting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.lock_reset_rounded, size: 16),
-                    label: const Text('Change password'),
+                    label: Text(l.adminEditUserChangePassword),
                     style: OutlinedButton.styleFrom(foregroundColor: cs.error, side: BorderSide(color: cs.error.withValues(alpha: 0.5))),
                   ),
                   const SizedBox(height: 20),
 
                   // ── Name fields ────────────────────────────────────────────
-                  Text('Name', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  Text(l.adminEditUserNameSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 4),
-                  Text('At least English required.', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(l.adminEditUserAtLeastEnglish, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 12),
                   _langField(_nameEnCtrl, 'Name in English', req: true),
                   _langField(_nameArCtrl, 'Name in Arabic (اسم)'),
@@ -325,19 +326,19 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   // ── Grade (students) ───────────────────────────────────────
                   if (isStudent) ...[
                     const SizedBox(height: 20),
-                    Text('Grade', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                    Text(l.adminEditUserGradeSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8, runSpacing: 8,
                       children: ref.watch(authSessionProvider).schoolGrades.map((g) => ChoiceChip(
-                        label: Text('Grade $g'),
+                        label: Text(l.adminCohortGradeFormat(g.toString())),
                         selected: _grade == g,
                         onSelected: (_) => setState(() => _grade = g),
                       )).toList(),
                     ),
                     const SizedBox(height: 20),
                     // ── Cohorts the student is in ───────────────────────────
-                    Text('Cohorts',
+                    Text(l.adminEditUserCohortsSection,
                         style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                     const SizedBox(height: 4),
                     Text(
@@ -409,7 +410,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        Expanded(child: Text('Linked Children', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary))),
+                        Expanded(child: Text(l.adminEditUserLinkedChildren, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary))),
                         TextButton.icon(
                           onPressed: () => setState(() => _showAddChild = !_showAddChild),
                           icon: Icon(_showAddChild ? Icons.close_rounded : Icons.add_rounded, size: 16),
@@ -445,7 +446,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                       FilledButton.icon(
                         onPressed: _linkStudentId != null ? _addChild : null,
                         icon: const Icon(Icons.link_rounded, size: 16),
-                        label: const Text('Link'),
+                        label: Text(l.adminEditUserLinkButton),
                       ),
                       const SizedBox(height: 10),
                     ],
@@ -453,7 +454,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     _loadingChildren
                         ? const Center(child: CircularProgressIndicator())
                         : _children.isEmpty
-                            ? Text('No children linked yet.', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))
+                            ? Text(l.adminEditUserNoChildren, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))
                             : Column(
                                 children: _children.map((c) {
                                   final child = c['child'] as Map? ?? const {};
@@ -529,8 +530,9 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Set new password'),
+      title: Text(l.adminEditUserSetPasswordTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -539,7 +541,7 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
             obscureText: _obscure,
             autofocus: true,
             decoration: InputDecoration(
-              labelText: 'New password',
+              labelText: l.adminEditUserNewPasswordLabel,
               suffixIcon: IconButton(
                 icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
                 onPressed: () => setState(() => _obscure = !_obscure),
@@ -550,7 +552,7 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
           TextField(
             controller: _pw2,
             obscureText: _obscure,
-            decoration: const InputDecoration(labelText: 'Confirm password'),
+            decoration: InputDecoration(labelText: l.adminEditUserConfirmPasswordLabel),
             onSubmitted: (_) => _submit(),
           ),
           if (_error != null) ...[
@@ -565,8 +567,8 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(onPressed: _submit, child: const Text('Set password')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel)),
+        FilledButton(onPressed: _submit, child: Text(l.adminEditUserSetPasswordButton)),
       ],
     );
   }

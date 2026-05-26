@@ -2644,5 +2644,25 @@
   "studentClassroomFileUnavailable": "This file is not yet available.",
   "studentClassroomDeleteMaterial": "Delete material?",
   "studentClassroomCodeLabel": "Classroom code",
-  "studentClassroomLeaveTooltip": "Leave classroom"
+  "studentClassroomLeaveTooltip": "Leave classroom",
+
+  "adminEditUserEnglishNameRequired": "English name required",
+  "adminEditUserSaved": "Saved",
+  "adminEditUserPasswordChanged": "Password changed for {name}.",
+  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "adminEditUserLoginSection": "Login",
+  "adminEditUserUsernameLabel": "Username",
+  "adminEditUserEmailOptional": "Email (optional)",
+  "adminEditUserChangePassword": "Change password",
+  "adminEditUserNameSection": "Name",
+  "adminEditUserAtLeastEnglish": "At least English required.",
+  "adminEditUserGradeSection": "Grade",
+  "adminEditUserCohortsSection": "Cohorts",
+  "adminEditUserLinkedChildren": "Linked Children",
+  "adminEditUserLinkButton": "Link",
+  "adminEditUserNoChildren": "No children linked yet.",
+  "adminEditUserSetPasswordTitle": "Set new password",
+  "adminEditUserNewPasswordLabel": "New password",
+  "adminEditUserConfirmPasswordLabel": "Confirm password",
+  "adminEditUserSetPasswordButton": "Set password"
 }

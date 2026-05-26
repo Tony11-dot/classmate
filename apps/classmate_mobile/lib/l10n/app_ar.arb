@@ -2437,5 +2437,25 @@
   "studentClassroomFileUnavailable": "هذا الملف غير متاح حاليًا.",
   "studentClassroomDeleteMaterial": "حذف المادة؟",
   "studentClassroomCodeLabel": "رمز الصف",
-  "studentClassroomLeaveTooltip": "مغادرة الصف"
+  "studentClassroomLeaveTooltip": "مغادرة الصف",
+
+  "adminEditUserEnglishNameRequired": "الاسم بالإنجليزية مطلوب",
+  "adminEditUserSaved": "تم الحفظ",
+  "adminEditUserPasswordChanged": "تم تغيير كلمة المرور لـ {name}.",
+  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "adminEditUserLoginSection": "تسجيل الدخول",
+  "adminEditUserUsernameLabel": "اسم المستخدم",
+  "adminEditUserEmailOptional": "البريد الإلكتروني (اختياري)",
+  "adminEditUserChangePassword": "تغيير كلمة المرور",
+  "adminEditUserNameSection": "الاسم",
+  "adminEditUserAtLeastEnglish": "الإنجليزية مطلوبة على الأقل.",
+  "adminEditUserGradeSection": "الصف",
+  "adminEditUserCohortsSection": "المجموعات",
+  "adminEditUserLinkedChildren": "الأبناء المربوطون",
+  "adminEditUserLinkButton": "ربط",
+  "adminEditUserNoChildren": "لم يتم ربط أبناء بعد.",
+  "adminEditUserSetPasswordTitle": "تعيين كلمة مرور جديدة",
+  "adminEditUserNewPasswordLabel": "كلمة المرور الجديدة",
+  "adminEditUserConfirmPasswordLabel": "تأكيد كلمة المرور",
+  "adminEditUserSetPasswordButton": "تعيين كلمة المرور"
 }

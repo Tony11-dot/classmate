@@ -6275,4 +6275,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studentClassroomLeaveTooltip => 'Leave classroom';
+
+  @override
+  String get adminEditUserEnglishNameRequired => 'English name required';
+
+  @override
+  String get adminEditUserSaved => 'Saved';
+
+  @override
+  String adminEditUserPasswordChanged(Object name) {
+    return 'Password changed for $name.';
+  }
+
+  @override
+  String get adminEditUserLoginSection => 'Login';
+
+  @override
+  String get adminEditUserUsernameLabel => 'Username';
+
+  @override
+  String get adminEditUserEmailOptional => 'Email (optional)';
+
+  @override
+  String get adminEditUserChangePassword => 'Change password';
+
+  @override
+  String get adminEditUserNameSection => 'Name';
+
+  @override
+  String get adminEditUserAtLeastEnglish => 'At least English required.';
+
+  @override
+  String get adminEditUserGradeSection => 'Grade';
+
+  @override
+  String get adminEditUserCohortsSection => 'Cohorts';
+
+  @override
+  String get adminEditUserLinkedChildren => 'Linked Children';
+
+  @override
+  String get adminEditUserLinkButton => 'Link';
+
+  @override
+  String get adminEditUserNoChildren => 'No children linked yet.';
+
+  @override
+  String get adminEditUserSetPasswordTitle => 'Set new password';
+
+  @override
+  String get adminEditUserNewPasswordLabel => 'New password';
+
+  @override
+  String get adminEditUserConfirmPasswordLabel => 'Confirm password';
+
+  @override
+  String get adminEditUserSetPasswordButton => 'Set password';
 }

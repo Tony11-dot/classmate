@@ -6218,4 +6218,60 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get studentClassroomLeaveTooltip => 'עזוב כיתה';
+
+  @override
+  String get adminEditUserEnglishNameRequired => 'שם באנגלית נדרש';
+
+  @override
+  String get adminEditUserSaved => 'נשמר';
+
+  @override
+  String adminEditUserPasswordChanged(Object name) {
+    return 'הסיסמה של $name שונתה.';
+  }
+
+  @override
+  String get adminEditUserLoginSection => 'התחברות';
+
+  @override
+  String get adminEditUserUsernameLabel => 'שם משתמש';
+
+  @override
+  String get adminEditUserEmailOptional => 'דוא\"ל (אופציונלי)';
+
+  @override
+  String get adminEditUserChangePassword => 'שנה סיסמה';
+
+  @override
+  String get adminEditUserNameSection => 'שם';
+
+  @override
+  String get adminEditUserAtLeastEnglish => 'אנגלית נדרשת לפחות.';
+
+  @override
+  String get adminEditUserGradeSection => 'שכבה';
+
+  @override
+  String get adminEditUserCohortsSection => 'קבוצות';
+
+  @override
+  String get adminEditUserLinkedChildren => 'ילדים מקושרים';
+
+  @override
+  String get adminEditUserLinkButton => 'קשר';
+
+  @override
+  String get adminEditUserNoChildren => 'לא קושרו ילדים עדיין.';
+
+  @override
+  String get adminEditUserSetPasswordTitle => 'הגדרת סיסמה חדשה';
+
+  @override
+  String get adminEditUserNewPasswordLabel => 'סיסמה חדשה';
+
+  @override
+  String get adminEditUserConfirmPasswordLabel => 'אישור סיסמה';
+
+  @override
+  String get adminEditUserSetPasswordButton => 'הגדר סיסמה';
 }

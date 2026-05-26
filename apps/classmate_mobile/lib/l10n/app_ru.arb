@@ -2644,5 +2644,25 @@
   "studentClassroomFileUnavailable": "Этот файл пока недоступен.",
   "studentClassroomDeleteMaterial": "Удалить материал?",
   "studentClassroomCodeLabel": "Код класса",
-  "studentClassroomLeaveTooltip": "Покинуть класс"
+  "studentClassroomLeaveTooltip": "Покинуть класс",
+
+  "adminEditUserEnglishNameRequired": "Требуется имя на английском",
+  "adminEditUserSaved": "Сохранено",
+  "adminEditUserPasswordChanged": "Пароль для {name} изменён.",
+  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "adminEditUserLoginSection": "Вход",
+  "adminEditUserUsernameLabel": "Имя пользователя",
+  "adminEditUserEmailOptional": "Email (необязательно)",
+  "adminEditUserChangePassword": "Сменить пароль",
+  "adminEditUserNameSection": "Имя",
+  "adminEditUserAtLeastEnglish": "Минимум на английском.",
+  "adminEditUserGradeSection": "Класс",
+  "adminEditUserCohortsSection": "Группы",
+  "adminEditUserLinkedChildren": "Привязанные дети",
+  "adminEditUserLinkButton": "Привязать",
+  "adminEditUserNoChildren": "Дети ещё не привязаны.",
+  "adminEditUserSetPasswordTitle": "Установить новый пароль",
+  "adminEditUserNewPasswordLabel": "Новый пароль",
+  "adminEditUserConfirmPasswordLabel": "Подтвердите пароль",
+  "adminEditUserSetPasswordButton": "Установить пароль"
 }

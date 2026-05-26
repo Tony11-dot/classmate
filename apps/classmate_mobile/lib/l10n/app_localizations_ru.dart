@@ -6212,4 +6212,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get studentClassroomLeaveTooltip => 'Покинуть класс';
+
+  @override
+  String get adminEditUserEnglishNameRequired => 'Требуется имя на английском';
+
+  @override
+  String get adminEditUserSaved => 'Сохранено';
+
+  @override
+  String adminEditUserPasswordChanged(Object name) {
+    return 'Пароль для $name изменён.';
+  }
+
+  @override
+  String get adminEditUserLoginSection => 'Вход';
+
+  @override
+  String get adminEditUserUsernameLabel => 'Имя пользователя';
+
+  @override
+  String get adminEditUserEmailOptional => 'Email (необязательно)';
+
+  @override
+  String get adminEditUserChangePassword => 'Сменить пароль';
+
+  @override
+  String get adminEditUserNameSection => 'Имя';
+
+  @override
+  String get adminEditUserAtLeastEnglish => 'Минимум на английском.';
+
+  @override
+  String get adminEditUserGradeSection => 'Класс';
+
+  @override
+  String get adminEditUserCohortsSection => 'Группы';
+
+  @override
+  String get adminEditUserLinkedChildren => 'Привязанные дети';
+
+  @override
+  String get adminEditUserLinkButton => 'Привязать';
+
+  @override
+  String get adminEditUserNoChildren => 'Дети ещё не привязаны.';
+
+  @override
+  String get adminEditUserSetPasswordTitle => 'Установить новый пароль';
+
+  @override
+  String get adminEditUserNewPasswordLabel => 'Новый пароль';
+
+  @override
+  String get adminEditUserConfirmPasswordLabel => 'Подтвердите пароль';
+
+  @override
+  String get adminEditUserSetPasswordButton => 'Установить пароль';
 }

@@ -6244,4 +6244,60 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get studentClassroomLeaveTooltip => 'مغادرة الصف';
+
+  @override
+  String get adminEditUserEnglishNameRequired => 'الاسم بالإنجليزية مطلوب';
+
+  @override
+  String get adminEditUserSaved => 'تم الحفظ';
+
+  @override
+  String adminEditUserPasswordChanged(Object name) {
+    return 'تم تغيير كلمة المرور لـ $name.';
+  }
+
+  @override
+  String get adminEditUserLoginSection => 'تسجيل الدخول';
+
+  @override
+  String get adminEditUserUsernameLabel => 'اسم المستخدم';
+
+  @override
+  String get adminEditUserEmailOptional => 'البريد الإلكتروني (اختياري)';
+
+  @override
+  String get adminEditUserChangePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get adminEditUserNameSection => 'الاسم';
+
+  @override
+  String get adminEditUserAtLeastEnglish => 'الإنجليزية مطلوبة على الأقل.';
+
+  @override
+  String get adminEditUserGradeSection => 'الصف';
+
+  @override
+  String get adminEditUserCohortsSection => 'المجموعات';
+
+  @override
+  String get adminEditUserLinkedChildren => 'الأبناء المربوطون';
+
+  @override
+  String get adminEditUserLinkButton => 'ربط';
+
+  @override
+  String get adminEditUserNoChildren => 'لم يتم ربط أبناء بعد.';
+
+  @override
+  String get adminEditUserSetPasswordTitle => 'تعيين كلمة مرور جديدة';
+
+  @override
+  String get adminEditUserNewPasswordLabel => 'كلمة المرور الجديدة';
+
+  @override
+  String get adminEditUserConfirmPasswordLabel => 'تأكيد كلمة المرور';
+
+  @override
+  String get adminEditUserSetPasswordButton => 'تعيين كلمة المرور';
 }

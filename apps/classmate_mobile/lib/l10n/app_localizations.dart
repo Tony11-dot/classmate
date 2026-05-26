@@ -11190,6 +11190,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave classroom'**
   String get studentClassroomLeaveTooltip;
+
+  /// No description provided for @adminEditUserEnglishNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'English name required'**
+  String get adminEditUserEnglishNameRequired;
+
+  /// No description provided for @adminEditUserSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get adminEditUserSaved;
+
+  /// No description provided for @adminEditUserPasswordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed for {name}.'**
+  String adminEditUserPasswordChanged(Object name);
+
+  /// No description provided for @adminEditUserLoginSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get adminEditUserLoginSection;
+
+  /// No description provided for @adminEditUserUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get adminEditUserUsernameLabel;
+
+  /// No description provided for @adminEditUserEmailOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get adminEditUserEmailOptional;
+
+  /// No description provided for @adminEditUserChangePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get adminEditUserChangePassword;
+
+  /// No description provided for @adminEditUserNameSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get adminEditUserNameSection;
+
+  /// No description provided for @adminEditUserAtLeastEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'At least English required.'**
+  String get adminEditUserAtLeastEnglish;
+
+  /// No description provided for @adminEditUserGradeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get adminEditUserGradeSection;
+
+  /// No description provided for @adminEditUserCohortsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get adminEditUserCohortsSection;
+
+  /// No description provided for @adminEditUserLinkedChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Children'**
+  String get adminEditUserLinkedChildren;
+
+  /// No description provided for @adminEditUserLinkButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get adminEditUserLinkButton;
+
+  /// No description provided for @adminEditUserNoChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'No children linked yet.'**
+  String get adminEditUserNoChildren;
+
+  /// No description provided for @adminEditUserSetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get adminEditUserSetPasswordTitle;
+
+  /// No description provided for @adminEditUserNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get adminEditUserNewPasswordLabel;
+
+  /// No description provided for @adminEditUserConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get adminEditUserConfirmPasswordLabel;
+
+  /// No description provided for @adminEditUserSetPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Set password'**
+  String get adminEditUserSetPasswordButton;
 }
 
 class _AppLocalizationsDelegate

@@ -2437,5 +2437,25 @@
   "studentClassroomFileUnavailable": "Ce fichier n'est pas encore disponible.",
   "studentClassroomDeleteMaterial": "Supprimer la ressource ?",
   "studentClassroomCodeLabel": "Code de la classe",
-  "studentClassroomLeaveTooltip": "Quitter la classe"
+  "studentClassroomLeaveTooltip": "Quitter la classe",
+
+  "adminEditUserEnglishNameRequired": "Le nom en anglais est requis",
+  "adminEditUserSaved": "Enregistré",
+  "adminEditUserPasswordChanged": "Mot de passe de {name} modifié.",
+  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "adminEditUserLoginSection": "Connexion",
+  "adminEditUserUsernameLabel": "Nom d'utilisateur",
+  "adminEditUserEmailOptional": "E-mail (optionnel)",
+  "adminEditUserChangePassword": "Changer le mot de passe",
+  "adminEditUserNameSection": "Nom",
+  "adminEditUserAtLeastEnglish": "L'anglais est au moins requis.",
+  "adminEditUserGradeSection": "Niveau",
+  "adminEditUserCohortsSection": "Groupes",
+  "adminEditUserLinkedChildren": "Enfants liés",
+  "adminEditUserLinkButton": "Lier",
+  "adminEditUserNoChildren": "Aucun enfant lié pour l'instant.",
+  "adminEditUserSetPasswordTitle": "Définir un nouveau mot de passe",
+  "adminEditUserNewPasswordLabel": "Nouveau mot de passe",
+  "adminEditUserConfirmPasswordLabel": "Confirmer le mot de passe",
+  "adminEditUserSetPasswordButton": "Définir le mot de passe"
 }

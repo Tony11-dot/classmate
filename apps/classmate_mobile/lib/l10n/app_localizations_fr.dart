@@ -6367,4 +6367,60 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get studentClassroomLeaveTooltip => 'Quitter la classe';
+
+  @override
+  String get adminEditUserEnglishNameRequired => 'Le nom en anglais est requis';
+
+  @override
+  String get adminEditUserSaved => 'Enregistré';
+
+  @override
+  String adminEditUserPasswordChanged(Object name) {
+    return 'Mot de passe de $name modifié.';
+  }
+
+  @override
+  String get adminEditUserLoginSection => 'Connexion';
+
+  @override
+  String get adminEditUserUsernameLabel => 'Nom d\'utilisateur';
+
+  @override
+  String get adminEditUserEmailOptional => 'E-mail (optionnel)';
+
+  @override
+  String get adminEditUserChangePassword => 'Changer le mot de passe';
+
+  @override
+  String get adminEditUserNameSection => 'Nom';
+
+  @override
+  String get adminEditUserAtLeastEnglish => 'L\'anglais est au moins requis.';
+
+  @override
+  String get adminEditUserGradeSection => 'Niveau';
+
+  @override
+  String get adminEditUserCohortsSection => 'Groupes';
+
+  @override
+  String get adminEditUserLinkedChildren => 'Enfants liés';
+
+  @override
+  String get adminEditUserLinkButton => 'Lier';
+
+  @override
+  String get adminEditUserNoChildren => 'Aucun enfant lié pour l\'instant.';
+
+  @override
+  String get adminEditUserSetPasswordTitle => 'Définir un nouveau mot de passe';
+
+  @override
+  String get adminEditUserNewPasswordLabel => 'Nouveau mot de passe';
+
+  @override
+  String get adminEditUserConfirmPasswordLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get adminEditUserSetPasswordButton => 'Définir le mot de passe';
 }
