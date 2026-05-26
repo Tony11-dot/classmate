@@ -6331,4 +6331,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminEditUserSetPasswordButton => 'Set password';
+
+  @override
+  String get adminPeriodsTitle => 'Manage Periods';
+
+  @override
+  String get adminPeriodsAddPeriod => 'Add Period';
+
+  @override
+  String get adminPeriodsNoPeriods => 'No periods yet';
+
+  @override
+  String get adminPeriodsTapToAdd => 'Tap + to add the first period';
+
+  @override
+  String get adminPeriodsNewPeriod => 'New Period';
+
+  @override
+  String get adminPeriodsDayLabel => 'Day';
+
+  @override
+  String get adminPeriodsPeriodLabel => 'Period';
+
+  @override
+  String get adminPeriodsTimeLabel => 'Time';
+
+  @override
+  String get adminPeriodsTeacherLabel => 'Teacher';
+
+  @override
+  String get adminPeriodsClassroomOptional => 'Classroom (optional)';
+
+  @override
+  String get adminPeriodsCohortsLabel => 'Cohorts';
+
+  @override
+  String get adminPeriodsStudentsOptional => 'Students (optional)';
+
+  @override
+  String get adminPeriodsSearchByName => 'Search by name…';
 }

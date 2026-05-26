@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 
 // ── Data helpers ─────────────────────────────────────────────────────────────
@@ -82,17 +83,17 @@ class AdminPeriodsScreen extends ConsumerWidget {
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: Text('Manage Periods', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+        title: Text(AppLocalizations.of(context)!.adminPeriodsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_period',
         onPressed: () => _showCreateSheet(context, ref),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Period'),
+        label: Text(AppLocalizations.of(context)!.adminPeriodsAddPeriod),
       ),
       body: periodsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))),
         data: (periods) {
           if (periods.isEmpty) {
             return Center(
@@ -101,9 +102,9 @@ class AdminPeriodsScreen extends ConsumerWidget {
                 children: [
                   Icon(Icons.event_note_rounded, size: 64, color: cs.outlineVariant),
                   const SizedBox(height: 12),
-                  Text('No periods yet', style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(AppLocalizations.of(context)!.adminPeriodsNoPeriods, style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 6),
-                  Text('Tap + to add the first period', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(AppLocalizations.of(context)!.adminPeriodsTapToAdd, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),
             );
@@ -342,7 +343,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString())), backgroundColor: Theme.of(context).colorScheme.error));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -369,18 +370,18 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 // Header
                 Row(
                   children: [
-                    Expanded(child: Text('New Period', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
+                    Expanded(child: Text(AppLocalizations.of(context)!.adminPeriodsNewPeriod, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
                     FilledButton.icon(
                       onPressed: _saving ? null : _save,
                       icon: _saving ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.check_rounded, size: 16),
-                      label: const Text('Save'),
+                      label: Text(AppLocalizations.of(context)!.commonSave),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
 
                 // Day
-                Text('Day', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                Text(AppLocalizations.of(context)!.adminPeriodsDayLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -400,7 +401,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Period', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                          Text(AppLocalizations.of(context)!.adminPeriodsPeriodLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                           const SizedBox(height: 8),
                           LiquidGlassDropdown<int>(
                             label: 'Period',
@@ -421,7 +422,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Time', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                          Text(AppLocalizations.of(context)!.adminPeriodsTimeLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                           const SizedBox(height: 8),
                           Row(
                             children: [
@@ -438,7 +439,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 const SizedBox(height: 16),
 
                 // Teacher DDL
-                Text('Teacher', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                Text(AppLocalizations.of(context)!.adminPeriodsTeacherLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                 const SizedBox(height: 8),
                 LiquidGlassDropdown<String>(
                   label: 'Select teacher…',
@@ -453,7 +454,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
 
                 // Classroom DDL (only shown when teacher is selected)
                 if (_teacherId != null && _teacherId!.isNotEmpty) ...[
-                  Text('Classroom (optional)', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  Text(AppLocalizations.of(context)!.adminPeriodsClassroomOptional, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 8),
                   LiquidGlassDropdown<String>(
                     label: 'Link to classroom…',
@@ -469,7 +470,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
 
                 // Cohorts (multiselect chips)
                 if (_cohorts.isNotEmpty) ...[
-                  Text('Cohorts', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  Text(AppLocalizations.of(context)!.adminPeriodsCohortsLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -490,7 +491,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
 
                 // Students (searchable multiselect)
                 Row(children: [
-                  Text('Students (optional)', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
+                  Text(AppLocalizations.of(context)!.adminPeriodsStudentsOptional, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const Spacer(),
                   if (_studentIds.isNotEmpty)
                     Container(
@@ -503,7 +504,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 TextField(
                   onChanged: (v) => setState(() => _studentSearch = v),
                   decoration: InputDecoration(
-                    hintText: 'Search by name…',
+                    hintText: AppLocalizations.of(context)!.adminPeriodsSearchByName,
                     prefixIcon: const Icon(Icons.search_rounded, size: 18),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),

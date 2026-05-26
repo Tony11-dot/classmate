@@ -11298,6 +11298,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set password'**
   String get adminEditUserSetPasswordButton;
+
+  /// No description provided for @adminPeriodsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Periods'**
+  String get adminPeriodsTitle;
+
+  /// No description provided for @adminPeriodsAddPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Period'**
+  String get adminPeriodsAddPeriod;
+
+  /// No description provided for @adminPeriodsNoPeriods.
+  ///
+  /// In en, this message translates to:
+  /// **'No periods yet'**
+  String get adminPeriodsNoPeriods;
+
+  /// No description provided for @adminPeriodsTapToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add the first period'**
+  String get adminPeriodsTapToAdd;
+
+  /// No description provided for @adminPeriodsNewPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'New Period'**
+  String get adminPeriodsNewPeriod;
+
+  /// No description provided for @adminPeriodsDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get adminPeriodsDayLabel;
+
+  /// No description provided for @adminPeriodsPeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get adminPeriodsPeriodLabel;
+
+  /// No description provided for @adminPeriodsTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get adminPeriodsTimeLabel;
+
+  /// No description provided for @adminPeriodsTeacherLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get adminPeriodsTeacherLabel;
+
+  /// No description provided for @adminPeriodsClassroomOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom (optional)'**
+  String get adminPeriodsClassroomOptional;
+
+  /// No description provided for @adminPeriodsCohortsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get adminPeriodsCohortsLabel;
+
+  /// No description provided for @adminPeriodsStudentsOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Students (optional)'**
+  String get adminPeriodsStudentsOptional;
+
+  /// No description provided for @adminPeriodsSearchByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name…'**
+  String get adminPeriodsSearchByName;
 }
 
 class _AppLocalizationsDelegate

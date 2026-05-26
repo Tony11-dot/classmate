@@ -6423,4 +6423,44 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminEditUserSetPasswordButton => 'Définir le mot de passe';
+
+  @override
+  String get adminPeriodsTitle => 'Gérer les créneaux';
+
+  @override
+  String get adminPeriodsAddPeriod => 'Ajouter un créneau';
+
+  @override
+  String get adminPeriodsNoPeriods => 'Aucun créneau pour l\'instant';
+
+  @override
+  String get adminPeriodsTapToAdd =>
+      'Appuyez sur + pour ajouter le premier créneau';
+
+  @override
+  String get adminPeriodsNewPeriod => 'Nouveau créneau';
+
+  @override
+  String get adminPeriodsDayLabel => 'Jour';
+
+  @override
+  String get adminPeriodsPeriodLabel => 'Créneau';
+
+  @override
+  String get adminPeriodsTimeLabel => 'Heure';
+
+  @override
+  String get adminPeriodsTeacherLabel => 'Enseignant';
+
+  @override
+  String get adminPeriodsClassroomOptional => 'Classe (optionnel)';
+
+  @override
+  String get adminPeriodsCohortsLabel => 'Groupes';
+
+  @override
+  String get adminPeriodsStudentsOptional => 'Élèves (optionnel)';
+
+  @override
+  String get adminPeriodsSearchByName => 'Rechercher par nom…';
 }

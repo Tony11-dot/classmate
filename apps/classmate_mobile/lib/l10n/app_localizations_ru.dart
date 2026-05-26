@@ -6268,4 +6268,43 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminEditUserSetPasswordButton => 'Установить пароль';
+
+  @override
+  String get adminPeriodsTitle => 'Управление уроками';
+
+  @override
+  String get adminPeriodsAddPeriod => 'Добавить урок';
+
+  @override
+  String get adminPeriodsNoPeriods => 'Уроков пока нет';
+
+  @override
+  String get adminPeriodsTapToAdd => 'Нажмите +, чтобы добавить первый урок';
+
+  @override
+  String get adminPeriodsNewPeriod => 'Новый урок';
+
+  @override
+  String get adminPeriodsDayLabel => 'День';
+
+  @override
+  String get adminPeriodsPeriodLabel => 'Урок';
+
+  @override
+  String get adminPeriodsTimeLabel => 'Время';
+
+  @override
+  String get adminPeriodsTeacherLabel => 'Учитель';
+
+  @override
+  String get adminPeriodsClassroomOptional => 'Класс (необязательно)';
+
+  @override
+  String get adminPeriodsCohortsLabel => 'Группы';
+
+  @override
+  String get adminPeriodsStudentsOptional => 'Ученики (необязательно)';
+
+  @override
+  String get adminPeriodsSearchByName => 'Поиск по имени…';
 }

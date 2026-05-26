@@ -6274,4 +6274,43 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminEditUserSetPasswordButton => 'הגדר סיסמה';
+
+  @override
+  String get adminPeriodsTitle => 'ניהול שיעורים';
+
+  @override
+  String get adminPeriodsAddPeriod => 'הוסף שיעור';
+
+  @override
+  String get adminPeriodsNoPeriods => 'אין שיעורים עדיין';
+
+  @override
+  String get adminPeriodsTapToAdd => 'הקש + להוספת השיעור הראשון';
+
+  @override
+  String get adminPeriodsNewPeriod => 'שיעור חדש';
+
+  @override
+  String get adminPeriodsDayLabel => 'יום';
+
+  @override
+  String get adminPeriodsPeriodLabel => 'שיעור';
+
+  @override
+  String get adminPeriodsTimeLabel => 'שעה';
+
+  @override
+  String get adminPeriodsTeacherLabel => 'מורה';
+
+  @override
+  String get adminPeriodsClassroomOptional => 'כיתה (אופציונלי)';
+
+  @override
+  String get adminPeriodsCohortsLabel => 'קבוצות';
+
+  @override
+  String get adminPeriodsStudentsOptional => 'תלמידים (אופציונלי)';
+
+  @override
+  String get adminPeriodsSearchByName => 'חפש לפי שם…';
 }

@@ -2664,5 +2664,19 @@
   "adminEditUserSetPasswordTitle": "Установить новый пароль",
   "adminEditUserNewPasswordLabel": "Новый пароль",
   "adminEditUserConfirmPasswordLabel": "Подтвердите пароль",
-  "adminEditUserSetPasswordButton": "Установить пароль"
+  "adminEditUserSetPasswordButton": "Установить пароль",
+
+  "adminPeriodsTitle": "Управление уроками",
+  "adminPeriodsAddPeriod": "Добавить урок",
+  "adminPeriodsNoPeriods": "Уроков пока нет",
+  "adminPeriodsTapToAdd": "Нажмите +, чтобы добавить первый урок",
+  "adminPeriodsNewPeriod": "Новый урок",
+  "adminPeriodsDayLabel": "День",
+  "adminPeriodsPeriodLabel": "Урок",
+  "adminPeriodsTimeLabel": "Время",
+  "adminPeriodsTeacherLabel": "Учитель",
+  "adminPeriodsClassroomOptional": "Класс (необязательно)",
+  "adminPeriodsCohortsLabel": "Группы",
+  "adminPeriodsStudentsOptional": "Ученики (необязательно)",
+  "adminPeriodsSearchByName": "Поиск по имени…"
 }

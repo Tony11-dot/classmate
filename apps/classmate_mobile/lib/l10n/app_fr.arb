@@ -2457,5 +2457,19 @@
   "adminEditUserSetPasswordTitle": "Définir un nouveau mot de passe",
   "adminEditUserNewPasswordLabel": "Nouveau mot de passe",
   "adminEditUserConfirmPasswordLabel": "Confirmer le mot de passe",
-  "adminEditUserSetPasswordButton": "Définir le mot de passe"
+  "adminEditUserSetPasswordButton": "Définir le mot de passe",
+
+  "adminPeriodsTitle": "Gérer les créneaux",
+  "adminPeriodsAddPeriod": "Ajouter un créneau",
+  "adminPeriodsNoPeriods": "Aucun créneau pour l'instant",
+  "adminPeriodsTapToAdd": "Appuyez sur + pour ajouter le premier créneau",
+  "adminPeriodsNewPeriod": "Nouveau créneau",
+  "adminPeriodsDayLabel": "Jour",
+  "adminPeriodsPeriodLabel": "Créneau",
+  "adminPeriodsTimeLabel": "Heure",
+  "adminPeriodsTeacherLabel": "Enseignant",
+  "adminPeriodsClassroomOptional": "Classe (optionnel)",
+  "adminPeriodsCohortsLabel": "Groupes",
+  "adminPeriodsStudentsOptional": "Élèves (optionnel)",
+  "adminPeriodsSearchByName": "Rechercher par nom…"
 }

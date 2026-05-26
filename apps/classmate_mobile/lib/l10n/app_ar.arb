@@ -2457,5 +2457,19 @@
   "adminEditUserSetPasswordTitle": "تعيين كلمة مرور جديدة",
   "adminEditUserNewPasswordLabel": "كلمة المرور الجديدة",
   "adminEditUserConfirmPasswordLabel": "تأكيد كلمة المرور",
-  "adminEditUserSetPasswordButton": "تعيين كلمة المرور"
+  "adminEditUserSetPasswordButton": "تعيين كلمة المرور",
+
+  "adminPeriodsTitle": "إدارة الحصص",
+  "adminPeriodsAddPeriod": "إضافة حصة",
+  "adminPeriodsNoPeriods": "لا توجد حصص بعد",
+  "adminPeriodsTapToAdd": "اضغط + لإضافة أول حصة",
+  "adminPeriodsNewPeriod": "حصة جديدة",
+  "adminPeriodsDayLabel": "اليوم",
+  "adminPeriodsPeriodLabel": "الحصة",
+  "adminPeriodsTimeLabel": "الوقت",
+  "adminPeriodsTeacherLabel": "المعلم",
+  "adminPeriodsClassroomOptional": "الصف (اختياري)",
+  "adminPeriodsCohortsLabel": "المجموعات",
+  "adminPeriodsStudentsOptional": "الطلاب (اختياري)",
+  "adminPeriodsSearchByName": "ابحث بالاسم…"
 }

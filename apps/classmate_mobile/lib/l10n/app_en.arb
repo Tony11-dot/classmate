@@ -2664,5 +2664,19 @@
   "adminEditUserSetPasswordTitle": "Set new password",
   "adminEditUserNewPasswordLabel": "New password",
   "adminEditUserConfirmPasswordLabel": "Confirm password",
-  "adminEditUserSetPasswordButton": "Set password"
+  "adminEditUserSetPasswordButton": "Set password",
+
+  "adminPeriodsTitle": "Manage Periods",
+  "adminPeriodsAddPeriod": "Add Period",
+  "adminPeriodsNoPeriods": "No periods yet",
+  "adminPeriodsTapToAdd": "Tap + to add the first period",
+  "adminPeriodsNewPeriod": "New Period",
+  "adminPeriodsDayLabel": "Day",
+  "adminPeriodsPeriodLabel": "Period",
+  "adminPeriodsTimeLabel": "Time",
+  "adminPeriodsTeacherLabel": "Teacher",
+  "adminPeriodsClassroomOptional": "Classroom (optional)",
+  "adminPeriodsCohortsLabel": "Cohorts",
+  "adminPeriodsStudentsOptional": "Students (optional)",
+  "adminPeriodsSearchByName": "Search by name…"
 }

@@ -2457,5 +2457,19 @@
   "adminEditUserSetPasswordTitle": "הגדרת סיסמה חדשה",
   "adminEditUserNewPasswordLabel": "סיסמה חדשה",
   "adminEditUserConfirmPasswordLabel": "אישור סיסמה",
-  "adminEditUserSetPasswordButton": "הגדר סיסמה"
+  "adminEditUserSetPasswordButton": "הגדר סיסמה",
+
+  "adminPeriodsTitle": "ניהול שיעורים",
+  "adminPeriodsAddPeriod": "הוסף שיעור",
+  "adminPeriodsNoPeriods": "אין שיעורים עדיין",
+  "adminPeriodsTapToAdd": "הקש + להוספת השיעור הראשון",
+  "adminPeriodsNewPeriod": "שיעור חדש",
+  "adminPeriodsDayLabel": "יום",
+  "adminPeriodsPeriodLabel": "שיעור",
+  "adminPeriodsTimeLabel": "שעה",
+  "adminPeriodsTeacherLabel": "מורה",
+  "adminPeriodsClassroomOptional": "כיתה (אופציונלי)",
+  "adminPeriodsCohortsLabel": "קבוצות",
+  "adminPeriodsStudentsOptional": "תלמידים (אופציונלי)",
+  "adminPeriodsSearchByName": "חפש לפי שם…"
 }

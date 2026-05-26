@@ -6300,4 +6300,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminEditUserSetPasswordButton => 'تعيين كلمة المرور';
+
+  @override
+  String get adminPeriodsTitle => 'إدارة الحصص';
+
+  @override
+  String get adminPeriodsAddPeriod => 'إضافة حصة';
+
+  @override
+  String get adminPeriodsNoPeriods => 'لا توجد حصص بعد';
+
+  @override
+  String get adminPeriodsTapToAdd => 'اضغط + لإضافة أول حصة';
+
+  @override
+  String get adminPeriodsNewPeriod => 'حصة جديدة';
+
+  @override
+  String get adminPeriodsDayLabel => 'اليوم';
+
+  @override
+  String get adminPeriodsPeriodLabel => 'الحصة';
+
+  @override
+  String get adminPeriodsTimeLabel => 'الوقت';
+
+  @override
+  String get adminPeriodsTeacherLabel => 'المعلم';
+
+  @override
+  String get adminPeriodsClassroomOptional => 'الصف (اختياري)';
+
+  @override
+  String get adminPeriodsCohortsLabel => 'المجموعات';
+
+  @override
+  String get adminPeriodsStudentsOptional => 'الطلاب (اختياري)';
+
+  @override
+  String get adminPeriodsSearchByName => 'ابحث بالاسم…';
 }
