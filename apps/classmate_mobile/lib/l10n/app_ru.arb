@@ -2354,5 +2354,25 @@
   "chatDeleteLabel": "Delete {count}",
   "@chatDeleteLabel": {"placeholders": {"count": {}}},
   "chatSelectedCount": "{count} selected",
-  "@chatSelectedCount": {"placeholders": {"count": {}}}
+  "@chatSelectedCount": {"placeholders": {"count": {}}},
+
+  "adminPasswordReqEmpty": "No pending requests",
+  "adminPasswordReqExplainer": "Users you have approved or rejected won't appear here. Pending requests expire after 24 hours.",
+  "adminPasswordReqApproveTitle": "Approve password change?",
+  "adminPasswordReqApproveExplain": "This sets {name}'s password to the one they typed (you don't see it).",
+  "@adminPasswordReqApproveExplain": {"placeholders": {"name": {}}},
+  "adminPasswordReqVerifyWarning": "Only approve if you have verified the requester is really {name} — call them, or confirm in person. Anyone who knows a username can file this request.",
+  "@adminPasswordReqVerifyWarning": {"placeholders": {"name": {}}},
+  "adminPasswordReqConfirmApprove": "I verified — approve",
+  "adminPasswordReqApproveSnackbar": "Approved — {name} can sign in now.",
+  "@adminPasswordReqApproveSnackbar": {"placeholders": {"name": {}}},
+  "adminPasswordReqRejectTitle": "Reject password change?",
+  "adminPasswordReqRejectExplain": "{name}'s password won't change. They can submit a new request if needed.",
+  "@adminPasswordReqRejectExplain": {"placeholders": {"name": {}}},
+  "adminPasswordReqRejectSnackbar": "Rejected.",
+  "adminPasswordReqRejectButton": "Reject",
+  "adminPasswordReqApproveButton": "Approve",
+  "adminPasswordReqCardCopy": "Wants their password changed. The new password is hidden.",
+  "adminPasswordReqCallTooltip": "Call",
+  "adminPasswordReqSmsTooltip": "SMS"
 }

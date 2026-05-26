@@ -9834,6 +9834,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} selected'**
   String chatSelectedCount(Object count);
+
+  /// No description provided for @adminPasswordReqEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests'**
+  String get adminPasswordReqEmpty;
+
+  /// No description provided for @adminPasswordReqExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Users you have approved or rejected won\'t appear here. Pending requests expire after 24 hours.'**
+  String get adminPasswordReqExplainer;
+
+  /// No description provided for @adminPasswordReqApproveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve password change?'**
+  String get adminPasswordReqApproveTitle;
+
+  /// No description provided for @adminPasswordReqApproveExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'This sets {name}\'s password to the one they typed (you don\'t see it).'**
+  String adminPasswordReqApproveExplain(Object name);
+
+  /// No description provided for @adminPasswordReqVerifyWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Only approve if you have verified the requester is really {name} — call them, or confirm in person. Anyone who knows a username can file this request.'**
+  String adminPasswordReqVerifyWarning(Object name);
+
+  /// No description provided for @adminPasswordReqConfirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'I verified — approve'**
+  String get adminPasswordReqConfirmApprove;
+
+  /// No description provided for @adminPasswordReqApproveSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved — {name} can sign in now.'**
+  String adminPasswordReqApproveSnackbar(Object name);
+
+  /// No description provided for @adminPasswordReqRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject password change?'**
+  String get adminPasswordReqRejectTitle;
+
+  /// No description provided for @adminPasswordReqRejectExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s password won\'t change. They can submit a new request if needed.'**
+  String adminPasswordReqRejectExplain(Object name);
+
+  /// No description provided for @adminPasswordReqRejectSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected.'**
+  String get adminPasswordReqRejectSnackbar;
+
+  /// No description provided for @adminPasswordReqRejectButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get adminPasswordReqRejectButton;
+
+  /// No description provided for @adminPasswordReqApproveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get adminPasswordReqApproveButton;
+
+  /// No description provided for @adminPasswordReqCardCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Wants their password changed. The new password is hidden.'**
+  String get adminPasswordReqCardCopy;
+
+  /// No description provided for @adminPasswordReqCallTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get adminPasswordReqCallTooltip;
+
+  /// No description provided for @adminPasswordReqSmsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get adminPasswordReqSmsTooltip;
 }
 
 class _AppLocalizationsDelegate

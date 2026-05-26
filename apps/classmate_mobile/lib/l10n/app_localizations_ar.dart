@@ -5481,4 +5481,59 @@ class AppLocalizationsAr extends AppLocalizations {
   String chatSelectedCount(Object count) {
     return '$count selected';
   }
+
+  @override
+  String get adminPasswordReqEmpty => 'No pending requests';
+
+  @override
+  String get adminPasswordReqExplainer =>
+      'Users you have approved or rejected won\'t appear here. Pending requests expire after 24 hours.';
+
+  @override
+  String get adminPasswordReqApproveTitle => 'Approve password change?';
+
+  @override
+  String adminPasswordReqApproveExplain(Object name) {
+    return 'This sets $name\'s password to the one they typed (you don\'t see it).';
+  }
+
+  @override
+  String adminPasswordReqVerifyWarning(Object name) {
+    return 'Only approve if you have verified the requester is really $name — call them, or confirm in person. Anyone who knows a username can file this request.';
+  }
+
+  @override
+  String get adminPasswordReqConfirmApprove => 'I verified — approve';
+
+  @override
+  String adminPasswordReqApproveSnackbar(Object name) {
+    return 'Approved — $name can sign in now.';
+  }
+
+  @override
+  String get adminPasswordReqRejectTitle => 'Reject password change?';
+
+  @override
+  String adminPasswordReqRejectExplain(Object name) {
+    return '$name\'s password won\'t change. They can submit a new request if needed.';
+  }
+
+  @override
+  String get adminPasswordReqRejectSnackbar => 'Rejected.';
+
+  @override
+  String get adminPasswordReqRejectButton => 'Reject';
+
+  @override
+  String get adminPasswordReqApproveButton => 'Approve';
+
+  @override
+  String get adminPasswordReqCardCopy =>
+      'Wants their password changed. The new password is hidden.';
+
+  @override
+  String get adminPasswordReqCallTooltip => 'Call';
+
+  @override
+  String get adminPasswordReqSmsTooltip => 'SMS';
 }

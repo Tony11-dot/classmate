@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
 
 final _pendingRequestsProvider = FutureProvider.autoDispose<List<PasswordChangeRequest>>((ref) {
@@ -32,11 +33,11 @@ class AdminPasswordRequestsScreen extends ConsumerWidget {
                   const SizedBox(height: 60),
                   Icon(Icons.inbox_outlined, size: 64, color: cs.outlineVariant),
                   const SizedBox(height: 12),
-                  Center(child: Text('No pending requests',
+                  Center(child: Text(AppLocalizations.of(context)!.adminPasswordReqEmpty,
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
                   const SizedBox(height: 4),
                   Center(child: Text(
-                    'Users you have approved or rejected won\'t appear here. Pending requests expire after 24 hours.',
+                    AppLocalizations.of(context)!.adminPasswordReqExplainer,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   )),
@@ -68,46 +69,49 @@ class AdminPasswordRequestsScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final ok = await showDialog<bool>(
       context: context,
-      builder: (d) => AlertDialog(
-        title: const Text('Approve password change?'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("This sets ${r.requesterName}'s password to the one they typed (you don't see it)."),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: cs.errorContainer.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: cs.error.withValues(alpha: 0.5)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.warning_amber_rounded, size: 18, color: cs.error),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Only approve if you have verified the requester is really ${r.requesterName} — call them, or confirm in person. Anyone who knows a username can file this request.',
-                      style: TextStyle(fontSize: 12, color: cs.error, height: 1.4),
+      builder: (d) {
+        final l = AppLocalizations.of(d)!;
+        return AlertDialog(
+          title: Text(l.adminPasswordReqApproveTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l.adminPasswordReqApproveExplain(r.requesterName)),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: cs.errorContainer.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: cs.error.withValues(alpha: 0.5)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.warning_amber_rounded, size: 18, color: cs.error),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l.adminPasswordReqVerifyWarning(r.requesterName),
+                        style: TextStyle(fontSize: 12, color: cs.error, height: 1.4),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.commonCancel)),
+            FilledButton(
+              onPressed: () => Navigator.pop(d, true),
+              style: FilledButton.styleFrom(backgroundColor: cs.error),
+              child: Text(l.adminPasswordReqConfirmApprove),
             ),
           ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () => Navigator.pop(d, true),
-            style: FilledButton.styleFrom(backgroundColor: cs.error),
-            child: const Text('I verified — approve'),
-          ),
-        ],
-      ),
+        );
+      },
     );
     if (ok != true) return;
     try {
@@ -115,7 +119,7 @@ class AdminPasswordRequestsScreen extends ConsumerWidget {
       ref.invalidate(_pendingRequestsProvider);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Approved — ${r.requesterName} can sign in now.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminPasswordReqApproveSnackbar(r.requesterName))),
       );
     } catch (e) {
       if (!context.mounted) return;
@@ -126,21 +130,24 @@ class AdminPasswordRequestsScreen extends ConsumerWidget {
   Future<void> _reject(BuildContext context, WidgetRef ref, PasswordChangeRequest r) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (d) => AlertDialog(
-        title: const Text('Reject password change?'),
-        content: Text("${r.requesterName}'s password won't change. They can submit a new request if needed."),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-          FilledButton.tonal(onPressed: () => Navigator.pop(d, true), child: const Text('Reject')),
-        ],
-      ),
+      builder: (d) {
+        final l = AppLocalizations.of(d)!;
+        return AlertDialog(
+          title: Text(l.adminPasswordReqRejectTitle),
+          content: Text(l.adminPasswordReqRejectExplain(r.requesterName)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.commonCancel)),
+            FilledButton.tonal(onPressed: () => Navigator.pop(d, true), child: Text(l.adminPasswordReqRejectButton)),
+          ],
+        );
+      },
     );
     if (ok != true) return;
     try {
       await ref.read(adminRepositoryProvider).rejectPasswordRequest(r.id);
       ref.invalidate(_pendingRequestsProvider);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rejected.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.adminPasswordReqRejectSnackbar)));
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
