@@ -2602,5 +2602,29 @@
   "teacherAnnounceSendToEveryone": "Отправить всем",
   "teacherAnnounceNoCohorts": "Нет доступных групп",
   "teacherAnnounceNothingFound": "Ничего не найдено",
-  "teacherAnnounceNoParents": "В этой школе не найдено родителей."
+  "teacherAnnounceNoParents": "В этой школе не найдено родителей.",
+
+  "teacherGradesSaved": "Оценки сохранены",
+  "teacherGradesToGrade": "К оценке",
+  "teacherGradesGraded": "Оценено",
+  "teacherSaveGradesButton": "Сохранить оценки",
+  "teacherAllowResubmitLabel": "Разрешить пересдачу",
+  "teacherAllowResubmitTitle": "Разрешить пересдачу?",
+  "teacherAllowResubmitBody": "Это удалит работу {name}, чтобы он мог сдать ещё раз.",
+  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "teacherAllowButton": "Разрешить",
+  "teacherGradeFieldLabel": "Оценка",
+  "teacherFeedbackOptionalLabel": "Отзыв (необязательно)",
+
+  "teacherCreateClassroomFabLabel": "Создать",
+  "teacherLoadingStudents": "Загрузка учеников…",
+  "teacherSearchHintShort": "Поиск…",
+  "teacherCreateClassroomTitle": "Новый класс",
+
+  "teacherAssignmentUploadFailed": "Не удалось загрузить {name}",
+  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "teacherAssignmentEnterTitle": "Пожалуйста, введите название.",
+  "teacherAssignmentSelectSubject": "Пожалуйста, выберите предмет.",
+  "teacherAssignmentInstructionsLabel": "Инструкции / Описание",
+  "teacherAttachFilesButton": "Прикрепить файлы"
 }

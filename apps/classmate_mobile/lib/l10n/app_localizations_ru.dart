@@ -6110,4 +6110,62 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherAnnounceNoParents => 'В этой школе не найдено родителей.';
+
+  @override
+  String get teacherGradesToGrade => 'К оценке';
+
+  @override
+  String get teacherGradesGraded => 'Оценено';
+
+  @override
+  String get teacherSaveGradesButton => 'Сохранить оценки';
+
+  @override
+  String get teacherAllowResubmitLabel => 'Разрешить пересдачу';
+
+  @override
+  String get teacherAllowResubmitTitle => 'Разрешить пересдачу?';
+
+  @override
+  String teacherAllowResubmitBody(Object name) {
+    return 'Это удалит работу $name, чтобы он мог сдать ещё раз.';
+  }
+
+  @override
+  String get teacherAllowButton => 'Разрешить';
+
+  @override
+  String get teacherGradeFieldLabel => 'Оценка';
+
+  @override
+  String get teacherFeedbackOptionalLabel => 'Отзыв (необязательно)';
+
+  @override
+  String get teacherCreateClassroomFabLabel => 'Создать';
+
+  @override
+  String get teacherLoadingStudents => 'Загрузка учеников…';
+
+  @override
+  String get teacherSearchHintShort => 'Поиск…';
+
+  @override
+  String get teacherCreateClassroomTitle => 'Новый класс';
+
+  @override
+  String teacherAssignmentUploadFailed(Object name) {
+    return 'Не удалось загрузить $name';
+  }
+
+  @override
+  String get teacherAssignmentEnterTitle => 'Пожалуйста, введите название.';
+
+  @override
+  String get teacherAssignmentSelectSubject => 'Пожалуйста, выберите предмет.';
+
+  @override
+  String get teacherAssignmentInstructionsLabel => 'Инструкции / Описание';
+
+  @override
+  String get teacherAttachFilesButton => 'Прикрепить файлы';
 }

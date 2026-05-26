@@ -6142,4 +6142,62 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get teacherAnnounceNoParents =>
       'لم يتم العثور على أولياء أمور في هذه المدرسة.';
+
+  @override
+  String get teacherGradesToGrade => 'للتقدير';
+
+  @override
+  String get teacherGradesGraded => 'تم التقدير';
+
+  @override
+  String get teacherSaveGradesButton => 'حفظ الدرجات';
+
+  @override
+  String get teacherAllowResubmitLabel => 'السماح بإعادة التسليم';
+
+  @override
+  String get teacherAllowResubmitTitle => 'السماح بإعادة التسليم؟';
+
+  @override
+  String teacherAllowResubmitBody(Object name) {
+    return 'سيؤدي ذلك إلى حذف تسليم $name ليتمكن من التسليم مجددًا.';
+  }
+
+  @override
+  String get teacherAllowButton => 'السماح';
+
+  @override
+  String get teacherGradeFieldLabel => 'الدرجة';
+
+  @override
+  String get teacherFeedbackOptionalLabel => 'ملاحظات (اختياري)';
+
+  @override
+  String get teacherCreateClassroomFabLabel => 'إنشاء';
+
+  @override
+  String get teacherLoadingStudents => 'جارٍ تحميل الطلاب…';
+
+  @override
+  String get teacherSearchHintShort => 'بحث…';
+
+  @override
+  String get teacherCreateClassroomTitle => 'صف جديد';
+
+  @override
+  String teacherAssignmentUploadFailed(Object name) {
+    return 'تعذّر رفع $name';
+  }
+
+  @override
+  String get teacherAssignmentEnterTitle => 'يرجى إدخال عنوان.';
+
+  @override
+  String get teacherAssignmentSelectSubject => 'يرجى اختيار مادة.';
+
+  @override
+  String get teacherAssignmentInstructionsLabel => 'التعليمات / الوصف';
+
+  @override
+  String get teacherAttachFilesButton => 'إرفاق ملفات';
 }

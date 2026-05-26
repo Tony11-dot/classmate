@@ -2395,5 +2395,29 @@
   "teacherAnnounceSendToEveryone": "שלח לכולם",
   "teacherAnnounceNoCohorts": "אין קבוצות זמינות",
   "teacherAnnounceNothingFound": "לא נמצא דבר",
-  "teacherAnnounceNoParents": "לא נמצאו הורים בבית ספר זה."
+  "teacherAnnounceNoParents": "לא נמצאו הורים בבית ספר זה.",
+
+  "teacherGradesSaved": "הציונים נשמרו",
+  "teacherGradesToGrade": "לציון",
+  "teacherGradesGraded": "צוין",
+  "teacherSaveGradesButton": "שמור ציונים",
+  "teacherAllowResubmitLabel": "אפשר הגשה חוזרת",
+  "teacherAllowResubmitTitle": "לאפשר הגשה חוזרת?",
+  "teacherAllowResubmitBody": "פעולה זו תמחק את ההגשה של {name} כדי שיוכל להגיש שוב.",
+  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "teacherAllowButton": "אפשר",
+  "teacherGradeFieldLabel": "ציון",
+  "teacherFeedbackOptionalLabel": "משוב (אופציונלי)",
+
+  "teacherCreateClassroomFabLabel": "צור",
+  "teacherLoadingStudents": "טוען תלמידים…",
+  "teacherSearchHintShort": "חיפוש…",
+  "teacherCreateClassroomTitle": "כיתה חדשה",
+
+  "teacherAssignmentUploadFailed": "לא ניתן להעלות את {name}",
+  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "teacherAssignmentEnterTitle": "אנא הזן כותרת.",
+  "teacherAssignmentSelectSubject": "אנא בחר מקצוע.",
+  "teacherAssignmentInstructionsLabel": "הוראות / תיאור",
+  "teacherAttachFilesButton": "צרף קבצים"
 }

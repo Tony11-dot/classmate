@@ -6171,4 +6171,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherAnnounceNoParents => 'No parents found at this school.';
+
+  @override
+  String get teacherGradesToGrade => 'To grade';
+
+  @override
+  String get teacherGradesGraded => 'Graded';
+
+  @override
+  String get teacherSaveGradesButton => 'Save Grades';
+
+  @override
+  String get teacherAllowResubmitLabel => 'Allow re-submit';
+
+  @override
+  String get teacherAllowResubmitTitle => 'Allow re-submit?';
+
+  @override
+  String teacherAllowResubmitBody(Object name) {
+    return 'This will delete $name\'s submission so they can hand in again.';
+  }
+
+  @override
+  String get teacherAllowButton => 'Allow';
+
+  @override
+  String get teacherGradeFieldLabel => 'Grade';
+
+  @override
+  String get teacherFeedbackOptionalLabel => 'Feedback (optional)';
+
+  @override
+  String get teacherCreateClassroomFabLabel => 'Create';
+
+  @override
+  String get teacherLoadingStudents => 'Loading students…';
+
+  @override
+  String get teacherSearchHintShort => 'Search…';
+
+  @override
+  String get teacherCreateClassroomTitle => 'New Classroom';
+
+  @override
+  String teacherAssignmentUploadFailed(Object name) {
+    return 'Could not upload $name';
+  }
+
+  @override
+  String get teacherAssignmentEnterTitle => 'Please enter a title.';
+
+  @override
+  String get teacherAssignmentSelectSubject => 'Please select a subject.';
+
+  @override
+  String get teacherAssignmentInstructionsLabel => 'Instructions / Description';
+
+  @override
+  String get teacherAttachFilesButton => 'Attach files';
 }

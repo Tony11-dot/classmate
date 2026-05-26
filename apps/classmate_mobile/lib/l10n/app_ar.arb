@@ -2395,5 +2395,29 @@
   "teacherAnnounceSendToEveryone": "إرسال للجميع",
   "teacherAnnounceNoCohorts": "لا توجد مجموعات متاحة",
   "teacherAnnounceNothingFound": "لم يتم العثور على شيء",
-  "teacherAnnounceNoParents": "لم يتم العثور على أولياء أمور في هذه المدرسة."
+  "teacherAnnounceNoParents": "لم يتم العثور على أولياء أمور في هذه المدرسة.",
+
+  "teacherGradesSaved": "تم حفظ الدرجات",
+  "teacherGradesToGrade": "للتقدير",
+  "teacherGradesGraded": "تم التقدير",
+  "teacherSaveGradesButton": "حفظ الدرجات",
+  "teacherAllowResubmitLabel": "السماح بإعادة التسليم",
+  "teacherAllowResubmitTitle": "السماح بإعادة التسليم؟",
+  "teacherAllowResubmitBody": "سيؤدي ذلك إلى حذف تسليم {name} ليتمكن من التسليم مجددًا.",
+  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "teacherAllowButton": "السماح",
+  "teacherGradeFieldLabel": "الدرجة",
+  "teacherFeedbackOptionalLabel": "ملاحظات (اختياري)",
+
+  "teacherCreateClassroomFabLabel": "إنشاء",
+  "teacherLoadingStudents": "جارٍ تحميل الطلاب…",
+  "teacherSearchHintShort": "بحث…",
+  "teacherCreateClassroomTitle": "صف جديد",
+
+  "teacherAssignmentUploadFailed": "تعذّر رفع {name}",
+  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "teacherAssignmentEnterTitle": "يرجى إدخال عنوان.",
+  "teacherAssignmentSelectSubject": "يرجى اختيار مادة.",
+  "teacherAssignmentInstructionsLabel": "التعليمات / الوصف",
+  "teacherAttachFilesButton": "إرفاق ملفات"
 }

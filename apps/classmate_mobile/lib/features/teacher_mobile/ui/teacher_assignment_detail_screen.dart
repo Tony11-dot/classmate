@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -121,7 +122,7 @@ class _TeacherAssignmentDetailScreenState
       await Future.wait(futures);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Grades saved.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherGradesSaved)),
       );
       await _load();
     } catch (e) {
@@ -169,7 +170,7 @@ class _TeacherAssignmentDetailScreenState
                 icon: _saving
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.save_rounded, size: 18),
-                label: const Text('Save Grades'),
+                label: Text(AppLocalizations.of(context)!.teacherSaveGradesButton),
               ),
             ),
         ],
@@ -187,7 +188,7 @@ class _TeacherAssignmentDetailScreenState
                         const SizedBox(height: 12),
                         Text(_error!, textAlign: TextAlign.center),
                         const SizedBox(height: 16),
-                        FilledButton(onPressed: _load, child: const Text('Retry')),
+                        FilledButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                       ],
                     ),
                   ),
@@ -220,7 +221,7 @@ class _TeacherAssignmentDetailScreenState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Attachments', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                                Text(AppLocalizations.of(context)!.commonAttachments, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                                 const SizedBox(height: 6),
                                 AttachmentPills(attachments: _assignmentAttachments),
                               ],
@@ -396,18 +397,18 @@ class _TeacherAssignmentDetailScreenState
                                         textStyle: const TextStyle(fontSize: 12),
                                       ),
                                       icon: const Icon(Icons.restart_alt_rounded, size: 14),
-                                      label: const Text('Allow re-submit'),
+                                      label: Text(AppLocalizations.of(context)!.teacherAllowResubmitLabel),
                                       onPressed: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: const Text('Allow re-submit?'),
-                                            content: Text('This will delete $name\'s submission so they can hand in again.'),
+                                            title: Text(AppLocalizations.of(ctx)!.teacherAllowResubmitTitle),
+                                            content: Text(AppLocalizations.of(ctx)!.teacherAllowResubmitBody(name)),
                                             actions: [
-                                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
                                               FilledButton(
                                                 onPressed: () => Navigator.pop(ctx, true),
-                                                child: const Text('Allow'),
+                                                child: Text(AppLocalizations.of(ctx)!.teacherAllowButton),
                                               ),
                                             ],
                                           ),
@@ -437,9 +438,9 @@ class _TeacherAssignmentDetailScreenState
                                           controller: _gradeControllers[sid],
                                           keyboardType: TextInputType.number,
                                           textAlign: TextAlign.center,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Grade',
-                                            border: OutlineInputBorder(),
+                                          decoration: InputDecoration(
+                                            labelText: AppLocalizations.of(context)!.teacherGradeFieldLabel,
+                                            border: const OutlineInputBorder(),
                                             isDense: true,
                                           ),
                                         ),
@@ -448,9 +449,9 @@ class _TeacherAssignmentDetailScreenState
                                       Expanded(
                                         child: TextField(
                                           controller: _feedbackControllers[sid],
-                                          decoration: const InputDecoration(
-                                            labelText: 'Feedback (optional)',
-                                            border: OutlineInputBorder(),
+                                          decoration: InputDecoration(
+                                            labelText: AppLocalizations.of(context)!.teacherFeedbackOptionalLabel,
+                                            border: const OutlineInputBorder(),
                                             isDense: true,
                                           ),
                                           maxLines: 2,

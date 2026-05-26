@@ -2602,5 +2602,29 @@
   "teacherAnnounceSendToEveryone": "Send to everyone",
   "teacherAnnounceNoCohorts": "No cohorts available",
   "teacherAnnounceNothingFound": "Nothing found",
-  "teacherAnnounceNoParents": "No parents found at this school."
+  "teacherAnnounceNoParents": "No parents found at this school.",
+
+  "teacherGradesSaved": "Grades saved",
+  "teacherGradesToGrade": "To grade",
+  "teacherGradesGraded": "Graded",
+  "teacherSaveGradesButton": "Save Grades",
+  "teacherAllowResubmitLabel": "Allow re-submit",
+  "teacherAllowResubmitTitle": "Allow re-submit?",
+  "teacherAllowResubmitBody": "This will delete {name}'s submission so they can hand in again.",
+  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "teacherAllowButton": "Allow",
+  "teacherGradeFieldLabel": "Grade",
+  "teacherFeedbackOptionalLabel": "Feedback (optional)",
+
+  "teacherCreateClassroomFabLabel": "Create",
+  "teacherLoadingStudents": "Loading students…",
+  "teacherSearchHintShort": "Search…",
+  "teacherCreateClassroomTitle": "New Classroom",
+
+  "teacherAssignmentUploadFailed": "Could not upload {name}",
+  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "teacherAssignmentEnterTitle": "Please enter a title.",
+  "teacherAssignmentSelectSubject": "Please select a subject.",
+  "teacherAssignmentInstructionsLabel": "Instructions / Description",
+  "teacherAttachFilesButton": "Attach files"
 }

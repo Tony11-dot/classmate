@@ -2395,5 +2395,29 @@
   "teacherAnnounceSendToEveryone": "Envoyer à tous",
   "teacherAnnounceNoCohorts": "Aucun groupe disponible",
   "teacherAnnounceNothingFound": "Rien trouvé",
-  "teacherAnnounceNoParents": "Aucun parent trouvé dans cette école."
+  "teacherAnnounceNoParents": "Aucun parent trouvé dans cette école.",
+
+  "teacherGradesSaved": "Notes enregistrées",
+  "teacherGradesToGrade": "À noter",
+  "teacherGradesGraded": "Notée",
+  "teacherSaveGradesButton": "Enregistrer les notes",
+  "teacherAllowResubmitLabel": "Autoriser la re-soumission",
+  "teacherAllowResubmitTitle": "Autoriser la re-soumission ?",
+  "teacherAllowResubmitBody": "Cela supprimera la remise de {name} pour qu'il puisse remettre à nouveau.",
+  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "teacherAllowButton": "Autoriser",
+  "teacherGradeFieldLabel": "Note",
+  "teacherFeedbackOptionalLabel": "Commentaire (optionnel)",
+
+  "teacherCreateClassroomFabLabel": "Créer",
+  "teacherLoadingStudents": "Chargement des élèves…",
+  "teacherSearchHintShort": "Rechercher…",
+  "teacherCreateClassroomTitle": "Nouvelle classe",
+
+  "teacherAssignmentUploadFailed": "Impossible d'envoyer {name}",
+  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "teacherAssignmentEnterTitle": "Veuillez saisir un titre.",
+  "teacherAssignmentSelectSubject": "Veuillez choisir une matière.",
+  "teacherAssignmentInstructionsLabel": "Instructions / Description",
+  "teacherAttachFilesButton": "Joindre des fichiers"
 }

@@ -10998,6 +10998,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No parents found at this school.'**
   String get teacherAnnounceNoParents;
+
+  /// No description provided for @teacherGradesToGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'To grade'**
+  String get teacherGradesToGrade;
+
+  /// No description provided for @teacherGradesGraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded'**
+  String get teacherGradesGraded;
+
+  /// No description provided for @teacherSaveGradesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Grades'**
+  String get teacherSaveGradesButton;
+
+  /// No description provided for @teacherAllowResubmitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow re-submit'**
+  String get teacherAllowResubmitLabel;
+
+  /// No description provided for @teacherAllowResubmitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow re-submit?'**
+  String get teacherAllowResubmitTitle;
+
+  /// No description provided for @teacherAllowResubmitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will delete {name}\'s submission so they can hand in again.'**
+  String teacherAllowResubmitBody(Object name);
+
+  /// No description provided for @teacherAllowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get teacherAllowButton;
+
+  /// No description provided for @teacherGradeFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get teacherGradeFieldLabel;
+
+  /// No description provided for @teacherFeedbackOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback (optional)'**
+  String get teacherFeedbackOptionalLabel;
+
+  /// No description provided for @teacherCreateClassroomFabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get teacherCreateClassroomFabLabel;
+
+  /// No description provided for @teacherLoadingStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading students…'**
+  String get teacherLoadingStudents;
+
+  /// No description provided for @teacherSearchHintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Search…'**
+  String get teacherSearchHintShort;
+
+  /// No description provided for @teacherCreateClassroomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Classroom'**
+  String get teacherCreateClassroomTitle;
+
+  /// No description provided for @teacherAssignmentUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload {name}'**
+  String teacherAssignmentUploadFailed(Object name);
+
+  /// No description provided for @teacherAssignmentEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title.'**
+  String get teacherAssignmentEnterTitle;
+
+  /// No description provided for @teacherAssignmentSelectSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a subject.'**
+  String get teacherAssignmentSelectSubject;
+
+  /// No description provided for @teacherAssignmentInstructionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions / Description'**
+  String get teacherAssignmentInstructionsLabel;
+
+  /// No description provided for @teacherAttachFilesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach files'**
+  String get teacherAttachFilesButton;
 }
 
 class _AppLocalizationsDelegate

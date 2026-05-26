@@ -6264,4 +6264,62 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherAnnounceNoParents =>
       'Aucun parent trouvé dans cette école.';
+
+  @override
+  String get teacherGradesToGrade => 'À noter';
+
+  @override
+  String get teacherGradesGraded => 'Notée';
+
+  @override
+  String get teacherSaveGradesButton => 'Enregistrer les notes';
+
+  @override
+  String get teacherAllowResubmitLabel => 'Autoriser la re-soumission';
+
+  @override
+  String get teacherAllowResubmitTitle => 'Autoriser la re-soumission ?';
+
+  @override
+  String teacherAllowResubmitBody(Object name) {
+    return 'Cela supprimera la remise de $name pour qu\'il puisse remettre à nouveau.';
+  }
+
+  @override
+  String get teacherAllowButton => 'Autoriser';
+
+  @override
+  String get teacherGradeFieldLabel => 'Note';
+
+  @override
+  String get teacherFeedbackOptionalLabel => 'Commentaire (optionnel)';
+
+  @override
+  String get teacherCreateClassroomFabLabel => 'Créer';
+
+  @override
+  String get teacherLoadingStudents => 'Chargement des élèves…';
+
+  @override
+  String get teacherSearchHintShort => 'Rechercher…';
+
+  @override
+  String get teacherCreateClassroomTitle => 'Nouvelle classe';
+
+  @override
+  String teacherAssignmentUploadFailed(Object name) {
+    return 'Impossible d\'envoyer $name';
+  }
+
+  @override
+  String get teacherAssignmentEnterTitle => 'Veuillez saisir un titre.';
+
+  @override
+  String get teacherAssignmentSelectSubject => 'Veuillez choisir une matière.';
+
+  @override
+  String get teacherAssignmentInstructionsLabel => 'Instructions / Description';
+
+  @override
+  String get teacherAttachFilesButton => 'Joindre des fichiers';
 }

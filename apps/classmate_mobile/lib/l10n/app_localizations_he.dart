@@ -6116,4 +6116,62 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherAnnounceNoParents => 'לא נמצאו הורים בבית ספר זה.';
+
+  @override
+  String get teacherGradesToGrade => 'לציון';
+
+  @override
+  String get teacherGradesGraded => 'צוין';
+
+  @override
+  String get teacherSaveGradesButton => 'שמור ציונים';
+
+  @override
+  String get teacherAllowResubmitLabel => 'אפשר הגשה חוזרת';
+
+  @override
+  String get teacherAllowResubmitTitle => 'לאפשר הגשה חוזרת?';
+
+  @override
+  String teacherAllowResubmitBody(Object name) {
+    return 'פעולה זו תמחק את ההגשה של $name כדי שיוכל להגיש שוב.';
+  }
+
+  @override
+  String get teacherAllowButton => 'אפשר';
+
+  @override
+  String get teacherGradeFieldLabel => 'ציון';
+
+  @override
+  String get teacherFeedbackOptionalLabel => 'משוב (אופציונלי)';
+
+  @override
+  String get teacherCreateClassroomFabLabel => 'צור';
+
+  @override
+  String get teacherLoadingStudents => 'טוען תלמידים…';
+
+  @override
+  String get teacherSearchHintShort => 'חיפוש…';
+
+  @override
+  String get teacherCreateClassroomTitle => 'כיתה חדשה';
+
+  @override
+  String teacherAssignmentUploadFailed(Object name) {
+    return 'לא ניתן להעלות את $name';
+  }
+
+  @override
+  String get teacherAssignmentEnterTitle => 'אנא הזן כותרת.';
+
+  @override
+  String get teacherAssignmentSelectSubject => 'אנא בחר מקצוע.';
+
+  @override
+  String get teacherAssignmentInstructionsLabel => 'הוראות / תיאור';
+
+  @override
+  String get teacherAttachFilesButton => 'צרף קבצים';
 }
