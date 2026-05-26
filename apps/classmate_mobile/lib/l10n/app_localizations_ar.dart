@@ -5829,4 +5829,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherSubjectRequired => 'المادة *';
+
+  @override
+  String messagesStartChatError(Object error) {
+    return 'تعذّر بدء المحادثة: $error';
+  }
+
+  @override
+  String messagesNoPeopleMatch(Object query) {
+    return 'لا يوجد أشخاص يطابقون \"$query\"';
+  }
+
+  @override
+  String get messagesNoPeopleFound => 'لم يتم العثور على أشخاص';
+
+  @override
+  String messagesPeopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أشخاص',
+      one: 'شخص واحد',
+    );
+    return '$_temp0';
+  }
 }

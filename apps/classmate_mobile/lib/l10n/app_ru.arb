@@ -2480,5 +2480,13 @@
   "adminExportPdfButton": "Экспорт PDF",
   "teacherCreateClassroomTooltip": "Создать класс",
   "teacherClassroomNameRequired": "Название класса *",
-  "teacherSubjectRequired": "Предмет *"
+  "teacherSubjectRequired": "Предмет *",
+
+  "messagesStartChatError": "Не удалось начать чат: {error}",
+  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "messagesNoPeopleMatch": "Никто не соответствует запросу «{query}»",
+  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "messagesNoPeopleFound": "Никого не найдено",
+  "messagesPeopleCount": "{count, plural, =1{1 человек} few{{count} человека} many{{count} человек} other{{count} человек}}",
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
 }

@@ -5947,4 +5947,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherSubjectRequired => 'Matière *';
+
+  @override
+  String messagesStartChatError(Object error) {
+    return 'Impossible de démarrer la conversation : $error';
+  }
+
+  @override
+  String messagesNoPeopleMatch(Object query) {
+    return 'Aucune personne ne correspond à « $query »';
+  }
+
+  @override
+  String get messagesNoPeopleFound => 'Aucune personne trouvée';
+
+  @override
+  String messagesPeopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count personnes',
+      one: '1 personne',
+    );
+    return '$_temp0';
+  }
 }

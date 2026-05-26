@@ -2273,5 +2273,13 @@
   "adminExportPdfButton": "Exporter en PDF",
   "teacherCreateClassroomTooltip": "Créer une classe",
   "teacherClassroomNameRequired": "Nom de la classe *",
-  "teacherSubjectRequired": "Matière *"
+  "teacherSubjectRequired": "Matière *",
+
+  "messagesStartChatError": "Impossible de démarrer la conversation : {error}",
+  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "messagesNoPeopleMatch": "Aucune personne ne correspond à « {query} »",
+  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "messagesNoPeopleFound": "Aucune personne trouvée",
+  "messagesPeopleCount": "{count, plural, =1{1 personne} other{{count} personnes}}",
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
 }

@@ -55,7 +55,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
       Navigator.of(context).pop(detail.id);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not start chat: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.messagesStartChatError(e.toString()))));
     } finally {
       if (mounted) setState(() => _creating = false);
     }
@@ -232,14 +232,14 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                               children: [
                                 Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant),
                                 const SizedBox(height: 16),
-                                Text(q.isNotEmpty ? 'No people match "$q"' : 'No people found', style: TextStyle(color: cs.onSurfaceVariant)),
+                                Text(q.isNotEmpty ? l.messagesNoPeopleMatch(q) : l.messagesNoPeopleFound, style: TextStyle(color: cs.onSurfaceVariant)),
                               ],
                             ),
                           ),
                         )
                       else ...[
                         Text(
-                          '${filtered.length} ${filtered.length == 1 ? 'person' : 'people'}',
+                          l.messagesPeopleCount(filtered.length),
                           style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 0.8),
                         ),
                         const SizedBox(height: 10),

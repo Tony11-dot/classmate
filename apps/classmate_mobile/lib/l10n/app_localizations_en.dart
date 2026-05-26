@@ -5857,4 +5857,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherSubjectRequired => 'Subject *';
+
+  @override
+  String messagesStartChatError(Object error) {
+    return 'Could not start chat: $error';
+  }
+
+  @override
+  String messagesNoPeopleMatch(Object query) {
+    return 'No people match \"$query\"';
+  }
+
+  @override
+  String get messagesNoPeopleFound => 'No people found';
+
+  @override
+  String messagesPeopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
+  }
 }

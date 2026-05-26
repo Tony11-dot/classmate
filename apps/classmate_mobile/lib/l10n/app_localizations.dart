@@ -10470,6 +10470,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subject *'**
   String get teacherSubjectRequired;
+
+  /// No description provided for @messagesStartChatError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start chat: {error}'**
+  String messagesStartChatError(Object error);
+
+  /// No description provided for @messagesNoPeopleMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No people match \"{query}\"'**
+  String messagesNoPeopleMatch(Object query);
+
+  /// No description provided for @messagesNoPeopleFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No people found'**
+  String get messagesNoPeopleFound;
+
+  /// No description provided for @messagesPeopleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person} other{{count} people}}'**
+  String messagesPeopleCount(int count);
 }
 
 class _AppLocalizationsDelegate

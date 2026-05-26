@@ -2480,5 +2480,13 @@
   "adminExportPdfButton": "Export PDF",
   "teacherCreateClassroomTooltip": "Create classroom",
   "teacherClassroomNameRequired": "Classroom name *",
-  "teacherSubjectRequired": "Subject *"
+  "teacherSubjectRequired": "Subject *",
+
+  "messagesStartChatError": "Could not start chat: {error}",
+  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "messagesNoPeopleMatch": "No people match \"{query}\"",
+  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "messagesNoPeopleFound": "No people found",
+  "messagesPeopleCount": "{count, plural, =1{1 person} other{{count} people}}",
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
 }

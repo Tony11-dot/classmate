@@ -5792,4 +5792,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherSubjectRequired => 'Предмет *';
+
+  @override
+  String messagesStartChatError(Object error) {
+    return 'Не удалось начать чат: $error';
+  }
+
+  @override
+  String messagesNoPeopleMatch(Object query) {
+    return 'Никто не соответствует запросу «$query»';
+  }
+
+  @override
+  String get messagesNoPeopleFound => 'Никого не найдено';
+
+  @override
+  String messagesPeopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count человек',
+      many: '$count человек',
+      few: '$count человека',
+      one: '1 человек',
+    );
+    return '$_temp0';
+  }
 }

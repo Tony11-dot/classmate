@@ -2273,5 +2273,13 @@
   "adminExportPdfButton": "ייצא PDF",
   "teacherCreateClassroomTooltip": "יצירת כיתה",
   "teacherClassroomNameRequired": "שם הכיתה *",
-  "teacherSubjectRequired": "מקצוע *"
+  "teacherSubjectRequired": "מקצוע *",
+
+  "messagesStartChatError": "לא ניתן להתחיל צ'אט: {error}",
+  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "messagesNoPeopleMatch": "אין אנשים שתואמים ל-\"{query}\"",
+  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "messagesNoPeopleFound": "לא נמצאו אנשים",
+  "messagesPeopleCount": "{count, plural, =1{אדם אחד} other{{count} אנשים}}",
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
 }

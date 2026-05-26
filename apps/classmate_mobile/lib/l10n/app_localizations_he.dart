@@ -5805,4 +5805,28 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherSubjectRequired => 'מקצוע *';
+
+  @override
+  String messagesStartChatError(Object error) {
+    return 'לא ניתן להתחיל צ\'אט: $error';
+  }
+
+  @override
+  String messagesNoPeopleMatch(Object query) {
+    return 'אין אנשים שתואמים ל-\"$query\"';
+  }
+
+  @override
+  String get messagesNoPeopleFound => 'לא נמצאו אנשים';
+
+  @override
+  String messagesPeopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count אנשים',
+      one: 'אדם אחד',
+    );
+    return '$_temp0';
+  }
 }
