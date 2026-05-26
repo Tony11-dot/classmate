@@ -334,8 +334,8 @@ class _TeacherAddMaterialScreenState
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _CohortMultiPickerSheet(
-        title: 'Select cohorts',
-        items: _cohorts.map((c) => _PickerItem2(id: c.id, label: c.name, subtitle: c.grade > 0 ? 'Grade ${c.grade}' : '')).toList(),
+        title: AppLocalizations.of(context)!.teacherMaterialPickerCohortsTitle,
+        items: _cohorts.map((c) => _PickerItem2(id: c.id, label: c.name, subtitle: c.grade > 0 ? AppLocalizations.of(context)!.adminCohortGradeFormat(c.grade.toString()) : '')).toList(),
         selected: Set.from(_selectedCohortIds),
         onToggle: (id) => setState(() => _selectedCohortIds.contains(id) ? _selectedCohortIds.remove(id) : _selectedCohortIds.add(id)),
       ),
@@ -351,9 +351,9 @@ class _TeacherAddMaterialScreenState
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MatSinglePickerSheet(
-        title: 'Select classroom',
+        title: AppLocalizations.of(context)!.teacherMaterialPickerClassroomTitle,
         items: [
-          _PickerItem2(id: '', label: 'None', subtitle: ''),
+          _PickerItem2(id: '', label: AppLocalizations.of(context)!.teacherMaterialPickerNone, subtitle: ''),
           ..._courses.map((c) => _PickerItem2(id: c.id, label: c.name, subtitle: c.subject)),
         ],
         selected: _selectedCourseId ?? '',
@@ -369,12 +369,12 @@ class _TeacherAddMaterialScreenState
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select students',
+        title: AppLocalizations.of(context)!.teacherMaterialPickerStudentsTitle,
         items: _allStudents
             .map((s) => _PickerItem(
                   id: s.studentId,
                   label: s.name,
-                  subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : s.cohortName,
+                  subtitle: s.gradeLevel != null ? AppLocalizations.of(context)!.adminCohortGradeFormat(s.gradeLevel.toString()) : s.cohortName,
                 ))
             .toList(),
         selected: Set.from(_selectedStudentIds),
@@ -396,9 +396,9 @@ class _TeacherAddMaterialScreenState
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _PersonPickerSheet(
-        title: 'Select grades',
+        title: AppLocalizations.of(context)!.teacherMaterialPickerGradesTitle,
         items: _availableGrades
-            .map((g) => _PickerItem(id: g.toString(), label: 'Grade $g'))
+            .map((g) => _PickerItem(id: g.toString(), label: AppLocalizations.of(context)!.adminCohortGradeFormat(g.toString())))
             .toList(),
         selected: _selectedGrades.map((g) => g.toString()).toSet(),
         onToggle: (id) => setState(() {
@@ -418,6 +418,7 @@ class _TeacherAddMaterialScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -430,7 +431,7 @@ class _TeacherAddMaterialScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isEditing ? 'Edit Material' : 'Add Material',
+          _isEditing ? l.teacherMaterialEditTitle : l.teacherMaterialAddTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
         actions: [
@@ -454,24 +455,24 @@ class _TeacherAddMaterialScreenState
               children: [
                 // ── Audience first ──────────────────────────────────────────
                 _SectionCard(
-                  title: 'Audience',
+                  title: l.teacherMaterialAudienceTitle,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _MatAudiencePicker(icon: Icons.class_rounded, label: 'Classrooms', summary: _selectedCourseId == null ? null : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!, onTap: () async { await _openClassroomPicker(context); if (_selectedCourseId != null) _fetchMembersFor(_selectedCourseId!, isClassroom: true); }, cs: cs, theme: theme),
+                      _MatAudiencePicker(icon: Icons.class_rounded, label: l.teacherMaterialAudienceClassrooms, summary: _selectedCourseId == null ? null : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!, onTap: () async { await _openClassroomPicker(context); if (_selectedCourseId != null) _fetchMembersFor(_selectedCourseId!, isClassroom: true); }, cs: cs, theme: theme),
                       const SizedBox(height: 8),
-                      _MatAudiencePicker(icon: Icons.groups_rounded, label: 'Cohorts', summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPicker(); for (final id in _selectedCohortIds) {
+                      _MatAudiencePicker(icon: Icons.groups_rounded, label: l.teacherMaterialAudienceCohorts, summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPicker(); for (final id in _selectedCohortIds) {
                         _fetchMembersFor(id);
                       } }, cs: cs, theme: theme),
                       const SizedBox(height: 8),
                       if (_availableGrades.isNotEmpty) ...[
                         _MatAudiencePicker(
                           icon: Icons.school_rounded,
-                          label: 'Grades',
+                          label: l.teacherMaterialAudienceGrades,
                           summary: _selectedGrades.isEmpty
                               ? null
                               : (_selectedGrades.toList()..sort())
-                                  .map((g) => 'Grade $g')
+                                  .map((g) => l.adminCohortGradeFormat(g.toString()))
                                   .join(', '),
                           onTap: _openGradePicker,
                           cs: cs,
@@ -479,7 +480,7 @@ class _TeacherAddMaterialScreenState
                         ),
                         const SizedBox(height: 8),
                       ],
-                      _MatAudiencePicker(icon: Icons.person_rounded, label: 'Students', summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
+                      _MatAudiencePicker(icon: Icons.person_rounded, label: l.teacherMaterialAudienceStudents, summary: _selectedStudentIds.isEmpty ? null : l.teacherMaterialStudentCount(_selectedStudentIds.length), onTap: _openStudentPicker, cs: cs, theme: theme),
                       if (_previewMembers.isNotEmpty) ...[
                         const SizedBox(height: 10),
                         _MembersPreview(members: _previewMembers, cs: cs, theme: theme),
@@ -498,20 +499,20 @@ class _TeacherAddMaterialScreenState
 
                 // ── Title + Description ──────────────────────────────────────
                 _SectionCard(
-                  title: 'Details',
+                  title: l.teacherMaterialDetailsTitle,
                   child: Column(
                     children: [
                       if (_subjects.isNotEmpty) ...[
                         LiquidGlassDropdown<String?>(
-                          label: 'Subject *',
+                          label: l.teacherMaterialSubjectRequired,
                           value: _selectedSubject,
                           items: [
-                            const LiquidGlassDropdownItem(value: null, label: 'Select subject', icon: Icons.subject_rounded),
+                            LiquidGlassDropdownItem(value: null, label: l.teacherMaterialSubjectSelect, icon: Icons.subject_rounded),
                             ..._subjects.map((s) => LiquidGlassDropdownItem(value: s, label: s, icon: Icons.menu_book_rounded)),
-                            const LiquidGlassDropdownItem(value: 'Other', label: 'Other', icon: Icons.category_rounded),
+                            LiquidGlassDropdownItem(value: 'Other', label: l.teacherMaterialSubjectOther, icon: Icons.category_rounded),
                           ],
                           onChanged: (v) => setState(() => _selectedSubject = v),
-                          searchHint: 'Search subjects...',
+                          searchHint: l.teacherMaterialSubjectSearch,
                         ),
                         const SizedBox(height: 12),
                       ],
@@ -538,7 +539,9 @@ class _TeacherAddMaterialScreenState
 
                 // ── Attachments (multiple links + files) ───────────────────
                 _SectionCard(
-                  title: 'Attachments${_links.isNotEmpty || _files.isNotEmpty ? ' (${_links.length + _files.length})' : ''}',
+                  title: (_links.isNotEmpty || _files.isNotEmpty)
+                      ? l.teacherMaterialAttachmentsWithCount(_links.length + _files.length)
+                      : l.teacherMaterialAttachmentsTitle,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -828,12 +831,12 @@ class _TeacherMaterialsStandaloneScreenState
   Future<void> _delete(String id) async {
     final confirmed = await showDialog<bool>(context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete material?'),
+        title: Text(AppLocalizations.of(ctx)!.teacherMaterialDeleteTitle),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
-            onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
+            onPressed: () => Navigator.of(ctx).pop(true), child: Text(AppLocalizations.of(ctx)!.commonDelete)),
         ],
       ),
     );
@@ -846,6 +849,7 @@ class _TeacherMaterialsStandaloneScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -859,9 +863,9 @@ class _TeacherMaterialsStandaloneScreenState
             border: Border.all(color: cs.outlineVariant),
             child: Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Materials', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+                Text(l.teacherMaterialListTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
                 const SizedBox(height: 4),
-                Text('${_materials.length} total', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text(l.teacherMaterialTotalCount(_materials.length), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
               ])),
               Container(width: 46, height: 46,
                 decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(14)),
@@ -875,7 +879,7 @@ class _TeacherMaterialsStandaloneScreenState
                 Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                 const SizedBox(width: 10),
                 Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                TextButton(onPressed: _load, child: const Text('Retry')),
+                TextButton(onPressed: _load, child: Text(l.teacherMaterialRetry)),
               ])),
           if (_loading && _materials.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
@@ -884,7 +888,7 @@ class _TeacherMaterialsStandaloneScreenState
               child: Column(children: [
                 Icon(Icons.folder_open_rounded, size: 48, color: cs.onSurfaceVariant),
                 const SizedBox(height: 16),
-                Text('No materials yet.\nTap + to add one.', textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
+                Text(l.teacherMaterialNoMaterials, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
               ])))
           else
             ..._materials.map((m) {
@@ -923,7 +927,7 @@ class _TeacherMaterialsStandaloneScreenState
                           decoration: BoxDecoration(
                             color: (published ? cs.primary : cs.surfaceContainerHighest),
                             borderRadius: BorderRadius.circular(6)),
-                          child: Text(published ? 'Published' : 'Draft',
+                          child: Text(published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
                               color: published ? cs.onPrimary : cs.onSurfaceVariant))),
                       ])),
@@ -981,7 +985,7 @@ class _MatSinglePickerSheetState extends State<_MatSinglePickerSheet> {
     return DraggableScrollableSheet(expand: false, initialChildSize: 0.55, maxChildSize: 0.9, minChildSize: 0.35, builder: (ctx, sc) => Column(children: [
       Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
       Padding(padding: const EdgeInsets.fromLTRB(20,0,20,12), child: Text(widget.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
-      Padding(padding: const EdgeInsets.fromLTRB(16,0,16,8), child: TextField(onChanged: (v) => setState(() => _query = v), decoration: InputDecoration(hintText: 'Search…', prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14)))),
+      Padding(padding: const EdgeInsets.fromLTRB(16,0,16,8), child: TextField(onChanged: (v) => setState(() => _query = v), decoration: InputDecoration(hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint, prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14)))),
       Expanded(child: ListView.builder(controller: sc, padding: const EdgeInsets.fromLTRB(12,4,12,16), itemCount: filtered.length, itemBuilder: (ctx, i) {
         final item = filtered[i]; final isSel = _selected == item.id;
         return RadioListTile<String>(value: item.id, groupValue: _selected, onChanged: (v) { setState(() => _selected = v ?? ''); widget.onSelect(v ?? ''); Navigator.of(context).pop(); }, title: Text(item.label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: isSel ? FontWeight.w700 : FontWeight.w400)), subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)) : null, selected: isSel, activeColor: cs.primary);
@@ -1005,7 +1009,7 @@ class _CohortMultiPickerSheetState extends State<_CohortMultiPickerSheet> {
       Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
       Padding(padding: const EdgeInsets.fromLTRB(20,0,20,12), child: Row(children: [
         Text(widget.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)), const Spacer(),
-        if (_selected.isNotEmpty) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)), child: Text('${_selected.length} selected', style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12))),
+        if (_selected.isNotEmpty) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)), child: Text(AppLocalizations.of(context)!.teacherMaterialSelectedCount(_selected.length), style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12))),
       ])),
       Expanded(child: ListView.builder(controller: sc, padding: const EdgeInsets.fromLTRB(12,4,12,16), itemCount: widget.items.length, itemBuilder: (ctx, i) {
         final item = widget.items[i]; final isSel = _selected.contains(item.id);
@@ -1023,7 +1027,7 @@ class _MembersPreview extends StatelessWidget {
       width: double.infinity, padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(color: cs.surfaceContainerLowest, borderRadius: BorderRadius.circular(12), border: Border.all(color: cs.outlineVariant)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('${members.length} member${members.length == 1 ? '' : 's'} will receive this', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
+        Text(AppLocalizations.of(context)!.teacherMaterialMembersWillReceive(members.length), style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         Wrap(spacing: 6, runSpacing: 4, children: members.map((name) => Chip(label: Text(name, style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600)), materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, padding: const EdgeInsets.symmetric(horizontal: 4), visualDensity: VisualDensity.compact)).toList()),
       ]),

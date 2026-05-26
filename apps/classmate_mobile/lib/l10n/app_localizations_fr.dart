@@ -6520,4 +6520,205 @@ class AppLocalizationsFr extends AppLocalizations {
   String adminCohortsGradeRangeOnly(int from, int to) {
     return 'Niveaux $from-$to uniquement';
   }
+
+  @override
+  String get adminExportNeedStudents =>
+      'Sélectionnez d\'abord au moins un élève ou un groupe';
+
+  @override
+  String adminExportButton(int count) {
+    return 'Exporter $count';
+  }
+
+  @override
+  String get adminExportNoStudents => 'Aucun élève trouvé';
+
+  @override
+  String get adminExportIncludesPasswords =>
+      'L\'exportation inclura les mots de passe';
+
+  @override
+  String get adminExportAnyway => 'Exporter quand même';
+
+  @override
+  String get adminExportPdfStudentDirectory => 'Annuaire des élèves';
+
+  @override
+  String adminExportPdfBy(String name) {
+    return 'Par : $name';
+  }
+
+  @override
+  String adminExportPdfStudentsCount(int count) {
+    return '$count élèves';
+  }
+
+  @override
+  String get adminExportPdfFooter => 'Généré par ClassMate';
+
+  @override
+  String get adminExportColumnIndex => '#';
+
+  @override
+  String get adminExportColumnName => 'Nom';
+
+  @override
+  String get adminExportColumnEmail => 'E-mail';
+
+  @override
+  String get adminExportColumnUsername => 'Nom d\'utilisateur';
+
+  @override
+  String get adminExportColumnPhone => 'Téléphone';
+
+  @override
+  String get adminExportColumnGrade => 'Niveau';
+
+  @override
+  String get adminExportColumnCohorts => 'Groupes';
+
+  @override
+  String get adminExportColumnSchool => 'École';
+
+  @override
+  String get adminExportColumnPassword => 'Mot de passe';
+
+  @override
+  String get adminExportColumnNameEn => 'Nom (EN)';
+
+  @override
+  String get adminExportColumnNameAr => 'Nom (AR)';
+
+  @override
+  String get adminExportColumnNameHe => 'Nom (HE)';
+
+  @override
+  String get adminExportColumnNameFr => 'Nom (FR)';
+
+  @override
+  String get adminExportColumnNameRu => 'Nom (RU)';
+
+  @override
+  String adminExportStudentsSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count élèves sélectionnés',
+      one: '$count élève sélectionné',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMaterialEditTitle => 'Modifier le document';
+
+  @override
+  String get teacherMaterialAddTitle => 'Ajouter un document';
+
+  @override
+  String get teacherMaterialAudienceTitle => 'Audience';
+
+  @override
+  String get teacherMaterialAudienceClassrooms => 'Classes';
+
+  @override
+  String get teacherMaterialAudienceCohorts => 'Groupes';
+
+  @override
+  String get teacherMaterialAudienceGrades => 'Niveaux';
+
+  @override
+  String get teacherMaterialAudienceStudents => 'Élèves';
+
+  @override
+  String get teacherMaterialDetailsTitle => 'Détails';
+
+  @override
+  String get teacherMaterialSubjectRequired => 'Matière *';
+
+  @override
+  String get teacherMaterialSubjectSelect => 'Sélectionner une matière';
+
+  @override
+  String get teacherMaterialSubjectOther => 'Autre';
+
+  @override
+  String get teacherMaterialSubjectSearch => 'Rechercher des matières...';
+
+  @override
+  String get teacherMaterialAttachmentsTitle => 'Pièces jointes';
+
+  @override
+  String teacherMaterialAttachmentsWithCount(int count) {
+    return 'Pièces jointes ($count)';
+  }
+
+  @override
+  String get teacherMaterialDeleteTitle => 'Supprimer le document ?';
+
+  @override
+  String get teacherMaterialListTitle => 'Documents';
+
+  @override
+  String teacherMaterialTotalCount(int count) {
+    return '$count au total';
+  }
+
+  @override
+  String get teacherMaterialRetry => 'Réessayer';
+
+  @override
+  String get teacherMaterialNoMaterials =>
+      'Aucun document pour l\'instant.\nAppuyez sur + pour en ajouter un.';
+
+  @override
+  String get teacherMaterialPublished => 'Publié';
+
+  @override
+  String get teacherMaterialDraft => 'Brouillon';
+
+  @override
+  String get teacherMaterialSearchHint => 'Rechercher…';
+
+  @override
+  String teacherMaterialSelectedCount(int count) {
+    return '$count sélectionné(s)';
+  }
+
+  @override
+  String teacherMaterialMembersWillReceive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count membres recevront ceci',
+      one: '$count membre recevra ceci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherMaterialStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count élèves',
+      one: '$count élève',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMaterialPickerNone => 'Aucun';
+
+  @override
+  String get teacherMaterialPickerCohortsTitle => 'Sélectionner les groupes';
+
+  @override
+  String get teacherMaterialPickerClassroomTitle => 'Sélectionner la classe';
+
+  @override
+  String get teacherMaterialPickerStudentsTitle => 'Sélectionner les élèves';
+
+  @override
+  String get teacherMaterialPickerGradesTitle => 'Sélectionner les niveaux';
 }

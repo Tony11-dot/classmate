@@ -154,7 +154,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   void _showExportSheet() {
     final count = _selectedCount;
     if (count == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select at least one student or cohort first')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.adminExportNeedStudents)));
       return;
     }
     showModalBottomSheet(
@@ -187,7 +187,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
               heroTag: 'fab_export',
               onPressed: _showExportSheet,
               icon: const Icon(Icons.download_rounded),
-              label: Text('Export $_selectedCount'),
+              label: Text(AppLocalizations.of(context)!.adminExportButton(_selectedCount)),
             )
           : null,
       body: SafeArea(
@@ -304,7 +304,7 @@ class _StudentPickerList extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (students.isEmpty) {
-      return Center(child: Text('No students found', style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)));
+      return Center(child: Text(AppLocalizations.of(context)!.adminExportNoStudents, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)));
     }
 
     return ListView.separated(
@@ -626,8 +626,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             children: [
               Icon(Icons.warning_amber_rounded, color: cs.error),
               const SizedBox(width: 10),
-              const Expanded(
-                child: Text('Export will include passwords'),
+              Expanded(
+                child: Text(AppLocalizations.of(context)!.adminExportIncludesPasswords),
               ),
             ],
           ),
@@ -659,12 +659,12 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(d, false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.commonCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(d, true),
               style: FilledButton.styleFrom(backgroundColor: cs.error),
-              child: const Text('Export anyway'),
+              child: Text(AppLocalizations.of(context)!.adminExportAnyway),
             ),
           ],
         );
@@ -688,8 +688,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       final students = await _fetch();
       if (!mounted) return;
 
-      final headers = ['Name (EN)', 'Name (AR)', 'Name (HE)', 'Name (FR)', 'Name (RU)', 'Email', 'Username', 'Phone', 'Grade', 'Cohorts', 'School'];
-      if (_includePasswords) headers.add('Password');
+      final l = AppLocalizations.of(context)!;
+      final headers = [l.adminExportColumnNameEn, l.adminExportColumnNameAr, l.adminExportColumnNameHe, l.adminExportColumnNameFr, l.adminExportColumnNameRu, l.adminExportColumnEmail, l.adminExportColumnUsername, l.adminExportColumnPhone, l.adminExportColumnGrade, l.adminExportColumnCohorts, l.adminExportColumnSchool];
+      if (_includePasswords) headers.add(l.adminExportColumnPassword);
       final buf = StringBuffer()..writeln(headers.join(','));
       for (final s in students) {
         // Cohorts list: prefer the new cohortNames[] field with every
@@ -746,7 +747,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       if (!mounted) return;
       final schoolName = widget.session?.schoolName ?? '';
       final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? 'Admin') as String;
-      final bytes = await _buildPdf(students, withPasswords: _includePasswords, schoolName: schoolName, exportedBy: exportedBy);
+      final l = AppLocalizations.of(context)!;
+      final bytes = await _buildPdf(students, withPasswords: _includePasswords, schoolName: schoolName, exportedBy: exportedBy, l: l);
       if (!mounted) return;
       final origin = _shareOrigin(context);
       Navigator.pop(context);
@@ -771,6 +773,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     required bool withPasswords,
     required String schoolName,
     required String exportedBy,
+    required AppLocalizations l,
   }) async {
     // Bundle Latin + Arabic + Hebrew fonts so multi-language student names
     // actually render. Helvetica (the pdf-package default) only ships Latin
@@ -807,8 +810,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     // visual order which reads right-to-left scrambled). Localized names
     // are still in the CSV export — admins who need them open Excel.
     final cols = withPasswords
-        ? [_Col('#', 0.03), _Col('Name', 0.15), _Col('Email', 0.15), _Col('Username', 0.10), _Col('Phone', 0.11), _Col('Grade', 0.05), _Col('Cohorts', 0.14), _Col('School', 0.12), _Col('Password', 0.15)]
-        : [_Col('#', 0.04), _Col('Name', 0.18), _Col('Email', 0.18), _Col('Username', 0.11), _Col('Phone', 0.12), _Col('Grade', 0.05), _Col('Cohorts', 0.18), _Col('School', 0.14)];
+        ? [_Col(l.adminExportColumnIndex, 0.03), _Col(l.adminExportColumnName, 0.15), _Col(l.adminExportColumnEmail, 0.15), _Col(l.adminExportColumnUsername, 0.10), _Col(l.adminExportColumnPhone, 0.11), _Col(l.adminExportColumnGrade, 0.05), _Col(l.adminExportColumnCohorts, 0.14), _Col(l.adminExportColumnSchool, 0.12), _Col(l.adminExportColumnPassword, 0.15)]
+        : [_Col(l.adminExportColumnIndex, 0.04), _Col(l.adminExportColumnName, 0.18), _Col(l.adminExportColumnEmail, 0.18), _Col(l.adminExportColumnUsername, 0.11), _Col(l.adminExportColumnPhone, 0.12), _Col(l.adminExportColumnGrade, 0.05), _Col(l.adminExportColumnCohorts, 0.18), _Col(l.adminExportColumnSchool, 0.14)];
 
     final fmt  = PdfPageFormat.a4.landscape;
     final pageW = fmt.availableWidth;
@@ -836,10 +839,10 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 if (schoolName.isNotEmpty) pw.Text(schoolName, style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
               ])),
               pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
-                pw.Text('Student Directory', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                pw.Text(l.adminExportPdfStudentDirectory, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
                 pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-                pw.Text('By: $exportedBy', style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-                pw.Text('${students.length} students', style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                pw.Text(l.adminExportPdfBy(exportedBy), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                pw.Text(l.adminExportPdfStudentsCount(students.length), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
               ]),
             ],
           ),
@@ -895,7 +898,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           padding: const pw.EdgeInsets.all(10),
           decoration: pw.BoxDecoration(color: brandLight, borderRadius: pw.BorderRadius.circular(8), border: pw.Border.all(color: brandBlue, width: 0.5)),
           child: pw.Text(
-            'Generated by ClassMate — confidential school data.',
+            l.adminExportPdfFooter,
             style: pw.TextStyle(fontSize: 8, color: brandBlue, fontStyle: pw.FontStyle.italic),
           ),
         ),
@@ -922,7 +925,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(AppLocalizations.of(context)!.adminExportOptionsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                    Text('${widget.studentCount} student${widget.studentCount == 1 ? '' : 's'} selected',
+                    Text(AppLocalizations.of(context)!.adminExportStudentsSelected(widget.studentCount),
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ),

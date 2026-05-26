@@ -6368,4 +6368,203 @@ class AppLocalizationsHe extends AppLocalizations {
   String adminCohortsGradeRangeOnly(int from, int to) {
     return 'כיתות $from-$to בלבד';
   }
+
+  @override
+  String get adminExportNeedStudents => 'בחר לפחות תלמיד או קבוצה אחת';
+
+  @override
+  String adminExportButton(int count) {
+    return 'ייצא $count';
+  }
+
+  @override
+  String get adminExportNoStudents => 'לא נמצאו תלמידים';
+
+  @override
+  String get adminExportIncludesPasswords => 'הייצוא יכלול סיסמאות';
+
+  @override
+  String get adminExportAnyway => 'ייצא בכל זאת';
+
+  @override
+  String get adminExportPdfStudentDirectory => 'ספריית תלמידים';
+
+  @override
+  String adminExportPdfBy(String name) {
+    return 'ע\"י: $name';
+  }
+
+  @override
+  String adminExportPdfStudentsCount(int count) {
+    return '$count תלמידים';
+  }
+
+  @override
+  String get adminExportPdfFooter => 'נוצר על ידי ClassMate';
+
+  @override
+  String get adminExportColumnIndex => '#';
+
+  @override
+  String get adminExportColumnName => 'שם';
+
+  @override
+  String get adminExportColumnEmail => 'דוא\"ל';
+
+  @override
+  String get adminExportColumnUsername => 'שם משתמש';
+
+  @override
+  String get adminExportColumnPhone => 'טלפון';
+
+  @override
+  String get adminExportColumnGrade => 'כיתה';
+
+  @override
+  String get adminExportColumnCohorts => 'קבוצות';
+
+  @override
+  String get adminExportColumnSchool => 'בית ספר';
+
+  @override
+  String get adminExportColumnPassword => 'סיסמה';
+
+  @override
+  String get adminExportColumnNameEn => 'שם (EN)';
+
+  @override
+  String get adminExportColumnNameAr => 'שם (AR)';
+
+  @override
+  String get adminExportColumnNameHe => 'שם (HE)';
+
+  @override
+  String get adminExportColumnNameFr => 'שם (FR)';
+
+  @override
+  String get adminExportColumnNameRu => 'שם (RU)';
+
+  @override
+  String adminExportStudentsSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תלמידים נבחרו',
+      one: 'תלמיד אחד נבחר',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMaterialEditTitle => 'ערוך חומר';
+
+  @override
+  String get teacherMaterialAddTitle => 'הוסף חומר';
+
+  @override
+  String get teacherMaterialAudienceTitle => 'קהל';
+
+  @override
+  String get teacherMaterialAudienceClassrooms => 'כיתות';
+
+  @override
+  String get teacherMaterialAudienceCohorts => 'קבוצות';
+
+  @override
+  String get teacherMaterialAudienceGrades => 'כיתות';
+
+  @override
+  String get teacherMaterialAudienceStudents => 'תלמידים';
+
+  @override
+  String get teacherMaterialDetailsTitle => 'פרטים';
+
+  @override
+  String get teacherMaterialSubjectRequired => 'מקצוע *';
+
+  @override
+  String get teacherMaterialSubjectSelect => 'בחר מקצוע';
+
+  @override
+  String get teacherMaterialSubjectOther => 'אחר';
+
+  @override
+  String get teacherMaterialSubjectSearch => 'חפש מקצועות...';
+
+  @override
+  String get teacherMaterialAttachmentsTitle => 'קבצים מצורפים';
+
+  @override
+  String teacherMaterialAttachmentsWithCount(int count) {
+    return 'קבצים מצורפים ($count)';
+  }
+
+  @override
+  String get teacherMaterialDeleteTitle => 'למחוק חומר?';
+
+  @override
+  String get teacherMaterialListTitle => 'חומרים';
+
+  @override
+  String teacherMaterialTotalCount(int count) {
+    return '$count סה\"כ';
+  }
+
+  @override
+  String get teacherMaterialRetry => 'נסה שוב';
+
+  @override
+  String get teacherMaterialNoMaterials =>
+      'אין חומרים עדיין.\nלחץ + כדי להוסיף.';
+
+  @override
+  String get teacherMaterialPublished => 'פורסם';
+
+  @override
+  String get teacherMaterialDraft => 'טיוטה';
+
+  @override
+  String get teacherMaterialSearchHint => 'חיפוש…';
+
+  @override
+  String teacherMaterialSelectedCount(int count) {
+    return '$count נבחרו';
+  }
+
+  @override
+  String teacherMaterialMembersWillReceive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count חברים יקבלו את זה',
+      one: 'חבר אחד יקבל את זה',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherMaterialStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תלמידים',
+      one: 'תלמיד אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMaterialPickerNone => 'ללא';
+
+  @override
+  String get teacherMaterialPickerCohortsTitle => 'בחר קבוצות';
+
+  @override
+  String get teacherMaterialPickerClassroomTitle => 'בחר כיתה';
+
+  @override
+  String get teacherMaterialPickerStudentsTitle => 'בחר תלמידים';
+
+  @override
+  String get teacherMaterialPickerGradesTitle => 'בחר כיתות';
 }

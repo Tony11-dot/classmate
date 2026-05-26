@@ -6363,4 +6363,218 @@ class AppLocalizationsRu extends AppLocalizations {
   String adminCohortsGradeRangeOnly(int from, int to) {
     return 'Только классы $from-$to';
   }
+
+  @override
+  String get adminExportNeedStudents =>
+      'Сначала выберите хотя бы одного ученика или группу';
+
+  @override
+  String adminExportButton(int count) {
+    return 'Экспортировать $count';
+  }
+
+  @override
+  String get adminExportNoStudents => 'Ученики не найдены';
+
+  @override
+  String get adminExportIncludesPasswords => 'Экспорт будет включать пароли';
+
+  @override
+  String get adminExportAnyway => 'Всё равно экспортировать';
+
+  @override
+  String get adminExportPdfStudentDirectory => 'Справочник учеников';
+
+  @override
+  String adminExportPdfBy(String name) {
+    return 'От: $name';
+  }
+
+  @override
+  String adminExportPdfStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count учеников',
+      many: '$count учеников',
+      few: '$count ученика',
+      one: '$count ученик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminExportPdfFooter => 'Создано в ClassMate';
+
+  @override
+  String get adminExportColumnIndex => '№';
+
+  @override
+  String get adminExportColumnName => 'Имя';
+
+  @override
+  String get adminExportColumnEmail => 'Эл. почта';
+
+  @override
+  String get adminExportColumnUsername => 'Логин';
+
+  @override
+  String get adminExportColumnPhone => 'Телефон';
+
+  @override
+  String get adminExportColumnGrade => 'Класс';
+
+  @override
+  String get adminExportColumnCohorts => 'Группы';
+
+  @override
+  String get adminExportColumnSchool => 'Школа';
+
+  @override
+  String get adminExportColumnPassword => 'Пароль';
+
+  @override
+  String get adminExportColumnNameEn => 'Имя (EN)';
+
+  @override
+  String get adminExportColumnNameAr => 'Имя (AR)';
+
+  @override
+  String get adminExportColumnNameHe => 'Имя (HE)';
+
+  @override
+  String get adminExportColumnNameFr => 'Имя (FR)';
+
+  @override
+  String get adminExportColumnNameRu => 'Имя (RU)';
+
+  @override
+  String adminExportStudentsSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбрано $count учеников',
+      many: 'Выбрано $count учеников',
+      few: 'Выбрано $count ученика',
+      one: 'Выбран $count ученик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMaterialEditTitle => 'Изменить материал';
+
+  @override
+  String get teacherMaterialAddTitle => 'Добавить материал';
+
+  @override
+  String get teacherMaterialAudienceTitle => 'Аудитория';
+
+  @override
+  String get teacherMaterialAudienceClassrooms => 'Классы';
+
+  @override
+  String get teacherMaterialAudienceCohorts => 'Группы';
+
+  @override
+  String get teacherMaterialAudienceGrades => 'Параллели';
+
+  @override
+  String get teacherMaterialAudienceStudents => 'Ученики';
+
+  @override
+  String get teacherMaterialDetailsTitle => 'Детали';
+
+  @override
+  String get teacherMaterialSubjectRequired => 'Предмет *';
+
+  @override
+  String get teacherMaterialSubjectSelect => 'Выберите предмет';
+
+  @override
+  String get teacherMaterialSubjectOther => 'Другой';
+
+  @override
+  String get teacherMaterialSubjectSearch => 'Поиск предметов...';
+
+  @override
+  String get teacherMaterialAttachmentsTitle => 'Вложения';
+
+  @override
+  String teacherMaterialAttachmentsWithCount(int count) {
+    return 'Вложения ($count)';
+  }
+
+  @override
+  String get teacherMaterialDeleteTitle => 'Удалить материал?';
+
+  @override
+  String get teacherMaterialListTitle => 'Материалы';
+
+  @override
+  String teacherMaterialTotalCount(int count) {
+    return 'Всего $count';
+  }
+
+  @override
+  String get teacherMaterialRetry => 'Повторить';
+
+  @override
+  String get teacherMaterialNoMaterials =>
+      'Материалов пока нет.\nНажмите +, чтобы добавить.';
+
+  @override
+  String get teacherMaterialPublished => 'Опубликован';
+
+  @override
+  String get teacherMaterialDraft => 'Черновик';
+
+  @override
+  String get teacherMaterialSearchHint => 'Поиск…';
+
+  @override
+  String teacherMaterialSelectedCount(int count) {
+    return 'Выбрано $count';
+  }
+
+  @override
+  String teacherMaterialMembersWillReceive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count участников получат это',
+      many: '$count участников получат это',
+      few: '$count участника получат это',
+      one: '$count участник получит это',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherMaterialStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count учеников',
+      many: '$count учеников',
+      few: '$count ученика',
+      one: '$count ученик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherMaterialPickerNone => 'Нет';
+
+  @override
+  String get teacherMaterialPickerCohortsTitle => 'Выберите группы';
+
+  @override
+  String get teacherMaterialPickerClassroomTitle => 'Выберите класс';
+
+  @override
+  String get teacherMaterialPickerStudentsTitle => 'Выберите учеников';
+
+  @override
+  String get teacherMaterialPickerGradesTitle => 'Выберите параллели';
 }
