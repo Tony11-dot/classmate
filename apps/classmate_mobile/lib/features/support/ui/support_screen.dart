@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 const _supportEmail = 'tony@classmateapp.org';
 const _supportPhone = '+972525488441';
 
@@ -194,7 +196,7 @@ class SupportScreen extends StatelessWidget {
                     Icon(Icons.support_agent_rounded, color: cs.primary, size: 22),
                     const SizedBox(width: 8),
                     Text(
-                      'Talk to us',
+                      AppLocalizations.of(context)!.supportContactTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: cs.primary,
@@ -204,7 +206,7 @@ class SupportScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "Can't find your answer below? Get in touch and we'll come back to you within a working day.",
+                  AppLocalizations.of(context)!.supportContactDescription,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: cs.onSurfaceVariant,
                     height: 1.4,
@@ -213,14 +215,14 @@ class SupportScreen extends StatelessWidget {
                 const SizedBox(height: 14),
                 _ContactRow(
                   icon: Icons.email_rounded,
-                  label: 'Email',
+                  label: AppLocalizations.of(context)!.supportEmailLabel,
                   value: _supportEmail,
                   onTap: () => _open(context, Uri(scheme: 'mailto', path: _supportEmail)),
                 ),
                 const SizedBox(height: 10),
                 _ContactRow(
                   icon: Icons.phone_rounded,
-                  label: 'Phone',
+                  label: AppLocalizations.of(context)!.supportPhoneLabel,
                   value: _supportPhone,
                   onTap: () => _open(context, Uri(scheme: 'tel', path: _supportPhone)),
                   // Calling is the primary tap action; surface SMS as a
@@ -229,7 +231,7 @@ class SupportScreen extends StatelessWidget {
                   trailingActions: [
                     _ContactAction(
                       icon: Icons.sms_rounded,
-                      tooltip: 'Message',
+                      tooltip: AppLocalizations.of(context)!.supportSmsLabel,
                       onTap: () => _open(context, Uri(scheme: 'sms', path: _supportPhone)),
                     ),
                   ],
@@ -258,6 +260,7 @@ class AboutScreen extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: cs.surface,
       // No local AppBar — the shell's top bar already shows an "About"
@@ -266,27 +269,27 @@ class AboutScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
         children: [
           _AboutBlock(
-            title: 'What is ClassMate?',
-            body: 'ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.',
+            title: l.aboutWhatIsClassmate,
+            body: l.aboutClassmateDescription,
           ),
           _AboutBlock(
-            title: 'Built for schools that speak more than one language',
-            body: 'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.',
+            title: l.aboutMultilingualTitle,
+            body: l.aboutMultilingualDescription,
           ),
           _AboutBlock(
-            title: 'Privacy first',
-            body: 'School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.',
+            title: l.aboutPrivacyTitle,
+            body: l.aboutPrivacyDescription,
           ),
           _AboutBlock(
-            title: 'Contact',
-            body: 'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org',
+            title: l.aboutContactTitle,
+            body: l.aboutContactDescription,
           ),
           const SizedBox(height: 8),
           // Tiny version stamp at the bottom — still discoverable, no longer
           // a hero block stealing focus.
           Center(
             child: Text(
-              'ClassMate · v$version',
+              l.aboutVersionLabel(version),
               style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),

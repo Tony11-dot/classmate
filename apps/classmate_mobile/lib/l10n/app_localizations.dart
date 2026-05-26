@@ -9924,6 +9924,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SMS'**
   String get adminPasswordReqSmsTooltip;
+
+  /// No description provided for @adminSetupSchoolSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'School Setup'**
+  String get adminSetupSchoolSetup;
+
+  /// No description provided for @adminSetupComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set. Tap any item to revisit or refine it.'**
+  String get adminSetupComplete;
+
+  /// No description provided for @adminSetupInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete these steps to fully set up your school.'**
+  String get adminSetupInstructions;
+
+  /// No description provided for @adminSetupLogoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload school logo'**
+  String get adminSetupLogoTitle;
+
+  /// No description provided for @adminSetupLogoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears in headers and the drawer'**
+  String get adminSetupLogoSubtitle;
+
+  /// No description provided for @adminSetupNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set school name'**
+  String get adminSetupNameTitle;
+
+  /// No description provided for @adminSetupNameSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown to students, teachers, and parents'**
+  String get adminSetupNameSubtitle;
+
+  /// No description provided for @adminSetupSubjectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Define subjects'**
+  String get adminSetupSubjectsTitle;
+
+  /// No description provided for @adminSetupSubjectsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one grade with subjects configured'**
+  String get adminSetupSubjectsSubtitle;
+
+  /// No description provided for @adminSetupBellTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set bell schedule'**
+  String get adminSetupBellTitle;
+
+  /// No description provided for @adminSetupBellSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start/end times for each period'**
+  String get adminSetupBellSubtitle;
+
+  /// No description provided for @adminSetupCohortsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create cohorts'**
+  String get adminSetupCohortsTitle;
+
+  /// No description provided for @adminSetupCohortsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your class groups'**
+  String get adminSetupCohortsSubtitle;
+
+  /// No description provided for @adminSetupStudentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add students'**
+  String get adminSetupStudentsTitle;
+
+  /// No description provided for @adminSetupStudentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create accounts or generate join codes'**
+  String get adminSetupStudentsSubtitle;
+
+  /// No description provided for @adminSetupTeachersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add teachers'**
+  String get adminSetupTeachersTitle;
+
+  /// No description provided for @adminSetupTeachersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create teacher accounts'**
+  String get adminSetupTeachersSubtitle;
+
+  /// No description provided for @supportContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk to us'**
+  String get supportContactTitle;
+
+  /// No description provided for @supportContactDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.'**
+  String get supportContactDescription;
+
+  /// No description provided for @supportEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get supportEmailLabel;
+
+  /// No description provided for @supportPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get supportPhoneLabel;
+
+  /// No description provided for @supportSmsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get supportSmsLabel;
+
+  /// No description provided for @aboutWhatIsClassmate.
+  ///
+  /// In en, this message translates to:
+  /// **'What is ClassMate?'**
+  String get aboutWhatIsClassmate;
+
+  /// No description provided for @aboutClassmateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.'**
+  String get aboutClassmateDescription;
+
+  /// No description provided for @aboutMultilingualTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built for schools that speak more than one language'**
+  String get aboutMultilingualTitle;
+
+  /// No description provided for @aboutMultilingualDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.'**
+  String get aboutMultilingualDescription;
+
+  /// No description provided for @aboutPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy first'**
+  String get aboutPrivacyTitle;
+
+  /// No description provided for @aboutPrivacyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.'**
+  String get aboutPrivacyDescription;
+
+  /// No description provided for @aboutContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get aboutContactTitle;
+
+  /// No description provided for @aboutContactDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org'**
+  String get aboutContactDescription;
+
+  /// No description provided for @aboutVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ClassMate · v{version}'**
+  String aboutVersionLabel(Object version);
 }
 
 class _AppLocalizationsDelegate

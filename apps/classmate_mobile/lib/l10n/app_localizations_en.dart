@@ -5555,4 +5555,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPasswordReqSmsTooltip => 'SMS';
+
+  @override
+  String get adminSetupSchoolSetup => 'School Setup';
+
+  @override
+  String get adminSetupComplete =>
+      'You\'re all set. Tap any item to revisit or refine it.';
+
+  @override
+  String get adminSetupInstructions =>
+      'Complete these steps to fully set up your school.';
+
+  @override
+  String get adminSetupLogoTitle => 'Upload school logo';
+
+  @override
+  String get adminSetupLogoSubtitle => 'Appears in headers and the drawer';
+
+  @override
+  String get adminSetupNameTitle => 'Set school name';
+
+  @override
+  String get adminSetupNameSubtitle =>
+      'Shown to students, teachers, and parents';
+
+  @override
+  String get adminSetupSubjectsTitle => 'Define subjects';
+
+  @override
+  String get adminSetupSubjectsSubtitle =>
+      'At least one grade with subjects configured';
+
+  @override
+  String get adminSetupBellTitle => 'Set bell schedule';
+
+  @override
+  String get adminSetupBellSubtitle => 'Start/end times for each period';
+
+  @override
+  String get adminSetupCohortsTitle => 'Create cohorts';
+
+  @override
+  String get adminSetupCohortsSubtitle => 'Set up your class groups';
+
+  @override
+  String get adminSetupStudentsTitle => 'Add students';
+
+  @override
+  String get adminSetupStudentsSubtitle =>
+      'Create accounts or generate join codes';
+
+  @override
+  String get adminSetupTeachersTitle => 'Add teachers';
+
+  @override
+  String get adminSetupTeachersSubtitle => 'Create teacher accounts';
+
+  @override
+  String get supportContactTitle => 'Talk to us';
+
+  @override
+  String get supportContactDescription =>
+      'Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.';
+
+  @override
+  String get supportEmailLabel => 'Email';
+
+  @override
+  String get supportPhoneLabel => 'Phone';
+
+  @override
+  String get supportSmsLabel => 'Message';
+
+  @override
+  String get aboutWhatIsClassmate => 'What is ClassMate?';
+
+  @override
+  String get aboutClassmateDescription =>
+      'ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.';
+
+  @override
+  String get aboutMultilingualTitle =>
+      'Built for schools that speak more than one language';
+
+  @override
+  String get aboutMultilingualDescription =>
+      'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.';
+
+  @override
+  String get aboutPrivacyTitle => 'Privacy first';
+
+  @override
+  String get aboutPrivacyDescription =>
+      'School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.';
+
+  @override
+  String get aboutContactTitle => 'Contact';
+
+  @override
+  String get aboutContactDescription =>
+      'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org';
+
+  @override
+  String aboutVersionLabel(Object version) {
+    return 'ClassMate · v$version';
+  }
 }

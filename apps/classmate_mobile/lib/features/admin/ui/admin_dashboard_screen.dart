@@ -185,55 +185,56 @@ class _SetupGuideState extends State<_SetupGuide> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final o = widget.overview;
 
     final steps = <_SetupStep>[
       _SetupStep(
         icon: Icons.image_rounded,
-        title: 'Upload school logo',
-        subtitle: 'Appears in headers and the drawer',
+        title: l.adminSetupLogoTitle,
+        subtitle: l.adminSetupLogoSubtitle,
         route: '/admin/school',
         done: o.schoolLogoSet,
       ),
       _SetupStep(
         icon: Icons.drive_file_rename_outline_rounded,
-        title: 'Set school name',
-        subtitle: "Shown to students, teachers, and parents",
+        title: l.adminSetupNameTitle,
+        subtitle: l.adminSetupNameSubtitle,
         route: '/admin/school',
         done: o.schoolNameSet,
       ),
       _SetupStep(
         icon: Icons.menu_book_rounded,
-        title: 'Define subjects',
-        subtitle: 'At least one grade with subjects configured',
+        title: l.adminSetupSubjectsTitle,
+        subtitle: l.adminSetupSubjectsSubtitle,
         route: '/admin/school',
         done: o.subjectsConfigured,
       ),
       _SetupStep(
         icon: Icons.schedule_rounded,
-        title: 'Set bell schedule',
-        subtitle: 'Start/end times for each period',
+        title: l.adminSetupBellTitle,
+        subtitle: l.adminSetupBellSubtitle,
         route: '/admin/school',
         done: o.bellScheduleConfigured,
       ),
       _SetupStep(
         icon: Icons.groups_rounded,
-        title: 'Create cohorts',
-        subtitle: 'Set up your class groups',
+        title: l.adminSetupCohortsTitle,
+        subtitle: l.adminSetupCohortsSubtitle,
         route: '/admin/cohorts',
         done: o.cohorts > 0,
       ),
       _SetupStep(
         icon: Icons.person_add_rounded,
-        title: 'Add students',
-        subtitle: 'Create accounts or generate join codes',
+        title: l.adminSetupStudentsTitle,
+        subtitle: l.adminSetupStudentsSubtitle,
         route: '/admin/people',
         done: o.students > 0,
       ),
       _SetupStep(
         icon: Icons.co_present_rounded,
-        title: 'Add teachers',
-        subtitle: 'Create teacher accounts',
+        title: l.adminSetupTeachersTitle,
+        subtitle: l.adminSetupTeachersSubtitle,
         route: '/admin/people',
         done: o.teachers > 0,
       ),
@@ -277,7 +278,7 @@ class _SetupGuideState extends State<_SetupGuide> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'School Setup',
+                    l.adminSetupSchoolSetup,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: allDone ? cs.tertiary : cs.primary,
@@ -322,9 +323,7 @@ class _SetupGuideState extends State<_SetupGuide> {
           if (_expanded) ...[
             const SizedBox(height: 12),
             Text(
-              allDone
-                  ? "You're all set. Tap any item to revisit or refine it."
-                  : 'Complete these steps to fully set up your school.',
+              allDone ? l.adminSetupComplete : l.adminSetupInstructions,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: cs.onSurfaceVariant,
                 height: 1.4,
