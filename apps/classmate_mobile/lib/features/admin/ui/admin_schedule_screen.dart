@@ -587,7 +587,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
           Expanded(
             child: periodsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('$e')),
+              error: (e, _) => Center(child: Text(l.commonErrorWith(e))),
               data: (allPeriods) {
                 // Build (day, period) → [slots] map filtered by current selection
                 final filtered = allPeriods
@@ -1295,7 +1295,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     if (subject.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Pick a subject before saving the period.'),
+          content: Text(AppLocalizations.of(context)!.adminSchedulePickSubjectFirst),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
@@ -1379,7 +1379,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         } catch (e) {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Override failed: $e'),
+            content: Text(AppLocalizations.of(context)!.adminScheduleOverrideFailed(e)),
             backgroundColor: Theme.of(context).colorScheme.error,
           ));
           return;
@@ -1524,14 +1524,14 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     if (created == 0) {
       // All failed
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(firstError ?? 'Failed to create slots'),
+        content: Text(firstError ?? AppLocalizations.of(context)!.adminScheduleFailedToCreateSlots),
         backgroundColor: Theme.of(context).colorScheme.error,
       ));
     } else {
       if (created < _slots.length && firstError != null) {
         // Partial success
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Created $created/${_slots.length} slots. $firstError'),
+          content: Text(AppLocalizations.of(context)!.adminScheduleCreatedSlots(created, _slots.length, firstError)),
           duration: const Duration(seconds: 5),
         ));
       }
@@ -1601,13 +1601,13 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               TextButton.icon(
                 onPressed: () => setState(() => _slots.add(_DayPeriodSlot())),
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Add slot'),
+                label: Text(l.adminScheduleAddSlot),
               ),
             const SizedBox(height: 12),
 
             // ── Teacher DDL ───────────────────────────────────────────────
             LiquidGlassDropdown<String>(
-              label: 'Teacher',
+              label: l.adminPeriodsTeacherLabel,
               value: _teacherId ?? '',
               searchHint: l.adminScheduleSearchTeacher,
               items: [
@@ -1658,8 +1658,8 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               textInputAction: TextInputAction.done,
               maxLength: 60,
               decoration: InputDecoration(
-                labelText: 'Caption (optional)',
-                hintText: 'e.g. Exam review',
+                labelText: l.adminScheduleCaptionOptional,
+                hintText: l.adminScheduleCaptionHint,
                 counterText: '',
                 isDense: true,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -1674,10 +1674,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               // on, the icon + "Students" overflows the segment width and the
               // trailing "s" wraps to a new line.
               showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: _AudienceMode.cohort, label: Text('Cohorts')),
-                ButtonSegment(value: _AudienceMode.student, label: Text('Students')),
-                ButtonSegment(value: _AudienceMode.grade, label: Text('Grade')),
+              segments: [
+                ButtonSegment(value: _AudienceMode.cohort, label: Text(l.adminScheduleAudienceCohorts)),
+                ButtonSegment(value: _AudienceMode.student, label: Text(l.adminScheduleAudienceStudents)),
+                ButtonSegment(value: _AudienceMode.grade, label: Text(l.adminScheduleAudienceGrade)),
               ],
               selected: {_audience},
               onSelectionChanged: (s) => setState(() {
@@ -1755,7 +1755,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                   runSpacing: 8,
                   children: grades.map((g) {
                     return ChoiceChip(
-                      label: Text('Grade $g'),
+                      label: Text(l.adminCohortGradeFormat(g.toString())),
                       selected: _audienceGrade == g,
                       onSelected: (_) => setState(() {
                         _audienceGrade = g;
@@ -1801,7 +1801,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Text('Every ', style: theme.textTheme.bodyMedium),
+                  Text(l.adminScheduleEveryPrefix, style: theme.textTheme.bodyMedium),
                   SizedBox(
                     width: 60,
                     child: TextField(
@@ -1816,7 +1816,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                       ),
                     ),
                   ),
-                  Text(' weeks', style: theme.textTheme.bodyMedium),
+                  Text(l.adminScheduleWeeksSuffix, style: theme.textTheme.bodyMedium),
                 ],
               ),
             ],
@@ -2180,7 +2180,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text('Conflicting period'),
+          title: Text(AppLocalizations.of(ctx)!.adminScheduleConflictingPeriod),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -2232,7 +2232,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.cancel),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(ctx)!.commonCancel),
             ),
             // Override + Keep current are always offered.  Both use
             // explicit date enumeration over the draft's render dates
@@ -2241,15 +2241,15 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
             // schedule, not "forever."
             TextButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.keepCurrent),
-              child: const Text('Keep current'),
+              child: Text(AppLocalizations.of(ctx)!.adminScheduleKeepCurrent),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.override),
-              child: const Text('Override'),
+              child: Text(AppLocalizations.of(ctx)!.adminScheduleOverride),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, _ConflictChoice.stack),
-              child: const Text('Show both'),
+              child: Text(AppLocalizations.of(ctx)!.adminScheduleShowBoth),
             ),
           ],
         );
@@ -2347,7 +2347,7 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
         children: [
           Row(
             children: [
-              Text('Slot ${widget.index + 1}',
+              Text(AppLocalizations.of(context)!.adminScheduleSlotN(widget.index + 1),
                   style: theme.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w700, color: cs.primary)),
               const Spacer(),
@@ -2457,7 +2457,7 @@ class _MultiPickerListState extends State<_MultiPickerList> {
               children: [
                 Icon(Icons.check_circle_rounded, size: 14, color: cs.primary),
                 const SizedBox(width: 6),
-                Text('${widget.selected.length} selected',
+                Text(AppLocalizations.of(context)!.adminScheduleSelectedCount(widget.selected.length),
                     style: theme.textTheme.labelSmall?.copyWith(
                         fontWeight: FontWeight.w700, color: cs.primary)),
               ],
@@ -3056,7 +3056,7 @@ class _AudienceEditorState extends State<_AudienceEditor> {
             child: TextButton.icon(
               onPressed: _openAddSheet,
               icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
-              label: const Text('Add student'),
+              label: Text(AppLocalizations.of(context)!.adminScheduleAddStudent),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 visualDensity: VisualDensity.compact,
@@ -3132,7 +3132,7 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
                                 .toList();
                             Navigator.of(context).pop(result);
                           },
-                    child: Text('Add (${_picked.length})'),
+                    child: Text(AppLocalizations.of(context)!.adminScheduleAddCount(_picked.length)),
                   ),
                 ],
               ),
@@ -3142,7 +3142,7 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
               child: TextField(
                 onChanged: (v) => setState(() => _q = v),
                 decoration: InputDecoration(
-                  hintText: 'Search students…',
+                  hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
                   prefixIcon: const Icon(Icons.search_rounded, size: 18),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   isDense: true,
@@ -3250,14 +3250,14 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete period?'),
-        content: const Text('This removes the slot from the schedule. Past attendance stays.'),
+        title: Text(AppLocalizations.of(ctx)!.adminScheduleDeletePeriodTitle),
+        content: Text(AppLocalizations.of(ctx)!.adminScheduleDeletePeriodBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(ctx)!.commonDelete),
           ),
         ],
       ),
@@ -3271,7 +3271,7 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete period.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminScheduleFailedToDelete)),
       );
     }
   }
@@ -3313,7 +3313,7 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
                   FilledButton.icon(
                     onPressed: () => Navigator.pop(context, const _SquareSheetAction.add()),
                     icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Add period'),
+                    label: Text(AppLocalizations.of(context)!.adminScheduleAddPeriod),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       visualDensity: VisualDensity.compact,
@@ -3984,13 +3984,13 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Saved as slot label only — couldn\'t add to library: $e')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.adminScheduleSavedLabelOnlyError(e))),
           );
         }
       }
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saved as slot label. Pick an audience first to also add to the school library.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminScheduleSavedLabelPickAudience)),
       );
     }
 
@@ -4025,14 +4025,14 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Subject',
+                      AppLocalizations.of(context)!.assignmentsSubjectLabel,
                       style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
                   TextButton.icon(
                     onPressed: _createNew,
                     icon: const Icon(Icons.add_rounded, size: 16),
-                    label: const Text('Add new'),
+                    label: Text(AppLocalizations.of(context)!.adminScheduleAddNew),
                   ),
                 ],
               ),
@@ -4044,7 +4044,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
               child: TextField(
                 onChanged: (v) => setState(() => _search = v),
                 decoration: InputDecoration(
-                  hintText: 'Search school subjects…',
+                  hintText: AppLocalizations.of(context)!.adminScheduleSearchSubjects,
                   prefixIcon: const Icon(Icons.search_rounded, size: 18),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   isDense: true,

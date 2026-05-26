@@ -4977,7 +4977,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get adminScheduleAddSlot => 'إضافة وقت';
+  String get adminScheduleAddSlot => 'إضافة فترة';
 
   @override
   String get adminScheduleAddAnother => 'إضافة يوم / حصة أخرى';
@@ -6594,4 +6594,96 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherMaterialPickerGradesTitle => 'اختر الصفوف';
+
+  @override
+  String get adminScheduleAddNew => 'إضافة جديد';
+
+  @override
+  String adminScheduleAddCount(int count) {
+    return 'إضافة ($count)';
+  }
+
+  @override
+  String get adminScheduleCaptionOptional => 'تسمية توضيحية (اختياري)';
+
+  @override
+  String get adminScheduleCaptionHint => 'مثل: مراجعة الامتحان';
+
+  @override
+  String get adminScheduleAudienceCohorts => 'المجموعات';
+
+  @override
+  String get adminScheduleAudienceStudents => 'الطلاب';
+
+  @override
+  String get adminScheduleAudienceGrade => 'الصف';
+
+  @override
+  String get adminScheduleSearchStudents => 'ابحث عن الطلاب…';
+
+  @override
+  String get adminScheduleSearchSubjects => 'ابحث في مواد المدرسة…';
+
+  @override
+  String get adminScheduleEveryPrefix => 'كل ';
+
+  @override
+  String get adminScheduleWeeksSuffix => ' أسابيع';
+
+  @override
+  String adminScheduleSlotN(int index) {
+    return 'الفترة $index';
+  }
+
+  @override
+  String adminScheduleSelectedCount(int count) {
+    return 'تم اختيار $count';
+  }
+
+  @override
+  String get adminScheduleConflictingPeriod => 'حصة متعارضة';
+
+  @override
+  String get adminScheduleKeepCurrent => 'احتفظ بالحالي';
+
+  @override
+  String get adminScheduleOverride => 'تجاوز';
+
+  @override
+  String get adminScheduleShowBoth => 'عرض الاثنين';
+
+  @override
+  String get adminScheduleDeletePeriodTitle => 'حذف الحصة؟';
+
+  @override
+  String get adminScheduleDeletePeriodBody =>
+      'هذا يزيل الفترة من الجدول. يظل الحضور السابق محفوظًا.';
+
+  @override
+  String get adminScheduleFailedToDelete => 'فشل حذف الحصة.';
+
+  @override
+  String get adminSchedulePickSubjectFirst => 'اختر مادة قبل حفظ الحصة.';
+
+  @override
+  String adminScheduleOverrideFailed(Object error) {
+    return 'فشل التجاوز: $error';
+  }
+
+  @override
+  String get adminScheduleFailedToCreateSlots => 'فشل إنشاء الفترات';
+
+  @override
+  String adminScheduleCreatedSlots(int created, int total, String error) {
+    return 'تم إنشاء $created/$total فترات. $error';
+  }
+
+  @override
+  String adminScheduleSavedLabelOnlyError(Object error) {
+    return 'تم الحفظ كتسمية فقط — تعذرت الإضافة إلى المكتبة: $error';
+  }
+
+  @override
+  String get adminScheduleSavedLabelPickAudience =>
+      'تم الحفظ كتسمية. اختر جمهورًا أولاً لإضافة المادة إلى مكتبة المدرسة أيضًا.';
 }

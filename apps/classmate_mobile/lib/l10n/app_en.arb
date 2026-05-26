@@ -2791,5 +2791,53 @@
   "teacherMaterialPickerCohortsTitle": "Select cohorts",
   "teacherMaterialPickerClassroomTitle": "Select classroom",
   "teacherMaterialPickerStudentsTitle": "Select students",
-  "teacherMaterialPickerGradesTitle": "Select grades"
+  "teacherMaterialPickerGradesTitle": "Select grades",
+
+  "adminScheduleAddSlot": "Add slot",
+  "adminScheduleAddPeriod": "Add period",
+  "adminScheduleAddStudent": "Add student",
+  "adminScheduleAddNew": "Add new",
+  "adminScheduleAddCount": "Add ({count})",
+  "@adminScheduleAddCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminScheduleCaptionOptional": "Caption (optional)",
+  "adminScheduleCaptionHint": "e.g. Exam review",
+  "adminScheduleAudienceCohorts": "Cohorts",
+  "adminScheduleAudienceStudents": "Students",
+  "adminScheduleAudienceGrade": "Grade",
+  "adminScheduleSearchStudents": "Search students…",
+  "adminScheduleSearchSubjects": "Search school subjects…",
+  "adminScheduleEveryPrefix": "Every ",
+  "adminScheduleWeeksSuffix": " weeks",
+  "adminScheduleSlotN": "Slot {index}",
+  "@adminScheduleSlotN": {
+    "placeholders": { "index": { "type": "int" } }
+  },
+  "adminScheduleSelectedCount": "{count} selected",
+  "@adminScheduleSelectedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminScheduleConflictingPeriod": "Conflicting period",
+  "adminScheduleKeepCurrent": "Keep current",
+  "adminScheduleOverride": "Override",
+  "adminScheduleShowBoth": "Show both",
+  "adminScheduleDeletePeriodTitle": "Delete period?",
+  "adminScheduleDeletePeriodBody": "This removes the slot from the schedule. Past attendance stays.",
+  "adminScheduleFailedToDelete": "Failed to delete period.",
+  "adminSchedulePickSubjectFirst": "Pick a subject before saving the period.",
+  "adminScheduleOverrideFailed": "Override failed: {error}",
+  "@adminScheduleOverrideFailed": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "adminScheduleFailedToCreateSlots": "Failed to create slots",
+  "adminScheduleCreatedSlots": "Created {created}/{total} slots. {error}",
+  "@adminScheduleCreatedSlots": {
+    "placeholders": { "created": { "type": "int" }, "total": { "type": "int" }, "error": { "type": "String" } }
+  },
+  "adminScheduleSavedLabelOnlyError": "Saved as slot label only — couldn't add to library: {error}",
+  "@adminScheduleSavedLabelOnlyError": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "adminScheduleSavedLabelPickAudience": "Saved as slot label. Pick an audience first to also add to the school library."
 }

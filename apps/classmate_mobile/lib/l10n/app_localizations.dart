@@ -8818,7 +8818,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleAddPeriod.
   ///
   /// In en, this message translates to:
-  /// **'Add Period'**
+  /// **'Add period'**
   String get adminScheduleAddPeriod;
 
   /// No description provided for @adminScheduleNewPeriod.
@@ -8896,7 +8896,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleAddSlot.
   ///
   /// In en, this message translates to:
-  /// **'Add Slot'**
+  /// **'Add slot'**
   String get adminScheduleAddSlot;
 
   /// No description provided for @adminScheduleAddAnother.
@@ -11790,6 +11790,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select grades'**
   String get teacherMaterialPickerGradesTitle;
+
+  /// No description provided for @adminScheduleAddNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new'**
+  String get adminScheduleAddNew;
+
+  /// No description provided for @adminScheduleAddCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ({count})'**
+  String adminScheduleAddCount(int count);
+
+  /// No description provided for @adminScheduleCaptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption (optional)'**
+  String get adminScheduleCaptionOptional;
+
+  /// No description provided for @adminScheduleCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Exam review'**
+  String get adminScheduleCaptionHint;
+
+  /// No description provided for @adminScheduleAudienceCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get adminScheduleAudienceCohorts;
+
+  /// No description provided for @adminScheduleAudienceStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get adminScheduleAudienceStudents;
+
+  /// No description provided for @adminScheduleAudienceGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get adminScheduleAudienceGrade;
+
+  /// No description provided for @adminScheduleSearchStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students…'**
+  String get adminScheduleSearchStudents;
+
+  /// No description provided for @adminScheduleSearchSubjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Search school subjects…'**
+  String get adminScheduleSearchSubjects;
+
+  /// No description provided for @adminScheduleEveryPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Every '**
+  String get adminScheduleEveryPrefix;
+
+  /// No description provided for @adminScheduleWeeksSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' weeks'**
+  String get adminScheduleWeeksSuffix;
+
+  /// No description provided for @adminScheduleSlotN.
+  ///
+  /// In en, this message translates to:
+  /// **'Slot {index}'**
+  String adminScheduleSlotN(int index);
+
+  /// No description provided for @adminScheduleSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String adminScheduleSelectedCount(int count);
+
+  /// No description provided for @adminScheduleConflictingPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflicting period'**
+  String get adminScheduleConflictingPeriod;
+
+  /// No description provided for @adminScheduleKeepCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep current'**
+  String get adminScheduleKeepCurrent;
+
+  /// No description provided for @adminScheduleOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'Override'**
+  String get adminScheduleOverride;
+
+  /// No description provided for @adminScheduleShowBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Show both'**
+  String get adminScheduleShowBoth;
+
+  /// No description provided for @adminScheduleDeletePeriodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete period?'**
+  String get adminScheduleDeletePeriodTitle;
+
+  /// No description provided for @adminScheduleDeletePeriodBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the slot from the schedule. Past attendance stays.'**
+  String get adminScheduleDeletePeriodBody;
+
+  /// No description provided for @adminScheduleFailedToDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete period.'**
+  String get adminScheduleFailedToDelete;
+
+  /// No description provided for @adminSchedulePickSubjectFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a subject before saving the period.'**
+  String get adminSchedulePickSubjectFirst;
+
+  /// No description provided for @adminScheduleOverrideFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Override failed: {error}'**
+  String adminScheduleOverrideFailed(Object error);
+
+  /// No description provided for @adminScheduleFailedToCreateSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create slots'**
+  String get adminScheduleFailedToCreateSlots;
+
+  /// No description provided for @adminScheduleCreatedSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {created}/{total} slots. {error}'**
+  String adminScheduleCreatedSlots(int created, int total, String error);
+
+  /// No description provided for @adminScheduleSavedLabelOnlyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as slot label only — couldn\'t add to library: {error}'**
+  String adminScheduleSavedLabelOnlyError(Object error);
+
+  /// No description provided for @adminScheduleSavedLabelPickAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as slot label. Pick an audience first to also add to the school library.'**
+  String get adminScheduleSavedLabelPickAudience;
 }
 
 class _AppLocalizationsDelegate

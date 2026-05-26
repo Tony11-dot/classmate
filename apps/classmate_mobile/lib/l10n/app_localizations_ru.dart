@@ -6577,4 +6577,97 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherMaterialPickerGradesTitle => 'Выберите параллели';
+
+  @override
+  String get adminScheduleAddNew => 'Добавить';
+
+  @override
+  String adminScheduleAddCount(int count) {
+    return 'Добавить ($count)';
+  }
+
+  @override
+  String get adminScheduleCaptionOptional => 'Подпись (необязательно)';
+
+  @override
+  String get adminScheduleCaptionHint => 'напр. Повторение к экзамену';
+
+  @override
+  String get adminScheduleAudienceCohorts => 'Группы';
+
+  @override
+  String get adminScheduleAudienceStudents => 'Ученики';
+
+  @override
+  String get adminScheduleAudienceGrade => 'Класс';
+
+  @override
+  String get adminScheduleSearchStudents => 'Поиск учеников…';
+
+  @override
+  String get adminScheduleSearchSubjects => 'Поиск предметов школы…';
+
+  @override
+  String get adminScheduleEveryPrefix => 'Каждые ';
+
+  @override
+  String get adminScheduleWeeksSuffix => ' недели';
+
+  @override
+  String adminScheduleSlotN(int index) {
+    return 'Слот $index';
+  }
+
+  @override
+  String adminScheduleSelectedCount(int count) {
+    return 'Выбрано $count';
+  }
+
+  @override
+  String get adminScheduleConflictingPeriod => 'Конфликтующий урок';
+
+  @override
+  String get adminScheduleKeepCurrent => 'Оставить текущий';
+
+  @override
+  String get adminScheduleOverride => 'Заменить';
+
+  @override
+  String get adminScheduleShowBoth => 'Показать оба';
+
+  @override
+  String get adminScheduleDeletePeriodTitle => 'Удалить урок?';
+
+  @override
+  String get adminScheduleDeletePeriodBody =>
+      'Это удалит слот из расписания. Прошлая посещаемость сохраняется.';
+
+  @override
+  String get adminScheduleFailedToDelete => 'Не удалось удалить урок.';
+
+  @override
+  String get adminSchedulePickSubjectFirst =>
+      'Выберите предмет перед сохранением урока.';
+
+  @override
+  String adminScheduleOverrideFailed(Object error) {
+    return 'Замена не удалась: $error';
+  }
+
+  @override
+  String get adminScheduleFailedToCreateSlots => 'Не удалось создать слоты';
+
+  @override
+  String adminScheduleCreatedSlots(int created, int total, String error) {
+    return 'Создано $created/$total слотов. $error';
+  }
+
+  @override
+  String adminScheduleSavedLabelOnlyError(Object error) {
+    return 'Сохранено как метка — не удалось добавить в библиотеку: $error';
+  }
+
+  @override
+  String get adminScheduleSavedLabelPickAudience =>
+      'Сохранено как метка. Сначала выберите аудиторию, чтобы добавить также в библиотеку школы.';
 }

@@ -5029,7 +5029,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminScheduleTitle => 'Emploi du temps';
 
   @override
-  String get adminScheduleAddPeriod => 'Ajouter un cours';
+  String get adminScheduleAddPeriod => 'Ajouter une période';
 
   @override
   String get adminScheduleNewPeriod => 'Nouveau cours';
@@ -6721,4 +6721,99 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherMaterialPickerGradesTitle => 'Sélectionner les niveaux';
+
+  @override
+  String get adminScheduleAddNew => 'Ajouter';
+
+  @override
+  String adminScheduleAddCount(int count) {
+    return 'Ajouter ($count)';
+  }
+
+  @override
+  String get adminScheduleCaptionOptional => 'Légende (optionnel)';
+
+  @override
+  String get adminScheduleCaptionHint => 'ex. Révision d\'examen';
+
+  @override
+  String get adminScheduleAudienceCohorts => 'Groupes';
+
+  @override
+  String get adminScheduleAudienceStudents => 'Élèves';
+
+  @override
+  String get adminScheduleAudienceGrade => 'Niveau';
+
+  @override
+  String get adminScheduleSearchStudents => 'Rechercher des élèves…';
+
+  @override
+  String get adminScheduleSearchSubjects => 'Rechercher des matières…';
+
+  @override
+  String get adminScheduleEveryPrefix => 'Toutes les ';
+
+  @override
+  String get adminScheduleWeeksSuffix => ' semaines';
+
+  @override
+  String adminScheduleSlotN(int index) {
+    return 'Créneau $index';
+  }
+
+  @override
+  String adminScheduleSelectedCount(int count) {
+    return '$count sélectionné(s)';
+  }
+
+  @override
+  String get adminScheduleConflictingPeriod => 'Période en conflit';
+
+  @override
+  String get adminScheduleKeepCurrent => 'Garder l\'actuel';
+
+  @override
+  String get adminScheduleOverride => 'Remplacer';
+
+  @override
+  String get adminScheduleShowBoth => 'Afficher les deux';
+
+  @override
+  String get adminScheduleDeletePeriodTitle => 'Supprimer la période ?';
+
+  @override
+  String get adminScheduleDeletePeriodBody =>
+      'Cela retire le créneau du planning. Les présences passées restent.';
+
+  @override
+  String get adminScheduleFailedToDelete =>
+      'Échec de la suppression de la période.';
+
+  @override
+  String get adminSchedulePickSubjectFirst =>
+      'Choisissez une matière avant d\'enregistrer la période.';
+
+  @override
+  String adminScheduleOverrideFailed(Object error) {
+    return 'Échec du remplacement : $error';
+  }
+
+  @override
+  String get adminScheduleFailedToCreateSlots =>
+      'Échec de la création des créneaux';
+
+  @override
+  String adminScheduleCreatedSlots(int created, int total, String error) {
+    return '$created/$total créneaux créés. $error';
+  }
+
+  @override
+  String adminScheduleSavedLabelOnlyError(Object error) {
+    return 'Enregistré comme étiquette uniquement — impossible d\'ajouter à la bibliothèque : $error';
+  }
+
+  @override
+  String get adminScheduleSavedLabelPickAudience =>
+      'Enregistré comme étiquette. Choisissez d\'abord une audience pour ajouter aussi à la bibliothèque de l\'école.';
 }

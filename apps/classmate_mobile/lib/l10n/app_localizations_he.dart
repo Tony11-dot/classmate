@@ -4956,7 +4956,7 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get adminScheduleAddSlot => 'הוסף חריץ';
+  String get adminScheduleAddSlot => 'הוסף משבצת';
 
   @override
   String get adminScheduleAddAnother => 'הוסף יום / שיעור נוסף';
@@ -6567,4 +6567,96 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherMaterialPickerGradesTitle => 'בחר כיתות';
+
+  @override
+  String get adminScheduleAddNew => 'הוסף חדש';
+
+  @override
+  String adminScheduleAddCount(int count) {
+    return 'הוסף ($count)';
+  }
+
+  @override
+  String get adminScheduleCaptionOptional => 'כותרת (אופציונלי)';
+
+  @override
+  String get adminScheduleCaptionHint => 'למשל: חזרה למבחן';
+
+  @override
+  String get adminScheduleAudienceCohorts => 'קבוצות';
+
+  @override
+  String get adminScheduleAudienceStudents => 'תלמידים';
+
+  @override
+  String get adminScheduleAudienceGrade => 'כיתה';
+
+  @override
+  String get adminScheduleSearchStudents => 'חפש תלמידים…';
+
+  @override
+  String get adminScheduleSearchSubjects => 'חפש מקצועות בית הספר…';
+
+  @override
+  String get adminScheduleEveryPrefix => 'כל ';
+
+  @override
+  String get adminScheduleWeeksSuffix => ' שבועות';
+
+  @override
+  String adminScheduleSlotN(int index) {
+    return 'משבצת $index';
+  }
+
+  @override
+  String adminScheduleSelectedCount(int count) {
+    return '$count נבחרו';
+  }
+
+  @override
+  String get adminScheduleConflictingPeriod => 'שיעור מתנגש';
+
+  @override
+  String get adminScheduleKeepCurrent => 'השאר נוכחי';
+
+  @override
+  String get adminScheduleOverride => 'החלף';
+
+  @override
+  String get adminScheduleShowBoth => 'הצג את שניהם';
+
+  @override
+  String get adminScheduleDeletePeriodTitle => 'למחוק שיעור?';
+
+  @override
+  String get adminScheduleDeletePeriodBody =>
+      'זה מסיר את המשבצת מהמערכת. נוכחות עבר נשארת.';
+
+  @override
+  String get adminScheduleFailedToDelete => 'מחיקת השיעור נכשלה.';
+
+  @override
+  String get adminSchedulePickSubjectFirst => 'בחר מקצוע לפני שמירת השיעור.';
+
+  @override
+  String adminScheduleOverrideFailed(Object error) {
+    return 'ההחלפה נכשלה: $error';
+  }
+
+  @override
+  String get adminScheduleFailedToCreateSlots => 'יצירת המשבצות נכשלה';
+
+  @override
+  String adminScheduleCreatedSlots(int created, int total, String error) {
+    return 'נוצרו $created/$total משבצות. $error';
+  }
+
+  @override
+  String adminScheduleSavedLabelOnlyError(Object error) {
+    return 'נשמר ככותרת בלבד — לא ניתן היה להוסיף לספריה: $error';
+  }
+
+  @override
+  String get adminScheduleSavedLabelPickAudience =>
+      'נשמר ככותרת. בחר תחילה קהל כדי להוסיף גם לספריית בית הספר.';
 }

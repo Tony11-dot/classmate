@@ -4952,7 +4952,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminScheduleTitle => 'Schedule';
 
   @override
-  String get adminScheduleAddPeriod => 'Add Period';
+  String get adminScheduleAddPeriod => 'Add period';
 
   @override
   String get adminScheduleNewPeriod => 'New Period';
@@ -4995,7 +4995,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get adminScheduleAddSlot => 'Add Slot';
+  String get adminScheduleAddSlot => 'Add slot';
 
   @override
   String get adminScheduleAddAnother => 'Add another day / period';
@@ -6626,4 +6626,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherMaterialPickerGradesTitle => 'Select grades';
+
+  @override
+  String get adminScheduleAddNew => 'Add new';
+
+  @override
+  String adminScheduleAddCount(int count) {
+    return 'Add ($count)';
+  }
+
+  @override
+  String get adminScheduleCaptionOptional => 'Caption (optional)';
+
+  @override
+  String get adminScheduleCaptionHint => 'e.g. Exam review';
+
+  @override
+  String get adminScheduleAudienceCohorts => 'Cohorts';
+
+  @override
+  String get adminScheduleAudienceStudents => 'Students';
+
+  @override
+  String get adminScheduleAudienceGrade => 'Grade';
+
+  @override
+  String get adminScheduleSearchStudents => 'Search students…';
+
+  @override
+  String get adminScheduleSearchSubjects => 'Search school subjects…';
+
+  @override
+  String get adminScheduleEveryPrefix => 'Every ';
+
+  @override
+  String get adminScheduleWeeksSuffix => ' weeks';
+
+  @override
+  String adminScheduleSlotN(int index) {
+    return 'Slot $index';
+  }
+
+  @override
+  String adminScheduleSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get adminScheduleConflictingPeriod => 'Conflicting period';
+
+  @override
+  String get adminScheduleKeepCurrent => 'Keep current';
+
+  @override
+  String get adminScheduleOverride => 'Override';
+
+  @override
+  String get adminScheduleShowBoth => 'Show both';
+
+  @override
+  String get adminScheduleDeletePeriodTitle => 'Delete period?';
+
+  @override
+  String get adminScheduleDeletePeriodBody =>
+      'This removes the slot from the schedule. Past attendance stays.';
+
+  @override
+  String get adminScheduleFailedToDelete => 'Failed to delete period.';
+
+  @override
+  String get adminSchedulePickSubjectFirst =>
+      'Pick a subject before saving the period.';
+
+  @override
+  String adminScheduleOverrideFailed(Object error) {
+    return 'Override failed: $error';
+  }
+
+  @override
+  String get adminScheduleFailedToCreateSlots => 'Failed to create slots';
+
+  @override
+  String adminScheduleCreatedSlots(int created, int total, String error) {
+    return 'Created $created/$total slots. $error';
+  }
+
+  @override
+  String adminScheduleSavedLabelOnlyError(Object error) {
+    return 'Saved as slot label only — couldn\'t add to library: $error';
+  }
+
+  @override
+  String get adminScheduleSavedLabelPickAudience =>
+      'Saved as slot label. Pick an audience first to also add to the school library.';
 }
