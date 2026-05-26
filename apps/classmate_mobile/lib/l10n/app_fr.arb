@@ -2327,5 +2327,33 @@
   "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
   "teacherClassroomAddStudents": "Ajouter des élèves",
   "teacherClassroomSearchNameGrade": "Rechercher par nom ou niveau…",
-  "teacherClassroomNoStudentsFound": "Aucun élève trouvé"
+  "teacherClassroomNoStudentsFound": "Aucun élève trouvé",
+
+  "teacherClassroomNameSubjectRequired": "Le nom et la matière sont requis.",
+  "teacherClassroomCreated": "Classe créée !",
+  "teacherCustomSubjectLabel": "Matière personnalisée *",
+  "teacherCreateClassroomButton": "Créer une classe",
+
+  "teacherCreateFormTitle": "Créer un formulaire",
+  "teacherFormSaveDraft": "Enregistrer un brouillon",
+  "teacherFormTitleHint": "Titre du formulaire *",
+  "teacherFormDescriptionHint": "Description (optionnel)",
+  "teacherFormAcceptingResponses": "Accepte les réponses",
+  "teacherFormAllowMultiple": "Autoriser plusieurs réponses",
+  "teacherFormAllowMultipleSubtitle": "Désactivé = une fois par élève (par défaut)",
+  "teacherFormQuestionsSection": "Questions",
+  "teacherFormAddQuestionButton": "Ajouter une question",
+  "teacherFormQuestionPlaceholder": "Question {index}",
+  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "teacherFormRequiredToggle": "Obligatoire",
+  "teacherFormAddOptionButton": "Ajouter une option",
+  "teacherFormMinLabel": "Min",
+  "teacherFormMaxLabel": "Max",
+  "teacherFormEnterTitle": "Veuillez saisir un titre de formulaire.",
+
+  "teacherExamUploadFailedSkipped": "Échec de l'envoi de {name}. Fichier ignoré.",
+  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "teacherExamEnterTitle": "Veuillez saisir un titre.",
+  "teacherExamPickDate": "Veuillez choisir une date d'examen.",
+  "teacherExamSelectSubject": "Veuillez choisir une matière."
 }

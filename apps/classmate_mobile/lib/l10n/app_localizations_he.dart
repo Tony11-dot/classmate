@@ -5945,4 +5945,78 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherClassroomNoStudentsFound => 'לא נמצאו תלמידים';
+
+  @override
+  String get teacherClassroomNameSubjectRequired => 'שם ומקצוע נדרשים.';
+
+  @override
+  String get teacherClassroomCreated => 'הכיתה נוצרה!';
+
+  @override
+  String get teacherCustomSubjectLabel => 'מקצוע מותאם *';
+
+  @override
+  String get teacherCreateClassroomButton => 'צור כיתה';
+
+  @override
+  String get teacherCreateFormTitle => 'יצירת טופס';
+
+  @override
+  String get teacherFormSaveDraft => 'שמור טיוטה';
+
+  @override
+  String get teacherFormTitleHint => 'כותרת הטופס *';
+
+  @override
+  String get teacherFormDescriptionHint => 'תיאור (אופציונלי)';
+
+  @override
+  String get teacherFormAcceptingResponses => 'מקבל תגובות';
+
+  @override
+  String get teacherFormAllowMultiple => 'אפשר תגובות מרובות';
+
+  @override
+  String get teacherFormAllowMultipleSubtitle =>
+      'כבוי = פעם אחת לתלמיד (ברירת מחדל)';
+
+  @override
+  String get teacherFormQuestionsSection => 'שאלות';
+
+  @override
+  String get teacherFormAddQuestionButton => 'הוסף שאלה';
+
+  @override
+  String teacherFormQuestionPlaceholder(Object index) {
+    return 'שאלה $index';
+  }
+
+  @override
+  String get teacherFormRequiredToggle => 'חובה';
+
+  @override
+  String get teacherFormAddOptionButton => 'הוסף אפשרות';
+
+  @override
+  String get teacherFormMinLabel => 'מינ\'';
+
+  @override
+  String get teacherFormMaxLabel => 'מקס\'';
+
+  @override
+  String get teacherFormEnterTitle => 'אנא הזן כותרת לטופס.';
+
+  @override
+  String teacherExamUploadFailedSkipped(Object name) {
+    return 'העלאה נכשלה עבור $name. הקובץ דולג.';
+  }
+
+  @override
+  String get teacherExamEnterTitle => 'אנא הזן כותרת.';
+
+  @override
+  String get teacherExamPickDate => 'אנא בחר תאריך מבחן.';
+
+  @override
+  String get teacherExamSelectSubject => 'אנא בחר מקצוע.';
 }

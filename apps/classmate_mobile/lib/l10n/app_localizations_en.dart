@@ -5997,4 +5997,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherClassroomNoStudentsFound => 'No students found';
+
+  @override
+  String get teacherClassroomNameSubjectRequired =>
+      'Name and subject are required.';
+
+  @override
+  String get teacherClassroomCreated => 'Classroom created!';
+
+  @override
+  String get teacherCustomSubjectLabel => 'Custom subject *';
+
+  @override
+  String get teacherCreateClassroomButton => 'Create Classroom';
+
+  @override
+  String get teacherCreateFormTitle => 'Create Form';
+
+  @override
+  String get teacherFormSaveDraft => 'Save Draft';
+
+  @override
+  String get teacherFormTitleHint => 'Form title *';
+
+  @override
+  String get teacherFormDescriptionHint => 'Description (optional)';
+
+  @override
+  String get teacherFormAcceptingResponses => 'Accepting responses';
+
+  @override
+  String get teacherFormAllowMultiple => 'Allow multiple responses';
+
+  @override
+  String get teacherFormAllowMultipleSubtitle =>
+      'Off = once per student (default)';
+
+  @override
+  String get teacherFormQuestionsSection => 'Questions';
+
+  @override
+  String get teacherFormAddQuestionButton => 'Add question';
+
+  @override
+  String teacherFormQuestionPlaceholder(Object index) {
+    return 'Question $index';
+  }
+
+  @override
+  String get teacherFormRequiredToggle => 'Required';
+
+  @override
+  String get teacherFormAddOptionButton => 'Add option';
+
+  @override
+  String get teacherFormMinLabel => 'Min';
+
+  @override
+  String get teacherFormMaxLabel => 'Max';
+
+  @override
+  String get teacherFormEnterTitle => 'Please enter a form title.';
+
+  @override
+  String teacherExamUploadFailedSkipped(Object name) {
+    return 'Upload failed for $name. File skipped.';
+  }
+
+  @override
+  String get teacherExamEnterTitle => 'Please enter a title.';
+
+  @override
+  String get teacherExamPickDate => 'Please pick an exam date.';
+
+  @override
+  String get teacherExamSelectSubject => 'Please select a subject.';
 }

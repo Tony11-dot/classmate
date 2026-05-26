@@ -10686,6 +10686,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No students found'**
   String get teacherClassroomNoStudentsFound;
+
+  /// No description provided for @teacherClassroomNameSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name and subject are required.'**
+  String get teacherClassroomNameSubjectRequired;
+
+  /// No description provided for @teacherClassroomCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom created!'**
+  String get teacherClassroomCreated;
+
+  /// No description provided for @teacherCustomSubjectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom subject *'**
+  String get teacherCustomSubjectLabel;
+
+  /// No description provided for @teacherCreateClassroomButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Classroom'**
+  String get teacherCreateClassroomButton;
+
+  /// No description provided for @teacherCreateFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Form'**
+  String get teacherCreateFormTitle;
+
+  /// No description provided for @teacherFormSaveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Draft'**
+  String get teacherFormSaveDraft;
+
+  /// No description provided for @teacherFormTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Form title *'**
+  String get teacherFormTitleHint;
+
+  /// No description provided for @teacherFormDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get teacherFormDescriptionHint;
+
+  /// No description provided for @teacherFormAcceptingResponses.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepting responses'**
+  String get teacherFormAcceptingResponses;
+
+  /// No description provided for @teacherFormAllowMultiple.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow multiple responses'**
+  String get teacherFormAllowMultiple;
+
+  /// No description provided for @teacherFormAllowMultipleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Off = once per student (default)'**
+  String get teacherFormAllowMultipleSubtitle;
+
+  /// No description provided for @teacherFormQuestionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get teacherFormQuestionsSection;
+
+  /// No description provided for @teacherFormAddQuestionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add question'**
+  String get teacherFormAddQuestionButton;
+
+  /// No description provided for @teacherFormQuestionPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {index}'**
+  String teacherFormQuestionPlaceholder(Object index);
+
+  /// No description provided for @teacherFormRequiredToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get teacherFormRequiredToggle;
+
+  /// No description provided for @teacherFormAddOptionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add option'**
+  String get teacherFormAddOptionButton;
+
+  /// No description provided for @teacherFormMinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get teacherFormMinLabel;
+
+  /// No description provided for @teacherFormMaxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get teacherFormMaxLabel;
+
+  /// No description provided for @teacherFormEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a form title.'**
+  String get teacherFormEnterTitle;
+
+  /// No description provided for @teacherExamUploadFailedSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed for {name}. File skipped.'**
+  String teacherExamUploadFailedSkipped(Object name);
+
+  /// No description provided for @teacherExamEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title.'**
+  String get teacherExamEnterTitle;
+
+  /// No description provided for @teacherExamPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please pick an exam date.'**
+  String get teacherExamPickDate;
+
+  /// No description provided for @teacherExamSelectSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a subject.'**
+  String get teacherExamSelectSubject;
 }
 
 class _AppLocalizationsDelegate

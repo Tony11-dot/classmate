@@ -2327,5 +2327,33 @@
   "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
   "teacherClassroomAddStudents": "הוספת תלמידים",
   "teacherClassroomSearchNameGrade": "חפש לפי שם או שכבה…",
-  "teacherClassroomNoStudentsFound": "לא נמצאו תלמידים"
+  "teacherClassroomNoStudentsFound": "לא נמצאו תלמידים",
+
+  "teacherClassroomNameSubjectRequired": "שם ומקצוע נדרשים.",
+  "teacherClassroomCreated": "הכיתה נוצרה!",
+  "teacherCustomSubjectLabel": "מקצוע מותאם *",
+  "teacherCreateClassroomButton": "צור כיתה",
+
+  "teacherCreateFormTitle": "יצירת טופס",
+  "teacherFormSaveDraft": "שמור טיוטה",
+  "teacherFormTitleHint": "כותרת הטופס *",
+  "teacherFormDescriptionHint": "תיאור (אופציונלי)",
+  "teacherFormAcceptingResponses": "מקבל תגובות",
+  "teacherFormAllowMultiple": "אפשר תגובות מרובות",
+  "teacherFormAllowMultipleSubtitle": "כבוי = פעם אחת לתלמיד (ברירת מחדל)",
+  "teacherFormQuestionsSection": "שאלות",
+  "teacherFormAddQuestionButton": "הוסף שאלה",
+  "teacherFormQuestionPlaceholder": "שאלה {index}",
+  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "teacherFormRequiredToggle": "חובה",
+  "teacherFormAddOptionButton": "הוסף אפשרות",
+  "teacherFormMinLabel": "מינ'",
+  "teacherFormMaxLabel": "מקס'",
+  "teacherFormEnterTitle": "אנא הזן כותרת לטופס.",
+
+  "teacherExamUploadFailedSkipped": "העלאה נכשלה עבור {name}. הקובץ דולג.",
+  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "teacherExamEnterTitle": "אנא הזן כותרת.",
+  "teacherExamPickDate": "אנא בחר תאריך מבחן.",
+  "teacherExamSelectSubject": "אנא בחר מקצוע."
 }

@@ -2327,5 +2327,33 @@
   "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
   "teacherClassroomAddStudents": "إضافة طلاب",
   "teacherClassroomSearchNameGrade": "ابحث بالاسم أو الصف…",
-  "teacherClassroomNoStudentsFound": "لم يتم العثور على طلاب"
+  "teacherClassroomNoStudentsFound": "لم يتم العثور على طلاب",
+
+  "teacherClassroomNameSubjectRequired": "الاسم والمادة مطلوبان.",
+  "teacherClassroomCreated": "تم إنشاء الصف!",
+  "teacherCustomSubjectLabel": "مادة مخصصة *",
+  "teacherCreateClassroomButton": "إنشاء صف",
+
+  "teacherCreateFormTitle": "إنشاء نموذج",
+  "teacherFormSaveDraft": "حفظ مسودة",
+  "teacherFormTitleHint": "عنوان النموذج *",
+  "teacherFormDescriptionHint": "الوصف (اختياري)",
+  "teacherFormAcceptingResponses": "يقبل الإجابات",
+  "teacherFormAllowMultiple": "السماح بإجابات متعددة",
+  "teacherFormAllowMultipleSubtitle": "معطّل = مرة واحدة لكل طالب (افتراضي)",
+  "teacherFormQuestionsSection": "الأسئلة",
+  "teacherFormAddQuestionButton": "إضافة سؤال",
+  "teacherFormQuestionPlaceholder": "السؤال {index}",
+  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "teacherFormRequiredToggle": "مطلوب",
+  "teacherFormAddOptionButton": "إضافة خيار",
+  "teacherFormMinLabel": "الحد الأدنى",
+  "teacherFormMaxLabel": "الحد الأقصى",
+  "teacherFormEnterTitle": "يرجى إدخال عنوان للنموذج.",
+
+  "teacherExamUploadFailedSkipped": "فشل رفع {name}. تم تجاهل الملف.",
+  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "teacherExamEnterTitle": "يرجى إدخال عنوان.",
+  "teacherExamPickDate": "يرجى اختيار تاريخ الامتحان.",
+  "teacherExamSelectSubject": "يرجى اختيار مادة."
 }

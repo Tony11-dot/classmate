@@ -6088,4 +6088,79 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherClassroomNoStudentsFound => 'Aucun élève trouvé';
+
+  @override
+  String get teacherClassroomNameSubjectRequired =>
+      'Le nom et la matière sont requis.';
+
+  @override
+  String get teacherClassroomCreated => 'Classe créée !';
+
+  @override
+  String get teacherCustomSubjectLabel => 'Matière personnalisée *';
+
+  @override
+  String get teacherCreateClassroomButton => 'Créer une classe';
+
+  @override
+  String get teacherCreateFormTitle => 'Créer un formulaire';
+
+  @override
+  String get teacherFormSaveDraft => 'Enregistrer un brouillon';
+
+  @override
+  String get teacherFormTitleHint => 'Titre du formulaire *';
+
+  @override
+  String get teacherFormDescriptionHint => 'Description (optionnel)';
+
+  @override
+  String get teacherFormAcceptingResponses => 'Accepte les réponses';
+
+  @override
+  String get teacherFormAllowMultiple => 'Autoriser plusieurs réponses';
+
+  @override
+  String get teacherFormAllowMultipleSubtitle =>
+      'Désactivé = une fois par élève (par défaut)';
+
+  @override
+  String get teacherFormQuestionsSection => 'Questions';
+
+  @override
+  String get teacherFormAddQuestionButton => 'Ajouter une question';
+
+  @override
+  String teacherFormQuestionPlaceholder(Object index) {
+    return 'Question $index';
+  }
+
+  @override
+  String get teacherFormRequiredToggle => 'Obligatoire';
+
+  @override
+  String get teacherFormAddOptionButton => 'Ajouter une option';
+
+  @override
+  String get teacherFormMinLabel => 'Min';
+
+  @override
+  String get teacherFormMaxLabel => 'Max';
+
+  @override
+  String get teacherFormEnterTitle => 'Veuillez saisir un titre de formulaire.';
+
+  @override
+  String teacherExamUploadFailedSkipped(Object name) {
+    return 'Échec de l\'envoi de $name. Fichier ignoré.';
+  }
+
+  @override
+  String get teacherExamEnterTitle => 'Veuillez saisir un titre.';
+
+  @override
+  String get teacherExamPickDate => 'Veuillez choisir une date d\'examen.';
+
+  @override
+  String get teacherExamSelectSubject => 'Veuillez choisir une matière.';
 }

@@ -5936,4 +5936,78 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherClassroomNoStudentsFound => 'Ученики не найдены';
+
+  @override
+  String get teacherClassroomNameSubjectRequired => 'Требуется имя и предмет.';
+
+  @override
+  String get teacherClassroomCreated => 'Класс создан!';
+
+  @override
+  String get teacherCustomSubjectLabel => 'Свой предмет *';
+
+  @override
+  String get teacherCreateClassroomButton => 'Создать класс';
+
+  @override
+  String get teacherCreateFormTitle => 'Создание формы';
+
+  @override
+  String get teacherFormSaveDraft => 'Сохранить черновик';
+
+  @override
+  String get teacherFormTitleHint => 'Название формы *';
+
+  @override
+  String get teacherFormDescriptionHint => 'Описание (необязательно)';
+
+  @override
+  String get teacherFormAcceptingResponses => 'Принимает ответы';
+
+  @override
+  String get teacherFormAllowMultiple => 'Разрешить несколько ответов';
+
+  @override
+  String get teacherFormAllowMultipleSubtitle =>
+      'Выкл. = один раз на ученика (по умолчанию)';
+
+  @override
+  String get teacherFormQuestionsSection => 'Вопросы';
+
+  @override
+  String get teacherFormAddQuestionButton => 'Добавить вопрос';
+
+  @override
+  String teacherFormQuestionPlaceholder(Object index) {
+    return 'Вопрос $index';
+  }
+
+  @override
+  String get teacherFormRequiredToggle => 'Обязательный';
+
+  @override
+  String get teacherFormAddOptionButton => 'Добавить вариант';
+
+  @override
+  String get teacherFormMinLabel => 'Мин';
+
+  @override
+  String get teacherFormMaxLabel => 'Макс';
+
+  @override
+  String get teacherFormEnterTitle => 'Пожалуйста, введите название формы.';
+
+  @override
+  String teacherExamUploadFailedSkipped(Object name) {
+    return 'Не удалось загрузить $name. Файл пропущен.';
+  }
+
+  @override
+  String get teacherExamEnterTitle => 'Пожалуйста, введите название.';
+
+  @override
+  String get teacherExamPickDate => 'Пожалуйста, выберите дату экзамена.';
+
+  @override
+  String get teacherExamSelectSubject => 'Пожалуйста, выберите предмет.';
 }

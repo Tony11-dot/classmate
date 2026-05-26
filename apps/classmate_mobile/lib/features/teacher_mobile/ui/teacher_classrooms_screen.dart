@@ -188,7 +188,7 @@ class _TeacherClassroomsScreenState
                 controller: _searchCtl,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  hintText: 'Search classrooms…',
+                  hintText: AppLocalizations.of(context)!.teacherSearchClassrooms,
                   prefixIcon: const Icon(Icons.search_rounded),
                   suffixIcon: _searchCtl.text.isEmpty
                       ? null
@@ -389,7 +389,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
         : _subject;
     if (name.isEmpty || subject.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name and subject are required.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomNameSubjectRequired)),
       );
       return;
     }
@@ -403,7 +403,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
       Navigator.of(context).pop();
       widget.onCreated();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Classroom created!')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomCreated)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -439,9 +439,9 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
             TextField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Classroom name *',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.teacherClassroomNameRequired,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -466,10 +466,9 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                   return TextField(
                     controller: _customSubjectCtrl,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Subject *',
-                      helperText: 'School subjects aren\'t set up yet.',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherSubjectRequired,
+                      border: const OutlineInputBorder(),
                     ),
                   );
                 }
@@ -477,7 +476,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     LiquidGlassDropdown<String>(
-                      label: 'Subject *',
+                      label: AppLocalizations.of(context)!.teacherSubjectRequired,
                       value: _subject,
                       searchHint: 'Search subjects…',
                       items: [
@@ -494,9 +493,9 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                       TextField(
                         controller: _customSubjectCtrl,
                         textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Custom subject *',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.teacherCustomSubjectLabel,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ],
@@ -516,7 +515,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                             strokeWidth: 2, color: Colors.white),
                       )
                     : const Icon(Icons.add_rounded),
-                label: const Text('Create Classroom'),
+                label: Text(AppLocalizations.of(context)!.teacherCreateClassroomButton),
               ),
             ),
           ],

@@ -2534,5 +2534,33 @@
   "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
   "teacherClassroomAddStudents": "Add students",
   "teacherClassroomSearchNameGrade": "Search by name or grade…",
-  "teacherClassroomNoStudentsFound": "No students found"
+  "teacherClassroomNoStudentsFound": "No students found",
+
+  "teacherClassroomNameSubjectRequired": "Name and subject are required.",
+  "teacherClassroomCreated": "Classroom created!",
+  "teacherCustomSubjectLabel": "Custom subject *",
+  "teacherCreateClassroomButton": "Create Classroom",
+
+  "teacherCreateFormTitle": "Create Form",
+  "teacherFormSaveDraft": "Save Draft",
+  "teacherFormTitleHint": "Form title *",
+  "teacherFormDescriptionHint": "Description (optional)",
+  "teacherFormAcceptingResponses": "Accepting responses",
+  "teacherFormAllowMultiple": "Allow multiple responses",
+  "teacherFormAllowMultipleSubtitle": "Off = once per student (default)",
+  "teacherFormQuestionsSection": "Questions",
+  "teacherFormAddQuestionButton": "Add question",
+  "teacherFormQuestionPlaceholder": "Question {index}",
+  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "teacherFormRequiredToggle": "Required",
+  "teacherFormAddOptionButton": "Add option",
+  "teacherFormMinLabel": "Min",
+  "teacherFormMaxLabel": "Max",
+  "teacherFormEnterTitle": "Please enter a form title.",
+
+  "teacherExamUploadFailedSkipped": "Upload failed for {name}. File skipped.",
+  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "teacherExamEnterTitle": "Please enter a title.",
+  "teacherExamPickDate": "Please pick an exam date.",
+  "teacherExamSelectSubject": "Please select a subject."
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -157,7 +158,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             // Upload failed — skip this attachment rather than storing a local path the server can't access
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Upload failed for ${file.name}. File skipped.')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.teacherExamUploadFailedSkipped(file.name))),
               );
             }
           });
@@ -169,18 +170,19 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a title.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherExamEnterTitle)));
       return;
     }
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please pick an exam date.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherExamPickDate)));
       return;
     }
     if (_selectedSubject == null || _selectedSubject!.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a subject.')),
+        SnackBar(content: Text(l.teacherExamSelectSubject)),
       );
       return;
     }
@@ -317,7 +319,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       TextField(
                         controller: _titleCtrl,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherAssignmentTitleField, border: const OutlineInputBorder()),
                       ),
                       const SizedBox(height: 12),
 
@@ -334,10 +336,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                           if (picked != null) setState(() => _selectedDate = picked);
                         },
                         child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Exam date *',
-                            border: OutlineInputBorder(),
-                            suffixIcon: Icon(Icons.calendar_today_rounded),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.teacherExamDate,
+                            border: const OutlineInputBorder(),
+                            suffixIcon: const Icon(Icons.calendar_today_rounded),
                           ),
                           child: Text(
                             _selectedDate != null
@@ -353,10 +355,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       TextField(
                         controller: _maxGradeCtrl,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Max grade (optional)',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.grade_rounded),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.teacherAssignmentMaxGrade,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.grade_rounded),
                         ),
                       ),
                       const SizedBox(height: 8),

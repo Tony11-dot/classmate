@@ -2534,5 +2534,33 @@
   "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
   "teacherClassroomAddStudents": "Добавить учеников",
   "teacherClassroomSearchNameGrade": "Поиск по имени или классу…",
-  "teacherClassroomNoStudentsFound": "Ученики не найдены"
+  "teacherClassroomNoStudentsFound": "Ученики не найдены",
+
+  "teacherClassroomNameSubjectRequired": "Требуется имя и предмет.",
+  "teacherClassroomCreated": "Класс создан!",
+  "teacherCustomSubjectLabel": "Свой предмет *",
+  "teacherCreateClassroomButton": "Создать класс",
+
+  "teacherCreateFormTitle": "Создание формы",
+  "teacherFormSaveDraft": "Сохранить черновик",
+  "teacherFormTitleHint": "Название формы *",
+  "teacherFormDescriptionHint": "Описание (необязательно)",
+  "teacherFormAcceptingResponses": "Принимает ответы",
+  "teacherFormAllowMultiple": "Разрешить несколько ответов",
+  "teacherFormAllowMultipleSubtitle": "Выкл. = один раз на ученика (по умолчанию)",
+  "teacherFormQuestionsSection": "Вопросы",
+  "teacherFormAddQuestionButton": "Добавить вопрос",
+  "teacherFormQuestionPlaceholder": "Вопрос {index}",
+  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "teacherFormRequiredToggle": "Обязательный",
+  "teacherFormAddOptionButton": "Добавить вариант",
+  "teacherFormMinLabel": "Мин",
+  "teacherFormMaxLabel": "Макс",
+  "teacherFormEnterTitle": "Пожалуйста, введите название формы.",
+
+  "teacherExamUploadFailedSkipped": "Не удалось загрузить {name}. Файл пропущен.",
+  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "teacherExamEnterTitle": "Пожалуйста, введите название.",
+  "teacherExamPickDate": "Пожалуйста, выберите дату экзамена.",
+  "teacherExamSelectSubject": "Пожалуйста, выберите предмет."
 }

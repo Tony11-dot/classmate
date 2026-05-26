@@ -5969,4 +5969,78 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherClassroomNoStudentsFound => 'لم يتم العثور على طلاب';
+
+  @override
+  String get teacherClassroomNameSubjectRequired => 'الاسم والمادة مطلوبان.';
+
+  @override
+  String get teacherClassroomCreated => 'تم إنشاء الصف!';
+
+  @override
+  String get teacherCustomSubjectLabel => 'مادة مخصصة *';
+
+  @override
+  String get teacherCreateClassroomButton => 'إنشاء صف';
+
+  @override
+  String get teacherCreateFormTitle => 'إنشاء نموذج';
+
+  @override
+  String get teacherFormSaveDraft => 'حفظ مسودة';
+
+  @override
+  String get teacherFormTitleHint => 'عنوان النموذج *';
+
+  @override
+  String get teacherFormDescriptionHint => 'الوصف (اختياري)';
+
+  @override
+  String get teacherFormAcceptingResponses => 'يقبل الإجابات';
+
+  @override
+  String get teacherFormAllowMultiple => 'السماح بإجابات متعددة';
+
+  @override
+  String get teacherFormAllowMultipleSubtitle =>
+      'معطّل = مرة واحدة لكل طالب (افتراضي)';
+
+  @override
+  String get teacherFormQuestionsSection => 'الأسئلة';
+
+  @override
+  String get teacherFormAddQuestionButton => 'إضافة سؤال';
+
+  @override
+  String teacherFormQuestionPlaceholder(Object index) {
+    return 'السؤال $index';
+  }
+
+  @override
+  String get teacherFormRequiredToggle => 'مطلوب';
+
+  @override
+  String get teacherFormAddOptionButton => 'إضافة خيار';
+
+  @override
+  String get teacherFormMinLabel => 'الحد الأدنى';
+
+  @override
+  String get teacherFormMaxLabel => 'الحد الأقصى';
+
+  @override
+  String get teacherFormEnterTitle => 'يرجى إدخال عنوان للنموذج.';
+
+  @override
+  String teacherExamUploadFailedSkipped(Object name) {
+    return 'فشل رفع $name. تم تجاهل الملف.';
+  }
+
+  @override
+  String get teacherExamEnterTitle => 'يرجى إدخال عنوان.';
+
+  @override
+  String get teacherExamPickDate => 'يرجى اختيار تاريخ الامتحان.';
+
+  @override
+  String get teacherExamSelectSubject => 'يرجى اختيار مادة.';
 }
