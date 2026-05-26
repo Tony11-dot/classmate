@@ -10548,6 +10548,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove certificate for \"{name}\"?'**
   String studentDiplomaDeleteConfirm(Object name);
+
+  /// No description provided for @teacherDeleteItemConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String teacherDeleteItemConfirm(Object title);
+
+  /// No description provided for @teacherPublishTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get teacherPublishTooltip;
 }
 
 class _AppLocalizationsDelegate

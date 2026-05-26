@@ -5863,4 +5863,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String studentDiplomaDeleteConfirm(Object name) {
     return 'להסיר את התעודה של \"$name\"?';
   }
+
+  @override
+  String teacherDeleteItemConfirm(Object title) {
+    return 'למחוק את \"$title\"?';
+  }
+
+  @override
+  String get teacherPublishTooltip => 'פרסם';
 }

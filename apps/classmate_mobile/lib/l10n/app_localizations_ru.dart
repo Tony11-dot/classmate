@@ -5852,4 +5852,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String studentDiplomaDeleteConfirm(Object name) {
     return 'Удалить сертификат для «$name»?';
   }
+
+  @override
+  String teacherDeleteItemConfirm(Object title) {
+    return 'Удалить «$title»?';
+  }
+
+  @override
+  String get teacherPublishTooltip => 'Опубликовать';
 }

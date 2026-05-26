@@ -61,7 +61,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(l.teacherGradesDeleteAssessmentTitle),
-        content: Text('Delete "$title"?'),
+        content: Text(l.teacherDeleteItemConfirm(title)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.classroomsForwardCancel)),
           FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.teacherGradesDeleteAction)),
@@ -134,7 +134,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                     Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                     const SizedBox(width: 10),
                     Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                    TextButton(onPressed: _load, child: const Text('Retry')),
+                    TextButton(onPressed: _load, child: Text(l.commonRetry)),
                   ],
                 ),
               ),

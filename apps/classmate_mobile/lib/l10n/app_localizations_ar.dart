@@ -5887,4 +5887,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String studentDiplomaDeleteConfirm(Object name) {
     return 'هل تريد إزالة شهادة \"$name\"؟';
   }
+
+  @override
+  String teacherDeleteItemConfirm(Object title) {
+    return 'حذف \"$title\"؟';
+  }
+
+  @override
+  String get teacherPublishTooltip => 'نشر';
 }

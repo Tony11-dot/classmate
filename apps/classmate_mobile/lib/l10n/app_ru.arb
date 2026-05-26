@@ -2502,5 +2502,9 @@
   "studentDiplomaEditTitle": "Изменить сертификат",
   "studentDiplomaDeleteTitle": "Удалить сертификат?",
   "studentDiplomaDeleteConfirm": "Удалить сертификат для «{name}»?",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
+
+  "teacherDeleteItemConfirm": "Удалить «{title}»?",
+  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "teacherPublishTooltip": "Опубликовать"
 }

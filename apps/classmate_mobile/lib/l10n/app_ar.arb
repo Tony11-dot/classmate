@@ -2295,5 +2295,9 @@
   "studentDiplomaEditTitle": "تعديل الشهادة",
   "studentDiplomaDeleteTitle": "حذف الشهادة؟",
   "studentDiplomaDeleteConfirm": "هل تريد إزالة شهادة \"{name}\"؟",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
+
+  "teacherDeleteItemConfirm": "حذف \"{title}\"؟",
+  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "teacherPublishTooltip": "نشر"
 }

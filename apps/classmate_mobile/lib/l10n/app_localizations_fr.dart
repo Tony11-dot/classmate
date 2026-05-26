@@ -6005,4 +6005,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String studentDiplomaDeleteConfirm(Object name) {
     return 'Retirer le certificat de « $name » ?';
   }
+
+  @override
+  String teacherDeleteItemConfirm(Object title) {
+    return 'Supprimer « $title » ?';
+  }
+
+  @override
+  String get teacherPublishTooltip => 'Publier';
 }

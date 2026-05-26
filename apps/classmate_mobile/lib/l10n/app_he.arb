@@ -2295,5 +2295,9 @@
   "studentDiplomaEditTitle": "ערוך תעודה",
   "studentDiplomaDeleteTitle": "למחוק תעודה?",
   "studentDiplomaDeleteConfirm": "להסיר את התעודה של \"{name}\"?",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
+
+  "teacherDeleteItemConfirm": "למחוק את \"{title}\"?",
+  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "teacherPublishTooltip": "פרסם"
 }

@@ -5915,4 +5915,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String studentDiplomaDeleteConfirm(Object name) {
     return 'Remove certificate for \"$name\"?';
   }
+
+  @override
+  String teacherDeleteItemConfirm(Object title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get teacherPublishTooltip => 'Publish';
 }

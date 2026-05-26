@@ -2295,5 +2295,9 @@
   "studentDiplomaEditTitle": "Modifier le certificat",
   "studentDiplomaDeleteTitle": "Supprimer le certificat ?",
   "studentDiplomaDeleteConfirm": "Retirer le certificat de « {name} » ?",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
+
+  "teacherDeleteItemConfirm": "Supprimer « {title} » ?",
+  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "teacherPublishTooltip": "Publier"
 }

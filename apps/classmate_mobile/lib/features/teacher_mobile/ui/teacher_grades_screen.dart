@@ -247,7 +247,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
           TextField(
             controller: _searchCtrl,
             decoration: InputDecoration(
-              hintText: 'Search students…',
+              hintText: l.teacherSearchStudents,
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: _searchCtrl.text.isEmpty
                   ? null
@@ -413,7 +413,7 @@ class _StudentGradeCard extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_rounded, size: 20),
-                  tooltip: 'Add grade',
+                  tooltip: AppLocalizations.of(context)!.adminScheduleAddGrade,
                   visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
                   onPressed: onAddGrade,
                 ),

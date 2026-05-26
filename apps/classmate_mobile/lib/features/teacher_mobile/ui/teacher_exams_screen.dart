@@ -166,7 +166,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                     Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                     const SizedBox(width: 10),
                     Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                    TextButton(onPressed: _load, child: const Text('Retry')),
+                    TextButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                   ],
                 ),
               ),
@@ -324,7 +324,7 @@ class _ExamCard extends StatelessWidget {
                   if (!published && onPublish != null)
                     IconButton(
                       icon: Icon(Icons.publish_rounded, size: 16, color: cs.primary),
-                      tooltip: 'Publish',
+                      tooltip: AppLocalizations.of(context)!.teacherPublishTooltip,
                       onPressed: onPublish,
                       padding: const EdgeInsets.all(4),
                       constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
