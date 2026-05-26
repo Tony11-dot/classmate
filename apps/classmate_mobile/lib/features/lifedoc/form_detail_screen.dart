@@ -169,7 +169,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
                 children: [
                   Icon(Icons.check_circle_rounded, size: 16, color: cs.onPrimaryContainer),
                   const SizedBox(width: 8),
-                  Text('Your submitted answers', style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer, fontSize: 13)),
+                  Text(AppLocalizations.of(context)!.studentFormSubmittedBanner, style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer, fontSize: 13)),
                 ],
               ),
             ),
@@ -277,7 +277,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not submit: ${e.toString()}')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.studentFormSubmitError(e.toString()))),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -286,7 +286,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
 
   void _showRequired(BuildContext context, String title) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Required: $title')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.studentFormFieldRequired(title))),
     );
   }
 }
@@ -315,7 +315,7 @@ class _SubmitSection extends StatelessWidget {
       return FilledButton.icon(
         onPressed: null,
         icon: const Icon(Icons.lock_outline_rounded),
-        label: const Text('Form closed'),
+        label: Text(AppLocalizations.of(context)!.studentFormClosedButton),
       );
     }
 
@@ -327,7 +327,7 @@ class _SubmitSection extends StatelessWidget {
           FilledButton.icon(
             onPressed: null,
             icon: const Icon(Icons.check_circle_outline_rounded),
-            label: const Text('Already submitted'),
+            label: Text(AppLocalizations.of(context)!.studentFormAlreadySubmittedButton),
           ),
           const SizedBox(height: 8),
           Text(

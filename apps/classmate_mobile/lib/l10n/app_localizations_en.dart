@@ -5881,4 +5881,38 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get studentAssignmentValidationRequired =>
+      'Add a note or attach a file before handing in.';
+
+  @override
+  String get studentFormSubmittedBanner => 'Your submitted answers';
+
+  @override
+  String studentFormSubmitError(Object error) {
+    return 'Could not submit: $error';
+  }
+
+  @override
+  String studentFormFieldRequired(Object field) {
+    return 'Required: $field';
+  }
+
+  @override
+  String get studentFormClosedButton => 'Form closed';
+
+  @override
+  String get studentFormAlreadySubmittedButton => 'Already submitted';
+
+  @override
+  String get studentDiplomaEditTitle => 'Edit Certificate';
+
+  @override
+  String get studentDiplomaDeleteTitle => 'Delete certificate?';
+
+  @override
+  String studentDiplomaDeleteConfirm(Object name) {
+    return 'Remove certificate for \"$name\"?';
+  }
 }

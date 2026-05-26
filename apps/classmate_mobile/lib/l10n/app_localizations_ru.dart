@@ -5818,4 +5818,38 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get studentAssignmentValidationRequired =>
+      'Добавьте заметку или прикрепите файл перед сдачей.';
+
+  @override
+  String get studentFormSubmittedBanner => 'Ваши отправленные ответы';
+
+  @override
+  String studentFormSubmitError(Object error) {
+    return 'Не удалось отправить: $error';
+  }
+
+  @override
+  String studentFormFieldRequired(Object field) {
+    return 'Обязательно: $field';
+  }
+
+  @override
+  String get studentFormClosedButton => 'Форма закрыта';
+
+  @override
+  String get studentFormAlreadySubmittedButton => 'Уже отправлено';
+
+  @override
+  String get studentDiplomaEditTitle => 'Изменить сертификат';
+
+  @override
+  String get studentDiplomaDeleteTitle => 'Удалить сертификат?';
+
+  @override
+  String studentDiplomaDeleteConfirm(Object name) {
+    return 'Удалить сертификат для «$name»?';
+  }
 }

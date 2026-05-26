@@ -129,7 +129,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                 Container(width: 36, height: 4, alignment: Alignment.center,
                   decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
                 const SizedBox(height: 16),
-                Text('Edit Certificate', style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                Text(AppLocalizations.of(ctx)!.studentDiplomaEditTitle, style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 16),
                 TextField(controller: titleCtrl, decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder())),
                 const SizedBox(height: 10),
@@ -139,7 +139,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('Save'),
+                  child: Text(AppLocalizations.of(ctx)!.commonSave),
                 ),
               ],
             ),
@@ -176,8 +176,8 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete certificate?'),
-        content: Text('Remove certificate for "$studentName"?'),
+        title: Text(AppLocalizations.of(ctx)!.studentDiplomaDeleteTitle),
+        content: Text(AppLocalizations.of(ctx)!.studentDiplomaDeleteConfirm(studentName)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.classroomsForwardCancel)),
           FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.teacherGradesDeleteAction)),
@@ -246,7 +246,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                     Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                     const SizedBox(width: 10),
                     Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                    TextButton(onPressed: _load, child: const Text('Retry')),
+                    TextButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                   ],
                 ),
               ),

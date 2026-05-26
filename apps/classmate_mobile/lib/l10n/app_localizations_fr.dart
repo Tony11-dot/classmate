@@ -5971,4 +5971,38 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get studentAssignmentValidationRequired =>
+      'Ajoutez une note ou joignez un fichier avant de remettre.';
+
+  @override
+  String get studentFormSubmittedBanner => 'Vos réponses soumises';
+
+  @override
+  String studentFormSubmitError(Object error) {
+    return 'Impossible de soumettre : $error';
+  }
+
+  @override
+  String studentFormFieldRequired(Object field) {
+    return 'Requis : $field';
+  }
+
+  @override
+  String get studentFormClosedButton => 'Formulaire fermé';
+
+  @override
+  String get studentFormAlreadySubmittedButton => 'Déjà soumis';
+
+  @override
+  String get studentDiplomaEditTitle => 'Modifier le certificat';
+
+  @override
+  String get studentDiplomaDeleteTitle => 'Supprimer le certificat ?';
+
+  @override
+  String studentDiplomaDeleteConfirm(Object name) {
+    return 'Retirer le certificat de « $name » ?';
+  }
 }

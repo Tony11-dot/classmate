@@ -620,7 +620,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
     // Allow submitting with just a note, just files, or both. Only block if truly empty.
     if (!hasFiles && note.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add a note or attach a file before handing in.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.studentAssignmentValidationRequired)),
       );
       return;
     }
@@ -644,7 +644,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
       if (hasFiles && uploadedFiles.isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File upload failed — please try again.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.studentAssignmentUploadFailed)),
         );
         return;
       }
@@ -664,12 +664,12 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
       // Invalidate so the assignments list shows "submitted" on next visit
       ref.invalidate(assignmentsFeedProvider);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Assignment handed in!')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.studentAssignmentSubmittedSnackbar)),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not submit — please try again.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.studentAssignmentSubmitFailed)),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -884,9 +884,9 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                         const Icon(Icons.check_circle_rounded,
                                             size: 18, color: Color(0xFF22C55E)),
                                         const SizedBox(width: 8),
-                                        const Expanded(
-                                          child: Text('Handed in',
-                                              style: TextStyle(
+                                        Expanded(
+                                          child: Text(AppLocalizations.of(context)!.studentAssignmentHandedInBadge,
+                                              style: const TextStyle(
                                                   fontWeight: FontWeight.w800,
                                                   color: Color(0xFF22C55E))),
                                         ),

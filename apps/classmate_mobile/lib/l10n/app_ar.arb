@@ -2281,5 +2281,19 @@
   "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
   "messagesNoPeopleFound": "لم يتم العثور على أشخاص",
   "messagesPeopleCount": "{count, plural, =1{شخص واحد} other{{count} أشخاص}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "studentAssignmentValidationRequired": "أضف ملاحظة أو أرفق ملفًا قبل التسليم.",
+  "studentFormSubmittedBanner": "إجاباتك المُسلَّمة",
+  "studentFormSubmitError": "تعذّر التسليم: {error}",
+  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "studentFormFieldRequired": "مطلوب: {field}",
+  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "studentFormClosedButton": "النموذج مغلق",
+  "studentFormAlreadySubmittedButton": "تم التسليم مسبقًا",
+
+  "studentDiplomaEditTitle": "تعديل الشهادة",
+  "studentDiplomaDeleteTitle": "حذف الشهادة؟",
+  "studentDiplomaDeleteConfirm": "هل تريد إزالة شهادة \"{name}\"؟",
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
 }

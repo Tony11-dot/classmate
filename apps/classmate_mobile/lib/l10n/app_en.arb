@@ -2488,5 +2488,19 @@
   "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
   "messagesNoPeopleFound": "No people found",
   "messagesPeopleCount": "{count, plural, =1{1 person} other{{count} people}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "studentAssignmentValidationRequired": "Add a note or attach a file before handing in.",
+  "studentFormSubmittedBanner": "Your submitted answers",
+  "studentFormSubmitError": "Could not submit: {error}",
+  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "studentFormFieldRequired": "Required: {field}",
+  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "studentFormClosedButton": "Form closed",
+  "studentFormAlreadySubmittedButton": "Already submitted",
+
+  "studentDiplomaEditTitle": "Edit Certificate",
+  "studentDiplomaDeleteTitle": "Delete certificate?",
+  "studentDiplomaDeleteConfirm": "Remove certificate for \"{name}\"?",
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
 }

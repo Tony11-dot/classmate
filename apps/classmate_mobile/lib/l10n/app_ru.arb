@@ -2488,5 +2488,19 @@
   "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
   "messagesNoPeopleFound": "Никого не найдено",
   "messagesPeopleCount": "{count, plural, =1{1 человек} few{{count} человека} many{{count} человек} other{{count} человек}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "studentAssignmentValidationRequired": "Добавьте заметку или прикрепите файл перед сдачей.",
+  "studentFormSubmittedBanner": "Ваши отправленные ответы",
+  "studentFormSubmitError": "Не удалось отправить: {error}",
+  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "studentFormFieldRequired": "Обязательно: {field}",
+  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "studentFormClosedButton": "Форма закрыта",
+  "studentFormAlreadySubmittedButton": "Уже отправлено",
+
+  "studentDiplomaEditTitle": "Изменить сертификат",
+  "studentDiplomaDeleteTitle": "Удалить сертификат?",
+  "studentDiplomaDeleteConfirm": "Удалить сертификат для «{name}»?",
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
 }

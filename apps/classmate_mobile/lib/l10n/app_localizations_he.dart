@@ -5829,4 +5829,38 @@ class AppLocalizationsHe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get studentAssignmentValidationRequired =>
+      'הוסף הערה או צרף קובץ לפני ההגשה.';
+
+  @override
+  String get studentFormSubmittedBanner => 'התשובות שהגשת';
+
+  @override
+  String studentFormSubmitError(Object error) {
+    return 'לא ניתן להגיש: $error';
+  }
+
+  @override
+  String studentFormFieldRequired(Object field) {
+    return 'חובה: $field';
+  }
+
+  @override
+  String get studentFormClosedButton => 'הטופס סגור';
+
+  @override
+  String get studentFormAlreadySubmittedButton => 'כבר הוגש';
+
+  @override
+  String get studentDiplomaEditTitle => 'ערוך תעודה';
+
+  @override
+  String get studentDiplomaDeleteTitle => 'למחוק תעודה?';
+
+  @override
+  String studentDiplomaDeleteConfirm(Object name) {
+    return 'להסיר את התעודה של \"$name\"?';
+  }
 }

@@ -5853,4 +5853,38 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get studentAssignmentValidationRequired =>
+      'أضف ملاحظة أو أرفق ملفًا قبل التسليم.';
+
+  @override
+  String get studentFormSubmittedBanner => 'إجاباتك المُسلَّمة';
+
+  @override
+  String studentFormSubmitError(Object error) {
+    return 'تعذّر التسليم: $error';
+  }
+
+  @override
+  String studentFormFieldRequired(Object field) {
+    return 'مطلوب: $field';
+  }
+
+  @override
+  String get studentFormClosedButton => 'النموذج مغلق';
+
+  @override
+  String get studentFormAlreadySubmittedButton => 'تم التسليم مسبقًا';
+
+  @override
+  String get studentDiplomaEditTitle => 'تعديل الشهادة';
+
+  @override
+  String get studentDiplomaDeleteTitle => 'حذف الشهادة؟';
+
+  @override
+  String studentDiplomaDeleteConfirm(Object name) {
+    return 'هل تريد إزالة شهادة \"$name\"؟';
+  }
 }

@@ -10494,6 +10494,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 person} other{{count} people}}'**
   String messagesPeopleCount(int count);
+
+  /// No description provided for @studentAssignmentValidationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note or attach a file before handing in.'**
+  String get studentAssignmentValidationRequired;
+
+  /// No description provided for @studentFormSubmittedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Your submitted answers'**
+  String get studentFormSubmittedBanner;
+
+  /// No description provided for @studentFormSubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit: {error}'**
+  String studentFormSubmitError(Object error);
+
+  /// No description provided for @studentFormFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required: {field}'**
+  String studentFormFieldRequired(Object field);
+
+  /// No description provided for @studentFormClosedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Form closed'**
+  String get studentFormClosedButton;
+
+  /// No description provided for @studentFormAlreadySubmittedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Already submitted'**
+  String get studentFormAlreadySubmittedButton;
+
+  /// No description provided for @studentDiplomaEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Certificate'**
+  String get studentDiplomaEditTitle;
+
+  /// No description provided for @studentDiplomaDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete certificate?'**
+  String get studentDiplomaDeleteTitle;
+
+  /// No description provided for @studentDiplomaDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove certificate for \"{name}\"?'**
+  String studentDiplomaDeleteConfirm(Object name);
 }
 
 class _AppLocalizationsDelegate

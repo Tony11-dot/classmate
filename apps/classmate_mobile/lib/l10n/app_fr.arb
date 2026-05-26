@@ -2281,5 +2281,19 @@
   "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
   "messagesNoPeopleFound": "Aucune personne trouvée",
   "messagesPeopleCount": "{count, plural, =1{1 personne} other{{count} personnes}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "studentAssignmentValidationRequired": "Ajoutez une note ou joignez un fichier avant de remettre.",
+  "studentFormSubmittedBanner": "Vos réponses soumises",
+  "studentFormSubmitError": "Impossible de soumettre : {error}",
+  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "studentFormFieldRequired": "Requis : {field}",
+  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "studentFormClosedButton": "Formulaire fermé",
+  "studentFormAlreadySubmittedButton": "Déjà soumis",
+
+  "studentDiplomaEditTitle": "Modifier le certificat",
+  "studentDiplomaDeleteTitle": "Supprimer le certificat ?",
+  "studentDiplomaDeleteConfirm": "Retirer le certificat de « {name} » ?",
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
 }

@@ -2281,5 +2281,19 @@
   "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
   "messagesNoPeopleFound": "לא נמצאו אנשים",
   "messagesPeopleCount": "{count, plural, =1{אדם אחד} other{{count} אנשים}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}}
+  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
+
+  "studentAssignmentValidationRequired": "הוסף הערה או צרף קובץ לפני ההגשה.",
+  "studentFormSubmittedBanner": "התשובות שהגשת",
+  "studentFormSubmitError": "לא ניתן להגיש: {error}",
+  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "studentFormFieldRequired": "חובה: {field}",
+  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "studentFormClosedButton": "הטופס סגור",
+  "studentFormAlreadySubmittedButton": "כבר הוגש",
+
+  "studentDiplomaEditTitle": "ערוך תעודה",
+  "studentDiplomaDeleteTitle": "למחוק תעודה?",
+  "studentDiplomaDeleteConfirm": "להסיר את התעודה של \"{name}\"?",
+  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}}
 }
