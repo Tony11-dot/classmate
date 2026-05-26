@@ -3,6 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,7 @@ export class AuthService {
     const nEmail = String((dto as any)?.email ?? '').trim();
     const nName = String((dto as any)?.name ?? '').trim();
     const nPassword = String((dto as any)?.password ?? '').trim();
+    const nUsername = String((dto as any)?.username ?? '').trim().toLowerCase();
     if (!nEmail || !nName || !nPassword) throw new BadRequestException('Invalid register payload');
     const email = nEmail.toLowerCase();
     const name = nName;
@@ -51,9 +53,18 @@ export class AuthService {
 
     const hash = await bcrypt.hash(nPassword, 10);
 
+    // Username is the app's primary login identifier — every user must
+    // have one. If the caller supplied it (web/manual signup), use that;
+    // otherwise derive one from the email local-part and ensure uniqueness.
+    const usernameCandidate = nUsername.length > 0
+        ? nUsername.replace(/[^a-z0-9_.-]/g, '')
+        : deriveUsernameCandidate(email, name);
+    const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
+
     const user = await this.prisma.user.create({
       data: {
         email,
+        username,
         name,
         password: hash,
         plainPassword: nPassword,

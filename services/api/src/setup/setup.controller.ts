@@ -32,6 +32,7 @@ import { createHash, randomInt } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 import { Public } from '../auth/decorators/public.decorator';
+import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 import { PrismaService } from '../prisma/prisma.service';
 import { SmsService } from '../auth/password-reset/sms.service';
 import { EmailService } from '../auth/password-reset/email.service';
@@ -244,11 +245,17 @@ export class SetupController {
     let adminUser = await this.prisma.user.findFirst({ where: whereAdmin });
 
     if (!adminUser) {
+      // Username is required for every user. Use the caller-supplied one
+      // when present, otherwise derive from the admin email.
+      const usernameCandidate = adminUsername
+          ? String(adminUsername).toLowerCase().replace(/[^a-z0-9_.-]/g, '')
+          : deriveUsernameCandidate(adminEmail, adminName);
+      const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
       adminUser = await this.prisma.user.create({
         data: {
           name: adminName, nameEn: adminName,
-          ...(adminEmail    ? { email: adminEmail }       : {}),
-          ...(adminUsername ? { username: adminUsername } : {}),
+          ...(adminEmail ? { email: adminEmail } : {}),
+          username,
           password: hash,
           plainPassword: adminPassword,
           schoolId: school.id,

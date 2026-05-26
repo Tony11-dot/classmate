@@ -16,9 +16,11 @@ export async function seedTeacherWithCohort(email: string) {
   });
   await prisma.scheduleSlotCohort.create({ data: { slotId: slot.id, cohortId: cohort.id } });
 
+  const stamp = Date.now();
   const student = await prisma.user.create({
     data: {
-      email: `student1+e2e-${Date.now()}@classmate.app`,
+      email: `student1+e2e-${stamp}@classmate.app`,
+      username: `student1e2e${stamp}`,
       password: teacher.password,
       name: 'Student One',
       roles: { create: [{ role: 'STUDENT' }] },

@@ -6,6 +6,7 @@ import type { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 
 function rolesFromEmail(email: string): Role[] {
   const e = String(email || '').toLowerCase();
@@ -184,9 +185,17 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
 
         if (!userId) {
           const passwordHash = await bcrypt.hash(`dev-token:${identifier}`, 10);
+          // Every user must have a username. If the dev-token identifier
+          // is already a username, use it directly; otherwise derive from
+          // the email local-part.
+          const usernameCandidate = isEmail
+              ? deriveUsernameCandidate(identifier)
+              : identifier.toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+          const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
           const created = await this.prisma.user.create({
             data: {
-              ...(isEmail ? { email: identifier } : { username: identifier }),
+              ...(isEmail ? { email: identifier } : {}),
+              username,
               name: identifier.split('@')[0],
               password: passwordHash,
             },

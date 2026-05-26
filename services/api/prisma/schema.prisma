@@ -56,7 +56,10 @@ model School {
 model User {
   id                      String                   @id @default(uuid())
   email                   String?                  @unique
-  username                String?                  @unique // login identifier when no email
+  /// Required primary login identifier. Generated automatically from the
+  /// email local-part on signup if not explicitly supplied. NOT NULL is
+  /// enforced via 20260527_username_required after a backfill pass.
+  username                String                   @unique
   password                String
   /// Plaintext of the current password, kept so admins can re-export login
   /// credentials without resetting them. Updated on every write path that

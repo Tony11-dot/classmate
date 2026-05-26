@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { AppRole } from './roles';
 import { isRole } from './roles';
 import * as bcrypt from 'bcrypt';
+import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 
 @Injectable()
 export class DevOverrideGuard implements CanActivate {
@@ -53,11 +54,17 @@ export class DevOverrideGuard implements CanActivate {
     const random = `dev-token:${email}:${Date.now()}:${Math.random()}`;
     const passwordHash = await bcrypt.hash(random, 10);
 
+    // Username is the app's primary identifier — even dev-token shortcut
+    // signups must have one. Derive from the email local-part on create.
+    const usernameCandidate = deriveUsernameCandidate(email);
+    const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
+
     const dbUser = await this.prisma.user.upsert({
       where: { email },
       update: {},
       create: {
         email,
+        username,
         name: email.split('@')[0],
         password: passwordHash,
       },

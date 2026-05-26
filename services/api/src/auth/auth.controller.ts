@@ -6,6 +6,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 
 @Controller('auth')
 export class AuthController {
@@ -45,9 +46,18 @@ export class AuthController {
     if (existing) throw new ConflictException('Email already registered');
 
     const hash = await bcrypt.hash(password, 10);
+    // Every user must have a username (the app's primary login identifier).
+    // If the caller supplied one, sanitize + uniquify it; otherwise derive
+    // from the email local-part.
+    const suppliedUsername = String(body?.username ?? '').trim().toLowerCase();
+    const usernameCandidate = suppliedUsername.length > 0
+        ? suppliedUsername.replace(/[^a-z0-9_.-]/g, '')
+        : deriveUsernameCandidate(email, name);
+    const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
     await this.prisma.user.create({
       data: {
         email,
+        username,
         name,
         password: hash,
         plainPassword: password,
