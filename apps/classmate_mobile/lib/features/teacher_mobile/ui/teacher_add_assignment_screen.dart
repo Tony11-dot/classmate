@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -218,7 +219,7 @@ class _TeacherAddAssignmentScreenState
       } catch (_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not upload ${file.name}')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.teacherAssignmentUploadFailed(file.name))),
           );
         }
       }
@@ -226,16 +227,17 @@ class _TeacherAddAssignmentScreenState
   }
 
   Future<void> _save({required bool published}) async {
+    final l = AppLocalizations.of(context)!;
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title.')),
+        SnackBar(content: Text(l.teacherAssignmentEnterTitle)),
       );
       return;
     }
     if (_selectedSubject == null || _selectedSubject!.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a subject.')),
+        SnackBar(content: Text(l.teacherAssignmentSelectSubject)),
       );
       return;
     }
@@ -399,7 +401,7 @@ class _TeacherAddAssignmentScreenState
         actions: [
           TextButton(
             onPressed: _saving ? null : () => _save(published: false),
-            child: const Text('Save Draft'),
+            child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft),
           ),
           const SizedBox(width: 6),
           Padding(
@@ -409,7 +411,7 @@ class _TeacherAddAssignmentScreenState
               icon: _saving
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.send_rounded, size: 18),
-              label: const Text('Publish'),
+              label: Text(AppLocalizations.of(context)!.commonPublish),
             ),
           ),
         ],
@@ -529,7 +531,7 @@ class _TeacherAddAssignmentScreenState
                           _selectedStudentIds.isEmpty &&
                           _selectedGrades.isEmpty) ...[
                         const SizedBox(height: 8),
-                        Text('Visible to everyone', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                        Text(AppLocalizations.of(context)!.teacherMeetingVisibleToEveryone, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
                     ],
                   ),
@@ -573,9 +575,9 @@ class _TeacherAddAssignmentScreenState
                       TextField(
                         controller: _titleCtrl,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(
-                          labelText: 'Title *',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.teacherAssignmentTitleField,
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -585,10 +587,10 @@ class _TeacherAddAssignmentScreenState
                         controller: _descCtrl,
                         maxLines: 4,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(
-                          labelText: 'Instructions / Description',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.teacherAssignmentInstructionsLabel,
                           alignLabelWithHint: true,
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -607,7 +609,7 @@ class _TeacherAddAssignmentScreenState
                         },
                         child: InputDecorator(
                           decoration: InputDecoration(
-                            labelText: 'Due date (optional)',
+                            labelText: AppLocalizations.of(context)!.teacherAssignmentDueDate,
                             border: const OutlineInputBorder(),
                             prefixIcon: const Icon(Icons.calendar_today_rounded),
                             suffixIcon: _dueDate != null
@@ -633,10 +635,10 @@ class _TeacherAddAssignmentScreenState
                       TextField(
                         controller: _maxGradeCtrl,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Max grade (optional)',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.grade_rounded),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.teacherAssignmentMaxGrade,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.grade_rounded),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -687,7 +689,7 @@ class _TeacherAddAssignmentScreenState
                       OutlinedButton.icon(
                         onPressed: _pickFiles,
                         icon: const Icon(Icons.attach_file_rounded, size: 18),
-                        label: const Text('Attach files'),
+                        label: Text(AppLocalizations.of(context)!.teacherAttachFilesButton),
                       ),
                     ],
                   ),
@@ -827,7 +829,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                   controller: _searchCtrl,
                   onChanged: (v) => setState(() => _query = v),
                   decoration: InputDecoration(
-                    hintText: 'Search...',
+                    hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
                     prefixIcon: const Icon(Icons.search_rounded),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     isDense: true,
@@ -868,7 +870,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Done (${_localSelected.length} selected)'),
+                    child: Text(AppLocalizations.of(context)!.teacherMaterialDoneSelected(_localSelected.length)),
                   ),
                 ),
               ),
@@ -983,7 +985,7 @@ class _SinglePickerSheetState extends State<_SinglePickerSheet> {
           child: TextField(
             onChanged: (v) => setState(() => _query = v),
             decoration: InputDecoration(
-              hintText: 'Search…',
+              hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
               prefixIcon: const Icon(Icons.search_rounded, size: 20),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
