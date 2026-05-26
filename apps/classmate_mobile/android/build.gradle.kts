@@ -1,6 +1,7 @@
-plugins {
-    id("com.google.gms.google-services") version "4.4.2" apply false
-}
+// Note: `com.google.gms.google-services` is declared in settings.gradle.kts
+// under FlutterFire Configuration — declaring it again here would
+// double-bind the plugin and Gradle rejects it ("already on the
+// classpath with a different version").
 
 allprojects {
     repositories {

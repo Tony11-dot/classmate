@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
+import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/phone_field.dart';
 
@@ -66,9 +67,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   // ── Email / SMS submission ─────────────────────────────────────────────
 
   Future<void> _submitChannelReset() async {
+    final l = AppLocalizations.of(context)!;
     final identifier = _identifierCtrl.text.trim();
     if (identifier.isEmpty) {
-      setState(() { _message = 'Enter your email or username to continue.'; _success = false; });
+      setState(() { _message = l.forgotPasswordEmptyError; _success = false; });
       return;
     }
     setState(() { _submitting = true; _message = null; });
@@ -86,14 +88,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       final m = raw is Map ? raw : const <String, dynamic>{};
       setState(() {
         _success = m['sent'] == true;
-        _message = m['message']?.toString()
-            ?? (_mode == _ResetMode.email
-                ? 'Reset link sent (if an account matches).'
-                : 'Reset link sent (if an account matches).');
+        _message = m['message']?.toString() ?? l.forgotPasswordEmailSent;
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _success = false; _message = 'Something went wrong. Check your connection and try again.'; });
+      setState(() { _success = false; _message = l.commonError; });
     } finally {
       api.dispose();
       if (mounted) setState(() => _submitting = false);
@@ -242,7 +241,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
           children: [
-            Text('Reset your password',
+            Text(AppLocalizations.of(context)!.forgotPasswordTitle,
                 style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
             Text(headerCopy,
@@ -251,10 +250,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
             // Mode picker
             SegmentedButton<_ResetMode>(
-              segments: const [
-                ButtonSegment(value: _ResetMode.email, label: Text('Email'), icon: Icon(Icons.mail_outline_rounded)),
-                ButtonSegment(value: _ResetMode.sms,   label: Text('SMS'),   icon: Icon(Icons.sms_outlined)),
-                ButtonSegment(value: _ResetMode.admin, label: Text('Admin'), icon: Icon(Icons.shield_outlined)),
+              segments: [
+                ButtonSegment(value: _ResetMode.email, label: Text(AppLocalizations.of(context)!.forgotPasswordModeEmail), icon: const Icon(Icons.mail_outline_rounded)),
+                ButtonSegment(value: _ResetMode.sms,   label: Text(AppLocalizations.of(context)!.forgotPasswordModeSms),   icon: const Icon(Icons.sms_outlined)),
+                ButtonSegment(value: _ResetMode.admin, label: Text(AppLocalizations.of(context)!.forgotPasswordModeAdmin), icon: const Icon(Icons.shield_outlined)),
               ],
               selected: {_mode},
               onSelectionChanged: (s) => setState(() {
@@ -273,7 +272,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                labelText: 'Email or username',
+                labelText: AppLocalizations.of(context)!.loginEmailLabel,
                 prefixIcon: const Icon(Icons.alternate_email_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
@@ -291,7 +290,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 icon: _submitting
                     ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : Icon(_mode == _ResetMode.email ? Icons.send_rounded : Icons.sms_rounded),
-                label: Text(_mode == _ResetMode.email ? 'Email me a reset link' : 'Text me a reset link'),
+                label: Text(_mode == _ResetMode.email
+                    ? AppLocalizations.of(context)!.forgotPasswordEmailButton
+                    : AppLocalizations.of(context)!.forgotPasswordSmsButton),
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               ),
             ] else ...[
