@@ -909,7 +909,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                       minLines: 1,
                                       textCapitalization: TextCapitalization.sentences,
                                       decoration: InputDecoration(
-                                        hintText: 'Add a note (optional)…',
+                                        hintText: AppLocalizations.of(context)!.studentAssignmentAddNoteOptional,
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),

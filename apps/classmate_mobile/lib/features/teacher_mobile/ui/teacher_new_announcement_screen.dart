@@ -779,7 +779,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
             child: TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search…',
+                hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
@@ -991,7 +991,7 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
-                hintText: 'Search parents or children…',
+                hintText: AppLocalizations.of(context)!.teacherSearchParentsOrChildren,
                 prefixIcon: const Icon(Icons.search_rounded),
                 isDense: true,
                 filled: true,

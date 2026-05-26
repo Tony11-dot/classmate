@@ -1081,7 +1081,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                   controller: _search,
                   autofocus: true,
                   decoration: InputDecoration(
-                    hintText: 'Search by name or grade…',
+                    hintText: AppLocalizations.of(context)!.messagesSearchByNameOrGrade,
                     prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: _search.text.isNotEmpty
                         ? IconButton(

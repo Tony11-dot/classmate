@@ -998,9 +998,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 autofocus: true,
                 maxLength: 500,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Reason (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.reportReasonOptional,
+                  border: const OutlineInputBorder(),
                 ),
               ),
             ],

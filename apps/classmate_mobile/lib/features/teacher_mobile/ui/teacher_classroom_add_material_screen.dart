@@ -298,11 +298,11 @@ class _TeacherClassroomAddMaterialScreenState
                     TextField(
                       controller: _urlCtrl,
                       keyboardType: TextInputType.url,
-                      decoration: const InputDecoration(
-                        labelText: 'Link / URL (optional)',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.teacherMaterialLinkUrlOptional,
                         hintText: 'https://...',
-                        prefixIcon: Icon(Icons.link_rounded),
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.link_rounded),
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 10),

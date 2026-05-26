@@ -2980,5 +2980,29 @@
   "@forgotPasswordChooseAdmin": {
     "placeholders": { "school": { "type": "String" } }
   },
-  "forgotPasswordSendRequest": "Send password request"
+  "forgotPasswordSendRequest": "Send password request",
+
+  "commonTitle": "Title",
+  "commonNotes": "Notes",
+  "commonEmail": "Email",
+  "commonPassword": "Password",
+  "commonNumberOfPages": "Number of pages",
+
+  "messagesSearchByNameOrGrade": "Search by name or grade…",
+  "meetingStartDateRequired": "Start date *",
+  "meetingStartTimeRequired": "Start time *",
+  "meetingEndDateOptional": "End date (optional)",
+  "meetingEndTimeOptional": "End time (optional)",
+  "teacherMaterialLinkUrlOptional": "Link / URL (optional)",
+  "teacherSearchStudentsOrGrade": "Search students or grade…",
+  "teacherSearchParentsOrChildren": "Search parents or children…",
+  "studentAssignmentAddNoteOptional": "Add a note (optional)…",
+  "adminEditUserUsernameRequired": "Username *",
+  "reportReasonOptional": "Reason (optional)",
+  "forwardSearchChatsAndClassrooms": "Search chats and classrooms…",
+  "profileNewPhone": "New phone",
+  "profileNewEmail": "New email",
+  "forgotPasswordYourPhone": "Your phone (so the admin can verify it's really you)",
+  "forgotPasswordPhoneHelper": "The admin will call or text this number before approving.",
+  "forgotPasswordNewPasswordHelper": "At least 8 characters. Stored hashed — your admin will not see it."
 }

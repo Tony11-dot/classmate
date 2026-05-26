@@ -2665,5 +2665,29 @@
   "forwardNoChats": "Aucune discussion",
   "forgotPasswordFindAdmins": "Trouver les administrateurs de mon école",
   "forgotPasswordChooseAdmin": "Choisissez un administrateur dans {school} :",
-  "forgotPasswordSendRequest": "Envoyer la demande de mot de passe"
+  "forgotPasswordSendRequest": "Envoyer la demande de mot de passe",
+
+  "commonTitle": "Titre",
+  "commonNotes": "Notes",
+  "commonEmail": "E-mail",
+  "commonPassword": "Mot de passe",
+  "commonNumberOfPages": "Nombre de pages",
+
+  "messagesSearchByNameOrGrade": "Rechercher par nom ou niveau…",
+  "meetingStartDateRequired": "Date de début *",
+  "meetingStartTimeRequired": "Heure de début *",
+  "meetingEndDateOptional": "Date de fin (optionnel)",
+  "meetingEndTimeOptional": "Heure de fin (optionnel)",
+  "teacherMaterialLinkUrlOptional": "Lien / URL (optionnel)",
+  "teacherSearchStudentsOrGrade": "Rechercher élèves ou niveau…",
+  "teacherSearchParentsOrChildren": "Rechercher parents ou enfants…",
+  "studentAssignmentAddNoteOptional": "Ajouter une note (optionnel)…",
+  "adminEditUserUsernameRequired": "Nom d'utilisateur *",
+  "reportReasonOptional": "Raison (optionnel)",
+  "forwardSearchChatsAndClassrooms": "Rechercher discussions et classes…",
+  "profileNewPhone": "Nouveau téléphone",
+  "profileNewEmail": "Nouvel e-mail",
+  "forgotPasswordYourPhone": "Votre téléphone (pour que l'administrateur puisse vérifier votre identité)",
+  "forgotPasswordPhoneHelper": "L'administrateur appellera ou enverra un SMS à ce numéro avant d'approuver.",
+  "forgotPasswordNewPasswordHelper": "Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas."
 }

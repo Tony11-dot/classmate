@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../data/teacher_mobile_repository.dart';
 
 /// Three flavors share the same picker shape: only the fetch source,
@@ -178,7 +179,7 @@ class _ClassroomLibraryPickerSheetState
               child: TextField(
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
-                  hintText: 'Search…',
+                  hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
                   prefixIcon: const Icon(Icons.search_rounded, size: 18),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),

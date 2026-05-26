@@ -466,7 +466,7 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
           child: TextField(
             onChanged: (v) => setState(() => _query = v),
             decoration: InputDecoration(
-              hintText: 'Search…',
+              hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
               prefixIcon: const Icon(Icons.search_rounded, size: 20),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),

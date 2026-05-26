@@ -197,7 +197,7 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search chats and classrooms…',
+                hintText: AppLocalizations.of(context)!.forwardSearchChatsAndClassrooms,
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: _searchCtrl.text.isEmpty
                     ? null

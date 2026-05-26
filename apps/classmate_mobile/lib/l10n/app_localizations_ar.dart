@@ -6995,4 +6995,73 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get forgotPasswordSendRequest => 'إرسال طلب كلمة المرور';
+
+  @override
+  String get commonTitle => 'العنوان';
+
+  @override
+  String get commonNotes => 'ملاحظات';
+
+  @override
+  String get commonEmail => 'البريد الإلكتروني';
+
+  @override
+  String get commonPassword => 'كلمة المرور';
+
+  @override
+  String get commonNumberOfPages => 'عدد الصفحات';
+
+  @override
+  String get messagesSearchByNameOrGrade => 'ابحث بالاسم أو الصف…';
+
+  @override
+  String get meetingStartDateRequired => 'تاريخ البدء *';
+
+  @override
+  String get meetingStartTimeRequired => 'وقت البدء *';
+
+  @override
+  String get meetingEndDateOptional => 'تاريخ الانتهاء (اختياري)';
+
+  @override
+  String get meetingEndTimeOptional => 'وقت الانتهاء (اختياري)';
+
+  @override
+  String get teacherMaterialLinkUrlOptional => 'رابط / URL (اختياري)';
+
+  @override
+  String get teacherSearchStudentsOrGrade => 'ابحث عن الطلاب أو الصف…';
+
+  @override
+  String get teacherSearchParentsOrChildren => 'ابحث عن الأهالي أو الأبناء…';
+
+  @override
+  String get studentAssignmentAddNoteOptional => 'أضف ملاحظة (اختياري)…';
+
+  @override
+  String get adminEditUserUsernameRequired => 'اسم المستخدم *';
+
+  @override
+  String get reportReasonOptional => 'السبب (اختياري)';
+
+  @override
+  String get forwardSearchChatsAndClassrooms => 'ابحث في المحادثات والصفوف…';
+
+  @override
+  String get profileNewPhone => 'رقم هاتف جديد';
+
+  @override
+  String get profileNewEmail => 'بريد إلكتروني جديد';
+
+  @override
+  String get forgotPasswordYourPhone =>
+      'رقم هاتفك (حتى يتمكن المدير من التحقق من هويتك)';
+
+  @override
+  String get forgotPasswordPhoneHelper =>
+      'سيتصل المدير أو يرسل رسالة نصية إلى هذا الرقم قبل الموافقة.';
+
+  @override
+  String get forgotPasswordNewPasswordHelper =>
+      'على الأقل 8 أحرف. تُخزن مشفّرة — لن يراها المدير.';
 }

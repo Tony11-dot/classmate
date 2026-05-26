@@ -2665,5 +2665,29 @@
   "forwardNoChats": "אין צ'אטים",
   "forgotPasswordFindAdmins": "מצא את מנהלי בית הספר שלי",
   "forgotPasswordChooseAdmin": "בחר מנהל מתוך {school}:",
-  "forgotPasswordSendRequest": "שלח בקשת סיסמה"
+  "forgotPasswordSendRequest": "שלח בקשת סיסמה",
+
+  "commonTitle": "כותרת",
+  "commonNotes": "הערות",
+  "commonEmail": "דוא\"ל",
+  "commonPassword": "סיסמה",
+  "commonNumberOfPages": "מספר עמודים",
+
+  "messagesSearchByNameOrGrade": "חפש לפי שם או כיתה…",
+  "meetingStartDateRequired": "תאריך התחלה *",
+  "meetingStartTimeRequired": "שעת התחלה *",
+  "meetingEndDateOptional": "תאריך סיום (אופציונלי)",
+  "meetingEndTimeOptional": "שעת סיום (אופציונלי)",
+  "teacherMaterialLinkUrlOptional": "קישור / URL (אופציונלי)",
+  "teacherSearchStudentsOrGrade": "חפש תלמידים או כיתה…",
+  "teacherSearchParentsOrChildren": "חפש הורים או ילדים…",
+  "studentAssignmentAddNoteOptional": "הוסף הערה (אופציונלי)…",
+  "adminEditUserUsernameRequired": "שם משתמש *",
+  "reportReasonOptional": "סיבה (אופציונלי)",
+  "forwardSearchChatsAndClassrooms": "חפש בצ'אטים ובכיתות…",
+  "profileNewPhone": "טלפון חדש",
+  "profileNewEmail": "דוא\"ל חדש",
+  "forgotPasswordYourPhone": "הטלפון שלך (כדי שהמנהל יוכל לאמת שזה באמת אתה)",
+  "forgotPasswordPhoneHelper": "המנהל יתקשר או ישלח הודעה למספר זה לפני האישור.",
+  "forgotPasswordNewPasswordHelper": "לפחות 8 תווים. נשמר מוצפן — המנהל לא יראה אותה."
 }

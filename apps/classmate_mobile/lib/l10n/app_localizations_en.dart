@@ -7031,4 +7031,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotPasswordSendRequest => 'Send password request';
+
+  @override
+  String get commonTitle => 'Title';
+
+  @override
+  String get commonNotes => 'Notes';
+
+  @override
+  String get commonEmail => 'Email';
+
+  @override
+  String get commonPassword => 'Password';
+
+  @override
+  String get commonNumberOfPages => 'Number of pages';
+
+  @override
+  String get messagesSearchByNameOrGrade => 'Search by name or grade…';
+
+  @override
+  String get meetingStartDateRequired => 'Start date *';
+
+  @override
+  String get meetingStartTimeRequired => 'Start time *';
+
+  @override
+  String get meetingEndDateOptional => 'End date (optional)';
+
+  @override
+  String get meetingEndTimeOptional => 'End time (optional)';
+
+  @override
+  String get teacherMaterialLinkUrlOptional => 'Link / URL (optional)';
+
+  @override
+  String get teacherSearchStudentsOrGrade => 'Search students or grade…';
+
+  @override
+  String get teacherSearchParentsOrChildren => 'Search parents or children…';
+
+  @override
+  String get studentAssignmentAddNoteOptional => 'Add a note (optional)…';
+
+  @override
+  String get adminEditUserUsernameRequired => 'Username *';
+
+  @override
+  String get reportReasonOptional => 'Reason (optional)';
+
+  @override
+  String get forwardSearchChatsAndClassrooms => 'Search chats and classrooms…';
+
+  @override
+  String get profileNewPhone => 'New phone';
+
+  @override
+  String get profileNewEmail => 'New email';
+
+  @override
+  String get forgotPasswordYourPhone =>
+      'Your phone (so the admin can verify it\'s really you)';
+
+  @override
+  String get forgotPasswordPhoneHelper =>
+      'The admin will call or text this number before approving.';
+
+  @override
+  String get forgotPasswordNewPasswordHelper =>
+      'At least 8 characters. Stored hashed — your admin will not see it.';
 }

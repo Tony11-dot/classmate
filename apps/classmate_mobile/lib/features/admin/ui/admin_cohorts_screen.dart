@@ -479,7 +479,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                   TextField(
                     onChanged: (v) => setState(() => _search = v),
                     decoration: InputDecoration(
-                      hintText: 'Search students…',
+                      hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
                       prefixIcon: const Icon(Icons.search_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       isDense: true,

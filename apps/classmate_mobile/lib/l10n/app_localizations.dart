@@ -12456,6 +12456,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send password request'**
   String get forgotPasswordSendRequest;
+
+  /// No description provided for @commonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get commonTitle;
+
+  /// No description provided for @commonNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get commonNotes;
+
+  /// No description provided for @commonEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get commonEmail;
+
+  /// No description provided for @commonPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get commonPassword;
+
+  /// No description provided for @commonNumberOfPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of pages'**
+  String get commonNumberOfPages;
+
+  /// No description provided for @messagesSearchByNameOrGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or grade…'**
+  String get messagesSearchByNameOrGrade;
+
+  /// No description provided for @meetingStartDateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date *'**
+  String get meetingStartDateRequired;
+
+  /// No description provided for @meetingStartTimeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time *'**
+  String get meetingStartTimeRequired;
+
+  /// No description provided for @meetingEndDateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'End date (optional)'**
+  String get meetingEndDateOptional;
+
+  /// No description provided for @meetingEndTimeOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'End time (optional)'**
+  String get meetingEndTimeOptional;
+
+  /// No description provided for @teacherMaterialLinkUrlOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Link / URL (optional)'**
+  String get teacherMaterialLinkUrlOptional;
+
+  /// No description provided for @teacherSearchStudentsOrGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students or grade…'**
+  String get teacherSearchStudentsOrGrade;
+
+  /// No description provided for @teacherSearchParentsOrChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Search parents or children…'**
+  String get teacherSearchParentsOrChildren;
+
+  /// No description provided for @studentAssignmentAddNoteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note (optional)…'**
+  String get studentAssignmentAddNoteOptional;
+
+  /// No description provided for @adminEditUserUsernameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Username *'**
+  String get adminEditUserUsernameRequired;
+
+  /// No description provided for @reportReasonOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get reportReasonOptional;
+
+  /// No description provided for @forwardSearchChatsAndClassrooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Search chats and classrooms…'**
+  String get forwardSearchChatsAndClassrooms;
+
+  /// No description provided for @profileNewPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'New phone'**
+  String get profileNewPhone;
+
+  /// No description provided for @profileNewEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'New email'**
+  String get profileNewEmail;
+
+  /// No description provided for @forgotPasswordYourPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone (so the admin can verify it\'s really you)'**
+  String get forgotPasswordYourPhone;
+
+  /// No description provided for @forgotPasswordPhoneHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'The admin will call or text this number before approving.'**
+  String get forgotPasswordPhoneHelper;
+
+  /// No description provided for @forgotPasswordNewPasswordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters. Stored hashed — your admin will not see it.'**
+  String get forgotPasswordNewPasswordHelper;
 }
 
 class _AppLocalizationsDelegate

@@ -6984,4 +6984,74 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get forgotPasswordSendRequest => 'Отправить запрос пароля';
+
+  @override
+  String get commonTitle => 'Заголовок';
+
+  @override
+  String get commonNotes => 'Заметки';
+
+  @override
+  String get commonEmail => 'Эл. почта';
+
+  @override
+  String get commonPassword => 'Пароль';
+
+  @override
+  String get commonNumberOfPages => 'Количество страниц';
+
+  @override
+  String get messagesSearchByNameOrGrade => 'Поиск по имени или классу…';
+
+  @override
+  String get meetingStartDateRequired => 'Дата начала *';
+
+  @override
+  String get meetingStartTimeRequired => 'Время начала *';
+
+  @override
+  String get meetingEndDateOptional => 'Дата окончания (необязательно)';
+
+  @override
+  String get meetingEndTimeOptional => 'Время окончания (необязательно)';
+
+  @override
+  String get teacherMaterialLinkUrlOptional => 'Ссылка / URL (необязательно)';
+
+  @override
+  String get teacherSearchStudentsOrGrade => 'Поиск учеников или класса…';
+
+  @override
+  String get teacherSearchParentsOrChildren => 'Поиск родителей или детей…';
+
+  @override
+  String get studentAssignmentAddNoteOptional =>
+      'Добавить заметку (необязательно)…';
+
+  @override
+  String get adminEditUserUsernameRequired => 'Логин *';
+
+  @override
+  String get reportReasonOptional => 'Причина (необязательно)';
+
+  @override
+  String get forwardSearchChatsAndClassrooms => 'Поиск чатов и классов…';
+
+  @override
+  String get profileNewPhone => 'Новый телефон';
+
+  @override
+  String get profileNewEmail => 'Новая эл. почта';
+
+  @override
+  String get forgotPasswordYourPhone =>
+      'Ваш телефон (чтобы администратор мог подтвердить вашу личность)';
+
+  @override
+  String get forgotPasswordPhoneHelper =>
+      'Администратор позвонит или отправит SMS на этот номер перед одобрением.';
+
+  @override
+  String get forgotPasswordNewPasswordHelper =>
+      'Не менее 8 символов. Хранится зашифрованным — администратор её не увидит.';
 }

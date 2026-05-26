@@ -1293,7 +1293,7 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
               controller: _ctrl,
               dialCode: _dialCode,
               onDialCodeChanged: (v) => setState(() => _dialCode = v),
-              labelText: 'New phone',
+              labelText: AppLocalizations.of(context)!.profileNewPhone,
               helperText: null,
               autofocus: true,
             )
@@ -1303,7 +1303,7 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
               autofocus: true,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                labelText: 'New email',
+                labelText: AppLocalizations.of(context)!.profileNewEmail,
                 hintText: 'name@example.com',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),

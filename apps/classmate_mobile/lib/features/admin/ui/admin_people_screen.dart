@@ -635,7 +635,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     controller: _usernameCtrl,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Username *',
+                      labelText: AppLocalizations.of(context)!.adminEditUserUsernameRequired,
                       prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -646,7 +646,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      labelText: AppLocalizations.of(context)!.commonEmail,
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -665,7 +665,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     autocorrect: false,
                     obscureText: true,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: AppLocalizations.of(context)!.commonPassword,
                       prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),

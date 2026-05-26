@@ -2872,5 +2872,29 @@
   "forwardNoChats": "Нет чатов",
   "forgotPasswordFindAdmins": "Найти администраторов моей школы",
   "forgotPasswordChooseAdmin": "Выберите администратора из {school}:",
-  "forgotPasswordSendRequest": "Отправить запрос пароля"
+  "forgotPasswordSendRequest": "Отправить запрос пароля",
+
+  "commonTitle": "Заголовок",
+  "commonNotes": "Заметки",
+  "commonEmail": "Эл. почта",
+  "commonPassword": "Пароль",
+  "commonNumberOfPages": "Количество страниц",
+
+  "messagesSearchByNameOrGrade": "Поиск по имени или классу…",
+  "meetingStartDateRequired": "Дата начала *",
+  "meetingStartTimeRequired": "Время начала *",
+  "meetingEndDateOptional": "Дата окончания (необязательно)",
+  "meetingEndTimeOptional": "Время окончания (необязательно)",
+  "teacherMaterialLinkUrlOptional": "Ссылка / URL (необязательно)",
+  "teacherSearchStudentsOrGrade": "Поиск учеников или класса…",
+  "teacherSearchParentsOrChildren": "Поиск родителей или детей…",
+  "studentAssignmentAddNoteOptional": "Добавить заметку (необязательно)…",
+  "adminEditUserUsernameRequired": "Логин *",
+  "reportReasonOptional": "Причина (необязательно)",
+  "forwardSearchChatsAndClassrooms": "Поиск чатов и классов…",
+  "profileNewPhone": "Новый телефон",
+  "profileNewEmail": "Новая эл. почта",
+  "forgotPasswordYourPhone": "Ваш телефон (чтобы администратор мог подтвердить вашу личность)",
+  "forgotPasswordPhoneHelper": "Администратор позвонит или отправит SMS на этот номер перед одобрением.",
+  "forgotPasswordNewPasswordHelper": "Не менее 8 символов. Хранится зашифрованным — администратор её не увидит."
 }

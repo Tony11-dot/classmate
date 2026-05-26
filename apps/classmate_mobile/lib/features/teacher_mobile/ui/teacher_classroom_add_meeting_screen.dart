@@ -273,15 +273,15 @@ class _TeacherClassroomAddMeetingScreenState
                           borderRadius: BorderRadius.circular(4),
                           onTap: _pickStartDate,
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Start date *',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.calendar_today_rounded),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.meetingStartDateRequired,
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.calendar_today_rounded),
                             ),
                             child: Text(
                               _startDate != null
                                   ? dateFmt.format(_startDate!)
-                                  : 'Start date *',
+                                  : AppLocalizations.of(context)!.meetingStartDateRequired,
                               style: TextStyle(
                                 color: _startDate != null
                                     ? cs.onSurface
@@ -299,15 +299,15 @@ class _TeacherClassroomAddMeetingScreenState
                           borderRadius: BorderRadius.circular(4),
                           onTap: _pickStartTime,
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Start time *',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.access_time_rounded),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.meetingStartTimeRequired,
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.access_time_rounded),
                             ),
                             child: Text(
                               _startTime != null
                                   ? formatTime(_startTime!)
-                                  : 'Start time *',
+                                  : AppLocalizations.of(context)!.meetingStartTimeRequired,
                               style: TextStyle(
                                 color: _startTime != null
                                     ? cs.onSurface
@@ -330,15 +330,15 @@ class _TeacherClassroomAddMeetingScreenState
                           borderRadius: BorderRadius.circular(4),
                           onTap: _pickEndDate,
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'End date (optional)',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.calendar_today_outlined),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.meetingEndDateOptional,
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.calendar_today_outlined),
                             ),
                             child: Text(
                               _endDate != null
                                   ? dateFmt.format(_endDate!)
-                                  : 'End date (optional)',
+                                  : AppLocalizations.of(context)!.meetingEndDateOptional,
                               style: TextStyle(
                                 color: _endDate != null
                                     ? cs.onSurface
@@ -357,7 +357,7 @@ class _TeacherClassroomAddMeetingScreenState
                           onTap: _pickEndTime,
                           child: InputDecorator(
                             decoration: InputDecoration(
-                              labelText: 'End time (optional)',
+                              labelText: AppLocalizations.of(context)!.meetingEndTimeOptional,
                               border: const OutlineInputBorder(),
                               prefixIcon:
                                   const Icon(Icons.access_time_outlined),
@@ -376,7 +376,7 @@ class _TeacherClassroomAddMeetingScreenState
                             child: Text(
                               _endTime != null
                                   ? formatTime(_endTime!)
-                                  : 'End time (optional)',
+                                  : AppLocalizations.of(context)!.meetingEndTimeOptional,
                               style: TextStyle(
                                 color: _endTime != null
                                     ? cs.onSurface

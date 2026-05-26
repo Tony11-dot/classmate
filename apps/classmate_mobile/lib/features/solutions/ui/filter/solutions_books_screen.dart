@@ -57,11 +57,11 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
             TextField(
               controller: pagesCtrl,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Number of pages',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.commonNumberOfPages,
                 hintText: 'e.g. 240',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.format_list_numbered_rounded),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.format_list_numbered_rounded),
               ),
             ),
           ],

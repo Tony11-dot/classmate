@@ -341,16 +341,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   controller: _phoneCtrl,
                   dialCode: _dialCode,
                   onDialCodeChanged: (v) => setState(() => _dialCode = v),
-                  labelText: 'Your phone (so the admin can verify it\'s really you)',
-                  helperText: 'The admin will call or text this number before approving.',
+                  labelText: AppLocalizations.of(context)!.forgotPasswordYourPhone,
+                  helperText: AppLocalizations.of(context)!.forgotPasswordPhoneHelper,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _pw1Ctrl,
                   obscureText: _obscure,
                   decoration: InputDecoration(
-                    labelText: 'New password',
-                    helperText: 'At least 8 characters. Stored hashed — your admin will not see it.',
+                    labelText: AppLocalizations.of(context)!.adminEditUserNewPasswordLabel,
+                    helperText: AppLocalizations.of(context)!.forgotPasswordNewPasswordHelper,
                     suffixIcon: IconButton(
                       icon: Icon(_obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded),
                       onPressed: () => setState(() => _obscure = !_obscure),
@@ -363,7 +363,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   controller: _pw2Ctrl,
                   obscureText: _obscure,
                   decoration: InputDecoration(
-                    labelText: 'Confirm new password',
+                    labelText: AppLocalizations.of(context)!.adminEditUserConfirmPasswordLabel,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   onSubmitted: (_) => _submitAdminRequest(),

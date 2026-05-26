@@ -2665,5 +2665,29 @@
   "forwardNoChats": "لا توجد محادثات",
   "forgotPasswordFindAdmins": "ابحث عن مديري مدرستي",
   "forgotPasswordChooseAdmin": "اختر مديرًا من {school}:",
-  "forgotPasswordSendRequest": "إرسال طلب كلمة المرور"
+  "forgotPasswordSendRequest": "إرسال طلب كلمة المرور",
+
+  "commonTitle": "العنوان",
+  "commonNotes": "ملاحظات",
+  "commonEmail": "البريد الإلكتروني",
+  "commonPassword": "كلمة المرور",
+  "commonNumberOfPages": "عدد الصفحات",
+
+  "messagesSearchByNameOrGrade": "ابحث بالاسم أو الصف…",
+  "meetingStartDateRequired": "تاريخ البدء *",
+  "meetingStartTimeRequired": "وقت البدء *",
+  "meetingEndDateOptional": "تاريخ الانتهاء (اختياري)",
+  "meetingEndTimeOptional": "وقت الانتهاء (اختياري)",
+  "teacherMaterialLinkUrlOptional": "رابط / URL (اختياري)",
+  "teacherSearchStudentsOrGrade": "ابحث عن الطلاب أو الصف…",
+  "teacherSearchParentsOrChildren": "ابحث عن الأهالي أو الأبناء…",
+  "studentAssignmentAddNoteOptional": "أضف ملاحظة (اختياري)…",
+  "adminEditUserUsernameRequired": "اسم المستخدم *",
+  "reportReasonOptional": "السبب (اختياري)",
+  "forwardSearchChatsAndClassrooms": "ابحث في المحادثات والصفوف…",
+  "profileNewPhone": "رقم هاتف جديد",
+  "profileNewEmail": "بريد إلكتروني جديد",
+  "forgotPasswordYourPhone": "رقم هاتفك (حتى يتمكن المدير من التحقق من هويتك)",
+  "forgotPasswordPhoneHelper": "سيتصل المدير أو يرسل رسالة نصية إلى هذا الرقم قبل الموافقة.",
+  "forgotPasswordNewPasswordHelper": "على الأقل 8 أحرف. تُخزن مشفّرة — لن يراها المدير."
 }

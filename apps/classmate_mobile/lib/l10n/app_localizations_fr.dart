@@ -7131,4 +7131,75 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get forgotPasswordSendRequest => 'Envoyer la demande de mot de passe';
+
+  @override
+  String get commonTitle => 'Titre';
+
+  @override
+  String get commonNotes => 'Notes';
+
+  @override
+  String get commonEmail => 'E-mail';
+
+  @override
+  String get commonPassword => 'Mot de passe';
+
+  @override
+  String get commonNumberOfPages => 'Nombre de pages';
+
+  @override
+  String get messagesSearchByNameOrGrade => 'Rechercher par nom ou niveau…';
+
+  @override
+  String get meetingStartDateRequired => 'Date de début *';
+
+  @override
+  String get meetingStartTimeRequired => 'Heure de début *';
+
+  @override
+  String get meetingEndDateOptional => 'Date de fin (optionnel)';
+
+  @override
+  String get meetingEndTimeOptional => 'Heure de fin (optionnel)';
+
+  @override
+  String get teacherMaterialLinkUrlOptional => 'Lien / URL (optionnel)';
+
+  @override
+  String get teacherSearchStudentsOrGrade => 'Rechercher élèves ou niveau…';
+
+  @override
+  String get teacherSearchParentsOrChildren => 'Rechercher parents ou enfants…';
+
+  @override
+  String get studentAssignmentAddNoteOptional =>
+      'Ajouter une note (optionnel)…';
+
+  @override
+  String get adminEditUserUsernameRequired => 'Nom d\'utilisateur *';
+
+  @override
+  String get reportReasonOptional => 'Raison (optionnel)';
+
+  @override
+  String get forwardSearchChatsAndClassrooms =>
+      'Rechercher discussions et classes…';
+
+  @override
+  String get profileNewPhone => 'Nouveau téléphone';
+
+  @override
+  String get profileNewEmail => 'Nouvel e-mail';
+
+  @override
+  String get forgotPasswordYourPhone =>
+      'Votre téléphone (pour que l\'administrateur puisse vérifier votre identité)';
+
+  @override
+  String get forgotPasswordPhoneHelper =>
+      'L\'administrateur appellera ou enverra un SMS à ce numéro avant d\'approuver.';
+
+  @override
+  String get forgotPasswordNewPasswordHelper =>
+      'Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas.';
 }
