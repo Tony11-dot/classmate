@@ -3642,7 +3642,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
               ),
               IconButton(
                 icon: Icon(Icons.delete_outline_rounded, color: cs.error),
-                tooltip: 'Delete period',
+                tooltip: AppLocalizations.of(context)!.tooltipDeletePeriod,
                 onPressed: widget.onDelete,
                 visualDensity: VisualDensity.compact,
               ),

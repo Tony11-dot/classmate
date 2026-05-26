@@ -2753,5 +2753,15 @@
   "practiceModeExamSubtitle": "Flux calme façon examen",
   "practiceModeConceptSubtitle": "Concept d'abord, résolution ensuite",
   "practiceModeAdaptiveSubtitle": "La difficulté change en direct",
-  "practiceModeStrictSubtitle": "Style officiel strict"
+  "practiceModeStrictSubtitle": "Style officiel strict",
+
+  "commonEdit": "Modifier",
+  "commonBack": "Retour",
+  "commonClose": "Fermer",
+  "commonDownload": "Télécharger",
+  "commonOpenExternally": "Ouvrir en externe",
+  "commonCall": "Appeler",
+  "tooltipClearEndTime": "Effacer l'heure de fin",
+  "tooltipDeletePeriod": "Supprimer la période",
+  "tooltipLeaveClassroom": "Quitter la classe"
 }

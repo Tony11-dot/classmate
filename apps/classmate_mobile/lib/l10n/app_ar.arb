@@ -2753,5 +2753,15 @@
   "practiceModeExamSubtitle": "تدفق هادئ بنمط الامتحان",
   "practiceModeConceptSubtitle": "المفهوم أولاً، الحل لاحقًا",
   "practiceModeAdaptiveSubtitle": "تتغير الصعوبة مباشرة",
-  "practiceModeStrictSubtitle": "نمط رسمي صارم"
+  "practiceModeStrictSubtitle": "نمط رسمي صارم",
+
+  "commonEdit": "تعديل",
+  "commonBack": "رجوع",
+  "commonClose": "إغلاق",
+  "commonDownload": "تنزيل",
+  "commonOpenExternally": "فتح خارجيًا",
+  "commonCall": "اتصال",
+  "tooltipClearEndTime": "مسح وقت الانتهاء",
+  "tooltipDeletePeriod": "حذف الحصة",
+  "tooltipLeaveClassroom": "مغادرة الصف"
 }

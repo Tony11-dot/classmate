@@ -7245,4 +7245,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get practiceModeStrictSubtitle => 'نمط رسمي صارم';
+
+  @override
+  String get commonCall => 'اتصال';
+
+  @override
+  String get tooltipClearEndTime => 'مسح وقت الانتهاء';
+
+  @override
+  String get tooltipDeletePeriod => 'حذف الحصة';
+
+  @override
+  String get tooltipLeaveClassroom => 'مغادرة الصف';
 }

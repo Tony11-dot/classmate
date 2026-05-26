@@ -328,7 +328,7 @@ class _PhoneActionRow extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Call',
+            tooltip: AppLocalizations.of(context)!.commonCall,
             icon: const Icon(Icons.call_rounded, size: 18),
             visualDensity: VisualDensity.compact,
             color: cs.tertiary,

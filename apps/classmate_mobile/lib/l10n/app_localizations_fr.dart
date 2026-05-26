@@ -7389,4 +7389,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get practiceModeStrictSubtitle => 'Style officiel strict';
+
+  @override
+  String get commonCall => 'Appeler';
+
+  @override
+  String get tooltipClearEndTime => 'Effacer l\'heure de fin';
+
+  @override
+  String get tooltipDeletePeriod => 'Supprimer la période';
+
+  @override
+  String get tooltipLeaveClassroom => 'Quitter la classe';
 }

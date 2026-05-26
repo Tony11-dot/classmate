@@ -7281,4 +7281,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get practiceModeStrictSubtitle => 'Strict official style';
+
+  @override
+  String get commonCall => 'Call';
+
+  @override
+  String get tooltipClearEndTime => 'Clear end time';
+
+  @override
+  String get tooltipDeletePeriod => 'Delete period';
+
+  @override
+  String get tooltipLeaveClassroom => 'Leave classroom';
 }

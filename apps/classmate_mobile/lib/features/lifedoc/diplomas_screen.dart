@@ -352,14 +352,14 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                             // Edit button
                             IconButton(
                               icon: Icon(Icons.edit_rounded, size: 18, color: cs.primary),
-                              tooltip: 'Edit',
+                              tooltip: AppLocalizations.of(context)!.commonEdit,
                               onPressed: () => _editDiploma(d),
                               visualDensity: VisualDensity.compact,
                             ),
                             // Delete button
                             IconButton(
                               icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
-                              tooltip: 'Delete',
+                              tooltip: AppLocalizations.of(context)!.commonDelete,
                               onPressed: () => _delete(id, nameLabel),
                               visualDensity: VisualDensity.compact,
                             ),

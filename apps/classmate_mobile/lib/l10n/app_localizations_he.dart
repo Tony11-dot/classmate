@@ -5061,13 +5061,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonRetry => 'נסה שוב';
 
   @override
-  String get commonBack => 'חזרה';
+  String get commonBack => 'חזור';
 
   @override
-  String get commonClose => 'סגירה';
+  String get commonClose => 'סגור';
 
   @override
-  String get commonDownload => 'הורדה';
+  String get commonDownload => 'הורד';
 
   @override
   String get commonOpenExternally => 'פתח חיצונית';
@@ -7213,4 +7213,16 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get practiceModeStrictSubtitle => 'סגנון רשמי מחמיר';
+
+  @override
+  String get commonCall => 'התקשר';
+
+  @override
+  String get tooltipClearEndTime => 'נקה שעת סיום';
+
+  @override
+  String get tooltipDeletePeriod => 'מחק שיעור';
+
+  @override
+  String get tooltipLeaveClassroom => 'עזוב כיתה';
 }

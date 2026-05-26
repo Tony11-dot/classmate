@@ -140,19 +140,19 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               children: [
                 _PdfFloatingButton(
                   icon: Icons.file_download_outlined,
-                  tooltip: 'Download',
+                  tooltip: AppLocalizations.of(context)!.commonDownload,
                   onTap: _localPath == null ? null : _download,
                 ),
                 const SizedBox(width: 6),
                 _PdfFloatingButton(
                   icon: Icons.open_in_new_rounded,
-                  tooltip: 'Open externally',
+                  tooltip: AppLocalizations.of(context)!.commonOpenExternally,
                   onTap: _openExternally,
                 ),
                 const SizedBox(width: 6),
                 _PdfFloatingButton(
                   icon: Icons.close_rounded,
-                  tooltip: 'Close',
+                  tooltip: AppLocalizations.of(context)!.commonClose,
                   onTap: () => Navigator.of(context).maybePop(),
                 ),
               ],

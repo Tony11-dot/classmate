@@ -365,7 +365,7 @@ class _TeacherClassroomAddMeetingScreenState
                                   ? IconButton(
                                       icon: const Icon(Icons.clear_rounded,
                                           size: 18),
-                                      tooltip: 'Clear end time',
+                                      tooltip: AppLocalizations.of(context)!.tooltipClearEndTime,
                                       onPressed: () => setState(() {
                                         _endTime = null;
                                         _endDate = null;

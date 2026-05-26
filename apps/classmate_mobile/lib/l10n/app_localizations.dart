@@ -9,6 +9,7 @@ import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
 import 'app_localizations_he.dart';
+import 'app_localizations_ps.dart';
 import 'app_localizations_ru.dart';
 
 // ignore_for_file: type=lint
@@ -101,6 +102,7 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('fr'),
     Locale('he'),
+    Locale('ps'),
     Locale('ru'),
   ];
 
@@ -12906,6 +12908,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Strict official style'**
   String get practiceModeStrictSubtitle;
+
+  /// No description provided for @commonCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get commonCall;
+
+  /// No description provided for @tooltipClearEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear end time'**
+  String get tooltipClearEndTime;
+
+  /// No description provided for @tooltipDeletePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete period'**
+  String get tooltipDeletePeriod;
+
+  /// No description provided for @tooltipLeaveClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave classroom'**
+  String get tooltipLeaveClassroom;
 }
 
 class _AppLocalizationsDelegate
@@ -12918,8 +12944,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en', 'fr', 'he', 'ru'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+    'ar',
+    'en',
+    'fr',
+    'he',
+    'ps',
+    'ru',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -12936,6 +12968,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsFr();
     case 'he':
       return AppLocalizationsHe();
+    case 'ps':
+      return AppLocalizationsPs();
     case 'ru':
       return AppLocalizationsRu();
   }

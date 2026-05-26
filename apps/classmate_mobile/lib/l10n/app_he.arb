@@ -2753,5 +2753,15 @@
   "practiceModeExamSubtitle": "זרימה רגועה בסגנון מבחן",
   "practiceModeConceptSubtitle": "מושג קודם, פתרון אחר כך",
   "practiceModeAdaptiveSubtitle": "הקושי משתנה בזמן אמת",
-  "practiceModeStrictSubtitle": "סגנון רשמי מחמיר"
+  "practiceModeStrictSubtitle": "סגנון רשמי מחמיר",
+
+  "commonEdit": "ערוך",
+  "commonBack": "חזור",
+  "commonClose": "סגור",
+  "commonDownload": "הורד",
+  "commonOpenExternally": "פתח חיצונית",
+  "commonCall": "התקשר",
+  "tooltipClearEndTime": "נקה שעת סיום",
+  "tooltipDeletePeriod": "מחק שיעור",
+  "tooltipLeaveClassroom": "עזוב כיתה"
 }

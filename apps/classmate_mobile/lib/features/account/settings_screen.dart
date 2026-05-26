@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,6 +24,10 @@ const _kLanguages = [
   _Lang('he', 'עברית', '🇮🇱'),
   _Lang('fr', 'Français', '🇫🇷'),
   _Lang('ru', 'Русский', '🇷🇺'),
+  // Pseudo-locale for translation-leak QA. Every translated string renders
+  // wrapped in ‹‹ ... ›› — anything still in English is a hardcoded leak.
+  // Gated to debug builds via kDebugMode in the picker below.
+  _Lang('ps', '‹‹ Pseudo ››', '🧪'),
 ];
 
 // ── Accent colour palette ────────────────────────────────────────────────────
@@ -149,13 +154,18 @@ class SettingsScreen extends ConsumerWidget {
                         label: l.settingsLanguageSystem,
                         icon: Icons.public_rounded,
                       ),
-                      ..._kLanguages.map(
-                        (l) => LiquidGlassDropdownItem<String?>(
-                          value: l.code,
-                          label: '${l.flag}  ${l.label}',
-                          icon: Icons.translate_rounded,
-                        ),
-                      ),
+                      // Pseudo-locale (code 'ps') is dev-only — strip it in
+                      // release builds so end users never see it as a real
+                      // language option.
+                      ..._kLanguages
+                          .where((lang) => kDebugMode || lang.code != 'ps')
+                          .map(
+                            (lang) => LiquidGlassDropdownItem<String?>(
+                              value: lang.code,
+                              label: '${lang.flag}  ${lang.label}',
+                              icon: Icons.translate_rounded,
+                            ),
+                          ),
                     ],
                     onChanged: lc.setLocale,
                     searchHint: l.settingsLanguageSearchHint,

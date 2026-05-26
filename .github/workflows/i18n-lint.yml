@@ -1,0 +1,36 @@
+name: i18n lint
+
+# Fast check that no hardcoded user-visible English strings have been added
+# in the Flutter app. Greps lib/ for Text('...')/labelText:/hintText:/etc.
+# patterns containing capitalized English and fails if any are found.
+# Quick — no Flutter SDK install, just Dart 3.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/classmate_mobile/**'
+  pull_request:
+    paths:
+      - 'apps/classmate_mobile/**'
+  workflow_dispatch:
+
+concurrency:
+  group: i18n-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.5.0'
+
+      - name: Run hardcoded-strings check
+        working-directory: apps/classmate_mobile
+        run: dart run scripts/check_hardcoded_strings.dart

@@ -39,6 +39,11 @@ class ClassMateApp extends ConsumerWidget {
         Locale('en'), Locale('ar'), Locale('he'),
         Locale('fr'), Locale('ru'), Locale('de'),
         Locale('pt'), Locale('tr'),
+        // Pseudo-locale for translation-leak detection. Wraps every
+        // translated string in ‹‹ ... ›› — switch to it in Settings to
+        // visually flag any hardcoded English. Generated from app_en.arb
+        // by scripts/generate_pseudo_locale.dart.
+        Locale('ps'),
       ],
       themeMode: t.mode,
       theme: buildTheme(brightness: Brightness.light, s: t),

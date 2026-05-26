@@ -130,7 +130,7 @@ class ImageViewerScreen extends StatelessWidget {
         title: Text(resolvedTitle, style: const TextStyle(color: Colors.white)),
         actions: [
           IconButton(
-            tooltip: 'Download',
+            tooltip: AppLocalizations.of(context)!.commonDownload,
             icon: const Icon(Icons.file_download_outlined, color: Colors.white),
             onPressed: () => _download(context),
           ),

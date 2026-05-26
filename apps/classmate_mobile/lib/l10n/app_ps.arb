@@ -1,0 +1,3406 @@
+{
+  "@@locale": "ps",
+  "menu": "‹‹Menu››",
+  "sectionCore": "‹‹Core››",
+  "sectionSchoolTools": "‹‹School Tools››",
+  "sectionAccount": "‹‹Account››",
+  "navSchedule": "‹‹Schedule››",
+  "navClassrooms": "‹‹Classrooms››",
+  "navPractice": "‹‹Practice››",
+  "navInsights": "‹‹Insights››",
+  "navNova": "‹‹NOVA››",
+  "navMessages": "‹‹Messages››",
+  "navAttendance": "‹‹Attendance››",
+  "navGrades": "‹‹Grades››",
+  "navAssignments": "‹‹Assignments››",
+  "navMeetings": "‹‹Meetings››",
+  "navAnnouncements": "‹‹Announcements››",
+  "navNotifications": "‹‹Notifications››",
+  "navSolutions": "‹‹Solutions››",
+  "navExams": "‹‹Exams››",
+  "navForms": "‹‹Forms››",
+  "navHome": "‹‹Home››",
+  "navTeacherWorkspace": "‹‹Teacher Workspace››",
+  "navTeacherAssessments": "‹‹Assessments & Grades››",
+  "navSavedQuestions": "‹‹Saved Questions››",
+  "navProfile": "‹‹Profile››",
+  "navSettings": "‹‹Settings››",
+  "navLogout": "‹‹Log out››",
+  "roleTeacher": "‹‹Teacher››",
+  "roleAdmin": "‹‹Admin››",
+  "roleSecretary": "‹‹Secretary››",
+  "roleParent": "‹‹Parent››",
+  "titleSchedule": "‹‹Schedule››",
+  "titleClasses": "‹‹Classes››",
+  "titlePractice": "‹‹Practice››",
+  "titleInsights": "‹‹Insights››",
+  "titleNova": "‹‹NOVA››",
+  "titleMessages": "‹‹Messages››",
+  "titleSolutions": "‹‹Solutions››",
+  "titleExams": "‹‹Exams››",
+  "solutionsUploadAction": "‹‹Upload››",
+  "solutionsNoSubjectsAvailable": "‹‹No subjects available.››",
+  "solutionsNoSubjectsMatch": "‹‹No subjects match \"{query}\".››",
+  "@solutionsNoSubjectsMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "solutionsBookCount": "‹‹{count, plural, =1{1 book} other{{count} books}}››",
+  "@solutionsBookCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "solutionsBooksTitle": "‹‹Books››",
+  "solutionsAddBookTitle": "‹‹Add a book››",
+  "solutionsBookTitleHint": "‹‹Book title...››",
+  "solutionsAddBookAction": "‹‹Add a book››",
+  "solutionsSearchBooks": "‹‹Search books››",
+  "solutionsChooseSubjectFirst": "‹‹Choose a subject first.››",
+  "solutionsNoBooksYetBody": "‹‹No books yet.\nTap \"{action}\" to add the first one.››",
+  "@solutionsNoBooksYetBody": {
+    "placeholders": {
+      "action": {}
+    }
+  },
+  "solutionsNoBooksMatch": "‹‹No books match \"{query}\".››",
+  "@solutionsNoBooksMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "solutionsBookLabel": "‹‹Book››",
+  "solutionsPagesFilterHint": "‹‹Enter a page and question number to filter, or leave blank to see all.››",
+  "solutionsPageNumberLabel": "‹‹Page number››",
+  "solutionsPageNumberHint": "‹‹e.g. 42››",
+  "solutionsQuestionNumberLabel": "‹‹Question number››",
+  "solutionsQuestionNumberHint": "‹‹e.g. 3a or 7››",
+  "solutionsViewSolutionsAction": "‹‹View solutions››",
+  "solutionsPageQuestionSummary": "‹‹Page {page} • Question {question}››",
+  "@solutionsPageQuestionSummary": {
+    "placeholders": {
+      "page": {},
+      "question": {}
+    }
+  },
+  "solutionsExactQuestionTitle": "‹‹Solutions for this exact question››",
+  "solutionsExactQuestionEmptySubtitle": "‹‹Nothing has been uploaded for this exact question yet. Be the first to help your classmates.››",
+  "solutionsUploadsFound": "‹‹{count, plural, =1{1 upload found} other{{count} uploads found}}››",
+  "@solutionsUploadsFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "solutionsExactQuestionEmptyBody": "‹‹No exact match yet. You can upload one now, or check what classmates solved on this same page.››",
+  "solutionsLoadMoreAction": "‹‹Load more››",
+  "solutionsSamePageTitle": "‹‹Other questions solved on this page››",
+  "solutionsSamePageEmptySubtitle": "‹‹No neighboring questions were uploaded from this page yet.››",
+  "solutionsSamePageFallbackSubtitle": "‹‹Useful fallback when your exact question has no upload yet.››",
+  "solutionsSamePageEmptyBody": "‹‹No nearby uploads on this page yet. A fresh upload here would really help.››",
+  "solutionsVerifiedByNova": "‹‹Verified by NOVA››",
+  "solutionsUploadFileLimitReached": "‹‹10-file limit reached.››",
+  "solutionsUploadFilesAddedLimit": "‹‹Added {count} — 10-file limit.››",
+  "@solutionsUploadFilesAddedLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "solutionsUploadCompleteFields": "‹‹Complete subject, book, page, and question.››",
+  "solutionsUploadAddOneFile": "‹‹Add at least one image or PDF.››",
+  "solutionsUploadFileFailed": "‹‹File upload failed: {error}››",
+  "@solutionsUploadFileFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "solutionsUploadCreateFailed": "‹‹Failed to create solution: {error}››",
+  "@solutionsUploadCreateFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "solutionsUploadSuccess": "‹‹Solution uploaded!››",
+  "solutionsUploadAddNewBookOption": "‹‹+ Add a new book...››",
+  "solutionsUploadAddBookShortAction": "‹‹Add››",
+  "solutionsUploadTitle": "‹‹Upload a solution››",
+  "solutionsUploadSubtitle": "‹‹Real images or PDFs only. NOVA verification and moderation are applied after upload.››",
+  "solutionsUploadNoBooksAbove": "‹‹No books — add one above››",
+  "solutionsUploadCaptionOptional": "‹‹Caption (optional)››",
+  "solutionsUploadImagesAction": "‹‹Images››",
+  "solutionsUploadPdfAction": "‹‹PDF››",
+  "solutionsUploadFileCount": "‹‹{count} / 10 {count, plural, =1{file selected} other{files selected}}››",
+  "@solutionsUploadFileCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "solutionsUploadSomeFilesFailed": "‹‹Some files failed to upload.››",
+  "solutionsUploadRetryFailedFiles": "‹‹Retry failed files››",
+  "solutionsUploadSubmittingAction": "‹‹Uploading...››",
+  "solutionsUploadSubmitAction": "‹‹Upload solution››",
+  "settingsTitle": "‹‹Settings››",
+  "settingsSubtitle": "‹‹Appearance, language & account››",
+  "settingsAppearance": "‹‹Appearance››",
+  "settingsTheme": "‹‹Theme››",
+  "settingsLanguage": "‹‹Language››",
+  "settingsLanguageSystem": "‹‹System default››",
+  "settingsAccentColour": "‹‹Accent colour››",
+  "settingsAccentSubtitle": "‹‹Tint used across the whole app››",
+  "settingsReduceMotion": "‹‹Reduce motion››",
+  "settingsReduceMotionSubtitle": "‹‹Fewer animations throughout the app››",
+  "settingsAccount": "‹‹Account››",
+  "settingsLogout": "‹‹Log out››",
+  "settingsLogoutSubtitle": "‹‹Sign out of this device››",
+  "settingsThemeSystem": "‹‹System default››",
+  "settingsThemeLight": "‹‹Light››",
+  "settingsThemeDark": "‹‹Dark››",
+  "settingsLanguageSearchHint": "‹‹Search language...››",
+  "teacherWorkspaceSubtitle": "‹‹Run attendance, rosters, and grading from the mobile app.››",
+  "teacherMetricSessionsToday": "‹‹Sessions today››",
+  "teacherMetricTeachingGroups": "‹‹Teaching groups››",
+  "teacherMetricAssessments": "‹‹Assessments››",
+  "teacherQuickActions": "‹‹Quick actions››",
+  "teacherNoDateAvailable": "‹‹No date available››",
+  "teacherNoTeachingSlotsToday": "‹‹No teaching slots scheduled today.››",
+  "teacherUpcomingAssessments": "‹‹Upcoming assessments››",
+  "teacherUpcomingAssessmentsSubtitle": "‹‹Live from the teacher grading system››",
+  "teacherNoAssessmentsYet": "‹‹No assessments created yet.››",
+  "teacherUnassignedSlot": "‹‹Unassigned slot››",
+  "teacherNoCohort": "‹‹No cohort››",
+  "teacherCourseFallback": "‹‹Course››",
+  "teacherPeriod": "‹‹Period {number}››",
+  "@teacherPeriod": {
+    "placeholders": {
+      "number": {}
+    }
+  },
+  "teacherLoadErrorTitle": "‹‹Could not load teacher workspace››",
+  "teacherClassroomsLoadError": "‹‹We could not load classrooms right now. Pull to refresh or try again.››",
+  "teacherClassroomsLoadTimeout": "‹‹Classrooms are taking too long to load. Pull to refresh or try again in a moment.››",
+  "teacherClassroomsLoadNetwork": "‹‹Classrooms could not connect right now. Check your connection and try again.››",
+  "teacherClassroomsSubtitle": "‹‹Open the roster and generate a live join code for student entry.››",
+  "teacherClassroomsNoCohorts": "‹‹No classroom cohorts are linked to this teacher yet.››",
+  "teacherClassroomsCohort": "‹‹Cohort {cohortId}››",
+  "@teacherClassroomsCohort": {
+    "placeholders": {
+      "cohortId": {}
+    }
+  },
+  "teacherClassroomsGeneratingJoinCode": "‹‹Generating…››",
+  "teacherClassroomsCreateJoinCode": "‹‹Create join code››",
+  "teacherClassroomsLiveJoinCode": "‹‹Live join code››",
+  "teacherClassroomsExpiresAt": "‹‹Expires {value}››",
+  "@teacherClassroomsExpiresAt": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "teacherClassroomsRoster": "‹‹Roster››",
+  "teacherClassroomsNoStudents": "‹‹No students are enrolled in this classroom yet.››",
+  "teacherAttendanceLoadError": "‹‹We could not load attendance right now. Pull to refresh or try again.››",
+  "teacherAttendanceLoadTimeout": "‹‹Attendance is taking too long to load. Pull to refresh or try again in a moment.››",
+  "teacherAttendanceLoadNetwork": "‹‹Attendance could not connect right now. Check your connection and try again.››",
+  "teacherAttendanceSubtitle": "‹‹Pick a live session, mark the room, and save only changed rows.››",
+  "teacherAttendanceTodaySessions": "‹‹Today sessions››",
+  "teacherAttendanceSessionSummary": "‹‹{cohort} • Grade {grade} • {date} • Period {period}››",
+  "@teacherAttendanceSessionSummary": {
+    "placeholders": {
+      "cohort": {},
+      "grade": {},
+      "date": {},
+      "period": {}
+    }
+  },
+  "teacherAttendanceChanged": "‹‹Changed››",
+  "teacherAttendanceNoteLabel": "‹‹Note››",
+  "teacherAttendanceClassNotesLabel": "‹‹Class notes››",
+  "teacherAttendanceClassNotesHint": "‹‹What was covered in this session…››",
+  "teacherAttendanceSaving": "‹‹Saving…››",
+  "teacherAttendanceSaveAll": "‹‹Save attendance››",
+  "teacherAttendanceSaveCount": "‹‹Save {count, plural, =1 {1 change} other {{count} changes}}››",
+  "@teacherAttendanceSaveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherAttendanceSaved": "‹‹Attendance saved››",
+  "retry": "‹‹Retry››",
+  "scheduleRefreshTooFast": "‹‹Schedule is refreshing too fast right now. Wait a moment and try again.››",
+  "scheduleSessionExpired": "‹‹Your session has expired. Please sign in again.››",
+  "scheduleNotOnboarded": "‹‹Your student profile is not fully set up yet. Ask your school admin to assign you to a class.››",
+  "scheduleLoadError": "‹‹Could not load schedule yet.››",
+  "scheduleSelectedDay": "‹‹Selected day››",
+  "scheduleClassCount": "‹‹{count, plural, =0 {0 classes} =1 {1 class} other {{count} classes}}››",
+  "@scheduleClassCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "scheduleNextUp": "‹‹Next up››",
+  "scheduleNoMoreClasses": "‹‹No more classes››",
+  "scheduleNoClassesTitle": "‹‹No classes on this day››",
+  "scheduleNoClassesSubtitle": "‹‹{day} looks clear.››",
+  "@scheduleNoClassesSubtitle": {
+    "placeholders": {
+      "day": {}
+    }
+  },
+  "scheduleClassFallback": "‹‹Class››",
+  "scheduleNoSubjectLocation": "‹‹No subject or location yet››",
+  "scheduleNotes": "‹‹Notes››",
+  "scheduleGoToClassroom": "‹‹Go to Classroom››",
+  "loginTitle": "‹‹Mobile login for students and teachers››",
+  "loginSubtitle": "‹‹Teacher accounts open the teacher workspace. Student accounts stay on the student experience.››",
+  "loginSignIn": "‹‹Sign in››",
+  "loginSigningIn": "‹‹Signing in...››",
+  "loginEmailLabel": "‹‹Email or username››",
+  "loginPasswordLabel": "‹‹Password››",
+  "profileNotAvailable": "‹‹Not available››",
+  "profileSchoolInfo": "‹‹School info››",
+  "profileFullName": "‹‹Full name››",
+  "profileRole": "‹‹Role››",
+  "profileSchoolId": "‹‹School ID››",
+  "profileCohortId": "‹‹Cohort ID››",
+  "profileAccountInfo": "‹‹Account info››",
+  "profileUsername": "‹‹Username››",
+  "profileUsernameHint": "‹‹your_username››",
+  "profileContactEmail": "‹‹Contact email››",
+  "profileEmailAddress": "‹‹Email address››",
+  "profileEmailHint": "‹‹you@example.com››",
+  "profileBirthday": "‹‹Birthday››",
+  "profileSecurity": "‹‹Security››",
+  "profileSelectBirthday": "‹‹Select your birthday››",
+  "profilePasswordUpdated": "‹‹Password updated››",
+  "profileSave": "‹‹Save››",
+  "profileEmptyValue": "‹‹—››",
+  "profileChangePassword": "‹‹Change password››",
+  "profileCurrentPassword": "‹‹Current password››",
+  "profileNewPassword": "‹‹New password››",
+  "profileConfirmNewPassword": "‹‹Confirm new password››",
+  "profileUpdatePassword": "‹‹Update password››",
+  "profilePasswordAllFieldsRequired": "‹‹All fields are required››",
+  "profilePasswordMinLength": "‹‹New password must be at least 8 characters››",
+  "profilePasswordMismatch": "‹‹Passwords do not match››",
+  "profilePasswordNotAuthenticated": "‹‹Not authenticated››",
+  "profilePasswordIncorrect": "‹‹Current password is incorrect››",
+  "profilePasswordGenericError": "‹‹Something went wrong. Please try again.››",
+  "editProfileTitle": "‹‹Edit profile››",
+  "editProfileSchool": "‹‹School››",
+  "editProfileSchoolPublic": "‹‹School public››",
+  "editProfileGradePublic": "‹‹Grade public››",
+  "editProfileMajors": "‹‹Majors››",
+  "editProfileMajorsPublic": "‹‹Majors public››",
+  "editProfileBio": "‹‹Bio››",
+  "editProfileBioPublic": "‹‹Bio public››",
+  "editProfileStatus": "‹‹Status››",
+  "editProfileStatusPublic": "‹‹Status public››",
+  "classroomsYourClassrooms": "‹‹Your classrooms››",
+  "classroomsReorder": "‹‹Reorder classrooms››",
+  "classroomsCount": "‹‹{count} classrooms››",
+  "@classroomsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "classroomsSearchHint": "‹‹Search classrooms››",
+  "classroomsNoSearchMatches": "‹‹No classrooms match your search››",
+  "classroomsClassroomLabel": "‹‹Classroom››",
+  "classroomsLoadingLatestMessage": "‹‹Loading latest message...››",
+  "classroomsTapToOpen": "‹‹Tap to open classroom››",
+  "classroomsNoMessagesYet": "‹‹No messages yet››",
+  "classroomsMessageFallback": "‹‹Message››",
+  "examsLoadError": "‹‹Could not load exams or forms››",
+  "examsAllFilter": "‹‹All››",
+  "examsFormsSubtitle": "‹‹Review classroom forms, response windows, and follow-ups published by your school.››",
+  "examsOnlySubtitle": "‹‹Track upcoming assessments, countdowns, and past exam records from your classes.››",
+  "examsUpcomingStat": "‹‹Upcoming exams››",
+  "examsOpenFormsStat": "‹‹Open forms››",
+  "examsCountdownPast": "‹‹Past››",
+  "examsCountdownTomorrow": "‹‹Tomorrow››",
+  "examsCountdownInDays": "‹‹In {days} days››",
+  "@examsCountdownInDays": {
+    "placeholders": {
+      "days": {}
+    }
+  },
+  "examsNoExamsPublished": "‹‹No exams have been published yet.››",
+  "examsNoFormsPublished": "‹‹No forms have been published yet.››",
+  "examsNoExamsForFilter": "‹‹No exams are available for {subject} right now.››",
+  "@examsNoExamsForFilter": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "examsNoFormsForFilter": "‹‹No forms are available for {subject} right now.››",
+  "@examsNoFormsForFilter": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "examsMaterialsCount": "‹‹{count} materials››",
+  "@examsMaterialsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "examsOpenState": "‹‹Open››",
+  "examsClosedState": "‹‹Closed››",
+  "examsQuestionsCount": "‹‹{count} questions››",
+  "@examsQuestionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "examsResponsesCount": "‹‹{count} responses››",
+  "@examsResponsesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "insightsTrendBaseline": "‹‹Baseline››",
+  "insightsTrendImproving": "‹‹Improving››",
+  "insightsTrendDropping": "‹‹Dropping››",
+  "insightsTrendStable": "‹‹Stable››",
+  "insightsHeadlineIntervention": "‹‹Intervention window is open››",
+  "insightsHeadlineSignals": "‹‹Several signals need tightening››",
+  "insightsHeadlineMomentum": "‹‹Momentum can compound this week››",
+  "insightsBodyAttendance": "‹‹Protect attendance first. Better presence now will raise every other signal faster.››",
+  "insightsBodyWeakTrend": "‹‹{subject} plus a falling practice trend is the biggest risk combo right now. Fix that before expanding.››",
+  "@insightsBodyWeakTrend": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "insightsBodyLeverage": "‹‹{subject} is your leverage point. Use it to build confidence while you patch weaker areas.››",
+  "@insightsBodyLeverage": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "insightsBodyConsistency": "‹‹Keep stacking short focused sessions. The next few days matter more than a perfect long-term plan.››",
+  "insightsInterventionScoreTitle": "‹‹Intervention score››",
+  "insightsInterventionScoreBody": "‹‹{count} active signals are shaping your next move.››",
+  "@insightsInterventionScoreBody": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "insightsRecoveryPathTitle": "‹‹Fastest recovery path››",
+  "insightsRecoveryPathDefault": "‹‹Attendance + consistency first.››",
+  "insightsRecoveryPathTopic": "‹‹Revisit {topic} in {subject} before pushing harder.››",
+  "@insightsRecoveryPathTopic": {
+    "placeholders": {
+      "topic": {},
+      "subject": {}
+    }
+  },
+  "insightsProjectedDirectionTitle": "‹‹Projected direction››",
+  "insightsProjectedDirectionBody": "‹‹{trend} based on recent 7d vs 30d practice behavior.››",
+  "@insightsProjectedDirectionBody": {
+    "placeholders": {
+      "trend": {}
+    }
+  },
+  "insightsLoadingTitle": "‹‹Insights loading››",
+  "insightsLoadingSubtitle": "‹‹Building your predictive dashboard.››",
+  "insightsNotReadyTitle": "‹‹Insights are not ready yet››",
+  "insightsEmptyTitle": "‹‹No insights yet››",
+  "insightsEmptySubtitle": "‹‹Keep using practice and your school tools so ClassMate can build a clearer academic picture.››",
+  "insightsGradeAverage": "‹‹Grade avg››",
+  "insightsAccuracy": "‹‹Accuracy››",
+  "insightsOpenNova": "‹‹Open NOVA››",
+  "insightsOpenNovaPrompt": "‹‹Help me fix my weakest area based on my latest ClassMate insights.››",
+  "insightsPredictiveRecoveryPlanTitle": "‹‹Predictive recovery plan››",
+  "insightsPracticeNow": "‹‹Practice now››",
+  "insightsPredictiveModulesTitle": "‹‹Predictive modules››",
+  "insightsPredictiveModulesSubtitle": "‹‹The strongest forward-looking signals from your current student data.››",
+  "insightsAnnouncementsPressureTitle": "‹‹Announcements pressure››",
+  "insightsAnnouncementsPressureSubtitle": "‹‹The announcement engine is now feeding the dashboard directly.››",
+  "insightsAiCoachTitle": "‹‹AI coach summary››",
+  "insightsAiCoachLoadingSubtitle": "‹‹Loading AI guidance.››",
+  "insightsAiCoachUnavailableSubtitle": "‹‹AI guidance is unavailable for this account right now.››",
+  "insightsAskNova": "‹‹Ask NOVA››",
+  "insightsAskNovaPrompt": "‹‹Build me a recovery plan from my latest insights.››",
+  "insightsAiStudyCoachTitle": "‹‹AI study coach››",
+  "insightsSchoolToolsTitle": "‹‹School tools››",
+  "insightsSchoolToolsSubtitle": "‹‹Jump directly into the student routes that now matter most.››",
+  "tutorUntitledChat": "‹‹Untitled chat››",
+  "tutorNewChat": "‹‹New chat››",
+  "tutorFailedToOpenSeededChat": "‹‹Failed to open chat: {error}››",
+  "@tutorFailedToOpenSeededChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "tutorFailedToCreateChat": "‹‹Failed to create chat: {error}››",
+  "@tutorFailedToCreateChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "tutorRenameChatTitle": "‹‹Rename chat››",
+  "tutorChatNameHint": "‹‹Chat name››",
+  "tutorCancel": "‹‹Cancel››",
+  "tutorHide": "‹‹Hide››",
+  "tutorHideChatTitle": "‹‹Hide chat››",
+  "tutorHideChatSubtitle": "‹‹Hides this chat on this device.››",
+  "tutorHideChatConfirmTitle": "‹‹Hide chat?››",
+  "tutorHideChatConfirmBody": "‹‹This hides the chat from the list on this device. The session stays on the backend.››",
+  "tutorTapToOpenHistory": "‹‹Tap to open history››",
+  "tutorAiTutorSubtitle": "‹‹Your AI tutor››",
+  "tutorHeroBody": "‹‹Real chat history, cleaner threads, faster access.››",
+  "tutorStartFreshConversation": "‹‹Start a fresh conversation››",
+  "tutorSearchHistoryHint": "‹‹Search chat history››",
+  "chatComposerDefaultHint": "‹‹Message››",
+  "chatComposerReplyingToMessage": "‹‹Replying to message››",
+  "chatComposerReplyFallback": "‹‹Reply››",
+  "chatComposerMicHint": "‹‹Tap for a quick voice note or hold to record››",
+  "chatComposerRecordingTitle": "‹‹Recording››",
+  "chatComposerReleaseToSend": "‹‹Let go to send››",
+  "chatComposerCancelTitle": "‹‹Cancel››",
+  "chatComposerLockTitle": "‹‹Lock››",
+  "chatComposerSlideLeftToCancel": "‹‹Slide left to cancel››",
+  "chatComposerSlideUpToLock": "‹‹Slide up to lock››",
+  "chatComposerReleaseToCancel": "‹‹Release to cancel››",
+  "chatComposerKeepSlidingToCancel": "‹‹Keep sliding to cancel››",
+  "chatComposerReleaseToLock": "‹‹Release to lock››",
+  "chatComposerRelease": "‹‹Release››",
+  "chatComposerLock": "‹‹Lock››",
+  "chatComposerRecordingPaused": "‹‹Recording paused››",
+  "chatComposerRecordingLocked": "‹‹Recording locked››",
+  "chatComposerResumeHint": "‹‹Resume when you are ready to keep recording››",
+  "chatComposerLockedHint": "‹‹Tap send when you are ready to share››",
+  "chatContextDismiss": "‹‹Dismiss››",
+  "chatContextCopyText": "‹‹Copy text››",
+  "chatContextDelete": "‹‹Delete››",
+  "chatMessageInfoShortTitle": "‹‹Info››",
+  "chatMessageInfoStatus": "‹‹Status››",
+  "chatMessageInfoStatusTime": "‹‹Status time››",
+  "chatMessageInfoSentAt": "‹‹Sent at››",
+  "chatMessageInfoDeliveredAt": "‹‹Delivered at››",
+  "chatMessageInfoSeenAt": "‹‹Seen at››",
+  "chatMessageInfoMessageType": "‹‹Message type››",
+  "chatMessageInfoTextType": "‹‹Text››",
+  "chatMessageInfoEdited": "‹‹Edited››",
+  "chatMessageInfoForwarded": "‹‹Forwarded››",
+  "chatMessageInfoVoiceDuration": "‹‹Voice duration››",
+  "chatMessageInfoSeenBy": "‹‹Seen by››",
+  "chatMessageInfoDeliveredTo": "‹‹Delivered to››",
+  "chatMessageInfoEmptyBody": "‹‹(empty)››",
+  "chatMessageInfoReadLess": "‹‹Read less››",
+  "chatMessageInfoReadMore": "‹‹Read more››",
+  "chatMessageInfoSeen": "‹‹Seen››",
+  "chatMessageInfoDelivered": "‹‹Delivered››",
+  "chatMessageInfoNotDelivered": "‹‹Not delivered››",
+  "chatMessageInfoSent": "‹‹Sent››",
+  "chatMessageInfoPending": "‹‹Pending››",
+  "chatMessageInfoNotSeen": "‹‹Not seen››",
+  "chatMessageInfoType": "‹‹Type››",
+  "chatMessageInfoDuration": "‹‹Duration››",
+  "chatMessageInfoYes": "‹‹Yes››",
+  "chatMessageInfoNo": "‹‹No››",
+  "chatMessageInfoDeleteState": "‹‹Delete state››",
+  "chatReactionDetailsTitle": "‹‹Reactions››",
+  "chatReactionAddAction": "‹‹Add reaction››",
+  "chatReactionEmptyState": "‹‹No reactions yet››",
+  "chatReactionSingle": "‹‹Reaction››",
+  "chatReactionTapToRemove": "‹‹Tap to remove››",
+  "chatReactionYouCount": "‹‹You{count, plural, =1 {} other { · {count}}}››",
+  "@chatReactionYouCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatReactionCount": "‹‹{count, plural, =1 {Reaction} other {{count} reactions}}››",
+  "@chatReactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatEmojiPickerTitle": "‹‹Choose emoji››",
+  "chatEmojiPickerSearchHint": "‹‹Search emoji››",
+  "chatEmojiPickerEmptyState": "‹‹No emoji found››",
+  "chatCameraTitle": "‹‹Camera››",
+  "chatCameraUseAction": "‹‹Use››",
+  "chatCameraGalleryAction": "‹‹Gallery››",
+  "chatCameraSelectedCount": "‹‹{count, plural, =0 {0 selected} =1 {1 selected} other {{count} selected}}››",
+  "@chatCameraSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatMediaPreviewEmptyState": "‹‹Nothing to preview››",
+  "chatMediaPreviewDrawCropAction": "‹‹Draw & Crop››",
+  "chatMediaPreviewRotateLeftAction": "‹‹Rotate left››",
+  "chatMediaPreviewRotateRightAction": "‹‹Rotate right››",
+  "chatMediaPreviewMirrorAction": "‹‹Mirror››",
+  "chatMediaPreviewResetAction": "‹‹Reset››",
+  "chatMediaPreviewRemoveAction": "‹‹Remove››",
+  "chatMediaPreviewCaptionHint": "‹‹Add a caption...››",
+  "tutorPlanSelectedPlaceholder": "‹‹{plan} selected. Payments stay in placeholder mode for now.››",
+  "@tutorPlanSelectedPlaceholder": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
+  "tutorFailedToLoadChats": "‹‹Failed to load chats››",
+  "tutorNoChatsYet": "‹‹No chats yet››",
+  "tutorNoChatsMatchSearch": "‹‹No chats match your search››",
+  "tutorCreateFirstChat": "‹‹Create first chat››",
+  "tutorPlansTitle": "‹‹NOVA plans››",
+  "tutorPlansSubtitle": "‹‹Based on {model} cost assumptions and hard monthly caps so usage stays profitable.››",
+  "@tutorPlansSubtitle": {
+    "placeholders": {
+      "model": {}
+    }
+  },
+  "tutorPlanPriceFree": "‹‹Free››",
+  "tutorPlanPriceMonthly": "‹‹${price}/mo››",
+  "@tutorPlanPriceMonthly": {
+    "placeholders": {
+      "price": {}
+    }
+  },
+  "tutorPromptsLeft": "‹‹Prompts left››",
+  "tutorUploadsLeft": "‹‹Uploads left››",
+  "tutorVoiceLeft": "‹‹Voice left››",
+  "tutorUsageValue": "‹‹{remaining}/{total}››",
+  "@tutorUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
+  "tutorVoiceUsageValue": "‹‹{remaining}/{total} min››",
+  "@tutorVoiceUsageValue": {
+    "placeholders": {
+      "remaining": {},
+      "total": {}
+    }
+  },
+  "tutorPaymentMethodsTitle": "‹‹Payment methods››",
+  "tutorPaymentMethodsSubtitle": "‹‹Checkout is placeholder-only until the ClassMate bank account and processor are live. The selected plan is {plan}.››",
+  "@tutorPaymentMethodsSubtitle": {
+    "placeholders": {
+      "plan": {}
+    }
+  },
+  "tutorCardCheckoutTitle": "‹‹Card checkout››",
+  "tutorCardCheckoutSubtitle": "‹‹Visa, Mastercard, AmEx placeholder gateway.››",
+  "tutorApplePayTitle": "‹‹Apple Pay››",
+  "tutorApplePaySubtitle": "‹‹Placeholder wallet flow for iPhone and web.››",
+  "tutorBankTransferTitle": "‹‹Bank transfer››",
+  "tutorBankTransferSubtitle": "‹‹ClassMate bank account pending. Details will be filled once opened.››",
+  "tutorPlanStarterName": "‹‹Starter››",
+  "tutorPlanStarterTagline": "‹‹Enough for trial and light weekly revision.››",
+  "tutorPlanPlusName": "‹‹Plus››",
+  "tutorPlanPlusTagline": "‹‹Best for one serious student using NOVA most days.››",
+  "tutorPlanProName": "‹‹Pro››",
+  "tutorPlanProTagline": "‹‹Heavy daily use, full exam season, and long study sessions.››",
+  "tutorPlanSchoolSeatName": "‹‹School Seat››",
+  "tutorPlanSchoolSeatTagline": "‹‹For rollout per student or staff seat inside a real school.››",
+  "tutorPlanBulletPromptsMonthly": "‹‹{count} NOVA prompts each month››",
+  "@tutorPlanBulletPromptsMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tutorPlanBulletPromptsPerSeatMonthly": "‹‹{count} NOVA prompts per seat monthly››",
+  "@tutorPlanBulletPromptsPerSeatMonthly": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tutorPlanBulletUploads": "‹‹{count} image or file uploads››",
+  "@tutorPlanBulletUploads": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tutorPlanBulletVoiceMinutes": "‹‹{count} voice transcription minutes››",
+  "@tutorPlanBulletVoiceMinutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tutorEstimatedCostCeilingFree": "‹‹Estimated cost ceiling: ${cost}/mo››",
+  "@tutorEstimatedCostCeilingFree": {
+    "placeholders": {
+      "cost": {}
+    }
+  },
+  "tutorEstimatedCostCeilingPaid": "‹‹Estimated cost ceiling: ${cost}/mo • margin {margin}%››",
+  "@tutorEstimatedCostCeilingPaid": {
+    "placeholders": {
+      "cost": {},
+      "margin": {}
+    }
+  },
+  "tutorTimeMinutesShort": "‹‹{count}m››",
+  "@tutorTimeMinutesShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tutorTimeHoursShort": "‹‹{count}h››",
+  "@tutorTimeHoursShort": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "tutorVoiceMessageFallback": "‹‹Voice message››",
+  "tutorFileFallback": "‹‹File››",
+  "tutorCopy": "‹‹Copy››",
+  "tutorEditMessage": "‹‹Edit message››",
+  "tutorCopied": "‹‹Copied››",
+  "tutorLoadedIntoComposer": "‹‹Loaded into composer››",
+  "tutorTakePhoto": "‹‹Take photo››",
+  "tutorRecordVideo": "‹‹Record video››",
+  "tutorChooseFromGallery": "‹‹Choose from gallery››",
+  "tutorPreviewTitle": "‹‹Preview››",
+  "tutorThinking": "‹‹Thinking...››",
+  "tutorDone": "‹‹Done.››",
+  "tutorFailedToStreamReply": "‹‹Failed to stream reply››",
+  "tutorUnsupportedFilesMessage": "‹‹NOVA supports images, documents, and text. Video and audio files are not supported here.››",
+  "tutorNoAudioCaptured": "‹‹No audio captured.››",
+  "tutorVoiceLimitReachedTitle": "‹‹Voice limit reached››",
+  "tutorVoiceLimitReachedMessage": "‹‹Your current NOVA plan does not have enough voice minutes left for this transcription cycle.››",
+  "tutorTranscriptionFailed": "‹‹Transcription failed. Please try again.››",
+  "tutorMicrophonePermissionRequired": "‹‹Microphone permission is required.››",
+  "tutorPlanLimitReachedTitle": "‹‹NOVA plan limit reached››",
+  "tutorPlanLimitReachedMessage": "‹‹This month's prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.››",
+  "tutorSendFailed": "‹‹Send failed.››",
+  "tutorCurrentPlanUsageSummary": "‹‹Current plan: {plan} • {prompts} prompts left • {uploads} uploads left • {voice} voice minutes left››",
+  "@tutorCurrentPlanUsageSummary": {
+    "placeholders": {
+      "plan": {},
+      "prompts": {},
+      "uploads": {},
+      "voice": {}
+    }
+  },
+  "tutorReviewPlansInHome": "‹‹Review plans in NOVA home››",
+  "tutorCouldNotOpenAttachment": "‹‹Could not open attachment.››",
+  "tutorAttachmentUnavailable": "‹‹Attachment unavailable.››",
+  "tutorImageUnavailable": "‹‹Image unavailable››",
+  "tutorYou": "‹‹You››",
+  "tutorRegenerate": "‹‹Regenerate››",
+  "tutorEmptyStateTitle": "‹‹Start with a real question››",
+  "tutorEmptyStateBody": "‹‹Ask NOVA to explain a concept, turn notes into a table, compare ideas, or help you revise from an uploaded file.››",
+  "tutorPromptSuggestionSummarizeNotes": "‹‹Summarize my lesson notes››",
+  "tutorPromptSuggestionRevisionTable": "‹‹Make a revision table››",
+  "tutorPromptSuggestionQuizMe": "‹‹Quiz me on this topic››",
+  "tutorMessageNovaHint": "‹‹Message NOVA››",
+  "tutorHeaderSubtitleReady": "‹‹Structured answers, tables, and study help››",
+  "tutorYourNovaPlanTitle": "‹‹Your NOVA plan››",
+  "tutorYourNovaPlanMessage": "‹‹Review prompt, upload, and voice limits here, then jump back to NOVA home if you want to switch plans.››",
+  "tutorExplainTitle": "‹‹NOVA Explain››",
+  "classroomsThreadTypeClassroom": "‹‹Classroom››",
+  "classroomsThreadTypeGroup": "‹‹Group››",
+  "classroomsThreadTypeDirectMessage": "‹‹Direct message››",
+  "classroomsThreadTypeDirectMessageShort": "‹‹DM››",
+  "messagesBlockedPeopleTitle": "‹‹Blocked people››",
+  "messagesStartChatAction": "‹‹Start chat››",
+  "messagesLoadFailed": "‹‹Failed to load messages: {error}››",
+  "@messagesLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchHint": "‹‹Search messages››",
+  "messagesNoResults": "‹‹No messages found››",
+  "messagesRequestsSection": "‹‹Requests››",
+  "messagesPendingApprovals": "‹‹Pending approvals››",
+  "messagesChatsSection": "‹‹Chats››",
+  "messagesAllChatsSection": "‹‹All chats››",
+  "messagesConversationCount": "‹‹{count, plural, =1 {1 conversation} other {{count} conversations}}››",
+  "@messagesConversationCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "messagesRequestReviewStatus": "‹‹Review››",
+  "messagesPeopleLoadFailed": "‹‹Failed to load people: {error}››",
+  "@messagesPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesSearchPeopleHint": "‹‹Search people››",
+  "messagesNewGroupTitle": "‹‹New group››",
+  "messagesNewGroupSubtitle": "‹‹Create a group chat››",
+  "messagesGroupNameHint": "‹‹Group name››",
+  "messagesCreateGroupAction": "‹‹Create group››",
+  "messagesBlockedPersonFallback": "‹‹this person››",
+  "messagesUnblockPersonTitle": "‹‹Unblock person?››",
+  "messagesUnblockPersonBody": "‹‹Allow {name} to message you again?››",
+  "@messagesUnblockPersonBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesUnblockAction": "‹‹Unblock››",
+  "messagesUnblockedToast": "‹‹{name} unblocked››",
+  "@messagesUnblockedToast": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "messagesBlockedPeopleLoadFailed": "‹‹Failed to load blocked people: {error}››",
+  "@messagesBlockedPeopleLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesNoBlockedPeople": "‹‹No blocked people››",
+  "messagesUnknownUser": "‹‹Unknown user››",
+  "messagesRequestTitle": "‹‹Request››",
+  "messagesRequestLoadFailed": "‹‹Failed to load request: {error}››",
+  "@messagesRequestLoadFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesRequestBannerIncoming": "‹‹Message request››",
+  "messagesRequestBannerOutgoing": "‹‹Pending approval››",
+  "messagesBlockAction": "‹‹Block››",
+  "messagesApproveAction": "‹‹Approve››",
+  "messagesRequestUnlockHint": "‹‹The chat unlocks after the receiver approves your first message.››",
+  "messagesThreadConversationFallback": "‹‹Conversation››",
+  "messagesThreadLeaveGroupTitle": "‹‹Leave group?››",
+  "messagesThreadLeaveGroupBody": "‹‹You will stop receiving messages from this group.››",
+  "messagesThreadBlockPersonTitle": "‹‹Block person?››",
+  "messagesThreadBlockPersonBody": "‹‹You will no longer be able to exchange messages with this person.››",
+  "messagesThreadPersonFallback": "‹‹Person››",
+  "messagesThreadProfileInfoUnavailable": "‹‹Profile info unavailable››",
+  "messagesThreadParticipants": "‹‹Participants››",
+  "messagesThreadPeople": "‹‹People››",
+  "messagesThreadDeleteForMe": "‹‹Delete for me››",
+  "messagesThreadDeleteForEveryone": "‹‹Delete for everyone››",
+  "messagesThreadDeleteForEveryoneSubtitle": "‹‹Removes for all participants››",
+  "messagesThreadSending": "‹‹Sending…››",
+  "messagesThreadWaitingForApproval": "‹‹Waiting for approval››",
+  "classroomsForwardSearchHint": "‹‹Search chats››",
+  "classroomsForwardNewChat": "‹‹New chat››",
+  "classroomsForwardLoadError": "‹‹Failed to load chats: {error}››",
+  "@classroomsForwardLoadError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "classroomsForwardNoChatsFound": "‹‹No chats found››",
+  "classroomsForwardSectionClassrooms": "‹‹Classrooms››",
+  "classroomsForwardSectionDirectMessages": "‹‹Direct messages››",
+  "classroomsForwardCancel": "‹‹Cancel››",
+  "classroomsForwardAction": "‹‹Forward››",
+  "classroomsForwardCount": "‹‹Forward ({count})››",
+  "@classroomsForwardCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "markRead": "‹‹Mark read››",
+  "markUnread": "‹‹Mark unread››",
+  "markAllRead": "‹‹Mark all read››",
+  "filters": "‹‹Filters››",
+  "source": "‹‹Source››",
+  "state": "‹‹State››",
+  "allSources": "‹‹All sources››",
+  "allStates": "‹‹All states››",
+  "unread": "‹‹Unread››",
+  "read": "‹‹Read››",
+  "clear": "‹‹Clear››",
+  "today": "‹‹Today››",
+  "yesterday": "‹‹Yesterday››",
+  "thisWeek": "‹‹This week››",
+  "earlier": "‹‹Earlier››",
+  "openDetails": "‹‹Open details››",
+  "total": "‹‹Total››",
+  "local": "‹‹Local››",
+  "server": "‹‹Server››",
+  "notificationsSourceSystem": "‹‹System››",
+  "notificationsHeroSubtitleStudent": "‹‹Your notification hub for announcements, server updates, and useful academic activity as it happens.››",
+  "notificationsHeroSubtitleTeacher": "‹‹Your teacher notification hub for announcements, server updates, and school activity as it happens.››",
+  "notificationsFiltersSubtitle": "‹‹Focus by source or read state to triage fast.››",
+  "notificationsSearchSourcesHint": "‹‹Search sources››",
+  "notificationsShowingSummary": "‹‹Showing {shown} of {total} notifications.››",
+  "@notificationsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {}
+    }
+  },
+  "notificationsEmptyForAccount": "‹‹No notifications are available for this account right now.››",
+  "notificationsEmptyFiltered": "‹‹No notifications match these filters right now. Clear filters to see the full feed.››",
+  "notificationsEmpty": "‹‹No notifications are available right now.››",
+  "notificationsNewBadge": "‹‹New››",
+  "notificationsUnavailable": "‹‹This notification is no longer available. Pull to refresh the inbox and try again.››",
+  "notificationsSeverityCritical": "‹‹Critical››",
+  "notificationsSeverityWarning": "‹‹Warning››",
+  "notificationsSeverityInfo": "‹‹Info››",
+  "announcementsLoadError": "‹‹We could not load announcements right now. Pull to refresh or try again.››",
+  "announcementsLoadTimeout": "‹‹Announcements are taking too long to load. Pull to refresh or try again in a moment.››",
+  "announcementsLoadNetwork": "‹‹Announcements could not connect right now. Check your connection and try again.››",
+  "announcementsAudienceTeacher": "‹‹teacher››",
+  "announcementsAudienceAccount": "‹‹account››",
+  "announcementsAudienceTeacherWorkspace": "‹‹teacher workspace››",
+  "announcementsLoadFailedTitle": "‹‹Could not load announcements››",
+  "announcementsLoadFailedHint": "‹‹Pull to refresh after the connection is stable.››",
+  "announcementsHeroSubtitle": "‹‹Published school, teacher, and system announcements available to this {audience}.››",
+  "@announcementsHeroSubtitle": {
+    "placeholders": {
+      "audience": {}
+    }
+  },
+  "announcementsLatestSourceLabel": "‹‹Latest source››",
+  "announcementsNone": "‹‹None››",
+  "announcementsUnreadCountTitle": "‹‹{count, plural, =1 {1 unread announcement} other {{count} unread announcements}}››",
+  "@announcementsUnreadCountTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "announcementsAllReadTitle": "‹‹Everything is read››",
+  "announcementsEmptyForAudience": "‹‹No announcements have been published to this {audience} yet.››",
+  "@announcementsEmptyForAudience": {
+    "placeholders": {
+      "audience": {}
+    }
+  },
+  "announcementsLatestBody": "‹‹Latest: {title}. Tap it to read the full content.››",
+  "@announcementsLatestBody": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "announcementsFiltersSubtitle": "‹‹Narrow the inbox by source or by read state so you can focus on what still needs attention.››",
+  "announcementsAllAnnouncements": "‹‹All announcements››",
+  "announcementsSearchStatesHint": "‹‹Unread / Read››",
+  "announcementsSummarySourceSegment": "‹‹ from {source}››",
+  "@announcementsSummarySourceSegment": {
+    "placeholders": {
+      "source": {}
+    }
+  },
+  "announcementsSummaryStateSegment": "‹‹ in {state}››",
+  "@announcementsSummaryStateSegment": {
+    "placeholders": {
+      "state": {}
+    }
+  },
+  "announcementsShowingSummary": "‹‹Showing {shown} of {total} announcements{sourceSegment}{stateSegment}.››",
+  "@announcementsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {},
+      "sourceSegment": {},
+      "stateSegment": {}
+    }
+  },
+  "announcementsNoMatchTitle": "‹‹No announcements match these filters››",
+  "announcementsNoPublishedTitle": "‹‹No published announcements yet››",
+  "announcementsNoMatchSubtitle": "‹‹Try a different source or switch back to all announcements to bring more items into view.››",
+  "announcementsClearFiltersHint": "‹‹Clear filters to see everything again.››",
+  "announcementsPullToRefreshHint": "‹‹Pull to refresh after new school activity is published.››",
+  "announcementsInboxTitle": "‹‹Inbox››",
+  "announcementsInboxSubtitle": "‹‹Only titles appear here for quick scanning. Tap any item to open the full announcement content.››",
+  "meetingsLoadError": "‹‹We could not load meetings right now. Pull to refresh or try again.››",
+  "meetingsLoadTimeout": "‹‹Meetings are taking too long to load. Pull to refresh or try again in a moment.››",
+  "meetingsLoadNetwork": "‹‹Meetings could not connect right now. Check your connection and try again.››",
+  "meetingsHeroSubtitle": "‹‹Every classroom meeting in one clean view, with attached links and a full-screen detail page when you need the context.››",
+  "meetingsJoinReadyMetric": "‹‹Join-ready››",
+  "meetingsNoLinkMetric": "‹‹No link››",
+  "meetingsNoPostedTitle": "‹‹No meetings posted yet››",
+  "meetingsEmptyForAccount": "‹‹No classroom meetings are available for this student account right now.››",
+  "meetingsLatestBody": "‹‹{title} was updated {updatedAt}. Open it for the attached link and classroom context.››",
+  "@meetingsLatestBody": {
+    "placeholders": {
+      "title": {},
+      "updatedAt": {}
+    }
+  },
+  "meetingsPullToRefreshHint": "‹‹Pull down to check again.››",
+  "meetingsFiltersSubtitle": "‹‹Narrow the list by subject or by whether the meeting already includes a link you can open.››",
+  "meetingsAccessLabel": "‹‹Access››",
+  "meetingsAllMeetings": "‹‹All meetings››",
+  "meetingsAccessReady": "‹‹Ready to join››",
+  "meetingsAccessNoLink": "‹‹No link››",
+  "meetingsAccessNoLinkYet": "‹‹No link yet››",
+  "meetingsAccessSearchHint": "‹‹Ready to join / No link yet››",
+  "meetingsSummarySubjectSegment": "‹‹ for {subject}››",
+  "@meetingsSummarySubjectSegment": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "meetingsSummaryAccessSegment": "‹‹ in {state}››",
+  "@meetingsSummaryAccessSegment": {
+    "placeholders": {
+      "state": {}
+    }
+  },
+  "meetingsShowingSummary": "‹‹Showing {shown} of {total} meetings{subjectSegment}{accessSegment}.››",
+  "@meetingsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {},
+      "subjectSegment": {},
+      "accessSegment": {}
+    }
+  },
+  "meetingsNoMatchTitle": "‹‹No meetings match these filters››",
+  "meetingsNoMatchSubtitle": "‹‹Try all subjects or include meetings without links to bring more results back into the list.››",
+  "meetingsListSubtitle": "‹‹Tap any meeting to open the full-screen detail view and jump into its attached link when available.››",
+  "meetingsDateTimeValue": "‹‹{date} • {time}››",
+  "@meetingsDateTimeValue": {
+    "placeholders": {
+      "date": {},
+      "time": {}
+    }
+  },
+  "meetingsSharedByValue": "‹‹Shared by {name}››",
+  "@meetingsSharedByValue": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "meetingsPreviewFallback": "‹‹Open this meeting to see the attached link and the latest classroom details.››",
+  "meetingsNoValidLinkAttached": "‹‹No valid meeting link is attached yet.››",
+  "meetingsCouldNotOpenLink": "‹‹Could not open the meeting link.››",
+  "meetingsNoLinkToCopy": "‹‹No meeting link to copy yet.››",
+  "meetingsLinkCopied": "‹‹Meeting link copied.››",
+  "meetingsUnavailableTitle": "‹‹Meeting unavailable››",
+  "meetingsUnavailableSubtitle": "‹‹This meeting could not be found in the current feed. It may have been removed or is not available offline.››",
+  "meetingsUnavailableHint": "‹‹Go back and refresh the meetings list.››",
+  "meetingsNoLinkAttachedYet": "‹‹No link attached yet››",
+  "meetingsAttachedLinkTitle": "‹‹Attached meeting link››",
+  "meetingsAttachedLinkMissingBody": "‹‹This meeting is visible in your classroom feed, but no valid URL is attached in the current student payload.››",
+  "meetingsDetailsTitle": "‹‹Meeting details››",
+  "meetingsDetailsSubtitle": "‹‹Everything student-relevant that is currently available in the classroom meeting payload.››",
+  "meetingsDetailClassroomLabel": "‹‹Classroom››",
+  "meetingsSharedByLabel": "‹‹Shared by››",
+  "meetingsIdLabel": "‹‹Meeting ID››",
+  "meetingsAttachedLinkSubtitle": "‹‹Use the attached URL to join or copy the meeting link when your classroom provides one.››",
+  "meetingsOpening": "‹‹Opening››",
+  "meetingsOpenLink": "‹‹Open link››",
+  "meetingsCopyLink": "‹‹Copy link››",
+  "meetingsAccessPanelTitle": "‹‹Meeting access››",
+  "meetingsAccessPanelReadyBody": "‹‹Open the attached URL in your browser or meeting app.››",
+  "meetingsJoinAction": "‹‹Join››",
+  "announcementsDetailLoadFailedHint": "‹‹Go back and try refreshing the announcements inbox.››",
+  "announcementsUnavailableTitle": "‹‹Announcement unavailable››",
+  "announcementsUnavailableSubtitle": "‹‹This announcement is no longer available in the published feed for this {audience}.››",
+  "@announcementsUnavailableSubtitle": {
+    "placeholders": {
+      "audience": {}
+    }
+  },
+  "announcementsUnavailableHint": "‹‹Go back to the inbox to continue.››",
+  "announcementsPublishedReadStateBody": "‹‹This announcement was published to this {audience} and your read state is stored locally on this device.››",
+  "@announcementsPublishedReadStateBody": {
+    "placeholders": {
+      "audience": {}
+    }
+  },
+  "announcementsDetailsTitle": "‹‹Announcement details››",
+  "announcementsDetailsSubtitle": "‹‹Published metadata for this announcement and its current read state.››",
+  "announcementsSeverityLabel": "‹‹Severity››",
+  "announcementsCreatedLabel": "‹‹Created››",
+  "announcementsIdLabel": "‹‹Announcement ID››",
+  "announcementsFullContentTitle": "‹‹Full content››",
+  "announcementsFullContentSubtitle": "‹‹The complete announcement text appears here after you open the item from the inbox.››",
+  "announcementsReadStateTitle": "‹‹Read state››",
+  "announcementsReadStateBodyRead": "‹‹This announcement is marked as read on this device.››",
+  "announcementsReadStateBodyUnread": "‹‹This announcement is still unread on this device.››",
+  "alertsTitle": "‹‹Alerts››",
+  "alertsSubtitle": "‹‹This is the page for things that need attention now, not just general updates.››",
+  "alertsAttendanceTitle": "‹‹Attendance needs attention››",
+  "alertsAttendanceBody": "‹‹Your attendance rate is {rate}%. A couple of missed lessons can snowball fast.››",
+  "@alertsAttendanceBody": {
+    "placeholders": {
+      "rate": {}
+    }
+  },
+  "alertsWeakestSubjectTitle": "‹‹Weakest subject signal››",
+  "alertsWeakestSubjectBody": "‹‹{subject} currently needs the most attention based on your latest grades.››",
+  "@alertsWeakestSubjectBody": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "alertsPracticeWeakAreaTitle": "‹‹Practice weak area››",
+  "alertsPracticeWeakAreaBody": "‹‹{topic} in {subject} is the clearest weak topic right now.››",
+  "@alertsPracticeWeakAreaBody": {
+    "placeholders": {
+      "topic": {},
+      "subject": {}
+    }
+  },
+  "alertsPracticeTrendDroppedTitle": "‹‹Practice trend dropped››",
+  "alertsPracticeTrendDroppedBody": "‹‹Your 7d performance is below your 30d baseline. Slow down and revisit fundamentals before pushing harder.››",
+  "alertsEmpty": "‹‹You're clear right now. When something needs urgent attention, it'll show up here.››",
+  "student": "‹‹Student››",
+  "classroomDetailPhoto": "‹‹Photo››",
+  "classroomDetailVoiceNote": "‹‹Voice note››",
+  "classroomDetailVideo": "‹‹Video››",
+  "classroomDetailFile": "‹‹File››",
+  "classroomDetailEmptyValue": "‹‹(empty)››",
+  "classroomDetailAttachmentUnavailable": "‹‹Attachment unavailable.››",
+  "classroomDetailAudioUnavailable": "‹‹Audio unavailable.››",
+  "classroomDetailCouldNotOpenAttachment": "‹‹Could not open attachment.››",
+  "classroomDetailVoiceMessage": "‹‹Voice message››",
+  "classroomDetailVideoFile": "‹‹Video file››",
+  "classroomDetailAttachedFile": "‹‹Attached file››",
+  "classroomDetailAttachment": "‹‹Attachment››",
+  "classroomDetailPinAction": "‹‹Pin››",
+  "classroomDetailUnpinAction": "‹‹Unpin››",
+  "classroomDetailMessageInfoTitle": "‹‹Message info››",
+  "classroomDetailForwardedSingle": "‹‹Forwarded››",
+  "classroomDetailForwardedMultiple": "‹‹Forwarded {count} messages››",
+  "@classroomDetailForwardedMultiple": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "classroomDetailCannotForwardPending": "‹‹Cannot forward into a request chat until it is approved››",
+  "classroomDetailCouldNotForwardSelected": "‹‹Could not forward selected messages››",
+  "classroomDetailSelectedCount": "‹‹{count} selected››",
+  "@classroomDetailSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "classroomDetailDeleteCount": "‹‹Delete ({count})››",
+  "@classroomDetailDeleteCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "classroomDetailSelectAllTooltip": "‹‹Select all››",
+  "classroomDetailCancelTooltip": "‹‹Cancel››",
+  "classroomDetailMicrophoneAccessTitle": "‹‹Microphone access needed››",
+  "classroomDetailMicrophoneAccessBody": "‹‹Please allow microphone access in Settings -> ClassMate to send voice notes.››",
+  "classroomDetailOpenSettingsAction": "‹‹Open Settings››",
+  "classroomDetailForwardTargetNext": "‹‹Forward target picker next: {label}››",
+  "@classroomDetailForwardTargetNext": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "classroomDetailEditMessageTitle": "‹‹Edit message››",
+  "classroomDetailEditMessageHint": "‹‹Edit your message...››",
+  "classroomDetailLeaveClassroomTitle": "‹‹Leave classroom?››",
+  "classroomDetailLeaveClassroomBody": "‹‹You will be removed from this classroom.››",
+  "classroomDetailLeaveAction": "‹‹Leave››",
+  "classroomDetailNoAssignmentsTitle": "‹‹No assignments yet››",
+  "classroomDetailNoAssignmentsSubtitle": "‹‹This classroom has no assignments right now.››",
+  "classroomDetailAssignmentFallback": "‹‹Assignment››",
+  "classroomDetailNoMaterialsTitle": "‹‹No materials yet››",
+  "classroomDetailNoMaterialsSubtitle": "‹‹This classroom has no materials right now.››",
+  "classroomDetailMaterialFallback": "‹‹Material››",
+  "classroomDetailNoMeetingsTitle": "‹‹No meetings yet››",
+  "classroomDetailNoMeetingsSubtitle": "‹‹This classroom has no meetings right now.››",
+  "classroomDetailMeetingFallback": "‹‹Meeting››",
+  "classroomDetailCouldNotLoadPeople": "‹‹Could not load people››",
+  "classroomDetailNoPeopleTitle": "‹‹No people yet››",
+  "classroomDetailNoPeopleSubtitle": "‹‹Nobody is visible in this classroom yet.››",
+  "classroomDetailTabChat": "‹‹Chat››",
+  "classroomDetailTabMaterials": "‹‹Materials››",
+  "classroomDetailTabPeople": "‹‹People››",
+  "classroomChatMediaSendPhoto": "‹‹Send photo››",
+  "classroomChatMediaSendPhotoSubtitle": "‹‹Share an image in the classroom chat››",
+  "classroomChatMediaSendVoiceMessage": "‹‹Send voice message››",
+  "classroomChatMediaSendVoiceMessageSubtitle": "‹‹Record and send a voice note››",
+  "classroomDetailCouldNotLoadTab": "‹‹Could not load tab››",
+  "classroomDetailDeletedByYou": "‹‹You deleted this message››",
+  "classroomDetailDeletedMessage": "‹‹This message was deleted››",
+  "practiceSetupDifficultyEasy": "‹‹Easy››",
+  "practiceSetupDifficultyMedium": "‹‹Medium››",
+  "practiceSetupDifficultyHard": "‹‹Hard››",
+  "practiceSetupDifficultyOlympiad": "‹‹Olympiad››",
+  "practiceSetupDifficultyAdaptive": "‹‹Adaptive››",
+  "practiceSetupModeLabelPractice": "‹‹Practice››",
+  "practiceSetupModeLabelFlashcards": "‹‹Flashcards››",
+  "practiceSetupModeLabelSpeedRound": "‹‹Speed round››",
+  "practiceSetupModeLabelExamPrep": "‹‹Exam prep››",
+  "practiceSetupModeLabelConceptBuilder": "‹‹Concept builder››",
+  "practiceSetupModeLabelAdaptive": "‹‹Adaptive››",
+  "practiceSetupModeLabelBagrut": "‹‹Bagrut››",
+  "practiceSetupModeSubtitlePractice": "‹‹Balanced daily practice››",
+  "practiceSetupModeSubtitleFlashcards": "‹‹Reveal and self-recall››",
+  "practiceSetupModeSubtitleSpeedRound": "‹‹Fast pressure drill››",
+  "practiceSetupModeSubtitleExamPrep": "‹‹Calm exam-style flow››",
+  "practiceSetupModeSubtitleConceptBuilder": "‹‹Concept first, solve later››",
+  "practiceSetupModeSubtitleAdaptive": "‹‹Difficulty shifts live››",
+  "practiceSetupModeSubtitleBagrut": "‹‹Strict official style››",
+  "practiceSetupModeHelpPractice": "‹‹Balanced mode: solve, check, explain, then keep moving.››",
+  "practiceSetupModeHelpFlashcards": "‹‹Flashcards work best when you try to recall before revealing.››",
+  "practiceSetupModeHelpSpeedRound": "‹‹Speed Round trains fast recall. Move quickly and trust strong instincts.››",
+  "practiceSetupModeHelpExamPrep": "‹‹Exam Prep is calmer and more formal, like a real school session.››",
+  "practiceSetupModeHelpConceptBuilder": "‹‹Concept Builder teaches the idea first, then asks you to apply it.››",
+  "practiceSetupModeHelpAdaptive": "‹‹Adaptive mode changes the challenge level based on your performance.››",
+  "practiceSetupModeHelpBagrut": "‹‹Bagrut mode focuses on strict exam-style solving and review.››",
+  "practiceSetupModeInfoTitle": "‹‹How each mode works››",
+  "practiceSetupHeroTitle": "‹‹Start a session››",
+  "practiceSetupHeroSubtitle": "‹‹Choose a mode, timing, and difficulty.››",
+  "practiceSetupInfiniteLives": "‹‹Infinite lives››",
+  "practiceSetupLivesCount": "‹‹{count} lives››",
+  "@practiceSetupLivesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "practiceSetupAiTiming": "‹‹AI timing››",
+  "practiceSetupSecondsShort": "‹‹{seconds}s››",
+  "@practiceSetupSecondsShort": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "practiceSetupQuestionsCount": "‹‹{count} questions››",
+  "@practiceSetupQuestionsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "practiceSetupSummarySubject": "‹‹Subject: {subject}››",
+  "@practiceSetupSummarySubject": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "practiceSetupSummaryTopic": "‹‹Topic: {topic}››",
+  "@practiceSetupSummaryTopic": {
+    "placeholders": {
+      "topic": {}
+    }
+  },
+  "practiceSetupSummaryMode": "‹‹Mode: {mode}››",
+  "@practiceSetupSummaryMode": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "practiceSetupSummaryDifficulty": "‹‹Difficulty: {difficulty}››",
+  "@practiceSetupSummaryDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
+  "practiceSetupSummaryQuestions": "‹‹Questions: {count}››",
+  "@practiceSetupSummaryQuestions": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "practiceSetupSummaryTiming": "‹‹Timing: {timing}››",
+  "@practiceSetupSummaryTiming": {
+    "placeholders": {
+      "timing": {}
+    }
+  },
+  "practiceSetupSummaryLives": "‹‹Lives: {lives}››",
+  "@practiceSetupSummaryLives": {
+    "placeholders": {
+      "lives": {}
+    }
+  },
+  "practiceSetupSectionSubjectTopic": "‹‹Subject & topic››",
+  "practiceSetupFieldSubject": "‹‹Subject››",
+  "practiceSetupFieldSubjectHint": "‹‹Pick the subject››",
+  "practiceSetupChooseSubject": "‹‹Choose subject››",
+  "practiceSetupFieldCustomSubject": "‹‹Custom subject››",
+  "practiceSetupFieldCustomSubjectHint": "‹‹Type your own subject››",
+  "practiceSetupDialogCustomSubjectTitle": "‹‹Custom subject››",
+  "practiceSetupDialogEnterSubject": "‹‹Enter subject››",
+  "practiceSetupUseAction": "‹‹Use››",
+  "practiceSetupFieldTopic": "‹‹Topic››",
+  "practiceSetupFieldTopicHint": "‹‹Pick sub-topic››",
+  "practiceSetupChooseTopic": "‹‹Choose topic››",
+  "practiceSetupFieldCustomTopic": "‹‹Custom topic››",
+  "practiceSetupFieldCustomTopicHint": "‹‹Type your own topic››",
+  "practiceSetupDialogCustomTopicTitle": "‹‹Custom topic››",
+  "practiceSetupDialogEnterTopic": "‹‹Enter topic››",
+  "practiceSubjectMath": "‹‹Math››",
+  "practiceSubjectPhysics": "‹‹Physics››",
+  "practiceSubjectComputerScience": "‹‹Computer Science››",
+  "practiceSubjectChemistry": "‹‹Chemistry››",
+  "practiceSubjectBiology": "‹‹Biology››",
+  "practiceSubjectEnglish": "‹‹English››",
+  "practiceSubjectArabic": "‹‹Arabic››",
+  "practiceSubjectHebrew": "‹‹Hebrew››",
+  "practiceSubjectGeneralKnowledge": "‹‹General Knowledge››",
+  "practiceTopicAllTopics": "‹‹All topics››",
+  "practiceTopicAlgebra": "‹‹Algebra››",
+  "practiceTopicLinearEquations": "‹‹Linear equations››",
+  "practiceTopicQuadraticEquations": "‹‹Quadratic equations››",
+  "practiceTopicFunctions": "‹‹Functions››",
+  "practiceTopicGeometry": "‹‹Geometry››",
+  "practiceTopicTriangles": "‹‹Triangles››",
+  "practiceTopicCircles": "‹‹Circles››",
+  "practiceTopicAnalyticGeometry": "‹‹Analytic geometry››",
+  "practiceTopicTrigonometry": "‹‹Trigonometry››",
+  "practiceTopicProbability": "‹‹Probability››",
+  "practiceTopicStatistics": "‹‹Statistics››",
+  "practiceTopicSequences": "‹‹Sequences››",
+  "practiceTopicCalculus": "‹‹Calculus››",
+  "practiceTopicLimits": "‹‹Limits››",
+  "practiceTopicDerivatives": "‹‹Derivatives››",
+  "practiceTopicMechanics": "‹‹Mechanics››",
+  "practiceTopicKinematics": "‹‹Kinematics››",
+  "practiceTopicNewtonLaws": "‹‹Newton laws››",
+  "practiceTopicForces": "‹‹Forces››",
+  "practiceTopicEnergy": "‹‹Energy››",
+  "practiceTopicMomentum": "‹‹Momentum››",
+  "practiceTopicElectricity": "‹‹Electricity››",
+  "practiceTopicElectricField": "‹‹Electric field››",
+  "practiceTopicCircuits": "‹‹Circuits››",
+  "practiceTopicWaves": "‹‹Waves››",
+  "practiceTopicOptics": "‹‹Optics››",
+  "practiceTopicThermodynamics": "‹‹Thermodynamics››",
+  "practiceTopicConditions": "‹‹Conditions››",
+  "practiceTopicBooleanLogic": "‹‹Boolean logic››",
+  "practiceTopicIfElse": "‹‹If / Else››",
+  "practiceTopicNestedConditions": "‹‹Nested conditions››",
+  "practiceTopicLoops": "‹‹Loops››",
+  "practiceTopicVariables": "‹‹Variables››",
+  "practiceTopicArrays": "‹‹Arrays››",
+  "practiceTopicStrings": "‹‹Strings››",
+  "practiceTopicAlgorithms": "‹‹Algorithms››",
+  "practiceTopicComplexity": "‹‹Complexity››",
+  "practiceTopicRecursion": "‹‹Recursion››",
+  "practiceTopicAtoms": "‹‹Atoms››",
+  "practiceTopicPeriodicTable": "‹‹Periodic table››",
+  "practiceTopicChemicalBonds": "‹‹Chemical bonds››",
+  "practiceTopicReactions": "‹‹Reactions››",
+  "practiceTopicStoichiometry": "‹‹Stoichiometry››",
+  "practiceTopicAcidsAndBases": "‹‹Acids and bases››",
+  "practiceTopicOrganicChemistry": "‹‹Organic chemistry››",
+  "practiceTopicCells": "‹‹Cells››",
+  "practiceTopicGenetics": "‹‹Genetics››",
+  "practiceTopicHumanBody": "‹‹Human body››",
+  "practiceTopicEcology": "‹‹Ecology››",
+  "practiceTopicEvolution": "‹‹Evolution››",
+  "practiceTopicSystems": "‹‹Systems››",
+  "practiceTopicGrammar": "‹‹Grammar››",
+  "practiceTopicReadingComprehension": "‹‹Reading comprehension››",
+  "practiceTopicVocabulary": "‹‹Vocabulary››",
+  "practiceTopicTenses": "‹‹Tenses››",
+  "practiceTopicWriting": "‹‹Writing››",
+  "practiceTopicRhetoric": "‹‹Rhetoric››",
+  "practiceSetupSectionMode": "‹‹Mode››",
+  "practiceSetupSectionDifficulty": "‹‹Difficulty››",
+  "practiceSetupSectionControls": "‹‹Session controls››",
+  "practiceSetupQuestionsTitle": "‹‹Questions››",
+  "practiceSetupQuestionsCaption": "‹‹How many generated questions to include››",
+  "practiceSetupTimingTitle": "‹‹Timing››",
+  "practiceSetupTimingCaption": "‹‹Choose scope first, then AI, your own time, or infinite.››",
+  "practiceSetupTimingScopePerQuestion": "‹‹Per question››",
+  "practiceSetupTimingScopeWholeQuiz": "‹‹Whole quiz››",
+  "practiceSetupTimingModeAi": "‹‹AI››",
+  "practiceSetupTimingModeMyTime": "‹‹My time››",
+  "practiceSetupTimingModeInfinite": "‹‹Infinite››",
+  "practiceSetupTimingCustomPerQuestionTitle": "‹‹Seconds per question››",
+  "practiceSetupTimingCustomPerQuestionCaption": "‹‹Your own timer for each question››",
+  "practiceSetupTimingCustomQuizMinutesTitle": "‹‹Quiz minutes››",
+  "practiceSetupTimingCustomQuizMinutesCaption": "‹‹Your own timer for the whole quiz››",
+  "practiceSetupInfiniteLivesTitle": "‹‹Infinite lives››",
+  "practiceSetupInfiniteLivesSubtitle": "‹‹Never end the session because of wrong answers››",
+  "practiceSetupLivesTitle": "‹‹Lives››",
+  "practiceSetupLivesCaption": "‹‹Mistakes allowed before the session ends››",
+  "practiceSetupTooltipHistory": "‹‹Practice history››",
+  "practiceHistoryTitle": "‹‹Practice history››",
+  "practiceHistoryClearTooltip": "‹‹Clear history››",
+  "practiceHistoryClearConfirmTitle": "‹‹Clear practice history?››",
+  "practiceHistoryClearConfirmBody": "‹‹This removes all saved practice sessions from this device.››",
+  "practiceHistoryLoadError": "‹‹Could not load practice history right now.››",
+  "practiceHistoryErrorPrefix": "‹‹Error:››",
+  "practiceHistoryEmpty": "‹‹No practice sessions yet.››",
+  "practiceHistoryDeleteConfirmTitle": "‹‹Delete this session?››",
+  "practiceHistoryDeleteConfirmBody": "‹‹This removes only this saved practice session.››",
+  "practiceHistoryOpenReview": "‹‹Open review››",
+  "practiceHistoryDeleteSession": "‹‹Delete session››",
+  "practiceHistoryDebugTitle": "‹‹Practice history debug››",
+  "practiceAnalyticsTitle": "‹‹Practice analytics››",
+  "practiceAnalyticsSectionOverall": "‹‹Overall››",
+  "practiceAnalyticsRecentSessionsTitle": "‹‹Recent sessions››",
+  "practiceAnalyticsRecentSessionsSummary": "‹‹{sessions} sessions • {correct}/{answered} correct • {accuracy}% • XP {xp}››",
+  "@practiceAnalyticsRecentSessionsSummary": {
+    "placeholders": {
+      "sessions": {},
+      "correct": {},
+      "answered": {},
+      "accuracy": {},
+      "xp": {}
+    }
+  },
+  "practiceAnalyticsSectionWeakestTopics": "‹‹Weakest topics››",
+  "practiceAnalyticsSectionStrongestTopics": "‹‹Strongest topics››",
+  "practiceAnalyticsSectionModePerformance": "‹‹Mode performance››",
+  "practiceAnalyticsNoTopicData": "‹‹No topic data yet››",
+  "practiceAnalyticsNoModeData": "‹‹No mode data yet››",
+  "savedQuestionsTopSubjectNone": "‹‹None yet››",
+  "savedQuestionsHeroSubtitle": "‹‹Questions you saved during practice should feel easy to revisit. This page is the clean retry hub for them.››",
+  "savedQuestionsSavedMetric": "‹‹Saved››",
+  "savedQuestionsTopSubjectMetric": "‹‹Top subject››",
+  "savedQuestionsQuickActionsSubtitle": "‹‹Jump straight back into practice or browse community solutions.››",
+  "savedQuestionsOpenPractice": "‹‹Open practice››",
+  "savedQuestionsOpenPracticeSubtitle": "‹‹Start a fresh session and keep building momentum››",
+  "savedQuestionsOpenSolutions": "‹‹Open solutions››",
+  "savedQuestionsOpenSolutionsSubtitle": "‹‹Browse uploaded solutions by subject, book, page, and question››",
+  "savedQuestionsQueueTitle": "‹‹Your saved queue››",
+  "savedQuestionsQueueSubtitle": "‹‹Questions you save in practice appear here so you can reopen them quickly and keep working your weak spots.››",
+  "savedQuestionsEmptyTitle": "‹‹No saved questions yet››",
+  "savedQuestionsEmptySubtitle": "‹‹Save a question from practice to revisit it later, open related solutions, and track the topics that still need work.››",
+  "savedQuestionsClearAction": "‹‹Clear saved questions››",
+  "savedQuestionsWhyItWorks": "‹‹Why it works››",
+  "savedQuestionsHoursTarget": "‹‹{count} h target››",
+  "@savedQuestionsHoursTarget": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "savedQuestionsMinutesTarget": "‹‹{count} min target››",
+  "@savedQuestionsMinutesTarget": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "savedQuestionsSecondsTarget": "‹‹{count} sec target››",
+  "@savedQuestionsSecondsTarget": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "practiceSetupTooltipAnalytics": "‹‹Practice analytics››",
+  "practiceSetupStopGenerating": "‹‹Stop Generating››",
+  "practiceSetupGenerating": "‹‹Generating...››",
+  "practiceSetupStartSession": "‹‹Start session››",
+  "practiceSetupSearchHint": "‹‹Search...››",
+  "practiceSessionModeDescriptionPractice": "‹‹Balanced solving with instant checking and feedback.››",
+  "practiceSessionModeDescriptionFlashcards": "‹‹Memory-first mode built for quick recall and retention.››",
+  "practiceSessionModeDescriptionSpeedRound": "‹‹Fast, low-friction, timed pressure reps.››",
+  "practiceSessionModeDescriptionExamPrep": "‹‹Formal exam-feel solving with less gamified pacing.››",
+  "practiceSessionModeDescriptionConceptBuilder": "‹‹Understand the idea first, then solve with context.››",
+  "practiceSessionModeDescriptionAdaptive": "‹‹Difficulty shifts based on how you perform.››",
+  "practiceSessionModeDescriptionBagrut": "‹‹Official-style single-question formal Bagrut flow.››",
+  "practiceSessionLoadingPractice": "‹‹Building your practice session››",
+  "practiceSessionLoadingFlashcards": "‹‹Shuffling your flashcards››",
+  "practiceSessionLoadingSpeedRound": "‹‹Starting the speed round››",
+  "practiceSessionLoadingExamPrep": "‹‹Preparing your exam session››",
+  "practiceSessionLoadingConceptBuilder": "‹‹Loading concept coach››",
+  "practiceSessionLoadingAdaptive": "‹‹Personalizing your challenge››",
+  "practiceSessionLoadingBagrut": "‹‹Preparing your Bagrut set››",
+  "practiceSessionLoadingDefault": "‹‹Preparing your session››",
+  "practiceSessionCompleteTitle": "‹‹{mode} complete››",
+  "@practiceSessionCompleteTitle": {
+    "placeholders": {
+      "mode": {}
+    }
+  },
+  "practiceSessionMetricAnswered": "‹‹Answered››",
+  "practiceSessionMetricCorrect": "‹‹Correct››",
+  "practiceSessionMetricWrong": "‹‹Wrong››",
+  "practiceSessionMetricAccuracy": "‹‹Accuracy››",
+  "practiceSessionMetricTotal": "‹‹Total››",
+  "practiceSessionMetricXp": "‹‹XP››",
+  "practiceSessionMetricStreak": "‹‹Streak››",
+  "practiceSessionReviewLayoutStacked": "‹‹Stacked››",
+  "practiceSessionReviewLayoutFocus": "‹‹Focus››",
+  "practiceSessionFilterAll": "‹‹All››",
+  "practiceSessionFilterWrong": "‹‹Wrong››",
+  "practiceSessionFilterCorrect": "‹‹Correct››",
+  "practiceSessionReviewTitle": "‹‹Session review››",
+  "practiceSessionNoQuestionsForFilter": "‹‹No questions match this filter yet.››",
+  "practiceSessionNoAnswer": "‹‹No answer››",
+  "practiceSessionUnknownAnswer": "‹‹Unknown››",
+  "practiceSessionReflectionTitle": "‹‹Reflection››",
+  "practiceSessionReflectionKnewIt": "‹‹Knew it››",
+  "practiceSessionReflectionReviewAgain": "‹‹Review again››",
+  "practiceSessionBackOfCard": "‹‹Back of card››",
+  "practiceSessionYourAnswer": "‹‹Your answer››",
+  "practiceSessionCorrectAnswer": "‹‹Correct answer››",
+  "practiceSessionExplanation": "‹‹Explanation››",
+  "practiceSessionBackToSetup": "‹‹Back to setup››",
+  "practiceSessionGeneralTopic": "‹‹General››",
+  "practiceSessionQuestionProgress": "‹‹Question {current} of {total}››",
+  "@practiceSessionQuestionProgress": {
+    "placeholders": {
+      "current": {},
+      "total": {}
+    }
+  },
+  "practiceSessionMetricTime": "‹‹Time››",
+  "practiceSessionMatchmakingDifficulty": "‹‹Difficulty: {difficulty}››",
+  "@practiceSessionMatchmakingDifficulty": {
+    "placeholders": {
+      "difficulty": {}
+    }
+  },
+  "practiceModeActionPrevious": "‹‹Previous››",
+  "practiceModeActionCheckAnswer": "‹‹Check answer››",
+  "practiceModeActionNext": "‹‹Next››",
+  "practiceModeActionNextQuestion": "‹‹Next question››",
+  "practiceModeActionEndSession": "‹‹End session››",
+  "practiceModeActionEndQuestion": "‹‹End question››",
+  "practiceModeActionEndExam": "‹‹End exam››",
+  "practiceModeActionNovaHint": "‹‹NOVA hint››",
+  "practiceModeActionReveal": "‹‹Reveal››",
+  "practiceModeActionShowSolution": "‹‹Show solution››",
+  "practiceModeActionHideSolution": "‹‹Hide solution››",
+  "practiceModeActionLockIn": "‹‹Lock in››",
+  "practiceModeActionCheckAdapt": "‹‹Check & adapt››",
+  "practiceModeActionContinue": "‹‹Continue››",
+  "practiceModeActionSolveIt": "‹‹Solve it››",
+  "practiceModeActionNextConcept": "‹‹Next concept››",
+  "practiceModeCardFront": "‹‹Front of card››",
+  "practiceModeRecallSummary": "‹‹Recall summary››",
+  "practiceModeFeelingPrompt": "‹‹How did that feel?››",
+  "practiceModeFeelingAgain": "‹‹Again››",
+  "practiceModeFeelingHard": "‹‹Hard››",
+  "practiceModeFeelingGood": "‹‹Good››",
+  "practiceModeFeelingEasy": "‹‹Easy››",
+  "practiceModeSpeedRoundBanner": "‹‹Speed round · fast decisions, instant momentum››",
+  "practiceModeFastFeedback": "‹‹Fast feedback››",
+  "practiceModeExamPrepBanner": "‹‹Exam prep · quieter layout, answers reviewed after moving forward››",
+  "practiceModeReview": "‹‹Review››",
+  "practiceModeBagrutBanner": "‹‹Bagrut mode · official-style paper flow››",
+  "practiceModeOfficialSolution": "‹‹Official-style solution››",
+  "practiceModeAdaptiveWarmup": "‹‹Warm-up difficulty››",
+  "practiceModeAdaptiveTrendingUp": "‹‹Difficulty trending up››",
+  "practiceModeAdaptiveEasingDown": "‹‹Difficulty easing down››",
+  "practiceModeAdaptiveSteady": "‹‹Difficulty holding steady››",
+  "practiceModeAdaptiveFeedback": "‹‹Adaptive feedback››",
+  "practiceModeConceptFirst": "‹‹Concept first››",
+  "practiceModeNowSolveIt": "‹‹Now solve it››",
+  "practiceModeConceptTitle": "‹‹Concept››",
+  "practiceModeFeedbackCorrect": "‹‹Correct››",
+  "practiceModeFeedbackNotQuite": "‹‹Not quite››",
+  "practiceModeFallbackQuestion": "‹‹Question››",
+  "practiceModeNoExplanationYet": "‹‹No explanation available yet.››",
+  "teacherGradesAssessmentCreated": "‹‹Assessment created››",
+  "teacherGradesEditAssessmentTitle": "‹‹Edit assessment››",
+  "teacherGradesFieldTitle": "‹‹Title››",
+  "teacherGradesFieldDate": "‹‹Date (YYYY-MM-DD)››",
+  "teacherGradesFieldMaxGrade": "‹‹Max grade››",
+  "teacherGradesAssessmentUpdated": "‹‹Assessment updated››",
+  "teacherGradesDeleteAssessmentTitle": "‹‹Delete assessment?››",
+  "teacherGradesDeleteAssessmentBody": "‹‹This will remove {title} and its grading entry from the teacher workspace.››",
+  "@teacherGradesDeleteAssessmentBody": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "teacherGradesDeleteAction": "‹‹Delete››",
+  "teacherGradesAssessmentDeleted": "‹‹Assessment deleted››",
+  "teacherGradesRosterLinkError": "‹‹This assessment is not linked to a classroom roster.››",
+  "teacherGradesSaved": "‹‹Grades saved››",
+  "teacherGradesSubtitle": "‹‹Create assessments and save grades against the live classroom roster.››",
+  "teacherGradesCreateAssessmentTitle": "‹‹Create assessment››",
+  "teacherGradesFieldCourse": "‹‹Course››",
+  "teacherGradesCreateAction": "‹‹Create››",
+  "teacherGradesNoStudentsLoaded": "‹‹No students loaded for this assessment.››",
+  "teacherGradesFieldGrade": "‹‹Grade››",
+  "teacherGradesMaxHint": "‹‹Max {grade}››",
+  "@teacherGradesMaxHint": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
+  "teacherGradesSaving": "‹‹Saving…››",
+  "teacherGradesSaveCount": "‹‹Save {count} grades››",
+  "@teacherGradesSaveCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "assignmentsNoDueDate": "‹‹No due date››",
+  "assignmentsLoadError": "‹‹We could not load assignments right now. Pull to refresh or try again.››",
+  "assignmentsLoadTimeout": "‹‹Assignments are taking too long to load. Pull to refresh or try again in a moment.››",
+  "assignmentsLoadNetwork": "‹‹Assignments could not connect right now. Check your connection and try again.››",
+  "assignmentsStatusOverdue": "‹‹Overdue››",
+  "assignmentsStatusDueSoon": "‹‹Due soon››",
+  "assignmentsStatusUpcoming": "‹‹Upcoming››",
+  "assignmentsPreviewFallback": "‹‹Open this assignment to see the full instructions and prepare your work.››",
+  "assignmentsSubmissionPrepEmpty": "‹‹Stage your note or files here.››",
+  "assignmentsSubmissionPrepCount": "‹‹{count} file(s) attached locally.››",
+  "@assignmentsSubmissionPrepCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "assignmentsHeroSubtitle": "‹‹Every classroom assignment in one clean view, with a full-screen detail page and a dedicated place to prepare your work.››",
+  "assignmentsSubjectsMetric": "‹‹Subjects››",
+  "assignmentsNothingAssignedYet": "‹‹Nothing assigned yet››",
+  "assignmentsNoAssignmentsForAccount": "‹‹No classroom assignments are available for this student account right now.››",
+  "assignmentsNextThingBody": "‹‹{title} is the next thing to look at. {due}.››",
+  "@assignmentsNextThingBody": {
+    "placeholders": {
+      "title": {},
+      "due": {}
+    }
+  },
+  "assignmentsPullToCheckAgain": "‹‹Pull down to check again.››",
+  "assignmentsFiltersSubtitle": "‹‹Narrow the list by subject or urgency to focus on what matters first.››",
+  "assignmentsSubjectLabel": "‹‹Subject››",
+  "assignmentsAllSubjects": "‹‹All subjects››",
+  "assignmentsSearchSubjects": "‹‹Search subjects››",
+  "assignmentsStatusLabel": "‹‹Status››",
+  "assignmentsAllStatuses": "‹‹All statuses››",
+  "assignmentsSearchStatuses": "‹‹Search statuses››",
+  "assignmentsShowingSummary": "‹‹Showing {shown} of {total} assignments.››",
+  "@assignmentsShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {}
+    }
+  },
+  "assignmentsNoFilterMatchesTitle": "‹‹No assignments match these filters››",
+  "assignmentsNoFilterMatchesSubtitle": "‹‹Try all subjects or a wider status view to bring more assignments back into the list.››",
+  "assignmentsClearFiltersHint": "‹‹Clear filters to see everything again.››",
+  "assignmentsListSubtitle": "‹‹Tap any assignment to open the full-screen detail view and prepare your work.››",
+  "assignmentsAddNoteBeforePrepare": "‹‹Add a note or attach a file before preparing your work.››",
+  "assignmentsWorkDraftPrepared": "‹‹Work draft prepared.››",
+  "assignmentsWorkDraftPreparedWithFiles": "‹‹Work draft prepared. Attached files are saved on this device.››",
+  "assignmentsUnavailableTitle": "‹‹Assignment unavailable››",
+  "assignmentsUnavailableSubtitle": "‹‹This assignment could not be found in the current feed. It may have been removed or is not available offline.››",
+  "assignmentsUnavailableHint": "‹‹Go back and refresh the assignments list.››",
+  "assignmentsOverdueBannerBody": "‹‹This assignment is past its due date. Open your work area below to prepare what you want to turn in.››",
+  "assignmentsWorkAreaBannerBody": "‹‹Use the work area below to stage files, write a note, and keep everything ready in one place.››",
+  "assignmentsDetailsSectionTitle": "‹‹Assignment details››",
+  "assignmentsDetailsSectionSubtitle": "‹‹Everything student-relevant that is currently available in the classroom assignment payload.››",
+  "assignmentsDetailDueLabel": "‹‹Due››",
+  "assignmentsDetailClassroomLabel": "‹‹Classroom››",
+  "assignmentsDetailTeacherLabel": "‹‹Teacher››",
+  "assignmentsDetailPostedByLabel": "‹‹Posted by››",
+  "assignmentsDetailPublishedLabel": "‹‹Published››",
+  "assignmentsDetailUpdatedLabel": "‹‹Updated››",
+  "assignmentsDetailIdLabel": "‹‹Assignment ID››",
+  "assignmentsInstructionsTitle": "‹‹Instructions››",
+  "assignmentsInstructionsSubtitle": "‹‹Full assignment text from the classroom feed, with the original wording preserved.››",
+  "assignmentsYourWorkTitle": "‹‹Your work››",
+  "assignmentsYourWorkSubtitle": "‹‹Stage a note, attach files or docs, and keep your submission prep in one focused space.››",
+  "assignmentsPrivateNoteLabel": "‹‹Private work note››",
+  "assignmentsPrivateNoteHint": "‹‹Add what you plan to submit, reminders for yourself, or a doc/link summary.››",
+  "assignmentsAddFiles": "‹‹Add files or docs››",
+  "assignmentsClearFiles": "‹‹Clear files››",
+  "assignmentsStagedDeviceHint": "‹‹Files are staged on this device. Assignment file submission is not available in this app.››",
+  "assignmentsLastPrepared": "‹‹Last prepared {time}.››",
+  "@assignmentsLastPrepared": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "assignmentsSubmissionPrepTitle": "‹‹Submission prep››",
+  "assignmentsPreparing": "‹‹Preparing››",
+  "assignmentsPrepareWork": "‹‹Prepare work››",
+  "assignmentsLoadingSubtitle": "‹‹Loading your classroom assignments.››",
+  "assignmentsPullToRefreshRetry": "‹‹Pull to refresh or retry below.››",
+  "assignmentsFileSizeUnknown": "‹‹File››",
+  "assignmentsRemoveAttachment": "‹‹Remove››",
+  "assignmentsSubmitted": "‹‹Submitted››",
+  "attendanceUndated": "‹‹Undated››",
+  "attendanceLoadError": "‹‹We could not load attendance right now. Pull to refresh or try again.››",
+  "attendanceLoadTimeout": "‹‹Attendance is taking too long to load. Pull to refresh or try again in a moment.››",
+  "attendanceLoadNetwork": "‹‹Attendance could not connect right now. Check your connection and try again.››",
+  "attendanceConsistencyBuilding": "‹‹Still building››",
+  "attendanceConsistencyExcellent": "‹‹Excellent consistency››",
+  "attendanceConsistencySteady": "‹‹Mostly steady››",
+  "attendanceConsistencyNeedsAttention": "‹‹Needs attention››",
+  "attendanceConsistencyRisk": "‹‹Attendance risk››",
+  "attendanceWatchRecentAbsences": "‹‹Recent absences››",
+  "attendanceWatchRepeatedLateness": "‹‹Repeated lateness››",
+  "attendanceWatchExcusedAddingUp": "‹‹Excused time adding up››",
+  "attendanceWatchNoFlags": "‹‹No current flags››",
+  "attendanceAllSubjectsLowercase": "‹‹all subjects››",
+  "attendanceShowingSummary": "‹‹Showing {shown} of {total} marks for {subject} in {range}.››",
+  "@attendanceShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {},
+      "subject": {},
+      "range": {}
+    }
+  },
+  "attendanceDayToneAbsent": "‹‹Absence day››",
+  "attendanceDayToneLate": "‹‹Late signal››",
+  "attendanceDayToneExcused": "‹‹Excused attendance››",
+  "attendanceDayToneClean": "‹‹Clean day››",
+  "attendanceLoadingSubtitle": "‹‹Loading your latest attendance summary.››",
+  "attendanceUnavailableTitle": "‹‹Attendance unavailable››",
+  "attendanceHeroSubtitle": "‹‹A clean read on your attendance rate, recent lessons, and anything that needs attention.››",
+  "attendanceMetricRate": "‹‹Rate››",
+  "attendanceMetricPresent": "‹‹Present marks››",
+  "attendanceMetricLate": "‹‹Late marks››",
+  "attendanceMetricAbsent": "‹‹Absent marks››",
+  "attendanceHeroSignalBody": "‹‹{flag}. Attendance pressure can build quietly, so this view stays focused on what changed most recently.››",
+  "@attendanceHeroSignalBody": {
+    "placeholders": {
+      "flag": {}
+    }
+  },
+  "attendanceNoSummary": "‹‹No attendance summary is available for this student account yet.››",
+  "attendanceEmptyTitle": "‹‹No attendance records yet››",
+  "attendanceEmptySubtitle": "‹‹No attendance records have been published for this student account yet.››",
+  "attendanceFiltersSubtitle": "‹‹Use the same searchable picker style as settings to narrow the attendance view by subject or time window.››",
+  "attendanceTimeRangeLabel": "‹‹Time range››",
+  "attendanceSearchRanges": "‹‹All time / 7 days / 30 days / 90 days››",
+  "attendanceNoFilteredMarksTitle": "‹‹No marks match these filters››",
+  "attendanceNoFilteredMarksSubtitle": "‹‹Try all subjects or a wider time range to bring more attendance marks back into view.››",
+  "attendanceQuickReadTitle": "‹‹Quick read››",
+  "attendanceQuickReadSubtitleFiltered": "‹‹A fast summary for the filtered attendance marks shown below.››",
+  "attendanceQuickReadSubtitleAll": "‹‹A fast summary based on the latest attendance records available.››",
+  "attendanceSummaryConsistency": "‹‹Consistency››",
+  "attendanceSummaryWatchFor": "‹‹Watch for››",
+  "attendanceSummaryExcused": "‹‹Excused marks››",
+  "attendanceSummaryMarksInView": "‹‹Marks in view››",
+  "attendanceSummaryRateInView": "‹‹Rate in view››",
+  "attendanceRecentDaysTitle": "‹‹Recent days››",
+  "attendanceRecentDaysSubtitleFiltered": "‹‹Grouped by day for the filtered marks currently in view.››",
+  "attendanceRecentDaysSubtitleAll": "‹‹Grouped by day so you can catch absence or lateness patterns faster.››",
+  "attendanceLessonCountSingle": "‹‹1 lesson››",
+  "attendanceLessonCount": "‹‹{count} lessons››",
+  "@attendanceLessonCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "attendanceStatusPresent": "‹‹Present››",
+  "attendanceStatusLate": "‹‹Late››",
+  "attendanceStatusAbsent": "‹‹Absent››",
+  "attendanceStatusExcused": "‹‹Excused››",
+  "attendanceStatusRecorded": "‹‹Recorded››",
+  "attendanceLessonFallback": "‹‹Lesson››",
+  "attendanceRangeAll": "‹‹All time››",
+  "attendanceRange7": "‹‹Last 7 days››",
+  "attendanceRange30": "‹‹Last 30 days››",
+  "attendanceRange90": "‹‹Last 90 days››",
+  "attendanceRangeAllShort": "‹‹All time››",
+  "attendanceRange7Short": "‹‹7 days››",
+  "attendanceRange30Short": "‹‹30 days››",
+  "attendanceRange90Short": "‹‹90 days››",
+  "gradesLoadError": "‹‹We could not load grades right now. Pull to refresh or try again.››",
+  "gradesLoadTimeout": "‹‹Grades are taking too long to load. Pull to refresh or try again in a moment.››",
+  "gradesLoadNetwork": "‹‹Grades could not connect right now. Check your connection and try again.››",
+  "gradesGeneralSubject": "‹‹General››",
+  "gradesBandBuilding": "‹‹Still building››",
+  "gradesBandExcellent": "‹‹Excellent››",
+  "gradesBandStrong": "‹‹Strong››",
+  "gradesBandOkay": "‹‹Okay››",
+  "gradesBandNeedsAttention": "‹‹Needs attention››",
+  "gradesBandRisk": "‹‹At risk››",
+  "gradesTrendRising": "‹‹Rising››",
+  "gradesTrendDropping": "‹‹Dropping››",
+  "gradesTrendStable": "‹‹Stable››",
+  "gradesShowingSummary": "‹‹Showing {shown} of {total} recorded grades for {subject} in {range}.››",
+  "@gradesShowingSummary": {
+    "placeholders": {
+      "shown": {},
+      "total": {},
+      "subject": {},
+      "range": {}
+    }
+  },
+  "gradesLoadingSubtitle": "‹‹Loading your latest academic results.››",
+  "gradesUnavailableTitle": "‹‹Grades unavailable››",
+  "gradesHeroSubtitle": "‹‹A clean read on your average, recent assessments, and which subjects need protection or recovery.››",
+  "gradesMetricAverage": "‹‹Average››",
+  "gradesMetricRecorded": "‹‹Recorded››",
+  "gradesMetricBestSubject": "‹‹Best subject››",
+  "gradesMetricNeedsWork": "‹‹Needs work››",
+  "gradesLatestSignalBody": "‹‹{assessment} in {subject} landed at {grade}. {band} right now.››",
+  "@gradesLatestSignalBody": {
+    "placeholders": {
+      "assessment": {},
+      "subject": {},
+      "grade": {},
+      "band": {}
+    }
+  },
+  "gradesSummaryAvailableNoRecent": "‹‹A grade summary is available, but no recent assessments are visible in this view yet.››",
+  "gradesEmptyTitle": "‹‹No grades yet››",
+  "gradesEmptySubtitle": "‹‹No grades have been published for this student account yet.››",
+  "gradesFiltersSubtitle": "‹‹Use the same searchable picker style as settings to narrow grades by subject or time window.››",
+  "gradesNoFilteredTitle": "‹‹No grades match these filters››",
+  "gradesNoFilteredSubtitle": "‹‹Try all subjects or a wider time range to bring more recorded grades back into view.››",
+  "gradesQuickReadTitle": "‹‹Quick read››",
+  "gradesQuickReadSubtitleFiltered": "‹‹A fast summary for the grades currently in view.››",
+  "gradesQuickReadSubtitleAll": "‹‹The fastest read on what to protect and what to recover.››",
+  "gradesWeakSpotLabel": "‹‹Current weak spot››",
+  "gradesNoWeakSignal": "‹‹No weak subject signal yet››",
+  "gradesWeakSpotValue": "‹‹{subject} needs the first recovery block.››",
+  "@gradesWeakSpotValue": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "gradesStrengthLabel": "‹‹Current strength››",
+  "gradesNoStrengthSignal": "‹‹No strong subject signal yet››",
+  "gradesStrengthValue": "‹‹{subject} is your confidence anchor right now.››",
+  "@gradesStrengthValue": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "gradesBandLabel": "‹‹Band››",
+  "gradesInViewLabel": "‹‹In view››",
+  "gradesInViewCount": "‹‹{count} recorded grades in this filter.››",
+  "@gradesInViewCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "gradesInViewAverage": "‹‹{count} recorded grades averaging {average}.››",
+  "@gradesInViewAverage": {
+    "placeholders": {
+      "count": {},
+      "average": {}
+    }
+  },
+  "gradesLatestAssessmentsTitle": "‹‹Latest assessments››",
+  "gradesLatestAssessmentsSubtitleFiltered": "‹‹Most recent recorded grades in the current filtered view.››",
+  "gradesLatestAssessmentsSubtitleAll": "‹‹Most recent recorded grades in chronological order.››",
+  "gradesSubjectDrilldownTitle": "‹‹Subject drilldown››",
+  "gradesSubjectDrilldownSubtitleFiltered": "‹‹Grouped by subject for the grades currently in view.››",
+  "gradesSubjectDrilldownSubtitleAll": "‹‹Grouped by subject so trend and pressure stand out faster.››",
+  "gradesAssessmentFallback": "‹‹Assessment››",
+  "gradesChipBest": "‹‹Best››",
+  "gradesNoAverageYet": "‹‹No average yet››",
+  "gradesRecentAverage": "‹‹Recent average: {average}››",
+  "@gradesRecentAverage": {
+    "placeholders": {
+      "average": {}
+    }
+  },
+  "actionCancel": "‹‹Cancel››",
+  "actionSave": "‹‹Save››",
+  "actionDelete": "‹‹Delete››",
+  "actionRemove": "‹‹Remove››",
+  "actionBlock": "‹‹Block››",
+  "actionCreate": "‹‹Create››",
+  "actionShare": "‹‹Share››",
+  "actionScheduleVerb": "‹‹Schedule››",
+  "actionAdd": "‹‹Add››",
+  "actionKeep": "‹‹Keep››",
+  "actionOpen": "‹‹Open››",
+  "actionPublish": "‹‹Publish››",
+  "actionPublishing": "‹‹Publishing…››",
+  "actionRefresh": "‹‹Refresh››",
+  "msgBlockTitle": "‹‹Block this person?››",
+  "msgBlockContent": "‹‹They won't be able to message you and you won't see their messages.››",
+  "msgRenameGroup": "‹‹Rename group››",
+  "msgGroupName": "‹‹Group name››",
+  "msgMute": "‹‹Mute››",
+  "msgUnmute": "‹‹Unmute››",
+  "msgInviteCode": "‹‹Invite code››",
+  "msgCopyCode": "‹‹Copy code››",
+  "msgLeave": "‹‹Leave››",
+  "msgInviteCodeCopied": "‹‹Invite code copied››",
+  "msgCodeCopied": "‹‹Code copied: {code}››",
+  "@msgCodeCopied": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "msgParticipantsAdded": "‹‹{count, plural, =1{1 participant added} other{{count} participants added}}››",
+  "@msgParticipantsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgMembersCount": "‹‹{count, plural, =1{1 member} other{{count} members}}››",
+  "@msgMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "msgAdmin": "‹‹Admin››",
+  "msgRemoveFromGroup": "‹‹Remove from group››",
+  "msgMakeAdmin": "‹‹Make admin››",
+  "msgRemoveAdmin": "‹‹Remove admin››",
+  "msgOnlyAdmin": "‹‹Only admin — promote another first››",
+  "msgRemoveMemberTitle": "‹‹Remove {name}?››",
+  "@msgRemoveMemberTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "msgNotificationsMuted": "‹‹Notifications muted››",
+  "msgNotificationsUnmuted": "‹‹Notifications unmuted››",
+  "msgJoinGroupTitle": "‹‹Join a Group››",
+  "msgJoinGroupSubtitle": "‹‹Enter the invite code from the group admin››",
+  "examTitle": "‹‹Exam››",
+  "examNotFound": "‹‹Exam not found››",
+  "examStudyWithNova": "‹‹Study with NOVA››",
+  "examOpenInsights": "‹‹Open Insights››",
+  "examAddToCalendar": "‹‹Add to calendar››",
+  "examCouldNotOpenCalendar": "‹‹Could not open calendar.››",
+  "formTitle": "‹‹Form››",
+  "formNotFound": "‹‹Form not found››",
+  "formClosed": "‹‹This form is closed.››",
+  "formCompletion": "‹‹Completion››",
+  "formNoTextResponses": "‹‹No text responses yet.››",
+  "meetingsCouldNotLoad": "‹‹Could not load meetings››",
+  "meetingCouldNotLoad": "‹‹Could not load meeting››",
+  "insightsGenerateAction": "‹‹Generate Insights››",
+  "insightsRefreshAction": "‹‹Refresh››",
+  "teacherGoToClassroom": "‹‹Go to Classroom››",
+  "teacherMarkAttendance": "‹‹Mark Attendance››",
+  "teacherPostAssignment": "‹‹Post Assignment››",
+  "teacherNewAnnouncementAction": "‹‹New Announcement››",
+  "teacherViewFullWeekSchedule": "‹‹View full week schedule››",
+  "teacherGroupsLabel": "‹‹Groups››",
+  "teacherTestsLabel": "‹‹Tests››",
+  "teacherAnnounceLabel": "‹‹Announce››",
+  "teacherTitleAndMessageRequired": "‹‹Title and message are required››",
+  "teacherAnnouncementPublished": "‹‹Announcement published››",
+  "teacherFailedToPublish": "‹‹Failed to publish: {error}››",
+  "@teacherFailedToPublish": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherAnnouncementSectionTitle": "‹‹Announcement››",
+  "teacherAudienceSectionTitle": "‹‹Audience››",
+  "teacherPinAnnouncement": "‹‹Pin announcement››",
+  "teacherPinnedAtTop": "‹‹Pinned announcements appear at the top››",
+  "teacherPublishAction": "‹‹Publish››",
+  "teacherPublishingAction": "‹‹Publishing…››",
+  "teacherAnnounceTitleLabel": "‹‹Title *››",
+  "teacherAnnounceTitleHint": "‹‹e.g. School event tomorrow››",
+  "teacherAnnounceMessageLabel": "‹‹Message *››",
+  "teacherAnnounceMessageHint": "‹‹Write the full announcement here…››",
+  "teacherStudentsLabel": "‹‹Students››",
+  "teacherSearchStudents": "‹‹Search students…››",
+  "teacherNoStudentsLoaded": "‹‹No students found in this school.››",
+  "teacherActions": "‹‹QUICK ACTIONS››",
+  "teacherParentsLabel": "‹‹Parents››",
+  "teacherTeachersLabel": "‹‹Teachers››",
+  "teacherWeekScheduleTitle": "‹‹Week Schedule››",
+  "teacherCouldNotLoadSchedule": "‹‹Could not load schedule››",
+  "teacherAttendanceLast30": "‹‹Attendance (last 30 days)››",
+  "teacherAttendanceFrom": "‹‹From {date}››",
+  "@teacherAttendanceFrom": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "teacherAttendanceChangeDate": "‹‹Change date››",
+  "teacherAttendanceNoSessions": "‹‹No saved attendance sessions.\nMark attendance from the schedule.››",
+  "teacherRecentGrades": "‹‹Recent Grades››",
+  "teacherNoGradesRecorded": "‹‹No grades recorded yet››",
+  "teacherGradeAvg": "‹‹Grade Avg››",
+  "teacherSubmittedLabel": "‹‹Submitted››",
+  "teacherAnalyticsTitle": "‹‹Analytics››",
+  "teacherGradeReports": "‹‹Grade Reports››",
+  "teacherAvgLabel": "‹‹avg››",
+  "teacherBelow60": "‹‹{count} below 60%››",
+  "@teacherBelow60": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherGradedFraction": "‹‹{graded}/{total} graded››",
+  "@teacherGradedFraction": {
+    "placeholders": {
+      "graded": {},
+      "total": {}
+    }
+  },
+  "teacherNoGradesEntered": "‹‹No grades entered yet››",
+  "teacherNewAssignment": "‹‹New Assignment››",
+  "teacherDeleteAssignment": "‹‹Delete assignment?››",
+  "teacherDeleteAssignmentContent": "‹‹This will remove it for all students.››",
+  "teacherShareMaterialTitle": "‹‹Share Material››",
+  "teacherRemoveMaterial": "‹‹Remove material?››",
+  "teacherScheduleMeetingTitle": "‹‹Schedule Meeting››",
+  "teacherCancelMeetingTitle": "‹‹Cancel meeting?››",
+  "teacherCancelMeetingAction": "‹‹Cancel meeting››",
+  "teacherJoinMeeting": "‹‹Join meeting››",
+  "teacherAddStudentTitle": "‹‹Add Student››",
+  "teacherRemoveStudentTitle": "‹‹Remove {name}?››",
+  "@teacherRemoveStudentTitle": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teacherRemoveStudentContent": "‹‹This student will be removed from this classroom.››",
+  "teacherStudentAdded": "‹‹Student added››",
+  "teacherClassroomAnalyticsTitle": "‹‹Classroom Analytics››",
+  "teacherOpenAnalyticsAction": "‹‹Open Analytics››",
+  "teacherStudentsCount": "‹‹Students ({count})››",
+  "@teacherStudentsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherAssignmentLabel": "‹‹Assignment››",
+  "teacherShareMaterialLabel": "‹‹Share material››",
+  "teacherAttendanceRateLabel": "‹‹Attendance rate››",
+  "teacherSelectSessionPrompt": "‹‹Select a session below to start marking attendance››",
+  "teacherOpenAction": "‹‹Open››",
+  "chatDeleteForMe": "‹‹Delete for me››",
+  "chatDeleteForEveryone": "‹‹Delete for everyone››",
+  "chatMicNeeded": "‹‹Microphone access needed››",
+  "chatMicNeededBody": "‹‹Please allow microphone access in Settings to send voice notes.››",
+  "chatOpenSettings": "‹‹Open Settings››",
+  "chatCopied": "‹‹Copied››",
+  "chatCouldNotSendMedia": "‹‹Could not send media.››",
+  "chatCouldNotSendMessage": "‹‹Could not send message.››",
+  "chatCouldNotForward": "‹‹Could not forward selected messages››",
+  "chatSelectAll": "‹‹Select all››",
+  "chatDeselectAll": "‹‹Deselect all››",
+  "chatEditingMessage": "‹‹Editing message››",
+  "chatEditPlaceholder": "‹‹Edit message…››",
+  "chatMessageHint": "‹‹Message››",
+  "chatPin": "‹‹Pin››",
+  "chatUnpin": "‹‹Unpin››",
+  "chatPhoto": "‹‹Photo››",
+  "chatVideo": "‹‹Video››",
+  "chatMedia": "‹‹Media››",
+  "chatAudioFile": "‹‹Audio file››",
+  "chatVideoFile": "‹‹Video file››",
+  "chatAttachedFile": "‹‹Attached file››",
+  "chatFollowUp": "‹‹Follow-up››",
+  "chatCancelTooltip": "‹‹Cancel››",
+  "chatJoinGroup": "‹‹Join Group››",
+  "chatJoining": "‹‹Joining…››",
+  "chatJoinGroupTooltip": "‹‹Join group by code››",
+  "chatForwardNoChatAvailable": "‹‹No approved chats available››",
+  "chatFilterAll": "‹‹All››",
+  "novaDisclaimer": "‹‹NOVA can make mistakes. Double-check important answers.››",
+  "practiceCustomDisclaimer": "‹‹Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.››",
+  "classroomsJoined": "‹‹You joined the classroom!››",
+  "classroomsJoinAction": "‹‹Join Classroom››",
+  "classroomsJoinTooltip": "‹‹Join a classroom››",
+  "classroomsJoinTitle": "‹‹Join a Classroom››",
+  "classroomsJoinSubtitle": "‹‹Enter the code your teacher gave you››",
+  "classroomsCouldNotOpenLink": "‹‹Could not open link››",
+  "classroomsReorderTitle": "‹‹Reorder classrooms››",
+  "classroomsNoClassroomsToReorder": "‹‹No classrooms to reorder.››",
+  "teacherPostAnnouncementAction": "‹‹Post Announcement››",
+  "announcementAudienceEveryone": "‹‹Everyone››",
+  "teacherGreetingMorning": "‹‹Good morning››",
+  "teacherGreetingAfternoon": "‹‹Good afternoon››",
+  "teacherGreetingEvening": "‹‹Good evening››",
+  "teacherTodaysClasses": "‹‹Today's Classes››",
+  "teacherNoDate": "‹‹No date››",
+  "teacherUpcomingTestsSubtitle": "‹‹Next tests & quizzes››",
+  "teacherNoClassesThisWeek": "‹‹No classes this week››",
+  "teacherNoClassesThisWeekSub": "‹‹Your schedule for this week is empty››",
+  "teacherTitleFieldLabel": "‹‹Title *››",
+  "teacherInstructionsLabel": "‹‹Instructions››",
+  "teacherLinkUrlLabel": "‹‹Link / URL *››",
+  "teacherLinkUrlHint": "‹‹https://...››",
+  "teacherDescriptionLabel": "‹‹Description››",
+  "teacherMeetingTitleLabel": "‹‹Meeting title *››",
+  "teacherMeetingLinkLabel": "‹‹Meeting link *››",
+  "teacherMeetingLinkHint": "‹‹Zoom / Meet / Teams link››",
+  "teacherStudentEmailLabel": "‹‹Student email or ID››",
+  "teacherTooltipRemoveStudent": "‹‹Remove from classroom››",
+  "teacherCouldNotLoad": "‹‹Could not load››",
+  "teacherNoAssignmentsYet": "‹‹No assignments yet››",
+  "teacherNoAssignmentsSub": "‹‹Tap + to create the first assignment››",
+  "teacherNoMaterialsYet": "‹‹No materials yet››",
+  "teacherNoMaterialsSub": "‹‹Share links, documents, or resources with your class››",
+  "teacherNoMeetingsScheduled": "‹‹No meetings scheduled››",
+  "teacherNoMeetingsSub": "‹‹Tap + to schedule a class meeting››",
+  "teacherAttendanceOther": "‹‹Other››",
+  "teacherTotal": "‹‹Total››",
+  "mediaOpenExternally": "‹‹Open externally››",
+  "mediaUnableToLoad": "‹‹Unable to load image››",
+  "searchHint": "‹‹Search...››",
+  "teacherInsightsTitle": "‹‹Student Insights››",
+  "teacherInsightsSubtitle": "‹‹Select a student to view their academic insights.››",
+  "teacherInsightsNoStudents": "‹‹No students found.››",
+  "teacherInsightsSearchHint": "‹‹Search students…››",
+  "navDiplomas": "‹‹Certificates››",
+  "diplomasComingSoon": "‹‹Diploma management is coming soon.››",
+  "teacherExamsTitle": "‹‹Exams››",
+  "teacherExamsUpcoming": "‹‹Upcoming››",
+  "teacherExamsPast": "‹‹Past››",
+  "teacherExamsEmpty": "‹‹No assessments yet. Tap + to create one.››",
+  "teacherExamsGraded": "‹‹{count} graded››",
+  "@teacherExamsGraded": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsTitle": "‹‹Forms››",
+  "teacherFormsEmpty": "‹‹No forms yet. Tap + to create one.››",
+  "teacherFormsResponses": "‹‹{count} responses››",
+  "@teacherFormsResponses": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "teacherFormsPublished": "‹‹Published››",
+  "teacherFormsDraft": "‹‹Draft››",
+  "teacherFormsCreateTitle": "‹‹Create Form››",
+  "teacherFormsAddQuestion": "‹‹Add question››",
+  "teacherFormsQuestionHint": "‹‹Question text››",
+  "teacherFormsViewResponses": "‹‹View responses››",
+  "teacherFormsNoResponses": "‹‹No responses yet.››",
+  "diplomasTitle": "‹‹Certificates››",
+  "diplomasEmpty": "‹‹No certificates issued yet. Tap + to issue one.››",
+  "diplomasIssueTo": "‹‹Issue to››",
+  "diplomasStudentName": "‹‹Student name››",
+  "diplomasCertificateType": "‹‹Certificate type››",
+  "diplomasIssueDiploma": "‹‹Issue Certificate››",
+  "diplomasIssuedOn": "‹‹Issued on {date}››",
+  "@diplomasIssuedOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "examDetailsSection": "‹‹Details››",
+  "examInfoTeacher": "‹‹Teacher››",
+  "examInfoAudience": "‹‹Audience››",
+  "examInfoDate": "‹‹Date››",
+  "examInfoTime": "‹‹Time››",
+  "examInfoPeriod": "‹‹Period››",
+  "examInfoDuration": "‹‹Duration››",
+  "examInfoSubject": "‹‹Subject››",
+  "examMaterialsSection": "‹‹Attached materials››",
+  "examNoMaterials": "‹‹No materials attached yet.››",
+  "examQuickActionsSection": "‹‹Quick actions››",
+  "examViewGradeTitle": "‹‹See your grade››",
+  "examViewGradeBody": "‹‹This exam is complete. Check the grades tab for your result.››",
+  "examViewGradeAction": "‹‹Open Grades››",
+  "teacherGradesSaveAction": "‹‹Save››",
+  "teacherGradesNothingToSave": "‹‹No changes to save.››",
+  "teacherRetry": "‹‹Retry››",
+  "teacherExamGradesStudents": "‹‹students››",
+  "teacherExamGradesGraded": "‹‹graded››",
+  "teacherExamGradesNoStudents": "‹‹No students targeted.\nEdit the exam to add an audience.››",
+  "teacherExamGradesEnterGrades": "‹‹Enter grades››",
+  "teacherDeleteExamTitle": "‹‹Delete exam?››",
+  "teacherDeleteExamBody": "‹‹This will permanently delete the exam.››",
+  "teacherMeetingsEmpty": "‹‹No meetings yet.\nTap + to schedule one.››",
+  "teacherStudentsNoMatch": "‹‹No students match››",
+  "teacherMaterialsTitle": "‹‹Materials››",
+  "profileNamesTitle": "‹‹Name in languages››",
+  "profileDisplayNameLang": "‹‹Display name language››",
+  "navDashboard": "‹‹Dashboard››",
+  "navPeople": "‹‹People››",
+  "navCohorts": "‹‹Cohorts››",
+  "navSchool": "‹‹School››",
+  "adminDashboardTitle": "‹‹School Overview››",
+  "adminStudents": "‹‹Students››",
+  "adminTeachers": "‹‹Teachers››",
+  "adminParents": "‹‹Parents››",
+  "adminSecretaries": "‹‹Secretaries››",
+  "adminTodaySessions": "‹‹Today's sessions››",
+  "adminQuickActions": "‹‹Quick Actions››",
+  "adminAttendanceLast30": "‹‹Attendance — Last 30 Days››",
+  "adminNoAttendanceData": "‹‹No attendance data for the last 30 days.››",
+  "adminAddUser": "‹‹Add User››",
+  "adminCreateUser": "‹‹Create››",
+  "adminFullName": "‹‹Full Name››",
+  "adminEmailAddress": "‹‹Email address››",
+  "adminRoleLabel": "‹‹Role››",
+  "adminUserCreated": "‹‹User Created››",
+  "adminTempPassword": "‹‹Temporary password››",
+  "adminCopied": "‹‹Copied to clipboard››",
+  "adminResetPassword": "‹‹Reset Password››",
+  "adminPasswordReset": "‹‹Password Reset››",
+  "adminTempPasswordFor": "‹‹Temporary password for {name}››",
+  "@adminTempPasswordFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminDeleteUser": "‹‹Delete User››",
+  "adminDeleteUserConfirm": "‹‹Delete {name}? This cannot be undone.››",
+  "@adminDeleteUserConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminDeleteCohort": "‹‹Delete Cohort››",
+  "adminDeleteCohortConfirm": "‹‹Delete \"{name}\"? All student memberships will be removed.››",
+  "@adminDeleteCohortConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminAddCohort": "‹‹Add Cohort››",
+  "adminNewCohort": "‹‹New Cohort››",
+  "adminCohortName": "‹‹Cohort Name (e.g. 10th-2)››",
+  "adminCohortGrade": "‹‹Grade››",
+  "adminRenameCohort": "‹‹Rename››",
+  "adminAddStudents": "‹‹Add Students››",
+  "adminAddTo": "‹‹Add to {name}››",
+  "@adminAddTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminRemoveStudent": "‹‹Remove Student››",
+  "adminRemoveStudentConfirm": "‹‹Remove {name} from {cohort}?››",
+  "@adminRemoveStudentConfirm": {
+    "placeholders": {
+      "name": {},
+      "cohort": {}
+    }
+  },
+  "adminNoCohortsYet": "‹‹No cohorts yet››",
+  "adminNoStudentsInCohort": "‹‹No students in this cohort››",
+  "adminStudentCount": "‹‹{count, plural, =1{1 student} other{{count} students}}››",
+  "@adminStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminSearchStudents": "‹‹Search students…››",
+  "adminScheduleTitle": "‹‹Schedule››",
+  "adminScheduleAddPeriod": "‹‹Add period››",
+  "adminScheduleNewPeriod": "‹‹New Period››",
+  "adminScheduleDayLabel": "‹‹Day››",
+  "adminSchedulePeriodLabel": "‹‹P{period}››",
+  "adminScheduleTeacherLabel": "‹‹Teacher››",
+  "adminScheduleNoneTeacher": "‹‹No teacher assigned››",
+  "adminScheduleCohortLabel": "‹‹Cohort / Students››",
+  "adminScheduleFrequencyLabel": "‹‹Frequency››",
+  "adminScheduleFreqWeekly": "‹‹Every week››",
+  "adminScheduleFreqBiweekly": "‹‹Every 2 weeks››",
+  "adminScheduleFreqMonthly": "‹‹Every 4 weeks››",
+  "adminScheduleFreqCustom": "‹‹Custom››",
+  "adminScheduleFreqCustomLabel": "‹‹Every {n} weeks››",
+  "@adminScheduleFreqCustomLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "adminScheduleAddSlot": "‹‹Add slot››",
+  "adminScheduleAddAnother": "‹‹Add another day / period››",
+  "adminScheduleSave": "‹‹Save››",
+  "adminScheduleSearchTeacher": "‹‹Search teachers…››",
+  "adminScheduleSearchCohort": "‹‹Search cohorts…››",
+  "adminScheduleSelectTeacher": "‹‹Select teacher››",
+  "adminScheduleSelectCohort": "‹‹Select cohort››",
+  "adminScheduleOrStudents": "‹‹Or pick individual students››",
+  "adminScheduleNoSlots": "‹‹No periods yet››",
+  "adminScheduleNoSlotsHint": "‹‹Tap + to add the first period››",
+  "adminSchoolSettingsTitle": "‹‹School Settings››",
+  "adminSchoolName": "‹‹School Name››",
+  "adminSchoolLogoUrl": "‹‹Logo URL (optional)››",
+  "adminSchoolLogoHint": "‹‹https://…››",
+  "adminSchoolSaved": "‹‹Saved››",
+  "adminSubjectsTitle": "‹‹Subjects››",
+  "adminSubjectsGrade": "‹‹Grade {grade}››",
+  "@adminSubjectsGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
+  "adminSubjectsAddHint": "‹‹Add subject…››",
+  "adminSubjectsNoSubjects": "‹‹No subjects configured››",
+  "adminSubjectsAdd": "‹‹Add››",
+  "adminSubjectsRemove": "‹‹Remove››",
+  "adminSettingsTitle": "‹‹Settings››",
+  "adminSettingsBellSchedule": "‹‹Bell Schedule››",
+  "adminSettingsPeriodDefaults": "‹‹Period Defaults››",
+  "adminSettingsPeriodDefaultsSubtitle": "‹‹Set bell times for each period››",
+  "adminDeleteConfirmCancel": "‹‹Cancel››",
+  "adminDeleteConfirmDelete": "‹‹Delete››",
+  "adminSave": "‹‹Save››",
+  "adminCancel": "‹‹Cancel››",
+  "adminSearchPeople": "‹‹Search by name…››",
+  "adminNoResults": "‹‹No results for \"{query}\"››",
+  "@adminNoResults": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "adminNoPeopleYet": "‹‹No {role} yet››",
+  "@adminNoPeopleYet": {
+    "placeholders": {
+      "role": {}
+    }
+  },
+  "commonRetry": "‹‹Retry››",
+  "commonBack": "‹‹Back››",
+  "commonClose": "‹‹Close››",
+  "commonDownload": "‹‹Download››",
+  "commonOpenExternally": "‹‹Open externally››",
+  "commonSave": "‹‹Save››",
+  "commonCancel": "‹‹Cancel››",
+  "commonDone": "‹‹Done››",
+  "commonDelete": "‹‹Delete››",
+  "commonEdit": "‹‹Edit››",
+  "commonSearch": "‹‹Search…››",
+  "commonShare": "‹‹Share››",
+  "commonLoading": "‹‹Loading…››",
+  "commonError": "‹‹Something went wrong››",
+  "commonTryAgain": "‹‹Try again››",
+  "studentMaterialsTitle": "‹‹Materials››",
+  "studentMaterialsEmptyTitle": "‹‹No materials shared yet››",
+  "studentMaterialsEmptyHint": "‹‹Your teacher will share resources here.››",
+  "studentMaterialsLoadError": "‹‹Could not load materials››",
+  "studentAssignmentSubmittedSnackbar": "‹‹Assignment handed in!››",
+  "studentAssignmentSubmitFailed": "‹‹Could not submit — please try again.››",
+  "studentAssignmentUploadFailed": "‹‹File upload failed — please try again.››",
+  "studentAssignmentHandedInBadge": "‹‹Handed in››",
+  "studentAssignmentSubmitButton": "‹‹Hand in››",
+  "studentAssignmentSubmitting": "‹‹Handing in…››",
+  "studentAssignmentAttachFile": "‹‹Attach file››",
+  "studentAssignmentAddMoreFiles": "‹‹Add more files››",
+  "studentAssignmentYourSubmission": "‹‹Your submission››",
+  "studentAssignmentTeacherAttachments": "‹‹Attachments››",
+  "secretaryWelcomeGreeting": "‹‹Hi {name} 👋››",
+  "@secretaryWelcomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "secretaryYourTools": "‹‹Your tools››",
+  "secretaryReports": "‹‹Reports››",
+  "secretaryExportData": "‹‹Export Data››",
+  "secretaryHomeTile": "‹‹Home››",
+  "parentHomeGreeting": "‹‹Hi {name} 👋››",
+  "@parentHomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "parentYourTools": "‹‹Your tools››",
+  "parentNoChildLinked": "‹‹No child linked yet››",
+  "parentPickChildFirst": "‹‹Pick a child first››",
+  "parentNoApprovedChildren": "‹‹No approved children yet. Ask your school to link your account.››",
+  "loginEmptyFieldsError": "‹‹Please enter your email or username and password.››",
+  "loginConnectionError": "‹‹No connection. Check your internet and try again.››",
+  "loginTimeoutError": "‹‹Request timed out. Please try again.››",
+  "loginForgotPasswordLink": "‹‹Forgot password?››",
+  "forgotPasswordTitle": "‹‹Reset your password››",
+  "forgotPasswordModeEmail": "‹‹Email››",
+  "forgotPasswordModeSms": "‹‹SMS››",
+  "forgotPasswordModeAdmin": "‹‹Admin››",
+  "forgotPasswordEmailSent": "‹‹Reset link sent (if an account matches).››",
+  "forgotPasswordEmptyError": "‹‹Enter your email or username to continue.››",
+  "forgotPasswordEmailButton": "‹‹Email me a reset link››",
+  "forgotPasswordSmsButton": "‹‹Text me a reset link››",
+  "forgotPasswordLinkExpires": "‹‹The link expires in 1 hour and can only be used once.››",
+  "pushPermissionTitle": "‹‹Stay in the loop››",
+  "pushPermissionBody": "‹‹Turn on notifications so you don't miss grades, messages, or schedule changes.››",
+  "commonRequiredField": "‹‹{field} required››",
+  "@commonRequiredField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
+  "commonAttachments": "‹‹Attachments››",
+  "commonAttachFile": "‹‹Attach file››",
+  "commonReplaceFile": "‹‹Replace file››",
+  "commonTitleRequired": "‹‹Title required››",
+  "commonPublish": "‹‹Publish››",
+  "commonContinue": "‹‹Continue››",
+  "commonNext": "‹‹Next››",
+  "commonStart": "‹‹Start››",
+  "commonEnd": "‹‹End››",
+  "commonRefresh": "‹‹Refresh››",
+  "commonRemove": "‹‹Remove››",
+  "commonOpen": "‹‹Open››",
+  "commonView": "‹‹View››",
+  "commonCopy": "‹‹Copy››",
+  "commonAdd": "‹‹Add››",
+  "commonOptional": "‹‹Optional››",
+  "commonRequired": "‹‹Required››",
+  "commonAuto": "‹‹Auto››",
+  "teacherShareButton": "‹‹Share››",
+  "teacherMaterialDetails": "‹‹Material Details››",
+  "teacherMaterialTitleLabel": "‹‹Title *››",
+  "teacherMaterialDescriptionLabel": "‹‹Description (optional)››",
+  "teacherMaterialContentSection": "‹‹Content››",
+  "teacherMaterialContentRequired": "‹‹Please attach a file or add a link››",
+  "teacherFilePickError": "‹‹Could not pick file: {error}››",
+  "@teacherFilePickError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherScheduleButton": "‹‹Schedule››",
+  "teacherMeetingTitleField": "‹‹Meeting title *››",
+  "teacherMeetingLinkField": "‹‹Meeting link *››",
+  "teacherMeetingLinkRequired": "‹‹Meeting link required››",
+  "teacherMeetingTitleRequired": "‹‹Meeting title required››",
+  "teacherMeetingDateTimeRequired": "‹‹Start date and time required››",
+  "teacherMeetingStartDate": "‹‹Start date *››",
+  "teacherMeetingStartTime": "‹‹Start time *››",
+  "teacherMeetingEndDate": "‹‹End date (optional)››",
+  "teacherMeetingEndTime": "‹‹End time (optional)››",
+  "teacherClearEndTime": "‹‹Clear end time››",
+  "teacherAssignmentTitleField": "‹‹Title *››",
+  "teacherAssignmentInstructions": "‹‹Instructions (optional)››",
+  "teacherAssignmentDueDate": "‹‹Due date (optional)››",
+  "teacherAssignmentClearDueDate": "‹‹Clear due date››",
+  "teacherAssignmentMaxGrade": "‹‹Max grade (optional)››",
+  "teacherAssignmentPublished": "‹‹Assignment published.››",
+  "teacherAssignmentDraftSaved": "‹‹Draft saved.››",
+  "teacherCreateAssignment": "‹‹Create››",
+  "teacherExamSubject": "‹‹Subject *››",
+  "teacherExamDate": "‹‹Exam date *››",
+  "teacherSelectSubject": "‹‹Select subject››",
+  "teacherNoSubjectOption": "‹‹No subject››",
+  "teacherOtherSubjectOption": "‹‹Other››",
+  "teacherSearchClassrooms": "‹‹Search classrooms…››",
+  "teacherSearchMaterials": "‹‹Search materials…››",
+  "teacherClassroomName": "‹‹Classroom name *››",
+  "adminReportsOpenTab": "‹‹Open››",
+  "adminReportsResolvedTab": "‹‹Resolved››",
+  "adminReportsDismissedTab": "‹‹Dismissed››",
+  "adminReportsNoOpen": "‹‹No open reports››",
+  "adminReportsNoInView": "‹‹No reports in this view››",
+  "adminReportsMediaAttachment": "‹‹[Media attachment]››",
+  "adminReportsEmptyMessage": "‹‹(empty message)››",
+  "adminReportsDismiss": "‹‹Dismiss››",
+  "adminReportsResolve": "‹‹Resolve››",
+  "adminReportsReason": "‹‹Reason: {reason}››",
+  "@adminReportsReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
+  "chatReportTitle": "‹‹Report message››",
+  "chatReportButton": "‹‹Report››",
+  "chatReportSuccess": "‹‹Reported. Thank you — an admin will review.››",
+  "chatReportFailed": "‹‹Report failed: {error}››",
+  "@chatReportFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "chatSendError": "‹‹Couldn't send: {message}››",
+  "@chatSendError": {
+    "placeholders": {
+      "message": {}
+    }
+  },
+  "chatForwardLabel": "‹‹Forward {count}››",
+  "@chatForwardLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chatDeleteLabel": "‹‹Delete {count}››",
+  "@chatDeleteLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "chatSelectedCount": "‹‹{count} selected››",
+  "@chatSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "adminPasswordReqEmpty": "‹‹No pending requests››",
+  "adminPasswordReqExplainer": "‹‹Users you have approved or rejected won't appear here. Pending requests expire after 24 hours.››",
+  "adminPasswordReqApproveTitle": "‹‹Approve password change?››",
+  "adminPasswordReqApproveExplain": "‹‹This sets {name}'s password to the one they typed (you don't see it).››",
+  "@adminPasswordReqApproveExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminPasswordReqVerifyWarning": "‹‹Only approve if you have verified the requester is really {name} — call them, or confirm in person. Anyone who knows a username can file this request.››",
+  "@adminPasswordReqVerifyWarning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminPasswordReqConfirmApprove": "‹‹I verified — approve››",
+  "adminPasswordReqApproveSnackbar": "‹‹Approved — {name} can sign in now.››",
+  "@adminPasswordReqApproveSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminPasswordReqRejectTitle": "‹‹Reject password change?››",
+  "adminPasswordReqRejectExplain": "‹‹{name}'s password won't change. They can submit a new request if needed.››",
+  "@adminPasswordReqRejectExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminPasswordReqRejectSnackbar": "‹‹Rejected.››",
+  "adminPasswordReqRejectButton": "‹‹Reject››",
+  "adminPasswordReqApproveButton": "‹‹Approve››",
+  "adminPasswordReqCardCopy": "‹‹Wants their password changed. The new password is hidden.››",
+  "adminPasswordReqCallTooltip": "‹‹Call››",
+  "adminPasswordReqSmsTooltip": "‹‹SMS››",
+  "adminSetupSchoolSetup": "‹‹School Setup››",
+  "adminSetupComplete": "‹‹You're all set. Tap any item to revisit or refine it.››",
+  "adminSetupInstructions": "‹‹Complete these steps to fully set up your school.››",
+  "adminSetupLogoTitle": "‹‹Upload school logo››",
+  "adminSetupLogoSubtitle": "‹‹Appears in headers and the drawer››",
+  "adminSetupNameTitle": "‹‹Set school name››",
+  "adminSetupNameSubtitle": "‹‹Shown to students, teachers, and parents››",
+  "adminSetupSubjectsTitle": "‹‹Define subjects››",
+  "adminSetupSubjectsSubtitle": "‹‹At least one grade with subjects configured››",
+  "adminSetupBellTitle": "‹‹Set bell schedule››",
+  "adminSetupBellSubtitle": "‹‹Start/end times for each period››",
+  "adminSetupCohortsTitle": "‹‹Create cohorts››",
+  "adminSetupCohortsSubtitle": "‹‹Set up your class groups››",
+  "adminSetupStudentsTitle": "‹‹Add students››",
+  "adminSetupStudentsSubtitle": "‹‹Create accounts or generate join codes››",
+  "adminSetupTeachersTitle": "‹‹Add teachers››",
+  "adminSetupTeachersSubtitle": "‹‹Create teacher accounts››",
+  "supportContactTitle": "‹‹Talk to us››",
+  "supportContactDescription": "‹‹Can't find your answer below? Get in touch and we'll come back to you within a working day.››",
+  "supportEmailLabel": "‹‹Email››",
+  "supportPhoneLabel": "‹‹Phone››",
+  "supportSmsLabel": "‹‹Message››",
+  "aboutWhatIsClassmate": "‹‹What is ClassMate?››",
+  "aboutClassmateDescription": "‹‹ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.››",
+  "aboutMultilingualTitle": "‹‹Built for schools that speak more than one language››",
+  "aboutMultilingualDescription": "‹‹Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they're most comfortable with; teachers manage in theirs.››",
+  "aboutPrivacyTitle": "‹‹Privacy first››",
+  "aboutPrivacyDescription": "‹‹School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.››",
+  "aboutContactTitle": "‹‹Contact››",
+  "aboutContactDescription": "‹‹Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org››",
+  "aboutVersionLabel": "‹‹ClassMate · v{version}››",
+  "@aboutVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "adminAddStudent": "‹‹Add student››",
+  "adminAddTeacher": "‹‹Add teacher››",
+  "adminAddParent": "‹‹Add parent››",
+  "adminAddSecretary": "‹‹Add secretary››",
+  "adminAddAdmin": "‹‹Add admin››",
+  "adminEditUser": "‹‹Edit user››",
+  "adminNoEmailPlaceholder": "‹‹(no email)››",
+  "adminNameEnglishRequired": "‹‹Full name (English) is required››",
+  "adminUsernameRequired": "‹‹Username is required››",
+  "adminPasswordMinLength": "‹‹Password must be at least 8 characters (or leave blank to auto-generate)››",
+  "adminUserCreatedMsg": "‹‹{name} created.››",
+  "@adminUserCreatedMsg": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminCredsUsername": "‹‹Username››",
+  "adminCredsEmail": "‹‹Email››",
+  "adminCredsPassword": "‹‹Password››",
+  "adminShareCredsHint": "‹‹Share these credentials with the student.››",
+  "adminCopyCredsButton": "‹‹Copy All››",
+  "adminGradeLabel": "‹‹Grade››",
+  "adminCohortGradeFormat": "‹‹Grade {grade}››",
+  "@adminCohortGradeFormat": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
+  "adminCreateAndAddStudents": "‹‹Create & Add Students››",
+  "adminAddStudentsTitle": "‹‹Add Students››",
+  "adminSkipAdding": "‹‹Skip››",
+  "adminInCohortBadge": "‹‹In cohort››",
+  "adminNoStudentsFoundCohort": "‹‹No students found in this cohort's grades››",
+  "adminScheduleByCohort": "‹‹By Cohort ▾››",
+  "adminScheduleByStudent": "‹‹By Student ▾››",
+  "adminScheduleAddGrade": "‹‹Add grade››",
+  "adminScheduleAddCohort": "‹‹Add cohort››",
+  "adminScheduleAddStudent": "‹‹Add student››",
+  "adminScheduleClearFilters": "‹‹Clear››",
+  "@adminSchedulePeriodLabel": {
+    "placeholders": {
+      "period": {}
+    }
+  },
+  "adminSchedulePickSubjectRequired": "‹‹Pick a subject before saving the period.››",
+  "adminSchedulePickDateOnce": "‹‹Pick a date for a one-off period.››",
+  "adminSchedulePickDateRecurring": "‹‹Pick a start date for the every-{freq}-weeks schedule.››",
+  "@adminSchedulePickDateRecurring": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
+  "adminSchoolLogoLabel": "‹‹School Logo››",
+  "adminSchoolLogoUploaded": "‹‹Logo uploaded››",
+  "adminSchoolNoLogoYet": "‹‹No logo yet››",
+  "adminSchoolLogoDescription": "‹‹Appears next to your school name in the app drawer.››",
+  "adminSchoolLogoChange": "‹‹Change››",
+  "adminSchoolLogoUpload": "‹‹Upload››",
+  "adminSchoolLogoRemove": "‹‹Remove››",
+  "adminSchoolGradeRangeLabel": "‹‹Grade range››",
+  "adminSchoolGradeRangeDescription": "‹‹Grades available across cohorts, students, and pickers.››",
+  "adminSchoolLowestGrade": "‹‹Lowest››",
+  "adminSchoolHighestGrade": "‹‹Highest››",
+  "adminSchoolSubjectsTitle": "‹‹School Subjects››",
+  "adminSchoolSubjectsDescription": "‹‹Available to all teachers when creating assignments.››",
+  "adminSchoolNoTranslations": "‹‹Tap to add translations››",
+  "adminSchoolBellHint": "‹‹Set start and end times for each period. Add or remove periods as needed.››",
+  "adminSchoolBellInfo": "‹‹Set the start and end time for each period. These become the default times used when building the weekly schedule.››",
+  "adminSchoolStartTime": "‹‹Start››",
+  "adminSchoolEndTime": "‹‹End››",
+  "adminExportStudentsTab": "‹‹Students››",
+  "adminExportCohortsTab": "‹‹Cohorts››",
+  "adminExportGradesTab": "‹‹Grades››",
+  "adminExportOptionsTitle": "‹‹Export Options››",
+  "adminExportIncludePasswords": "‹‹Include Passwords››",
+  "adminExportCsvButton": "‹‹Export CSV››",
+  "adminExportPdfButton": "‹‹Export PDF››",
+  "teacherCreateClassroomTooltip": "‹‹Create classroom››",
+  "teacherClassroomNameRequired": "‹‹Classroom name *››",
+  "teacherSubjectRequired": "‹‹Subject *››",
+  "messagesStartChatError": "‹‹Could not start chat: {error}››",
+  "@messagesStartChatError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "messagesNoPeopleMatch": "‹‹No people match \"{query}\"››",
+  "@messagesNoPeopleMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
+  "messagesNoPeopleFound": "‹‹No people found››",
+  "messagesPeopleCount": "‹‹{count, plural, =1{1 person} other{{count} people}}››",
+  "@messagesPeopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studentAssignmentValidationRequired": "‹‹Add a note or attach a file before handing in.››",
+  "studentFormSubmittedBanner": "‹‹Your submitted answers››",
+  "studentFormSubmitError": "‹‹Could not submit: {error}››",
+  "@studentFormSubmitError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "studentFormFieldRequired": "‹‹Required: {field}››",
+  "@studentFormFieldRequired": {
+    "placeholders": {
+      "field": {}
+    }
+  },
+  "studentFormClosedButton": "‹‹Form closed››",
+  "studentFormAlreadySubmittedButton": "‹‹Already submitted››",
+  "studentDiplomaEditTitle": "‹‹Edit Certificate››",
+  "studentDiplomaDeleteTitle": "‹‹Delete certificate?››",
+  "studentDiplomaDeleteConfirm": "‹‹Remove certificate for \"{name}\"?››",
+  "@studentDiplomaDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teacherDeleteItemConfirm": "‹‹Delete \"{title}\"?››",
+  "@teacherDeleteItemConfirm": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "teacherPublishTooltip": "‹‹Publish››",
+  "teacherMeetingEnterTitle": "‹‹Please enter a title.››",
+  "teacherMeetingEnterLink": "‹‹Please enter a meeting link.››",
+  "teacherMeetingEnterValidUrl": "‹‹Please enter a valid URL (e.g. https://zoom.us/j/...)››",
+  "teacherMeetingPickStartTime": "‹‹Please pick a start time.››",
+  "teacherMeetingVisibleToEveryone": "‹‹Visible to everyone››",
+  "teacherMeetingDoneCount": "‹‹Done ({count} selected)››",
+  "@teacherMeetingDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherDeleteAssignmentTitle": "‹‹Delete assignment?››",
+  "teacherDeleteAssignmentBody": "‹‹This will permanently delete the assignment and all submissions.››",
+  "teacherEditTooltip": "‹‹Edit››",
+  "teacherDeleteTooltip": "‹‹Delete››",
+  "teacherClassroomBackTooltip": "‹‹Back››",
+  "teacherClassroomGenericError": "‹‹Error: {error}››",
+  "@teacherClassroomGenericError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherClassroomAttachFailed": "‹‹Attach failed: {error}››",
+  "@teacherClassroomAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherClassroomFileUnavailable": "‹‹This file is not available — the teacher should re-upload it.››",
+  "teacherClassroomCodeLabel": "‹‹Classroom code››",
+  "teacherClassroomCodeCopied": "‹‹Code copied››",
+  "teacherClassroomCopyCodeTooltip": "‹‹Copy code››",
+  "teacherClassroomCouldNotAdd": "‹‹Could not add: {emails} — check their email address.››",
+  "@teacherClassroomCouldNotAdd": {
+    "placeholders": {
+      "emails": {}
+    }
+  },
+  "teacherClassroomAddStudents": "‹‹Add students››",
+  "teacherClassroomSearchNameGrade": "‹‹Search by name or grade…››",
+  "teacherClassroomNoStudentsFound": "‹‹No students found››",
+  "teacherClassroomNameSubjectRequired": "‹‹Name and subject are required.››",
+  "teacherClassroomCreated": "‹‹Classroom created!››",
+  "teacherCustomSubjectLabel": "‹‹Custom subject *››",
+  "teacherCreateClassroomButton": "‹‹Create Classroom››",
+  "teacherCreateFormTitle": "‹‹Create Form››",
+  "teacherFormSaveDraft": "‹‹Save Draft››",
+  "teacherFormTitleHint": "‹‹Form title *››",
+  "teacherFormDescriptionHint": "‹‹Description (optional)››",
+  "teacherFormAcceptingResponses": "‹‹Accepting responses››",
+  "teacherFormAllowMultiple": "‹‹Allow multiple responses››",
+  "teacherFormAllowMultipleSubtitle": "‹‹Off = once per student (default)››",
+  "teacherFormQuestionsSection": "‹‹Questions››",
+  "teacherFormAddQuestionButton": "‹‹Add question››",
+  "teacherFormQuestionPlaceholder": "‹‹Question {index}››",
+  "@teacherFormQuestionPlaceholder": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "teacherFormRequiredToggle": "‹‹Required››",
+  "teacherFormAddOptionButton": "‹‹Add option››",
+  "teacherFormMinLabel": "‹‹Min››",
+  "teacherFormMaxLabel": "‹‹Max››",
+  "teacherFormEnterTitle": "‹‹Please enter a form title.››",
+  "teacherExamUploadFailedSkipped": "‹‹Upload failed for {name}. File skipped.››",
+  "@teacherExamUploadFailedSkipped": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teacherExamEnterTitle": "‹‹Please enter a title.››",
+  "teacherExamPickDate": "‹‹Please pick an exam date.››",
+  "teacherExamSelectSubject": "‹‹Please select a subject.››",
+  "teacherSlotDetachFailed": "‹‹Detach failed: {error}››",
+  "@teacherSlotDetachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherSlotAttachFailed": "‹‹Attach failed: {error}››",
+  "@teacherSlotAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherSlotAttachMaterial": "‹‹Attach material››",
+  "teacherSlotDetachTooltip": "‹‹Detach››",
+  "teacherDiplomaSelectStudent": "‹‹Select a student first.››",
+  "teacherDiplomaUploadingWait": "‹‹Please wait — files are still uploading.››",
+  "teacherDiplomaIssueFailed": "‹‹Failed to issue certificate: {error}››",
+  "@teacherDiplomaIssueFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "teacherDiplomaCertTitleLabel": "‹‹Certificate title››",
+  "teacherDiplomaSearchStudent": "‹‹Search student…››",
+  "teacherProfileChatError": "‹‹Could not start chat››",
+  "teacherGradeAssignmentType": "‹‹Assignment››",
+  "teacherGradeExamType": "‹‹Exam››",
+  "teacherGradeOtherType": "‹‹Other››",
+  "teacherGradeOutOfLabel": "‹‹Out of (optional)››",
+  "teacherGradePublishedTitle": "‹‹Published››",
+  "teacherGradePublishedSubtitle": "‹‹Students can see this grade››",
+  "teacherMaterialPickSubject": "‹‹Please select a subject.››",
+  "teacherMaterialAddLink": "‹‹Add link››",
+  "teacherMaterialAddFile": "‹‹Add file››",
+  "teacherMaterialSearchStudentsGrade": "‹‹Search students or grade...››",
+  "teacherMaterialDoneSelected": "‹‹Done ({count} selected)››",
+  "@teacherMaterialDoneSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminSubjectEnglishNameRequired": "‹‹English name is required››",
+  "adminSubjectNameInLang": "‹‹Name in {language}››",
+  "@adminSubjectNameInLang": {
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "adminSubjectResetButton": "‹‹Reset››",
+  "teacherAnnounceBroadcastTitle": "‹‹Broadcast to everyone?››",
+  "teacherAnnounceSendToEveryone": "‹‹Send to everyone››",
+  "teacherAnnounceNoCohorts": "‹‹No cohorts available››",
+  "teacherAnnounceNothingFound": "‹‹Nothing found››",
+  "teacherAnnounceNoParents": "‹‹No parents found at this school.››",
+  "teacherGradesToGrade": "‹‹To grade››",
+  "teacherGradesGraded": "‹‹Graded››",
+  "teacherSaveGradesButton": "‹‹Save Grades››",
+  "teacherAllowResubmitLabel": "‹‹Allow re-submit››",
+  "teacherAllowResubmitTitle": "‹‹Allow re-submit?››",
+  "teacherAllowResubmitBody": "‹‹This will delete {name}'s submission so they can hand in again.››",
+  "@teacherAllowResubmitBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teacherAllowButton": "‹‹Allow››",
+  "teacherGradeFieldLabel": "‹‹Grade››",
+  "teacherFeedbackOptionalLabel": "‹‹Feedback (optional)››",
+  "teacherCreateClassroomFabLabel": "‹‹Create››",
+  "teacherLoadingStudents": "‹‹Loading students…››",
+  "teacherSearchHintShort": "‹‹Search…››",
+  "teacherCreateClassroomTitle": "‹‹New Classroom››",
+  "teacherAssignmentUploadFailed": "‹‹Could not upload {name}››",
+  "@teacherAssignmentUploadFailed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "teacherAssignmentEnterTitle": "‹‹Please enter a title.››",
+  "teacherAssignmentSelectSubject": "‹‹Please select a subject.››",
+  "teacherAssignmentInstructionsLabel": "‹‹Instructions / Description››",
+  "teacherAttachFilesButton": "‹‹Attach files››",
+  "tutorDeleteConversationTitle": "‹‹Delete conversation?››",
+  "tutorDeleteConversationButton": "‹‹Delete permanently››",
+  "tutorDeleteFailed": "‹‹Could not delete: {error}››",
+  "@tutorDeleteFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "tutorDeleteMenuTitle": "‹‹Delete conversation››",
+  "tutorDeleteMenuSubtitle": "‹‹Permanently removes it from the server››",
+  "accountVerifyButton": "‹‹Verify››",
+  "accountConfirmButton": "‹‹Confirm››",
+  "accountResendCode": "‹‹Resend code››",
+  "accountCodeResent": "‹‹Sent a fresh code.››",
+  "accountContinueButton": "‹‹Continue››",
+  "studentClassroomFileUnavailable": "‹‹This file is not yet available.››",
+  "studentClassroomDeleteMaterial": "‹‹Delete material?››",
+  "studentClassroomCodeLabel": "‹‹Classroom code››",
+  "studentClassroomLeaveTooltip": "‹‹Leave classroom››",
+  "adminEditUserEnglishNameRequired": "‹‹English name required››",
+  "adminEditUserSaved": "‹‹Saved››",
+  "adminEditUserPasswordChanged": "‹‹Password changed for {name}.››",
+  "@adminEditUserPasswordChanged": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminEditUserLoginSection": "‹‹Login››",
+  "adminEditUserUsernameLabel": "‹‹Username››",
+  "adminEditUserEmailOptional": "‹‹Email (optional)››",
+  "adminEditUserChangePassword": "‹‹Change password››",
+  "adminEditUserNameSection": "‹‹Name››",
+  "adminEditUserAtLeastEnglish": "‹‹At least English required.››",
+  "adminEditUserGradeSection": "‹‹Grade››",
+  "adminEditUserCohortsSection": "‹‹Cohorts››",
+  "adminEditUserLinkedChildren": "‹‹Linked Children››",
+  "adminEditUserLinkButton": "‹‹Link››",
+  "adminEditUserNoChildren": "‹‹No children linked yet.››",
+  "adminEditUserSetPasswordTitle": "‹‹Set new password››",
+  "adminEditUserNewPasswordLabel": "‹‹New password››",
+  "adminEditUserConfirmPasswordLabel": "‹‹Confirm password››",
+  "adminEditUserSetPasswordButton": "‹‹Set password››",
+  "adminPeriodsTitle": "‹‹Manage Periods››",
+  "adminPeriodsAddPeriod": "‹‹Add Period››",
+  "adminPeriodsNoPeriods": "‹‹No periods yet››",
+  "adminPeriodsTapToAdd": "‹‹Tap + to add the first period››",
+  "adminPeriodsNewPeriod": "‹‹New Period››",
+  "adminPeriodsDayLabel": "‹‹Day››",
+  "adminPeriodsPeriodLabel": "‹‹Period››",
+  "adminPeriodsTimeLabel": "‹‹Time››",
+  "adminPeriodsTeacherLabel": "‹‹Teacher››",
+  "adminPeriodsClassroomOptional": "‹‹Classroom (optional)››",
+  "adminPeriodsCohortsLabel": "‹‹Cohorts››",
+  "adminPeriodsStudentsOptional": "‹‹Students (optional)››",
+  "adminPeriodsSearchByName": "‹‹Search by name…››",
+  "commonErrorWith": "‹‹Error: {error}››",
+  "@commonErrorWith": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonAddCount": "‹‹Add {count}››",
+  "@commonAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherStudentGradesSaved": "‹‹Grades saved››",
+  "teacherStudentToGrade": "‹‹To grade››",
+  "teacherStudentGraded": "‹‹Graded››",
+  "classroomFileNotAvailable": "‹‹This file is not yet available.››",
+  "classroomDeleteMaterialTitle": "‹‹Delete material?››",
+  "classroomCodeLabel": "‹‹Classroom code››",
+  "plansCouldNotOpenSubscription": "‹‹Could not open subscription settings.››",
+  "plansFailedToOpen": "‹‹Failed to open: {error}››",
+  "@plansFailedToOpen": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "plansManageSubscription": "‹‹Manage or cancel subscription››",
+  "plansUpgrade": "‹‹Upgrade››",
+  "plansTryAgain": "‹‹Try again››",
+  "adminCohortsGradeOnly": "‹‹Grade {grade} only››",
+  "@adminCohortsGradeOnly": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "adminCohortsGradeRangeOnly": "‹‹Grade {from}-{to} only››",
+  "@adminCohortsGradeRangeOnly": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "adminExportNeedStudents": "‹‹Select at least one student or cohort first››",
+  "adminExportButton": "‹‹Export {count}››",
+  "@adminExportButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminExportNoStudents": "‹‹No students found››",
+  "adminExportIncludesPasswords": "‹‹Export will include passwords››",
+  "adminExportAnyway": "‹‹Export anyway››",
+  "adminExportPdfStudentDirectory": "‹‹Student Directory››",
+  "adminExportPdfBy": "‹‹By: {name}››",
+  "@adminExportPdfBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminExportPdfStudentsCount": "‹‹{count} students››",
+  "@adminExportPdfStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminExportPdfFooter": "‹‹Generated by ClassMate››",
+  "adminExportColumnIndex": "‹‹#››",
+  "adminExportColumnName": "‹‹Name››",
+  "adminExportColumnEmail": "‹‹Email››",
+  "adminExportColumnUsername": "‹‹Username››",
+  "adminExportColumnPhone": "‹‹Phone››",
+  "adminExportColumnGrade": "‹‹Grade››",
+  "adminExportColumnCohorts": "‹‹Cohorts››",
+  "adminExportColumnSchool": "‹‹School››",
+  "adminExportColumnPassword": "‹‹Password››",
+  "adminExportColumnNameEn": "‹‹Name (EN)››",
+  "adminExportColumnNameAr": "‹‹Name (AR)››",
+  "adminExportColumnNameHe": "‹‹Name (HE)››",
+  "adminExportColumnNameFr": "‹‹Name (FR)››",
+  "adminExportColumnNameRu": "‹‹Name (RU)››",
+  "adminExportStudentsSelected": "‹‹{count, plural, one{{count} student selected} other{{count} students selected}}››",
+  "@adminExportStudentsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMaterialEditTitle": "‹‹Edit Material››",
+  "teacherMaterialAddTitle": "‹‹Add Material››",
+  "teacherMaterialAudienceTitle": "‹‹Audience››",
+  "teacherMaterialAudienceClassrooms": "‹‹Classrooms››",
+  "teacherMaterialAudienceCohorts": "‹‹Cohorts››",
+  "teacherMaterialAudienceGrades": "‹‹Grades››",
+  "teacherMaterialAudienceStudents": "‹‹Students››",
+  "teacherMaterialDetailsTitle": "‹‹Details››",
+  "teacherMaterialSubjectRequired": "‹‹Subject *››",
+  "teacherMaterialSubjectSelect": "‹‹Select subject››",
+  "teacherMaterialSubjectOther": "‹‹Other››",
+  "teacherMaterialSubjectSearch": "‹‹Search subjects...››",
+  "teacherMaterialAttachmentsTitle": "‹‹Attachments››",
+  "teacherMaterialAttachmentsWithCount": "‹‹Attachments ({count})››",
+  "@teacherMaterialAttachmentsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMaterialDeleteTitle": "‹‹Delete material?››",
+  "teacherMaterialListTitle": "‹‹Materials››",
+  "teacherMaterialTotalCount": "‹‹{count} total››",
+  "@teacherMaterialTotalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMaterialRetry": "‹‹Retry››",
+  "teacherMaterialNoMaterials": "‹‹No materials yet.\nTap + to add one.››",
+  "teacherMaterialPublished": "‹‹Published››",
+  "teacherMaterialDraft": "‹‹Draft››",
+  "teacherMaterialSearchHint": "‹‹Search…››",
+  "teacherMaterialSelectedCount": "‹‹{count} selected››",
+  "@teacherMaterialSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMaterialMembersWillReceive": "‹‹{count, plural, one{{count} member will receive this} other{{count} members will receive this}}››",
+  "@teacherMaterialMembersWillReceive": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMaterialStudentCount": "‹‹{count, plural, one{{count} student} other{{count} students}}››",
+  "@teacherMaterialStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMaterialPickerNone": "‹‹None››",
+  "teacherMaterialPickerCohortsTitle": "‹‹Select cohorts››",
+  "teacherMaterialPickerClassroomTitle": "‹‹Select classroom››",
+  "teacherMaterialPickerStudentsTitle": "‹‹Select students››",
+  "teacherMaterialPickerGradesTitle": "‹‹Select grades››",
+  "adminScheduleAddNew": "‹‹Add new››",
+  "adminScheduleAddCount": "‹‹Add ({count})››",
+  "@adminScheduleAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminScheduleCaptionOptional": "‹‹Caption (optional)››",
+  "adminScheduleCaptionHint": "‹‹e.g. Exam review››",
+  "adminScheduleAudienceCohorts": "‹‹Cohorts››",
+  "adminScheduleAudienceStudents": "‹‹Students››",
+  "adminScheduleAudienceGrade": "‹‹Grade››",
+  "adminScheduleSearchStudents": "‹‹Search students…››",
+  "adminScheduleSearchSubjects": "‹‹Search school subjects…››",
+  "adminScheduleEveryPrefix": "‹‹Every ››",
+  "adminScheduleWeeksSuffix": "‹‹ weeks››",
+  "adminScheduleSlotN": "‹‹Slot {index}››",
+  "@adminScheduleSlotN": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "adminScheduleSelectedCount": "‹‹{count} selected››",
+  "@adminScheduleSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminScheduleConflictingPeriod": "‹‹Conflicting period››",
+  "adminScheduleKeepCurrent": "‹‹Keep current››",
+  "adminScheduleOverride": "‹‹Override››",
+  "adminScheduleShowBoth": "‹‹Show both››",
+  "adminScheduleDeletePeriodTitle": "‹‹Delete period?››",
+  "adminScheduleDeletePeriodBody": "‹‹This removes the slot from the schedule. Past attendance stays.››",
+  "adminScheduleFailedToDelete": "‹‹Failed to delete period.››",
+  "adminSchedulePickSubjectFirst": "‹‹Pick a subject before saving the period.››",
+  "adminScheduleOverrideFailed": "‹‹Override failed: {error}››",
+  "@adminScheduleOverrideFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "adminScheduleFailedToCreateSlots": "‹‹Failed to create slots››",
+  "adminScheduleCreatedSlots": "‹‹Created {created}/{total} slots. {error}››",
+  "@adminScheduleCreatedSlots": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "adminScheduleSavedLabelOnlyError": "‹‹Saved as slot label only — couldn't add to library: {error}››",
+  "@adminScheduleSavedLabelOnlyError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "adminScheduleSavedLabelPickAudience": "‹‹Saved as slot label. Pick an audience first to also add to the school library.››",
+  "commonNothingFound": "‹‹Nothing found››",
+  "commonDownloadFailed": "‹‹Download failed: {error}››",
+  "@commonDownloadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonFailedWith": "‹‹Failed: {error}››",
+  "@commonFailedWith": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonCreate": "‹‹Create››",
+  "commonAttachStudyMaterials": "‹‹Attach study materials››",
+  "teacherCreateClassroomNewTitle": "‹‹New Classroom››",
+  "teacherCreateClassroomLoadingStudents": "‹‹Loading students…››",
+  "teacherExamPublishedHint": "‹‹Published — students can see this exam››",
+  "teacherDoneSelected": "‹‹Done ({count} selected)››",
+  "@teacherDoneSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "secretaryAllCohorts": "‹‹All cohorts››",
+  "secretaryClassrooms": "‹‹Classrooms››",
+  "adminPasswordReqTitle": "‹‹Password requests››",
+  "adminPasswordReqWantsChange": "‹‹Wants their password changed. The new password is hidden.››",
+  "adminPasswordReqReject": "‹‹Reject››",
+  "adminPasswordReqApprove": "‹‹Approve››",
+  "adminPeopleGrade": "‹‹Grade››",
+  "adminSchoolSettingsTapToAddTranslations": "‹‹Tap to add translations››",
+  "adminSchoolSettingsAddPeriodNum": "‹‹Add Period (P{num})››",
+  "@adminSchoolSettingsAddPeriodNum": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+  "adminVisibleToEveryone": "‹‹Visible to everyone››",
+  "navMaterials": "‹‹Materials››",
+  "navPlans": "‹‹NOVA Plans››",
+  "navReports": "‹‹Reports››",
+  "navExportData": "‹‹Export Data››",
+  "navPasswordRequests": "‹‹Password Requests››",
+  "sectionSecretaryTools": "‹‹Secretary Tools››",
+  "sectionSchoolToolsLabel": "‹‹School Tools››",
+  "sectionAdminTools": "‹‹Admin Tools››",
+  "chatVideoTrimTitle": "‹‹Trim video››",
+  "chatMediaPreviewTrimAction": "‹‹Trim››",
+  "commonUntitled": "‹‹Untitled››",
+  "plansMonthlyPlans": "‹‹Monthly plans››",
+  "plansTokenTopups": "‹‹Token top-ups››",
+  "plansTopupsSubtitle": "‹‹One-time purchases. Never expire. Stack on top of your plan.››",
+  "plansCouldntLoadBalance": "‹‹Couldn't load your balance››",
+  "plansFreePlan": "‹‹Free plan››",
+  "plansTokensRemaining": "‹‹tokens remaining››",
+  "plansPlanResetsAt": "‹‹Plan resets {when}››",
+  "@plansPlanResetsAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "plansTopupTokensInfo": "‹‹{tokens} top-up tokens (no expiry)››",
+  "@plansTopupTokensInfo": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "plansHowTokensWorkTitle": "‹‹How tokens work››",
+  "plansHowTokensWorkBody": "‹‹Tokens are how AI counts its work.\n• A short question ≈ 2,000 tokens\n• A long explanation or practice session ≈ 5,000–10,000\n• Image analysis costs a bit more\n\nYour monthly tokens reset on the 1st. Top-up tokens never expire.››",
+  "plansPerMonthSuffix": "‹‹ / mo››",
+  "plansCurrentBadge": "‹‹CURRENT››",
+  "plansCouldntLoadPlans": "‹‹Couldn't load plans››",
+  "paywallPlansUnavailable": "‹‹Plans unavailable. Try again in a moment.››",
+  "paywallTopupUnavailable": "‹‹Top-up unavailable. The store hasn't finished approving this product.››",
+  "paywallRestored": "‹‹Your subscription was restored.››",
+  "paywallNoRestores": "‹‹No previous purchases found on this Apple ID.››",
+  "paywallRestoreFailed": "‹‹Restore failed: {error}››",
+  "@paywallRestoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallPurchasesRestricted": "‹‹Purchases are restricted on this device.››",
+  "paywallPurchaseInvalid": "‹‹This purchase isn't valid. Try a different payment method.››",
+  "paywallProductNotAvailable": "‹‹This plan isn't available right now. Try again later.››",
+  "paywallNetworkError": "‹‹Network issue. Check your connection and try again.››",
+  "paywallPaymentPending": "‹‹Payment is pending approval (parental controls, etc.). It'll activate once approved.››",
+  "paywallStoreProblem": "‹‹The App Store had a problem. Try again in a minute.››",
+  "paywallGenericError": "‹‹Something went wrong. Try again.››",
+  "paywallWelcomeMessage": "‹‹Welcome to {plan}! Tokens are on the way.››",
+  "@paywallWelcomeMessage": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallWelcomeFallback": "‹‹your new plan››",
+  "paywallTopupAdded": "‹‹Top-up added. Tokens are on the way.››",
+  "paywallPurchaseProcessed": "‹‹Purchase processed. Tokens will appear shortly.››",
+  "paywallSubscribeTo": "‹‹Subscribe to {plan}››",
+  "@paywallSubscribeTo": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallBuyTopupNamed": "‹‹Buy {topup}››",
+  "@paywallBuyTopupNamed": {
+    "placeholders": {
+      "topup": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallPlanFallback": "‹‹plan››",
+  "paywallTopupFallback": "‹‹top-up››",
+  "paywallTopupBlurb": "‹‹One-time purchase. Tokens never expire and stack on top of your plan.››",
+  "paywallPerMonthWithTokens": "‹‹per month · {tokens}››",
+  "@paywallPerMonthWithTokens": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOneTimeWithTokens": "‹‹one-time · {tokens}››",
+  "@paywallOneTimeWithTokens": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallSubscribeButton": "‹‹Subscribe››",
+  "paywallBuyButton": "‹‹Buy››",
+  "paywallRestoreButton": "‹‹Restore purchases››",
+  "paywallNotNow": "‹‹Not now››",
+  "paywallTermsSubscription": "‹‹By subscribing you agree to ClassMate's Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.››",
+  "paywallTermsTopup": "‹‹By purchasing you agree to ClassMate's Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.››",
+  "paywallFeatureTokens": "‹‹Use tokens across NOVA chat and Practice sessions››",
+  "paywallFeatureImages": "‹‹Image analysis and file upload included››",
+  "paywallFeatureReset": "‹‹Tokens reset at the start of each month››",
+  "paywallFeatureCancel": "‹‹Cancel anytime — no commitment››",
+  "studentMaterialsGeneralSubject": "‹‹General››",
+  "studentMaterialsResourceCount": "‹‹{count, plural, one{{count} resource from your teachers} other{{count} resources from your teachers}}››",
+  "@studentMaterialsResourceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classroomsCouldNotLoadWithError": "‹‹Could not load classrooms\n{error}››",
+  "@classroomsCouldNotLoadWithError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "parentNoNotificationsYet": "‹‹No notifications yet.››",
+  "forwardCouldNotLoadChats": "‹‹Could not load chats: {error}››",
+  "@forwardCouldNotLoadChats": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "forwardNoChats": "‹‹No chats››",
+  "forgotPasswordFindAdmins": "‹‹Find my school's admins››",
+  "forgotPasswordChooseAdmin": "‹‹Choose an admin from {school}:››",
+  "@forgotPasswordChooseAdmin": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "forgotPasswordSendRequest": "‹‹Send password request››",
+  "commonTitle": "‹‹Title››",
+  "commonNotes": "‹‹Notes››",
+  "commonEmail": "‹‹Email››",
+  "commonPassword": "‹‹Password››",
+  "commonNumberOfPages": "‹‹Number of pages››",
+  "messagesSearchByNameOrGrade": "‹‹Search by name or grade…››",
+  "meetingStartDateRequired": "‹‹Start date *››",
+  "meetingStartTimeRequired": "‹‹Start time *››",
+  "meetingEndDateOptional": "‹‹End date (optional)››",
+  "meetingEndTimeOptional": "‹‹End time (optional)››",
+  "teacherMaterialLinkUrlOptional": "‹‹Link / URL (optional)››",
+  "teacherSearchStudentsOrGrade": "‹‹Search students or grade…››",
+  "teacherSearchParentsOrChildren": "‹‹Search parents or children…››",
+  "studentAssignmentAddNoteOptional": "‹‹Add a note (optional)…››",
+  "adminEditUserUsernameRequired": "‹‹Username *››",
+  "reportReasonOptional": "‹‹Reason (optional)››",
+  "forwardSearchChatsAndClassrooms": "‹‹Search chats and classrooms…››",
+  "profileNewPhone": "‹‹New phone››",
+  "profileNewEmail": "‹‹New email››",
+  "forgotPasswordYourPhone": "‹‹Your phone (so the admin can verify it's really you)››",
+  "forgotPasswordPhoneHelper": "‹‹The admin will call or text this number before approving.››",
+  "forgotPasswordNewPasswordHelper": "‹‹At least 8 characters. Stored hashed — your admin will not see it.››",
+  "adminExportPasswordsWarning": "‹‹{count, plural, one{The file will contain {count} student's login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}››",
+  "@adminExportPasswordsWarning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerSelectStudents": "‹‹Select students››",
+  "pickerSelectCohorts": "‹‹Select cohorts››",
+  "pickerSelectGrades": "‹‹Select grades››",
+  "pickerSelectClassroom": "‹‹Select classroom››",
+  "pickerSelectClasses": "‹‹Select classes››",
+  "drawerLoadingChildren": "‹‹Loading children…››",
+  "drawerCouldNotLoadChildren": "‹‹Could not load children››",
+  "drawerNoChildrenLinked": "‹‹No children linked››",
+  "drawerSwitchChild": "‹‹Switch child››",
+  "shellAssessmentCreated": "‹‹Assessment created››",
+  "commonCouldNotOpenLink": "‹‹Couldn't open {scheme} link››",
+  "@commonCouldNotOpenLink": {
+    "placeholders": {
+      "scheme": {
+        "type": "String"
+      }
+    }
+  },
+  "commonCouldntSend": "‹‹Couldn't send: {error}››",
+  "@commonCouldntSend": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherExamDetailsSection": "‹‹Exam Details››",
+  "teacherExamStudyMaterialsWithCount": "‹‹Study Materials ({count})››",
+  "@teacherExamStudyMaterialsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherMeetingDetailsSection": "‹‹Meeting Details››",
+  "teacherClassroomNameSection": "‹‹Classroom name››",
+  "teacherAddByCohortSection": "‹‹Add by cohort››",
+  "teacherAddIndividualStudentsSection": "‹‹Add individual students››",
+  "teacherGradeTypeSection": "‹‹Grade type››",
+  "teacherOtherGradeSection": "‹‹Other grade››",
+  "teacherEnterGradesSection": "‹‹Enter grades››",
+  "teacherAttachmentsWithCount": "‹‹Attachments ({count})››",
+  "@teacherAttachmentsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "studentFilesSharedByTeacher": "‹‹Files shared by your teacher››",
+  "studentYourSubmission": "‹‹Your submission››",
+  "studentFilesSharedWithAnnouncement": "‹‹Files shared with this announcement.››",
+  "announcementGradeRiskTitle": "‹‹Grade risk detected››",
+  "announcementWeakSubjectTitle": "‹‹Weak subject detected››",
+  "announcementLowAttendanceTitle": "‹‹Low attendance››",
+  "announcementRepeatedLatenessTitle": "‹‹Repeated lateness››",
+  "announcementPracticeWeaknessTitle": "‹‹Practice weakness found››",
+  "announcementPracticeTrendDroppedTitle": "‹‹Practice trend dropped››",
+  "announcementSolutionsActivityTitle": "‹‹Solutions activity is live››",
+  "announcementAllGoodTitle": "‹‹All good››",
+  "supportSectionGettingStarted": "‹‹Getting started››",
+  "supportSectionAccountPassword": "‹‹Account & password››",
+  "supportSectionForStudents": "‹‹For students››",
+  "supportSectionForTeachers": "‹‹For teachers››",
+  "supportSectionForAdministrators": "‹‹For administrators››",
+  "supportSectionForParents": "‹‹For parents››",
+  "supportSectionPrivacyData": "‹‹Privacy & data››",
+  "novaDisclaimerCanMakeMistakes": "‹‹Can make mistakes››",
+  "novaDisclaimerEducationalUseOnly": "‹‹Educational use only››",
+  "novaDisclaimerYourPrivacy": "‹‹Your privacy››",
+  "profileNameInLanguage": "‹‹Name in {language}››",
+  "@profileNameInLanguage": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "adminSettingsScheduleSubtitle": "‹‹Assign teachers and cohorts to weekly time slots››",
+  "practiceModeBalancedSubtitle": "‹‹Balanced daily practice››",
+  "practiceModeRevealSubtitle": "‹‹Reveal and self-recall››",
+  "practiceModeFastSubtitle": "‹‹Fast pressure drill››",
+  "practiceModeExamSubtitle": "‹‹Calm exam-style flow››",
+  "practiceModeConceptSubtitle": "‹‹Concept first, solve later››",
+  "practiceModeAdaptiveSubtitle": "‹‹Difficulty shifts live››",
+  "practiceModeStrictSubtitle": "‹‹Strict official style››",
+  "commonCall": "‹‹Call››",
+  "tooltipClearEndTime": "‹‹Clear end time››",
+  "tooltipDeletePeriod": "‹‹Delete period››",
+  "tooltipLeaveClassroom": "‹‹Leave classroom››"
+}

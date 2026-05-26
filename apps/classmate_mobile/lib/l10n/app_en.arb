@@ -3086,5 +3086,15 @@
   "practiceModeExamSubtitle": "Calm exam-style flow",
   "practiceModeConceptSubtitle": "Concept first, solve later",
   "practiceModeAdaptiveSubtitle": "Difficulty shifts live",
-  "practiceModeStrictSubtitle": "Strict official style"
+  "practiceModeStrictSubtitle": "Strict official style",
+
+  "commonEdit": "Edit",
+  "commonBack": "Back",
+  "commonClose": "Close",
+  "commonDownload": "Download",
+  "commonOpenExternally": "Open externally",
+  "commonCall": "Call",
+  "tooltipClearEndTime": "Clear end time",
+  "tooltipDeletePeriod": "Delete period",
+  "tooltipLeaveClassroom": "Leave classroom"
 }

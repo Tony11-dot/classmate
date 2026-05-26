@@ -678,7 +678,7 @@ class _TopHeader extends StatelessWidget {
               onPressed: onBack,
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
               visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-              tooltip: 'Back',
+              tooltip: AppLocalizations.of(context)!.commonBack,
             ),
             const SizedBox(width: 4),
             Expanded(
@@ -709,7 +709,7 @@ class _TopHeader extends StatelessWidget {
               onPressed: onLeave,
               icon: const Icon(Icons.logout_rounded, size: 20),
               visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-              tooltip: 'Leave classroom',
+              tooltip: AppLocalizations.of(context)!.tooltipLeaveClassroom,
             ),
             IconButton(
               onPressed: onToggleTabs,

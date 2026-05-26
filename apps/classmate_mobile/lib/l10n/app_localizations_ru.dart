@@ -7244,4 +7244,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get practiceModeStrictSubtitle => 'Строгий официальный стиль';
+
+  @override
+  String get commonCall => 'Позвонить';
+
+  @override
+  String get tooltipClearEndTime => 'Очистить время окончания';
+
+  @override
+  String get tooltipDeletePeriod => 'Удалить урок';
+
+  @override
+  String get tooltipLeaveClassroom => 'Покинуть класс';
 }

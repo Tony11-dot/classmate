@@ -2960,5 +2960,15 @@
   "practiceModeExamSubtitle": "Спокойный экзаменационный поток",
   "practiceModeConceptSubtitle": "Сначала концепция, потом решение",
   "practiceModeAdaptiveSubtitle": "Сложность меняется в реальном времени",
-  "practiceModeStrictSubtitle": "Строгий официальный стиль"
+  "practiceModeStrictSubtitle": "Строгий официальный стиль",
+
+  "commonEdit": "Изменить",
+  "commonBack": "Назад",
+  "commonClose": "Закрыть",
+  "commonDownload": "Скачать",
+  "commonOpenExternally": "Открыть внешне",
+  "commonCall": "Позвонить",
+  "tooltipClearEndTime": "Очистить время окончания",
+  "tooltipDeletePeriod": "Удалить урок",
+  "tooltipLeaveClassroom": "Покинуть класс"
 }

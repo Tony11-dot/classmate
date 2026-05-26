@@ -137,7 +137,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         // Explicit back/chevron button so students can leave without submitting
         leading: IconButton(
           icon: const Icon(Icons.chevron_left_rounded, size: 28),
-          tooltip: 'Back',
+          tooltip: AppLocalizations.of(context)!.commonBack,
           onPressed: () {
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
