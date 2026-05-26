@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
 
 /// Triage queue for user-filed reports on chat messages. Required by
@@ -36,10 +37,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'OPEN', label: Text('Open')),
-                  ButtonSegment(value: 'RESOLVED', label: Text('Resolved')),
-                  ButtonSegment(value: 'DISMISSED', label: Text('Dismissed')),
+                segments: [
+                  ButtonSegment(value: 'OPEN', label: Text(AppLocalizations.of(context)!.adminReportsOpenTab)),
+                  ButtonSegment(value: 'RESOLVED', label: Text(AppLocalizations.of(context)!.adminReportsResolvedTab)),
+                  ButtonSegment(value: 'DISMISSED', label: Text(AppLocalizations.of(context)!.adminReportsDismissedTab)),
                 ],
                 selected: {_filter},
                 onSelectionChanged: (s) => setState(() => _filter = s.first),
@@ -61,8 +62,8 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                         Center(
                           child: Text(
                             _filter == 'OPEN'
-                                ? 'No open reports'
-                                : 'No reports in this view',
+                                ? AppLocalizations.of(context)!.adminReportsNoOpen
+                                : AppLocalizations.of(context)!.adminReportsNoInView,
                             style: theme.textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
@@ -153,14 +154,14 @@ class _ReportCard extends ConsumerWidget {
                   Padding(
                     padding: EdgeInsets.only(top: text.isEmpty ? 0 : 6),
                     child: Text(
-                      '[Media attachment]',
+                      AppLocalizations.of(context)!.adminReportsMediaAttachment,
                       style: theme.textTheme.bodySmall
                           ?.copyWith(fontStyle: FontStyle.italic),
                     ),
                   ),
                 if (text.isEmpty && mediaUrl.isEmpty)
                   Text(
-                    '(empty message)',
+                    AppLocalizations.of(context)!.adminReportsEmptyMessage,
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: cs.onSurfaceVariant),
                   ),
@@ -170,7 +171,7 @@ class _ReportCard extends ConsumerWidget {
           if (reason.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              'Reason: $reason',
+              AppLocalizations.of(context)!.adminReportsReason(reason),
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: cs.onSurfaceVariant),
             ),
@@ -187,7 +188,7 @@ class _ReportCard extends ConsumerWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.close_rounded, size: 18),
-                    label: const Text('Dismiss'),
+                    label: Text(AppLocalizations.of(context)!.adminReportsDismiss),
                     onPressed: () => _act(context, ref, 'dismiss'),
                   ),
                 ),
@@ -195,7 +196,7 @@ class _ReportCard extends ConsumerWidget {
                 Expanded(
                   child: FilledButton.icon(
                     icon: const Icon(Icons.check_rounded, size: 18),
-                    label: const Text('Resolve'),
+                    label: Text(AppLocalizations.of(context)!.adminReportsResolve),
                     onPressed: () => _act(context, ref, 'resolve'),
                   ),
                 ),

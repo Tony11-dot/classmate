@@ -4238,7 +4238,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherStudentsLabel => 'תלמידים';
 
   @override
-  String get teacherSearchStudents => 'חפש לפי שם או כיתה...';
+  String get teacherSearchStudents => 'Search students…';
 
   @override
   String get teacherNoStudentsLoaded => 'לא נמצאו תלמידים בבית ספר זה.';
@@ -4318,13 +4318,13 @@ class AppLocalizationsHe extends AppLocalizations {
       'פעולה זו תסיר אותה לכל התלמידים.';
 
   @override
-  String get teacherShareMaterialTitle => 'שתף חומר';
+  String get teacherShareMaterialTitle => 'Share Material';
 
   @override
   String get teacherRemoveMaterial => 'להסיר חומר?';
 
   @override
-  String get teacherScheduleMeetingTitle => 'תזמן פגישה';
+  String get teacherScheduleMeetingTitle => 'Schedule Meeting';
 
   @override
   String get teacherCancelMeetingTitle => 'לבטל פגישה?';
@@ -5230,4 +5230,234 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get pushPermissionBody =>
       'Turn on notifications so you don\'t miss grades, messages, or schedule changes.';
+
+  @override
+  String commonRequiredField(Object field) {
+    return '$field required';
+  }
+
+  @override
+  String get commonAttachments => 'Attachments';
+
+  @override
+  String get commonAttachFile => 'Attach file';
+
+  @override
+  String get commonReplaceFile => 'Replace file';
+
+  @override
+  String get commonTitleRequired => 'Title required';
+
+  @override
+  String get commonPublish => 'Publish';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get commonNext => 'Next';
+
+  @override
+  String get commonStart => 'Start';
+
+  @override
+  String get commonEnd => 'End';
+
+  @override
+  String get commonRefresh => 'Refresh';
+
+  @override
+  String get commonRemove => 'Remove';
+
+  @override
+  String get commonOpen => 'Open';
+
+  @override
+  String get commonView => 'View';
+
+  @override
+  String get commonCopy => 'Copy';
+
+  @override
+  String get commonAdd => 'Add';
+
+  @override
+  String get commonOptional => 'Optional';
+
+  @override
+  String get commonRequired => 'Required';
+
+  @override
+  String get commonAuto => 'Auto';
+
+  @override
+  String get teacherShareButton => 'Share';
+
+  @override
+  String get teacherMaterialDetails => 'Material Details';
+
+  @override
+  String get teacherMaterialTitleLabel => 'Title *';
+
+  @override
+  String get teacherMaterialDescriptionLabel => 'Description (optional)';
+
+  @override
+  String get teacherMaterialContentSection => 'Content';
+
+  @override
+  String get teacherMaterialContentRequired =>
+      'Please attach a file or add a link';
+
+  @override
+  String teacherFilePickError(Object error) {
+    return 'Could not pick file: $error';
+  }
+
+  @override
+  String get teacherScheduleButton => 'Schedule';
+
+  @override
+  String get teacherMeetingTitleField => 'Meeting title *';
+
+  @override
+  String get teacherMeetingLinkField => 'Meeting link *';
+
+  @override
+  String get teacherMeetingLinkRequired => 'Meeting link required';
+
+  @override
+  String get teacherMeetingTitleRequired => 'Meeting title required';
+
+  @override
+  String get teacherMeetingDateTimeRequired => 'Start date and time required';
+
+  @override
+  String get teacherMeetingStartDate => 'Start date *';
+
+  @override
+  String get teacherMeetingStartTime => 'Start time *';
+
+  @override
+  String get teacherMeetingEndDate => 'End date (optional)';
+
+  @override
+  String get teacherMeetingEndTime => 'End time (optional)';
+
+  @override
+  String get teacherClearEndTime => 'Clear end time';
+
+  @override
+  String get teacherAssignmentTitleField => 'Title *';
+
+  @override
+  String get teacherAssignmentInstructions => 'Instructions (optional)';
+
+  @override
+  String get teacherAssignmentDueDate => 'Due date (optional)';
+
+  @override
+  String get teacherAssignmentClearDueDate => 'Clear due date';
+
+  @override
+  String get teacherAssignmentMaxGrade => 'Max grade (optional)';
+
+  @override
+  String get teacherAssignmentPublished => 'Assignment published.';
+
+  @override
+  String get teacherAssignmentDraftSaved => 'Draft saved.';
+
+  @override
+  String get teacherCreateAssignment => 'Create';
+
+  @override
+  String get teacherExamSubject => 'Subject *';
+
+  @override
+  String get teacherExamDate => 'Exam date *';
+
+  @override
+  String get teacherSelectSubject => 'Select subject';
+
+  @override
+  String get teacherNoSubjectOption => 'No subject';
+
+  @override
+  String get teacherOtherSubjectOption => 'Other';
+
+  @override
+  String get teacherSearchClassrooms => 'Search classrooms…';
+
+  @override
+  String get teacherSearchMaterials => 'Search materials…';
+
+  @override
+  String get teacherClassroomName => 'Classroom name *';
+
+  @override
+  String get adminReportsOpenTab => 'Open';
+
+  @override
+  String get adminReportsResolvedTab => 'Resolved';
+
+  @override
+  String get adminReportsDismissedTab => 'Dismissed';
+
+  @override
+  String get adminReportsNoOpen => 'No open reports';
+
+  @override
+  String get adminReportsNoInView => 'No reports in this view';
+
+  @override
+  String get adminReportsMediaAttachment => '[Media attachment]';
+
+  @override
+  String get adminReportsEmptyMessage => '(empty message)';
+
+  @override
+  String get adminReportsDismiss => 'Dismiss';
+
+  @override
+  String get adminReportsResolve => 'Resolve';
+
+  @override
+  String adminReportsReason(Object reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get chatReportTitle => 'Report message';
+
+  @override
+  String get chatReportButton => 'Report';
+
+  @override
+  String get chatReportSuccess => 'Reported. Thank you — an admin will review.';
+
+  @override
+  String chatReportFailed(Object error) {
+    return 'Report failed: $error';
+  }
+
+  @override
+  String chatSendError(Object message) {
+    return 'Couldn\'t send: $message';
+  }
+
+  @override
+  String chatForwardLabel(Object count) {
+    return 'Forward $count';
+  }
+
+  @override
+  String chatDeleteLabel(Object count) {
+    return 'Delete $count';
+  }
+
+  @override
+  String chatSelectedCount(Object count) {
+    return '$count selected';
+  }
 }

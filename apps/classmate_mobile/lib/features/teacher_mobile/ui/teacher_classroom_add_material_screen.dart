@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 
 class TeacherClassroomAddMaterialScreen extends ConsumerStatefulWidget {
@@ -54,7 +55,7 @@ class _TeacherClassroomAddMaterialScreenState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not pick file: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.teacherFilePickError(e.toString()))),
         );
       }
     }
@@ -92,14 +93,14 @@ class _TeacherClassroomAddMaterialScreenState
 
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title required')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.commonTitleRequired)),
       );
       return;
     }
     final typedUrl = _urlCtrl.text.trim();
     if ((_url == null || _url!.trim().isEmpty) && typedUrl.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please attach a file or add a link')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherMaterialContentRequired)),
       );
       return;
     }
@@ -154,7 +155,7 @@ class _TeacherClassroomAddMaterialScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Share Material',
+          AppLocalizations.of(context)!.teacherShareMaterialTitle,
           style:
               theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
@@ -170,7 +171,7 @@ class _TeacherClassroomAddMaterialScreenState
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.send_rounded, size: 18),
-              label: const Text('Share'),
+              label: Text(AppLocalizations.of(context)!.teacherShareButton),
               style: FilledButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -202,7 +203,7 @@ class _TeacherClassroomAddMaterialScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Material Details',
+                    AppLocalizations.of(context)!.teacherMaterialDetails,
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
@@ -211,9 +212,9 @@ class _TeacherClassroomAddMaterialScreenState
                   TextFormField(
                     controller: _titleCtrl,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Title *',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherMaterialTitleLabel,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -222,10 +223,10 @@ class _TeacherClassroomAddMaterialScreenState
                     controller: _descCtrl,
                     maxLines: 3,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Description (optional)',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.teacherMaterialDescriptionLabel,
                       alignLabelWithHint: true,
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ],
@@ -251,7 +252,7 @@ class _TeacherClassroomAddMaterialScreenState
                           size: 18, color: cs.onSurface),
                       const SizedBox(width: 8),
                       Text(
-                        'Content',
+                        AppLocalizations.of(context)!.teacherMaterialContentSection,
                         style: theme.textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
@@ -310,7 +311,9 @@ class _TeacherClassroomAddMaterialScreenState
                   OutlinedButton.icon(
                     onPressed: _pickFile,
                     icon: const Icon(Icons.file_upload_outlined, size: 18),
-                    label: Text(_pickedFile != null ? 'Replace file' : 'Attach file'),
+                    label: Text(_pickedFile != null
+                        ? AppLocalizations.of(context)!.commonReplaceFile
+                        : AppLocalizations.of(context)!.commonAttachFile),
                   ),
                 ],
               ),

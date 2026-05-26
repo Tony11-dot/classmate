@@ -7552,7 +7552,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherSearchStudents.
   ///
   /// In en, this message translates to:
-  /// **'Search by name or grade…'**
+  /// **'Search students…'**
   String get teacherSearchStudents;
 
   /// No description provided for @teacherNoStudentsLoaded.
@@ -9408,6 +9408,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn on notifications so you don\'t miss grades, messages, or schedule changes.'**
   String get pushPermissionBody;
+
+  /// No description provided for @commonRequiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} required'**
+  String commonRequiredField(Object field);
+
+  /// No description provided for @commonAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get commonAttachments;
+
+  /// No description provided for @commonAttachFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach file'**
+  String get commonAttachFile;
+
+  /// No description provided for @commonReplaceFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace file'**
+  String get commonReplaceFile;
+
+  /// No description provided for @commonTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Title required'**
+  String get commonTitleRequired;
+
+  /// No description provided for @commonPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get commonPublish;
+
+  /// No description provided for @commonContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get commonContinue;
+
+  /// No description provided for @commonNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get commonNext;
+
+  /// No description provided for @commonStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get commonStart;
+
+  /// No description provided for @commonEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get commonEnd;
+
+  /// No description provided for @commonRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get commonRefresh;
+
+  /// No description provided for @commonRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get commonRemove;
+
+  /// No description provided for @commonOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get commonOpen;
+
+  /// No description provided for @commonView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get commonView;
+
+  /// No description provided for @commonCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get commonCopy;
+
+  /// No description provided for @commonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// No description provided for @commonOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get commonOptional;
+
+  /// No description provided for @commonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get commonRequired;
+
+  /// No description provided for @commonAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get commonAuto;
+
+  /// No description provided for @teacherShareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get teacherShareButton;
+
+  /// No description provided for @teacherMaterialDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Material Details'**
+  String get teacherMaterialDetails;
+
+  /// No description provided for @teacherMaterialTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title *'**
+  String get teacherMaterialTitleLabel;
+
+  /// No description provided for @teacherMaterialDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get teacherMaterialDescriptionLabel;
+
+  /// No description provided for @teacherMaterialContentSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get teacherMaterialContentSection;
+
+  /// No description provided for @teacherMaterialContentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please attach a file or add a link'**
+  String get teacherMaterialContentRequired;
+
+  /// No description provided for @teacherFilePickError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not pick file: {error}'**
+  String teacherFilePickError(Object error);
+
+  /// No description provided for @teacherScheduleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get teacherScheduleButton;
+
+  /// No description provided for @teacherMeetingTitleField.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting title *'**
+  String get teacherMeetingTitleField;
+
+  /// No description provided for @teacherMeetingLinkField.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting link *'**
+  String get teacherMeetingLinkField;
+
+  /// No description provided for @teacherMeetingLinkRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting link required'**
+  String get teacherMeetingLinkRequired;
+
+  /// No description provided for @teacherMeetingTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting title required'**
+  String get teacherMeetingTitleRequired;
+
+  /// No description provided for @teacherMeetingDateTimeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date and time required'**
+  String get teacherMeetingDateTimeRequired;
+
+  /// No description provided for @teacherMeetingStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date *'**
+  String get teacherMeetingStartDate;
+
+  /// No description provided for @teacherMeetingStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time *'**
+  String get teacherMeetingStartTime;
+
+  /// No description provided for @teacherMeetingEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End date (optional)'**
+  String get teacherMeetingEndDate;
+
+  /// No description provided for @teacherMeetingEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End time (optional)'**
+  String get teacherMeetingEndTime;
+
+  /// No description provided for @teacherClearEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear end time'**
+  String get teacherClearEndTime;
+
+  /// No description provided for @teacherAssignmentTitleField.
+  ///
+  /// In en, this message translates to:
+  /// **'Title *'**
+  String get teacherAssignmentTitleField;
+
+  /// No description provided for @teacherAssignmentInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions (optional)'**
+  String get teacherAssignmentInstructions;
+
+  /// No description provided for @teacherAssignmentDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date (optional)'**
+  String get teacherAssignmentDueDate;
+
+  /// No description provided for @teacherAssignmentClearDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear due date'**
+  String get teacherAssignmentClearDueDate;
+
+  /// No description provided for @teacherAssignmentMaxGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Max grade (optional)'**
+  String get teacherAssignmentMaxGrade;
+
+  /// No description provided for @teacherAssignmentPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment published.'**
+  String get teacherAssignmentPublished;
+
+  /// No description provided for @teacherAssignmentDraftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft saved.'**
+  String get teacherAssignmentDraftSaved;
+
+  /// No description provided for @teacherCreateAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get teacherCreateAssignment;
+
+  /// No description provided for @teacherExamSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject *'**
+  String get teacherExamSubject;
+
+  /// No description provided for @teacherExamDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam date *'**
+  String get teacherExamDate;
+
+  /// No description provided for @teacherSelectSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Select subject'**
+  String get teacherSelectSubject;
+
+  /// No description provided for @teacherNoSubjectOption.
+  ///
+  /// In en, this message translates to:
+  /// **'No subject'**
+  String get teacherNoSubjectOption;
+
+  /// No description provided for @teacherOtherSubjectOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get teacherOtherSubjectOption;
+
+  /// No description provided for @teacherSearchClassrooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Search classrooms…'**
+  String get teacherSearchClassrooms;
+
+  /// No description provided for @teacherSearchMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Search materials…'**
+  String get teacherSearchMaterials;
+
+  /// No description provided for @teacherClassroomName.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom name *'**
+  String get teacherClassroomName;
+
+  /// No description provided for @adminReportsOpenTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get adminReportsOpenTab;
+
+  /// No description provided for @adminReportsResolvedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get adminReportsResolvedTab;
+
+  /// No description provided for @adminReportsDismissedTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismissed'**
+  String get adminReportsDismissedTab;
+
+  /// No description provided for @adminReportsNoOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'No open reports'**
+  String get adminReportsNoOpen;
+
+  /// No description provided for @adminReportsNoInView.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports in this view'**
+  String get adminReportsNoInView;
+
+  /// No description provided for @adminReportsMediaAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'[Media attachment]'**
+  String get adminReportsMediaAttachment;
+
+  /// No description provided for @adminReportsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'(empty message)'**
+  String get adminReportsEmptyMessage;
+
+  /// No description provided for @adminReportsDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get adminReportsDismiss;
+
+  /// No description provided for @adminReportsResolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get adminReportsResolve;
+
+  /// No description provided for @adminReportsReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}'**
+  String adminReportsReason(Object reason);
+
+  /// No description provided for @chatReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report message'**
+  String get chatReportTitle;
+
+  /// No description provided for @chatReportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get chatReportButton;
+
+  /// No description provided for @chatReportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported. Thank you — an admin will review.'**
+  String get chatReportSuccess;
+
+  /// No description provided for @chatReportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Report failed: {error}'**
+  String chatReportFailed(Object error);
+
+  /// No description provided for @chatSendError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send: {message}'**
+  String chatSendError(Object message);
+
+  /// No description provided for @chatForwardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward {count}'**
+  String chatForwardLabel(Object count);
+
+  /// No description provided for @chatDeleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count}'**
+  String chatDeleteLabel(Object count);
+
+  /// No description provided for @chatSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String chatSelectedCount(Object count);
 }
 
 class _AppLocalizationsDelegate
