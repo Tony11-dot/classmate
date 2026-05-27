@@ -145,18 +145,16 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   LiquidGlassDropdown<String?>(
                     label: currentLang == null
-                        ? '${l.settingsLanguage} — ${l.settingsLanguageSystem}'
+                        ? l.settingsLanguage
                         : '${l.settingsLanguage} — ${currentLang.flag} ${currentLang.label}',
                     value: currentLang?.code,
                     items: [
-                      LiquidGlassDropdownItem<String?>(
-                        value: null,
-                        label: l.settingsLanguageSystem,
-                        icon: Icons.public_rounded,
-                      ),
                       // Pseudo-locale (code 'ps') is dev-only — strip it in
                       // release builds so end users never see it as a real
-                      // language option.
+                      // language option. The "System default" option was
+                      // intentionally removed: every user picks a real
+                      // language so we never have to debug "why is my UI
+                      // English when my OS is Arabic".
                       ..._kLanguages
                           .where((lang) => kDebugMode || lang.code != 'ps')
                           .map(

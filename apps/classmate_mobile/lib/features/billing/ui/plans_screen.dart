@@ -339,7 +339,7 @@ class _PlanTile extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        plan.label,
+                        plan.labelLocalized(AppLocalizations.of(context)!),
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
@@ -489,7 +489,7 @@ class _TopupTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    pack.label,
+                    pack.labelLocalized(AppLocalizations.of(context)!),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),

@@ -6920,6 +6920,30 @@ class AppLocalizationsPs extends AppLocalizations {
   String get plansFreePlan => '‹‹Free plan››';
 
   @override
+  String get planTierFree => '‹‹Free››';
+
+  @override
+  String get planTierBudget => '‹‹Budget››';
+
+  @override
+  String get planTierBalance => '‹‹Balance››';
+
+  @override
+  String get planTierCommitment => '‹‹Commitment››';
+
+  @override
+  String get topupPackSmall => '‹‹Small pack››';
+
+  @override
+  String get topupPackMedium => '‹‹Medium pack››';
+
+  @override
+  String get topupPackLarge => '‹‹Large pack››';
+
+  @override
+  String get topupPackMega => '‹‹Mega pack››';
+
+  @override
   String get plansTokensRemaining => '‹‹tokens remaining››';
 
   @override

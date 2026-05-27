@@ -41,8 +41,12 @@ export class StudentService {
     });
     const cohorts = links
       .map((l) => l.cohort)
-      .filter((c): c is { id: string; name: string; grade: number | null } => c != null)
-      .map((c) => ({ id: c.id, name: c.name, grade: c.grade ?? null }));
+      .filter((c) => c != null)
+      .map((c) => ({
+        id: c!.id,
+        name: c!.name,
+        grade: (c as any).grade ?? null,
+      }));
     return { ok: true, cohorts };
   }
 

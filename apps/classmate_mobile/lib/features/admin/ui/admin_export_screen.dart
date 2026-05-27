@@ -1340,11 +1340,31 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 decoration: pw.BoxDecoration(color: i.isOdd ? rowAlt : PdfColors.white),
                 children: cells.asMap().entries.map((ce) {
                   final isPw = withPasswords && ce.key == cells.length - 1;
+                  final text = ce.value.toString();
+                  // Arabic + Hebrew need explicit RTL direction or the PDF
+                  // renderer treats them as LTR and the glyph shaper omits
+                  // proper letter-joining ("separate letters that don't
+                  // spell words" per the bug report). Detection here
+                  // catches any cell whose content is dominated by RTL
+                  // code points (Arabic U+0600-06FF, Hebrew U+0590-05FF).
+                  final isRtl = _isRtlText(text);
                   return pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-                    child: pw.Text(
-                      ce.value.toString(),
-                      style: pw.TextStyle(fontSize: 8, color: isPw ? pwColor : PdfColors.black, fontWeight: isPw ? pw.FontWeight.bold : pw.FontWeight.normal),
+                    child: pw.Directionality(
+                      textDirection: isRtl
+                          ? pw.TextDirection.rtl
+                          : pw.TextDirection.ltr,
+                      child: pw.Text(
+                        text,
+                        textDirection: isRtl
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          color: isPw ? pwColor : PdfColors.black,
+                          fontWeight: isPw ? pw.FontWeight.bold : pw.FontWeight.normal,
+                        ),
+                      ),
                     ),
                   );
                 }).toList(),
@@ -1466,6 +1486,32 @@ String _esc(String v) {
     return '"${v.replaceAll('"', '""')}"';
   }
   return v;
+}
+
+// Returns true if the string's strong characters are predominantly
+// right-to-left (Arabic U+0600-06FF, Hebrew U+0590-05FF). Used by the
+// PDF row renderer to set TextDirection per cell so glyph shaping
+// joins letters correctly. Numbers + Latin punctuation alone aren't
+// strong characters and don't tip the balance either way.
+bool _isRtlText(String s) {
+  if (s.isEmpty) return false;
+  var rtl = 0;
+  var ltr = 0;
+  for (final codeUnit in s.codeUnits) {
+    if ((codeUnit >= 0x0590 && codeUnit <= 0x05FF) ||
+        (codeUnit >= 0x0600 && codeUnit <= 0x06FF) ||
+        (codeUnit >= 0x0750 && codeUnit <= 0x077F) ||
+        (codeUnit >= 0xFB50 && codeUnit <= 0xFDFF) ||
+        (codeUnit >= 0xFE70 && codeUnit <= 0xFEFF)) {
+      rtl++;
+    } else if ((codeUnit >= 0x0041 && codeUnit <= 0x005A) ||
+        (codeUnit >= 0x0061 && codeUnit <= 0x007A) ||
+        (codeUnit >= 0x00C0 && codeUnit <= 0x024F) ||
+        (codeUnit >= 0x0400 && codeUnit <= 0x04FF)) {
+      ltr++;
+    }
+  }
+  return rtl > ltr;
 }
 
 String _localizedRoleName(AppLocalizations l, String role) {

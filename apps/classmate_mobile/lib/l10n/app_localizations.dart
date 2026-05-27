@@ -12225,6 +12225,54 @@ abstract class AppLocalizations {
   /// **'Free plan'**
   String get plansFreePlan;
 
+  /// No description provided for @planTierFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get planTierFree;
+
+  /// No description provided for @planTierBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget'**
+  String get planTierBudget;
+
+  /// No description provided for @planTierBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get planTierBalance;
+
+  /// No description provided for @planTierCommitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment'**
+  String get planTierCommitment;
+
+  /// No description provided for @topupPackSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small pack'**
+  String get topupPackSmall;
+
+  /// No description provided for @topupPackMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium pack'**
+  String get topupPackMedium;
+
+  /// No description provided for @topupPackLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large pack'**
+  String get topupPackLarge;
+
+  /// No description provided for @topupPackMega.
+  ///
+  /// In en, this message translates to:
+  /// **'Mega pack'**
+  String get topupPackMega;
+
   /// No description provided for @plansTokensRemaining.
   ///
   /// In en, this message translates to:

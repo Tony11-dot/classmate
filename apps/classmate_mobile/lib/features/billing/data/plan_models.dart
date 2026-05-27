@@ -1,3 +1,5 @@
+import '../../../l10n/app_localizations.dart';
+
 /// Mirror of the server's plan.catalog.ts SubscriptionPlan type. Kept
 /// as a Dart class (not freezed/json_serializable) so the data layer
 /// has zero codegen dependency and is trivial to read in a code review.
@@ -27,6 +29,17 @@ class SubscriptionPlan {
   final String? storeProductId;
 
   bool get isFree => tier == 'FREE';
+
+  /// Localized tier name. Falls back to the server-provided English
+  /// label when the tier key is unknown (forward-compat with tiers
+  /// added on the server before the client has an ARB key).
+  String labelLocalized(AppLocalizations l) => switch (tier) {
+        'FREE' => l.planTierFree,
+        'BUDGET' => l.planTierBudget,
+        'BALANCE' => l.planTierBalance,
+        'COMMITMENT' => l.planTierCommitment,
+        _ => label,
+      };
 
   /// "₪19.90" — uses comma-less Hebrew-friendly format.
   String get priceLabel {
@@ -73,6 +86,21 @@ class TopupPack {
   final int priceUsd;
   final int tokens;
   final String storeProductId;
+
+  /// Pack size key derived from the storeProductId
+  /// (com.classmate.tokens.{small|medium|large|mega}).
+  String get _sizeKey {
+    final last = storeProductId.split('.').last.toLowerCase();
+    return last;
+  }
+
+  String labelLocalized(AppLocalizations l) => switch (_sizeKey) {
+        'small' => l.topupPackSmall,
+        'medium' => l.topupPackMedium,
+        'large' => l.topupPackLarge,
+        'mega' => l.topupPackMega,
+        _ => label,
+      };
 
   String get priceLabel {
     final shekels = priceAgorot ~/ 100;

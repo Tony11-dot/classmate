@@ -6978,6 +6978,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get plansFreePlan => 'Forfait gratuit';
 
   @override
+  String get planTierFree => 'Gratuit';
+
+  @override
+  String get planTierBudget => 'Économique';
+
+  @override
+  String get planTierBalance => 'Équilibré';
+
+  @override
+  String get planTierCommitment => 'Engagement';
+
+  @override
+  String get topupPackSmall => 'Petit pack';
+
+  @override
+  String get topupPackMedium => 'Pack moyen';
+
+  @override
+  String get topupPackLarge => 'Grand pack';
+
+  @override
+  String get topupPackMega => 'Méga pack';
+
+  @override
   String get plansTokensRemaining => 'jetons restants';
 
   @override

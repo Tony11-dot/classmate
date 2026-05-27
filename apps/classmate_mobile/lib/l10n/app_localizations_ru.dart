@@ -6833,6 +6833,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get plansFreePlan => 'Бесплатный план';
 
   @override
+  String get planTierFree => 'Бесплатно';
+
+  @override
+  String get planTierBudget => 'Экономный';
+
+  @override
+  String get planTierBalance => 'Сбалансированный';
+
+  @override
+  String get planTierCommitment => 'Максимальный';
+
+  @override
+  String get topupPackSmall => 'Маленький пакет';
+
+  @override
+  String get topupPackMedium => 'Средний пакет';
+
+  @override
+  String get topupPackLarge => 'Большой пакет';
+
+  @override
+  String get topupPackMega => 'Огромный пакет';
+
+  @override
   String get plansTokensRemaining => 'токенов осталось';
 
   @override

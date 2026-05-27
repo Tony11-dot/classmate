@@ -6818,6 +6818,30 @@ class AppLocalizationsHe extends AppLocalizations {
   String get plansFreePlan => 'תוכנית חינמית';
 
   @override
+  String get planTierFree => 'חינם';
+
+  @override
+  String get planTierBudget => 'חסכוני';
+
+  @override
+  String get planTierBalance => 'מאוזן';
+
+  @override
+  String get planTierCommitment => 'מחויבות';
+
+  @override
+  String get topupPackSmall => 'חבילה קטנה';
+
+  @override
+  String get topupPackMedium => 'חבילה בינונית';
+
+  @override
+  String get topupPackLarge => 'חבילה גדולה';
+
+  @override
+  String get topupPackMega => 'חבילה ענקית';
+
+  @override
   String get plansTokensRemaining => 'אסימונים נותרו';
 
   @override

@@ -391,12 +391,12 @@ class MainDrawer extends ConsumerWidget {
                   ),
                   navItem(
                     icon: Icons.help_outline_rounded,
-                    label: 'Support',
+                    label: l.navSupport,
                     route: '/support',
                   ),
                   navItem(
                     icon: Icons.info_outline_rounded,
-                    label: 'About',
+                    label: l.navAbout,
                     route: '/about',
                   ),
                   // Logout (danger style, separate tap handler)

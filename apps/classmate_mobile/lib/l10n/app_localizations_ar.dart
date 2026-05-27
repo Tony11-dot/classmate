@@ -6846,6 +6846,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get plansFreePlan => 'الخطة المجانية';
 
   @override
+  String get planTierFree => 'مجاني';
+
+  @override
+  String get planTierBudget => 'اقتصادي';
+
+  @override
+  String get planTierBalance => 'متوازن';
+
+  @override
+  String get planTierCommitment => 'التزام';
+
+  @override
+  String get topupPackSmall => 'حزمة صغيرة';
+
+  @override
+  String get topupPackMedium => 'حزمة متوسطة';
+
+  @override
+  String get topupPackLarge => 'حزمة كبيرة';
+
+  @override
+  String get topupPackMega => 'حزمة ضخمة';
+
+  @override
   String get plansTokensRemaining => 'رموز متبقية';
 
   @override

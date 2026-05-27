@@ -1277,6 +1277,30 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     const schoolName = school?.name ?? '';
 
+    // When the caller asks for passwords, every row must have one. Users
+    // who already have a stored plainPassword keep it; users without one
+    // (typically accounts created before plainPassword existed, or who
+    // changed their own password via /me/password and never had a temp
+    // value backfilled) get a fresh generated password persisted to the
+    // DB. This DOES reset their old credential — the admin gets a new
+    // value they can hand over. That's the only way an export can
+    // promise "every row has a password" when the source-of-truth
+    // password is hashed.
+    const backfilledPasswords = new Map<string, string>();
+    if (includePasswords) {
+      for (const r of rows) {
+        const existing = (r as any).plainPassword;
+        if (existing && String(existing).length > 0) continue;
+        const fresh = `Classmate${randomDigits(6)}!`;
+        const hash = await bcrypt.hash(fresh, 10);
+        await this.prisma.user.update({
+          where: { id: r.id },
+          data: { password: hash, plainPassword: fresh } as any,
+        });
+        backfilledPasswords.set(r.id, fresh);
+      }
+    }
+
     const result = rows.map((r) => {
       const cohortMap = new Map<string, { id: string; name: string; grade: number | null }>();
       if (r.studentProfile?.cohort?.id) {
@@ -1294,6 +1318,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       const roles = (r.roles ?? []).map((x: any) => x.role);
       const role = rolePriority.find((p) => roles.includes(p)) ?? roles[0] ?? '';
 
+      const passwordForRow = includePasswords
+        ? (((r as any).plainPassword as string | undefined) ?? backfilledPasswords.get(r.id) ?? '')
+        : undefined;
+
       return {
         id: r.id,
         nameEn: r.nameEn ?? r.name,
@@ -1309,7 +1337,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         cohortName: cohortList[0]?.name ?? '',
         cohortNames: cohortList.map((c) => c.name),
         schoolName,
-        tempPassword: includePasswords ? ((r as any).plainPassword ?? '') : undefined,
+        tempPassword: passwordForRow,
       };
     });
 
