@@ -276,6 +276,14 @@ class AdminRepository {
     return _l(_m(raw)['teachers']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
+  /// Returns every user with `role` (one of STUDENT/TEACHER/PARENT/SECRETARY/ADMIN)
+  /// in the calling admin's school. Drives the export filter sheet's
+  /// per-role drill-down (Parents tab, Secretaries tab, etc.).
+  Future<List<Map<String, dynamic>>> getDdlUsersByRole(String role) async {
+    final raw = await _api.getJson('/admin/ddl/users-by-role', query: {'role': role});
+    return _l(_m(raw)['users']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   Future<List<Map<String, dynamic>>> exportStudents({
     String? cohortId,
     int? grade,

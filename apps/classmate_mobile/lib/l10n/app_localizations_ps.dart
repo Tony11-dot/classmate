@@ -7772,6 +7772,25 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminExportFilterUsersTab => '‹‹Users››';
 
   @override
+  String get adminExportSelectAll => '‹‹Select all››';
+
+  @override
+  String adminExportSelectedCount(int selected, int total) {
+    return '‹‹$selected of $total selected››';
+  }
+
+  @override
+  String adminExportRolePickedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count picked',
+      one: '$count picked',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
   String get adminExportPillRolePrefix => '‹‹Role:››';
 
   @override

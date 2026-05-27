@@ -527,6 +527,33 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return { ok: true, teachers };
   }
 
+  // Generic users-by-role DDL — drives the export filter sheet's
+  // per-role drill-down (Parents, Secretaries, Admins lists). Students
+  // and teachers have their own dedicated DDL endpoints because they're
+  // pulled in many other places and benefit from richer fields
+  // (grade, cohort, etc.); this one returns just id+name+email+username
+  // since the export sheet only needs to render a row + checkbox.
+  async listUsersByRoleForDDL(user: any, role: string) {
+    this.requireAdminOrSecretary(user);
+    const allowed = ['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
+    const upper = String(role || '').toUpperCase();
+    if (!allowed.includes(upper)) {
+      return { ok: true, users: [] };
+    }
+    const schoolId = (user as any)?.schoolId ?? null;
+    if (!schoolId) return { ok: true, users: [] };
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        schoolId,
+        roles: { some: { role: upper as any } },
+      },
+      select: { id: true, name: true, email: true, username: true },
+      orderBy: { name: 'asc' },
+    });
+    return { ok: true, users };
+  }
+
   async listCohortsForDDL(user: any) {
     this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId ?? null;

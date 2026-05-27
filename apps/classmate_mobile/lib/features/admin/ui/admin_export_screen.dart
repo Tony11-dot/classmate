@@ -34,6 +34,10 @@ const _kRoles = <String>['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
 
 class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   // ── Pills ──────────────────────────────────────────────────────────────────
+  // Role-wide filtering was removed in favour of per-user picking inside
+  // the Users role drill-down. Kept as an empty placeholder so existing
+  // call sites that pass `roles: _selectedRoles.toList()` still compile;
+  // it's always empty now.
   final Set<String> _selectedRoles = {};
   final Set<String> _selectedCohortIds = {};
   final Set<int> _selectedGrades = {};
@@ -194,6 +198,34 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
     _schedulePreview();
   }
 
+  /// Bulk toggle used by the role drill-down's "Select all" affordance.
+  /// `selected: true` adds every id in [ids] to _selectedUserIds; false
+  /// removes them. One setState + one debounced preview no matter how
+  /// many users.
+  void _setUsersSelected(Iterable<String> ids, bool selected) {
+    setState(() {
+      if (selected) {
+        _selectedUserIds.addAll(ids);
+      } else {
+        _selectedUserIds.removeAll(ids);
+      }
+    });
+    _schedulePreview();
+  }
+
+  /// Add fetched user records to the id→record cache so pills can render
+  /// names for users that came in via the lazy per-role drill-down
+  /// (parents/secretaries/admins aren't in the eager DDL load).
+  void _cacheUsers(List<Map<String, dynamic>> users) {
+    if (users.isEmpty) return;
+    setState(() {
+      for (final u in users) {
+        final id = u['id']?.toString() ?? '';
+        if (id.isNotEmpty) _userById[id] = u;
+      }
+    });
+  }
+
   void _clearAll() {
     setState(() {
       _selectedRoles.clear();
@@ -216,19 +248,20 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (sheetCtx) => _AddFilterSheet(
-        roles: _kRoles,
         cohorts: _ddlCohorts,
         grades: _allGrades,
         students: _ddlStudents,
         teachers: _ddlTeachers,
-        selectedRoles: _selectedRoles,
         selectedCohortIds: _selectedCohortIds,
         selectedGrades: _selectedGrades,
         selectedUserIds: _selectedUserIds,
-        onToggleRole: _toggleRole,
         onToggleCohort: _toggleCohort,
         onToggleGrade: _toggleGrade,
         onToggleUser: _toggleUser,
+        onSetUsersSelected: _setUsersSelected,
+        onCacheUsers: _cacheUsers,
+        loadUsersByRole: (role) =>
+            ref.read(adminRepositoryProvider).getDdlUsersByRole(role),
       ),
     );
   }
@@ -551,34 +584,34 @@ class _Pill extends StatelessWidget {
 
 class _AddFilterSheet extends StatefulWidget {
   const _AddFilterSheet({
-    required this.roles,
     required this.cohorts,
     required this.grades,
     required this.students,
     required this.teachers,
-    required this.selectedRoles,
     required this.selectedCohortIds,
     required this.selectedGrades,
     required this.selectedUserIds,
-    required this.onToggleRole,
     required this.onToggleCohort,
     required this.onToggleGrade,
     required this.onToggleUser,
+    required this.onSetUsersSelected,
+    required this.onCacheUsers,
+    required this.loadUsersByRole,
   });
 
-  final List<String> roles;
   final List<Map<String, dynamic>> cohorts;
   final List<int> grades;
   final List<Map<String, dynamic>> students;
   final List<Map<String, dynamic>> teachers;
-  final Set<String> selectedRoles;
   final Set<String> selectedCohortIds;
   final Set<int> selectedGrades;
   final Set<String> selectedUserIds;
-  final ValueChanged<String> onToggleRole;
   final ValueChanged<String> onToggleCohort;
   final ValueChanged<int> onToggleGrade;
   final ValueChanged<String> onToggleUser;
+  final void Function(Iterable<String> ids, bool selected) onSetUsersSelected;
+  final ValueChanged<List<Map<String, dynamic>>> onCacheUsers;
+  final Future<List<Map<String, dynamic>>> Function(String role) loadUsersByRole;
 
   @override
   State<_AddFilterSheet> createState() => _AddFilterSheetState();
@@ -588,17 +621,50 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
     with SingleTickerProviderStateMixin {
   late final TabController _tabs;
   String _userQuery = '';
+  // Per-role drill-down: null = show role picker; non-null = show that
+  // role's user list. Lazily-loaded role lists are cached here so we
+  // don't refetch every time the user switches roles.
+  String? _drillRole;
+  final Map<String, List<Map<String, dynamic>>> _roleUsers = {};
+  final Set<String> _loadingRoles = {};
+
+  static const _kRoleOrder = <String>['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 4, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
+    // Seed cache with eagerly-loaded students + teachers so opening
+    // those drill-downs is instant.
+    _roleUsers['STUDENT'] = widget.students;
+    _roleUsers['TEACHER'] = widget.teachers;
   }
 
   @override
   void dispose() {
     _tabs.dispose();
     super.dispose();
+  }
+
+  Future<void> _ensureRoleLoaded(String role) async {
+    if (_roleUsers.containsKey(role)) return;
+    if (_loadingRoles.contains(role)) return;
+    setState(() => _loadingRoles.add(role));
+    try {
+      final users = await widget.loadUsersByRole(role);
+      if (!mounted) return;
+      widget.onCacheUsers(users);
+      setState(() {
+        _roleUsers[role] = users;
+        _loadingRoles.remove(role);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _roleUsers[role] = const [];
+        _loadingRoles.remove(role);
+      });
+    }
   }
 
   @override
@@ -618,9 +684,19 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             child: Row(
               children: [
+                if (_drillRole != null)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: () => setState(() {
+                      _drillRole = null;
+                      _userQuery = '';
+                    }),
+                  ),
                 Expanded(
                   child: Text(
-                    l.adminExportAddFilter,
+                    _drillRole != null
+                        ? _localizedRoleName(l, _drillRole!)
+                        : l.adminExportAddFilter,
                     style: theme.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
@@ -632,56 +708,35 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
               ],
             ),
           ),
-          TabBar(
-            controller: _tabs,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: cs.primary,
-            unselectedLabelColor: cs.onSurfaceVariant,
-            indicatorColor: cs.primary,
-            tabs: [
-              Tab(text: l.adminExportFilterRolesTab),
-              Tab(text: l.adminExportFilterCohortsTab),
-              Tab(text: l.adminExportFilterGradesTab),
-              Tab(text: l.adminExportFilterUsersTab),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: TabBarView(
+          if (_drillRole == null)
+            TabBar(
               controller: _tabs,
-              children: [
-                _buildRolesTab(scrollCtrl, l),
-                _buildCohortsTab(scrollCtrl, l),
-                _buildGradesTab(scrollCtrl, l),
-                _buildUsersTab(scrollCtrl, l),
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              labelColor: cs.primary,
+              unselectedLabelColor: cs.onSurfaceVariant,
+              indicatorColor: cs.primary,
+              tabs: [
+                Tab(text: l.adminExportFilterUsersTab),
+                Tab(text: l.adminExportFilterCohortsTab),
+                Tab(text: l.adminExportFilterGradesTab),
               ],
             ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: _drillRole != null
+                ? _buildRoleDrillDown(scrollCtrl, l, _drillRole!)
+                : TabBarView(
+                    controller: _tabs,
+                    children: [
+                      _buildUsersTab(scrollCtrl, l),
+                      _buildCohortsTab(scrollCtrl, l),
+                      _buildGradesTab(scrollCtrl, l),
+                    ],
+                  ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildRolesTab(ScrollController c, AppLocalizations l) {
-    return ListView.separated(
-      controller: c,
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
-      itemCount: widget.roles.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 4),
-      itemBuilder: (ctx, i) {
-        final role = widget.roles[i];
-        final selected = widget.selectedRoles.contains(role);
-        return _PickerRow(
-          icon: Icons.badge_rounded,
-          label: _localizedRoleName(l, role),
-          selected: selected,
-          onTap: () {
-            widget.onToggleRole(role);
-            setState(() {});
-          },
-        );
-      },
     );
   }
 
@@ -739,20 +794,71 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
     );
   }
 
+  // Root view of the Users tab — five role rows. Tapping a row swaps
+  // the sheet body into the per-role drill-down (handled in build()
+  // via _drillRole).
   Widget _buildUsersTab(ScrollController c, AppLocalizations l) {
-    final all = [
-      ...widget.students.map((s) => {...s, '__role': 'STUDENT'}),
-      ...widget.teachers.map((t) => {...t, '__role': 'TEACHER'}),
-    ];
+    return ListView.separated(
+      controller: c,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+      itemCount: _kRoleOrder.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 4),
+      itemBuilder: (ctx, i) {
+        final role = _kRoleOrder[i];
+        final cached = _roleUsers[role];
+        final pickedHere = cached == null
+            ? 0
+            : cached.where((u) =>
+                widget.selectedUserIds.contains(u['id']?.toString() ?? '')).length;
+        final subtitle = pickedHere > 0
+            ? l.adminExportRolePickedCount(pickedHere)
+            : null;
+        return _PickerRow(
+          icon: _roleIcon(role),
+          label: _localizedRoleName(l, role),
+          subtitle: subtitle,
+          selected: false,
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () {
+            setState(() {
+              _drillRole = role;
+              _userQuery = '';
+            });
+            _ensureRoleLoaded(role);
+          },
+        );
+      },
+    );
+  }
+
+  // Drill-down view for one role. Shows a search box + Select-all
+  // checkbox in the header + a checkbox per user. Selections feed
+  // _selectedUserIds via the parent.
+  Widget _buildRoleDrillDown(ScrollController c, AppLocalizations l, String role) {
+    final users = _roleUsers[role];
+    final loading = _loadingRoles.contains(role) || users == null;
+    if (loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (users.isEmpty) {
+      return Center(child: Text(l.adminExportNoStudents));
+    }
     final q = _userQuery.trim().toLowerCase();
     final filtered = q.isEmpty
-        ? all
-        : all.where((u) {
+        ? users
+        : users.where((u) {
             final name = (u['name'] ?? '').toString().toLowerCase();
             final email = (u['email'] ?? '').toString().toLowerCase();
             final username = (u['username'] ?? '').toString().toLowerCase();
             return name.contains(q) || email.contains(q) || username.contains(q);
           }).toList();
+
+    final visibleIds = filtered
+        .map((u) => u['id']?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toList();
+    final allVisibleSelected = visibleIds.isNotEmpty &&
+        visibleIds.every((id) => widget.selectedUserIds.contains(id));
 
     return Column(
       children: [
@@ -770,40 +876,61 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
+          child: _PickerRow(
+            icon: Icons.checklist_rtl_rounded,
+            label: l.adminExportSelectAll,
+            subtitle: l.adminExportSelectedCount(
+              filtered.where((u) => widget.selectedUserIds
+                  .contains(u['id']?.toString() ?? '')).length,
+              filtered.length,
+            ),
+            selected: allVisibleSelected,
+            onTap: () {
+              widget.onSetUsersSelected(visibleIds, !allVisibleSelected);
+              setState(() {});
+            },
+          ),
+        ),
         Expanded(
-          child: filtered.isEmpty
-              ? Center(child: Text(l.adminExportNoStudents))
-              : ListView.separated(
-                  controller: c,
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                  itemCount: filtered.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 4),
-                  itemBuilder: (ctx, i) {
-                    final u = filtered[i];
-                    final id = u['id']?.toString() ?? '';
-                    final name = (u['name'] ?? '').toString();
-                    final role = (u['__role'] ?? '').toString();
-                    final email = (u['email'] ?? '').toString();
-                    final selected = widget.selectedUserIds.contains(id);
-                    return _PickerRow(
-                      icon: Icons.person_rounded,
-                      label: name.isEmpty ? id : name,
-                      subtitle: [
-                        _localizedRoleName(l, role),
-                        if (email.isNotEmpty) email,
-                      ].join(' · '),
-                      selected: selected,
-                      onTap: () {
-                        widget.onToggleUser(id);
-                        setState(() {});
-                      },
-                    );
-                  },
-                ),
+          child: ListView.separated(
+            controller: c,
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+            itemCount: filtered.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 4),
+            itemBuilder: (ctx, i) {
+              final u = filtered[i];
+              final id = u['id']?.toString() ?? '';
+              final name = (u['name'] ?? '').toString();
+              final email = (u['email'] ?? '').toString();
+              final username = (u['username'] ?? '').toString();
+              final selected = widget.selectedUserIds.contains(id);
+              return _PickerRow(
+                icon: _roleIcon(role),
+                label: name.isEmpty ? (username.isEmpty ? id : username) : name,
+                subtitle: email.isNotEmpty ? email : null,
+                selected: selected,
+                onTap: () {
+                  widget.onToggleUser(id);
+                  setState(() {});
+                },
+              );
+            },
+          ),
         ),
       ],
     );
   }
+
+  IconData _roleIcon(String role) => switch (role) {
+        'STUDENT' => Icons.school_rounded,
+        'TEACHER' => Icons.cast_for_education_rounded,
+        'PARENT' => Icons.family_restroom_rounded,
+        'SECRETARY' => Icons.support_agent_rounded,
+        'ADMIN' => Icons.shield_rounded,
+        _ => Icons.person_rounded,
+      };
 }
 
 class _PickerRow extends StatelessWidget {
@@ -813,6 +940,7 @@ class _PickerRow extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.subtitle,
+    this.trailing,
   });
 
   final IconData icon;
@@ -820,6 +948,7 @@ class _PickerRow extends StatelessWidget {
   final String? subtitle;
   final bool selected;
   final VoidCallback onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -861,12 +990,13 @@ class _PickerRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              selected
-                  ? Icons.check_circle_rounded
-                  : Icons.radio_button_unchecked_rounded,
-              color: selected ? cs.primary : cs.onSurfaceVariant,
-            ),
+            trailing ??
+                Icon(
+                  selected
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  color: selected ? cs.primary : cs.onSurfaceVariant,
+                ),
           ],
         ),
       ),

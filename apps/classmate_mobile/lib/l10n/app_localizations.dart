@@ -13623,6 +13623,24 @@ abstract class AppLocalizations {
   /// **'Users'**
   String get adminExportFilterUsersTab;
 
+  /// No description provided for @adminExportSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get adminExportSelectAll;
+
+  /// No description provided for @adminExportSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{selected} of {total} selected'**
+  String adminExportSelectedCount(int selected, int total);
+
+  /// No description provided for @adminExportRolePickedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} picked} other{{count} picked}}'**
+  String adminExportRolePickedCount(int count);
+
   /// No description provided for @adminExportPillRolePrefix.
   ///
   /// In en, this message translates to:

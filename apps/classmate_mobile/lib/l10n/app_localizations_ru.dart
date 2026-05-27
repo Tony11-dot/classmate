@@ -7699,6 +7699,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminExportFilterUsersTab => 'Пользователи';
 
   @override
+  String get adminExportSelectAll => 'Выбрать всех';
+
+  @override
+  String adminExportSelectedCount(int selected, int total) {
+    return 'Выбрано $selected из $total';
+  }
+
+  @override
+  String adminExportRolePickedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'выбрано $count',
+      many: 'выбрано $count',
+      few: 'выбрано $count',
+      one: 'выбран $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get adminExportPillRolePrefix => 'Роль:';
 
   @override

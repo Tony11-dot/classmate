@@ -7687,6 +7687,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminExportFilterUsersTab => 'المستخدمون';
 
   @override
+  String get adminExportSelectAll => 'تحديد الكل';
+
+  @override
+  String adminExportSelectedCount(int selected, int total) {
+    return '$selected من $total محدد';
+  }
+
+  @override
+  String adminExportRolePickedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count محدد',
+      one: 'محدد واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get adminExportPillRolePrefix => 'دور:';
 
   @override

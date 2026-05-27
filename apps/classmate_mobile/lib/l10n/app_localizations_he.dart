@@ -7654,6 +7654,25 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminExportFilterUsersTab => 'משתמשים';
 
   @override
+  String get adminExportSelectAll => 'בחר הכול';
+
+  @override
+  String adminExportSelectedCount(int selected, int total) {
+    return 'נבחרו $selected מתוך $total';
+  }
+
+  @override
+  String adminExportRolePickedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count נבחרו',
+      one: 'נבחר אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get adminExportPillRolePrefix => 'תפקיד:';
 
   @override

@@ -7838,6 +7838,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminExportFilterUsersTab => 'Utilisateurs';
 
   @override
+  String get adminExportSelectAll => 'Tout sélectionner';
+
+  @override
+  String adminExportSelectedCount(int selected, int total) {
+    return '$selected sur $total sélectionnés';
+  }
+
+  @override
+  String adminExportRolePickedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sélectionnés',
+      one: '1 sélectionné',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get adminExportPillRolePrefix => 'Rôle :';
 
   @override

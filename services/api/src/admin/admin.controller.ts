@@ -104,6 +104,14 @@ export class AdminController {
     return this.admin.listCohortsForDDL(req.user);
   }
 
+  // Per-role user list for the export filter sheet's role drill-down.
+  // role=STUDENT|TEACHER|PARENT|SECRETARY|ADMIN.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('ddl/users-by-role')
+  ddlUsersByRole(@Req() req: any, @Query('role') role: string) {
+    return this.admin.listUsersByRoleForDDL(req.user, role);
+  }
+
   @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('ddl/classrooms')
   ddlClassrooms(@Req() req: any, @Query('teacherId') teacherId: string) {
