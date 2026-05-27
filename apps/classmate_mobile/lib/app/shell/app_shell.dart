@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
@@ -909,7 +910,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     // it'd feel out of place against the rest of the M3 system chrome.
     // Render Flutter's NavigationBar instead — themed automatically, gets
     // ripple + indicator for free.
-    if (!Platform.isIOS && !Platform.isMacOS) {
+    if (kIsWeb || (!Platform.isIOS && !Platform.isMacOS)) {
       return NavigationBar(
         selectedIndex: widget.index,
         onDestinationSelected: (i) {

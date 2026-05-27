@@ -111,6 +111,9 @@ class RevenueCatService {
   /// Returns the resulting CustomerInfo so the caller can check
   /// entitlements; throws PurchasesErrorCode.* on store-level failures.
   Future<CustomerInfo> purchasePackage(Package package) async {
+    if (kIsWeb || !_configured) {
+      throw StateError('Purchases unavailable on this platform');
+    }
     final result = await Purchases.purchasePackage(package);
     return result;
   }
@@ -118,6 +121,9 @@ class RevenueCatService {
   /// Purchase a one-time consumable (token top-up). Same as above but
   /// uses the StoreProduct overload because top-ups aren't packages.
   Future<CustomerInfo> purchaseProduct(StoreProduct product) async {
+    if (kIsWeb || !_configured) {
+      throw StateError('Purchases unavailable on this platform');
+    }
     final result = await Purchases.purchaseStoreProduct(product);
     return result;
   }
@@ -126,6 +132,9 @@ class RevenueCatService {
   /// app that sells subscriptions. The button calls this; RC pulls the
   /// receipts from Apple and re-syncs entitlements.
   Future<CustomerInfo> restorePurchases() async {
+    if (kIsWeb || !_configured) {
+      throw StateError('Purchases unavailable on this platform');
+    }
     return Purchases.restorePurchases();
   }
 

@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class Env {
   static late final String apiBaseUrl;
   static late final String schoolId;
@@ -39,7 +41,7 @@ class Env {
     final trimmed = baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
     if (trimmed.isEmpty) return _defaultApiBaseUrl();
 
-    if (!Platform.isIOS) return trimmed;
+    if (kIsWeb || !Platform.isIOS) return trimmed;
 
     final uri = Uri.tryParse(trimmed);
     if (uri == null || uri.host.isEmpty) return trimmed;
@@ -61,7 +63,7 @@ class Env {
     // Physical iPhones cannot reach the host machine through 127.0.0.1.
     // Use the Mac's local hostname for iOS device builds unless the user
     // overrides it with --dart-define=CM_API_BASE_URL=...
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       return 'http://Tonys-MacBook-Air.local:3001';
     }
     return 'http://127.0.0.1:3001';

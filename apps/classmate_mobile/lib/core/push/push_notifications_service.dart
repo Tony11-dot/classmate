@@ -180,7 +180,9 @@ class PushNotificationsService {
         },
         body: jsonEncode({
           'token': token,
-          'platform': Platform.isIOS ? 'ios' : 'android',
+          'platform': kIsWeb
+              ? 'web'
+              : (Platform.isIOS ? 'ios' : 'android'),
         }),
       );
     } catch (e) {

@@ -1,6 +1,7 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -36,7 +37,7 @@ class NativeGlassView extends StatelessWidget {
             ? Colors.black
             : Colors.white);
 
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: Stack(

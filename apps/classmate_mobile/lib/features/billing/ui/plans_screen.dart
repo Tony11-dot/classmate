@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -219,7 +220,9 @@ class _ManageSubscriptionButton extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     final l = AppLocalizations.of(context)!;
     Uri uri;
-    if (Platform.isIOS) {
+    if (kIsWeb) {
+      uri = Uri.parse('https://classmateapp.org/account/billing');
+    } else if (Platform.isIOS) {
       uri = Uri.parse('itms-apps://apps.apple.com/account/subscriptions');
     } else if (Platform.isAndroid) {
       uri = Uri.parse(
