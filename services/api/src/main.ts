@@ -19,6 +19,24 @@ async function bootstrap() {
   app.use(json({ limit: '5mb' }));
   app.use(urlencoded({ extended: true, limit: '5mb' }));
 
+  // CORS for the Flutter web build. Mobile clients don't enforce CORS,
+  // so the iOS/Android apps don't care — this exists purely so that
+  // the browser-served Flutter SPA (classmateapp.org/app, plus the
+  // localhost:8765 preview during development) can call the API.
+  //
+  // CORS_ORIGINS is a comma-separated list. When unset, `origin: true`
+  // reflects whatever origin made the request — fine for a not-yet-
+  // public environment. Set CORS_ORIGINS in production to tighten this
+  // to known surfaces only (e.g. https://classmateapp.org).
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: corsOrigins.length === 0 ? true : corsOrigins,
+    credentials: true,
+  });
+
   const logger = app.get(JsonLogger);
   app.useLogger(logger);
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
