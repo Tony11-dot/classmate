@@ -2,13 +2,13 @@
 
 Single Vercel project serves both surfaces under `classmateapp.org`:
 
-| Path        | Served by | Source                                                  |
-| ----------- | --------- | ------------------------------------------------------- |
-| `/`         | Next.js   | `apps/admin-web/src/app/page.tsx` (marketing landing)   |
-| `/login`    | Next.js   | `apps/admin-web/src/app/login/page.tsx`                 |
-| `/attendance`, `/grades`, `/classrooms` | Next.js | legacy admin pages (kept until Flutter web replaces them) |
-| `/legacy-dashboard` | Next.js | the old `/` dashboard, archived              |
-| `/app`, `/app/*` | Flutter web (compiled JS) | `apps/classmate_mobile/build/web/` |
+| Path                                    | Served by                 | Source                                                    |
+| --------------------------------------- | ------------------------- | --------------------------------------------------------- |
+| `/`                                     | Next.js                   | `apps/admin-web/src/app/page.tsx` (marketing landing)     |
+| `/login`                                | Next.js                   | `apps/admin-web/src/app/login/page.tsx`                   |
+| `/attendance`, `/grades`, `/classrooms` | Next.js                   | legacy admin pages (kept until Flutter web replaces them) |
+| `/legacy-dashboard`                     | Next.js                   | the old `/` dashboard, archived                           |
+| `/app`, `/app/*`                        | Flutter web (compiled JS) | `apps/classmate_mobile/build/web/`                        |
 
 ## How `/app` works
 
@@ -34,6 +34,7 @@ The action checks out, installs Flutter + pnpm, runs `sync-flutter-web.sh`,
 then defers to Vercel's git integration to build and deploy Next.js.
 
 The Vercel project is configured with:
+
 - Root directory: `apps/admin-web`
 - Build command: `bash ../../scripts/sync-flutter-web.sh && next build`
   (Vercel runs from the project root directory)
@@ -69,8 +70,22 @@ the paywall opens via `launchUrl` on web — endpoint already stubbed in
 
 ## Push notifications on web
 
-`PushNotificationsService.registerForUser` already registers as
-`platform: 'web'` when `kIsWeb`. The FCM web SDK + service worker
-(`firebase-messaging-sw.js`) is the missing piece — wire up the VAPID key
-from Firebase console and drop the SW in `apps/classmate_mobile/web/` for
-the build step to copy.
+The service worker `apps/classmate_mobile/web/firebase-messaging-sw.js`
+is in place — Flutter's web build automatically copies it into
+`build/web/firebase-messaging-sw.js`, where FCM expects to find it.
+
+Before the first deploy you still need to set the VAPID key (Firebase
+console → Project settings → Cloud Messaging → Web Push certificates):
+
+```bash
+flutter build web --release --base-href "/app/" \
+  --dart-define=CM_FCM_VAPID_KEY="BPj…your-vapid-key…"
+```
+
+Without the dart-define, web push registration silently no-ops (no
+crash). The Flutter app still works, users just don't receive web
+pushes until the key is wired in.
+
+When the SW config changes (Firebase project apiKey, etc.), update both
+`firebase-messaging-sw.js` AND `firebase_options.dart -> web` — they
+duplicate the same config because service workers can't import Dart.

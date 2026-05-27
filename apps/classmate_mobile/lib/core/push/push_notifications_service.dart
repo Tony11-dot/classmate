@@ -128,10 +128,22 @@ class PushNotificationsService {
 
     // iOS needs APNs token before FCM can mint one — getAPNSToken returns
     // null when called too early; the FCM SDK handles the wait internally,
-    // we just need to call getToken() and let it block.
+    // we just need to call getToken() and let it block. On web, FCM
+    // requires the Firebase project's public VAPID key — passed via
+    // --dart-define=CM_FCM_VAPID_KEY=... at build time. Without it the
+    // web build silently no-ops (no pushes, but no crash).
     String? token;
     try {
-      token = await FirebaseMessaging.instance.getToken();
+      if (kIsWeb) {
+        const vapidKey = String.fromEnvironment('CM_FCM_VAPID_KEY');
+        if (vapidKey.isEmpty) {
+          if (kDebugMode) print('[push] CM_FCM_VAPID_KEY missing — web push disabled');
+          return;
+        }
+        token = await FirebaseMessaging.instance.getToken(vapidKey: vapidKey);
+      } else {
+        token = await FirebaseMessaging.instance.getToken();
+      }
     } catch (e) {
       if (kDebugMode) print('[push] getToken failed: $e');
       return;
