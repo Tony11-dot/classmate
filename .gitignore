@@ -7,6 +7,9 @@ node_modules/
 **/.next/
 **/out/
 
+# Flutter web bundle synced into admin-web public dir at deploy time
+apps/admin-web/public/app/
+
 # Playwright
 **/test-results/
 **/playwright-report/

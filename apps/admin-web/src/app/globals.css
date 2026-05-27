@@ -131,3 +131,18 @@ body {
   position: relative;
   z-index: 1;
 }
+
+/* Marketing landing — shared visual primitives. */
+.brand-mark {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+}
+
+.hero-glow {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(15, 118, 110, 0.35), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(14, 116, 144, 0.25), transparent 60%);
+}
+
+.dot-accent {
+  background: var(--accent);
+}
