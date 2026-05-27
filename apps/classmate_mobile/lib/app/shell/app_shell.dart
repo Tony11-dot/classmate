@@ -708,63 +708,196 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
     final showChildBanner = isParent
         && loc.startsWith('/parent/')
         && loc != '/parent/home';
+    final navItems = _navItemsFor(l);
+    final width = MediaQuery.sizeOf(context).width;
+    // 900px is the same breakpoint Instagram/Twitter web use to switch
+    // from bottom nav to persistent left rail. Below that we stay in
+    // pure phone mode so the existing iOS 26 glass nav keeps owning the
+    // bottom edge; at and above 900 we lift the nav into a desktop rail.
+    final wide = width >= 900;
+
+    final body = showChildBanner
+        ? Column(children: [
+            const _ParentChildSwitcherBar(),
+            Expanded(child: widget.child),
+          ])
+        : widget.child;
+
+    if (wide && !widget.hideBottomNav) {
+      return Scaffold(
+        appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
+        drawer: widget.hideTopBar ? null : const MainDrawer(),
+        body: SafeArea(
+          child: Row(
+            children: [
+              _DesktopNavRail(
+                items: navItems,
+                index: widget.idx,
+                onTap: widget.onTap,
+              ),
+              const VerticalDivider(width: 1, thickness: 1),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    // Cap the main column at a comfortable reading width so
+                    // screens designed for phones don't stretch across a
+                    // 27" monitor. Instagram/Twitter web use the same
+                    // pattern. Per-screen layouts can opt into wider
+                    // multi-column views by checking MediaQuery themselves.
+                    constraints: const BoxConstraints(maxWidth: 820),
+                    child: body,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: widget.buildFab(context),
+      );
+    }
+
     return Scaffold(
       extendBody: true,
       drawerEnableOpenDragGesture: !widget.hideTopBar,
       drawer: widget.hideTopBar ? null : const MainDrawer(),
       appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
-      body: showChildBanner
-          ? Column(children: [
-              const _ParentChildSwitcherBar(),
-              Expanded(child: widget.child),
-            ])
-          : widget.child,
+      body: body,
       floatingActionButton: widget.buildFab(context),
       bottomNavigationBar: widget.hideBottomNav
           ? null
           : _PlatformCoreBottomNav(
-              items: widget.isAdminLike
-                  ? widget.isAdmin
-                      ? <_NavItem>[
-                          _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navDashboard),
-                          _NavItem(Icons.people_outline_rounded, Icons.people_rounded, l.navPeople),
-                          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navCohorts),
-                          _NavItem(Icons.manage_history_outlined, Icons.manage_history_rounded, l.adminScheduleTitle),
-                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-                        ]
-                      : <_NavItem>[
-                          // Secretary: Announcements | Students | Messages
-                          _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
-                          _NavItem(Icons.school_outlined, Icons.school_rounded, l.adminStudents),
-                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-                        ]
-                  : widget.isParent
-                      ? <_NavItem>[
-                          // Parent: Home | Schedule | Overview | Messages | NOVA
-                          _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
-                          _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                          _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-                          _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
-                        ]
-                      : widget.isTeacherLike
-                      ? <_NavItem>[
-                          _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                          _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
-                          _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-                        ]
-                      : <_NavItem>[
-                          _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
-                          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-                          _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
-                          _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-                          _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
-                        ],
+              items: navItems,
               index: widget.idx,
               onTap: widget.onTap,
             ),
+    );
+  }
+
+  List<_NavItem> _navItemsFor(AppLocalizations l) {
+    if (widget.isAdminLike) {
+      if (widget.isAdmin) {
+        return <_NavItem>[
+          _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navDashboard),
+          _NavItem(Icons.people_outline_rounded, Icons.people_rounded, l.navPeople),
+          _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navCohorts),
+          _NavItem(Icons.manage_history_outlined, Icons.manage_history_rounded, l.adminScheduleTitle),
+          _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+        ];
+      }
+      // Secretary: Announcements | Students | Messages
+      return <_NavItem>[
+        _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
+        _NavItem(Icons.school_outlined, Icons.school_rounded, l.adminStudents),
+        _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+      ];
+    }
+    if (widget.isParent) {
+      // Parent: Home | Schedule | Overview | Messages | NOVA
+      return <_NavItem>[
+        _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
+        _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+        _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+        _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+        _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+      ];
+    }
+    if (widget.isTeacherLike) {
+      return <_NavItem>[
+        _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+        _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+        _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+        _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+        _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+      ];
+    }
+    // Student
+    return <_NavItem>[
+      _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
+      _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
+      _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
+      _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
+      _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+    ];
+  }
+}
+
+/// Persistent left rail used on desktop / wide viewports (>= 900px).
+/// Mirrors the role-aware nav from the bottom bar but renders as a
+/// vertical column like Instagram / Twitter / Snapchat web.
+class _DesktopNavRail extends StatelessWidget {
+  const _DesktopNavRail({
+    required this.items,
+    required this.index,
+    required this.onTap,
+  });
+
+  final List<_NavItem> items;
+  final int index;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final width = MediaQuery.sizeOf(context).width;
+    // 1200+ uses a full label-bearing rail (240px). Between 900 and 1200
+    // we stay compact (icon-only, 76px) so content has room to breathe.
+    final extended = width >= 1200;
+    final railWidth = extended ? 240.0 : 76.0;
+
+    return Container(
+      width: railWidth,
+      color: cs.surface,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, i) {
+          final item = items[i];
+          final selected = i == index;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: Material(
+              color: selected ? cs.primaryContainer : Colors.transparent,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () => onTap(i),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: extended ? 14 : 10,
+                    vertical: extended ? 12 : 14,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: extended
+                        ? MainAxisAlignment.start
+                        : MainAxisAlignment.center,
+                    children: [
+                      _BadgedIcon(
+                        icon: selected ? item.selectedIcon : item.icon,
+                        badge: item.badge,
+                      ),
+                      if (extended) ...[
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            item.label,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                                  color: selected
+                                      ? cs.onPrimaryContainer
+                                      : cs.onSurface,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

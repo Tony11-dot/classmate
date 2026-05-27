@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,63 +69,8 @@ class ClassMateApp extends ConsumerWidget {
           },
           child: scaledChild,
         );
-        final framed = kIsWeb
-            ? _WebPhoneFrame(child: dismissOnDragChild)
-            : dismissOnDragChild;
-        return _NotificationReceiverHost(child: framed);
+        return _NotificationReceiverHost(child: dismissOnDragChild);
       },
-    );
-  }
-}
-
-/// Wraps the whole app in a centered phone-shaped frame when running on
-/// web on a wide viewport. Below the breakpoint the child fills the
-/// viewport edge-to-edge — same behavior as native mobile. Above it, the
-/// app renders inside a fixed-width column flanked by a subtle gradient
-/// so the existing mobile UI doesn't stretch awkwardly across a 27"
-/// monitor. Per-screen responsive layouts can opt out by checking
-/// MediaQuery.sizeOf(context).width themselves.
-class _WebPhoneFrame extends StatelessWidget {
-  const _WebPhoneFrame({required this.child});
-
-  final Widget child;
-
-  static const double _frameWidth = 520;
-  static const double _breakpoint = 720;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    if (size.width < _breakpoint) return child;
-
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = isDark ? Colors.black : const Color(0xFFF2F2F7);
-    final frameTint = isDark
-        ? cs.surfaceContainerHighest
-        : Colors.white;
-
-    return ColoredBox(
-      color: bg,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _frameWidth),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: frameTint,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.15),
-                  blurRadius: 40,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            child: ClipRect(child: child),
-          ),
-        ),
-      ),
     );
   }
 }
