@@ -2893,5 +2893,8 @@
   "adminExportPasswordsOn": "ستظهر كلمات المرور في التصدير — تعامل مع الملف بأمان.",
   "adminExportPasswordsOff": "لن يحتوي التصدير على أي كلمات مرور.",
   "adminExportPdfUserDirectory": "دليل المستخدمين",
-  "adminExportPdfUsersCount": "{count, plural, one{مستخدم واحد} other{{count} مستخدمين}}"
+  "adminExportPdfUsersCount": "{count, plural, one{مستخدم واحد} other{{count} مستخدمين}}",
+
+  "teacherAttachFromMaterials": "من المواد",
+  "teacherUploadFiles": "رفع ملفات"
 }

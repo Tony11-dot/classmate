@@ -7687,4 +7687,10 @@ class AppLocalizationsHe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get teacherAttachFromMaterials => 'מחומרים';
+
+  @override
+  String get teacherUploadFiles => 'העלה קבצים';
 }

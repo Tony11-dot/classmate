@@ -7739,4 +7739,10 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get teacherAttachFromMaterials => 'Из материалов';
+
+  @override
+  String get teacherUploadFiles => 'Загрузить файлы';
 }

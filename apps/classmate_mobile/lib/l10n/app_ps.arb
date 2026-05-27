@@ -3635,5 +3635,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "teacherAttachFromMaterials": "‹‹From materials››",
+  "teacherUploadFiles": "‹‹Upload files››"
 }

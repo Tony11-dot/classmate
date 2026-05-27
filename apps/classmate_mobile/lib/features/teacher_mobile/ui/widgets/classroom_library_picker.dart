@@ -28,6 +28,8 @@ class ClassroomLibraryPickerSheet extends ConsumerStatefulWidget {
     required this.kind,
     required this.alreadyAttachedTeacherIds,
     this.prefillSubject,
+    this.prefillCohortIds,
+    this.prefillStudentIds,
   });
 
   final ClassroomLibraryKind kind;
@@ -40,6 +42,13 @@ class ClassroomLibraryPickerSheet extends ConsumerStatefulWidget {
   /// Hint passed to the "Create new" flow so the new library item
   /// defaults to the classroom's subject. All editable in the add screen.
   final String? prefillSubject;
+
+  /// Audience hints — cohort + individual-student ids — that the new
+  /// library item should default to. Used so a material created from
+  /// inside an exam/assignment auto-targets the same audience without
+  /// the teacher having to reselect. Editable on the add screen.
+  final List<String>? prefillCohortIds;
+  final List<String>? prefillStudentIds;
 
   @override
   ConsumerState<ClassroomLibraryPickerSheet> createState() =>
@@ -123,6 +132,10 @@ class _ClassroomLibraryPickerSheetState
       extra: <String, dynamic>{
         if ((widget.prefillSubject ?? '').isNotEmpty)
           'subject': widget.prefillSubject,
+        if ((widget.prefillCohortIds ?? const []).isNotEmpty)
+          'cohortIds': widget.prefillCohortIds,
+        if ((widget.prefillStudentIds ?? const []).isNotEmpty)
+          'studentIds': widget.prefillStudentIds,
       },
     );
     if (!mounted) return;
@@ -319,6 +332,8 @@ Future<String?> showClassroomLibraryPicker({
   required ClassroomLibraryKind kind,
   required Set<String> alreadyAttachedTeacherIds,
   String? prefillSubject,
+  List<String>? prefillCohortIds,
+  List<String>? prefillStudentIds,
 }) {
   final cs = Theme.of(context).colorScheme;
   return showModalBottomSheet<String>(
@@ -334,6 +349,8 @@ Future<String?> showClassroomLibraryPicker({
       kind: kind,
       alreadyAttachedTeacherIds: alreadyAttachedTeacherIds,
       prefillSubject: prefillSubject,
+      prefillCohortIds: prefillCohortIds,
+      prefillStudentIds: prefillStudentIds,
     ),
   );
 }

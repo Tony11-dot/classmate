@@ -3271,5 +3271,8 @@
   "adminExportPdfUsersCount": "{count, plural, one{{count} user} other{{count} users}}",
   "@adminExportPdfUsersCount": {
     "placeholders": { "count": { "type": "int" } }
-  }
+  },
+
+  "teacherAttachFromMaterials": "From materials",
+  "teacherUploadFiles": "Upload files"
 }

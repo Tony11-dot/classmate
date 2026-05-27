@@ -7806,4 +7806,10 @@ class AppLocalizationsPs extends AppLocalizations {
     );
     return '‹‹$_temp0››';
   }
+
+  @override
+  String get teacherAttachFromMaterials => '‹‹From materials››';
+
+  @override
+  String get teacherUploadFiles => '‹‹Upload files››';
 }

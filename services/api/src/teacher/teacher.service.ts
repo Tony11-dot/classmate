@@ -3011,6 +3011,187 @@ export class TeacherService {
     return rows.map((r) => r.studentId);
   }
 
+  /// Attach a TeacherMaterial to a TeacherExam. The material's content
+  /// (its `url` and each file in its `attachments` JSON) is snapshotted
+  /// into the exam's `attachments` JSON with a `_sourceMaterialId`
+  /// marker so the student detail screen renders it as a normal file
+  /// attachment without any new client-side rendering. The material's
+  /// audience is then UNIONed with the exam's audience so it reaches
+  /// the wider set automatically (the user explicitly asked for this).
+  async attachTeacherMaterialToExam(user: any, examId: string, materialId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!materialId) throw new BadRequestException('materialId is required');
+
+    const exam = await this.prisma.teacherExam.findFirst({
+      where: { id: examId, teacherId },
+    });
+    if (!exam) throw new NotFoundException('Exam not found');
+
+    const material = await this.prisma.teacherMaterial.findFirst({
+      where: { id: materialId, teacherId },
+    });
+    if (!material) throw new NotFoundException('Material not found');
+
+    const cur = Array.isArray(exam.attachments)
+      ? (exam.attachments as any[])
+      : [];
+    const alreadyAttached = cur.some(
+      (a) => a && typeof a === 'object' && a._sourceMaterialId === material.id,
+    );
+    if (!alreadyAttached) {
+      const items = this._materialAttachmentSnapshot(material);
+      await this.prisma.teacherExam.update({
+        where: { id: exam.id },
+        data: { attachments: [...cur, ...items] as any },
+      });
+    }
+
+    await this._expandTeacherMaterialAudienceToTarget(material.id, {
+      targetType: exam.targetType,
+      targetCohortIds: exam.targetCohortIds,
+      targetStudentIds: exam.targetStudentIds,
+      targetGrades: exam.targetGrades,
+    });
+
+    return { ok: true, alreadyAttached };
+  }
+
+  /// Same shape as [attachTeacherMaterialToExam] but for assignments.
+  async attachTeacherMaterialToAssignment(
+    user: any,
+    assignmentId: string,
+    materialId: string,
+  ) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!materialId) throw new BadRequestException('materialId is required');
+
+    const asn = await this.prisma.teacherAssignment.findFirst({
+      where: { id: assignmentId, teacherId },
+    });
+    if (!asn) throw new NotFoundException('Assignment not found');
+
+    const material = await this.prisma.teacherMaterial.findFirst({
+      where: { id: materialId, teacherId },
+    });
+    if (!material) throw new NotFoundException('Material not found');
+
+    const cur = Array.isArray(asn.attachments)
+      ? (asn.attachments as any[])
+      : [];
+    const alreadyAttached = cur.some(
+      (a) => a && typeof a === 'object' && a._sourceMaterialId === material.id,
+    );
+    if (!alreadyAttached) {
+      const items = this._materialAttachmentSnapshot(material);
+      await this.prisma.teacherAssignment.update({
+        where: { id: asn.id },
+        data: { attachments: [...cur, ...items] as any },
+      });
+    }
+
+    await this._expandTeacherMaterialAudienceToTarget(material.id, {
+      targetType: asn.targetType,
+      targetCohortIds: asn.targetCohortIds,
+      targetStudentIds: asn.targetStudentIds,
+      targetGrades: asn.targetGrades,
+    });
+
+    return { ok: true, alreadyAttached };
+  }
+
+  /// Builds a flat list of attachment entries from a material — its
+  /// primary `url` (if set) plus every file in its `attachments` JSON,
+  /// each tagged with `_sourceMaterialId` so we can later identify them.
+  private _materialAttachmentSnapshot(material: any): any[] {
+    const out: any[] = [];
+    const primaryUrl =
+      typeof material.url === 'string' && material.url.length > 0
+        ? material.url
+        : '';
+    if (primaryUrl) {
+      out.push({
+        title: material.title,
+        url: primaryUrl,
+        _sourceMaterialId: material.id,
+        _sourceMaterialTitle: material.title,
+      });
+    }
+    const inner = Array.isArray(material.attachments)
+      ? material.attachments
+      : [];
+    for (const a of inner) {
+      if (a && typeof a === 'object') {
+        out.push({
+          ...a,
+          _sourceMaterialId: material.id,
+          _sourceMaterialTitle: material.title,
+        });
+      }
+    }
+    return out;
+  }
+
+  /// Expands a TeacherMaterial's audience to the union of its current
+  /// audience and another item's (exam, assignment, classroom roster).
+  /// Used by attach-* endpoints so the same library item automatically
+  /// reaches every cohort/grade/student of every container it's pulled
+  /// into. EVERYONE wins — once a material is shared school-wide it
+  /// stays school-wide even if other containers are narrower.
+  private async _expandTeacherMaterialAudienceToTarget(
+    materialId: string,
+    target: {
+      targetType: any;
+      targetCohortIds: string[];
+      targetStudentIds: string[];
+      targetGrades: number[];
+    },
+  ) {
+    const cur = await this.prisma.teacherMaterial.findUnique({
+      where: { id: materialId },
+      select: {
+        targetType: true,
+        targetCohortIds: true,
+        targetStudentIds: true,
+        targetGrades: true,
+      },
+    });
+    if (!cur) return;
+
+    const newCohorts = Array.from(
+      new Set([...cur.targetCohortIds, ...target.targetCohortIds]),
+    );
+    const newStudents = Array.from(
+      new Set([...cur.targetStudentIds, ...target.targetStudentIds]),
+    );
+    const newGrades = Array.from(
+      new Set([...cur.targetGrades, ...target.targetGrades]),
+    );
+    const newType =
+      cur.targetType === ('EVERYONE' as any) ||
+      target.targetType === ('EVERYONE' as any)
+        ? 'EVERYONE'
+        : cur.targetType;
+
+    const nothingChanged =
+      newCohorts.length === cur.targetCohortIds.length &&
+      newStudents.length === cur.targetStudentIds.length &&
+      newGrades.length === cur.targetGrades.length &&
+      newType === cur.targetType;
+    if (nothingChanged) return;
+
+    await this.prisma.teacherMaterial.update({
+      where: { id: materialId },
+      data: {
+        targetType: newType as any,
+        targetCohortIds: newCohorts,
+        targetStudentIds: newStudents,
+        targetGrades: newGrades,
+      },
+    });
+  }
+
   private async expandTeacherMaterialAudience(teacherMaterialId: string, classroomId: string) {
     const memberIds = await this.classroomMemberIds(classroomId);
     if (!memberIds.length) return;

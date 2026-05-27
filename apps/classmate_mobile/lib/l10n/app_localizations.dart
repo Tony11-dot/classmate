@@ -13646,6 +13646,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} user} other{{count} users}}'**
   String adminExportPdfUsersCount(int count);
+
+  /// No description provided for @teacherAttachFromMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'From materials'**
+  String get teacherAttachFromMaterials;
+
+  /// No description provided for @teacherUploadFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload files'**
+  String get teacherUploadFiles;
 }
 
 class _AppLocalizationsDelegate

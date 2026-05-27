@@ -10,6 +10,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import 'widgets/classroom_library_picker.dart';
 
 class TeacherAddAssignmentScreen extends ConsumerStatefulWidget {
   const TeacherAddAssignmentScreen({
@@ -47,6 +48,11 @@ class _TeacherAddAssignmentScreenState
   String? _selectedSubject;
   DateTime? _dueDate;
   final List<Map<String, dynamic>> _attachments = [];
+  /// Materials staged in the picker but not yet attached server-side
+  /// (the attach happens after the assignment is saved, since we need
+  /// the assignment id). Each id also has a placeholder card in
+  /// [_attachments] so the teacher sees it before save.
+  final Set<String> _pendingMaterialIds = {};
 
   // ── Targeting ────────────────────────────────────────────────────────────────
   String _targetType = 'EVERYONE';
@@ -197,6 +203,50 @@ class _TeacherAddAssignmentScreenState
     } catch (_) {}
   }
 
+  /// Opens the library picker so an existing material can be stamped
+  /// into the assignment. New materials created from inside the picker
+  /// inherit subject + audience from this assignment.
+  Future<void> _pickMaterial() async {
+    final picked = await showClassroomLibraryPicker(
+      context: context,
+      kind: ClassroomLibraryKind.material,
+      alreadyAttachedTeacherIds: _pendingMaterialIds,
+      prefillSubject: _selectedSubject,
+      prefillCohortIds: _selectedCohortIds.toList(),
+      prefillStudentIds: _selectedStudentIds.toList(),
+    );
+    if (picked == null || picked.isEmpty || !mounted) return;
+    try {
+      final mats = await ref
+          .read(teacherMobileRepositoryProvider)
+          .listTeacherMaterials();
+      final mat = mats.firstWhere(
+        (m) => (m['id'] ?? '').toString() == picked,
+        orElse: () => const {},
+      );
+      if (!mounted) return;
+      setState(() {
+        _pendingMaterialIds.add(picked);
+        _attachments.add({
+          'name': (mat['title'] as String?) ?? 'Material',
+          'subject': mat['subject'],
+          '_sourceMaterialId': picked,
+          '_pendingMaterial': true,
+        });
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _pendingMaterialIds.add(picked);
+        _attachments.add({
+          'name': 'Material',
+          '_sourceMaterialId': picked,
+          '_pendingMaterial': true,
+        });
+      });
+    }
+  }
+
   Future<void> _pickFiles() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
@@ -254,8 +304,15 @@ class _TeacherAddAssignmentScreenState
               ? 'STUDENTS'
               : 'EVERYONE';
 
+      // Strip pending-material rows before sending; they're attached
+      // via the dedicated /attach-material endpoint after save.
+      final attsForSave = _attachments
+          .where((a) => a['_pendingMaterial'] != true)
+          .toList();
+      final repo = ref.read(teacherMobileRepositoryProvider);
+      String savedAsnId;
       if (_isEditing) {
-        await ref.read(teacherMobileRepositoryProvider).updateTeacherAssignment(_editingId, {
+        await repo.updateTeacherAssignment(_editingId, {
           'title': title,
           'description': _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
           'subject': _selectedSubject,
@@ -265,11 +322,12 @@ class _TeacherAddAssignmentScreenState
           'targetCohortIds': _selectedCohortIds.toList(),
           'targetStudentIds': _selectedStudentIds.toList(),
           'targetGrades': _selectedGrades.toList(),
-          'attachments': _attachments,
+          'attachments': attsForSave,
           'published': published,
         });
+        savedAsnId = _editingId;
       } else {
-        await ref.read(teacherMobileRepositoryProvider).createTeacherAssignmentV2(
+        final created = await repo.createTeacherAssignmentV2(
           title: title,
           description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
           courseId: _selectedCourseId,
@@ -280,10 +338,25 @@ class _TeacherAddAssignmentScreenState
           targetCohortIds: _selectedCohortIds.toList(),
           targetStudentIds: _selectedStudentIds.toList(),
           targetGrades: _selectedGrades.toList(),
-          attachments: _attachments,
+          attachments: attsForSave,
           published: published,
         );
+        savedAsnId = (created['id'] ?? '').toString();
       }
+
+      // Attach every staged material; each call also UNIONs the
+      // material's audience with the assignment's so it follows.
+      for (final mid in _pendingMaterialIds) {
+        try {
+          await repo.attachMaterialToAssignment(
+            assignmentId: savedAsnId,
+            materialId: mid,
+          );
+        } catch (_) {
+          // Soft-fail one bad material rather than rolling back save.
+        }
+      }
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(published ? AppLocalizations.of(context)!.teacherAssignmentPublished : AppLocalizations.of(context)!.teacherAssignmentDraftSaved)),
@@ -686,10 +759,24 @@ class _TeacherAddAssignmentScreenState
                           ),
                         );
                       }),
-                      OutlinedButton.icon(
-                        onPressed: _pickFiles,
-                        icon: const Icon(Icons.attach_file_rounded, size: 18),
-                        label: Text(AppLocalizations.of(context)!.teacherAttachFilesButton),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _pickMaterial,
+                              icon: const Icon(Icons.folder_open_rounded, size: 18),
+                              label: Text(AppLocalizations.of(context)!.teacherAttachFromMaterials),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _pickFiles,
+                              icon: const Icon(Icons.attach_file_rounded, size: 18),
+                              label: Text(AppLocalizations.of(context)!.teacherAttachFilesButton),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

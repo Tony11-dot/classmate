@@ -458,4 +458,20 @@ export class TeacherController {
 
   @Post('exams/:id/grades')
   saveExamGrades(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.saveExamGrades(req.user, id, body); }
+
+  // ── Attach existing library material to an exam / assignment ─────────────
+  // Mirrors the classroom-attach pattern. When called, the material's own
+  // audience (targetCohortIds / targetStudentIds / targetGrades) is expanded
+  // to UNION with the exam/assignment's audience so the same library item
+  // automatically reaches the new audience too.
+
+  @Post('exams/:id/attach-material')
+  attachMaterialToExam(@Req() req: any, @Param('id') examId: string, @Body() body: any) {
+    return this.teacher.attachTeacherMaterialToExam(req.user, examId, String(body?.materialId ?? ''));
+  }
+
+  @Post('assignments/:id/attach-material')
+  attachMaterialToAssignment(@Req() req: any, @Param('id') assignmentId: string, @Body() body: any) {
+    return this.teacher.attachTeacherMaterialToAssignment(req.user, assignmentId, String(body?.materialId ?? ''));
+  }
 }

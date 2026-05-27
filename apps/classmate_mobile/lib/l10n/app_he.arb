@@ -2893,5 +2893,8 @@
   "adminExportPasswordsOn": "סיסמאות יופיעו בייצוא — טפל בקובץ בזהירות.",
   "adminExportPasswordsOff": "הייצוא לא יכיל סיסמאות.",
   "adminExportPdfUserDirectory": "ספריית משתמשים",
-  "adminExportPdfUsersCount": "{count, plural, one{משתמש אחד} other{{count} משתמשים}}"
+  "adminExportPdfUsersCount": "{count, plural, one{משתמש אחד} other{{count} משתמשים}}",
+
+  "teacherAttachFromMaterials": "מחומרים",
+  "teacherUploadFiles": "העלה קבצים"
 }

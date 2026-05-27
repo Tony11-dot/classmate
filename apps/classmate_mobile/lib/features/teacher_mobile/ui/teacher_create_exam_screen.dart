@@ -11,6 +11,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/audience_section.dart';
+import 'widgets/classroom_library_picker.dart';
 
 class TeacherCreateExamScreen extends ConsumerStatefulWidget {
   const TeacherCreateExamScreen({super.key, this.initialExam});
@@ -34,6 +35,11 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   DateTime? _selectedDate;
   bool _published = true;
   final List<Map<String, dynamic>> _attachments = [];
+  /// TeacherMaterial ids picked from the library that we'll attach to
+  /// the exam via /attach-material after the exam itself is saved (or
+  /// updated). Each id also gets a placeholder card in [_attachments]
+  /// so the teacher sees it staged before save.
+  final Set<String> _pendingMaterialIds = {};
   bool _saving = false;
 
   final Set<String> _selectedCohortIds = {};
@@ -136,6 +142,54 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
   List<String> get _subjects => _schoolSubjects;
 
+  /// Opens the teacher's material library so an existing material can be
+  /// stamped into the exam's attachments. The new material flow inside
+  /// the picker inherits the exam's subject + audience (cohorts +
+  /// individual students) so the just-created material defaults to the
+  /// same target set — every field still editable on the add screen.
+  Future<void> _pickMaterial() async {
+    final picked = await showClassroomLibraryPicker(
+      context: context,
+      kind: ClassroomLibraryKind.material,
+      alreadyAttachedTeacherIds: _pendingMaterialIds,
+      prefillSubject: _selectedSubject,
+      prefillCohortIds: _selectedCohortIds.toList(),
+      prefillStudentIds: _selectedStudentIds.toList(),
+    );
+    if (picked == null || picked.isEmpty || !mounted) return;
+    // Fetch the picked material's metadata so we can show a card.
+    try {
+      final mats = await ref
+          .read(teacherMobileRepositoryProvider)
+          .listTeacherMaterials();
+      final mat = mats.firstWhere(
+        (m) => (m['id'] ?? '').toString() == picked,
+        orElse: () => const {},
+      );
+      if (!mounted) return;
+      setState(() {
+        _pendingMaterialIds.add(picked);
+        _attachments.add({
+          'title': (mat['title'] as String?) ?? 'Material',
+          'subject': mat['subject'],
+          '_sourceMaterialId': picked,
+          '_pendingMaterial': true,
+        });
+      });
+    } catch (_) {
+      // Even if the lookup fails, we can still queue the attach by id.
+      if (!mounted) return;
+      setState(() {
+        _pendingMaterialIds.add(picked);
+        _attachments.add({
+          'title': 'Material',
+          '_sourceMaterialId': picked,
+          '_pendingMaterial': true,
+        });
+      });
+    }
+  }
+
   Future<void> _pickFiles() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: true);
     if (result == null) return;
@@ -197,8 +251,13 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           ? _courses.where((c) => c.subject == _selectedSubject).firstOrNull?.id
           : _courses.firstOrNull?.id;
 
+      // Pending-material rows are written via /attach-material after the
+      // exam is saved (server expands material audience + snapshots files).
+      // They don't have a `url`, so the existing filter already excludes them.
+      final repo = ref.read(teacherMobileRepositoryProvider);
+      String savedExamId;
       if (_isEditing) {
-        await ref.read(teacherMobileRepositoryProvider).updateTeacherExam(
+        await repo.updateTeacherExam(
           _editingId,
           {
             'title': title,
@@ -211,11 +270,12 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             'targetCohortIds': _selectedCohortIds.toList(),
             'targetStudentIds': _selectedStudentIds.toList(),
             'targetGrades': _selectedGrades.toList(),
-            'attachments': _attachments.where((a) => a['_localOnly'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
+            'attachments': _attachments.where((a) => a['_localOnly'] != true && a['_pendingMaterial'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
           },
         );
+        savedExamId = _editingId;
       } else {
-        await ref.read(teacherMobileRepositoryProvider).createTeacherExam(
+        final created = await repo.createTeacherExam(
           title: title,
           subject: _selectedSubject,
           courseId: derivedCourseId,
@@ -226,9 +286,22 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           targetCohortIds: _selectedCohortIds.toList(),
           targetStudentIds: _selectedStudentIds.toList(),
           targetGrades: _selectedGrades.toList(),
-          attachments: _attachments.where((a) => a['_localOnly'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
+          attachments: _attachments.where((a) => a['_localOnly'] != true && a['_pendingMaterial'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
         );
+        savedExamId = (created['id'] ?? '').toString();
       }
+
+      // Attach every pending material to the saved exam. Each call also
+      // expands the material's audience to UNION with the exam's, so
+      // the material reaches the new cohort/student/grade set too.
+      for (final mid in _pendingMaterialIds) {
+        try {
+          await repo.attachMaterialToExam(examId: savedExamId, materialId: mid);
+        } catch (_) {
+          // Soft-fail: one bad material shouldn't roll back the exam save.
+        }
+      }
+
       if (!mounted) return;
       context.pop(true);
     } catch (e) {
@@ -406,10 +479,24 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                           ),
                         );
                       }),
-                      OutlinedButton.icon(
-                        onPressed: _pickFiles,
-                        icon: const Icon(Icons.file_upload_outlined, size: 18),
-                        label: Text(AppLocalizations.of(context)!.commonAttachStudyMaterials),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _pickMaterial,
+                              icon: const Icon(Icons.folder_open_rounded, size: 18),
+                              label: Text(AppLocalizations.of(context)!.teacherAttachFromMaterials),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _pickFiles,
+                              icon: const Icon(Icons.file_upload_outlined, size: 18),
+                              label: Text(AppLocalizations.of(context)!.teacherUploadFiles),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

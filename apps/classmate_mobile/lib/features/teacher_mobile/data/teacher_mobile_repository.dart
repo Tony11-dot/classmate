@@ -731,6 +731,31 @@ class TeacherMobileRepository {
     );
   }
 
+  /// Attach an existing TeacherMaterial to a TeacherExam. The server
+  /// snapshots the material's files into the exam's attachments and
+  /// UNIONs the material's audience with the exam's, so students of
+  /// the exam can also see the material in their materials feed.
+  Future<void> attachMaterialToExam({
+    required String examId,
+    required String materialId,
+  }) async {
+    await _api.postJson(
+      '/teacher/exams/$examId/attach-material',
+      body: <String, dynamic>{'materialId': materialId},
+    );
+  }
+
+  /// Same as [attachMaterialToExam] but for assignments.
+  Future<void> attachMaterialToAssignment({
+    required String assignmentId,
+    required String materialId,
+  }) async {
+    await _api.postJson(
+      '/teacher/assignments/$assignmentId/attach-material',
+      body: <String, dynamic>{'materialId': materialId},
+    );
+  }
+
   Future<void> attachMeetingToClassroom({
     required String classroomId,
     required String teacherMeetingId,

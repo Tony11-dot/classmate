@@ -3100,5 +3100,8 @@
   "adminExportPasswordsOn": "Пароли будут видны в экспорте — обращайтесь с файлом безопасно.",
   "adminExportPasswordsOff": "Экспорт не будет содержать паролей.",
   "adminExportPdfUserDirectory": "Справочник пользователей",
-  "adminExportPdfUsersCount": "{count, plural, one{{count} пользователь} few{{count} пользователя} many{{count} пользователей} other{{count} пользователей}}"
+  "adminExportPdfUsersCount": "{count, plural, one{{count} пользователь} few{{count} пользователя} many{{count} пользователей} other{{count} пользователей}}",
+
+  "teacherAttachFromMaterials": "Из материалов",
+  "teacherUploadFiles": "Загрузить файлы"
 }

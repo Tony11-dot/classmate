@@ -7872,4 +7872,10 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get teacherAttachFromMaterials => 'Depuis les supports';
+
+  @override
+  String get teacherUploadFiles => 'Téléverser des fichiers';
 }

@@ -2893,5 +2893,8 @@
   "adminExportPasswordsOn": "Les mots de passe seront visibles dans l'export — manipulez le fichier avec précaution.",
   "adminExportPasswordsOff": "L'export ne contiendra aucun mot de passe.",
   "adminExportPdfUserDirectory": "Annuaire des utilisateurs",
-  "adminExportPdfUsersCount": "{count, plural, one{{count} utilisateur} other{{count} utilisateurs}}"
+  "adminExportPdfUsersCount": "{count, plural, one{{count} utilisateur} other{{count} utilisateurs}}",
+
+  "teacherAttachFromMaterials": "Depuis les supports",
+  "teacherUploadFiles": "Téléverser des fichiers"
 }
