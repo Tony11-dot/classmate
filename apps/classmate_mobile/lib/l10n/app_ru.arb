@@ -263,6 +263,8 @@
   "loginTitle": "Вход для учеников и учителей",
   "loginSubtitle": "Войдите, чтобы продолжить",
   "loginSignIn": "Войти",
+  "loginWelcomeTitle": "С возвращением",
+  "loginWelcomeSubtitle": "Войдите в свой аккаунт ClassMate.",
   "loginSigningIn": "Вход…",
   "loginEmailLabel": "Email",
   "loginPasswordLabel": "Пароль",

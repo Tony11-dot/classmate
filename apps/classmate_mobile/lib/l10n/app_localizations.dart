@@ -1095,6 +1095,18 @@ abstract class AppLocalizations {
   /// **'Sign in'**
   String get loginSignIn;
 
+  /// No description provided for @loginWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get loginWelcomeTitle;
+
+  /// No description provided for @loginWelcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your ClassMate account.'**
+  String get loginWelcomeSubtitle;
+
   /// No description provided for @loginSigningIn.
   ///
   /// In en, this message translates to:

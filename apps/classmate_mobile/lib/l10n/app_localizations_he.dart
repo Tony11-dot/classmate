@@ -593,6 +593,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get loginSignIn => 'התחבר';
 
   @override
+  String get loginWelcomeTitle => 'ברוך שובך';
+
+  @override
+  String get loginWelcomeSubtitle => 'התחבר לחשבון ClassMate שלך.';
+
+  @override
   String get loginSigningIn => 'מתחבר...';
 
   @override

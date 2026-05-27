@@ -238,6 +238,8 @@
   "loginTitle": "Connexion mobile pour élèves et enseignants",
   "loginSubtitle": "Les comptes enseignants ouvrent l'espace enseignant. Les comptes élèves restent dans l'expérience élève.",
   "loginSignIn": "Se connecter",
+  "loginWelcomeTitle": "Bon retour",
+  "loginWelcomeSubtitle": "Connectez-vous à votre compte ClassMate.",
   "loginSigningIn": "Connexion en cours...",
   "loginEmailLabel": "E-mail",
   "loginPasswordLabel": "Mot de passe",

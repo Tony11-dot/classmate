@@ -591,6 +591,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginSignIn => 'Войти';
 
   @override
+  String get loginWelcomeTitle => 'С возвращением';
+
+  @override
+  String get loginWelcomeSubtitle => 'Войдите в свой аккаунт ClassMate.';
+
+  @override
   String get loginSigningIn => 'Вход…';
 
   @override

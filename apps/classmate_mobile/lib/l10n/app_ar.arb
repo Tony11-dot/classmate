@@ -238,6 +238,8 @@
   "loginTitle": "تسجيل الدخول للجوال للطلاب والمعلمين",
   "loginSubtitle": "حسابات المعلمين تفتح مساحة المعلم. حسابات الطلاب تبقى في تجربة الطالب.",
   "loginSignIn": "تسجيل الدخول",
+  "loginWelcomeTitle": "مرحبًا بعودتك",
+  "loginWelcomeSubtitle": "سجّل الدخول إلى حسابك في ClassMate.",
   "loginSigningIn": "جارٍ تسجيل الدخول...",
   "loginEmailLabel": "البريد الإلكتروني",
   "loginPasswordLabel": "كلمة المرور",

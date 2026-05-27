@@ -599,6 +599,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginSignIn => 'تسجيل الدخول';
 
   @override
+  String get loginWelcomeTitle => 'مرحبًا بعودتك';
+
+  @override
+  String get loginWelcomeSubtitle => 'سجّل الدخول إلى حسابك في ClassMate.';
+
+  @override
   String get loginSigningIn => 'جارٍ تسجيل الدخول...';
 
   @override

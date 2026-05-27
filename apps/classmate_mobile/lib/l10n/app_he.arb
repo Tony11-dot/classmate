@@ -238,6 +238,8 @@
   "loginTitle": "התחברות בנייד לתלמידים ומורים",
   "loginSubtitle": "חשבונות מורים פותחים את סביבת המורה. חשבונות תלמידים נשארים בחוויית התלמיד.",
   "loginSignIn": "התחבר",
+  "loginWelcomeTitle": "ברוך שובך",
+  "loginWelcomeSubtitle": "התחבר לחשבון ClassMate שלך.",
   "loginSigningIn": "מתחבר...",
   "loginEmailLabel": "אימייל",
   "loginPasswordLabel": "סיסמה",

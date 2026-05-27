@@ -237,10 +237,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ),
       ),
       body: SafeArea(
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
-          children: [
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            // Same width budget the desktop shell uses for its main column.
+            // Below this width the column fills the viewport like on mobile.
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+              children: [
             Text(AppLocalizations.of(context)!.forgotPasswordTitle,
                 style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
@@ -414,7 +420,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   : 'The link expires in 1 hour and can only be used once.',
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

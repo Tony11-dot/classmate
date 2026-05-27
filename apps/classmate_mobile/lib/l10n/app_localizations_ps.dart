@@ -601,6 +601,12 @@ class AppLocalizationsPs extends AppLocalizations {
   String get loginSignIn => '‹‹Sign in››';
 
   @override
+  String get loginWelcomeTitle => '‹‹Welcome back››';
+
+  @override
+  String get loginWelcomeSubtitle => '‹‹Sign in to your ClassMate account.››';
+
+  @override
   String get loginSigningIn => '‹‹Signing in...››';
 
   @override

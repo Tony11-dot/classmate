@@ -608,6 +608,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginSignIn => 'Se connecter';
 
   @override
+  String get loginWelcomeTitle => 'Bon retour';
+
+  @override
+  String get loginWelcomeSubtitle => 'Connectez-vous à votre compte ClassMate.';
+
+  @override
   String get loginSigningIn => 'Connexion en cours...';
 
   @override

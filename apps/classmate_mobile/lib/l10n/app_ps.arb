@@ -263,6 +263,8 @@
   "loginTitle": "‹‹Mobile login for students and teachers››",
   "loginSubtitle": "‹‹Teacher accounts open the teacher workspace. Student accounts stay on the student experience.››",
   "loginSignIn": "‹‹Sign in››",
+  "loginWelcomeTitle": "‹‹Welcome back››",
+  "loginWelcomeSubtitle": "‹‹Sign in to your ClassMate account.››",
   "loginSigningIn": "‹‹Signing in...››",
   "loginEmailLabel": "‹‹Email or username››",
   "loginPasswordLabel": "‹‹Password››",
