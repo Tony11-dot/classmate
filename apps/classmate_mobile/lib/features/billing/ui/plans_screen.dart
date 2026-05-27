@@ -235,7 +235,7 @@ class _ManageSubscriptionButton extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     Uri uri;
     if (kIsWeb) {
-      uri = Uri.parse('https://classmateapp.org/account/billing');
+      uri = Uri.parse('https://tony11-dot.github.io/classmate-legal/');
     } else if (Platform.isIOS) {
       uri = Uri.parse('itms-apps://apps.apple.com/account/subscriptions');
     } else if (Platform.isAndroid) {

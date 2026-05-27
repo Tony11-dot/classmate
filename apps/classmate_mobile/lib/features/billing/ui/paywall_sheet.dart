@@ -364,7 +364,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                       ),
                       TextButton(
                         onPressed: () => launchUrl(
-                          Uri.parse('https://classmateapp.org/privacy'),
+                          Uri.parse('https://tony11-dot.github.io/classmate-legal/privacy.html'),
                           mode: LaunchMode.externalApplication,
                         ),
                         style: TextButton.styleFrom(
