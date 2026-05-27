@@ -56,10 +56,13 @@ model School {
 model User {
   id                      String                   @id @default(uuid())
   email                   String?                  @unique
-  /// Required primary login identifier. Generated automatically from the
-  /// email local-part on signup if not explicitly supplied. NOT NULL is
-  /// enforced via 20260527_username_required after a backfill pass.
-  username                String                   @unique
+  /// Primary login identifier. Generated automatically from the email
+  /// local-part on signup if not explicitly supplied. Nullable on the
+  /// column for back-compat with legacy NULL rows (4 such on prod as of
+  /// 2026-05-27); application code now always writes a value. Tighten to
+  /// NOT NULL once the deploy switches from `prisma db push` to a proper
+  /// migration runner that respects the 20260527_username_required SQL.
+  username                String?                  @unique
   password                String
   /// Plaintext of the current password, kept so admins can re-export login
   /// credentials without resetting them. Updated on every write path that
