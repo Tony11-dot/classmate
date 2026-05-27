@@ -61,7 +61,13 @@ class CMApiException implements Exception {
 class CMApi {
   CMApi({this.token}) : _client = http.Client();
 
-  static const _timeout = Duration(seconds: 8);
+  // Railway's container can take 5–10s on a cold start (first request
+  // after the service has been idle). The previous 8s ceiling was
+  // killing every login attempt right at the cold-start boundary —
+  // user reports "request timed out" became the norm after periods of
+  // inactivity. 25s is comfortable for cold starts while still failing
+  // fast when the backend is truly down.
+  static const _timeout = Duration(seconds: 25);
 
   final String? token;
   final http.Client _client;

@@ -282,7 +282,7 @@ class MainDrawer extends ConsumerWidget {
                   // ── Admin/Secretary drawer: 3 focused categories ──────────
                   if (isParent) ...[
                     sectionHeader(l.sectionCore),
-                    navItem(icon: Icons.dashboard_rounded, label: 'Home', route: '/parent/home'),
+                    navItem(icon: Icons.dashboard_rounded, label: l.navHome, route: '/parent/home'),
                     navItem(icon: Icons.event_note_rounded, label: l.navSchedule, route: '/parent/schedule'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/parent/overview'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),

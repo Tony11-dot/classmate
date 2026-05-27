@@ -62,13 +62,13 @@ class AttachmentPill extends StatelessWidget {
 
     if (!context.mounted) return;
     if (isPdf) {
-      Navigator.of(context).push(MaterialPageRoute(
+      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
         builder: (_) => PdfViewerScreen(url: resolved, title: name.isNotEmpty ? name : 'Document'),
       ));
       return;
     }
     if (isImage) {
-      Navigator.of(context).push(MaterialPageRoute(
+      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
         builder: (_) => ImageViewerScreen(url: resolved, title: name.isNotEmpty ? name : 'Image'),
       ));
       return;

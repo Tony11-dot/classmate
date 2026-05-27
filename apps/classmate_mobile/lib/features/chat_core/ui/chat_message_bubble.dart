@@ -337,7 +337,7 @@ class ChatMessageBubble extends StatelessWidget {
     String mime = '',
   }) async {
     if (_isImageByUrl(url) || _isImageByMeta(kind, mime)) {
-      await Navigator.of(context).push(
+      await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (_) => ImageViewerScreen(url: url, label: label),
         ),
@@ -346,13 +346,13 @@ class ChatMessageBubble extends StatelessWidget {
     }
 
     if (_isVideoByUrl(url) || _isVideoByMeta(kind, mime)) {
-      await Navigator.of(context).push(
+      await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(builder: (_) => _InlineVideoViewerScreen(url: url)),
       );
       return;
     }
     if (_isPdfByUrl(url) || mime.trim().toLowerCase().contains('pdf')) {
-      await Navigator.of(context).push(
+      await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (_) => PdfViewerScreen(url: url, label: label),
         ),

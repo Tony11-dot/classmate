@@ -1292,7 +1292,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         : (local.isNotEmpty ? Uri.file(local).toString() : '');
 
     if (m.isImage && imageUrl.isNotEmpty) {
-      await Navigator.of(context).push(
+      await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (_) => ImageViewerScreen(url: imageUrl, label: label),
         ),
@@ -1311,7 +1311,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         : (local.isNotEmpty ? Uri.file(local).toString() : '');
 
     if (isPdf && pdfUrl.isNotEmpty) {
-      await Navigator.of(context).push(
+      await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute(
           builder: (_) => PdfViewerScreen(url: pdfUrl, label: label),
         ),

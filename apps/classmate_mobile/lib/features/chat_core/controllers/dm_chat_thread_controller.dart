@@ -619,8 +619,39 @@ class DmChatThreadController extends ChatThreadController {
     }
   }
 
+  ChatMessage? _findCachedMessage(String id) {
+    for (final m in _cachedMessages) {
+      if (m.id == id) return m;
+    }
+    for (final m in _optimisticMessages) {
+      if (m.id == id) return m;
+    }
+    return null;
+  }
+
+  // Mirrors the wire enum the server uses for replyToKind so the
+  // optimistic bubble's quoted preview chooses the right icon /
+  // truncation logic that ChatMessageBubble uses for real messages.
+  String? _kindToWire(ChatMessageKind k) => switch (k) {
+        ChatMessageKind.text => 'TEXT',
+        ChatMessageKind.image => 'IMAGE',
+        ChatMessageKind.voice => 'VOICE',
+        ChatMessageKind.file => 'FILE',
+        ChatMessageKind.poll => 'POLL',
+        ChatMessageKind.event => 'EVENT',
+        ChatMessageKind.system => 'SYSTEM',
+      };
+
   @override
   Future<void> sendText(String text, {String? replyToMessageId}) async {
+    // When the caller passed a replyToMessageId, look up the target in
+    // the current message cache so the optimistic bubble renders with
+    // the quoted-reply header on the FIRST frame. Without this the
+    // bubble paints as a plain message, then "blinks" into a reply when
+    // the server confirms — exactly the bug the user reported.
+    final replyTarget = replyToMessageId == null
+        ? null
+        : _findCachedMessage(replyToMessageId);
     final optimistic = ChatMessage(
       id: 'optimistic-${DateTime.now().millisecondsSinceEpoch}',
       senderId: _currentUserId,
@@ -630,6 +661,13 @@ class DmChatThreadController extends ChatThreadController {
       createdAt: DateTime.now(),
       isOwn: true,
       isOptimistic: true,
+      replyToMessageId: replyToMessageId,
+      replyToSenderName: replyTarget?.senderName,
+      replyToText: replyTarget?.text,
+      replyToKind: replyTarget == null
+          ? null
+          : _kindToWire(replyTarget.kind),
+      replyToMediaUrl: replyTarget?.mediaUrl,
     );
     _optimisticMessages.add(optimistic);
     // Trigger an immediate rebuild so the optimistic message appears in the list
@@ -690,6 +728,12 @@ class DmChatThreadController extends ChatThreadController {
     // Show optimistic messages immediately (local file paths shown while uploading).
     final optimistics = <ChatMessage>[];
     final guesses = files.map(_kindFromFile).toList();
+    // Reply target — only the FIRST optimistic carries the quoted
+    // header so it matches what the server returns (reply attaches to
+    // one message, not every file in the batch).
+    final replyTarget = replyToMessageId == null
+        ? null
+        : _findCachedMessage(replyToMessageId);
     for (var i = 0; i < files.length; i++) {
       final file = files[i];
       final g = guesses[i];
@@ -704,6 +748,13 @@ class DmChatThreadController extends ChatThreadController {
         createdAt: DateTime.now(),
         isOwn: true,
         isOptimistic: true,
+        replyToMessageId: i == 0 ? replyToMessageId : null,
+        replyToSenderName: i == 0 ? replyTarget?.senderName : null,
+        replyToText: i == 0 ? replyTarget?.text : null,
+        replyToKind: i == 0 && replyTarget != null
+            ? _kindToWire(replyTarget.kind)
+            : null,
+        replyToMediaUrl: i == 0 ? replyTarget?.mediaUrl : null,
       );
       optimistics.add(optimistic);
       _optimisticMessages.add(optimistic);
@@ -761,6 +812,9 @@ class DmChatThreadController extends ChatThreadController {
     String? replyToMessageId,
   }) async {
     // Optimistic voice bubble shown immediately using the local file path.
+    final replyTarget = replyToMessageId == null
+        ? null
+        : _findCachedMessage(replyToMessageId);
     final optimistic = ChatMessage(
       id: 'optimistic-${DateTime.now().millisecondsSinceEpoch}-voice',
       senderId: _currentUserId,
@@ -772,6 +826,13 @@ class DmChatThreadController extends ChatThreadController {
       createdAt: DateTime.now(),
       isOwn: true,
       isOptimistic: true,
+      replyToMessageId: replyToMessageId,
+      replyToSenderName: replyTarget?.senderName,
+      replyToText: replyTarget?.text,
+      replyToKind: replyTarget == null
+          ? null
+          : _kindToWire(replyTarget.kind),
+      replyToMediaUrl: replyTarget?.mediaUrl,
     );
     _optimisticMessages.add(optimistic);
     invalidate(); // show optimistic immediately; .then() will invalidate again post-upload
