@@ -5909,6 +5909,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminExportIncludePasswords => '‹‹Include Passwords››';
 
   @override
+  String get adminExportLanguageLabel => '‹‹Name language in the export››';
+
+  @override
   String get adminExportCsvButton => '‹‹Export CSV››';
 
   @override

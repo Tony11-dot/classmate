@@ -2278,6 +2278,7 @@
   "adminExportGradesTab": "שכבות",
   "adminExportOptionsTitle": "אפשרויות ייצוא",
   "adminExportIncludePasswords": "כלול סיסמאות",
+  "adminExportLanguageLabel": "שפת השמות בייצוא",
   "adminExportCsvButton": "ייצא CSV",
   "adminExportPdfButton": "ייצא PDF",
   "teacherCreateClassroomTooltip": "יצירת כיתה",

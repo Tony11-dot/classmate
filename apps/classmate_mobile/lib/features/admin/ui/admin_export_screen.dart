@@ -1039,6 +1039,24 @@ class _ExportOptionsSheet extends StatefulWidget {
 class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   bool _includePasswords = false;
   bool _exporting = false;
+  // Language picker for the export. Drives which name field
+  // (nameEn / nameAr / nameHe / nameFr / nameRu) becomes the primary
+  // "Name" column in the PDF and the first column in the CSV. Defaults
+  // to the app's current locale so the most-likely intent is preselected.
+  late String _lang = _initialLang();
+
+  String _initialLang() {
+    final code = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    return const ['en', 'ar', 'he', 'fr', 'ru'].contains(code) ? code : 'en';
+  }
+
+  String _nameForLang(Map<String, dynamic> u, String lang) {
+    final key = 'name${lang[0].toUpperCase()}${lang.substring(1)}';
+    final v = (u[key] ?? '').toString();
+    if (v.isNotEmpty) return v;
+    // Fall back to nameEn, then the raw `name` legacy field.
+    return (u['nameEn'] ?? u['name'] ?? '').toString();
+  }
 
   /// Source rect for the iOS share popover. iPad + newer iPhone share sheets
   /// require a non-zero anchor or they throw
@@ -1315,7 +1333,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               final cells = withPasswords
                   ? [
                       '${i + 1}',
-                      u['nameEn'] ?? '',
+                      _nameForLang(u, _lang),
                       _localizedRoleName(l, role),
                       u['email'] ?? '',
                       u['username'] ?? '',
@@ -1327,7 +1345,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                     ]
                   : [
                       '${i + 1}',
-                      u['nameEn'] ?? '',
+                      _nameForLang(u, _lang),
                       _localizedRoleName(l, role),
                       u['email'] ?? '',
                       u['username'] ?? '',
@@ -1438,6 +1456,40 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               value: _includePasswords,
               activeColor: cs.error,
               onChanged: (v) => setState(() => _includePasswords = v),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l.adminExportLanguageLabel,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          // SingleChildScrollView lets the 5 chips fit on narrow phones
+          // without overflowing — the segment row would otherwise hard-
+          // wrap or shrink labels into illegible glyphs.
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final entry in const [
+                  ('en', '🇬🇧', 'EN'),
+                  ('ar', '🇸🇦', 'AR'),
+                  ('he', '🇮🇱', 'HE'),
+                  ('fr', '🇫🇷', 'FR'),
+                  ('ru', '🇷🇺', 'RU'),
+                ])
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ChoiceChip(
+                      label: Text('${entry.$2}  ${entry.$3}'),
+                      selected: _lang == entry.$1,
+                      onSelected: (_) => setState(() => _lang = entry.$1),
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 16),

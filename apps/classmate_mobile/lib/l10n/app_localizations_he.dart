@@ -5819,6 +5819,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminExportIncludePasswords => 'כלול סיסמאות';
 
   @override
+  String get adminExportLanguageLabel => 'שפת השמות בייצוא';
+
+  @override
   String get adminExportCsvButton => 'ייצא CSV';
 
   @override

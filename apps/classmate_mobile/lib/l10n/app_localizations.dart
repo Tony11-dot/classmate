@@ -10497,6 +10497,12 @@ abstract class AppLocalizations {
   /// **'Include Passwords'**
   String get adminExportIncludePasswords;
 
+  /// No description provided for @adminExportLanguageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name language in the export'**
+  String get adminExportLanguageLabel;
+
   /// No description provided for @adminExportCsvButton.
   ///
   /// In en, this message translates to:

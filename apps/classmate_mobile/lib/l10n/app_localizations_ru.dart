@@ -5806,6 +5806,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminExportIncludePasswords => 'Включить пароли';
 
   @override
+  String get adminExportLanguageLabel => 'Язык имён в экспорте';
+
+  @override
   String get adminExportCsvButton => 'Экспорт CSV';
 
   @override

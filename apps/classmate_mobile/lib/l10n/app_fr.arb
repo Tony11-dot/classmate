@@ -2278,6 +2278,7 @@
   "adminExportGradesTab": "Niveaux",
   "adminExportOptionsTitle": "Options d'export",
   "adminExportIncludePasswords": "Inclure les mots de passe",
+  "adminExportLanguageLabel": "Langue des noms dans l'export",
   "adminExportCsvButton": "Exporter en CSV",
   "adminExportPdfButton": "Exporter en PDF",
   "teacherCreateClassroomTooltip": "Créer une classe",

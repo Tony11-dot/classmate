@@ -5843,6 +5843,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminExportIncludePasswords => 'تضمين كلمات المرور';
 
   @override
+  String get adminExportLanguageLabel => 'لغة الأسماء في التصدير';
+
+  @override
   String get adminExportCsvButton => 'تصدير CSV';
 
   @override

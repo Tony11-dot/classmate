@@ -2485,6 +2485,7 @@
   "adminExportGradesTab": "Классы",
   "adminExportOptionsTitle": "Параметры экспорта",
   "adminExportIncludePasswords": "Включить пароли",
+  "adminExportLanguageLabel": "Язык имён в экспорте",
   "adminExportCsvButton": "Экспорт CSV",
   "adminExportPdfButton": "Экспорт PDF",
   "teacherCreateClassroomTooltip": "Создать класс",

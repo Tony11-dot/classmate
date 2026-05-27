@@ -2278,6 +2278,7 @@
   "adminExportGradesTab": "الصفوف",
   "adminExportOptionsTitle": "خيارات التصدير",
   "adminExportIncludePasswords": "تضمين كلمات المرور",
+  "adminExportLanguageLabel": "لغة الأسماء في التصدير",
   "adminExportCsvButton": "تصدير CSV",
   "adminExportPdfButton": "تصدير PDF",
   "teacherCreateClassroomTooltip": "إنشاء صف",
