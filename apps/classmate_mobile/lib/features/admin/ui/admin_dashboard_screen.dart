@@ -116,7 +116,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                         if (isAdmin)
                           _QuickAction(
                             icon: Icons.shield_outlined,
-                            label: 'Password requests',
+                            label: l.adminPasswordReqTitle,
                             color: cs.error,
                             onTap: () => context.push('/admin/password-requests'),
                           ),

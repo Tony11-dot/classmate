@@ -99,6 +99,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get roleParent => 'הורה';
 
   @override
+  String get roleStudent => 'תלמיד';
+
+  @override
   String get titleSchedule => 'לוח זמנים';
 
   @override
@@ -4802,6 +4805,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminSecretaries => 'מזכירים';
 
   @override
+  String get adminAdmins => 'מנהלים';
+
+  @override
   String get adminTodaySessions => 'שיעורים היום';
 
   @override
@@ -5699,6 +5705,15 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminScheduleByStudent => 'לפי תלמיד ▾';
+
+  @override
+  String get adminScheduleByGrade => 'לפי כיתה ▾';
+
+  @override
+  String get navSupport => 'תמיכה';
+
+  @override
+  String get navAbout => 'אודות';
 
   @override
   String get adminScheduleAddGrade => 'הוסף שכבה';
@@ -6707,6 +6722,21 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminPasswordReqTitle => 'בקשות סיסמה';
+
+  @override
+  String get adminPasswordReqBlurb =>
+      'משתמשים מבית הספר שלך שביקשו את אישורך לשינוי סיסמה.';
+
+  @override
+  String adminPasswordReqWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משתמשים ממתינים לאישור שלך.',
+      one: 'משתמש אחד ממתין לאישור שלך.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get adminPasswordReqWantsChange =>

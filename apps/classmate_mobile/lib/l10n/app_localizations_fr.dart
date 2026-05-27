@@ -99,6 +99,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get roleParent => 'Parent';
 
   @override
+  String get roleStudent => 'Élève';
+
+  @override
   String get titleSchedule => 'Agenda';
 
   @override
@@ -4917,6 +4920,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminSecretaries => 'Secrétaires';
 
   @override
+  String get adminAdmins => 'Administrateurs';
+
+  @override
   String get adminTodaySessions => 'Sessions d\'aujourd\'hui';
 
   @override
@@ -5838,6 +5844,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminScheduleByStudent => 'Par élève ▾';
+
+  @override
+  String get adminScheduleByGrade => 'Par niveau ▾';
+
+  @override
+  String get navSupport => 'Assistance';
+
+  @override
+  String get navAbout => 'À propos';
 
   @override
   String get adminScheduleAddGrade => 'Ajouter un niveau';
@@ -6865,6 +6880,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminPasswordReqTitle => 'Demandes de mot de passe';
+
+  @override
+  String get adminPasswordReqBlurb =>
+      'Utilisateurs de votre établissement qui demandent votre approbation pour changer leur mot de passe.';
+
+  @override
+  String adminPasswordReqWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count utilisateurs en attente de votre approbation.',
+      one: '1 utilisateur en attente de votre approbation.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get adminPasswordReqWantsChange =>

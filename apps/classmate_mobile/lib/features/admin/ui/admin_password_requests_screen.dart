@@ -171,8 +171,8 @@ class _Header extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           count == null
-              ? "Users from your school who've asked you to approve a password change."
-              : '$count user${count == 1 ? '' : 's'} waiting for your approval.',
+              ? AppLocalizations.of(context)!.adminPasswordReqBlurb
+              : AppLocalizations.of(context)!.adminPasswordReqWaiting(count!),
           style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
         ),
       ],

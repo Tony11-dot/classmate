@@ -99,6 +99,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get roleParent => '‹‹Parent››';
 
   @override
+  String get roleStudent => '‹‹Student››';
+
+  @override
   String get titleSchedule => '‹‹Schedule››';
 
   @override
@@ -4873,6 +4876,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminSecretaries => '‹‹Secretaries››';
 
   @override
+  String get adminAdmins => '‹‹Admins››';
+
+  @override
   String get adminTodaySessions => '‹‹Today\'s sessions››';
 
   @override
@@ -5786,6 +5792,15 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminScheduleByStudent => '‹‹By Student ▾››';
+
+  @override
+  String get adminScheduleByGrade => '‹‹By Grade ▾››';
+
+  @override
+  String get navSupport => '‹‹Support››';
+
+  @override
+  String get navAbout => '‹‹About››';
 
   @override
   String get adminScheduleAddGrade => '‹‹Add grade››';
@@ -6807,6 +6822,21 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminPasswordReqTitle => '‹‹Password requests››';
+
+  @override
+  String get adminPasswordReqBlurb =>
+      '‹‹Users from your school who\'ve asked you to approve a password change.››';
+
+  @override
+  String adminPasswordReqWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users waiting for your approval.',
+      one: '1 user waiting for your approval.',
+    );
+    return '‹‹$_temp0››';
+  }
 
   @override
   String get adminPasswordReqWantsChange =>

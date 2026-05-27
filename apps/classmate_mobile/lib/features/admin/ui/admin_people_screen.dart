@@ -31,7 +31,14 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
   String _search = '';
 
   static const _roles = ['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
-  static const _roleLabels = ['Students', 'Teachers', 'Parents', 'Secretaries', 'Admins'];
+
+  List<String> _roleLabels(AppLocalizations l) => [
+        l.adminStudents,
+        l.adminTeachers,
+        l.adminParents,
+        l.adminSecretaries,
+        l.adminAdmins,
+      ];
 
   @override
   void initState() {
@@ -91,7 +98,7 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
             controller: _tabs,
             isScrollable: true,
             tabAlignment: TabAlignment.start,
-            tabs: _roleLabels.map((l) => Tab(text: l)).toList(),
+            tabs: _roleLabels(l).map((label) => Tab(text: label)).toList(),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -445,7 +452,14 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   bool   _saving = false;
 
   static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
-  static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
+
+  List<String> _roleLabels(AppLocalizations l) => [
+        l.roleStudent,
+        l.roleTeacher,
+        l.roleSecretary,
+        l.roleParent,
+        l.roleAdmin,
+      ];
 
   String _roleTitleOf(AppLocalizations l) => switch (_role) {
     'TEACHER'   => l.adminAddTeacher,
@@ -687,7 +701,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: List.generate(_roles.length, (i) => ChoiceChip(
-                      label: Text(_roleLabels[i]),
+                      label: Text(_roleLabels(l)[i]),
                       selected: _role == _roles[i],
                       onSelected: (_) => setState(() { _role = _roles[i]; if (_role != 'STUDENT') _grade = null; }),
                     )),

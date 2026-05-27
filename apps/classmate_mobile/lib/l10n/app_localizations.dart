@@ -286,6 +286,12 @@ abstract class AppLocalizations {
   /// **'Parent'**
   String get roleParent;
 
+  /// No description provided for @roleStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get roleStudent;
+
   /// No description provided for @titleSchedule.
   ///
   /// In en, this message translates to:
@@ -8631,6 +8637,12 @@ abstract class AppLocalizations {
   /// **'Secretaries'**
   String get adminSecretaries;
 
+  /// No description provided for @adminAdmins.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins'**
+  String get adminAdmins;
+
   /// No description provided for @adminTodaySessions.
   ///
   /// In en, this message translates to:
@@ -10274,6 +10286,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'By Student ▾'**
   String get adminScheduleByStudent;
+
+  /// No description provided for @adminScheduleByGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'By Grade ▾'**
+  String get adminScheduleByGrade;
+
+  /// No description provided for @navSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get navSupport;
+
+  /// No description provided for @navAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get navAbout;
 
   /// No description provided for @adminScheduleAddGrade.
   ///
@@ -12032,6 +12062,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password requests'**
   String get adminPasswordReqTitle;
+
+  /// No description provided for @adminPasswordReqBlurb.
+  ///
+  /// In en, this message translates to:
+  /// **'Users from your school who\'ve asked you to approve a password change.'**
+  String get adminPasswordReqBlurb;
+
+  /// No description provided for @adminPasswordReqWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 user waiting for your approval.} other{{count} users waiting for your approval.}}'**
+  String adminPasswordReqWaiting(int count);
 
   /// No description provided for @adminPasswordReqWantsChange.
   ///

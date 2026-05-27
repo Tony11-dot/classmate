@@ -99,6 +99,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get roleParent => 'Родитель';
 
   @override
+  String get roleStudent => 'Ученик';
+
+  @override
   String get titleSchedule => 'Расписание';
 
   @override
@@ -4773,6 +4776,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminSecretaries => 'Секретари';
 
   @override
+  String get adminAdmins => 'Администраторы';
+
+  @override
   String get adminTodaySessions => 'Занятия сегодня';
 
   @override
@@ -5685,6 +5691,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminScheduleByStudent => 'По ученику ▾';
+
+  @override
+  String get adminScheduleByGrade => 'По классу ▾';
+
+  @override
+  String get navSupport => 'Поддержка';
+
+  @override
+  String get navAbout => 'О приложении';
 
   @override
   String get adminScheduleAddGrade => 'Добавить класс';
@@ -6719,6 +6734,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminPasswordReqTitle => 'Запросы пароля';
+
+  @override
+  String get adminPasswordReqBlurb =>
+      'Пользователи вашей школы, которые попросили вас одобрить смену пароля.';
+
+  @override
+  String adminPasswordReqWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count пользователя ожидают вашего одобрения.',
+      many: '$count пользователей ожидают вашего одобрения.',
+      few: '$count пользователя ожидают вашего одобрения.',
+      one: '$count пользователь ожидает вашего одобрения.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get adminPasswordReqWantsChange =>

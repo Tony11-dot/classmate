@@ -834,7 +834,7 @@ class _BellScheduleTabState extends ConsumerState<_BellScheduleTab> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Set start and end times for each period. Add or remove periods as needed.',
+                  l.adminSchoolBellHint,
                   style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurface, height: 1.4),
                 ),
               ),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/contracts/school_subject.dart';
@@ -10,6 +11,23 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 import 'admin_subject_detail_screen.dart';
+
+// Returns a locale-aware day name for dayOfWeek 0..6 where 0=Sun.
+// `short=true` returns the abbreviated form ("Mon"), false the long one
+// ("Monday"). The Flutter app's current locale is read from the
+// BuildContext via Localizations.localeOf.
+String _localizedDayName(BuildContext context, int dayOfWeek, {bool short = true}) {
+  // DateFormat uses 1=Mon..7=Sun, so we anchor to a known Monday
+  // (2024-01-01 was a Monday) and offset by dayOfWeek-1.
+  // dayOfWeek 0 (Sun) → anchor + 6, dayOfWeek 1 (Mon) → anchor + 0, ...
+  final anchor = DateTime(2024, 1, 1);
+  final offset = dayOfWeek == 0 ? 6 : dayOfWeek - 1;
+  final date = anchor.add(Duration(days: offset));
+  final locale = Localizations.localeOf(context).toString();
+  return short
+      ? DateFormat.E(locale).format(date)
+      : DateFormat.EEEE(locale).format(date);
+}
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -488,7 +506,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 ],
                 // Add Grade
                 _FilterChipItem(
-                  label: 'By Grade ▾',
+                  label: l.adminScheduleByGrade,
                   selected: false,
                   enabled: allGrades.any((g) => !_filterGrades.contains(g)),
                   onTap: () async {
@@ -658,7 +676,6 @@ class _ScheduleGrid extends StatelessWidget {
   /// in [AdminScheduleScreen.build].
   final int periodCount;
 
-  static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   static const double _headerH = 36;
   static const double _headerW = 48;
   static const double _cellW   = 110;
@@ -696,7 +713,7 @@ class _ScheduleGrid extends StatelessWidget {
                     height: _headerH,
                     alignment: Alignment.center,
                     child: Text(
-                      _dayShort[d],
+                      _localizedDayName(context, d, short: true),
                       style: theme.textTheme.labelSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: cs.primary,
@@ -2327,7 +2344,6 @@ class _DayPeriodRow extends StatefulWidget {
 }
 
 class _DayPeriodRowState extends State<_DayPeriodRow> {
-  static const _dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   static const _allDays = [0, 1, 2, 3, 4, 5, 6];
 
   @override
@@ -2364,7 +2380,7 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
             spacing: 6,
             runSpacing: 4,
             children: _allDays.map((d) => ChoiceChip(
-              label: Text(_dayShort[d], style: const TextStyle(fontSize: 12)),
+              label: Text(_localizedDayName(context, d, short: true), style: const TextStyle(fontSize: 12)),
               selected: widget.slot.dayOfWeek == d,
               visualDensity: VisualDensity.compact,
               onSelected: (_) {
@@ -3232,8 +3248,6 @@ class _SquarePeriodsSheet extends ConsumerStatefulWidget {
 }
 
 class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
-  static const _dayLong = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
   /// Working copy — lets us strip rows out optimistically on delete without
   /// having to round-trip through the parent rebuild.
   late List<Map<String, dynamic>> _slots;
@@ -3306,7 +3320,7 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      '${_dayLong[widget.day]} · Period ${widget.period}',
+                      '${_localizedDayName(context, widget.day, short: false)} · ${AppLocalizations.of(context)!.adminSchedulePeriodLabel} ${widget.period}',
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),

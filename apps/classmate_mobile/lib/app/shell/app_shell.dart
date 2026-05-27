@@ -314,8 +314,8 @@ class AppShell extends ConsumerWidget {
     '/profile' => l.navProfile,
     '/plans' => l.navPlans,
     '/settings' => l.navSettings,
-    '/about' => 'About',
-    '/support' => 'Support',
+    '/about' => l.navAbout,
+    '/support' => l.navSupport,
     _ => l.roleSecretary,
   };
 
@@ -344,8 +344,8 @@ class AppShell extends ConsumerWidget {
     '/profile' => l.navProfile,
     '/plans' => l.navPlans,
     '/settings' => l.navSettings,
-    '/about' => 'About',
-    '/support' => 'Support',
+    '/about' => l.navAbout,
+    '/support' => l.navSupport,
     _ => l.navTeacherWorkspace,
   };
 
@@ -370,8 +370,8 @@ class AppShell extends ConsumerWidget {
     '/profile' => l.navProfile,
     '/plans' => l.navPlans,
     '/settings' => l.navSettings,
-    '/about' => 'About',
-    '/support' => 'Support',
+    '/about' => l.navAbout,
+    '/support' => l.navSupport,
     _ => l.titleSchedule,
   };
 
@@ -394,8 +394,8 @@ class AppShell extends ConsumerWidget {
     '/profile' => l.navProfile,
     '/plans' => l.navPlans,
     '/settings' => l.navSettings,
-    '/about' => 'About',
-    '/support' => 'Support',
+    '/about' => l.navAbout,
+    '/support' => l.navSupport,
     _ => l.navHome,
   };
 

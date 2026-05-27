@@ -180,8 +180,8 @@ class _LoginCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: const ClassMateLogo(height: 56)),
-          const SizedBox(height: 20),
+          Center(child: const ClassMateLogo(height: 96)),
+          const SizedBox(height: 18),
           Text(
             l.loginWelcomeTitle,
             textAlign: TextAlign.center,
