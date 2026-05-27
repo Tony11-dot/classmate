@@ -6922,6 +6922,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get paywallNotNow => 'Не сейчас';
 
   @override
+  String get paywallWebOnlyTitle => 'Покупка через мобильное приложение';
+
+  @override
+  String get paywallWebOnlyBody =>
+      'Подписки и пополнения оформляются через App Store или Google Play. Откройте ClassMate на iPhone, iPad или Android, чтобы оформить подписку — ваш аккаунт и токены синхронизируются между устройствами.';
+
+  @override
+  String get paywallWebOnlyDismiss => 'Понятно';
+
+  @override
   String get paywallTermsSubscription =>
       'Подписываясь, вы соглашаетесь с Условиями и Политикой конфиденциальности ClassMate. Подписки продлеваются автоматически каждый месяц до отмены. Управление в любое время через ваш аккаунт App Store.';
 

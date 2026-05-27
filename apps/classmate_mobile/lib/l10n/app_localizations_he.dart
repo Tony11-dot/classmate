@@ -6904,6 +6904,16 @@ class AppLocalizationsHe extends AppLocalizations {
   String get paywallNotNow => 'לא עכשיו';
 
   @override
+  String get paywallWebOnlyTitle => 'רכישה דרך הנייד';
+
+  @override
+  String get paywallWebOnlyBody =>
+      'מנויים וטעינות עוברים דרך App Store או Google Play. פתח את ClassMate באייפון, אייפד או באנדרואיד כדי להירשם — החשבון והאסימונים שלך משותפים בין כל המכשירים.';
+
+  @override
+  String get paywallWebOnlyDismiss => 'הבנתי';
+
+  @override
   String get paywallTermsSubscription =>
       'בהרשמה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. המנויים מתחדשים אוטומטית מדי חודש עד שיבוטלו. ניהול בכל עת מחשבון App Store.';
 

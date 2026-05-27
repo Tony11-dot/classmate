@@ -7010,6 +7010,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get paywallNotNow => '‹‹Not now››';
 
   @override
+  String get paywallWebOnlyTitle => '‹‹Purchase on mobile››';
+
+  @override
+  String get paywallWebOnlyBody =>
+      '‹‹Subscriptions and top-ups go through the App Store or Google Play. Open ClassMate on your iPhone, iPad, or Android phone to subscribe — your account and tokens are shared across devices.››';
+
+  @override
+  String get paywallWebOnlyDismiss => '‹‹Got it››';
+
+  @override
   String get paywallTermsSubscription =>
       '‹‹By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.››';
 

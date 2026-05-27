@@ -419,6 +419,10 @@ class _PlanTile extends StatelessWidget {
   }
 
   void _openPaywall(BuildContext context, {required SubscriptionPlan plan}) {
+    if (kIsWeb) {
+      _showWebOnlyDialog(context);
+      return;
+    }
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -431,6 +435,23 @@ class _PlanTile extends StatelessWidget {
       builder: (_) => PaywallSheet(initialPlan: plan, mode: PaywallMode.subscription),
     );
   }
+}
+
+Future<void> _showWebOnlyDialog(BuildContext context) {
+  final l = AppLocalizations.of(context)!;
+  return showDialog<void>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text(l.paywallWebOnlyTitle),
+      content: Text(l.paywallWebOnlyBody),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.paywallWebOnlyDismiss),
+        ),
+      ],
+    ),
+  );
 }
 
 class _TopupTile extends StatelessWidget {
@@ -496,6 +517,10 @@ class _TopupTile extends StatelessWidget {
   }
 
   void _openPaywall(BuildContext context) {
+    if (kIsWeb) {
+      _showWebOnlyDialog(context);
+      return;
+    }
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,

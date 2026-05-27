@@ -7068,6 +7068,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get paywallNotNow => 'Pas maintenant';
 
   @override
+  String get paywallWebOnlyTitle => 'Achetez sur mobile';
+
+  @override
+  String get paywallWebOnlyBody =>
+      'Les abonnements et recharges passent par l\'App Store ou Google Play. Ouvrez ClassMate sur votre iPhone, iPad ou téléphone Android pour vous abonner — votre compte et vos jetons sont partagés entre tous les appareils.';
+
+  @override
+  String get paywallWebOnlyDismiss => 'Compris';
+
+  @override
   String get paywallTermsSubscription =>
       'En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu\'à annulation. Gérez à tout moment depuis votre compte App Store.';
 

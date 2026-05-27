@@ -12369,6 +12369,24 @@ abstract class AppLocalizations {
   /// **'Not now'**
   String get paywallNotNow;
 
+  /// No description provided for @paywallWebOnlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase on mobile'**
+  String get paywallWebOnlyTitle;
+
+  /// No description provided for @paywallWebOnlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions and top-ups go through the App Store or Google Play. Open ClassMate on your iPhone, iPad, or Android phone to subscribe — your account and tokens are shared across devices.'**
+  String get paywallWebOnlyBody;
+
+  /// No description provided for @paywallWebOnlyDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get paywallWebOnlyDismiss;
+
   /// No description provided for @paywallTermsSubscription.
   ///
   /// In en, this message translates to:

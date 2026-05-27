@@ -6936,6 +6936,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get paywallNotNow => 'ليس الآن';
 
   @override
+  String get paywallWebOnlyTitle => 'الشراء من الجوال';
+
+  @override
+  String get paywallWebOnlyBody =>
+      'تتم الاشتراكات وعمليات الشحن عبر متجر App Store أو Google Play. افتح ClassMate على هاتفك أو جهازك اللوحي للاشتراك — حسابك ورصيدك مشتركان بين جميع الأجهزة.';
+
+  @override
+  String get paywallWebOnlyDismiss => 'حسنًا';
+
+  @override
   String get paywallTermsSubscription =>
       'بالاشتراك فإنك توافق على شروط ClassMate وسياسة الخصوصية. تتجدد الاشتراكات شهريًا تلقائيًا حتى يتم إلغاؤها. تتم الإدارة في أي وقت من حساب App Store الخاص بك.';
 
