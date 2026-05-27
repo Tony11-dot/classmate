@@ -7048,6 +7048,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'بالشراء فإنك توافق على شروط ClassMate وسياسة الخصوصية. الرموز الإضافية غير قابلة للاسترداد بعد الاستخدام.';
 
   @override
+  String get paywallTermsLink => 'شروط الاستخدام (EULA)';
+
+  @override
+  String get paywallPrivacyLink => 'سياسة الخصوصية';
+
+  @override
   String get paywallFeatureTokens => 'استخدم الرموز في NOVA والتمارين';
 
   @override

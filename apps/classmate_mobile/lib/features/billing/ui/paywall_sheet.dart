@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as rc;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../data/plan_models.dart';
@@ -331,6 +332,49 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                       color: cs.onSurfaceVariant,
                       height: 1.3,
                     ),
+                  ),
+                  const SizedBox(height: 6),
+                  // Functional EULA + Privacy links are required by Apple
+                  // Guideline 3.1.2(c) for any app offering auto-renewing
+                  // subscriptions — the disclaimer above must include
+                  // tappable links, not just plain text. Apple's standard
+                  // EULA URL is used since we don't ship a custom one.
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => launchUrl(
+                          Uri.parse(
+                            'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                          ),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(l.paywallTermsLink),
+                      ),
+                      Text(
+                        '·',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => launchUrl(
+                          Uri.parse('https://classmateapp.org/privacy'),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(l.paywallPrivacyLink),
+                      ),
+                    ],
                   ),
                 ],
               ),

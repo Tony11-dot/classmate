@@ -7181,6 +7181,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'En achetant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les jetons de recharge ne sont pas remboursables une fois consommés.';
 
   @override
+  String get paywallTermsLink => 'Conditions d\'utilisation (EULA)';
+
+  @override
+  String get paywallPrivacyLink => 'Politique de confidentialité';
+
+  @override
   String get paywallFeatureTokens =>
       'Utilisez les jetons dans NOVA et les sessions de pratique';
 

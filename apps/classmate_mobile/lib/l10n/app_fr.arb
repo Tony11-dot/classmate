@@ -2684,6 +2684,8 @@
   "paywallWebOnlyDismiss": "Compris",
   "paywallTermsSubscription": "En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu'à annulation. Gérez à tout moment depuis votre compte App Store.",
   "paywallTermsTopup": "En achetant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les jetons de recharge ne sont pas remboursables une fois consommés.",
+  "paywallTermsLink": "Conditions d'utilisation (EULA)",
+  "paywallPrivacyLink": "Politique de confidentialité",
   "paywallFeatureTokens": "Utilisez les jetons dans NOVA et les sessions de pratique",
   "paywallFeatureImages": "Analyse d'images et envoi de fichiers inclus",
   "paywallFeatureReset": "Les jetons se réinitialisent au début de chaque mois",

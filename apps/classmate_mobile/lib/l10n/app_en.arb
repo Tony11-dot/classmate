@@ -2987,6 +2987,8 @@
   "paywallWebOnlyDismiss": "Got it",
   "paywallTermsSubscription": "By subscribing you agree to ClassMate's Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.",
   "paywallTermsTopup": "By purchasing you agree to ClassMate's Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.",
+  "paywallTermsLink": "Terms of Use (EULA)",
+  "paywallPrivacyLink": "Privacy Policy",
   "paywallFeatureTokens": "Use tokens across NOVA chat and Practice sessions",
   "paywallFeatureImages": "Image analysis and file upload included",
   "paywallFeatureReset": "Tokens reset at the start of each month",

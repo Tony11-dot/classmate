@@ -2684,6 +2684,8 @@
   "paywallWebOnlyDismiss": "حسنًا",
   "paywallTermsSubscription": "بالاشتراك فإنك توافق على شروط ClassMate وسياسة الخصوصية. تتجدد الاشتراكات شهريًا تلقائيًا حتى يتم إلغاؤها. تتم الإدارة في أي وقت من حساب App Store الخاص بك.",
   "paywallTermsTopup": "بالشراء فإنك توافق على شروط ClassMate وسياسة الخصوصية. الرموز الإضافية غير قابلة للاسترداد بعد الاستخدام.",
+  "paywallTermsLink": "شروط الاستخدام (EULA)",
+  "paywallPrivacyLink": "سياسة الخصوصية",
   "paywallFeatureTokens": "استخدم الرموز في NOVA والتمارين",
   "paywallFeatureImages": "تحليل الصور ورفع الملفات مشمولان",
   "paywallFeatureReset": "تُعاد تهيئة الرموز في بداية كل شهر",

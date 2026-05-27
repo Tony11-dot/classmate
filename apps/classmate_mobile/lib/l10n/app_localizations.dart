@@ -12561,6 +12561,18 @@ abstract class AppLocalizations {
   /// **'By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.'**
   String get paywallTermsTopup;
 
+  /// No description provided for @paywallTermsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use (EULA)'**
+  String get paywallTermsLink;
+
+  /// No description provided for @paywallPrivacyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get paywallPrivacyLink;
+
   /// No description provided for @paywallFeatureTokens.
   ///
   /// In en, this message translates to:

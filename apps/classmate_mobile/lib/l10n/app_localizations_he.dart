@@ -7016,6 +7016,12 @@ class AppLocalizationsHe extends AppLocalizations {
       'ברכישה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. אסימוני חבילה אינם ניתנים להחזרה לאחר השימוש.';
 
   @override
+  String get paywallTermsLink => 'תנאי שימוש (EULA)';
+
+  @override
+  String get paywallPrivacyLink => 'מדיניות פרטיות';
+
+  @override
   String get paywallFeatureTokens => 'השתמש באסימונים ב-NOVA ובתרגול';
 
   @override

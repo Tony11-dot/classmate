@@ -2684,6 +2684,8 @@
   "paywallWebOnlyDismiss": "הבנתי",
   "paywallTermsSubscription": "בהרשמה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. המנויים מתחדשים אוטומטית מדי חודש עד שיבוטלו. ניהול בכל עת מחשבון App Store.",
   "paywallTermsTopup": "ברכישה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. אסימוני חבילה אינם ניתנים להחזרה לאחר השימוש.",
+  "paywallTermsLink": "תנאי שימוש (EULA)",
+  "paywallPrivacyLink": "מדיניות פרטיות",
   "paywallFeatureTokens": "השתמש באסימונים ב-NOVA ובתרגול",
   "paywallFeatureImages": "ניתוח תמונות והעלאת קבצים כלולים",
   "paywallFeatureReset": "האסימונים מתאפסים בתחילת כל חודש",

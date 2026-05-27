@@ -7038,6 +7038,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Покупая, вы соглашаетесь с Условиями и Политикой конфиденциальности ClassMate. Токены пакетов не подлежат возврату после использования.';
 
   @override
+  String get paywallTermsLink => 'Условия использования (EULA)';
+
+  @override
+  String get paywallPrivacyLink => 'Политика конфиденциальности';
+
+  @override
   String get paywallFeatureTokens => 'Используйте токены в NOVA и тренировках';
 
   @override

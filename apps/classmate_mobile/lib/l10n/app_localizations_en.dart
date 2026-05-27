@@ -7084,6 +7084,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.';
 
   @override
+  String get paywallTermsLink => 'Terms of Use (EULA)';
+
+  @override
+  String get paywallPrivacyLink => 'Privacy Policy';
+
+  @override
   String get paywallFeatureTokens =>
       'Use tokens across NOVA chat and Practice sessions';
 
