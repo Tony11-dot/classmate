@@ -195,7 +195,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
     messenger.showSnackBar(SnackBar(
       content: Text(success
           ? (widget.mode == PaywallMode.subscription
-              ? l.paywallWelcomeMessage(widget.initialPlan?.label ?? l.paywallWelcomeFallback)
+              ? l.paywallWelcomeMessage(widget.initialPlan?.labelLocalized(l) ?? l.paywallWelcomeFallback)
               : l.paywallTopupAdded)
           : l.paywallPurchaseProcessed),
       duration: const Duration(seconds: 4),
@@ -209,11 +209,21 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
     final l = AppLocalizations.of(context)!;
 
     final priceLabel = widget.mode == PaywallMode.subscription
-        ? (_package?.storeProduct.priceString ?? widget.initialPlan?.priceLabel ?? '')
+        ? (_package?.storeProduct.priceString ?? widget.initialPlan?.priceLabelLocalized(l) ?? '')
         : (_topupProduct?.priceString ?? widget.initialTopup?.priceLabel ?? '');
+    // The paywallPerMonthWithTokens / paywallOneTimeWithTokens strings
+    // already embed "/ month" / "one-time" — pass just the raw token
+    // count so it doesn't double up.
+    final tokensRaw = widget.mode == PaywallMode.subscription
+        ? (widget.initialPlan != null
+            ? widget.initialPlan!.tokensLabelLocalized(l).split(' ').first
+            : '')
+        : (widget.initialTopup != null
+            ? widget.initialTopup!.tokensLabelLocalized(l).split(' ').first
+            : '');
     final subtitle = widget.mode == PaywallMode.subscription
-        ? l.paywallPerMonthWithTokens(widget.initialPlan?.tokensLabel ?? '')
-        : l.paywallOneTimeWithTokens(widget.initialTopup?.tokensLabel ?? '');
+        ? l.paywallPerMonthWithTokens(tokensRaw)
+        : l.paywallOneTimeWithTokens(tokensRaw);
 
     return DraggableScrollableSheet(
       expand: false,
@@ -241,8 +251,8 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                 children: [
                   Text(
                     widget.mode == PaywallMode.subscription
-                        ? l.paywallSubscribeTo(widget.initialPlan?.label ?? l.paywallPlanFallback)
-                        : l.paywallBuyTopupNamed(widget.initialTopup?.label ?? l.paywallTopupFallback),
+                        ? l.paywallSubscribeTo(widget.initialPlan?.labelLocalized(l) ?? l.paywallPlanFallback)
+                        : l.paywallBuyTopupNamed(widget.initialTopup?.labelLocalized(l) ?? l.paywallTopupFallback),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
@@ -250,7 +260,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                   const SizedBox(height: 6),
                   if (widget.initialPlan != null)
                     Text(
-                      widget.initialPlan!.blurb,
+                      widget.initialPlan!.blurbLocalized(l),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),

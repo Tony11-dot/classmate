@@ -6845,6 +6845,31 @@ class AppLocalizationsHe extends AppLocalizations {
   String get topupPackMega => 'חבילה ענקית';
 
   @override
+  String get planBlurbFree => 'טעימה מנובה. מתחדש מדי חודש.';
+
+  @override
+  String get planBlurbBudget => 'עזרה יומיומית בשיעורי הבית.';
+
+  @override
+  String get planBlurbBalance => 'לתלמידים שלומדים מדי יום.';
+
+  @override
+  String get planBlurbCommitment => 'תרגול אינטנסיבי + סקרנות בלי גבולות.';
+
+  @override
+  String plansTokensPerMonth(String tokens) {
+    return '$tokens אסימונים / חודש';
+  }
+
+  @override
+  String plansTokensOneTime(String tokens) {
+    return '$tokens אסימונים';
+  }
+
+  @override
+  String get planPriceFree => 'חינם';
+
+  @override
   String get plansTokensRemaining => 'אסימונים נותרו';
 
   @override

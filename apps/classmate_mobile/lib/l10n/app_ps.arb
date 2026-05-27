@@ -3175,6 +3175,27 @@
   "topupPackMedium": "‹‹Medium pack››",
   "topupPackLarge": "‹‹Large pack››",
   "topupPackMega": "‹‹Mega pack››",
+  "planBlurbFree": "‹‹Get a taste of NOVA. Resets every month.››",
+  "planBlurbBudget": "‹‹Daily homework help.››",
+  "planBlurbBalance": "‹‹For students who study every day.››",
+  "planBlurbCommitment": "‹‹Heavy practice + unlimited curiosity.››",
+  "plansTokensPerMonth": "‹‹{tokens} tokens / month››",
+  "@plansTokensPerMonth": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "plansTokensOneTime": "‹‹{tokens} tokens››",
+  "@plansTokensOneTime": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
+  "planPriceFree": "‹‹Free››",
   "plansTokensRemaining": "‹‹tokens remaining››",
   "plansPlanResetsAt": "‹‹Plan resets {when}››",
   "@plansPlanResetsAt": {

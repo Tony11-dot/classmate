@@ -12279,6 +12279,48 @@ abstract class AppLocalizations {
   /// **'Mega pack'**
   String get topupPackMega;
 
+  /// No description provided for @planBlurbFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a taste of NOVA. Resets every month.'**
+  String get planBlurbFree;
+
+  /// No description provided for @planBlurbBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily homework help.'**
+  String get planBlurbBudget;
+
+  /// No description provided for @planBlurbBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'For students who study every day.'**
+  String get planBlurbBalance;
+
+  /// No description provided for @planBlurbCommitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy practice + unlimited curiosity.'**
+  String get planBlurbCommitment;
+
+  /// No description provided for @plansTokensPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens / month'**
+  String plansTokensPerMonth(String tokens);
+
+  /// No description provided for @plansTokensOneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{tokens} tokens'**
+  String plansTokensOneTime(String tokens);
+
+  /// No description provided for @planPriceFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get planPriceFree;
+
   /// No description provided for @plansTokensRemaining.
   ///
   /// In en, this message translates to:

@@ -6860,6 +6860,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get topupPackMega => 'Огромный пакет';
 
   @override
+  String get planBlurbFree => 'Попробуйте NOVA. Обновляется каждый месяц.';
+
+  @override
+  String get planBlurbBudget => 'Ежедневная помощь с домашкой.';
+
+  @override
+  String get planBlurbBalance =>
+      'Для учеников, которые занимаются каждый день.';
+
+  @override
+  String get planBlurbCommitment =>
+      'Интенсивная практика + безграничное любопытство.';
+
+  @override
+  String plansTokensPerMonth(String tokens) {
+    return '$tokens токенов / месяц';
+  }
+
+  @override
+  String plansTokensOneTime(String tokens) {
+    return '$tokens токенов';
+  }
+
+  @override
+  String get planPriceFree => 'Бесплатно';
+
+  @override
   String get plansTokensRemaining => 'токенов осталось';
 
   @override

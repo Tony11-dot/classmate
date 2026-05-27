@@ -6947,6 +6947,31 @@ class AppLocalizationsPs extends AppLocalizations {
   String get topupPackMega => '‹‹Mega pack››';
 
   @override
+  String get planBlurbFree => '‹‹Get a taste of NOVA. Resets every month.››';
+
+  @override
+  String get planBlurbBudget => '‹‹Daily homework help.››';
+
+  @override
+  String get planBlurbBalance => '‹‹For students who study every day.››';
+
+  @override
+  String get planBlurbCommitment => '‹‹Heavy practice + unlimited curiosity.››';
+
+  @override
+  String plansTokensPerMonth(String tokens) {
+    return '‹‹$tokens tokens / month››';
+  }
+
+  @override
+  String plansTokensOneTime(String tokens) {
+    return '‹‹$tokens tokens››';
+  }
+
+  @override
+  String get planPriceFree => '‹‹Free››';
+
+  @override
   String get plansTokensRemaining => '‹‹tokens remaining››';
 
   @override

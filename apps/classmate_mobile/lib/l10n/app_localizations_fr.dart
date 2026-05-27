@@ -7005,6 +7005,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get topupPackMega => 'Méga pack';
 
   @override
+  String get planBlurbFree => 'Découvrez NOVA. Renouvellement mensuel.';
+
+  @override
+  String get planBlurbBudget => 'Aide quotidienne aux devoirs.';
+
+  @override
+  String get planBlurbBalance => 'Pour les élèves qui étudient tous les jours.';
+
+  @override
+  String get planBlurbCommitment => 'Pratique intensive + curiosité illimitée.';
+
+  @override
+  String plansTokensPerMonth(String tokens) {
+    return '$tokens jetons / mois';
+  }
+
+  @override
+  String plansTokensOneTime(String tokens) {
+    return '$tokens jetons';
+  }
+
+  @override
+  String get planPriceFree => 'Gratuit';
+
+  @override
   String get plansTokensRemaining => 'jetons restants';
 
   @override

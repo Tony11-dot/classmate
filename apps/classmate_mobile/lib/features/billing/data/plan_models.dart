@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' show DateFormat;
+
 import '../../../l10n/app_localizations.dart';
 
 /// Mirror of the server's plan.catalog.ts SubscriptionPlan type. Kept
@@ -41,7 +43,23 @@ class SubscriptionPlan {
         _ => label,
       };
 
-  /// "₪19.90" — uses comma-less Hebrew-friendly format.
+  /// Localized one-liner shown under the tier name. Falls back to the
+  /// server-provided English blurb if the tier is new and we haven't
+  /// shipped an ARB key for it yet.
+  String blurbLocalized(AppLocalizations l) => switch (tier) {
+        'FREE' => l.planBlurbFree,
+        'BUDGET' => l.planBlurbBudget,
+        'BALANCE' => l.planBlurbBalance,
+        'COMMITMENT' => l.planBlurbCommitment,
+        _ => blurb,
+      };
+
+  String _formattedTokens() => monthlyTokens
+      .toString()
+      .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+
+  /// "₪19.90" — uses comma-less Hebrew-friendly format. Legacy English-
+  /// only API; prefer priceLabelLocalized() in new code.
   String get priceLabel {
     if (priceAgorot == 0) return 'Free';
     final shekels = priceAgorot ~/ 100;
@@ -51,13 +69,17 @@ class SubscriptionPlan {
         : '₪$shekels.${agorot.toString().padLeft(2, '0')}';
   }
 
-  /// "300,000 tokens / month" — human-friendly with thousands separator.
-  String get tokensLabel {
-    final formatted = monthlyTokens
-        .toString()
-        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
-    return '$formatted tokens / month';
+  String priceLabelLocalized(AppLocalizations l) {
+    if (priceAgorot == 0) return l.planPriceFree;
+    return priceLabel;
   }
+
+  /// "300,000 tokens / month" — legacy English-only API; prefer
+  /// tokensLabelLocalized() in new code.
+  String get tokensLabel => '${_formattedTokens()} tokens / month';
+
+  String tokensLabelLocalized(AppLocalizations l) =>
+      l.plansTokensPerMonth(_formattedTokens());
 
   factory SubscriptionPlan.fromJson(Map<String, dynamic> json) {
     return SubscriptionPlan(
@@ -117,6 +139,13 @@ class TopupPack {
     return '$formatted tokens';
   }
 
+  String tokensLabelLocalized(AppLocalizations l) {
+    final formatted = tokens
+        .toString()
+        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+    return l.plansTokensOneTime(formatted);
+  }
+
   factory TopupPack.fromJson(Map<String, dynamic> json) {
     return TopupPack(
       label: (json['label'] ?? '').toString(),
@@ -148,7 +177,9 @@ class BalanceSnapshot {
   bool get isOutOfTokens => totalRemaining <= 0;
   bool get isPaid => activeTier != 'FREE';
 
-  /// Reset date in "May 31" style. Returns empty if no reset is scheduled.
+  /// Legacy English-only "May 31"-style label. Kept so any old caller
+  /// keeps compiling; UI code should use `resetLabelLocalized` so the
+  /// month name matches the user's chosen language.
   String get resetLabel {
     if (resetAt == null) return '';
     const months = [
@@ -157,6 +188,14 @@ class BalanceSnapshot {
     ];
     final d = resetAt!.toLocal();
     return '${months[d.month - 1]} ${d.day}';
+  }
+
+  /// Reset date in the user's locale ("31 mai", "31 мая", "מאי 31", etc).
+  /// Returns empty if no reset is scheduled.
+  String resetLabelLocalized(String locale) {
+    if (resetAt == null) return '';
+    final d = resetAt!.toLocal();
+    return DateFormat.MMMd(locale).format(d);
   }
 
   factory BalanceSnapshot.fromJson(Map<String, dynamic> json) {

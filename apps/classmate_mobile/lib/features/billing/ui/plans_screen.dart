@@ -10,6 +10,18 @@ import '../data/billing_repository.dart';
 import '../data/plan_models.dart';
 import 'paywall_sheet.dart';
 
+/// Maps an `activeTier` server string ('FREE' | 'BUDGET' | ...) to the
+/// localized badge label shown on the balance card. Lives here (not on
+/// SubscriptionPlan) because the badge consumes the BalanceSnapshot
+/// directly, which doesn't carry the SubscriptionPlan object.
+String _tierBadgeLabel(AppLocalizations l, String tier) => switch (tier) {
+      'FREE' => l.plansFreePlan,
+      'BUDGET' => l.planTierBudget,
+      'BALANCE' => l.planTierBalance,
+      'COMMITMENT' => l.planTierCommitment,
+      _ => tier,
+    };
+
 /// NOVA Plans — the user-facing storefront. Renders entirely from
 /// `/billing/plans` (catalog) + `/billing/me` (balance) so we can move
 /// prices/quotas/copy without a Flutter release. Real purchases happen
@@ -141,7 +153,7 @@ class _BalanceCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      b.activeTier == 'FREE' ? AppLocalizations.of(context)!.plansFreePlan : b.activeTier,
+                      _tierBadgeLabel(AppLocalizations.of(context)!, b.activeTier),
                       style: TextStyle(
                         color: cs.onPrimary,
                         fontWeight: FontWeight.w800,
@@ -166,7 +178,7 @@ class _BalanceCard extends StatelessWidget {
                   color: cs.onPrimaryContainer.withValues(alpha: 0.75),
                 ),
               ),
-              if (b.resetLabel.isNotEmpty) ...[
+              if (b.resetLabelLocalized(Localizations.localeOf(context).toString()).isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -174,7 +186,9 @@ class _BalanceCard extends StatelessWidget {
                     Icon(Icons.refresh_rounded, size: 14, color: cs.onPrimaryContainer.withValues(alpha: 0.6)),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context)!.plansPlanResetsAt(b.resetLabel),
+                      AppLocalizations.of(context)!.plansPlanResetsAt(
+                        b.resetLabelLocalized(Localizations.localeOf(context).toString()),
+                      ),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onPrimaryContainer.withValues(alpha: 0.7),
                       ),
@@ -367,7 +381,7 @@ class _PlanTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  plan.priceLabel,
+                  plan.priceLabelLocalized(AppLocalizations.of(context)!),
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: cs.primary,
@@ -384,7 +398,7 @@ class _PlanTile extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              plan.blurb,
+              plan.blurbLocalized(AppLocalizations.of(context)!),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
@@ -395,7 +409,7 @@ class _PlanTile extends StatelessWidget {
                 Icon(Icons.bolt_rounded, size: 16, color: cs.secondary),
                 const SizedBox(width: 4),
                 Text(
-                  plan.tokensLabel,
+                  plan.tokensLabelLocalized(AppLocalizations.of(context)!),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -495,7 +509,7 @@ class _TopupTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    pack.tokensLabel,
+                    pack.tokensLabelLocalized(AppLocalizations.of(context)!),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
