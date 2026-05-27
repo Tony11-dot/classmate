@@ -203,7 +203,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       return null;
     },
-    initialLocation: '/schedule',
+    // Start at /login. The redirect block above bounces authenticated
+    // users to their role-appropriate home on the next frame, so a
+    // logged-in user still lands on /schedule (or /admin/dashboard,
+    // /parent/home, etc.) — but a NOT-yet-ready session no longer
+    // flashes the schedule screen for one frame before the redirect
+    // kicks in. Login renders behind the splash so the transition is
+    // invisible.
+    initialLocation: '/login',
     routes: [
       GoRoute(
         path: '/login',

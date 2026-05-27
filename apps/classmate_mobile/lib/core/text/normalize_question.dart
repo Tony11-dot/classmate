@@ -259,6 +259,19 @@ String prepareRenderableText(String input) {
   // (Inline math must not create paragraph breaks.)
   text = _removeBlankLinesAroundInlineMath(text);
 
+  // Also collapse blank lines immediately adjacent to display math. The
+  // block parser still treats `$$...$$` as its own block — keeping the
+  // surrounding newlines just adds visible empty lines above/below the
+  // formula. One newline on each side is enough to delimit the block.
+  text = text.replaceAllMapped(
+    RegExp(r'\n{2,}(\$\$[\s\S]+?\$\$)'),
+    (m) => '\n${m.group(1)!}',
+  );
+  text = text.replaceAllMapped(
+    RegExp(r'(\$\$[\s\S]+?\$\$)\n{2,}'),
+    (m) => '${m.group(1)!}\n',
+  );
+
   // Restore code fences.
   for (var i = 0; i < fences.length; i++) {
     text = text.replaceFirst('\x00F$i\x00', fences[i]);

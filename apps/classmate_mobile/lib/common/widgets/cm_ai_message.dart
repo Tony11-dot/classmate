@@ -128,19 +128,22 @@ class CMAiMessage extends StatelessWidget {
   }
 
   static double _blockGap(List<_Block> blocks, int i, bool compact) {
-    if (compact) return 4;
+    if (compact) return 2;
     final a = blocks[i].type;
     final b = blocks[i + 1].type;
-    // Tight gap between prose and display math — they belong together visually.
+    // Display math must read as part of the surrounding paragraph — no
+    // visible gap on either side. The math widget's own internal padding
+    // is 0, so the total prose↔math gap is literally a single line of
+    // text-space here.
     if ((a == _BlockType.prose && b == _BlockType.blockMath) ||
         (a == _BlockType.blockMath && b == _BlockType.prose)) {
-      return 6;
+      return 2;
     }
-    // Generous gap between code and anything else.
-    if (a == _BlockType.code || b == _BlockType.code) return 12;
-    // Between two display math blocks.
-    if (a == _BlockType.blockMath && b == _BlockType.blockMath) return 8;
-    return 12;
+    // Adjacent display-math blocks: tight stack.
+    if (a == _BlockType.blockMath && b == _BlockType.blockMath) return 4;
+    // Generous gap between code and anything else (code blocks are heavy).
+    if (a == _BlockType.code || b == _BlockType.code) return 10;
+    return 8;
   }
 }
 
@@ -155,19 +158,19 @@ class _BlockMathWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fontSize = (style?.fontSize ?? 15) + (compact ? 0 : 2);
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: compact ? 3 : 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.hardEdge,
-          child: Math.tex(
-            math,
-            mathStyle: MathStyle.display,
-            textStyle: style?.copyWith(fontSize: fontSize),
-            onErrorFallback: (_) => _MathFallback(math, style: style),
-          ),
+    // No internal vertical padding — the parent column's _blockGap is the
+    // only source of spacing around display math now. Eliminates the
+    // "blank line right before/after a formula" effect the user reported.
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.hardEdge,
+        child: Math.tex(
+          math,
+          mathStyle: MathStyle.display,
+          textStyle: style?.copyWith(fontSize: fontSize),
+          onErrorFallback: (_) => _MathFallback(math, style: style),
         ),
       ),
     );
@@ -376,9 +379,42 @@ class _MathFallback extends StatelessWidget {
     var s = src
         .replaceAll('​', '')  // zero-width space
         .replaceAll(' ', ' ') // non-breaking space
-        .replaceAll(RegExp(r'[^\x00-\x7Fα-ωΑ-Ω∀-⋿]'), '');
-    // Drop dangling ^ or _ at end (causes parse error)
+        .replaceAll('×', r'\times ')
+        .replaceAll('÷', r'\div ')
+        .replaceAll('≤', r'\leq ')
+        .replaceAll('≥', r'\geq ')
+        .replaceAll('≠', r'\neq ')
+        .replaceAll('≈', r'\approx ')
+        .replaceAll('→', r'\to ')
+        .replaceAll('↔', r'\leftrightarrow ')
+        .replaceAll('⇒', r'\Rightarrow ')
+        .replaceAll('⇔', r'\Leftrightarrow ')
+        .replaceAll('∞', r'\infty ')
+        .replaceAll('π', r'\pi ')
+        .replaceAll('α', r'\alpha ')
+        .replaceAll('β', r'\beta ')
+        .replaceAll('γ', r'\gamma ')
+        .replaceAll('θ', r'\theta ')
+        .replaceAll('λ', r'\lambda ')
+        .replaceAll('μ', r'\mu ')
+        .replaceAll('σ', r'\sigma ')
+        .replaceAll('φ', r'\phi ')
+        .replaceAll('ω', r'\omega ')
+        .replaceAll('Δ', r'\Delta ')
+        .replaceAll('Σ', r'\Sigma ')
+        .replaceAll('Ω', r'\Omega ')
+        .replaceAll('∫', r'\int ')
+        .replaceAll('∑', r'\sum ')
+        .replaceAll('∏', r'\prod ')
+        // Strip any remaining non-ASCII chars that would trip the
+        // flutter_math_fork tokenizer.
+        .replaceAll(RegExp(r'[^\x00-\x7F]'), '');
+    // Drop dangling ^ or _ at end (causes parse error).
     s = s.replaceAll(RegExp(r'[_^]\s*$'), '');
+    // Close unbalanced braces — common when an LLM truncates mid-formula.
+    final opens = '{'.allMatches(s).length;
+    final closes = '}'.allMatches(s).length;
+    if (opens > closes) s = s + '}' * (opens - closes);
     return s.trim();
   }
 
