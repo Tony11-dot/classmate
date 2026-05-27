@@ -627,6 +627,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileCohortId => 'ID группы';
 
   @override
+  String get profileMyCohorts => 'Мои группы';
+
+  @override
+  String get profileMyCohortsEmpty => 'Вы пока не состоите ни в одной группе.';
+
+  @override
   String get profileAccountInfo => 'Данные аккаунта';
 
   @override

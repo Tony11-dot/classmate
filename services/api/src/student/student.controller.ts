@@ -27,6 +27,15 @@ export class StudentController {
     return this.student.onboard(req.user, b);
   }
 
+  // Lists every cohort the calling student belongs to (via StudentCohort
+  // many-to-many). Profile screen renders these as chips so the student
+  // can see their full cohort membership, not just the primary cohort
+  // that /auth/me returns.
+  @Get('cohorts')
+  async myCohorts(@Req() req: any) {
+    return this.student.myCohorts(req.user);
+  }
+
   @Post('parent-link-code')
   async parentLinkCode(@Req() req: any, @Body() body: any) {
     const b = StudentParentLinkCodeBodySchema.parse(body ?? {});

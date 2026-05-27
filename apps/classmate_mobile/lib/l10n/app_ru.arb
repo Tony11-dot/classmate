@@ -275,6 +275,8 @@
   "profileRole": "Роль",
   "profileSchoolId": "ID школы",
   "profileCohortId": "ID группы",
+  "profileMyCohorts": "Мои группы",
+  "profileMyCohortsEmpty": "Вы пока не состоите ни в одной группе.",
   "profileAccountInfo": "Данные аккаунта",
   "profileUsername": "Имя пользователя",
   "profileUsernameHint": "имя_пользователя",

@@ -1167,6 +1167,18 @@ abstract class AppLocalizations {
   /// **'Cohort ID'**
   String get profileCohortId;
 
+  /// No description provided for @profileMyCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'My cohorts'**
+  String get profileMyCohorts;
+
+  /// No description provided for @profileMyCohortsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not enrolled in any cohorts yet.'**
+  String get profileMyCohortsEmpty;
+
   /// No description provided for @profileAccountInfo.
   ///
   /// In en, this message translates to:

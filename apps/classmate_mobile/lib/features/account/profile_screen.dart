@@ -2,13 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_session.dart';
 import '../../core/auth/name_lang.dart';
+import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/phone_field.dart';
 import 'profile_controller.dart';
 import 'verify_controller.dart';
+
+/// Fetches every cohort the calling student belongs to from
+/// /student/cohorts. Only meaningful for the STUDENT role — other roles
+/// get an empty list because the endpoint 403s for them and we treat
+/// that as "no cohorts to show". autoDispose so it refetches whenever
+/// the profile screen is reopened after a cohort change.
+final studentMyCohortsProvider = FutureProvider.autoDispose<
+    List<({String id, String name, int? grade})>>((ref) async {
+  final session = ref.watch(authSessionProvider);
+  final token = (session.token ?? '').trim();
+  if (token.isEmpty || session.primaryRole != 'STUDENT') return const [];
+  final api = CMApi(token: token);
+  try {
+    final raw = await api.getJson('/student/cohorts');
+    if (raw is! Map) return const [];
+    final list = (raw['cohorts'] as List?) ?? const [];
+    return list.map((e) {
+      final m = e as Map;
+      return (
+        id: (m['id'] ?? '').toString(),
+        name: (m['name'] ?? '').toString(),
+        grade: m['grade'] is int ? m['grade'] as int : null,
+      );
+    }).where((c) => c.name.isNotEmpty).toList();
+  } catch (_) {
+    return const [];
+  } finally {
+    api.dispose();
+  }
+});
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -164,6 +196,74 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ),
+
+        // ── My cohorts (students only) ────────────────────────────────────
+        if (session.primaryRole == 'STUDENT')
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: _Section(
+                title: l.profileMyCohorts,
+                icon: Icons.groups_outlined,
+                child: Consumer(builder: (context, ref, _) {
+                  final async = ref.watch(studentMyCohortsProvider);
+                  return async.when(
+                    loading: () => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    error: (_, __) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        l.profileMyCohortsEmpty,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                      ),
+                    ),
+                    data: (cohorts) {
+                      if (cohorts.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            l.profileMyCohortsEmpty,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                          ),
+                        );
+                      }
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final c in cohorts)
+                            Chip(
+                              avatar: Icon(
+                                Icons.groups_rounded,
+                                size: 16,
+                                color: cs.primary,
+                              ),
+                              label: Text(
+                                c.grade != null
+                                    ? '${c.name} · G${c.grade}'
+                                    : c.name,
+                              ),
+                              backgroundColor: cs.primaryContainer.withValues(alpha: 0.4),
+                              side: BorderSide(color: cs.outlineVariant),
+                            ),
+                        ],
+                      );
+                    },
+                  );
+                }),
+              ),
+            ),
+          ),
 
         // ── Name in languages ─────────────────────────────────────────────
         SliverToBoxAdapter(

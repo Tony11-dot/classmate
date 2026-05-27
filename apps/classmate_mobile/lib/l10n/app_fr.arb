@@ -250,6 +250,8 @@
   "profileRole": "Rôle",
   "profileSchoolId": "ID école",
   "profileCohortId": "ID cohorte",
+  "profileMyCohorts": "Mes cohortes",
+  "profileMyCohortsEmpty": "Vous n'êtes inscrit dans aucune cohorte pour le moment.",
   "profileAccountInfo": "Infos du compte",
   "profileUsername": "Nom d'utilisateur",
   "profileUsernameHint": "your_username",

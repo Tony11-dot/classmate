@@ -637,6 +637,13 @@ class AppLocalizationsPs extends AppLocalizations {
   String get profileCohortId => '‹‹Cohort ID››';
 
   @override
+  String get profileMyCohorts => '‹‹My cohorts››';
+
+  @override
+  String get profileMyCohortsEmpty =>
+      '‹‹You\'re not enrolled in any cohorts yet.››';
+
+  @override
   String get profileAccountInfo => '‹‹Account info››';
 
   @override

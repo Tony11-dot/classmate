@@ -27,6 +27,25 @@ export class StudentService {
       throw new ForbiddenException('Student only');
   }
 
+  async myCohorts(user: any): Promise<{
+    ok: true;
+    cohorts: Array<{ id: string; name: string; grade: number | null }>;
+  }> {
+    const studentId = user.sub ?? user.id;
+    if (!studentId) return { ok: true, cohorts: [] };
+    const links = await this.prisma.studentCohort.findMany({
+      where: { studentId },
+      select: {
+        cohort: { select: { id: true, name: true, grade: true } },
+      },
+    });
+    const cohorts = links
+      .map((l) => l.cohort)
+      .filter((c): c is { id: string; name: string; grade: number | null } => c != null)
+      .map((c) => ({ id: c.id, name: c.name, grade: c.grade ?? null }));
+    return { ok: true, cohorts };
+  }
+
   async onboard(
     user: any,
     body: {

@@ -629,6 +629,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileCohortId => 'מזהה קבוצה';
 
   @override
+  String get profileMyCohorts => 'הקבוצות שלי';
+
+  @override
+  String get profileMyCohortsEmpty => 'עדיין לא נרשמת לקבוצה.';
+
+  @override
   String get profileAccountInfo => 'פרטי חשבון';
 
   @override

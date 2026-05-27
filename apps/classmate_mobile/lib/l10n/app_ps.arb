@@ -275,6 +275,8 @@
   "profileRole": "‹‹Role››",
   "profileSchoolId": "‹‹School ID››",
   "profileCohortId": "‹‹Cohort ID››",
+  "profileMyCohorts": "‹‹My cohorts››",
+  "profileMyCohortsEmpty": "‹‹You're not enrolled in any cohorts yet.››",
   "profileAccountInfo": "‹‹Account info››",
   "profileUsername": "‹‹Username››",
   "profileUsernameHint": "‹‹your_username››",

@@ -635,6 +635,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileCohortId => 'معرّف المجموعة';
 
   @override
+  String get profileMyCohorts => 'مجموعاتي';
+
+  @override
+  String get profileMyCohortsEmpty => 'لم يتم تسجيلك في أي مجموعة بعد.';
+
+  @override
   String get profileAccountInfo => 'معلومات الحساب';
 
   @override

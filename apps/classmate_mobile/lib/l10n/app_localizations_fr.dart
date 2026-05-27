@@ -644,6 +644,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileCohortId => 'ID cohorte';
 
   @override
+  String get profileMyCohorts => 'Mes cohortes';
+
+  @override
+  String get profileMyCohortsEmpty =>
+      'Vous n\'êtes inscrit dans aucune cohorte pour le moment.';
+
+  @override
   String get profileAccountInfo => 'Infos du compte';
 
   @override

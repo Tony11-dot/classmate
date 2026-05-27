@@ -250,6 +250,8 @@
   "profileRole": "الدور",
   "profileSchoolId": "معرّف المدرسة",
   "profileCohortId": "معرّف المجموعة",
+  "profileMyCohorts": "مجموعاتي",
+  "profileMyCohortsEmpty": "لم يتم تسجيلك في أي مجموعة بعد.",
   "profileAccountInfo": "معلومات الحساب",
   "profileUsername": "اسم المستخدم",
   "profileUsernameHint": "اسم_المستخدم",

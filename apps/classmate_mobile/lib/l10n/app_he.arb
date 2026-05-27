@@ -250,6 +250,8 @@
   "profileRole": "תפקיד",
   "profileSchoolId": "מזהה בית ספר",
   "profileCohortId": "מזהה קבוצה",
+  "profileMyCohorts": "הקבוצות שלי",
+  "profileMyCohortsEmpty": "עדיין לא נרשמת לקבוצה.",
   "profileAccountInfo": "פרטי חשבון",
   "profileUsername": "שם משתמש",
   "profileUsernameHint": "your_username",
