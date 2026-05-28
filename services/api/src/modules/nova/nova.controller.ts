@@ -21,7 +21,7 @@ export class NovaController {
       | 'image/webp';
 
     const res = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
+      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
       max_tokens: 1024,
       messages: [
         {

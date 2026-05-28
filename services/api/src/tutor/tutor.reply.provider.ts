@@ -158,7 +158,7 @@ export async function* generateAssistantReplyStream(args: {
   onUsage?: (usage: StreamUsageReport) => void;
 }): AsyncGenerator<string> {
   const client = getAnthropicClient();
-  const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+  const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
   // ---- ClassMate context: convert DB roles -> Anthropic roles ----
   // Anthropic only allows 'user' | 'assistant' in messages (system is top-level).

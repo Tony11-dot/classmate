@@ -1811,7 +1811,7 @@ export class PracticeService {
 
     const Anthropic = require('@anthropic-ai/sdk').default ?? require('@anthropic-ai/sdk');
     const client = new Anthropic({ apiKey });
-    const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+    const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
     let res: any;
     try {

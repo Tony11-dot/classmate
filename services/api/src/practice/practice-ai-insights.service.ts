@@ -208,7 +208,7 @@ export class PracticeAiInsightsService {
 
     try {
       const client = getAnthropicClient();
-      const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+      const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 
       const weak = this.safeTopic(summary.weakTopics?.[0]);
       const strong = this.safeTopic(summary.strongestTopics?.[0]);

@@ -18,14 +18,21 @@ export interface ModelPricing {
 }
 
 export const MODEL_PRICING: Record<string, ModelPricing> = {
-  // Claude Sonnet 4.6 — kept so historical TokenUsage rows still re-price correctly.
-  // No longer the default model; see pricingForModel() below.
+  // Claude Sonnet 4.6 — PRIMARY model for NOVA + Practice (all tiers).
+  // Picked over Haiku for substantially better educational content
+  // generation. Per-call cost is ~3x Haiku; computeCost() scales
+  // tokensCharged proportionally so user $-burn rate is constant
+  // (Sonnet replies drain the bucket 3x faster but each one is
+  // dramatically higher quality). Margin per paid month is unchanged.
   'claude-sonnet-4-6': {
     inputPerM: 3.0,
     cachedInputPerM: 0.3,
     outputPerM: 15.0,
   },
-  // Claude Haiku 4.5 — primary model for NOVA + Practice (all tiers).
+  // Claude Haiku 4.5 — kept so historical TokenUsage rows from when
+  // Haiku was the default still re-price correctly. Available as an
+  // override via ANTHROPIC_MODEL=claude-haiku-4-5 for cost-sensitive
+  // environments (cheap tier, dev, internal testing).
   'claude-haiku-4-5': {
     inputPerM: 1.0,
     cachedInputPerM: 0.1,
@@ -85,6 +92,13 @@ export function extractAnthropicUsage(payload: any): AnthropicUsage {
   };
 }
 
+/// All tier monthlyTokens values are calibrated against this baseline
+/// model's per-token USD cost. When we run a call on a more expensive
+/// model, tokensCharged scales proportionally so the user's bucket
+/// drains in $-equivalent units — Tony's margin per paid month stays
+/// constant regardless of which Anthropic model the call hit.
+const _BASELINE_INPUT_PER_M = 1.0; // Haiku 4.5 input price ($/M)
+
 export function computeCost(
   model: string,
   inputTokens: number,
@@ -96,13 +110,23 @@ export function computeCost(
     (inputTokens / 1_000_000) * p.inputPerM +
     (cachedInputTokens / 1_000_000) * p.cachedInputPerM +
     (outputTokens / 1_000_000) * p.outputPerM;
-  // Weighted token count for quota — output costs 5x more than input on
-  // Sonnet, so 1 output token = 5 charge-tokens. Cached input is dirt
-  // cheap (10x cheaper than fresh input), so we count it at 0.2 weight.
-  // Net effect: a typical 2000-in/500-out call charges ~4500 tokens
-  // instead of 2500, matching the cost ratio more closely.
-  const tokensCharged = Math.ceil(
-    inputTokens + cachedInputTokens * 0.2 + outputTokens * 5,
-  );
+
+  // Output costs 5x more than input across Anthropic's pricing curve,
+  // so 1 output token = 5 charge-tokens. Cached input is dirt cheap
+  // (10x cheaper than fresh input), so we count it at 0.2 weight.
+  const baseCharge =
+    inputTokens + cachedInputTokens * 0.2 + outputTokens * 5;
+
+  // Model price multiplier — Haiku = 1.0, Sonnet = 3.0, Opus = 15.0.
+  // Without this a Sonnet-backed NOVA reply would cost the user the
+  // same as a Haiku reply but cost the school 3x in Anthropic billing,
+  // burning the margin. Scaling tokensCharged by the model's relative
+  // input price keeps per-$-of-cost burn rate constant: switching
+  // models swaps quality, never economics. The pricing table is already
+  // proportional (cachedInput is 10% of input, output is 5x input) so
+  // a single multiplier captures the whole price ratio.
+  const modelMultiplier = p.inputPerM / _BASELINE_INPUT_PER_M;
+
+  const tokensCharged = Math.ceil(baseCharge * modelMultiplier);
   return { costUsd, tokensCharged };
 }
