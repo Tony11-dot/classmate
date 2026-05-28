@@ -24,8 +24,20 @@ final weekScheduleProvider =
       if (token.isEmpty) {
         return <String, dynamic>{'items': []};
       }
-      final repo = ref.watch(scheduleRepositoryProvider);
+      // PARENT mode with no child picked yet — don't hit the API. The
+      // shared schedule screen would otherwise call /student/schedule/week
+      // which 403s for parents (it's STUDENT-only). Returning empty
+      // here lets the screen render its empty state instead of an
+      // error banner. Once the parent picks a child via the header
+      // picker, viewedStudentIdProvider populates and the provider
+      // re-runs, hitting /parent/schedule/week?studentId=…
+      final session = ref.watch(authSessionProvider);
       final viewedStudentId = ref.watch(viewedStudentIdProvider);
+      if (session.primaryRole == 'PARENT'
+          && (viewedStudentId == null || viewedStudentId.isEmpty)) {
+        return <String, dynamic>{'items': []};
+      }
+      final repo = ref.watch(scheduleRepositoryProvider);
       try {
         return await repo.getWeek(DateTime.parse(weekOf), overrideStudentId: viewedStudentId);
       } on CMApiException catch (e) {

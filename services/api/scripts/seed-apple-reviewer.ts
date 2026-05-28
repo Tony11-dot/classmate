@@ -155,11 +155,28 @@ async function main() {
   const schoolId = await ensureSchool();
   console.log(`[seed] school id: ${schoolId} (${SCHOOL_NAME})`);
 
+  const idByEmail = new Map<string, string>();
   for (const seed of accounts) {
     const id = await upsertUser(schoolId, seed);
+    idByEmail.set(seed.email, id);
     console.log(
       `[seed] ${seed.role.padEnd(9)} ${seed.username.padEnd(20)} ${seed.email}  (${id})`,
     );
+  }
+
+  // Link apple-review-parent → apple-review-student so the parent
+  // demo account shows real data (schedule, grades, attendance, etc.)
+  // instead of an empty "pick a child" state. Without this link the
+  // reviewer sees nothing when they sign in as the parent.
+  const parentId = idByEmail.get(`apple-review-parent@${REVIEWER_DOMAIN}`);
+  const childId = idByEmail.get(`apple-review-student@${REVIEWER_DOMAIN}`);
+  if (parentId && childId) {
+    await prisma.parentChild.upsert({
+      where: { parentId_childId: { parentId, childId } },
+      create: { parentId, childId, status: 'APPROVED' as any },
+      update: { status: 'APPROVED' as any },
+    });
+    console.log(`[seed] linked parent ${parentId} → child ${childId}`);
   }
 
   console.log('\nPaste these into App Store Connect > App Review > Notes:');

@@ -389,8 +389,14 @@ export class TutorService {
 
   private requireStudent(user: any) {
     const roles: string[] = user?.roles ?? [];
-    if (!hasAnyRole({ roles }, ['STUDENT', 'TEACHER', 'ADMIN'])) {
-      throw new ForbiddenException('Student or teacher access only');
+    // PARENT is allowed: a parent can have their own NOVA chats (the
+    // tokens come from their own balance) and the controller routes
+    // /tutor/* already includes PARENT in @Roles. The previous narrow
+    // list 403'd every parent and froze the NOVA tab on "Failed to
+    // load chats". listSessions filters by userId, so parents only
+    // see their own threads — child sessions are not exposed here.
+    if (!hasAnyRole({ roles }, ['STUDENT', 'TEACHER', 'ADMIN', 'PARENT'])) {
+      throw new ForbiddenException('Sign-in required');
     }
     return user?.sub ?? user?.id;
   }
