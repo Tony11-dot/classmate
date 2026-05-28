@@ -241,6 +241,41 @@ export class TokensService {
     });
   }
 
+  /// Used by the webhook on PRODUCT_CHANGE (mid-period tier change).
+  /// Sets planTokensRemaining = max(current, floor) — i.e. UPGRADE
+  /// bumps the bucket up to the new tier's ceiling so the user
+  /// immediately gets the larger allocation; DOWNGRADE leaves the
+  /// bucket alone so the user keeps the tokens they already paid for
+  /// during this billing period. The next RENEWAL fires a regular
+  /// grant() with the new tier's quota, which is when downgrades
+  /// actually take effect on the bucket.
+  async grantPreservingFloor(params: {
+    userId: string;
+    floor: number;
+    resetAt?: Date;
+  }): Promise<void> {
+    const { userId, floor, resetAt } = params;
+    const existing = await this.prisma.tokenBalance.findUnique({
+      where: { userId },
+      select: { planTokensRemaining: true },
+    });
+    const currentRemaining = existing?.planTokensRemaining ?? 0;
+    const nextValue = Math.max(currentRemaining, floor);
+    await this.prisma.tokenBalance.upsert({
+      where: { userId },
+      create: {
+        userId,
+        planTokensRemaining: nextValue,
+        topupTokensRemaining: 0,
+        resetAt: resetAt ?? this.nextMonthStart(),
+      },
+      update: {
+        planTokensRemaining: nextValue,
+        ...(resetAt !== undefined ? { resetAt } : {}),
+      },
+    });
+  }
+
   private nextMonthStart(): Date {
     const d = new Date();
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));

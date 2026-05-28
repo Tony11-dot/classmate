@@ -94,8 +94,19 @@ export class RevenueCatWebhookService {
     switch (eventType) {
       case 'INITIAL_PURCHASE':
       case 'RENEWAL':
+        // Period boundary — bucket resets to the (possibly new) tier's
+        // monthly quota.
+        await this.applyPurchase(userId, event, 'reset');
+        break;
       case 'PRODUCT_CHANGE':
-        await this.applyPurchase(userId, event);
+        // Mid-period tier change. NEVER reduce the user's current
+        // bucket — Apple's billing model means the user is paying for
+        // the old tier until the period ends, so they keep those
+        // tokens. On UPGRADE, bump the bucket up to the new (higher)
+        // tier's quota immediately so the user gets what they paid for.
+        // The next RENEWAL event will reset to the new tier's quota
+        // cleanly.
+        await this.applyPurchase(userId, event, 'preserve');
         break;
       case 'NON_RENEWING_PURCHASE':
         await this.applyTopup(userId, event);
@@ -128,7 +139,11 @@ export class RevenueCatWebhookService {
     return { ok: true };
   }
 
-  private async applyPurchase(userId: string, event: RcEvent) {
+  private async applyPurchase(
+    userId: string,
+    event: RcEvent,
+    mode: 'reset' | 'preserve',
+  ) {
     const plan = findPlanByProductId(event.product_id ?? '');
     if (!plan) {
       // eslint-disable-next-line no-console
@@ -159,13 +174,31 @@ export class RevenueCatWebhookService {
       },
     });
 
-    // Reset plan tokens to the new tier's quota. Top-up bucket is
-    // untouched — those carry over across plan changes.
-    await this.tokens.grant({
-      userId,
-      monthlyReset: plan.monthlyTokens,
-      resetAt: expiresAt,
-    });
+    // Top-up bucket is always untouched — those carry over across
+    // plan changes by design.
+    if (mode === 'reset') {
+      // INITIAL_PURCHASE / RENEWAL: bucket resets to the tier's full
+      // monthly quota. Standard cycle behavior.
+      await this.tokens.grant({
+        userId,
+        monthlyReset: plan.monthlyTokens,
+        resetAt: expiresAt,
+      });
+    } else {
+      // PRODUCT_CHANGE: tier change mid-period.
+      //   - UPGRADE (new quota > current): bump bucket up so the user
+      //     immediately gets what they paid for.
+      //   - DOWNGRADE (new quota <= current): leave bucket alone. The
+      //     user paid for the higher tier this period — they keep
+      //     those tokens until the next RENEWAL boundary, then drop
+      //     to the new tier's quota. This is the bug the user hit:
+      //     downgrade was reducing 1M → 300K immediately.
+      await this.tokens.grantPreservingFloor({
+        userId,
+        floor: plan.monthlyTokens,
+        resetAt: expiresAt,
+      });
+    }
   }
 
   private async applyTopup(userId: string, event: RcEvent) {

@@ -51,6 +51,18 @@ void main(List<String> args) {
       'Ternary: cond ? \'English\' : \'English\'',
       RegExp(r'''\?\s*[\'"][A-Z][a-z][a-z][^\'"]{4,}[\'"]\s*:\s*[\'"][A-Z]'''),
     ),
+    (
+      'title/subtitle: \'English\'',
+      RegExp(r'''(?<![A-Za-z])(title|subtitle):\s*[\'"][A-Z][a-z][a-z][^\'"]{3,}[\'"]'''),
+    ),
+    (
+      'errorText/counterText: \'English\'',
+      RegExp(r'''(errorText|counterText|prefixText|suffixText):\s*[\'"][A-Z][a-z][a-z][^\'"]{3,}[\'"]'''),
+    ),
+    (
+      'label: \'English\' (ChoiceChip etc)',
+      RegExp(r'''(?<![A-Za-z_])label:\s*[\'"][A-Z][a-z][a-z][^\'"]{3,}[\'"]'''),
+    ),
   ];
 
   // Substrings that mark a literal as a known safe value (brands, codes,
@@ -61,6 +73,13 @@ void main(List<String> args) {
     'Mon ', 'Tue ', 'Wed ', 'Thu ', 'Fri ', 'Sat ', 'Sun ',
     'Jan ', 'Feb ', 'Mar ', 'Apr ', 'May ', 'Jun ',
     'Jul ', 'Aug ', 'Sep ', 'Oct ', 'Nov ', 'Dec ',
+    // Color picker swatches use English color names as visual labels —
+    // common practice (Material Design itself does this).
+    'Indigo', 'Violet', 'Orange', 'Cyan', 'Pink', 'Teal', 'Amber',
+    // Language self-labels — "English" stays "English" in any locale,
+    // "Français" stays "Français" — that's what makes a lang picker
+    // usable for non-native speakers.
+    'English', 'Français', 'Deutsch', 'Italiano', 'Português',
   ];
 
   // Whole files to ignore — they don't render UI in any reachable path.
