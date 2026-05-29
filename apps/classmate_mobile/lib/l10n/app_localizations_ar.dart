@@ -5818,6 +5818,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'حدّد أوقات بداية ونهاية كل حصة. أضف أو احذف حصصًا حسب الحاجة.';
 
   @override
+  String get adminSchoolBellTitle => 'جدول الأجراس';
+
+  @override
   String get adminSchoolBellInfo =>
       'حدّد وقت البداية والنهاية لكل حصة. تصبح هذه الأوقات الافتراضية المستخدمة عند بناء الجدول الأسبوعي.';
 

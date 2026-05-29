@@ -5794,6 +5794,9 @@ class AppLocalizationsHe extends AppLocalizations {
       'הגדר שעות התחלה וסיום לכל שיעור. הוסף או הסר שיעורים לפי הצורך.';
 
   @override
+  String get adminSchoolBellTitle => 'לוח צלצולים';
+
+  @override
   String get adminSchoolBellInfo =>
       'הגדר את שעות ההתחלה והסיום לכל שיעור. אלו הופכות לשעות ברירת המחדל לבניית המערכת השבועית.';
 

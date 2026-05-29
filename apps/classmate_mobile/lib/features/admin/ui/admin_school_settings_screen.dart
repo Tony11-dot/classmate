@@ -57,7 +57,7 @@ class _AdminSchoolSettingsScreenState
             tabs: [
               Tab(text: l.navSchool),
               Tab(text: l.adminSubjectsTitle),
-              const Tab(text: 'Bell Schedule'),
+              Tab(text: l.adminSchoolBellTitle),
             ],
           ),
           Expanded(

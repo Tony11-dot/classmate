@@ -2269,6 +2269,7 @@
   "adminSchoolSubjectsDescription": "זמינים לכל המורים בעת יצירת מטלות.",
   "adminSchoolNoTranslations": "הקש להוספת תרגומים",
   "adminSchoolBellHint": "הגדר שעות התחלה וסיום לכל שיעור. הוסף או הסר שיעורים לפי הצורך.",
+  "adminSchoolBellTitle": "לוח צלצולים",
   "adminSchoolBellInfo": "הגדר את שעות ההתחלה והסיום לכל שיעור. אלו הופכות לשעות ברירת המחדל לבניית המערכת השבועית.",
   "adminSchoolStartTime": "התחלה",
   "adminSchoolEndTime": "סיום",

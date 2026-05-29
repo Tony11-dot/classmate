@@ -5937,6 +5937,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Définissez les heures de début et de fin de chaque créneau. Ajoutez ou retirez des créneaux selon les besoins.';
 
   @override
+  String get adminSchoolBellTitle => 'Sonneries';
+
+  @override
   String get adminSchoolBellInfo =>
       'Définissez l\'heure de début et de fin de chaque créneau. Ce sont les horaires par défaut utilisés lors de la construction de l\'emploi du temps hebdomadaire.';
 

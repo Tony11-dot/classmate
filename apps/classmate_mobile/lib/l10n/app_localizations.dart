@@ -10449,6 +10449,12 @@ abstract class AppLocalizations {
   /// **'Set start and end times for each period. Add or remove periods as needed.'**
   String get adminSchoolBellHint;
 
+  /// No description provided for @adminSchoolBellTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bell Schedule'**
+  String get adminSchoolBellTitle;
+
   /// No description provided for @adminSchoolBellInfo.
   ///
   /// In en, this message translates to:

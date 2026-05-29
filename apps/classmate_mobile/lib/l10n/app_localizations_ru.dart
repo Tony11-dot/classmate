@@ -5781,6 +5781,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Установите время начала и окончания каждого урока. Добавьте или удалите уроки по необходимости.';
 
   @override
+  String get adminSchoolBellTitle => 'Расписание звонков';
+
+  @override
   String get adminSchoolBellInfo =>
       'Установите время начала и окончания каждого урока. Это время будет использоваться по умолчанию при построении недельного расписания.';
 

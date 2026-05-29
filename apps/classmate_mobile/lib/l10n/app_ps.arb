@@ -2570,6 +2570,7 @@
   "adminSchoolSubjectsDescription": "‹‹Available to all teachers when creating assignments.››",
   "adminSchoolNoTranslations": "‹‹Tap to add translations››",
   "adminSchoolBellHint": "‹‹Set start and end times for each period. Add or remove periods as needed.››",
+  "adminSchoolBellTitle": "‹‹Bell Schedule››",
   "adminSchoolBellInfo": "‹‹Set the start and end time for each period. These become the default times used when building the weekly schedule.››",
   "adminSchoolStartTime": "‹‹Start››",
   "adminSchoolEndTime": "‹‹End››",

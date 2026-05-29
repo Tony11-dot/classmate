@@ -2269,6 +2269,7 @@
   "adminSchoolSubjectsDescription": "متاحة لجميع المعلمين عند إنشاء الواجبات.",
   "adminSchoolNoTranslations": "اضغط لإضافة ترجمات",
   "adminSchoolBellHint": "حدّد أوقات بداية ونهاية كل حصة. أضف أو احذف حصصًا حسب الحاجة.",
+  "adminSchoolBellTitle": "جدول الأجراس",
   "adminSchoolBellInfo": "حدّد وقت البداية والنهاية لكل حصة. تصبح هذه الأوقات الافتراضية المستخدمة عند بناء الجدول الأسبوعي.",
   "adminSchoolStartTime": "البداية",
   "adminSchoolEndTime": "النهاية",

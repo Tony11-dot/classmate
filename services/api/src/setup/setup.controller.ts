@@ -596,24 +596,28 @@ function buildPage(): string {
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:#0b0b10; --surface:#16161f; --surface2:#1d1d28; --border:#252533;
-      --blue:#2563eb; --blue2:#1d4fd7; --text:#e4e4f0; --muted:#6868a0;
-      --err-bg:#1c0808; --err-border:#5c1010; --ok-bg:#081c10; --ok-border:#105c28;
-      --red:#ef4444; --green:#22c55e;
+      /* Light palette — admin chrome only. The dark variant existed
+         before the marketing site landed; now that the rest of the
+         brand is light cream + teal, the setup page reads as the same
+         family. Brand-blue accent stays the same. */
+      --bg:#f4efe5; --surface:#ffffff; --surface2:#f8f4ec; --border:#e2e1d8;
+      --blue:#2563eb; --blue2:#1d4fd7; --text:#1e293b; --muted:#64748b;
+      --err-bg:#fef2f2; --err-border:#fecaca; --ok-bg:#f0fdf4; --ok-border:#bbf7d0;
+      --red:#dc2626; --green:#16a34a;
     }
     body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
            background:var(--bg); color:var(--text); min-height:100vh;
            display:flex; align-items:flex-start; justify-content:center; padding:40px 20px 100px; }
     .wrap { width:100%; max-width:600px; }
 
-    /* header — always vertical, centred. Force logo white via CSS filter. */
+    /* header — always vertical, centred. Logo renders in its native
+       blue against the light cream background. */
     .hdr { display:block; text-align:center; margin-bottom:44px; }
     .hdr img { display:block; width:200px; max-width:70%; height:auto;
-               margin:0 auto 16px;
-               filter: brightness(0) invert(1); /* turns any colour into pure white */ }
+               margin:0 auto 16px; }
     .hdr-info h1 { font-size:13px; font-weight:700; color:var(--muted);
                    text-transform:uppercase; letter-spacing:1px; }
-    .hdr-info p  { font-size:12px; color:#444; margin-top:4px; }
+    .hdr-info p  { font-size:12px; color:var(--muted); margin-top:4px; }
 
     /* cards */
     .card { background:var(--surface); border:1px solid var(--border);
@@ -636,7 +640,7 @@ function buildPage(): string {
       transition:border-color .15s;
     }
     input:focus, textarea:focus { border-color:var(--blue); }
-    input::placeholder, textarea::placeholder { color:#404060; }
+    input::placeholder, textarea::placeholder { color:#a3a39a; }
     textarea { resize:vertical; min-height:70px; }
     .hint { font-size:11px; color:var(--muted); margin-top:5px; line-height:1.5; }
 
@@ -690,27 +694,28 @@ function buildPage(): string {
     .period-del:hover { color:var(--red); }
 
     /* secret */
-    .secret-card { background:var(--surface); border:1px solid #3a1010;
+    .secret-card { background:var(--err-bg); border:1px solid var(--err-border);
                    border-radius:14px; padding:18px; margin-bottom:18px;
                    display:flex; gap:14px; align-items:flex-start; }
     .secret-icon { font-size:22px; }
     .secret-inner { flex:1; }
-    .secret-inner label { color:#e05; }
+    .secret-inner label { color:var(--red); }
 
     /* submit */
     .btn { width:100%; padding:15px; background:var(--blue); color:#fff; border:none;
            border-radius:14px; font-size:16px; font-weight:800; cursor:pointer;
            transition:background .15s; margin-top:4px; }
     .btn:hover:not(:disabled) { background:var(--blue2); }
-    .btn:disabled { background:#252540; color:#555; cursor:not-allowed; }
+    .btn:disabled { background:var(--surface2); color:var(--muted); cursor:not-allowed; }
 
     /* result */
     .result { margin-top:20px; padding:20px; border-radius:14px;
               font-size:13px; line-height:1.7; display:none; }
-    .result.ok  { background:var(--ok-bg);  border:1px solid var(--ok-border);  color:#4ade80; }
-    .result.err { background:var(--err-bg); border:1px solid var(--err-border); color:#f87171; }
+    .result.ok  { background:var(--ok-bg);  border:1px solid var(--ok-border);  color:var(--green); }
+    .result.err { background:var(--err-bg); border:1px solid var(--err-border); color:var(--red); }
     .result pre { font-family:monospace; font-size:12px; white-space:pre-wrap;
-                  background:rgba(0,0,0,.3); border-radius:8px; padding:12px; margin-top:10px; color:#ccc; }
+                  background:var(--surface2); border:1px solid var(--border);
+                  border-radius:8px; padding:12px; margin-top:10px; color:var(--text); }
 
     /* subject list */
     .subj-item { display:flex; align-items:flex-start; gap:12px; padding:12px 14px;
@@ -775,10 +780,10 @@ function buildPage(): string {
     }
 
     /* ── danger zone ──────────────────────────────────────────────────── */
-    .danger-card { background:#1c0808; border:1px solid var(--err-border); border-radius:16px;
+    .danger-card { background:var(--err-bg); border:1px solid var(--err-border); border-radius:16px;
                    padding:24px; }
     .danger-card h3 { color:var(--red); font-size:18px; font-weight:800; margin-bottom:6px; }
-    .danger-card p  { color:#c89090; font-size:13px; line-height:1.55; margin-bottom:6px; }
+    .danger-card p  { color:#8b5050; font-size:13px; line-height:1.55; margin-bottom:6px; }
     .danger-btn { width:100%; padding:14px; background:var(--red); color:#fff; border:none;
                   border-radius:12px; font-size:14px; font-weight:800; cursor:pointer;
                   margin-top:18px; font-family:inherit; letter-spacing:.3px; }

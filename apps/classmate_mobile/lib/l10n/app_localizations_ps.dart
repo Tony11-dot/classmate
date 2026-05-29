@@ -5884,6 +5884,9 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Set start and end times for each period. Add or remove periods as needed.››';
 
   @override
+  String get adminSchoolBellTitle => '‹‹Bell Schedule››';
+
+  @override
   String get adminSchoolBellInfo =>
       '‹‹Set the start and end time for each period. These become the default times used when building the weekly schedule.››';
 
