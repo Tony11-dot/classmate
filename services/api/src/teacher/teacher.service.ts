@@ -992,16 +992,12 @@ export class TeacherService {
       body.grades = body.grades.filter((g) => validSet.has(g.studentId));
       studentIds = body.grades.map((g) => g.studentId);
     }
-    const profiles = await this.prisma.studentProfile.findMany({
-      where: { userId: { in: studentIds } },
-      select: { userId: true, cohortId: true },
-    });
-
-    const okSet = new Set(
-      profiles
-        .filter((p) => (cohortId ? p.cohortId === cohortId : true))
-        .map((p) => p.userId),
-    );
+    // No cohort-membership guard: teachers can grade any student in their
+    // school regardless of whether that student belongs to the assessment's
+    // cohort. School isolation above already gates by school.
+    const okSet = new Set(studentIds);
+    // cohortId resolved above but no longer used as a membership filter.
+    void cohortId;
 
     let written = 0;
     for (const g of body.grades) {
@@ -3511,25 +3507,31 @@ export class TeacherService {
     grades = grades.filter((g) => allowedIds.has(g.studentId));
     if (!grades.length) return { ok: true, saved: 0 };
 
-    // Group grades by student's cohort so each assessment is cohort-scoped
+    // Group grades by student's cohort so each assessment is cohort-scoped.
+    // Students without a cohort fall back to the exam's first target cohort
+    // (when the exam was cohort-targeted) so individually-targeted students
+    // and cohortless edge cases still get graded instead of silently dropped.
     const studentIds = grades.map((g) => g.studentId);
     const profiles = await this.prisma.studentProfile.findMany({
       where: { userId: { in: studentIds } },
       select: { userId: true, cohortId: true },
     });
     const cohortByStudent = new Map(profiles.map((p) => [p.userId, p.cohortId ?? '']));
+    const fallbackCohortId = (exam.targetCohortIds ?? [])[0] ?? '';
 
-    // Group by cohort
     const byCohort = new Map<string, { studentId: string; grade: number }[]>();
+    const dropped: string[] = [];
     for (const g of grades) {
-      const cohortId = cohortByStudent.get(g.studentId) ?? '';
-      if (!cohortId) continue;
+      const cohortId = cohortByStudent.get(g.studentId) || fallbackCohortId;
+      if (!cohortId) {
+        dropped.push(g.studentId);
+        continue;
+      }
       byCohort.set(cohortId, [...(byCohort.get(cohortId) ?? []), g]);
     }
 
     let saved = 0;
     for (const [cohortId, cohortGrades] of byCohort.entries()) {
-      // Find or create an assessment for this exam + cohort
       let assessment = await this.prisma.assessment.findFirst({ where: { examId, cohortId } });
       if (!assessment) {
         assessment = await this.prisma.assessment.create({
@@ -3555,7 +3557,7 @@ export class TeacherService {
         this.realtime.emitToUser(g.studentId, { type: 'grade_updated', studentId: g.studentId });
       }
     }
-    return { ok: true, saved };
+    return { ok: true, saved, requested: grades.length, dropped };
   }
 
   async deleteTeacherExam(user: any, id: string) {

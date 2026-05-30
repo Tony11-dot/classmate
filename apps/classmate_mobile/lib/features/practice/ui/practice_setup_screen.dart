@@ -768,27 +768,17 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: l.practiceSetupSectionDifficulty,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: cs.outlineVariant,
-                  ),
-                ),
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final difficulty in PracticeDifficulty.values)
-                      _DifficultyPill(
-                        label: practiceDifficultyLabel(context, difficulty),
-                        selected: filter.difficulty == difficulty,
-                        onTap: () => filterCtl.patch(difficulty: difficulty),
-                      ),
-                  ],
-                ),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final difficulty in PracticeDifficulty.values)
+                    _DifficultyPill(
+                      label: practiceDifficultyLabel(context, difficulty),
+                      selected: filter.difficulty == difficulty,
+                      onTap: () => filterCtl.patch(difficulty: difficulty),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -1878,35 +1868,42 @@ class _DifficultyPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: Ink(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? cs.primary : cs.surface,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: selected
-                ? cs.primary
-                : cs.outlineVariant,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (selected) ...[
-              Icon(Icons.check_circle_rounded, size: 16, color: cs.onPrimary),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: selected ? cs.onPrimary : null,
-              ),
+    final fg = selected ? cs.onPrimary : cs.onSurfaceVariant;
+    // Use a plain Container (not Ink) so the selected fill paints correctly
+    // even when there's no Material ancestor providing the canvas. A custom
+    // primaryTextTheme override in this app made labels on Ink-backed pills
+    // collapse to surface-on-surface in light mode.
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: selected ? cs.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected ? cs.primary : cs.outlineVariant,
+              width: selected ? 1.5 : 1,
             ),
-          ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (selected) ...[
+                Icon(Icons.check_rounded, size: 14, color: fg),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: fg,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );

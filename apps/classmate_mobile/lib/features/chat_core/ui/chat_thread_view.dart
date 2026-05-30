@@ -78,7 +78,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   int _knownMessageCount = 0;
   String? _knownLastMessageId;
   Timer? _highlightClearTimer;
+  Timer? _highlightRestartTimer;
+  Timer? _highlightFinalClearTimer;
   String? _highlightedMessageId;
+  int _pulseGeneration = 0;
 
   // Reply
   String? _replyToMessageId;
@@ -114,6 +117,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   bool _markedRead = false;
 
+  // Foreground poll: SSE delivers messages in real-time, but the connection
+  // can stall (mobile network handoff, proxy idle timeout, app resume). At
+  // 1.5s this gives a WhatsApp-feel even when SSE is silent. Runs only
+  // while the chat screen is the active route, so the cost is bounded to
+  // one viewer at a time.
+  Timer? _pollTimer;
+
   bool get _inSelectionMode => _isForwardSelectionMode || _isDeleteSelectionMode;
 
   @override
@@ -121,15 +131,20 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     super.initState();
     _scrollController.addListener(_handleScroll);
     _textController.addListener(_handleTextChange);
+    _pollTimer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
+      if (!mounted) return;
+      widget.controller.invalidate();
+    });
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
     _recorder.dispose();
     _recordTicker?.cancel();
-    _highlightClearTimer?.cancel();
+    _cancelPulseTimers();
     super.dispose();
   }
 
@@ -214,17 +229,30 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   GlobalKey _messageKeyFor(String messageId) =>
       _messageKeys.putIfAbsent(messageId, () => GlobalKey());
 
-  void _pulseMessage(String messageId) {
+  void _cancelPulseTimers() {
     _highlightClearTimer?.cancel();
+    _highlightRestartTimer?.cancel();
+    _highlightFinalClearTimer?.cancel();
+    _highlightClearTimer = null;
+    _highlightRestartTimer = null;
+    _highlightFinalClearTimer = null;
+  }
+
+  void _pulseMessage(String messageId) {
+    // Cancel any in-flight pulse from a previous jump so its delayed timers
+    // can't overwrite our highlight state.
+    _cancelPulseTimers();
+    final generation = ++_pulseGeneration;
     if (mounted) setState(() => _highlightedMessageId = messageId);
     _highlightClearTimer = Timer(const Duration(milliseconds: 300), () {
-      if (!mounted || _highlightedMessageId != messageId) return;
+      if (!mounted || _pulseGeneration != generation) return;
       setState(() => _highlightedMessageId = null);
-      Timer(const Duration(milliseconds: 150), () {
-        if (!mounted) return;
+      _highlightRestartTimer = Timer(const Duration(milliseconds: 150), () {
+        if (!mounted || _pulseGeneration != generation) return;
         setState(() => _highlightedMessageId = messageId);
-        Timer(const Duration(milliseconds: 800), () {
-          if (!mounted || _highlightedMessageId != messageId) return;
+        _highlightFinalClearTimer =
+            Timer(const Duration(milliseconds: 800), () {
+          if (!mounted || _pulseGeneration != generation) return;
           setState(() => _highlightedMessageId = null);
         });
       });
@@ -232,42 +260,51 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   }
 
   void _jumpToMessage(String messageId) {
+    // Recompute index every call — never trust state from a prior jump.
     final index = _lastMessages.indexWhere((m) => m.id == messageId);
     if (index < 0 || !_scrollController.hasClients) return;
 
-    void ensureAfterScroll() {
-      Future<void>.delayed(const Duration(milliseconds: 40), () {
-        if (!mounted) return;
-        final ctx = _messageKeyFor(messageId).currentContext;
-        if (ctx == null) return;
-        _pulseMessage(messageId);
-        Scrollable.ensureVisible(ctx,
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            alignment: 0.18);
-      });
+    // Fresh pulse cancels any leftover timer pollution from a previous tap.
+    _cancelPulseTimers();
+
+    void scrollToContext(BuildContext ctx) {
+      _pulseMessage(messageId);
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        alignment: 0.18,
+      );
     }
 
     final target = _messageKeyFor(messageId).currentContext;
     if (target != null) {
-      _pulseMessage(messageId);
-      Scrollable.ensureVisible(target,
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          alignment: 0.18);
+      scrollToContext(target);
       return;
     }
 
+    // Target not currently mounted — estimate offset by position in the list,
+    // animate there, then ensureVisible to nail the alignment once the
+    // ListView has materialised the target.
     final total = _lastMessages.length;
     final fraction = total <= 1 ? 0.0 : index / (total - 1);
-    final estimated = (_scrollController.position.maxScrollExtent * fraction)
-        .clamp(_scrollController.position.minScrollExtent,
-            _scrollController.position.maxScrollExtent);
+    final position = _scrollController.position;
+    final estimated = (position.maxScrollExtent * fraction)
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+
     _scrollController
-        .animateTo(estimated,
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic)
-        .then((_) => ensureAfterScroll());
+        .animateTo(
+      estimated,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    )
+        .then((_) async {
+      // Give the ListView one frame + a tick to build the target widget.
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      if (!mounted) return;
+      final ctx = _messageKeyFor(messageId).currentContext;
+      if (ctx != null) scrollToContext(ctx);
+    });
   }
 
   // ─── send / edit pipeline ────────────────────────────────────────────────

@@ -416,6 +416,12 @@ class ChatMessageBubble extends StatelessWidget {
             .trimRight();
       }
     }
+
+    // Format raw attachment markers ("[FILE] doc.pdf", "[VOICE] …") into the
+    // friendly snippet the preview should actually show.
+    if (resolvedReplySnippet.isNotEmpty) {
+      resolvedReplySnippet = replyPreviewText(resolvedReplySnippet);
+    }
     final resolvedMediaUrl = _resolveMediaUrl(mediaUrl);
     final lowerUrl = resolvedMediaUrl.toLowerCase();
     final lowerBody = body.toLowerCase();

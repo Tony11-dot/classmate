@@ -497,6 +497,14 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminPasswordMinLength)));
       return;
     }
+    // Students must have a grade level so cohort/grade-scoped features
+    // (exams, assignments, grade lists) place them correctly from day 1.
+    if (_role == 'STUDENT' && _grade == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pick a grade level for this student.')),
+      );
+      return;
+    }
     setState(() => _saving = true);
     try {
       // Normalize whatever the user typed (national `0525488441`, bare

@@ -167,7 +167,10 @@ class MainDrawer extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    // School logo or placeholder icon
+                    // School logo or placeholder icon. Image.network leaves
+                    // a blank square while the network fetch is in flight —
+                    // frameBuilder swaps in the placeholder so there's never
+                    // a white flash, only the icon → logo transition.
                     if (schoolLogoUrl.isNotEmpty)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -176,6 +179,16 @@ class MainDrawer extends ConsumerWidget {
                           width: 36,
                           height: 36,
                           fit: BoxFit.contain,
+                          gaplessPlayback: true,
+                          frameBuilder: (ctx, child, frame, wasSyncLoaded) {
+                            if (wasSyncLoaded || frame != null) {
+                              return AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 180),
+                                child: child,
+                              );
+                            }
+                            return _schoolLogoPlaceholder(cs);
+                          },
                           errorBuilder: (ctx, err, stack) => _schoolLogoPlaceholder(cs),
                         ),
                       )

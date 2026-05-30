@@ -158,12 +158,41 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     return _rows.where((r) => r.matchesQuery(q)).toList();
   }
 
+  /// Split filtered rows into:
+  ///   1. students with at least one published grade
+  ///   2. other students in the same grade levels / cohorts as group 1
+  ///   (so the teacher only sees "peers", not the whole school).
+  ({List<_StudentGradeRow> graded, List<_StudentGradeRow> peers})
+      get _sections {
+    final filtered = _filtered;
+    final graded = <_StudentGradeRow>[];
+    final ungraded = <_StudentGradeRow>[];
+    for (final r in filtered) {
+      final hasGrade = r.gradeBySubject.values.any((v) => v != null);
+      (hasGrade ? graded : ungraded).add(r);
+    }
+    final cohortIds = graded.map((r) => r.student.cohortId).toSet()
+      ..removeWhere((c) => c.isEmpty);
+    final gradeLevels = graded
+        .map((r) => r.student.gradeLevel)
+        .whereType<int>()
+        .toSet();
+    final peers = ungraded.where((r) {
+      if (cohortIds.contains(r.student.cohortId)) return true;
+      final lvl = r.student.gradeLevel;
+      if (lvl != null && gradeLevels.contains(lvl)) return true;
+      return false;
+    }).toList();
+    return (graded: graded, peers: peers);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final filtered = _filtered;
+    final sections = _sections;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -297,33 +326,144 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                 ),
               ),
             )
-          else
-            ...filtered.map((row) => _StudentGradeCard(
-                  row: row,
-                  allSubjects: _allSubjects,
-                  onTap: () async {
-                    await Navigator.of(context, rootNavigator: true).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => TeacherStudentGradeDetailScreen(
-                          student: row.student,
+          else ...[
+            if (sections.graded.isNotEmpty) ...[
+              _SectionHeading(
+                title: 'Students with grades',
+                count: sections.graded.length,
+              ),
+              ...sections.graded.map((row) => _StudentGradeCard(
+                    row: row,
+                    allSubjects: _allSubjects,
+                    onTap: () async {
+                      await Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => TeacherStudentGradeDetailScreen(
+                            student: row.student,
+                          ),
                         ),
-                      ),
-                    );
-                    if (mounted) _load();
-                  },
-                  onAddGrade: () async {
-                    await context.push(
-                      '/teacher/grades/add',
-                      extra: <String, dynamic>{
-                        'studentIds': [row.student.studentId],
-                        'subject': row.student.subjects.isNotEmpty
-                            ? row.student.subjects.first
-                            : null,
-                      },
-                    );
-                    if (mounted) _load();
-                  },
-                )),
+                      );
+                      if (mounted) _load();
+                    },
+                    onAddGrade: () async {
+                      await context.push(
+                        '/teacher/grades/add',
+                        extra: <String, dynamic>{
+                          'studentIds': [row.student.studentId],
+                          'subject': row.student.subjects.isNotEmpty
+                              ? row.student.subjects.first
+                              : null,
+                        },
+                      );
+                      if (mounted) _load();
+                    },
+                  )),
+            ],
+            if (sections.peers.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              _SectionHeading(
+                title: 'Other students in the same grade/cohort',
+                count: sections.peers.length,
+              ),
+              ...sections.peers.map((row) => _StudentGradeCard(
+                    row: row,
+                    allSubjects: _allSubjects,
+                    onTap: () async {
+                      await Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => TeacherStudentGradeDetailScreen(
+                            student: row.student,
+                          ),
+                        ),
+                      );
+                      if (mounted) _load();
+                    },
+                    onAddGrade: () async {
+                      await context.push(
+                        '/teacher/grades/add',
+                        extra: <String, dynamic>{
+                          'studentIds': [row.student.studentId],
+                          'subject': row.student.subjects.isNotEmpty
+                              ? row.student.subjects.first
+                              : null,
+                        },
+                      );
+                      if (mounted) _load();
+                    },
+                  )),
+            ],
+            // Fallback: nobody has grades AND we filtered nobody out — show
+            // everyone in a flat list rather than two empty sections.
+            if (sections.graded.isEmpty && sections.peers.isEmpty)
+              ...filtered.map((row) => _StudentGradeCard(
+                    row: row,
+                    allSubjects: _allSubjects,
+                    onTap: () async {
+                      await Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => TeacherStudentGradeDetailScreen(
+                            student: row.student,
+                          ),
+                        ),
+                      );
+                      if (mounted) _load();
+                    },
+                    onAddGrade: () async {
+                      await context.push(
+                        '/teacher/grades/add',
+                        extra: <String, dynamic>{
+                          'studentIds': [row.student.studentId],
+                          'subject': row.student.subjects.isNotEmpty
+                              ? row.student.subjects.first
+                              : null,
+                        },
+                      );
+                      if (mounted) _load();
+                    },
+                  )),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeading extends StatelessWidget {
+  const _SectionHeading({required this.title, required this.count});
+  final String title;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 6, 4, 10),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: cs.onSurface,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '$count',
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -352,10 +492,15 @@ class _StudentGradeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final graded = row.gradeBySubject;
-    // Show subjects this student is enrolled in, falling back to all subjects.
-    final subjects = row.student.subjects.isNotEmpty
-        ? row.student.subjects
-        : allSubjects;
+    // Union of the student's enrolled subjects + any subjects they've
+    // actually been graded in (so a grade in a subject that's missing
+    // from the enrolment record — e.g. the teacher graded "Other" — still
+    // renders as a pill instead of vanishing).
+    final subjects = {
+      ...row.student.subjects,
+      ...graded.keys,
+    }.toList();
+    if (subjects.isEmpty) subjects.addAll(allSubjects);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

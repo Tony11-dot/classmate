@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -187,39 +186,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           '_pendingMaterial': true,
         });
       });
-    }
-  }
-
-  Future<void> _pickFiles() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: true);
-    if (result == null) return;
-    final repo = ref.read(teacherMobileRepositoryProvider);
-    setState(() => _saving = true);
-    try {
-      for (final file in result.files) {
-        final path = file.path;
-        if (path == null) continue;
-        try {
-          // Upload the file and get a real CDN URL.
-          final uploaded = await repo.uploadAttachmentFile(path, file.name);
-          final url = uploaded['url']?.toString() ?? uploaded['mediaUrl']?.toString() ?? '';
-          setState(() {
-            _attachments.add({'title': file.name, 'url': url.isNotEmpty ? url : path});
-          });
-        } catch (_) {
-          // Upload failed — store local path as fallback (visible to teacher only).
-          setState(() {
-            // Upload failed — skip this attachment rather than storing a local path the server can't access
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(context)!.teacherExamUploadFailedSkipped(file.name))),
-              );
-            }
-          });
-        }
-      }
-    } finally {
-      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -479,24 +445,21 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                           ),
                         );
                       }),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _pickMaterial,
-                              icon: const Icon(Icons.folder_open_rounded, size: 18),
-                              label: Text(AppLocalizations.of(context)!.teacherAttachFromMaterials),
-                            ),
+                      // Single attach button — opens the same library picker
+                      // that powers period attachments. The picker itself
+                      // exposes "Create new material" so file uploads still
+                      // happen through the add-material screen rather than a
+                      // second button here.
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.tonalIcon(
+                          onPressed: _pickMaterial,
+                          icon: const Icon(Icons.attach_file_rounded, size: 18),
+                          label: const Text('Attach material'),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _pickFiles,
-                              icon: const Icon(Icons.file_upload_outlined, size: 18),
-                              label: Text(AppLocalizations.of(context)!.teacherUploadFiles),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),

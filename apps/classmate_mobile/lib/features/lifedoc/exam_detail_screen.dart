@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,18 +55,39 @@ Future<void> _addToCalendar(
     BuildContext context, StudentExamItem exam) async {
   final date = _parseDate(exam.dateLabel);
 
-  // On iOS try to open the native Calendar app via calshow:// deep link.
-  // If that's unavailable (Android/web), fall back to a .ics data URI which
-  // iOS/Android will offer to open in the system calendar.
   if (date != null) {
-    final calShowUri = Uri.parse('calshow://${date.millisecondsSinceEpoch / 1000}');
-    if (await canLaunchUrl(calShowUri)) {
-      await launchUrl(calShowUri, mode: LaunchMode.externalApplication);
-      return;
+    // Android: open Google Calendar's event-template URL. The Calendar app
+    // (or browser fallback) handles `calendar.google.com/calendar/render`
+    // intents and pre-fills the title + start/end date.
+    if (Platform.isAndroid) {
+      String pad(int v) => v.toString().padLeft(2, '0');
+      final start = '${date.year}${pad(date.month)}${pad(date.day)}T080000';
+      final end = '${date.year}${pad(date.month)}${pad(date.day)}T100000';
+      final params = <String, String>{
+        'action': 'TEMPLATE',
+        'text': exam.title,
+        'dates': '$start/$end',
+        if (exam.teacher.isNotEmpty) 'details': 'Teacher: ${exam.teacher}',
+      };
+      final gcalUri = Uri.https('calendar.google.com', '/calendar/render', params);
+      if (await canLaunchUrl(gcalUri)) {
+        await launchUrl(gcalUri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    } else {
+      // iOS: open the native Calendar app at the exam's date.
+      final calShowUri =
+          Uri.parse('calshow://${date.millisecondsSinceEpoch ~/ 1000}');
+      if (await canLaunchUrl(calShowUri)) {
+        await launchUrl(calShowUri, mode: LaunchMode.externalApplication);
+        return;
+      }
     }
 
-    // Build a minimal .ics data URI — universal calendar import.
-    final ymd = '${date.year}${date.month.toString().padLeft(2,'0')}${date.day.toString().padLeft(2,'0')}';
+    // Universal fallback: .ics data URI. iOS Mail/Safari and some Android
+    // calendar apps will offer to import this directly.
+    final ymd =
+        '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
     final uid = 'exam-${exam.id}@classmate';
     final ics = 'BEGIN:VCALENDAR\r\n'
         'VERSION:2.0\r\n'
@@ -413,15 +436,15 @@ class _ExamDetailBody extends StatelessWidget {
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
                   )
-                : Column(
-                    children: exam.materials
-                        .map(
-                          (m) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _MaterialTile(material: m),
-                          ),
-                        )
-                        .toList(),
+                : Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: exam.materials
+                          .map((m) => _MaterialPill(material: m))
+                          .toList(),
+                    ),
                   ),
           ),
           const SizedBox(height: 14),
@@ -510,12 +533,6 @@ class _ExamDetailBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
-                  onPressed: () => context.push('/insights'),
-                  icon: const Icon(Icons.insights_rounded),
-                  label: Text(l.examOpenInsights),
-                ),
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
                   onPressed: () => _addToCalendar(context, exam),
                   icon: const Icon(Icons.event_available_rounded),
                   label: Text(l.examAddToCalendar),
@@ -573,93 +590,87 @@ class _Section extends StatelessWidget {
 
 // ─── material tile ────────────────────────────────────────────────────────────
 
-class _MaterialTile extends StatelessWidget {
-  const _MaterialTile({required this.material});
+/// Compact pill version of [_MaterialTile] — used in the student exam
+/// detail materials section so multiple attachments line up like tags
+/// rather than full-width rows.
+class _MaterialPill extends StatelessWidget {
+  const _MaterialPill({required this.material});
 
   final ExamMaterialItem material;
+
+  Future<void> _open(BuildContext context) async {
+    final url = (material.url ?? '').trim();
+    if (url.isEmpty) return;
+    final kind = material.kind.toLowerCase();
+    final lower = url.toLowerCase();
+    final isImage = kind.contains('image') ||
+        kind.contains('photo') ||
+        lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.webp');
+    final isPdf = kind.contains('pdf') || lower.endsWith('.pdf');
+
+    if (isImage) {
+      await Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ImageViewerScreen(url: url, title: material.name),
+        ),
+      );
+    } else if (isPdf) {
+      await Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute<void>(
+          builder: (_) => PdfViewerScreen(url: url, title: material.name),
+        ),
+      );
+    } else {
+      final uri = Uri.tryParse(url);
+      if (uri != null && await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final hasUrl = (material.url ?? '').trim().isNotEmpty;
-    final icon = _materialIcon(material.kind);
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: hasUrl
-            ? () async {
-                final url = material.url!.trim();
-                final kind = material.kind.toLowerCase();
-                final isImage = kind.contains('image') || kind.contains('photo') ||
-                    url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.jpeg') ||
-                    url.toLowerCase().endsWith('.png') || url.toLowerCase().endsWith('.webp');
-                final isPdf = kind.contains('pdf') || url.toLowerCase().endsWith('.pdf');
-
-                if (isImage) {
-                  await Navigator.of(context, rootNavigator: true).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => ImageViewerScreen(url: url, title: material.name),
-                    ),
-                  );
-                } else if (isPdf) {
-                  await Navigator.of(context, rootNavigator: true).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => PdfViewerScreen(url: url, title: material.name),
-                    ),
-                  );
-                } else {
-                  final uri = Uri.tryParse(url);
-                  if (uri != null && await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                }
-              }
-            : null,
-        child: LiquidGlassCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          borderRadius: BorderRadius.circular(18),
-          color: cs.surfaceContainerLow,
-          border: Border.all(
-            color: cs.outlineVariant,
+        borderRadius: BorderRadius.circular(999),
+        onTap: hasUrl ? () => _open(context) : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: cs.secondaryContainer,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: cs.outlineVariant),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: cs.secondaryContainer,
-                child: Icon(
-                  icon,
-                  size: 16,
-                  color: cs.onSecondaryContainer,
+              Icon(_materialIcon(material.kind),
+                  size: 14, color: cs.onSecondaryContainer),
+              const SizedBox(width: 6),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 160),
+                child: Text(
+                  material.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: cs.onSecondaryContainer,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12.5,
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      material.name,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      material.kind,
-                      style: TextStyle(
-                        color: cs.onSurfaceVariant,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (hasUrl)
-                Icon(
-                  Icons.open_in_new_rounded,
-                  size: 16,
-                  color: cs.onSurfaceVariant,
-                ),
+              if (hasUrl) ...[
+                const SizedBox(width: 6),
+                Icon(Icons.open_in_new_rounded,
+                    size: 12, color: cs.onSecondaryContainer),
+              ],
             ],
           ),
         ),
@@ -667,4 +678,5 @@ class _MaterialTile extends StatelessWidget {
     );
   }
 }
+
 

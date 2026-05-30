@@ -1039,6 +1039,13 @@ class _ExportOptionsSheet extends StatefulWidget {
 class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   bool _includePasswords = false;
   bool _exporting = false;
+  /// When ON, the PDF export devotes a full page to each user with a
+  /// data-forward layout (no shared table). Off = legacy compact table.
+  bool _eachUserAlone = false;
+  /// Only meaningful when [_eachUserAlone] is true. ON = generate one
+  /// PDF file per user (shared as N attachments); OFF = a single PDF
+  /// where each user gets its own page.
+  bool _separateFiles = false;
   // Language picker for the export. Drives which name field
   // (nameEn / nameAr / nameHe / nameFr / nameRu) becomes the primary
   // "Name" column in the PDF and the first column in the CSV. Defaults
@@ -1188,27 +1195,349 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       final schoolName = widget.session?.schoolName ?? '';
       final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? 'Admin') as String;
       final l = AppLocalizations.of(context)!;
-      final bytes = await _buildPdf(
-        users,
-        withPasswords: _includePasswords,
-        schoolName: schoolName,
-        exportedBy: exportedBy,
-        l: l,
-      );
-      if (!mounted) return;
-      final origin = _shareOrigin(context);
-      Navigator.pop(context);
-      await Printing.sharePdf(
-        bytes: bytes,
-        filename: 'classmate_users.pdf',
-        bounds: origin,
-      );
+
+      // Three branches:
+      //   1. Compact table (legacy) — one PDF, all users in a single
+      //      landscape table.
+      //   2. Each user alone, bundled — one PDF, one full page per user.
+      //   3. Each user alone, separate — N PDFs, one per user; shared
+      //      together via the OS share sheet.
+      if (!_eachUserAlone) {
+        final bytes = await _buildPdf(
+          users,
+          withPasswords: _includePasswords,
+          schoolName: schoolName,
+          exportedBy: exportedBy,
+          l: l,
+        );
+        if (!mounted) return;
+        final origin = _shareOrigin(context);
+        Navigator.pop(context);
+        await Printing.sharePdf(
+          bytes: bytes,
+          filename: 'classmate_users.pdf',
+          bounds: origin,
+        );
+      } else if (!_separateFiles) {
+        final bytes = await _buildPerUserPdf(
+          users,
+          withPasswords: _includePasswords,
+          schoolName: schoolName,
+          exportedBy: exportedBy,
+          l: l,
+        );
+        if (!mounted) return;
+        final origin = _shareOrigin(context);
+        Navigator.pop(context);
+        await Printing.sharePdf(
+          bytes: bytes,
+          filename: 'classmate_users.pdf',
+          bounds: origin,
+        );
+      } else {
+        // One PDF per user. Write each to a temp file then share them
+        // as a single XFile batch.
+        final dir = await getTemporaryDirectory();
+        final stamp = DateTime.now().millisecondsSinceEpoch;
+        final files = <XFile>[];
+        for (var i = 0; i < users.length; i++) {
+          final bytes = await _buildPerUserPdf(
+            [users[i]],
+            withPasswords: _includePasswords,
+            schoolName: schoolName,
+            exportedBy: exportedBy,
+            l: l,
+          );
+          final safeName = (_nameForLang(users[i], _lang).isEmpty
+                  ? (users[i]['username']?.toString() ?? 'user')
+                  : _nameForLang(users[i], _lang))
+              .replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_');
+          final f = File('${dir.path}/classmate_${safeName}_$stamp.pdf');
+          await f.writeAsBytes(bytes);
+          files.add(XFile(f.path, mimeType: 'application/pdf'));
+        }
+        if (!mounted) return;
+        final origin = _shareOrigin(context);
+        Navigator.pop(context);
+        await Share.shareXFiles(
+          files,
+          subject: 'ClassMate Users',
+          sharePositionOrigin: origin,
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _exporting = false);
     }
+  }
+
+  /// Builds a PDF where each user occupies a full A4 portrait page. The
+  /// layout is data-forward (large name, badge row, info cards) rather
+  /// than the compact landscape table the legacy export uses.
+  Future<Uint8List> _buildPerUserPdf(
+    List<Map<String, dynamic>> users, {
+    required bool withPasswords,
+    required String schoolName,
+    required String exportedBy,
+    required AppLocalizations l,
+  }) async {
+    final baseFont = await PdfGoogleFonts.notoSansRegular();
+    final baseBold = await PdfGoogleFonts.notoSansBold();
+    final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
+    final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
+    final cmLogo = pw.MemoryImage(
+      (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
+    );
+
+    final doc = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: baseFont,
+        bold: baseBold,
+        fontFallback: [arabicFont, hebrewFont],
+      ),
+    );
+
+    const brandBlue = PdfColor.fromInt(0xFF2563EB);
+    const brandDeep = PdfColor.fromInt(0xFF1E3A5F);
+    const fieldBg = PdfColor.fromInt(0xFFF1F5F9);
+    const pwBg = PdfColor.fromInt(0xFFFAF5FF);
+    const pwBorder = PdfColor.fromInt(0xFF7C3AED);
+    const fieldLabel = PdfColor.fromInt(0xFF64748B);
+
+    final now = DateTime.now();
+    final dateStr = '${_months[now.month]} ${now.day}, ${now.year}';
+
+    for (final u in users) {
+      final role = (u['role'] ?? '').toString();
+      final isStudent = role == 'STUDENT';
+      final cohortNamesRaw = u['cohortNames'];
+      final cohortsJoined = cohortNamesRaw is List
+          ? cohortNamesRaw
+              .whereType<String>()
+              .where((n) => n.isNotEmpty)
+              .join(' / ')
+          : (u['cohortName']?.toString() ?? '');
+
+      final fields = <_PerUserField>[
+        _PerUserField(label: l.adminExportColumnRole, value: _localizedRoleName(l, role)),
+        if ((u['email'] ?? '').toString().isNotEmpty)
+          _PerUserField(label: l.adminExportColumnEmail, value: u['email'].toString()),
+        if ((u['username'] ?? '').toString().isNotEmpty)
+          _PerUserField(label: l.adminExportColumnUsername, value: u['username'].toString(), mono: true),
+        if ((u['phone'] ?? '').toString().isNotEmpty)
+          _PerUserField(label: l.adminExportColumnPhone, value: u['phone'].toString(), mono: true),
+        if (isStudent && (u['grade'] ?? '').toString().isNotEmpty)
+          _PerUserField(label: l.adminExportColumnGrade, value: u['grade'].toString()),
+        if (isStudent && cohortsJoined.isNotEmpty)
+          _PerUserField(label: l.adminExportColumnCohorts, value: cohortsJoined),
+        if ((u['schoolName'] ?? '').toString().isNotEmpty)
+          _PerUserField(label: l.adminExportColumnSchool, value: u['schoolName'].toString()),
+      ];
+
+      final displayName = _nameForLang(u, _lang);
+      final isRtlName = _isRtlText(displayName);
+
+      doc.addPage(pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.fromLTRB(40, 40, 40, 40),
+        build: (ctx) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            // Hero banner with logo + ClassMate brand
+            pw.Container(
+              padding: const pw.EdgeInsets.fromLTRB(20, 18, 20, 18),
+              decoration: pw.BoxDecoration(
+                color: brandBlue,
+                borderRadius: pw.BorderRadius.circular(14),
+              ),
+              child: pw.Row(
+                children: [
+                  pw.Container(
+                    width: 44,
+                    height: 44,
+                    padding: const pw.EdgeInsets.all(6),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.white,
+                      borderRadius: pw.BorderRadius.circular(10),
+                    ),
+                    child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
+                  ),
+                  pw.SizedBox(width: 14),
+                  pw.Expanded(
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text('ClassMate',
+                            style: pw.TextStyle(
+                              fontSize: 18,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.white,
+                            )),
+                        if (schoolName.isNotEmpty)
+                          pw.Text(schoolName,
+                              style: const pw.TextStyle(
+                                fontSize: 11,
+                                color: PdfColor(1, 1, 1, 0.7),
+                              )),
+                      ],
+                    ),
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text(dateStr,
+                          style: const pw.TextStyle(
+                            fontSize: 10,
+                            color: PdfColor(1, 1, 1, 0.85),
+                          )),
+                      pw.Text(l.adminExportPdfBy(exportedBy),
+                          style: const pw.TextStyle(
+                            fontSize: 10,
+                            color: PdfColor(1, 1, 1, 0.7),
+                          )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            pw.SizedBox(height: 28),
+            // BIG NAME — front and centre
+            pw.Directionality(
+              textDirection: isRtlName
+                  ? pw.TextDirection.rtl
+                  : pw.TextDirection.ltr,
+              child: pw.Text(
+                displayName.isEmpty ? (u['username']?.toString() ?? '—') : displayName,
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(
+                  fontSize: 34,
+                  fontWeight: pw.FontWeight.bold,
+                  color: brandDeep,
+                  height: 1.1,
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 6),
+            // Role + cohort/grade chip row
+            pw.Center(
+              child: pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: pw.BoxDecoration(
+                  color: brandBlue,
+                  borderRadius: pw.BorderRadius.circular(999),
+                ),
+                child: pw.Text(
+                  _localizedRoleName(l, role).toUpperCase(),
+                  style: pw.TextStyle(
+                    fontSize: 11,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.white,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 26),
+            // Field cards
+            ...fields.map((f) {
+              final isRtl = _isRtlText(f.value);
+              return pw.Container(
+                margin: const pw.EdgeInsets.only(bottom: 10),
+                padding: const pw.EdgeInsets.fromLTRB(16, 12, 16, 12),
+                decoration: pw.BoxDecoration(
+                  color: fieldBg,
+                  borderRadius: pw.BorderRadius.circular(10),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      f.label.toUpperCase(),
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        color: fieldLabel,
+                        fontWeight: pw.FontWeight.bold,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    pw.SizedBox(height: 4),
+                    pw.Directionality(
+                      textDirection: isRtl
+                          ? pw.TextDirection.rtl
+                          : pw.TextDirection.ltr,
+                      child: pw.Text(
+                        f.value,
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          color: brandDeep,
+                          fontWeight: pw.FontWeight.bold,
+                          letterSpacing: f.mono ? 0.5 : 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            if (withPasswords && (u['tempPassword'] ?? '').toString().isNotEmpty) ...[
+              pw.SizedBox(height: 6),
+              pw.Container(
+                padding: const pw.EdgeInsets.fromLTRB(16, 14, 16, 14),
+                decoration: pw.BoxDecoration(
+                  color: pwBg,
+                  borderRadius: pw.BorderRadius.circular(10),
+                  border: pw.Border.all(color: pwBorder, width: 1),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      l.adminExportColumnPassword.toUpperCase(),
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        color: pwBorder,
+                        fontWeight: pw.FontWeight.bold,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      u['tempPassword'].toString(),
+                      style: pw.TextStyle(
+                        fontSize: 22,
+                        color: pwBorder,
+                        fontWeight: pw.FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            pw.Spacer(),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(10),
+              decoration: pw.BoxDecoration(
+                color: const PdfColor.fromInt(0xFFEFF6FF),
+                borderRadius: pw.BorderRadius.circular(8),
+                border: pw.Border.all(color: brandBlue, width: 0.5),
+              ),
+              child: pw.Text(
+                l.adminExportPdfFooter,
+                style: pw.TextStyle(
+                  fontSize: 8,
+                  color: brandBlue,
+                  fontStyle: pw.FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ));
+    }
+    return doc.save();
   }
 
   Future<Uint8List> _buildPdf(
@@ -1458,6 +1787,68 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               onChanged: (v) => setState(() => _includePasswords = v),
             ),
           ),
+          const SizedBox(height: 10),
+          // ── Each-user-alone toggle ────────────────────────────────────
+          Container(
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                  color: cs.outlineVariant.withValues(alpha: 0.4)),
+            ),
+            child: SwitchListTile.adaptive(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+              title: Text(
+                'Each user alone',
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                _eachUserAlone
+                    ? 'One full page per user, big readable card layout.'
+                    : 'Compact table — every user is a row.',
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(color: cs.onSurfaceVariant, height: 1.3),
+              ),
+              value: _eachUserAlone,
+              onChanged: (v) => setState(() {
+                _eachUserAlone = v;
+                if (!v) _separateFiles = false;
+              }),
+            ),
+          ),
+          if (_eachUserAlone) ...[
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.4)),
+              ),
+              child: SwitchListTile.adaptive(
+                dense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                title: Text(
+                  _separateFiles
+                      ? 'Separate PDF per user'
+                      : 'Single PDF, one page per user',
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  _separateFiles
+                      ? 'You\'ll share ${widget.userCount} PDF file${widget.userCount == 1 ? "" : "s"} at once — each user gets their own.'
+                      : 'Everyone in one PDF, each on their own page.',
+                  style: theme.textTheme.labelSmall
+                      ?.copyWith(color: cs.onSurfaceVariant, height: 1.3),
+                ),
+                value: _separateFiles,
+                onChanged: (v) => setState(() => _separateFiles = v),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           Text(
             l.adminExportLanguageLabel,
@@ -1529,6 +1920,13 @@ class _Col {
   const _Col(this.label, this.fraction);
   final String label;
   final double fraction;
+}
+
+class _PerUserField {
+  const _PerUserField({required this.label, required this.value, this.mono = false});
+  final String label;
+  final String value;
+  final bool mono;
 }
 
 const _months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

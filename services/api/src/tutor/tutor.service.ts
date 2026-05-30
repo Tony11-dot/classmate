@@ -1243,6 +1243,20 @@ export class TutorService {
           return;
         }
 
+        // Look up the billing tier so the reply provider can route FREE
+        // users to Haiku at a smaller max_tokens. Errors here must not
+        // block the stream — default to FREE so we always pick the
+        // cheaper code path on failure.
+        let activeTier = 'FREE';
+        if (billingUserId) {
+          try {
+            const snap = await tokens.getBalance(billingUserId);
+            activeTier = snap.activeTier || 'FREE';
+          } catch (_) {
+            activeTier = 'FREE';
+          }
+        }
+
         // 2) Founder Tony system prompt (NOVA persona)
         
         // ---- QUIZ STABILITY GUARD ----
@@ -1290,6 +1304,7 @@ const system =
           messages,
           displayName: opts?.displayName,
           novaSettings: opts?.novaSettings,
+          tier: activeTier,
           onUsage: (u) => {
             // Fire-and-forget bill — we never want a billing write to
             // break the stream the user is already consuming.
@@ -2164,6 +2179,22 @@ const system =
       }
     }
 
+    // Follow-up suggestions are nice-to-have UI; skip them entirely for
+    // FREE users so we don't burn ~1 background call's worth of tokens
+    // per reply on something the user didn't explicitly ask for. Paid
+    // users still get suggestions via Sonnet.
+    let activeTier = 'FREE';
+    if (billingUserId) {
+      try {
+        const snap = await this.tokens.getBalance(billingUserId);
+        activeTier = snap.activeTier || 'FREE';
+      } catch (_) {
+        activeTier = 'FREE';
+      }
+    }
+    if (activeTier === 'FREE') {
+      return { suggestions: [] };
+    }
     const client = getAnthropicClient();
     const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
 

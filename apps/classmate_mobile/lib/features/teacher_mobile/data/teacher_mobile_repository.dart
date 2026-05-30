@@ -274,6 +274,8 @@ class TeacherMobileRepository {
               (grade) => <String, dynamic>{
                 'studentId': grade.studentId,
                 'grade': grade.grade,
+                if (grade.comment != null && grade.comment!.trim().isNotEmpty)
+                  'comment': grade.comment!.trim(),
               },
             )
             .toList(growable: false),
@@ -926,11 +928,11 @@ class TeacherMobileRepository {
     return raw is Map ? Map<String, dynamic>.from(raw) : {};
   }
 
-  Future<void> saveExamGrades({
+  Future<Map<String, dynamic>> saveExamGrades({
     required String examId,
     required List<TeacherGradeDraftRecord> grades,
   }) async {
-    await _api.postJson(
+    final res = await _api.postJson(
       '/teacher/exams/$examId/grades',
       body: <String, dynamic>{
         'grades': grades
@@ -938,6 +940,7 @@ class TeacherMobileRepository {
             .toList(growable: false),
       },
     );
+    return res is Map ? Map<String, dynamic>.from(res) : <String, dynamic>{};
   }
 
   Future<List<Map<String, dynamic>>> listTeacherExams() async {
@@ -1544,10 +1547,15 @@ class TeacherAssessmentGrade {
 }
 
 class TeacherGradeDraftRecord {
-  const TeacherGradeDraftRecord({required this.studentId, required this.grade});
+  const TeacherGradeDraftRecord({
+    required this.studentId,
+    required this.grade,
+    this.comment,
+  });
 
   final String studentId;
   final int grade;
+  final String? comment;
 }
 
 class TeacherStudentWithLevel {

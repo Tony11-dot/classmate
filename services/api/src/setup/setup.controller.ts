@@ -817,7 +817,7 @@ function buildPage(): string {
 <div class="wrap">
 
   <div class="hdr">
-    <img src="${LOGO_DATA_URI}" alt="ClassMate">
+    <img src="/static/logo_light.png" alt="ClassMate" onerror="this.src='${LOGO_DATA_URI}';">
     <div class="hdr-info">
       <h1>Platform Console</h1>
       <p>Platform admin only · manage every school</p>
@@ -1019,14 +1019,17 @@ function buildPage(): string {
     </div>
   </div>
 
-  <!-- Delete-one-school modal -->
+  <!-- Delete-one-school modal — styled to match the Danger Zone card. -->
   <div class="modal-overlay" id="deleteModal">
-    <div class="modal">
-      <h3>Delete this school?</h3>
-      <p id="deleteModalBody">This will permanently delete the school and every user, cohort, classroom, message, and grade associated with it. No undo.</p>
+    <div class="modal danger-modal">
+      <div class="danger-card" style="margin:0 0 14px 0;">
+        <h3>⚠️  Delete this school</h3>
+        <p id="deleteModalBody">This permanently removes the school and <strong>every user, cohort, classroom, schedule slot, message, assignment, exam, attendance record, and grade</strong> associated with it.</p>
+        <p>This action <strong>cannot be undone</strong>. Make sure you have an export of any data you still need.</p>
+      </div>
       <div class="field">
-        <label>Type the school's name to confirm</label>
-        <input id="deleteConfirmInput" type="text">
+        <label>Type the school's name <em id="deleteSchoolNameHint" style="color:var(--red); font-style:normal; font-weight:700;"></em> to confirm</label>
+        <input id="deleteConfirmInput" type="text" autocomplete="off" spellcheck="false">
       </div>
       <div class="modal-status err" id="deleteErr"></div>
       <div class="modal-row">
@@ -1429,8 +1432,9 @@ function buildPage(): string {
   let deletingSchool = null;
   function openDelete(s) {
     deletingSchool = s;
-    document.getElementById('deleteModalBody').textContent =
-      'This will permanently delete "' + s.name + '" and every user, cohort, classroom, message, and grade associated with it. No undo.';
+    document.getElementById('deleteModalBody').innerHTML =
+      'This permanently removes <strong>' + escapeHtml(s.name) + '</strong> and every user, cohort, classroom, schedule slot, message, assignment, exam, attendance record, and grade associated with it.';
+    document.getElementById('deleteSchoolNameHint').textContent = '(' + s.name + ')';
     document.getElementById('deleteConfirmInput').value = '';
     document.getElementById('deleteGo').disabled = true;
     document.getElementById('deleteErr').classList.remove('show');

@@ -153,12 +153,26 @@ export async function* generateAssistantReplyStream(args: {
   messages?: { role: string; content: string }[];
   displayName?: string;
   novaSettings?: string;
+  /// Active billing tier — drives the model choice. FREE users get
+  /// Haiku at a small max_tokens so the $5K/1000-students/year ceiling
+  /// holds; paid users get Sonnet at the full reply length.
+  tier?: string;
   /// Called once after the stream completes with the model + token
   /// counts. Used by the caller to charge the user's token balance.
   onUsage?: (usage: StreamUsageReport) => void;
 }): AsyncGenerator<string> {
   const client = getAnthropicClient();
-  const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+  const isFree = (args.tier ?? 'FREE').toUpperCase() === 'FREE';
+  // Free tier defaults to Haiku 4.5 — ~3× cheaper than Sonnet and still
+  // strong on homework Q&A. Paid tiers stay on Sonnet 4.6 for quality.
+  // ANTHROPIC_MODEL env override wins (dev/internal testing).
+  const model = process.env.ANTHROPIC_MODEL
+    || (isFree ? 'claude-haiku-4-5' : 'claude-sonnet-4-6');
+  // Output is 5× input price, so capping max_tokens is the single
+  // biggest free-tier cost lever. 400 keeps free replies tight (a
+  // paragraph or two — plenty for tutoring back-and-forth) while
+  // paid tiers stay at 4096 for full step-by-step answers.
+  const maxTokens = isFree ? 400 : 4096;
 
   // ---- ClassMate context: convert DB roles -> Anthropic roles ----
   // Anthropic only allows 'user' | 'assistant' in messages (system is top-level).
@@ -173,7 +187,13 @@ export async function* generateAssistantReplyStream(args: {
 
   // Anthropic requires messages to alternate user/assistant; ensure last entry
   // before the final user message is not also 'user'.
-  const filteredHistory = history.filter((m) => m.role !== 'system' as any);
+  // For FREE users, trim to the last 6 turns — long histories balloon the
+  // non-cached input bill more than any other lever. Paid users keep the
+  // full window so Sonnet has the full conversation to reason over.
+  const rawFiltered = history.filter((m) => m.role !== 'system' as any);
+  const filteredHistory = isFree && rawFiltered.length > 6
+    ? rawFiltered.slice(rawFiltered.length - 6)
+    : rawFiltered;
 
   // Static NOVA instructions (large, shared across all users) — cached.
   const staticPrompt = buildSystemPrompt(args.system);
@@ -188,7 +208,7 @@ export async function* generateAssistantReplyStream(args: {
 
   const stream = client.messages.stream({
     model,
-    max_tokens: 4096,
+    max_tokens: maxTokens,
     system: [
       {
         type: 'text',

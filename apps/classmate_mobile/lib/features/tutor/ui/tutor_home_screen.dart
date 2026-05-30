@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../data/nova_plan_models.dart';
-import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
 import 'nova_chat_screen.dart';
@@ -185,90 +184,6 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
         SnackBar(content: Text(l.tutorFailedToCreateChat(e.toString()))),
       );
     }
-  }
-
-  Future<void> _showPlanEntrySheet() async {
-    final l = AppLocalizations.of(context)!;
-    final controller = ref.read(novaPlanControllerProvider);
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      builder: (context) {
-        final mq = MediaQuery.of(context);
-        return SafeArea(
-          child: AnimatedBuilder(
-            animation: controller,
-            builder: (context, _) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: mq.size.height * 0.78,
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    18,
-                    4,
-                    18,
-                    18 + mq.viewInsets.bottom,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.tutorYourNovaPlanTitle,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l.tutorCurrentPlanUsageSummary(
-                          _localizedPlanName(l, controller.selectedPlan.id),
-                          controller.promptsRemaining,
-                          controller.uploadsRemaining,
-                          controller.voiceMinutesRemaining,
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                      const SizedBox(height: 14),
-                      ...novaPlans.map((plan) {
-                        final selected = plan.id == controller.selectedPlan.id;
-                        return ListTile(
-                          minVerticalPadding: 10,
-                          contentPadding: EdgeInsets.zero,
-                          leading: Icon(
-                            selected
-                                ? Icons.check_circle_rounded
-                                : Icons.radio_button_unchecked_rounded,
-                          ),
-                          title: Text(_localizedPlanName(l, plan.id)),
-                          subtitle: Text(plan.tagline),
-                          trailing: Text(
-                            plan.isFree
-                                ? 'Free'
-                                : '\$${plan.monthlyPriceUsd.toStringAsFixed(2)}',
-                          ),
-                          onTap: () async {
-                            await controller.selectPlan(plan.id);
-                            if (!context.mounted) return;
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
   }
 
   Future<void> _openSession(Map<String, dynamic> session) async {
@@ -508,7 +423,6 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     final sessions = ref.watch(tutorSessionsProvider);
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    final planController = ref.read(novaPlanControllerProvider);
 
     Widget topSection() {
       return Padding(
@@ -602,27 +516,22 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                             ),
                           ),
                         ),
-                        AnimatedBuilder(
-                          animation: planController,
-                          builder: (context, _) {
-                            return OutlinedButton.icon(
-                              onPressed: _showPlanEntrySheet,
-                              icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-                              label: Text(_localizedPlanName(l, planController.selectedPlan.id)),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 11,
-                                ),
-                                minimumSize: const Size(0, 42),
-                                visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                            );
-                          },
+                        OutlinedButton.icon(
+                          onPressed: () => context.push('/plans'),
+                          icon: const Icon(Icons.workspace_premium_rounded, size: 16),
+                          label: Text(l.tutorYourNovaPlanTitle),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 11,
+                            ),
+                            minimumSize: const Size(0, 42),
+                            visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -950,19 +859,6 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               },
             ),
     );
-  }
-}
-
-String _localizedPlanName(AppLocalizations l, NovaPlanId planId) {
-  switch (planId) {
-    case NovaPlanId.free:
-      return l.tutorPlanStarterName;
-    case NovaPlanId.plus:
-      return l.tutorPlanPlusName;
-    case NovaPlanId.pro:
-      return l.tutorPlanProName;
-    case NovaPlanId.school:
-      return l.tutorPlanSchoolSeatName;
   }
 }
 

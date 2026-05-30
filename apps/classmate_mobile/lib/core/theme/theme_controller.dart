@@ -54,7 +54,7 @@ class ThemeController extends Notifier<ThemeState> {
   ThemeState build() {
     _load();
     return const ThemeState(
-      mode: ThemeMode.system,
+      mode: ThemeMode.light,
       accent: Color(0xFF0EA5E9),
       radius: 18.0,
       density: 0.0,
@@ -66,11 +66,15 @@ class ThemeController extends Notifier<ThemeState> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final modeRaw = prefs.getString(_kMode) ?? 'system';
+    // Default to light mode when the user has never picked one.
+    // Anyone who explicitly chose system/dark in Settings still gets
+    // their choice — only the unset case is affected.
+    final modeRaw = prefs.getString(_kMode) ?? 'light';
     final mode = switch (modeRaw) {
       'light' => ThemeMode.light,
       'dark' => ThemeMode.dark,
-      _ => ThemeMode.system,
+      'system' => ThemeMode.system,
+      _ => ThemeMode.light,
     };
 
     final accent = Color(

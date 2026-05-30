@@ -125,17 +125,28 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
 
     setState(() => _saving = true);
     try {
-      await ref.read(teacherMobileRepositoryProvider).saveExamGrades(
+      final res = await ref.read(teacherMobileRepositoryProvider).saveExamGrades(
             examId: widget.exam['id'] as String? ?? '',
             grades: dirtyGrades,
           );
       if (!mounted) return;
-      // Update saved state
-      for (final g in dirtyGrades) {
-        _savedGrades[g.studentId] = g.grade;
+      final saved = (res['saved'] is num) ? (res['saved'] as num).toInt() : dirtyGrades.length;
+      final dropped = (res['dropped'] is List) ? (res['dropped'] as List).length : 0;
+      // Re-fetch from server so the UI reflects what was actually persisted,
+      // not what we hoped would persist.
+      await _load();
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      if (dropped > 0 || saved < dirtyGrades.length) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Saved $saved of ${dirtyGrades.length}. ${dropped > 0 ? "$dropped student(s) skipped — not in a cohort." : ""}'),
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
+          ),
+        );
+      } else {
+        messenger.showSnackBar(SnackBar(content: Text(l.teacherGradesSaved)));
       }
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherGradesSaved)));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

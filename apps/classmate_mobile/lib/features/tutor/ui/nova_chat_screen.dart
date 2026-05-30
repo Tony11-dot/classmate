@@ -29,6 +29,7 @@ import '../data/on_device_transcriber.dart';
 import '../data/tutor_repository.dart';
 import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_repository_provider.dart';
+import '../../billing/data/billing_repository.dart';
 
 class _Msg {
   const _Msg({
@@ -1903,7 +1904,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final planController = ref.read(novaPlanControllerProvider);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
@@ -1977,35 +1977,61 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             onPressed: () => _showNovaAboutSheet(context),
           ),
           if (showPlanButton)
-            ListenableBuilder(
-              listenable: planController,
-              builder: (context, _) => Padding(
+            Consumer(builder: (context, ref, _) {
+              final balanceAsync = ref.watch(tokenBalanceProvider);
+              final balance = balanceAsync.asData?.value;
+              final tier = balance?.activeTier ?? 'FREE';
+              final remaining = balance?.totalRemaining;
+              final label = _serverTierLabel(l, tier);
+              final tokenText = remaining != null ? _formatTokens(remaining) : '—';
+              return Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: Center(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showPlanLimitSheet(
-                      title: l.tutorYourNovaPlanTitle,
-                      message: l.tutorYourNovaPlanMessage,
-                    ),
-                    icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-                    label: Text(_localizedPlanName(l, planController.selectedPlan.id)),
+                  child: OutlinedButton(
+                    onPressed: () => context.push('/plans'),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
                       minimumSize: const Size(0, 32),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      textStyle: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11.5,
-                      ),
                       side: BorderSide(color: cs.outlineVariant),
                       backgroundColor: cs.surfaceContainerLow,
                       foregroundColor: cs.onSurface,
                     ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.workspace_premium_rounded,
+                            size: 14, color: cs.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          label,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          width: 1,
+                          height: 12,
+                          color: cs.outlineVariant,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          tokenText,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11.5,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
         ],
       ),
       body: SafeArea(
@@ -2102,6 +2128,35 @@ String _localizedPlanName(AppLocalizations l, NovaPlanId planId) {
     case NovaPlanId.school:
       return l.tutorPlanSchoolSeatName;
   }
+}
+
+/// Maps the server's tier string ('FREE' | 'BUDGET' | 'BALANCE' |
+/// 'COMMITMENT') to the localized label rendered in the chat-header pill.
+String _serverTierLabel(AppLocalizations l, String tier) {
+  switch (tier) {
+    case 'BUDGET':
+      return l.planTierBudget;
+    case 'BALANCE':
+      return l.planTierBalance;
+    case 'COMMITMENT':
+      return l.planTierCommitment;
+    case 'FREE':
+    default:
+      return l.plansFreePlan;
+  }
+}
+
+/// Compact "tokens remaining" formatter — "12.4k", "847", "1.2M".
+String _formatTokens(int n) {
+  if (n >= 1_000_000) {
+    final v = n / 1_000_000;
+    return '${v.toStringAsFixed(v >= 10 ? 0 : 1)}M';
+  }
+  if (n >= 1000) {
+    final v = n / 1000;
+    return '${v.toStringAsFixed(v >= 10 ? 0 : 1)}k';
+  }
+  return n.toString();
 }
 
 class _AssistantActionChip extends StatelessWidget {

@@ -1519,6 +1519,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     }
     if (!['STUDENT', 'TEACHER', 'ADMIN', 'PARENT', 'SECRETARY'].includes(role))
       throw new BadRequestException('invalid role');
+    // Students must have a grade so cohort/exam/grade-list features
+    // place them correctly from day 1.
+    if (role === 'STUDENT' && (!Number.isFinite(grade) || (grade as number) < 1)) {
+      throw new BadRequestException('Grade level is required for students');
+    }
 
     // Username is required (validated above) — verify global uniqueness.
     const username = rawUsername!;

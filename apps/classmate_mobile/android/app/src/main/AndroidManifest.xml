@@ -61,5 +61,16 @@
         <intent>
             <action android:name="android.speech.RecognitionService"/>
         </intent>
+        <!-- url_launcher needs to see browser/web handlers so the Google
+             Calendar event-template URL ("Add to calendar") resolves. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:mimeType="text/calendar"/>
+        </intent>
     </queries>
 </manifest>
