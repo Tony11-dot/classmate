@@ -1408,9 +1408,15 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ),
             pw.SizedBox(height: 20),
             // ── Big centred wordmark ─────────────────────────────────────
+            // SizedBox needs BOTH width and height — Container(height: …)
+            // alone collapses to zero width in the pdf layout engine, so
+            // the image renders as a 0-px invisible blip. logo_light.png
+            // is 1530×344 (≈4.45:1), so we lock the height at 52 and let
+            // BoxFit.contain pick a width within the available 220.
             pw.Center(
-              child: pw.Container(
-                height: 48,
+              child: pw.SizedBox(
+                width: 230,
+                height: 52,
                 child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
               ),
             ),
