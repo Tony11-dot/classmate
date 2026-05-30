@@ -1287,7 +1287,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final baseBold = await PdfGoogleFonts.notoSansBold();
     final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
     final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
-    final cmLogo = pw.MemoryImage(
+    // logo_light.png is the wide wordmark — used here as the page-top
+    // brand mark. icon_light.png is kept for the corner chip so the
+    // header still has a recognisable square icon next to metadata.
+    final cmWordmark = pw.MemoryImage(
+      (await rootBundle.load('assets/images/logo_light.png')).buffer.asUint8List(),
+    );
+    final cmIcon = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
 
@@ -1305,6 +1311,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     const pwBg = PdfColor.fromInt(0xFFFAF5FF);
     const pwBorder = PdfColor.fromInt(0xFF7C3AED);
     const fieldLabel = PdfColor.fromInt(0xFF64748B);
+    const noteBg = PdfColor.fromInt(0xFFFFF7ED);
+    const noteBorder = PdfColor.fromInt(0xFFEA580C);
 
     final now = DateTime.now();
     final dateStr = '${_months[now.month]} ${now.day}, ${now.year}';
@@ -1341,69 +1349,107 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
 
       doc.addPage(pw.Page(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.fromLTRB(40, 40, 40, 40),
+        margin: const pw.EdgeInsets.fromLTRB(40, 36, 40, 32),
         build: (ctx) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            // Hero banner with logo + ClassMate brand
-            pw.Container(
-              padding: const pw.EdgeInsets.fromLTRB(20, 18, 20, 18),
-              decoration: pw.BoxDecoration(
-                color: brandBlue,
-                borderRadius: pw.BorderRadius.circular(14),
-              ),
-              child: pw.Row(
-                children: [
-                  pw.Container(
-                    width: 44,
-                    height: 44,
-                    padding: const pw.EdgeInsets.all(6),
-                    decoration: pw.BoxDecoration(
-                      color: PdfColors.white,
-                      borderRadius: pw.BorderRadius.circular(10),
-                    ),
-                    child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
+            // ── Top metadata strip — icon chip + school + date/by ──
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Container(
+                  width: 32,
+                  height: 32,
+                  padding: const pw.EdgeInsets.all(4),
+                  decoration: pw.BoxDecoration(
+                    color: brandBlue,
+                    borderRadius: pw.BorderRadius.circular(8),
                   ),
-                  pw.SizedBox(width: 14),
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('ClassMate',
-                            style: pw.TextStyle(
-                              fontSize: 18,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.white,
-                            )),
-                        if (schoolName.isNotEmpty)
-                          pw.Text(schoolName,
-                              style: const pw.TextStyle(
-                                fontSize: 11,
-                                color: PdfColor(1, 1, 1, 0.7),
-                              )),
-                      ],
-                    ),
-                  ),
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  child: pw.Image(cmIcon, fit: pw.BoxFit.contain),
+                ),
+                pw.SizedBox(width: 10),
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text(dateStr,
-                          style: const pw.TextStyle(
-                            fontSize: 10,
-                            color: PdfColor(1, 1, 1, 0.85),
-                          )),
-                      pw.Text(l.adminExportPdfBy(exportedBy),
-                          style: const pw.TextStyle(
-                            fontSize: 10,
-                            color: PdfColor(1, 1, 1, 0.7),
-                          )),
+                      if (schoolName.isNotEmpty)
+                        pw.Text(
+                          schoolName,
+                          style: pw.TextStyle(
+                            fontSize: 11,
+                            color: brandDeep,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                      pw.Text(
+                        l.adminExportPdfUserDirectory,
+                        style: const pw.TextStyle(
+                          fontSize: 9,
+                          color: fieldLabel,
+                        ),
+                      ),
                     ],
+                  ),
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text(
+                      dateStr,
+                      style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
+                    ),
+                    pw.Text(
+                      l.adminExportPdfBy(exportedBy),
+                      style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 20),
+            // ── Big centred wordmark ─────────────────────────────────────
+            pw.Center(
+              child: pw.Container(
+                height: 48,
+                child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
+              ),
+            ),
+            pw.SizedBox(height: 22),
+            // ── Welcome intro text ───────────────────────────────────────
+            pw.Container(
+              padding: const pw.EdgeInsets.fromLTRB(18, 14, 18, 14),
+              decoration: pw.BoxDecoration(
+                color: const PdfColor.fromInt(0xFFEFF6FF),
+                borderRadius: pw.BorderRadius.circular(12),
+                border: pw.Border.all(color: brandBlue, width: 0.5),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'Welcome to ClassMate',
+                    style: pw.TextStyle(
+                      fontSize: 14,
+                      fontWeight: pw.FontWeight.bold,
+                      color: brandDeep,
+                    ),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    withPasswords
+                        ? 'This sheet contains your ClassMate account details. Use the username and password below to sign in to the ClassMate app on iOS or Android. You can change your password from the app once you\'re in.'
+                        : 'This sheet contains your ClassMate account details. Use your username to sign in to the ClassMate app on iOS or Android.',
+                    style: const pw.TextStyle(
+                      fontSize: 10,
+                      color: brandDeep,
+                      lineSpacing: 2,
+                    ),
                   ),
                 ],
               ),
             ),
-            pw.SizedBox(height: 28),
-            // BIG NAME — front and centre
+            pw.SizedBox(height: 18),
+            // ── BIG name + role chip ─────────────────────────────────────
             pw.Directionality(
               textDirection: isRtlName
                   ? pw.TextDirection.rtl
@@ -1412,7 +1458,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 displayName.isEmpty ? (u['username']?.toString() ?? '—') : displayName,
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
-                  fontSize: 34,
+                  fontSize: 30,
                   fontWeight: pw.FontWeight.bold,
                   color: brandDeep,
                   height: 1.1,
@@ -1420,10 +1466,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               ),
             ),
             pw.SizedBox(height: 6),
-            // Role + cohort/grade chip row
             pw.Center(
               child: pw.Container(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                 decoration: pw.BoxDecoration(
                   color: brandBlue,
                   borderRadius: pw.BorderRadius.circular(999),
@@ -1431,7 +1476,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: pw.Text(
                   _localizedRoleName(l, role).toUpperCase(),
                   style: pw.TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: pw.FontWeight.bold,
                     color: PdfColors.white,
                     letterSpacing: 1.2,
@@ -1439,16 +1484,16 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 ),
               ),
             ),
-            pw.SizedBox(height: 26),
-            // Field cards
+            pw.SizedBox(height: 18),
+            // ── Field cards ──────────────────────────────────────────────
             ...fields.map((f) {
               final isRtl = _isRtlText(f.value);
               return pw.Container(
-                margin: const pw.EdgeInsets.only(bottom: 10),
-                padding: const pw.EdgeInsets.fromLTRB(16, 12, 16, 12),
+                margin: const pw.EdgeInsets.only(bottom: 8),
+                padding: const pw.EdgeInsets.fromLTRB(14, 10, 14, 10),
                 decoration: pw.BoxDecoration(
                   color: fieldBg,
-                  borderRadius: pw.BorderRadius.circular(10),
+                  borderRadius: pw.BorderRadius.circular(9),
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1456,13 +1501,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                     pw.Text(
                       f.label.toUpperCase(),
                       style: pw.TextStyle(
-                        fontSize: 9,
+                        fontSize: 8,
                         color: fieldLabel,
                         fontWeight: pw.FontWeight.bold,
                         letterSpacing: 0.6,
                       ),
                     ),
-                    pw.SizedBox(height: 4),
+                    pw.SizedBox(height: 3),
                     pw.Directionality(
                       textDirection: isRtl
                           ? pw.TextDirection.rtl
@@ -1470,7 +1515,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                       child: pw.Text(
                         f.value,
                         style: pw.TextStyle(
-                          fontSize: 14,
+                          fontSize: 13,
                           color: brandDeep,
                           fontWeight: pw.FontWeight.bold,
                           letterSpacing: f.mono ? 0.5 : 0,
@@ -1482,12 +1527,12 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               );
             }),
             if (withPasswords && (u['tempPassword'] ?? '').toString().isNotEmpty) ...[
-              pw.SizedBox(height: 6),
+              pw.SizedBox(height: 4),
               pw.Container(
-                padding: const pw.EdgeInsets.fromLTRB(16, 14, 16, 14),
+                padding: const pw.EdgeInsets.fromLTRB(14, 12, 14, 12),
                 decoration: pw.BoxDecoration(
                   color: pwBg,
-                  borderRadius: pw.BorderRadius.circular(10),
+                  borderRadius: pw.BorderRadius.circular(9),
                   border: pw.Border.all(color: pwBorder, width: 1),
                 ),
                 child: pw.Column(
@@ -1496,17 +1541,17 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                     pw.Text(
                       l.adminExportColumnPassword.toUpperCase(),
                       style: pw.TextStyle(
-                        fontSize: 9,
+                        fontSize: 8,
                         color: pwBorder,
                         fontWeight: pw.FontWeight.bold,
                         letterSpacing: 0.6,
                       ),
                     ),
-                    pw.SizedBox(height: 6),
+                    pw.SizedBox(height: 4),
                     pw.Text(
                       u['tempPassword'].toString(),
                       style: pw.TextStyle(
-                        fontSize: 22,
+                        fontSize: 20,
                         color: pwBorder,
                         fontWeight: pw.FontWeight.bold,
                         letterSpacing: 2,
@@ -1516,9 +1561,52 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 ),
               ),
             ],
-            pw.Spacer(),
+            pw.SizedBox(height: 10),
+            // ── Important / privacy notice ──────────────────────────────
             pw.Container(
-              padding: const pw.EdgeInsets.all(10),
+              padding: const pw.EdgeInsets.fromLTRB(14, 10, 14, 10),
+              decoration: pw.BoxDecoration(
+                color: noteBg,
+                borderRadius: pw.BorderRadius.circular(9),
+                border: pw.Border.all(color: noteBorder, width: 0.6),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'IMPORTANT',
+                    style: pw.TextStyle(
+                      fontSize: 8,
+                      color: noteBorder,
+                      fontWeight: pw.FontWeight.bold,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Bullet(
+                    text: 'Keep these credentials private. Do not share your password.',
+                    style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                  ),
+                  if (withPasswords)
+                    pw.Bullet(
+                      text: 'Change your password after first sign-in (Settings → Account).',
+                      style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                    ),
+                  pw.Bullet(
+                    text: 'By using ClassMate you agree to our Terms of Service and Privacy Policy at classmate.app/legal.',
+                    style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                  ),
+                  pw.Bullet(
+                    text: 'For help, contact your school administrator or support@classmate.app.',
+                    style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                  ),
+                ],
+              ),
+            ),
+            pw.Spacer(),
+            // ── Footer ──────────────────────────────────────────────────
+            pw.Container(
+              padding: const pw.EdgeInsets.all(9),
               decoration: pw.BoxDecoration(
                 color: const PdfColor.fromInt(0xFFEFF6FF),
                 borderRadius: pw.BorderRadius.circular(8),
@@ -1527,7 +1615,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               child: pw.Text(
                 l.adminExportPdfFooter,
                 style: pw.TextStyle(
-                  fontSize: 8,
+                  fontSize: 7.5,
                   color: brandBlue,
                   fontStyle: pw.FontStyle.italic,
                 ),
