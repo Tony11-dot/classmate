@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -897,49 +898,123 @@ class _TeacherMaterialsStandaloneScreenState
               final subject = m['subject'] as String? ?? '';
               final courseName = m['courseName'] as String? ?? '';
               final published = m['published'] as bool? ?? true;
+              // Extract attachments + primary url so each material renders
+              // its files/links inline as pills (so teachers can tap a
+              // PDF straight from the list).
+              final atts = <Map<String, dynamic>>[];
+              final primaryUrl = (m['url'] ?? '').toString().trim();
+              if (primaryUrl.isNotEmpty) {
+                atts.add({'title': title.isEmpty ? 'Link' : title, 'url': primaryUrl});
+              }
+              final rawA = m['attachments'];
+              if (rawA is List) {
+                for (final a in rawA) {
+                  if (a is Map) atts.add(Map<String, dynamic>.from(a));
+                }
+              }
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Dismissible(
-                  key: ValueKey('mat_$id'),
-                  direction: DismissDirection.endToStart,
-                  confirmDismiss: (_) async { await _delete(id); return false; },
-                  background: Container(
-                    alignment: Alignment.centerRight, padding: const EdgeInsets.only(right: 20),
-                    decoration: BoxDecoration(color: cs.errorContainer, borderRadius: BorderRadius.circular(24)),
-                    child: Icon(Icons.delete_outline_rounded, color: cs.onErrorContainer)),
-                  child: LiquidGlassCard(
-                    border: Border.all(color: cs.outlineVariant),
-                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Container(width: 44, height: 44,
-                        decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(12)),
-                        child: Icon(Icons.folder_rounded, size: 22, color: cs.onPrimary)),
-                      const SizedBox(width: 12),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                        if (subject.isNotEmpty || courseName.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text([subject, courseName].where((s) => s.isNotEmpty).join(' · '),
-                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                        ],
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: (published ? cs.primary : cs.surfaceContainerHighest),
-                            borderRadius: BorderRadius.circular(6)),
-                          child: Text(published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
-                              color: published ? cs.onPrimary : cs.onSurfaceVariant))),
-                      ])),
-                      Column(mainAxisSize: MainAxisSize.min, children: [
+                child: LiquidGlassCard(
+                  border: Border.all(color: cs.outlineVariant),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Container(width: 44, height: 44,
+                          decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(12)),
+                          child: Icon(Icons.folder_rounded, size: 22, color: cs.onPrimary)),
+                        const SizedBox(width: 12),
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                          if (subject.isNotEmpty || courseName.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text([subject, courseName].where((s) => s.isNotEmpty).join(' · '),
+                              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: (published ? cs.primary : cs.surfaceContainerHighest),
+                              borderRadius: BorderRadius.circular(6)),
+                            child: Text(published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
+                                color: published ? cs.onPrimary : cs.onSurfaceVariant))),
+                        ])),
+                        // Action buttons replace the chevron — edit and
+                        // delete sit at the top-right so each is a
+                        // single tap (no swipe required).
                         IconButton(
-                          icon: const Icon(Icons.edit_rounded, size: 16),
+                          icon: const Icon(Icons.edit_rounded, size: 18),
+                          tooltip: 'Edit',
                           onPressed: () => context.push('/teacher/materials/add', extra: {...m, '_edit': true}).then((_) => _load()),
-                          padding: const EdgeInsets.all(4),
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-                        Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
+                          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
+                          tooltip: 'Delete',
+                          onPressed: () => _delete(id),
+                          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                        ),
                       ]),
-                    ]),
+                      if (atts.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: atts.map((a) {
+                            final aTitle = (a['title'] ?? a['name'] ?? 'File').toString();
+                            final url = (a['url'] ?? a['fileUrl'] ?? '').toString().trim();
+                            final lower = url.toLowerCase();
+                            IconData icon = Icons.attach_file_rounded;
+                            if (lower.endsWith('.pdf')) {
+                              icon = Icons.picture_as_pdf_rounded;
+                            } else if (lower.endsWith('.png') || lower.endsWith('.jpg') ||
+                                lower.endsWith('.jpeg') || lower.endsWith('.webp')) {
+                              icon = Icons.image_rounded;
+                            } else if (url.startsWith('http')) {
+                              icon = Icons.link_rounded;
+                            }
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: url.isEmpty
+                                  ? null
+                                  : () async {
+                                      final uri = Uri.tryParse(url);
+                                      if (uri != null && await canLaunchUrl(uri)) {
+                                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                      }
+                                    },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: cs.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(color: cs.outlineVariant),
+                                ),
+                                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                  Icon(icon, size: 13, color: cs.onSecondaryContainer),
+                                  const SizedBox(width: 5),
+                                  ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 160),
+                                    child: Text(
+                                      aTitle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: cs.onSecondaryContainer,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               );

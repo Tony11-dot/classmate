@@ -207,18 +207,37 @@ export class AnnouncementsService {
     const cohortIds: string[] = [];
     const grades: number[] = [];
 
-    // Student: use their own cohort
-    if (hasAnyRole({ roles }, ['STUDENT']) && user?.studentProfile?.cohortId) {
-      cohortIds.push(user.studentProfile.cohortId);
-
-      const cohort = await this.prisma.cohort.findUnique({
-        where: { id: user.studentProfile.cohortId },
-        select: { grade: true, grades: true } as any,
-      }) as any;
-      const cohortGrades: number[] = Array.isArray(cohort?.grades) && cohort.grades.length
-        ? cohort.grades
-        : (cohort?.grade != null ? [cohort.grade] : []);
-      for (const g of cohortGrades) grades.push(g);
+    // Student: include their cohort + grade. Reads the student's own
+    // grade off StudentProfile in addition to any cohort grade so a
+    // student in no cohort (or whose cohort's grade array is empty)
+    // still matches grade-targeted announcements.
+    if (hasAnyRole({ roles }, ['STUDENT'])) {
+      const profile = await this.prisma.studentProfile.findUnique({
+        where: { userId: user.id },
+        select: { cohortId: true, grade: true },
+      });
+      if (profile?.cohortId) {
+        cohortIds.push(profile.cohortId);
+        const cohort = await this.prisma.cohort.findUnique({
+          where: { id: profile.cohortId },
+          select: { grade: true, grades: true } as any,
+        }) as any;
+        const cohortGrades: number[] = Array.isArray(cohort?.grades) && cohort.grades.length
+          ? cohort.grades
+          : (cohort?.grade != null ? [cohort.grade] : []);
+        for (const g of cohortGrades) grades.push(g);
+      }
+      if (typeof profile?.grade === 'number') {
+        grades.push(profile.grade);
+      }
+      // Also include any extra cohorts via StudentCohort (many-to-many)
+      const studentCohorts = await this.prisma.studentCohort.findMany({
+        where: { studentId: user.id },
+        select: { cohortId: true },
+      });
+      for (const sc of studentCohorts) {
+        if (sc.cohortId) cohortIds.push(sc.cohortId);
+      }
     }
 
     // Parent: include all approved children cohorts/grades

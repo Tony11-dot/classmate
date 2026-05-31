@@ -53,6 +53,17 @@ class DmChatThreadController extends ChatThreadController {
   // session — used to determine isOwn even after _localMediaMessages is cleared.
   static final Map<String, Set<String>> _staticSentUrls = {};
 
+  /// Wipe every static cache so a logout/login on the same device
+  /// doesn't bleed the previous user's threads to the next one. The
+  /// thread-id key includes the user, but the URL cache and outgoing
+  /// media maps don't — so a full reset at auth boundary is the only
+  /// safe play. AuthController.logout calls this.
+  static void clearAllSessionCaches() {
+    _staticSentUrls.clear();
+    _sessionCache.clear();
+    _staticLocalMedia.clear();
+  }
+
   Set<String> get _sentUrls =>
       _staticSentUrls.putIfAbsent(_threadId, () => {});
 

@@ -3429,6 +3429,11 @@ export class TeacherService {
         targetGrades: Array.isArray(body?.targetGrades)
           ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
           : [],
+        // Inline attachments (URLs the teacher pasted in or files they
+        // uploaded outside the material library). The library-picker
+        // path goes through attachMaterialToExam afterwards and APPENDs
+        // its own snapshots — both flows now coexist.
+        attachments: Array.isArray(body?.attachments) ? (body.attachments as any) : [],
       },
     });
     if (e.published) {
@@ -3446,6 +3451,64 @@ export class TeacherService {
       } catch (err) { console.error('[teacher] exam notify failed:', err); }
     }
     return { ok: true, exam: e };
+  }
+
+  /// Partial-update for an existing exam. Every field is optional;
+  /// the absence of a key on `body` means "leave it alone". The
+  /// teacher_create_exam_screen.dart sends a full payload when editing
+  /// so audience + attachments stay in sync, but other call sites may
+  /// PATCH a single field. Attachments are REPLACED when present so
+  /// the teacher can remove inline files; library-picker materials
+  /// continue to flow through attachMaterialToExam afterwards.
+  async updateTeacherExam(user: any, id: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const existing = await this.prisma.teacherExam.findFirst({
+      where: { id, teacherId },
+    });
+    if (!existing) throw new NotFoundException('Exam not found');
+
+    const data: any = {};
+    if (body?.title !== undefined) {
+      const t = String(body.title).trim();
+      if (!t) throw new BadRequestException('title cannot be empty');
+      data.title = t;
+    }
+    if (body?.subject !== undefined) {
+      data.subject = body.subject ? String(body.subject).trim() : null;
+    }
+    if (body?.date !== undefined) {
+      data.date = body.date ? new Date(String(body.date)) : new Date();
+    }
+    if (body?.maxGrade !== undefined) {
+      data.maxGrade = body.maxGrade ? Number(body.maxGrade) : null;
+    }
+    if (body?.published !== undefined) {
+      data.published = body.published === true;
+    }
+    if (body?.targetType !== undefined) {
+      data.targetType = String(body.targetType);
+    }
+    if (body?.targetCohortIds !== undefined) {
+      data.targetCohortIds = Array.isArray(body.targetCohortIds) ? body.targetCohortIds : [];
+    }
+    if (body?.targetStudentIds !== undefined) {
+      data.targetStudentIds = Array.isArray(body.targetStudentIds) ? body.targetStudentIds : [];
+    }
+    if (body?.targetGrades !== undefined) {
+      data.targetGrades = Array.isArray(body.targetGrades)
+        ? body.targetGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+        : [];
+    }
+    if (body?.attachments !== undefined) {
+      data.attachments = Array.isArray(body.attachments) ? (body.attachments as any) : [];
+    }
+
+    const updated = await this.prisma.teacherExam.update({
+      where: { id },
+      data,
+    });
+    return { ok: true, exam: updated };
   }
 
   async getExamGrades(user: any, examId: string) {

@@ -561,7 +561,10 @@ export class StudentService {
 
     const assignments = await this.prisma.teacherAssignment.findMany({
       where: {
-        published: true,
+        // Use `not: false` so legacy rows where `published` was never
+        // set still surface — matches the materials-feed fix in build
+        // 66 that resolved the same invisibility class of bug.
+        published: { not: false },
         teacher: { ...(schoolId ? { schoolId } : {}) },
         OR: [
           { targetType: 'EVERYONE' },

@@ -45,6 +45,17 @@ class ClassroomChatThreadController extends ChatThreadController {
   // Key: courseId, Value: {text, kind, createdAt}
   static final Map<String, Map<String, dynamic>> _lastMessageByCourse = {};
 
+  /// Wipe every static cache this controller keeps so a logout/login on
+  /// the same device doesn't show the previous user's chats to the
+  /// next one. The keys include the user id where possible, but the
+  /// preview map and the URL cache do not — so the only safe thing
+  /// at logout is a full reset. AuthController.logout calls this.
+  static void clearAllSessionCaches() {
+    _sessionCache.clear();
+    _lastMessageByCourse.clear();
+    _staticLocalMessages.clear();
+  }
+
   /// Returns the latest locally-known message for [courseId], or null.
   /// Used by the classroom inbox when the server GET returns no items.
   static Map<String, dynamic>? lastMessage(String courseId) =>

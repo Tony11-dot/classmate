@@ -159,6 +159,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc.startsWith('/announcements/') ||
           loc == '/notifications' ||
           loc.startsWith('/notifications/') ||
+          // Billing / plans — needs to be reachable from every role's
+          // NOVA tab. Previously the teacher branch redirected /plans
+          // to /teacher/schedule because it wasn't on the safe list.
+          loc == '/plans' ||
           // Drawer-reachable info pages — must be open to every role
           // (student / teacher / admin / secretary) without role-based
           // redirect kicking the user back to their home.

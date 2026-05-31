@@ -125,22 +125,40 @@ class LocalNotificationsService {
   }
 
   /// Parses 'source|id' payload. Returns the in-app route for deep-linking.
+  ///
+  /// Source can be either the curated keys ('grades', 'messages', …) the
+  /// app uses internally, OR the raw NotificationHub type enum
+  /// ('NEW_EXAM', 'NEW_ASSIGNMENT', 'GRADE_POSTED', 'MESSAGE', …) the
+  /// server stamps on each row. Both paths normalise to lowercase and
+  /// route to the right tab so a tap on a push notification always
+  /// lands where the user expects.
   static String routeFromPayload(String payload) {
     final parts = payload.trim().split('|');
     final source = parts.isNotEmpty ? parts.first.trim() : '';
-    return switch (source.toLowerCase()) {
-      'grades' => '/grades',
-      'attendance' => '/attendance',
-      'practice' => '/practice',
-      'solutions' => '/solutions',
-      'messages' || 'chat' => '/messages',
-      'classrooms' || 'classroom' => '/classrooms',
-      'assignments' || 'assignment' => '/assignments',
-      'meetings' || 'meeting' => '/meetings',
-      'announcements' || 'announcement' => '/announcements',
+    final id = parts.length > 1 ? parts[1].trim() : '';
+    final s = source.toLowerCase();
+    // Curated short-keys first.
+    final curated = switch (s) {
+      'grades' || 'grade' || 'grade_posted' => '/grades',
+      'attendance' || 'attendance_marked' => '/attendance',
+      'practice' || 'practice_completed' => '/practice',
+      'solutions' || 'solution' => '/solutions',
+      'messages' || 'chat' || 'message' || 'dm' || 'dm_message' => '/messages',
+      'classrooms' || 'classroom' || 'classroom_message' => '/classrooms',
+      'assignments' || 'assignment' || 'new_assignment' =>
+        id.isNotEmpty ? '/assignments/$id' : '/assignments',
+      'meetings' || 'meeting' || 'new_meeting' =>
+        id.isNotEmpty ? '/meetings/$id' : '/meetings',
+      'announcements' || 'announcement' =>
+        id.isNotEmpty ? '/announcements/$id' : '/announcements',
+      'exam' || 'exams' || 'new_exam' =>
+        id.isNotEmpty ? '/exams/$id' : '/exams',
+      'material' || 'materials' || 'new_material' => '/materials',
+      'diploma' || 'diplomas' || 'certificate' || 'new_diploma' => '/diplomas',
       'nova' || 'tutor' => '/tutor',
-      _ => '/notifications',
+      _ => null,
     };
+    return curated ?? '/notifications';
   }
 
   void _handleNotificationResponse(NotificationResponse response) {

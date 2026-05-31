@@ -450,6 +450,11 @@ export class TeacherController {
   @Post('exams')
   createTeacherExam(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherExam(req.user, body); }
 
+  @Patch('exams/:id')
+  updateTeacherExam(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.updateTeacherExam(req.user, id, body);
+  }
+
   @Delete('exams/:id')
   deleteTeacherExam(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherExam(req.user, id); }
 
