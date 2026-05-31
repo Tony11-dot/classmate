@@ -1597,9 +1597,17 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     final isPeerTyping =
         typingAsync.maybeWhen(data: (v) => v, orElse: () => false);
 
-    // Cache the most recent valid message list to avoid loading-spinner flicker.
+    // Cache the most recent valid message list to avoid loading-spinner
+    // flicker. Important: never SHRINK to empty mid-session — if the
+    // controller briefly emits AsyncValue.data([]) during an invalidate
+    // cycle (e.g. server returned nothing, dedup wiped everything), we
+    // keep the prior list visible instead of blanking the chat. This is
+    // the "all disappears after pressing send" symptom from the user.
     if (messagesAsync.hasValue) {
-      _lastKnownMessages = messagesAsync.requireValue;
+      final next = messagesAsync.requireValue;
+      if (next.isNotEmpty || _lastKnownMessages.isEmpty) {
+        _lastKnownMessages = next;
+      }
     }
 
     Widget buildBody(List<ChatMessage> allMessages) {

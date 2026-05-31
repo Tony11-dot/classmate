@@ -35,7 +35,30 @@ final assignmentsFeedProvider = FutureProvider.autoDispose<List<Map<String, dyna
           .toList(growable: false);
     }
 
+    // Aggregator first — `/student/assignments` returns every assignment
+    // visible to this student (classroom + direct-target + cohort + grade)
+    // in a single call. The per-classroom fan-out below misses everything
+    // a teacher attaches by cohort/grade/student without picking a
+    // courseId, which is the common case the user kept seeing as empty.
     final repo = ref.read(classroomsRepoProvider);
+    try {
+      final all = await repo.allStudentAssignments();
+      if (all.isNotEmpty) {
+        return all.map((m) {
+          final mm = Map<String, dynamic>.from(m);
+          return <String, dynamic>{
+            ...mm,
+            '_courseId': (mm['classroomId'] ?? '').toString(),
+            '_courseName': (mm['classroomName'] ?? '').toString(),
+            '_subject': (mm['subject'] ?? mm['classroomSubject'] ?? '').toString(),
+            '_teacherName': (mm['teacherName'] ?? '').toString(),
+          };
+        }).toList(growable: false);
+      }
+    } catch (_) {
+      // Aggregator missing on older API — fall through to legacy fan-out.
+    }
+
     final classrooms = await ref.watch(orderedStudentClassroomsProvider.future);
 
     final results = await Future.wait(

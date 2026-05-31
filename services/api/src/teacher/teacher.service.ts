@@ -3126,6 +3126,17 @@ export class TeacherService {
         });
       }
     }
+    // Fallback: a material with neither a primary URL nor inner files
+    // still needs to show up as a pill so the student knows something
+    // was attached. Push a title-only entry so the client renders a
+    // non-tappable "📎 Title" chip instead of leaving the section empty.
+    if (out.length === 0) {
+      out.push({
+        title: material.title,
+        _sourceMaterialId: material.id,
+        _sourceMaterialTitle: material.title,
+      });
+    }
     return out;
   }
 

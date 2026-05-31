@@ -430,6 +430,12 @@ class AppShell extends ConsumerWidget {
     // Admin and Secretary navigate entirely via the drawer — no bottom pill nav.
     if (isAdminLike) return true;
     final path = _routePathOnly(loc);
+    // Hard-coded carve-outs: routes that LOOK like a sub-tab (so the
+    // tab-allowed sets don't list them) but still need the bottom nav
+    // hidden for clarity. /plans was being reported as showing a
+    // highlighted-but-stale NOVA tab on the bottom strip when reached
+    // from the NOVA chat header — keep the navbar gone there.
+    if (path == '/plans') return true;
     final allowed = isTeacherLike ? _teacherBottomNavPaths : _coreBottomNavPaths;
     return !allowed.contains(path);
   }

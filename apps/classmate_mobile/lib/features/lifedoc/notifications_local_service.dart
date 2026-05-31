@@ -143,8 +143,10 @@ class LocalNotificationsService {
       'attendance' || 'attendance_marked' => '/attendance',
       'practice' || 'practice_completed' => '/practice',
       'solutions' || 'solution' => '/solutions',
-      'messages' || 'chat' || 'message' || 'dm' || 'dm_message' => '/messages',
+      'messages' || 'chat' || 'message' || 'new_message' || 'dm' || 'dm_message' => '/messages',
       'classrooms' || 'classroom' || 'classroom_message' => '/classrooms',
+      'form' || 'forms' || 'new_form' =>
+        id.isNotEmpty ? '/forms/$id' : '/forms',
       'assignments' || 'assignment' || 'new_assignment' =>
         id.isNotEmpty ? '/assignments/$id' : '/assignments',
       'meetings' || 'meeting' || 'new_meeting' =>

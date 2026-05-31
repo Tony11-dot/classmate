@@ -7,6 +7,7 @@ import '../../features/chat_core/controllers/classroom_chat_thread_controller.da
 import '../../features/chat_core/controllers/dm_chat_thread_controller.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/classrooms/providers/classrooms_providers.dart';
+import '../../features/lifedoc/notifications_provider.dart';
 import 'auth_session.dart';
 export 'auth_session.dart' show authSessionProvider, AuthSession;
 
@@ -27,14 +28,21 @@ class AuthController {
     await _clearUserScopedPrefs();
 
     // 2. Invalidate every long-lived provider that holds a cached
-    //    payload keyed by user (DM inbox, classroom chat lists,
-    //    classroom rosters). Without this the next user on the same
-    //    device sees the previous user's threads on the Messages tab
-    //    for one render before the new fetch lands.
+    //    payload keyed by user (DM inbox, DM thread details, classroom
+    //    chat lists, classroom rosters, notification inbox + counts).
+    //    Without this the next user on the same device sees the
+    //    previous user's threads, notifications, and unread counts
+    //    until each provider's internal fetch lands.
     ref.invalidate(messagesInboxProvider);
+    ref.invalidate(messageThreadProvider);
+    ref.invalidate(messageRequestProvider);
     ref.invalidate(classroomChatProvider);
     ref.invalidate(studentClassroomsProvider);
     ref.invalidate(orderedStudentClassroomsProvider);
+    ref.invalidate(persistedNotificationsProvider);
+    ref.invalidate(localNotificationsProvider);
+    ref.invalidate(notificationInboxProvider);
+    ref.invalidate(unreadNotificationsCountProvider);
 
     // 3. Tell AuthSession to wipe its own state (token, name, school…).
     await ref.read(authSessionProvider).logout();

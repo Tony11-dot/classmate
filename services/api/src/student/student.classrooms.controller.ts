@@ -642,19 +642,29 @@ export class StudentClassroomsController {
     if (!code) throw new BadRequestException('Code is required');
 
     const now = new Date();
+    // Iterate every active code across the platform. Was capped at 50
+    // — a school with more than 50 active cohort codes (every cohort
+    // gets one) silently 404'd codes that were valid on the teacher's
+    // side. 2000 covers a multi-school deployment with room to spare;
+    // matching is O(n) bcrypt compares so we want a sensible ceiling
+    // either way.
     const candidates = await this.prisma.cohortJoinCode.findMany({
       where: {
         active: true,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      take: 2000,
     });
+    // Normalise the supplied code: strip all whitespace so a paste with
+    // newlines / NBSPs / hidden chars still matches. The code itself is
+    // digits-only so this is safe.
+    const normalisedCode = code.replace(/\s+/g, '');
     let matchedId: string | null = null;
     let matchedCohortId: string | null = null;
     for (const c of candidates) {
       if (c.expiresAt && c.expiresAt < now) continue;
-      if (await bcrypt.compare(code, c.codeHash)) {
+      if (await bcrypt.compare(normalisedCode, c.codeHash)) {
         matchedId = c.id;
         matchedCohortId = c.cohortId;
         break;

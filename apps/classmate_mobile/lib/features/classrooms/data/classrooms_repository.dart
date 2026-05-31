@@ -449,6 +449,15 @@ class ClassroomsRepository {
     return list.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
+  /// Aggregated assignments visible to this student — classroom-attached,
+  /// direct-target, and cohort/grade-targeted in one call. Maps onto
+  /// `/student/assignments` which is backed by `myTeacherAssignments`.
+  Future<List<Map<String, dynamic>>> allStudentAssignments() async {
+    final j = await _getJson('/student/assignments', label: 'classrooms.allAssignments');
+    final list = (j is Map ? j['items'] : j) as List? ?? [];
+    return list.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   Future<Map<String, dynamic>> meetings(String courseId) async {
     return _fetchWithTeacherFallback(
       studentPath: '/student/classrooms/$courseId/meetings',
