@@ -25,6 +25,8 @@ const _kRoles = [
   _Role('SECRETARY', 'Secretaries', Icons.support_agent_rounded),
 ];
 
+enum _AudienceMode { roles, grades, cohorts, individuals }
+
 class TeacherNewAnnouncementScreen extends ConsumerStatefulWidget {
   const TeacherNewAnnouncementScreen({super.key});
 
@@ -44,6 +46,14 @@ class _TeacherNewAnnouncementScreenState
   final Set<String> _selectedStudentIds = {};   // individual userId targets
   final Set<String> _selectedParentIds = {};    // individual parent userId targets
   final Set<String> _selectedCohortIds = {};    // cohort targets
+  final Set<int> _selectedGrades = {};          // grade-level targets
+
+  /// Which audience category the picker is currently showing. The
+  /// segmented button at the top of the audience card switches between
+  /// these four; only one picker is visible at a time so the layout
+  /// stays compact even when the teacher has selections across multiple
+  /// categories. Selections from every category are submitted on save.
+  _AudienceMode _audienceMode = _AudienceMode.roles;
 
   // loaded once
   List<TeacherStudentWithLevel> _allStudents = [];
@@ -123,6 +133,9 @@ class _TeacherNewAnnouncementScreenState
     for (final r in _selectedRoles) {
       targets.add({'role': r});
     }
+    for (final g in _selectedGrades) {
+      targets.add({'grade': g});
+    }
     for (final uid in _selectedStudentIds) {
       targets.add({'userId': uid});
     }
@@ -133,6 +146,19 @@ class _TeacherNewAnnouncementScreenState
       targets.add({'cohortId': cid});
     }
     return targets;
+  }
+
+  /// Unique grade levels present across this teacher's loaded
+  /// students. We derive from the existing student list rather than
+  /// pulling a separate "school grades" endpoint — the student grades
+  /// are always the complete set you'd reasonably target.
+  List<int> get _availableGrades {
+    final s = <int>{};
+    for (final st in _allStudents) {
+      final g = st.gradeLevel;
+      if (g != null) s.add(g);
+    }
+    return s.toList()..sort();
   }
 
   Future<void> _publish() async {
@@ -315,6 +341,7 @@ class _TeacherNewAnnouncementScreenState
     final l = AppLocalizations.of(context)!;
 
     final hasAudience = _selectedRoles.isNotEmpty ||
+        _selectedGrades.isNotEmpty ||
         _selectedStudentIds.isNotEmpty ||
         _selectedParentIds.isNotEmpty ||
         _selectedCohortIds.isNotEmpty;
@@ -472,7 +499,7 @@ class _TeacherNewAnnouncementScreenState
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          '${_selectedRoles.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length} selected',
+                          '${_selectedRoles.length + _selectedGrades.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length} selected',
                           style: TextStyle(
                               color: cs.onPrimaryContainer,
                               fontSize: 11,
@@ -483,184 +510,223 @@ class _TeacherNewAnnouncementScreenState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Choose roles, individual students, or whole cohorts',
+                  'Pick a category, then the specific roles, grades, cohorts, or people. Selections from every category add up.',
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 14),
 
-                // Role pills
-                Text(
-                  'Roles',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant,
+                // ── Audience category selector ───────────────────────
+                SegmentedButton<_AudienceMode>(
+                  showSelectedIcon: false,
+                  style: SegmentedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    textStyle: theme.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _kRoles.map((r) {
-                    final selected = _selectedRoles.contains(r.id);
-                    return _AudienceChip(
-                      label: r.label,
-                      icon: r.icon,
-                      selected: selected,
-                      onTap: () => setState(() {
-                        if (selected) {
-                          _selectedRoles.remove(r.id);
-                        } else {
-                          _selectedRoles.add(r.id);
-                        }
-                      }),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-
-                // Students DDL trigger
-                Text(
-                  'Individual students',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5),
-                ),
-                const SizedBox(height: 8),
-                _loadingPeople
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : _PickerTrigger(
-                        icon: Icons.person_search_rounded,
-                        label: _selectedStudentIds.isEmpty
-                            ? 'Tap to select students…'
-                            : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? "" : "s"} selected',
-                        hasSelection: _selectedStudentIds.isNotEmpty,
-                        onTap: _openStudentPicker,
-                      ),
-                if (_selectedStudentIds.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: _allStudents
-                        .where(
-                            (s) => _selectedStudentIds.contains(s.studentId))
-                        .map((s) => _MiniChip(
-                              label: s.name,
-                              onRemove: () => setState(
-                                  () => _selectedStudentIds.remove(s.studentId)),
-                            ))
-                        .toList(),
+                    ),
                   ),
-                ],
-                const SizedBox(height: 16),
-
-                // Parents DDL trigger — opens a sheet listing every
-                // parent with their children expandable as a subtitle
-                // so the author can target one family ("Maria — Sarah,
-                // Liam") without broadcasting to every parent.
-                Text(
-                  'Individual parents',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5),
-                ),
-                const SizedBox(height: 8),
-                _loadingPeople
-                    ? const SizedBox.shrink()
-                    : _PickerTrigger(
-                        icon: Icons.family_restroom_rounded,
-                        label: _selectedParentIds.isEmpty
-                            ? 'Tap to select parents…'
-                            : '${_selectedParentIds.length} parent${_selectedParentIds.length == 1 ? "" : "s"} selected',
-                        hasSelection: _selectedParentIds.isNotEmpty,
-                        onTap: _openParentPicker,
-                      ),
-                if (_selectedParentIds.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: _allParents
-                        .where((p) => _selectedParentIds.contains(p.parentId))
-                        .map((p) => _MiniChip(
-                              label: p.children.isEmpty
-                                  ? p.name
-                                  : '${p.name} · ${p.children.length}',
-                              onRemove: () => setState(
-                                  () => _selectedParentIds.remove(p.parentId)),
-                            ))
-                        .toList(),
-                  ),
-                ],
-                const SizedBox(height: 16),
-
-                // Cohorts DDL trigger
-                Text(
-                  'Cohorts',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5),
-                ),
-                const SizedBox(height: 8),
-                _cohorts.isEmpty
-                    ? Text(AppLocalizations.of(context)!.teacherAnnounceNoCohorts,
-                        style: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 13))
-                    : _PickerTrigger(
-                        icon: Icons.groups_rounded,
-                        label: _selectedCohortIds.isEmpty
-                            ? 'Tap to select cohorts…'
-                            : '${_selectedCohortIds.length} cohort${_selectedCohortIds.length == 1 ? "" : "s"} selected',
-                        hasSelection: _selectedCohortIds.isNotEmpty,
-                        onTap: _openCohortPicker,
-                      ),
-                if (_selectedCohortIds.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: _cohorts
-                        .where((c) => _selectedCohortIds.contains(c.id))
-                        .map((c) => _MiniChip(
-                              label: c.name,
-                              onRemove: () => setState(
-                                  () => _selectedCohortIds.remove(c.id)),
-                            ))
-                        .toList(),
-                  ),
-                  // Member preview
-                  if (_previewCohortMembers.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: cs.outlineVariant),
-                      ),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('${_previewCohortMembers.length} student${_previewCohortMembers.length == 1 ? '' : 's'} in selected cohorts',
-                            style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 6),
-                        Wrap(spacing: 6, runSpacing: 4, children: _previewCohortMembers.map((name) => Chip(
-                          label: Text(name, style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600)),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          visualDensity: VisualDensity.compact,
-                        )).toList()),
-                      ]),
+                  segments: const [
+                    ButtonSegment(
+                      value: _AudienceMode.roles,
+                      label: Text('Role', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                    ),
+                    ButtonSegment(
+                      value: _AudienceMode.grades,
+                      label: Text('Grade', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                    ),
+                    ButtonSegment(
+                      value: _AudienceMode.cohorts,
+                      label: Text('Cohort', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                    ),
+                    ButtonSegment(
+                      value: _AudienceMode.individuals,
+                      label: Text('People', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                     ),
                   ],
+                  selected: {_audienceMode},
+                  onSelectionChanged: (set) =>
+                      setState(() => _audienceMode = set.first),
+                ),
+                const SizedBox(height: 14),
+
+                // ── Picker for the current category ──────────────────
+                if (_audienceMode == _AudienceMode.roles)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _kRoles.map((r) {
+                      final selected = _selectedRoles.contains(r.id);
+                      return _AudienceChip(
+                        label: r.label,
+                        icon: r.icon,
+                        selected: selected,
+                        onTap: () => setState(() {
+                          if (selected) {
+                            _selectedRoles.remove(r.id);
+                          } else {
+                            _selectedRoles.add(r.id);
+                          }
+                        }),
+                      );
+                    }).toList(),
+                  )
+                else if (_audienceMode == _AudienceMode.grades)
+                  _availableGrades.isEmpty
+                      ? Text(
+                          _loadingPeople
+                              ? 'Loading students…'
+                              : 'No grade levels found yet.',
+                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                        )
+                      : Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _availableGrades.map((g) {
+                            final selected = _selectedGrades.contains(g);
+                            return _AudienceChip(
+                              label: 'Grade $g',
+                              icon: Icons.school_outlined,
+                              selected: selected,
+                              onTap: () => setState(() {
+                                if (selected) {
+                                  _selectedGrades.remove(g);
+                                } else {
+                                  _selectedGrades.add(g);
+                                }
+                              }),
+                            );
+                          }).toList(),
+                        )
+                else if (_audienceMode == _AudienceMode.cohorts)
+                  _cohorts.isEmpty
+                      ? Text(AppLocalizations.of(context)!.teacherAnnounceNoCohorts,
+                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13))
+                      : _PickerTrigger(
+                          icon: Icons.groups_rounded,
+                          label: _selectedCohortIds.isEmpty
+                              ? 'Tap to select cohorts…'
+                              : '${_selectedCohortIds.length} cohort${_selectedCohortIds.length == 1 ? "" : "s"} selected',
+                          hasSelection: _selectedCohortIds.isNotEmpty,
+                          onTap: _openCohortPicker,
+                        )
+                else ...[
+                  // Individuals: students AND parents — both via their
+                  // own pickers so the teacher can blend "one student" +
+                  // "one specific parent" in the same announcement.
+                  _loadingPeople
+                      ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                          _PickerTrigger(
+                            icon: Icons.person_search_rounded,
+                            label: _selectedStudentIds.isEmpty
+                                ? 'Tap to select students…'
+                                : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? "" : "s"} selected',
+                            hasSelection: _selectedStudentIds.isNotEmpty,
+                            onTap: _openStudentPicker,
+                          ),
+                          const SizedBox(height: 8),
+                          _PickerTrigger(
+                            icon: Icons.family_restroom_rounded,
+                            label: _selectedParentIds.isEmpty
+                                ? 'Tap to select parents…'
+                                : '${_selectedParentIds.length} parent${_selectedParentIds.length == 1 ? "" : "s"} selected',
+                            hasSelection: _selectedParentIds.isNotEmpty,
+                            onTap: _openParentPicker,
+                          ),
+                        ]),
+                ],
+
+                // ── Cross-category summary of every active selection ─
+                if (hasAudience) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: cs.outlineVariant),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Selected audience',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            for (final r in _selectedRoles)
+                              _MiniChip(
+                                label: _kRoles.firstWhere(
+                                  (kr) => kr.id == r,
+                                  orElse: () => _Role(r, r, Icons.person_rounded),
+                                ).label,
+                                onRemove: () =>
+                                    setState(() => _selectedRoles.remove(r)),
+                              ),
+                            for (final g in _selectedGrades)
+                              _MiniChip(
+                                label: 'Grade $g',
+                                onRemove: () =>
+                                    setState(() => _selectedGrades.remove(g)),
+                              ),
+                            for (final cid in _selectedCohortIds)
+                              _MiniChip(
+                                label: () {
+                                  final match = _cohorts
+                                      .where((c) => c.id == cid)
+                                      .firstOrNull;
+                                  return match?.name ?? cid;
+                                }(),
+                                onRemove: () => setState(
+                                    () => _selectedCohortIds.remove(cid)),
+                              ),
+                            for (final s in _allStudents.where(
+                                (s) => _selectedStudentIds.contains(s.studentId)))
+                              _MiniChip(
+                                label: s.name,
+                                onRemove: () => setState(
+                                    () => _selectedStudentIds.remove(s.studentId)),
+                              ),
+                            for (final p in _allParents.where(
+                                (p) => _selectedParentIds.contains(p.parentId)))
+                              _MiniChip(
+                                label: p.children.isEmpty
+                                    ? p.name
+                                    : '${p.name} · ${p.children.length}',
+                                onRemove: () => setState(
+                                    () => _selectedParentIds.remove(p.parentId)),
+                              ),
+                          ],
+                        ),
+                        if (_selectedCohortIds.isNotEmpty &&
+                            _previewCohortMembers.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            '${_previewCohortMembers.length} student${_previewCohortMembers.length == 1 ? '' : 's'} in selected cohorts',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -795,6 +861,8 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                         style: TextStyle(color: cs.onSurfaceVariant)))
                 : ListView.builder(
                     controller: scrollCtrl,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
                     itemCount: filtered.length,
                     itemBuilder: (ctx, i) {
@@ -1018,6 +1086,8 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
                   )
                 : ListView.builder(
                     controller: scroll,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
                     itemCount: _filtered.length,
                     itemBuilder: (ctx, i) {

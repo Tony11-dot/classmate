@@ -460,30 +460,62 @@ class _ErrorBanner extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
+  /// The "plans unavailable" message from `currentOffering() == null`
+  /// almost always means the App Store / Play Store products aren't
+  /// loaded yet on the device (cold launch, no network, sandbox
+  /// account in a weird state). We give the user a clear next step
+  /// rather than dumping a raw exception.
+  bool get _isUnavailable {
+    final lower = message.toLowerCase();
+    return lower.contains('unavailable') ||
+        lower.contains('not available') ||
+        lower.contains('no product');
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final friendly = _isUnavailable
+        ? "Plans aren't reachable from this device right now. This usually clears on its own — check your internet, make sure you're signed in to the App Store / Play Store, and try again."
+        : message;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.errorContainer,
+        color: cs.errorContainer.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.error.withValues(alpha: 0.3)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: cs.onErrorContainer),
+          Row(children: [
+            Icon(Icons.error_outline_rounded, color: cs.error, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              _isUnavailable ? 'Plans aren\'t reachable' : 'Something went wrong',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: cs.onErrorContainer,
+              ),
+            ),
+          ]),
+          const SizedBox(height: 6),
+          Text(
+            friendly,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onErrorContainer,
+              height: 1.4,
             ),
           ),
-          if (onRetry != null)
-            TextButton(
-              onPressed: onRetry,
-              child: Text(AppLocalizations.of(context)!.commonRetry),
-            ),
+          const SizedBox(height: 10),
+          Row(children: [
+            if (onRetry != null)
+              FilledButton.tonal(
+                onPressed: onRetry,
+                child: Text(AppLocalizations.of(context)!.commonRetry),
+              ),
+          ]),
         ],
       ),
     );

@@ -481,31 +481,39 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
                       _MiniPill(
+                        icon: Icons.menu_book_rounded,
                         label: localizedPracticeSubject(
                           context,
                           filter.subject,
                         ),
                       ),
                       _MiniPill(
+                        icon: Icons.account_tree_rounded,
                         label: localizedPracticeTopicPath(
                           context,
                           filter.topicPath,
                         ),
                       ),
-                      _MiniPill(label: _practiceModeLabel(context, filter.mode)),
                       _MiniPill(
+                        icon: Icons.style_rounded,
+                        label: _practiceModeLabel(context, filter.mode),
+                      ),
+                      _MiniPill(
+                        icon: Icons.speed_rounded,
                         label: practiceDifficultyLabel(context, filter.difficulty),
                       ),
                       _MiniPill(
+                        icon: Icons.favorite_rounded,
                         label: filter.hasInfiniteLives
                             ? l.practiceSetupInfiniteLives
                             : l.practiceSetupLivesCount(filter.maxLives),
                       ),
                       _MiniPill(
+                        icon: Icons.timer_outlined,
                         label: filter.useAiTiming
                             ? l.practiceSetupAiTiming
                             : l.practiceSetupSecondsShort(
@@ -513,13 +521,14 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               ),
                       ),
                       _MiniPill(
+                        icon: Icons.format_list_numbered_rounded,
                         label: l.practiceSetupQuestionsCount(
                           filter.questionCount,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
                   Text(
                     _buildPracticePromptSummary(context, filter),
                     style: text.bodyMedium?.copyWith(
@@ -2046,26 +2055,45 @@ class _StepperRow extends StatelessWidget {
   }
 }
 
+/// A compact "info chip" used in the hero card summary.
+///
+/// Earlier versions of the screen rendered the summary as a row of
+/// rounded chips with a border — visually identical to a [ChoiceChip]
+/// or a button. Users repeatedly tapped them expecting to change the
+/// setting, which never worked. The new shape is deliberately quieter:
+/// a leading icon, no border, subdued background, smaller text — so
+/// the chip reads as a status badge, not an actionable control.
 class _MiniPill extends StatelessWidget {
-  const _MiniPill({required this.label});
+  const _MiniPill({required this.label, this.icon});
 
   final String label;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant),
+        color: cs.surfaceContainerHigh.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(
-        label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 13, color: cs.onSurfaceVariant),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurfaceVariant,
+                  fontSize: 12,
+                ),
+          ),
+        ],
       ),
     );
   }
