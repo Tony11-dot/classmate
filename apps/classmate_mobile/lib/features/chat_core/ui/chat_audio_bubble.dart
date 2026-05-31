@@ -180,18 +180,31 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final progress = posMs / totalMs;
 
     final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
-    final accent = widget.isMine ? Colors.white : scheme.primary;
-    final onBubble = widget.isMine
-        ? Colors.white
-        : scheme.onSurface;
-    final dimColor = onBubble;
-    // Contrast layer for content rendered ON TOP of the accent fill (play
-    // icon, active speed pill). Without this both the play-arrow and the
-    // active speed label were the same color as the circle/pill behind
-    // them, so they vanished against the bubble.
-    final onAccent = accent.computeLuminance() < 0.5
-        ? Colors.white
-        : (widget.isMine ? scheme.primary : Colors.white);
+    // Voice-bubble palette tuned per sender + theme for legibility.
+    //
+    // Own bubble (background ≈ scheme.primary):
+    //   accent (play circle, active waveform bars, active speed pill) is
+    //   white — maximum contrast on the saturated primary bubble. onAccent
+    //   (icon/text sitting on the accent) is primary — clean white pill
+    //   with a colored icon, no double-stacked white.
+    //
+    // Other bubble (background ≈ scheme.surfaceContainerHigh):
+    //   accent is primary so the play circle pops on the neutral bubble;
+    //   onAccent is onPrimary (system-correct white for both light + dark
+    //   themes).
+    //
+    // Inactive waveform + time text get their own muted colors that aren't
+    // 100% solid — the prior code reused onSurface/Colors.white which
+    // produced a too-saturated track + competing text against the active
+    // accent.
+    final Color accent = widget.isMine ? Colors.white : scheme.primary;
+    final Color onAccent = widget.isMine ? scheme.primary : scheme.onPrimary;
+    final Color inactiveColor = widget.isMine
+        ? Colors.white.withValues(alpha: 0.35)
+        : scheme.outlineVariant;
+    final Color timeColor = widget.isMine
+        ? Colors.white.withValues(alpha: 0.85)
+        : scheme.onSurfaceVariant;
 
     // ── Waveform bars ──────────────────────────────────────────────────────
     const baseHeights = <double>[5, 9, 14, 18, 12, 8, 16, 10, 15, 6];
@@ -203,9 +216,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       final focusIdx = (progress * math.max(1, count - 1)).round();
       final isFocus = (i - focusIdx).abs() <= 1;
       final h = baseHeights[i % baseHeights.length] + (isFocus ? 3 : 0);
-      final color = active
-          ? accent
-          : dimColor;
+      final color = active ? accent : inactiveColor;
       return AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: 3,
@@ -320,7 +331,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
               Container(
                 height: 3,
                 decoration: BoxDecoration(
-                  color: dimColor,
+                  color: inactiveColor,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -358,7 +369,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final timeWidget = Text(
       timeText,
       style: TextStyle(
-        color: dimColor,
+        color: timeColor,
         fontSize: 11,
         fontWeight: _isPlaying ? FontWeight.w800 : FontWeight.w600,
         fontFeatures: const [FontFeature.tabularFigures()],
@@ -486,7 +497,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                       widget.timeLabel!,
                       style: TextStyle(
                         fontSize: 10,
-                        color: dimColor,
+                        color: timeColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

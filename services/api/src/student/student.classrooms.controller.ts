@@ -139,9 +139,15 @@ export class StudentClassroomsController {
         : [],
       // TeacherMaterial targeting EVERYONE, this student directly, one
       // of their cohorts, or their grade.
+      //
+      // Use `not: false` instead of `equals: true` so legacy rows where
+      // `published` was never explicitly set still surface — earlier
+      // teacher screens occasionally created materials without the
+      // boolean, leaving them invisible to students despite an
+      // EVERYONE audience.
       this.prisma.teacherMaterial.findMany({
         where: {
-          published: true,
+          published: { not: false },
           OR: [
             { targetType: 'EVERYONE' },
             { targetStudentIds: { has: uid } },
@@ -241,7 +247,25 @@ export class StudentClassroomsController {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: take + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-      select: { id: true, classroomId: true, senderUserId: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true, createdAt: true },
+      // Reply fields included so the client can render the "↪ X said …"
+      // preview AND tap-to-jump to the replied-to message. Previously
+      // only basic fields were selected so classroom replies vanished
+      // on every refresh — DMs already returned these so the bug was
+      // classroom-specific.
+      select: {
+        id: true,
+        classroomId: true,
+        senderUserId: true,
+        kind: true,
+        text: true,
+        mediaUrl: true,
+        mediaMime: true,
+        durationSec: true,
+        createdAt: true,
+        replyToMessageId: true,
+        replyToSenderName: true,
+        replyToText: true,
+      } as any,
     });
     const hasMore = rows.length > take;
     const uid = this.uid(req);
@@ -277,18 +301,60 @@ export class StudentClassroomsController {
   }
 
   @Post(':id/chat/text')
-  async chatSendText(@Req() req: any, @Param('id') id: string, @Body() body: { text?: string }) {
+  async chatSendText(@Req() req: any, @Param('id') id: string, @Body() body: { text?: string; replyToMessageId?: string }) {
     const uid = this.uid(req);
     const text = String(body?.text ?? '').trim();
     if (!text) throw new BadRequestException('Missing text');
     await this.assertAccess(req, id);
+    const reply = await this._resolveReplySnapshot(id, body?.replyToMessageId);
     const msg = await this.prisma.classroomMessage.create({
-      data: { classroomId: id, senderUserId: uid, kind: 'TEXT', text },
-      select: { id: true, classroomId: true, senderUserId: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true, createdAt: true },
+      data: {
+        classroomId: id,
+        senderUserId: uid,
+        kind: 'TEXT',
+        text,
+        ...(reply ? {
+          replyToMessageId: reply.id,
+          replyToSenderName: reply.senderName,
+          replyToText: reply.snippet,
+        } : {}),
+      } as any,
+      select: {
+        id: true, classroomId: true, senderUserId: true, kind: true,
+        text: true, mediaUrl: true, mediaMime: true, durationSec: true,
+        createdAt: true,
+        replyToMessageId: true, replyToSenderName: true, replyToText: true,
+      } as any,
     });
-    // Push real-time event to all classroom members (excluding sender)
     this._emitClassroomMessage(id, uid);
     return { ok: true, item: msg };
+  }
+
+  /// Looks up the message being replied to and produces a snapshot
+  /// (sender display name + short text preview) that gets denormalised
+  /// onto the new message so the reply preview can render without
+  /// joining back across the chat history. Returns null if the
+  /// replyTarget id is missing, not in this classroom, or unreadable.
+  private async _resolveReplySnapshot(
+    classroomId: string,
+    replyToMessageId: unknown,
+  ): Promise<{ id: string; senderName: string; snippet: string } | null> {
+    const id = String(replyToMessageId ?? '').trim();
+    if (!id) return null;
+    try {
+      const parent = await this.prisma.classroomMessage.findFirst({
+        where: { id, classroomId },
+        select: { id: true, senderUserId: true, text: true, kind: true },
+      });
+      if (!parent) return null;
+      const senderNames = await this.resolveSenderNames([parent.senderUserId]);
+      const senderName = senderNames.get(parent.senderUserId) ?? 'Someone';
+      const raw = (parent.text ?? '').trim();
+      const snippet = raw.length > 120 ? `${raw.slice(0, 120)}…` : raw;
+      return { id: parent.id, senderName, snippet };
+    } catch {
+      return null;
+    }
   }
 
   private async _emitClassroomMessage(classroomId: string, senderUserId: string) {
@@ -376,7 +442,7 @@ export class StudentClassroomsController {
 
   @Post(':id/chat/media')
   @UseInterceptors(FileInterceptor('file', { storage: diskStorage({ destination: (_req, _file, cb) => { ensureClassroomUploadsDir(); cb(null, 'uploads/classrooms'); }, filename: (_req, file, cb) => { const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`; const base = safeClassroomName(file?.originalname || 'upload'); const ext = extname(base); const stem = ext ? base.slice(0, -ext.length) : base; cb(null, `${stem}-${stamp}${ext}`); } }), limits: { fileSize: 40 * 1024 * 1024 } }))
-  async chatSendMedia(@Req() req: any, @Param('id') id: string, @UploadedFile() file: any, @Body() body: { kind?: string; mediaUrl?: string; mediaMime?: string; durationSec?: number; text?: string; originalName?: string }) {
+  async chatSendMedia(@Req() req: any, @Param('id') id: string, @UploadedFile() file: any, @Body() body: { kind?: string; mediaUrl?: string; mediaMime?: string; durationSec?: number; text?: string; originalName?: string; replyToMessageId?: string }) {
     await this.assertAccess(req, id);
     const uid = this.uid(req);
     const inferredMime = String(body?.mediaMime ?? file?.mimetype ?? '').trim();
@@ -390,9 +456,24 @@ export class StudentClassroomsController {
     const fallbackText = rawText || (kind === 'IMAGE' ? `[IMAGE] ${originalName || 'image'}` : kind === 'VOICE' ? `[VOICE] ${originalName || 'voice'}` : `[FILE] ${originalName || 'file'}`);
     const durationNum = Number(body?.durationSec ?? 0);
     const persistedKind = kind === 'FILE' ? 'DOC' : kind;
+    const reply = await this._resolveReplySnapshot(id, body?.replyToMessageId);
     const msg = await this.prisma.classroomMessage.create({
-      data: { classroomId: id, senderUserId: uid, kind: persistedKind as any, text: fallbackText, mediaUrl, mediaMime: inferredMime || null, durationSec: Number.isFinite(durationNum) && durationNum > 0 ? durationNum : null },
-      select: { id: true, classroomId: true, senderUserId: true, kind: true, text: true, mediaUrl: true, mediaMime: true, durationSec: true, createdAt: true },
+      data: {
+        classroomId: id, senderUserId: uid, kind: persistedKind as any,
+        text: fallbackText, mediaUrl, mediaMime: inferredMime || null,
+        durationSec: Number.isFinite(durationNum) && durationNum > 0 ? durationNum : null,
+        ...(reply ? {
+          replyToMessageId: reply.id,
+          replyToSenderName: reply.senderName,
+          replyToText: reply.snippet,
+        } : {}),
+      } as any,
+      select: {
+        id: true, classroomId: true, senderUserId: true, kind: true,
+        text: true, mediaUrl: true, mediaMime: true, durationSec: true,
+        createdAt: true,
+        replyToMessageId: true, replyToSenderName: true, replyToText: true,
+      } as any,
     });
     this._emitClassroomMessage(id, uid);
     return { ok: true, item: msg };
@@ -449,6 +530,84 @@ export class StudentClassroomsController {
       orderBy: [{ startsAt: 'asc' }],
       select: { id: true, title: true, link: true, startsAt: true, endsAt: true, createdBy: true, createdAt: true, updatedAt: true },
     });
+    return { ok: true, items };
+  }
+
+  /// Aggregated meetings across every classroom the student is in PLUS
+  /// any TeacherMeeting whose audience targets them directly (EVERYONE,
+  /// this student, one of their cohorts, or their grade). Mirrors the
+  /// shape of `all-materials` so the mobile feed only needs one call.
+  @Get('all-meetings')
+  async allMeetings(@Req() req: any) {
+    const uid = this.uid(req);
+    const [profile, studentCohorts, memberships] = await Promise.all([
+      this.prisma.studentProfile.findUnique({
+        where: { userId: uid },
+        select: { grade: true },
+      }),
+      this.prisma.studentCohort.findMany({
+        where: { studentId: uid },
+        select: { cohortId: true },
+      }),
+      this.prisma.classroomMember.findMany({
+        where: { studentId: uid },
+        select: { classroomId: true, classroom: { select: { name: true, subject: true } } },
+      }),
+    ]);
+    const grade = profile?.grade ?? null;
+    const cohortIds = studentCohorts.map((c) => c.cohortId);
+    const classroomIds = memberships.map((m) => m.classroomId);
+    const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
+
+    const [classroomMeetings, teacherMeetings] = await Promise.all([
+      classroomIds.length
+        ? this.prisma.classroomMeeting.findMany({
+            where: { classroomId: { in: classroomIds } },
+            orderBy: [{ startsAt: 'asc' }],
+          })
+        : [],
+      this.prisma.teacherMeeting.findMany({
+        where: {
+          OR: [
+            { targetType: 'EVERYONE' },
+            { targetStudentIds: { has: uid } },
+            ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+            ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+          ],
+        },
+        orderBy: [{ startsAt: 'asc' }],
+      }),
+    ]);
+
+    // Dedupe: a TeacherMeeting that already has a ClassroomMeeting mirror
+    // should appear once, not twice. Mirror rows carry teacherMeetingId.
+    const mirroredTeacherIds = new Set(
+      (classroomMeetings as any[])
+        .map((m) => m.teacherMeetingId)
+        .filter((v): v is string => typeof v === 'string' && v.length > 0),
+    );
+
+    const items = [
+      ...classroomMeetings.map((m) => ({
+        ...m,
+        _source: 'classroom',
+        classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
+        classroomSubject: classroomNameMap.get(m.classroomId)?.subject ?? null,
+      })),
+      ...teacherMeetings
+        .filter((tm) => !mirroredTeacherIds.has(tm.id))
+        .map((tm) => ({
+          ...tm,
+          _source: 'teacher',
+          classroomName: null,
+          classroomSubject: tm.subject ?? null,
+        })),
+    ].sort((a, b) => {
+      const da = (a as any).startsAt ? new Date((a as any).startsAt).getTime() : 0;
+      const db = (b as any).startsAt ? new Date((b as any).startsAt).getTime() : 0;
+      return da - db;
+    });
+
     return { ok: true, items };
   }
 

@@ -443,6 +443,12 @@ class ClassroomsRepository {
     }
   }
 
+  Future<List<Map<String, dynamic>>> allStudentMeetings() async {
+    final j = await _getJson('/student/classrooms/all-meetings', label: 'classrooms.allMeetings');
+    final list = (j is Map ? j['items'] : j) as List? ?? [];
+    return list.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   Future<Map<String, dynamic>> meetings(String courseId) async {
     return _fetchWithTeacherFallback(
       studentPath: '/student/classrooms/$courseId/meetings',
@@ -641,6 +647,7 @@ class ClassroomsRepository {
     String? text,
     String? mimeType,
     String? fileName,
+    String? replyToMessageId,
   }) async {
     final path = filePath.trim();
     if (path.isEmpty) {
@@ -660,6 +667,9 @@ class ClassroomsRepository {
       if ((messageId ?? '').trim().isNotEmpty) req.fields['messageId'] = messageId!.trim();
       if ((text ?? '').trim().isNotEmpty) req.fields['text'] = text!.trim();
       if ((mimeType ?? '').trim().isNotEmpty) req.fields['mimeType'] = mimeType!.trim();
+      if ((replyToMessageId ?? '').trim().isNotEmpty) {
+        req.fields['replyToMessageId'] = replyToMessageId!.trim();
+      }
 
       req.files.add(
         await http.MultipartFile.fromPath('file', path, filename: resolvedName),

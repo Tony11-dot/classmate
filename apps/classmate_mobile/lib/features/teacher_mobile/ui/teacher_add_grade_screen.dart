@@ -9,7 +9,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
-enum _AudienceMode { students, cohorts }
+enum _AudienceMode { students, cohorts, grades }
 
 enum _GradeType { assignment, exam, other }
 
@@ -43,6 +43,7 @@ class _TeacherAddGradeScreenState
   _AudienceMode _audienceMode = _AudienceMode.students;
   final Set<String> _selectedStudentIds = {};
   final Set<String> _selectedCohortIds = {};
+  final Set<int> _selectedGrades = {};
 
   // ── Type ────────────────────────────────────────────────────────────────
   _GradeType _gradeType = _GradeType.exam;
@@ -122,15 +123,33 @@ class _TeacherAddGradeScreenState
   /// teacher selects cohorts, expand each cohort into its student list so
   /// grading writes individual GradeRecord rows.
   List<TeacherStudentWithLevel> get _effectiveStudents {
-    if (_audienceMode == _AudienceMode.students) {
-      return _allStudents
-          .where((s) => _selectedStudentIds.contains(s.studentId))
-          .toList();
+    switch (_audienceMode) {
+      case _AudienceMode.students:
+        return _allStudents
+            .where((s) => _selectedStudentIds.contains(s.studentId))
+            .toList();
+      case _AudienceMode.cohorts:
+        if (_selectedCohortIds.isEmpty) return const [];
+        return _allStudents
+            .where((s) => _selectedCohortIds.contains(s.cohortId))
+            .toList();
+      case _AudienceMode.grades:
+        if (_selectedGrades.isEmpty) return const [];
+        return _allStudents
+            .where((s) =>
+                s.gradeLevel != null && _selectedGrades.contains(s.gradeLevel))
+            .toList();
     }
-    if (_selectedCohortIds.isEmpty) return const [];
-    return _allStudents
-        .where((s) => _selectedCohortIds.contains(s.cohortId))
-        .toList();
+  }
+
+  /// All grade levels present across the school's students. Sorted asc.
+  List<int> get _availableGrades {
+    final s = <int>{};
+    for (final st in _allStudents) {
+      final g = st.gradeLevel;
+      if (g != null) s.add(g);
+    }
+    return s.toList()..sort();
   }
 
   bool _itemVisibleToAudience(Map<String, dynamic> item) {
@@ -145,26 +164,41 @@ class _TeacherAddGradeScreenState
             .toSet() ??
         const <String>{};
 
-    if (_audienceMode == _AudienceMode.students) {
-      if (_selectedStudentIds.isEmpty) return false;
-      // visible if EVERY selected student can see it
-      for (final sid in _selectedStudentIds) {
-        final student =
-            _allStudents.where((s) => s.studentId == sid).firstOrNull;
-        if (student == null) return false;
-        final ok = (targetType == 'STUDENTS' && studentIds.contains(sid)) ||
-            (targetType == 'COHORT' && cohortIds.contains(student.cohortId));
-        if (!ok) return false;
-      }
-      return true;
-    } else {
-      if (_selectedCohortIds.isEmpty) return false;
-      // visible if EVERY selected cohort can see it
-      for (final cid in _selectedCohortIds) {
-        final ok = targetType == 'COHORT' && cohortIds.contains(cid);
-        if (!ok) return false;
-      }
-      return true;
+    final grades = (item['targetGrades'] as List?)
+            ?.map((e) => (e is num) ? e.toInt() : int.tryParse(e.toString()))
+            .whereType<int>()
+            .toSet() ??
+        const <int>{};
+
+    switch (_audienceMode) {
+      case _AudienceMode.students:
+        if (_selectedStudentIds.isEmpty) return false;
+        for (final sid in _selectedStudentIds) {
+          final student =
+              _allStudents.where((s) => s.studentId == sid).firstOrNull;
+          if (student == null) return false;
+          final ok = (targetType == 'STUDENTS' && studentIds.contains(sid)) ||
+              (targetType == 'COHORT' && cohortIds.contains(student.cohortId)) ||
+              (targetType == 'GRADE' &&
+                  student.gradeLevel != null &&
+                  grades.contains(student.gradeLevel));
+          if (!ok) return false;
+        }
+        return true;
+      case _AudienceMode.cohorts:
+        if (_selectedCohortIds.isEmpty) return false;
+        for (final cid in _selectedCohortIds) {
+          final ok = targetType == 'COHORT' && cohortIds.contains(cid);
+          if (!ok) return false;
+        }
+        return true;
+      case _AudienceMode.grades:
+        if (_selectedGrades.isEmpty) return false;
+        for (final g in _selectedGrades) {
+          final ok = targetType == 'GRADE' && grades.contains(g);
+          if (!ok) return false;
+        }
+        return true;
     }
   }
 
@@ -234,7 +268,20 @@ class _TeacherAddGradeScreenState
       } else {
         _selectedCohortIds.add(id);
       }
-      // Make sure every effective student has controllers.
+      for (final s in _effectiveStudents) {
+        _gradeCtrlMap.putIfAbsent(s.studentId, () => TextEditingController());
+        _noteCtrlMap.putIfAbsent(s.studentId, () => TextEditingController());
+      }
+    });
+  }
+
+  void _toggleGrade(int g) {
+    setState(() {
+      if (_selectedGrades.contains(g)) {
+        _selectedGrades.remove(g);
+      } else {
+        _selectedGrades.add(g);
+      }
       for (final s in _effectiveStudents) {
         _gradeCtrlMap.putIfAbsent(s.studentId, () => TextEditingController());
         _noteCtrlMap.putIfAbsent(s.studentId, () => TextEditingController());
@@ -247,7 +294,7 @@ class _TeacherAddGradeScreenState
   Future<void> _save() async {
     final effective = _effectiveStudents;
     if (effective.isEmpty) {
-      _snack('Pick at least one student or cohort.');
+      _snack('Pick at least one student, cohort, or grade.');
       return;
     }
     if (!_hasSource) {
@@ -506,15 +553,26 @@ class _TeacherAddGradeScreenState
                         showSelectedIcon: false,
                         style: SegmentedButton.styleFrom(
                           visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          textStyle: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         segments: const [
                           ButtonSegment(
                             value: _AudienceMode.students,
-                            label: Text('Students'),
+                            label: Text('Students',
+                                maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                           ),
                           ButtonSegment(
                             value: _AudienceMode.cohorts,
-                            label: Text('Cohorts'),
+                            label: Text('Cohorts',
+                                maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                          ),
+                          ButtonSegment(
+                            value: _AudienceMode.grades,
+                            label: Text('Grades',
+                                maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                           ),
                         ],
                         selected: {_audienceMode},
@@ -550,7 +608,7 @@ class _TeacherAddGradeScreenState
                                 .toList(),
                           ),
                         ],
-                      ] else ...[
+                      ] else if (_audienceMode == _AudienceMode.cohorts) ...[
                         _PickerTrigger(
                           label: _selectedCohortIds.isEmpty
                               ? 'Tap to select cohorts…'
@@ -574,6 +632,36 @@ class _TeacherAddGradeScreenState
                                     ))
                                 .toList(),
                           ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '${effective.length} student${effective.length == 1 ? '' : 's'} will be graded',
+                            style: theme.textTheme.labelSmall
+                                ?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                      ] else ...[
+                        // ── Grades: small inline chip row of all school grades ──
+                        if (_availableGrades.isEmpty)
+                          Text(
+                            'No grade levels found on your students yet.',
+                            style: theme.textTheme.labelSmall
+                                ?.copyWith(color: cs.onSurfaceVariant),
+                          )
+                        else
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: _availableGrades.map((g) {
+                              final selected = _selectedGrades.contains(g);
+                              return ChoiceChip(
+                                visualDensity: VisualDensity.compact,
+                                label: Text('Grade $g'),
+                                selected: selected,
+                                onSelected: (_) => _toggleGrade(g),
+                              );
+                            }).toList(),
+                          ),
+                        if (_selectedGrades.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           Text(
                             '${effective.length} student${effective.length == 1 ? '' : 's'} will be graded',
@@ -714,7 +802,7 @@ class _TeacherAddGradeScreenState
                             child: Text(
                               effective.isEmpty
                                   ? 'Select an audience first to filter exams.'
-                                  : 'No exams reach all selected ${_audienceMode == _AudienceMode.cohorts ? "cohorts" : "students"}.',
+                                  : 'No exams reach all selected ${_audienceMode == _AudienceMode.cohorts ? "cohorts" : _audienceMode == _AudienceMode.grades ? "grades" : "students"}.',
                               style: theme.textTheme.labelSmall
                                   ?.copyWith(color: cs.onSurfaceVariant),
                             ),
@@ -776,7 +864,7 @@ class _TeacherAddGradeScreenState
                             child: Text(
                               effective.isEmpty
                                   ? 'Select an audience first to filter assignments.'
-                                  : 'No assignments reach all selected ${_audienceMode == _AudienceMode.cohorts ? "cohorts" : "students"}.',
+                                  : 'No assignments reach all selected ${_audienceMode == _AudienceMode.cohorts ? "cohorts" : _audienceMode == _AudienceMode.grades ? "grades" : "students"}.',
                               style: theme.textTheme.labelSmall
                                   ?.copyWith(color: cs.onSurfaceVariant),
                             ),

@@ -361,14 +361,29 @@ class ClassroomChatThreadController extends ChatThreadController {
       final text = _pick(m, 'text').trim().isNotEmpty
           ? _pick(m, 'text').trim()
           : _pick(m, 'body').trim();
-      if (kind == 'TEXT') {
-        return text.isNotEmpty && !serverTextSet.contains(text);
-      }
-      // For media: exclude from fallback only when the server returns a media
-      // message (has a URL or non-TEXT kind) near the same timestamp.
-      // Using text-only server messages as the "confirmed" signal caused
-      // false positives: nearby text messages suppressed an unconfirmed video.
       final created = DateTime.tryParse((m['createdAt'] ?? '').toString());
+      if (kind == 'TEXT') {
+        // Suppress local-fallback ONLY when the server returns the same
+        // text WITHIN 10s of our local timestamp. The old code matched
+        // text alone, so sending the same word twice ("ok") in a row
+        // made the second copy vanish — the server confirmation of the
+        // first matched both locals' text.
+        if (text.isEmpty || !serverTextSet.contains(text)) return true;
+        if (created == null) return false;
+        for (final si in patchedServerItems) {
+          final sText = _serverText(si);
+          if (sText != text) continue;
+          final sCreated = DateTime.tryParse(_pick(si, 'createdAt'));
+          if (sCreated != null &&
+              sCreated.difference(created).inSeconds.abs() <= 10) {
+            return false; // genuine confirmation
+          }
+        }
+        return true;
+      }
+      // For media: only treat as "confirmed" when the server returns a
+      // media message within 30s of the local timestamp (was 90s, which
+      // wrongly merged unrelated media in busy chats).
       if (created == null) return false;
       for (final si in patchedServerItems) {
         final siUrl = [
@@ -378,11 +393,11 @@ class ClassroomChatThreadController extends ChatThreadController {
         ].firstWhere((u) => u.isNotEmpty, orElse: () => '');
         final siKind = _pick(si, 'kind').toUpperCase();
         final siIsMedia = siUrl.isNotEmpty || siKind != 'TEXT';
-        if (!siIsMedia) continue; // skip plain text server messages
+        if (!siIsMedia) continue;
         final sCreated = DateTime.tryParse(_pick(si, 'createdAt'));
         if (sCreated != null &&
-            sCreated.difference(created).inSeconds.abs() <= 90) {
-          return false; // Server has a media message at this time
+            sCreated.difference(created).inSeconds.abs() <= 30) {
+          return false;
         }
       }
       return true;
@@ -782,6 +797,7 @@ class ClassroomChatThreadController extends ChatThreadController {
         _courseId,
         file.path,
         text: i == 0 ? caption : null,
+        replyToMessageId: i == 0 ? replyToMessageId : null,
       );
       // Extract CDN URL + confirmed server ID from upload response.
       // The classroom server returns: {ok, item: {id, mediaUrl, createdAt, ...}}
@@ -844,7 +860,11 @@ class ClassroomChatThreadController extends ChatThreadController {
     invalidate();
 
     // No finally removal — _serverHasMatch() prunes once server confirms.
-    final result = await _repo.sendChatMedia(_courseId, file.path);
+    final result = await _repo.sendChatMedia(
+      _courseId,
+      file.path,
+      replyToMessageId: replyToMessageId,
+    );
     // Extract CDN URL + confirmed server ID from upload response.
     final cdnUrl = _pickCdnUrl(result, file.path);
     final confirmedId = _pickConfirmedId(result);

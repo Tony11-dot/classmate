@@ -13,6 +13,8 @@ import '../teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../parent/data/parent_repository.dart';
 import '../parent/data/viewed_student_context.dart';
+import '../common/media/image_viewer_screen.dart';
+import '../common/media/pdf_viewer_screen.dart';
 
 // Public trigger so AppShell can open the create sheet
 class _DiplomasTrigger extends Notifier<int> {
@@ -99,8 +101,32 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
       );
       return;
     }
+    // Route in-app for the formats we can render natively, fall back to
+    // the OS handler for anything else. Multiple files open in sequence
+    // (each viewer pushes a fresh route).
     for (final url in openable) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      final lower = url.toLowerCase();
+      final isImage = lower.endsWith('.jpg') ||
+          lower.endsWith('.jpeg') ||
+          lower.endsWith('.png') ||
+          lower.endsWith('.webp') ||
+          lower.endsWith('.gif');
+      final isPdf = lower.endsWith('.pdf');
+      if (isImage) {
+        await Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ImageViewerScreen(url: url, title: 'Certificate'),
+          ),
+        );
+      } else if (isPdf) {
+        await Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute<void>(
+            builder: (_) => PdfViewerScreen(url: url, title: 'Certificate'),
+          ),
+        );
+      } else {
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      }
     }
   }
 
@@ -110,6 +136,11 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     final titleCtrl = TextEditingController(text: d['title'] as String? ?? '');
     final subjectCtrl = TextEditingController(text: d['subject'] as String? ?? '');
     final notesCtrl = TextEditingController(text: d['notes'] as String? ?? '');
+    // Date is editable too — earlier the only ways to change an
+    // issued-at value were to re-create the certificate or hit the API
+    // directly. Pre-fill from `issuedAt` (server) or today.
+    final issuedRaw = (d['issuedAt'] ?? d['date'] ?? '').toString();
+    DateTime issuedAt = DateTime.tryParse(issuedRaw) ?? DateTime.now();
     final cs = Theme.of(context).colorScheme;
 
     final saved = await showModalBottomSheet<bool>(
@@ -136,6 +167,27 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                 TextField(controller: subjectCtrl, decoration: InputDecoration(labelText: AppLocalizations.of(ctx)!.assignmentsSubjectLabel, border: const OutlineInputBorder())),
                 const SizedBox(height: 10),
                 TextField(controller: notesCtrl, maxLines: 3, decoration: InputDecoration(labelText: AppLocalizations.of(ctx)!.commonNotes, border: const OutlineInputBorder())),
+                const SizedBox(height: 10),
+                StatefulBuilder(
+                  builder: (sbCtx, sbSet) => OutlinedButton.icon(
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: sbCtx,
+                        initialDate: issuedAt,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (picked != null) sbSet(() => issuedAt = picked);
+                    },
+                    icon: const Icon(Icons.event_rounded, size: 18),
+                    label: Text(
+                      'Issued ${DateFormat.yMMMd().format(issuedAt)}',
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () => Navigator.of(ctx).pop(true),
@@ -166,6 +218,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
         'title': titleText.isEmpty ? 'Certificate of Achievement' : titleText,
         'subject': subjectText.isEmpty ? null : subjectText,
         'notes': notesText.isEmpty ? null : notesText,
+        'issuedAt': issuedAt.toUtc().toIso8601String(),
       });
       await _load();
     } catch (_) {}

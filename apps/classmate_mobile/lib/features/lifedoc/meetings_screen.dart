@@ -39,7 +39,26 @@ final meetingsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic
           .toList(growable: false);
     }
 
+    // Student flow: hit the aggregator that already merges classroom
+    // meetings AND direct-target TeacherMeeting rows. Saves N-classroom
+    // round-trips AND surfaces meetings created without a classroomId —
+    // those previously fell through the per-classroom fan-out below.
     final repo = ref.read(classroomsRepoProvider);
+    try {
+      final all = await repo.allStudentMeetings();
+      return all.map((m) {
+        final mm = Map<String, dynamic>.from(m);
+        return <String, dynamic>{
+          ...mm,
+          '_courseId': (mm['classroomId'] ?? '').toString(),
+          '_courseName': (mm['classroomName'] ?? '').toString(),
+          '_subject': (mm['classroomSubject'] ?? mm['subject'] ?? '').toString(),
+        };
+      }).toList(growable: false);
+    } catch (_) {
+      // Fall through to legacy per-classroom fan-out if the aggregator
+      // is missing on an older API (defensive — production has it).
+    }
     final classrooms = await ref.watch(orderedStudentClassroomsProvider.future);
 
     final results = await Future.wait(

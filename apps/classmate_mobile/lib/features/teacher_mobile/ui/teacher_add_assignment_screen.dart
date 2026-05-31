@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -244,35 +243,6 @@ class _TeacherAddAssignmentScreenState
           '_pendingMaterial': true,
         });
       });
-    }
-  }
-
-  Future<void> _pickFiles() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      allowMultiple: true,
-    );
-    if (result == null || result.files.isEmpty) return;
-
-    // Show uploading state
-    setState(() {});
-    final repo = ref.read(teacherMobileRepositoryProvider);
-    for (final file in result.files) {
-      final path = file.path ?? '';
-      if (path.isEmpty) continue;
-      try {
-        final uploaded = await repo.uploadAttachmentFile(path, file.name);
-        final url = (uploaded['url'] ?? uploaded['fileUrl'] ?? '').toString().trim();
-        if (url.isNotEmpty) {
-          setState(() => _attachments.add({'name': file.name, 'url': url, 'type': 'file'}));
-        }
-      } catch (_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.teacherAssignmentUploadFailed(file.name))),
-          );
-        }
-      }
     }
   }
 
@@ -759,24 +729,20 @@ class _TeacherAddAssignmentScreenState
                           ),
                         );
                       }),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _pickMaterial,
-                              icon: const Icon(Icons.folder_open_rounded, size: 18),
-                              label: Text(AppLocalizations.of(context)!.teacherAttachFromMaterials),
-                            ),
+                      // Single attach button — opens the same library
+                      // picker used by exams + periods. Create-new-on-spot
+                      // is exposed inside the picker, so we don't need a
+                      // separate "attach files" route here.
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.tonalIcon(
+                          onPressed: _pickMaterial,
+                          icon: const Icon(Icons.attach_file_rounded, size: 18),
+                          label: const Text('Attach material'),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _pickFiles,
-                              icon: const Icon(Icons.attach_file_rounded, size: 18),
-                              label: Text(AppLocalizations.of(context)!.teacherAttachFilesButton),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),

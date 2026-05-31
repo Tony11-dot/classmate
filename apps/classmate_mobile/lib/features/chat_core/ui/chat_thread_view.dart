@@ -131,7 +131,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     super.initState();
     _scrollController.addListener(_handleScroll);
     _textController.addListener(_handleTextChange);
-    _pollTimer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
+    _pollTimer = Timer.periodic(const Duration(milliseconds: 1000), (_) {
       if (!mounted) return;
       widget.controller.invalidate();
     });

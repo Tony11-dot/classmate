@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -167,29 +168,24 @@ class MainDrawer extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    // School logo or placeholder icon. Image.network leaves
-                    // a blank square while the network fetch is in flight —
-                    // frameBuilder swaps in the placeholder so there's never
-                    // a white flash, only the icon → logo transition.
+                    // School logo via CachedNetworkImage so the bytes are
+                    // pulled once and reused across every drawer open —
+                    // Image.network's in-memory cache is per-widget, so
+                    // each drawer open re-decoded the PNG and flashed
+                    // empty space for a frame. The placeholder shows
+                    // instantly on first load too.
                     if (schoolLogoUrl.isNotEmpty)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          schoolLogoUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: schoolLogoUrl,
                           width: 36,
                           height: 36,
                           fit: BoxFit.contain,
-                          gaplessPlayback: true,
-                          frameBuilder: (ctx, child, frame, wasSyncLoaded) {
-                            if (wasSyncLoaded || frame != null) {
-                              return AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 180),
-                                child: child,
-                              );
-                            }
-                            return _schoolLogoPlaceholder(cs);
-                          },
-                          errorBuilder: (ctx, err, stack) => _schoolLogoPlaceholder(cs),
+                          fadeInDuration: const Duration(milliseconds: 120),
+                          fadeOutDuration: Duration.zero,
+                          placeholder: (_, _) => _schoolLogoPlaceholder(cs),
+                          errorWidget: (_, _, _) => _schoolLogoPlaceholder(cs),
                         ),
                       )
                     else

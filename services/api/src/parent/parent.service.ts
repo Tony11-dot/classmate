@@ -805,42 +805,77 @@ export class ParentService {
     const parentId = user?.sub ?? user?.id;
     await requireParentChild(this.prisma, parentId, studentId);
 
-    const memberships = await this.prisma.classroomMember.findMany({
-      where: { studentId },
-      select: {
-        classroomId: true,
-        classroom: { select: { name: true, subject: true } },
-      },
-    });
+    const [profile, studentCohorts, memberships] = await Promise.all([
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true },
+      }),
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.classroomMember.findMany({
+        where: { studentId },
+        select: {
+          classroomId: true,
+          classroom: { select: { name: true, subject: true } },
+        },
+      }),
+    ]);
+    const grade = profile?.grade ?? null;
+    const cohortIds = studentCohorts.map((c) => c.cohortId);
     const classroomIds = memberships.map((m) => m.classroomId);
     const classroomMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
 
-    if (classroomIds.length === 0) return { ok: true, items: [] };
+    const [classroomMeetings, teacherMeetings] = await Promise.all([
+      classroomIds.length
+        ? this.prisma.classroomMeeting.findMany({
+            where: { classroomId: { in: classroomIds } },
+            orderBy: [{ startsAt: 'asc' }],
+          })
+        : [],
+      // Direct-target teacher meetings (no classroom mirror). Match the
+      // same audience rules the student-side uses so the two surfaces
+      // stay in sync.
+      this.prisma.teacherMeeting.findMany({
+        where: {
+          OR: [
+            { targetType: 'EVERYONE' },
+            { targetStudentIds: { has: studentId } },
+            ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+            ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+          ],
+        },
+        orderBy: [{ startsAt: 'asc' }],
+      }),
+    ]);
 
-    const meetings = await this.prisma.classroomMeeting.findMany({
-      where: { classroomId: { in: classroomIds } },
-      orderBy: [{ startsAt: 'asc' }],
-      select: {
-        id: true,
-        classroomId: true,
-        title: true,
-        link: true,
-        startsAt: true,
-        endsAt: true,
-        createdBy: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const mirroredTeacherIds = new Set(
+      (classroomMeetings as any[])
+        .map((m) => m.teacherMeetingId)
+        .filter((v): v is string => typeof v === 'string' && v.length > 0),
+    );
 
-    return {
-      ok: true,
-      items: meetings.map((m) => ({
+    const items = [
+      ...classroomMeetings.map((m) => ({
         ...m,
         classroomName: classroomMap.get(m.classroomId)?.name ?? null,
         classroomSubject: classroomMap.get(m.classroomId)?.subject ?? null,
       })),
-    };
+      ...teacherMeetings
+        .filter((tm) => !mirroredTeacherIds.has(tm.id))
+        .map((tm) => ({
+          ...tm,
+          classroomName: null,
+          classroomSubject: tm.subject ?? null,
+        })),
+    ].sort((a, b) => {
+      const da = (a as any).startsAt ? new Date((a as any).startsAt).getTime() : 0;
+      const db = (b as any).startsAt ? new Date((b as any).startsAt).getTime() : 0;
+      return da - db;
+    });
+
+    return { ok: true, items };
   }
 
   /// Mirror of student.classrooms.allMaterials(), pivoted to a child.
