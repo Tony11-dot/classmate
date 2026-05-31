@@ -6,6 +6,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../l10n/app_localizations.dart';
+import 'notifications_local_service.dart';
 import 'notifications_models.dart';
 import 'notifications_provider.dart';
 import '../../ui/widgets/cm_loading.dart';
@@ -348,10 +349,29 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(20),
                                     onTap: () {
-                                      context.push(
-                                        '/notifications/${Uri.encodeComponent(item.id)}',
-                                        extra: item,
-                                      );
+                                      // Route by source (grades/messages/
+                                      // assignment/meeting/exam/…) the same
+                                      // way push-notification taps do, so an
+                                      // in-app tap lands on the right tab
+                                      // instead of a generic detail page.
+                                      final id = item.id;
+                                      final payload = '${item.source}|$id';
+                                      final route =
+                                          LocalNotificationsService.routeFromPayload(payload);
+                                      // Fall back to the detail screen only
+                                      // if no source-route resolved (the
+                                      // route helper returns /notifications
+                                      // in that case — which keeps the old
+                                      // detail-view behaviour for unknown
+                                      // sources).
+                                      if (route == '/notifications') {
+                                        context.push(
+                                          '/notifications/${Uri.encodeComponent(id)}',
+                                          extra: item,
+                                        );
+                                      } else {
+                                        context.push(route);
+                                      }
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(14),

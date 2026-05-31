@@ -434,21 +434,22 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     );
 
     // ── Delivery checks ───────────────────────────────────────────────────
+    //
+    // Sizes were too small to read at 12px against a saturated bubble.
+    // Bumping the icon to 16, the seen colour stays the cyan WhatsApp-
+    // style accent (legible on both dark and light primary), and the
+    // pending/delivered colour matches the timestamp text (timeColor) so
+    // it never sits at full-opacity white on a white-ish bubble.
     Widget checksWidget = const SizedBox.shrink();
     if (widget.isMine) {
-      final seenColor = const Color(0xFF53BDEB);
-      final pendingColor = Colors.white;
-      final deliveredColor = Colors.white;
+      const seenColor = Color(0xFF53BDEB);
+      final pendingDelivered = timeColor;
       checksWidget = Icon(
         widget.seen || widget.delivered
             ? Icons.done_all_rounded
             : Icons.done_rounded,
-        size: 12,
-        color: widget.seen
-            ? seenColor
-            : widget.delivered
-                ? deliveredColor
-                : pendingColor,
+        size: 16,
+        color: widget.seen ? seenColor : pendingDelivered,
       );
     }
 
@@ -496,12 +497,12 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                     Text(
                       widget.timeLabel!,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         color: timeColor,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: 5),
                   ],
                   checksWidget,
                 ],

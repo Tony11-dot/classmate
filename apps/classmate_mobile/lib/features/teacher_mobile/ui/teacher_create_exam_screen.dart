@@ -168,6 +168,12 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
       if (!mounted) return;
       setState(() {
         _pendingMaterialIds.add(picked);
+        // Drop any pre-existing row pointing at the same material so
+        // the picker never spawns "two boxes" (one snapshot from the
+        // edit-mode initial load, one pending placeholder from this
+        // pick) — only the freshest entry sticks.
+        _attachments.removeWhere(
+            (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
           'title': (mat['title'] as String?) ?? 'Material',
           'subject': mat['subject'],
@@ -176,10 +182,11 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
         });
       });
     } catch (_) {
-      // Even if the lookup fails, we can still queue the attach by id.
       if (!mounted) return;
       setState(() {
         _pendingMaterialIds.add(picked);
+        _attachments.removeWhere(
+            (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
           'title': 'Material',
           '_sourceMaterialId': picked,
@@ -254,7 +261,17 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           targetGrades: _selectedGrades.toList(),
           attachments: _attachments.where((a) => a['_localOnly'] != true && a['_pendingMaterial'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
         );
-        savedExamId = (created['id'] ?? '').toString();
+        // Server returns `{ok, exam: {id, …}}` — the legacy shape was
+        // a flat row. Try the nested key first, fall back to the flat
+        // id so the attach calls below find a real exam to point at.
+        // Without this fix the post-create attach loop ran with an
+        // empty examId and silently swallowed every material.
+        final nested = created['exam'];
+        if (nested is Map && (nested['id'] ?? '').toString().isNotEmpty) {
+          savedExamId = nested['id'].toString();
+        } else {
+          savedExamId = (created['id'] ?? '').toString();
+        }
       }
 
       // Attach every pending material to the saved exam. Each call also

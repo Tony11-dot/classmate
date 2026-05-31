@@ -142,12 +142,25 @@ class _TeacherAddGradeScreenState
     }
   }
 
-  /// All grade levels present across the school's students. Sorted asc.
+  /// All grade levels across the school. Same three-step source as
+  /// the announcement audience picker so the chips never come up
+  /// empty for teachers whose student endpoint returns null
+  /// gradeLevels (the messages-people fallback path).
   List<int> get _availableGrades {
     final s = <int>{};
     for (final st in _allStudents) {
       final g = st.gradeLevel;
-      if (g != null) s.add(g);
+      if (g != null && g > 0) s.add(g);
+    }
+    for (final c in _allCohorts) {
+      final g = c['grade'];
+      final n = g is int ? g : int.tryParse('${g ?? ''}');
+      if (n != null && n > 0) s.add(n);
+    }
+    if (s.isEmpty) {
+      for (var i = 1; i <= 12; i++) {
+        s.add(i);
+      }
     }
     return s.toList()..sort();
   }

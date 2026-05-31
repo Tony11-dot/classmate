@@ -437,6 +437,15 @@ class ClassroomChatThreadController extends ChatThreadController {
       });
 
     final messages = filtered.map(_convertClassroomRow).toList();
+
+    // Belt-and-suspenders: if every dedup branch above happened to wipe
+    // the list, fall back to the last known set instead of returning
+    // empty. Users were seeing the whole chat go white whenever an
+    // invalidate fired between server polls — the safest behaviour is
+    // to never SHRINK to nothing once the user has seen something.
+    if (messages.isEmpty && _cachedMessages.isNotEmpty) {
+      return _cachedMessages;
+    }
     _cachedMessages = messages;
     return messages;
   }

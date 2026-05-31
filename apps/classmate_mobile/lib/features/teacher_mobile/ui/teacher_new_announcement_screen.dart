@@ -148,15 +148,30 @@ class _TeacherNewAnnouncementScreenState
     return targets;
   }
 
-  /// Unique grade levels present across this teacher's loaded
-  /// students. We derive from the existing student list rather than
-  /// pulling a separate "school grades" endpoint — the student grades
-  /// are always the complete set you'd reasonably target.
+  /// Unique grade levels available across this school. Three sources,
+  /// in order of richness:
+  ///   1. Student profiles (`gradeLevel`) — only reliable when the
+  ///      teacher endpoint returned the grade field. The fallback
+  ///      `/messages/people/same-school` returns null gradeLevel,
+  ///      which leaves the dropdown empty for many teachers.
+  ///   2. Cohort `grade` field — cohorts always carry the grade in
+  ///      their metadata, so a school with cohorts always has at
+  ///      least one grade here.
+  ///   3. School-wide 1..12 fallback — last resort so the picker is
+  ///      never empty even before the cohort fetch resolves.
   List<int> get _availableGrades {
     final s = <int>{};
     for (final st in _allStudents) {
       final g = st.gradeLevel;
-      if (g != null) s.add(g);
+      if (g != null && g > 0) s.add(g);
+    }
+    for (final c in _cohorts) {
+      if (c.grade > 0) s.add(c.grade);
+    }
+    if (s.isEmpty) {
+      for (var i = 1; i <= 12; i++) {
+        s.add(i);
+      }
     }
     return s.toList()..sort();
   }

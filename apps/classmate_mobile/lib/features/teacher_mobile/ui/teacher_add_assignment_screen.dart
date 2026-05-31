@@ -226,6 +226,12 @@ class _TeacherAddAssignmentScreenState
       if (!mounted) return;
       setState(() {
         _pendingMaterialIds.add(picked);
+        // Drop any pre-existing attachment row pointing at the same
+        // material so the picker never spawns the "two boxes" case
+        // the user reported (one snapshot from edit-mode load, one
+        // pending placeholder from this pick).
+        _attachments.removeWhere(
+            (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
           'name': (mat['title'] as String?) ?? 'Material',
           'subject': mat['subject'],
@@ -237,6 +243,8 @@ class _TeacherAddAssignmentScreenState
       if (!mounted) return;
       setState(() {
         _pendingMaterialIds.add(picked);
+        _attachments.removeWhere(
+            (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
           'name': 'Material',
           '_sourceMaterialId': picked,
@@ -311,7 +319,15 @@ class _TeacherAddAssignmentScreenState
           attachments: attsForSave,
           published: published,
         );
-        savedAsnId = (created['id'] ?? '').toString();
+        // Server returns `{ok, assignment: {id, …}}` — without the
+        // nested probe the post-create attach loop ran with an empty
+        // id and silently dropped every pending material.
+        final nested = created['assignment'];
+        if (nested is Map && (nested['id'] ?? '').toString().isNotEmpty) {
+          savedAsnId = nested['id'].toString();
+        } else {
+          savedAsnId = (created['id'] ?? '').toString();
+        }
       }
 
       // Attach every staged material; each call also UNIONs the
@@ -700,6 +716,22 @@ class _TeacherAddAssignmentScreenState
                       ..._attachments.asMap().entries.map((entry) {
                         final i = entry.key;
                         final file = entry.value;
+                        // Server-stored attachments use `title`; client-
+                        // added pending entries use `name`; library
+                        // snapshots use `_sourceMaterialTitle`. Falling
+                        // back across all three is why edit-mode used
+                        // to render half the rows blank ("two boxes,
+                        // one empty, one with a URL") — the chip text
+                        // was reading the wrong key.
+                        final label = (file['name'] ??
+                                file['title'] ??
+                                file['_sourceMaterialTitle'] ??
+                                file['fileName'] ??
+                                (file['url'] is String
+                                    ? (file['url'] as String).split('/').last
+                                    : null) ??
+                                'Material')
+                            .toString();
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: LiquidGlassCard(
@@ -713,7 +745,7 @@ class _TeacherAddAssignmentScreenState
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    file['name'] as String? ?? '',
+                                    label,
                                     overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                                   ),
