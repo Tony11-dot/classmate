@@ -520,6 +520,7 @@ export class PracticeService {
       conceptual,
       symbolic,
       hasDeterministicCatalogTopic: hasDeterministicTopicCoverage,
+      apiKey,
     });
 
     if (
@@ -931,6 +932,33 @@ export class PracticeService {
     }
 
     if (finalQuestions.length !== questionCount) {
+      // AI couldn't produce a full set after all retries. Before
+      // throwing — which leaves the user staring at an error — fall
+      // back to the deterministic engine if it has enough validated
+      // questions for this topic. This restores the legacy behaviour
+      // for catalog topics whose AI run happened to fail (rate limit,
+      // schema mismatch, timeout) and only errors out when neither
+      // path produced anything usable.
+      if (validatedDeterministic.length === questionCount) {
+        this.logPracticeEvent('generation_ai_to_deterministic_fallback', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          lastFailure: lastAiFailure
+            ? this.practiceErrorMessage(lastAiFailure)
+            : undefined,
+        });
+        return this.buildDeterministicResponse({
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          deterministic: validatedDeterministic,
+        });
+      }
+
       this.logPracticeEvent('generation_failed', {
         subject,
         topicLabel,
@@ -1036,8 +1064,18 @@ export class PracticeService {
     conceptual: ReturnType<ConceptualTopicService['resolve']>;
     symbolic: ReturnType<SymbolicTopicService['resolve']>;
     hasDeterministicCatalogTopic: boolean;
+    /// When set, prefer AI generation over the deterministic engine
+    /// even for catalog topics that have hand-written questions. The
+    /// engine is still used as the final fallback when AI fails (the
+    /// throw at the end of generateOnce was relaxed to fall through to
+    /// it). Without a key we keep the legacy deterministic shortcut so
+    /// practice still works offline / in dev.
+    apiKey?: string;
   }): PracticeRoutingDecision {
-    if (Array.isArray(args.deterministicQuestions) && args.deterministicQuestions.length > 0) {
+    const hasDeterministic =
+      Array.isArray(args.deterministicQuestions) &&
+      args.deterministicQuestions.length > 0;
+    if (hasDeterministic && !args.apiKey) {
       return {
         route: 'deterministic',
         hasDeterministicCatalogTopic: args.hasDeterministicCatalogTopic,
