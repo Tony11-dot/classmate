@@ -722,12 +722,24 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
     // bottom edge; at and above 900 we lift the nav into a desktop rail.
     final wide = width >= 900;
 
+    // Cross-fade between top-level tabs (Schedule / Classrooms / Practice /
+    // …) instead of the default horizontal route slide. Keyed by the matched
+    // location so each tab switch triggers a fade.
+    final animatedChild = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: KeyedSubtree(key: ValueKey<String>(loc), child: widget.child),
+    );
+
     final body = showChildBanner
         ? Column(children: [
             const _ParentChildSwitcherBar(),
-            Expanded(child: widget.child),
+            Expanded(child: animatedChild),
           ])
-        : widget.child;
+        : animatedChild;
 
     if (wide && !widget.hideBottomNav) {
       return Scaffold(

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import '../../../core/config/env.dart';
+
 String _normalizeIncoming(String s) {
   return s
       .replaceAll(r'\(', '')
@@ -55,12 +57,15 @@ class BagrutQuestionDto {
 }
 
 class BagrutRepository {
-  static const _apiBase = String.fromEnvironment(
-    'CM_API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:3001',
-  );
-
   static const _devToken = String.fromEnvironment('CM_DEV_TOKEN');
+
+  /// Signed-in user's JWT (set by the session controller). Same fix as
+  /// PracticeGenerator — without it bagrut requests were unauthenticated.
+  String? authToken;
+  String get _bearer {
+    final t = (authToken ?? '').trim();
+    return t.isNotEmpty ? t : _devToken;
+  }
 
   Future<BagrutQuestionDto?> getQuestion({
     required String subject,
@@ -70,12 +75,15 @@ class BagrutRepository {
       ..connectionTimeout = const Duration(seconds: 15);
 
     try {
-      final uri = Uri.parse('$_apiBase/bagrut/question');
+      // Use the `/api`-prefixed base like the rest of the app.
+      final base = Env.ensureApiSuffix(Env.apiBaseUrl);
+      final uri = Uri.parse('$base/bagrut/question');
       final req = await client.postUrl(uri);
       req.headers.contentType = ContentType.json;
       req.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      if (_devToken.isNotEmpty) {
-        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_devToken');
+      final bearer = _bearer;
+      if (bearer.isNotEmpty) {
+        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $bearer');
       }
 
       req.write(jsonEncode({'subject': subject, 'topicLabel': topicLabel}));

@@ -333,6 +333,26 @@ class PracticeGenerator {
 
   final BagrutRepository _bagrutRepo = BagrutRepository();
 
+  /// The signed-in user's JWT, set by the session controller before each
+  /// generation. WITHOUT this, /practice/generate was hit with no auth in
+  /// production (CM_DEV_TOKEN is only set in dev) → 401 → the app silently
+  /// fell back to the same local questions every time. Propagates to the
+  /// bagrut repo too.
+  String? _authToken;
+  set authToken(String? t) {
+    _authToken = t;
+    _bagrutRepo.authToken = t;
+  }
+
+  String? get authToken => _authToken;
+
+  /// Bearer token to send: the real session JWT when present, else the dev
+  /// token (local dev only).
+  String get _bearer {
+    final t = (_authToken ?? '').trim();
+    return t.isNotEmpty ? t : _devToken;
+  }
+
   // Rolling list of recent question prompts per (subject+topic) key.
   // Sent to the server as context so it generates genuinely different questions.
   static final Map<String, List<String>> _recentPrompts = {};
@@ -448,8 +468,9 @@ class PracticeGenerator {
 
       req.headers.contentType = ContentType.json;
       req.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      if (_devToken.isNotEmpty) {
-        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_devToken');
+      final bearer = _bearer;
+      if (bearer.isNotEmpty) {
+        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $bearer');
       }
 
       final recent = _getRecent(filter);

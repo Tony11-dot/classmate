@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../data/practice_generator.dart';
 import '../data/practice_history_repository.dart';
 import '../domain/practice_models.dart';
@@ -160,6 +161,10 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
             )
           : filter;
 
+      // Authenticate the generation request with the signed-in user's JWT.
+      // Without this the API returns 401 and the app silently falls back to
+      // local questions (the "same questions every time" bug).
+      _generator.authToken = ref.read(authSessionProvider).token;
       final questions = await _generator.generate(normalizedFilter);
       final firstQuestion = questions.isEmpty ? null : questions.first;
 
