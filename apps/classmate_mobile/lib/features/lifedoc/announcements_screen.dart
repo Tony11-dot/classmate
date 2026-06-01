@@ -333,23 +333,35 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
       }
     });
 
-    return announcementsAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CmLoading()),
-      ),
-      error: (error, _) => Scaffold(
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-          children: [
-            _EmptyStateCard(
-              title: l.announcementsLoadFailedTitle,
-              subtitle: _friendlyError(context, error),
-              hint: l.announcementsLoadFailedHint,
+    // Teacher Received/Published toggle is rendered ABOVE the async content so
+    // it stays visible (and switchable) even while a tab's data is loading.
+    return Scaffold(
+      body: Column(
+        children: [
+          if (isTeacher)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _ViewToggle(
+                view: _view,
+                receivedLabel: l.announcementsTabReceived,
+                publishedLabel: l.announcementsTabPublished,
+                onChanged: (v) => setState(() => _view = v),
+              ),
             ),
-          ],
-        ),
-      ),
-      data: (rawAnnouncements) {
+          Expanded(
+            child: announcementsAsync.when(
+              loading: () => const Center(child: CmLoading()),
+              error: (error, _) => ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+                children: [
+                  _EmptyStateCard(
+                    title: l.announcementsLoadFailedTitle,
+                    subtitle: _friendlyError(context, error),
+                    hint: l.announcementsLoadFailedHint,
+                  ),
+                ],
+              ),
+              data: (rawAnnouncements) {
         // "Received" excludes the teacher's own published posts (those live
         // on the Published tab); system-generated rows have an empty
         // createdBy and always stay in Received.
@@ -376,8 +388,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
         final hasActiveFilters =
             safeSource != _allSources || _selectedReadState != _allReadStates;
 
-        return Scaffold(
-          body: RefreshIndicator(
+        return RefreshIndicator(
             onRefresh: () async {
               if (showPublished) {
                 ref.invalidate(myAnnouncementsProvider);
@@ -391,15 +402,6 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
-                if (isTeacher) ...[
-                  _ViewToggle(
-                    view: _view,
-                    receivedLabel: l.announcementsTabReceived,
-                    publishedLabel: l.announcementsTabPublished,
-                    onChanged: (v) => setState(() => _view = v),
-                  ),
-                  const SizedBox(height: 16),
-                ],
                 _HeroCard(
                   title: l.navAnnouncements,
                   subtitle: l.announcementsHeroSubtitle(accountLabel),
@@ -601,9 +603,12 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
                   ),
               ],
             ),
+          );
+              },
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

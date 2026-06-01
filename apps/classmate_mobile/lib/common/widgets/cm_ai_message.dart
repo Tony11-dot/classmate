@@ -215,12 +215,14 @@ class _ProseWidget extends StatelessWidget {
       tableHead:
           baseStyle?.copyWith(fontSize: 13, fontWeight: FontWeight.w700),
       blockquote: baseStyle?.copyWith(
-        color: cs.onSurface,
+        color: cs.onSurfaceVariant,
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
         border: Border(left: BorderSide(color: cs.primary, width: 3)),
-        color: cs.primary,
+        // Subtle container fill (NOT solid primary, which made the
+        // onSurface text unreadable on top of it).
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(4),
       ),
       blockquotePadding:
@@ -228,8 +230,10 @@ class _ProseWidget extends StatelessWidget {
       code: TextStyle(
         fontFamily: 'monospace',
         fontSize: 13,
+        // Was onSurface text on an onSurface background → invisible inline
+        // code (the "color on color" the user saw in light mode).
         color: cs.onSurface,
-        backgroundColor: cs.onSurface,
+        backgroundColor: cs.surfaceContainerHighest,
       ),
       codeblockDecoration: BoxDecoration(
         color: const Color(0xFF282C34),

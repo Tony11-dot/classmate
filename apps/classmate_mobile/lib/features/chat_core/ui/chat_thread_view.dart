@@ -42,8 +42,8 @@ import '../../../ui/widgets/cm_loading.dart';
 /// formatter turns into "🎤 Voice message", "🖼️ Photo", "📎 File", so the
 /// reply chip shows the type + icon rather than nothing.
 String _replyContentFor(ChatMessage m) {
-  final t = m.text.trim();
-  if (t.isNotEmpty) return t;
+  // Kind FIRST — a media message's `text` is usually its filename
+  // ("chat-voice-123.m4a"), which must NOT be shown as the reply preview.
   switch (m.kind) {
     case ChatMessageKind.voice:
       final d = m.voiceDurationSeconds ?? 0;
@@ -53,7 +53,7 @@ String _replyContentFor(ChatMessage m) {
     case ChatMessageKind.file:
       return '[FILE]';
     default:
-      return t;
+      return m.text.trim();
   }
 }
 
@@ -716,7 +716,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   Future<void> _handleVideo() async {
     final video = await _imagePicker.pickVideo(
       source: ImageSource.camera,
-      maxDuration: const Duration(minutes: 5),
+      // Bound the size: a 5-min clip easily exceeds the upload limit and the
+      // request resets mid-upload. ~1 min keeps it well within bounds.
+      maxDuration: const Duration(seconds: 60),
     );
     if (video == null || !mounted) return;
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
@@ -1123,16 +1125,14 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   bool _canDelete(ChatMessage message) {
     if (message.deletedForMe) return false; // already hidden
-    // Already deleted for everyone — still allow "delete for me" to hide the stamp.
-    if (message.deletedForEveryone) {
-      return widget.policy.canDeleteOwn ||
-          widget.policy.canDeleteOthers ||
-          widget.policy.canModeratorDelete;
-    }
-    if (message.isOwn && widget.policy.canDeleteOwn) return true;
-    if (widget.policy.canDeleteOthers) return true;
-    if (widget.policy.canModeratorDelete) return true;
-    return false;
+    // "Delete for me" is allowed on ANY message in a context that supports
+    // deletion (classroom + DM) — including other people's messages. The
+    // stricter "delete for everyone" is gated separately in _commitDelete to
+    // your own messages (or moderators). NOVA has all delete flags off, so it
+    // still shows no delete action.
+    return widget.policy.canDeleteOwn ||
+        widget.policy.canDeleteOthers ||
+        widget.policy.canModeratorDelete;
   }
 
   // ─── helpers ─────────────────────────────────────────────────────────────

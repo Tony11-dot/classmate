@@ -31,7 +31,28 @@ String replyPreviewText(String text) {
 /// message text — `[IMAGE] name.png`, `[VOICE] ... [duration:N]`,
 /// `[FILE] doc.pdf` — and returns a human snippet for reply previews.
 String? _formatAttachmentMarker(String raw) {
-  final m = RegExp(r'^\[(IMAGE|VOICE|FILE)\]\s*(.*)$').firstMatch(raw);
+  // Bare media filenames (e.g. "chat-voice-123.m4a", "IMG_2.jpg") that arrive
+  // without a [KIND] marker — classify by extension so a reply to media never
+  // shows a raw filename.
+  final lower = raw.toLowerCase().trim();
+  if (!lower.contains(' ') && lower.contains('.')) {
+    final ext = lower.split('.').last;
+    if (['m4a', 'aac', 'mp3', 'wav', 'ogg', 'opus', 'caf'].contains(ext)) {
+      return '🎤 Voice message';
+    }
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'].contains(ext)) {
+      return '🖼️ Photo';
+    }
+    if (['mp4', 'mov', 'm4v', 'webm', 'avi', 'mkv'].contains(ext)) {
+      return '🎬 Video';
+    }
+    if (['pdf'].contains(ext)) return '📄 $raw';
+    if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'txt'].contains(ext)) {
+      return '📎 $raw';
+    }
+  }
+
+  final m = RegExp(r'^\[(IMAGE|VOICE|FILE|VIDEO)\]\s*(.*)$').firstMatch(raw);
   if (m == null) return null;
   final kind = m.group(1)!;
   final rest = (m.group(2) ?? '').trim();
@@ -50,9 +71,11 @@ String? _formatAttachmentMarker(String raw) {
       return '🎤 Voice message';
     case 'FILE':
       final filename = rest.isEmpty ? 'file' : rest;
-      final lower = filename.toLowerCase();
-      if (lower.endsWith('.pdf')) return '📄 $filename';
+      final lowerName = filename.toLowerCase();
+      if (lowerName.endsWith('.pdf')) return '📄 $filename';
       return '📎 $filename';
+    case 'VIDEO':
+      return '🎬 Video';
   }
   return null;
 }

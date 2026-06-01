@@ -688,11 +688,21 @@ class PracticeGenerator {
       );
     }
 
+    // Math / algebra / arithmetic: generate a REAL computed question with a
+    // correct answer + plausible distractors, so practice is usable even when
+    // the AI generator is unreachable. Varies by index so a set isn't clones.
+    if (_mentions(subject, const ['math', 'mathematics', 'algebra', 'arithmetic']) ||
+        _mentions(topic, const [
+          'algebra', 'arithmetic', 'equation', 'equations', 'linear',
+          'solve', 'expression', 'expressions', 'evaluate'
+        ])) {
+      return _localAlgebraQuestion(filter, index);
+    }
+
     // Generic last-resort fallback — only reached when the AI generator is
-    // completely unreachable (offline / server down). Instead of a fake
-    // arithmetic placeholder (the old "compute 3 * 2 + 1" that shipped for
-    // every topic), route the student to NOVA for a real, topic-accurate
-    // walkthrough. Honest and never looks broken.
+    // completely unreachable (offline / server down) for a non-math topic.
+    // Route the student to NOVA for a real, topic-accurate walkthrough.
+    // Honest and never looks broken.
     return PracticeQuestion(
       id: 'fallback-$index',
       subject: filter.subject,
@@ -711,6 +721,70 @@ class PracticeGenerator {
       explanation:
           'We could not reach the question generator just now. Open this topic with NOVA for a full step-by-step walkthrough, then try Practice again when you are back online.',
       recommendedTimeSeconds: filter.timePreferenceSeconds ?? 30,
+    );
+  }
+
+  /// Real, computed math MCQ used as an offline/AI-unavailable fallback for
+  /// math/algebra/arithmetic topics. Produces a correct answer with three
+  /// plausible distractors, varied by [index] so a set isn't repetitive.
+  PracticeQuestion _localAlgebraQuestion(PracticeFilter filter, int index) {
+    final hard = filter.difficulty == PracticeDifficulty.hard ||
+        filter.difficulty == PracticeDifficulty.olympiad;
+    final scale = hard ? 9 : 4;
+    final type = index % 3;
+    final a = 2 + (index % scale);
+    final b = 1 + ((index * 3) % scale);
+    final x = 1 + ((index * 2) % scale);
+
+    String prompt;
+    int answer;
+    String explanation;
+    switch (type) {
+      case 0: // solve a*x + b = c for x
+        final c = a * x + b;
+        prompt = 'Solve for x:  \$$a x + $b = $c\$';
+        answer = x;
+        explanation = '\$$a x = $c - $b = ${c - b}\$, so \$x = ${c - b} \\div $a = $x\$.';
+        break;
+      case 1: // evaluate a*x + b
+        prompt = 'Evaluate \$$a x + $b\$ when \$x = $x\$.';
+        answer = a * x + b;
+        explanation = '\$$a \\times $x + $b = ${a * x} + $b = ${a * x + b}\$.';
+        break;
+      default: // simplify a(x + b) at x
+        prompt = 'Expand and evaluate \$$a(x + $b)\$ when \$x = $x\$.';
+        answer = a * (x + b);
+        explanation = '\$$a(x + $b) = $a x + ${a * b}\$; at \$x=$x\$: \$${a * x} + ${a * b} = ${a * (x + b)}\$.';
+        break;
+    }
+
+    // Build 4 distinct options with the correct answer at a rotating slot.
+    final correctIndex = index % 4;
+    final distractors = <int>{answer + 1, answer - 1, answer + a, answer - b, answer + 2}
+        .where((v) => v != answer)
+        .toList();
+    final options = <String>[];
+    var d = 0;
+    for (var i = 0; i < 4; i++) {
+      if (i == correctIndex) {
+        options.add('$answer');
+      } else {
+        options.add('${distractors[d % distractors.length]}');
+        d++;
+      }
+    }
+
+    return PracticeQuestion(
+      id: 'fallback-algebra-$index',
+      subject: filter.subject,
+      topicLabel: filter.topicLabel,
+      mode: filter.mode,
+      difficulty: filter.difficulty,
+      prompt: prompt,
+      options: options,
+      correctIndex: correctIndex,
+      explanation: explanation,
+      recommendedTimeSeconds: filter.timePreferenceSeconds ?? (hard ? 60 : 40),
     );
   }
 

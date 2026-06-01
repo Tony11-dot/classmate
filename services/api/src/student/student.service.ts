@@ -214,21 +214,43 @@ export class StudentService {
       include: { assessment: true },
     });
 
-    return {
-      ok: true,
-      grades: rows.map((r) => ({
-        id: r.id,
-        grade: r.grade,
-        comment: r.comment,
+    const grades = rows.map((r) => ({
+      id: r.id,
+      grade: r.grade,
+      comment: r.comment,
+      assessment: {
+        id: r.assessment.id,
+        title: r.assessment.title,
+        date: r.assessment.date,
+        subject: (r.assessment as any).subject ?? null,
+        cohortId: r.assessment.cohortId,
+      },
+    }));
+
+    // Graded teacher-assignments also belong in the grades list. The teacher
+    // scores them on the submission (TeacherAssignmentSubmission.grade); surface
+    // each graded one as a grade entry so it appears in the student's Grades.
+    const gradedAssignments = await this.prisma.teacherAssignmentSubmission.findMany({
+      where: { studentId, grade: { not: null }, status: 'GRADED' },
+      orderBy: { gradedAt: 'desc' },
+      include: { assignment: { select: { id: true, title: true, subject: true } } },
+    });
+    for (const s of gradedAssignments) {
+      grades.push({
+        id: `asn-${s.id}`,
+        grade: s.grade as any,
+        comment: s.feedback ?? null,
         assessment: {
-          id: r.assessment.id,
-          title: r.assessment.title,
-          date: r.assessment.date,
-          subject: (r.assessment as any).subject ?? null,
-          cohortId: r.assessment.cohortId,
+          id: `assignment-${(s as any).assignment?.id ?? s.assignmentId}`,
+          title: (s as any).assignment?.title ?? 'Assignment',
+          date: (s.gradedAt ?? s.submittedAt) as any,
+          subject: (s as any).assignment?.subject ?? null,
+          cohortId: null as any,
         },
-      })),
-    };
+      });
+    }
+
+    return { ok: true, grades };
   }
 
   async generateParentLinkCode(

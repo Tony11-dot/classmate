@@ -705,7 +705,10 @@ class ClassroomsRepository {
         await http.MultipartFile.fromPath('file', path, filename: resolvedName),
       );
 
-      final streamed = await req.send().timeout(_timeout);
+      // Media (esp. video) needs a far longer window than the 12s used for
+      // JSON calls — the short timeout was aborting uploads mid-stream and
+      // surfacing as "Connection reset by peer".
+      final streamed = await req.send().timeout(const Duration(seconds: 120));
       final res = await http.Response.fromStream(streamed);
 
       if (res.statusCode == 404 && index < _baseCandidates.length - 1) continue;

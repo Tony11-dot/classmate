@@ -63,8 +63,6 @@ class _TeacherClassroomDetailScreenState
     _loadCollapsed();
     _tabs.addListener(() {
       if (!mounted) return;
-      // Rebuild so the fade-based switcher follows the selected tab.
-      setState(() {});
       if (!_tabs.indexIsChanging && _tabs.index == 0) {
         Future.microtask(() => _chatController.markRead());
       }
@@ -154,18 +152,17 @@ class _TeacherClassroomDetailScreenState
           if (!_tabsCollapsed) _CenteredTabs(controller: _tabs),
           const SizedBox(height: 2),
           Expanded(
-            // Fade between tabs instead of TabBarView's horizontal slide —
-            // the slide was rendering the incoming tab on top of the outgoing
-            // one mid-transition, which looked broken. A cross-fade is clean.
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
-              child: KeyedSubtree(
-                key: ValueKey<int>(_tabs.index),
-                child: _buildTabChild(_tabs.index),
+            // Swipeable tabs. Each child is wrapped in an opaque surface so
+            // that during the swipe the incoming/outgoing tabs don't bleed
+            // through each other (the previous "content on top" mess).
+            child: TabBarView(
+              controller: _tabs,
+              children: List.generate(
+                5,
+                (i) => ColoredBox(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: _buildTabChild(i),
+                ),
               ),
             ),
           ),

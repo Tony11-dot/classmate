@@ -350,13 +350,28 @@ export class StudentClassroomsController {
     try {
       const parent = await this.prisma.classroomMessage.findFirst({
         where: { id, classroomId },
-        select: { id: true, senderUserId: true, text: true, kind: true },
+        select: { id: true, senderUserId: true, text: true, kind: true, durationSec: true },
       });
       if (!parent) return null;
       const senderNames = await this.resolveSenderNames([parent.senderUserId]);
       const senderName = senderNames.get(parent.senderUserId) ?? 'Someone';
-      const raw = (parent.text ?? '').trim();
-      const snippet = raw.length > 120 ? `${raw.slice(0, 120)}…` : raw;
+      // Media replies must quote the TYPE, not the raw filename/URL. Emit the
+      // same wire markers the client formats into "🎤 Voice message" / "🖼️
+      // Photo" / "📎 File". Text messages quote their text.
+      const kind = String(parent.kind ?? 'TEXT').toUpperCase();
+      let snippet: string;
+      if (kind === 'VOICE') {
+        const d = Number(parent.durationSec ?? 0);
+        snippet = d > 0 ? `[VOICE] [duration:${d}]` : '[VOICE]';
+      } else if (kind === 'IMAGE') {
+        snippet = '[IMAGE]';
+      } else if (kind === 'FILE') {
+        const name = (parent.text ?? '').trim();
+        snippet = name ? `[FILE] ${name}` : '[FILE]';
+      } else {
+        const raw = (parent.text ?? '').trim();
+        snippet = raw.length > 120 ? `${raw.slice(0, 120)}…` : raw;
+      }
       return { id: parent.id, senderName, snippet };
     } catch {
       return null;
@@ -447,7 +462,7 @@ export class StudentClassroomsController {
   }
 
   @Post(':id/chat/media')
-  @UseInterceptors(FileInterceptor('file', { storage: diskStorage({ destination: (_req, _file, cb) => { ensureClassroomUploadsDir(); cb(null, 'uploads/classrooms'); }, filename: (_req, file, cb) => { const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`; const base = safeClassroomName(file?.originalname || 'upload'); const ext = extname(base); const stem = ext ? base.slice(0, -ext.length) : base; cb(null, `${stem}-${stamp}${ext}`); } }), limits: { fileSize: 40 * 1024 * 1024 } }))
+  @UseInterceptors(FileInterceptor('file', { storage: diskStorage({ destination: (_req, _file, cb) => { ensureClassroomUploadsDir(); cb(null, 'uploads/classrooms'); }, filename: (_req, file, cb) => { const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`; const base = safeClassroomName(file?.originalname || 'upload'); const ext = extname(base); const stem = ext ? base.slice(0, -ext.length) : base; cb(null, `${stem}-${stamp}${ext}`); } }), limits: { fileSize: 150 * 1024 * 1024 } }))
   async chatSendMedia(@Req() req: any, @Param('id') id: string, @UploadedFile() file: any, @Body() body: { kind?: string; mediaUrl?: string; mediaMime?: string; durationSec?: number; text?: string; originalName?: string; replyToMessageId?: string }) {
     await this.assertAccess(req, id);
     const uid = this.uid(req);
