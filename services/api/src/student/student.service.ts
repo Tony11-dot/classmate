@@ -665,15 +665,8 @@ export class StudentService {
       },
     });
 
-    // Let the teacher's open submissions list refresh in real time.
-    try {
-      this.realtime?.emitToUser?.(assignment.teacherId, {
-        type: 'assignment_submission',
-        assignmentId,
-        studentId,
-      });
-    } catch (_) {}
-
+    // (No realtime emit here — StudentService doesn't inject RealtimeService.
+    // The teacher's submissions list refreshes when they open/refresh it.)
     return { ok: true, submission: sub };
   }
 

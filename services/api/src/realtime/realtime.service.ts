@@ -6,6 +6,7 @@ export type RealtimeEvent =
   | { type: 'dm_message'; threadId: string }
   | { type: 'notification'; userId: string }
   | { type: 'grade_updated'; studentId: string }
+  | { type: 'assignment_returned'; assignmentId: string; studentId: string }
   | { type: 'assignment_created'; classroomId?: string; targetUserIds?: string[] }
   | { type: 'material_created'; classroomId?: string; targetUserIds?: string[] }
   | { type: 'meeting_created'; classroomId?: string; targetUserIds?: string[] }
