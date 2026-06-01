@@ -75,79 +75,12 @@ class ClassMateApp extends ConsumerWidget {
           },
           child: scaledChild,
         );
-        // Left-edge swipe-back on screens that have something to pop (detail
-        // screens with a "<"). Disabled on top-level tabs so it doesn't steal
-        // the gesture from the Scaffold's native swipe-to-open-drawer.
-        final withSwipeBack = _EdgeSwipeBack(
-          enabled: router.canPop(),
-          onBack: router.pop,
-          child: dismissOnDragChild,
-        );
-        return _NotificationReceiverHost(child: withSwipeBack);
+        // Detail screens are native iOS pages (CupertinoPage) → they provide
+        // the finger-following swipe-back themselves; top-level tabs keep the
+        // Scaffold's native swipe-to-open-drawer. No custom edge gesture
+        // needed (a custom one would fight the native back gesture).
+        return _NotificationReceiverHost(child: dismissOnDragChild);
       },
-    );
-  }
-}
-
-/// Left-edge swipe-back gesture. A narrow strip on the left edge catches a
-/// rightward drag (only horizontal drags starting at the edge — taps, vertical
-/// scrolls and mid-screen swipes fall through) and triggers [onBack].
-class _EdgeSwipeBack extends StatefulWidget {
-  const _EdgeSwipeBack({
-    required this.child,
-    required this.onBack,
-    this.enabled = true,
-  });
-
-  final Widget child;
-  final VoidCallback onBack;
-  final bool enabled;
-
-  @override
-  State<_EdgeSwipeBack> createState() => _EdgeSwipeBackState();
-}
-
-class _EdgeSwipeBackState extends State<_EdgeSwipeBack> {
-  double _dx = 0;
-  bool _tracking = false;
-
-  @override
-  Widget build(BuildContext context) {
-    // When there's nothing to pop (top-level tabs), don't render the strip so
-    // the Scaffold's native edge-drag can open the drawer instead.
-    if (!widget.enabled) return widget.child;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        widget.child,
-        Positioned(
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 28,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onHorizontalDragStart: (_) {
-              _dx = 0;
-              _tracking = true;
-            },
-            onHorizontalDragUpdate: (d) {
-              if (_tracking) _dx += d.delta.dx;
-            },
-            onHorizontalDragEnd: (d) {
-              final v = d.primaryVelocity ?? 0;
-              final shouldPop = _tracking && (_dx > 36 || v > 300);
-              _tracking = false;
-              _dx = 0;
-              if (shouldPop) widget.onBack();
-            },
-            onHorizontalDragCancel: () {
-              _tracking = false;
-              _dx = 0;
-            },
-          ),
-        ),
-      ],
     );
   }
 }

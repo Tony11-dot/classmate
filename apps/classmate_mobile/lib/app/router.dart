@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart' show CupertinoPage;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -83,6 +85,25 @@ import '../features/parent/ui/parent_home_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
+
+/// A GoRoute that renders as a native iOS page — horizontal slide with the
+/// finger-following swipe-back gesture. Used for full-screen DETAIL/push
+/// screens (the ones with a "<" back button). Top-level tabs stay on the
+/// app-wide fade transition; this is the per-route override for pushes.
+GoRoute _slideRoute({
+  required String path,
+  String? name,
+  required Widget Function(BuildContext, GoRouterState) builder,
+}) {
+  return GoRoute(
+    path: path,
+    name: name,
+    pageBuilder: (context, state) => CupertinoPage<dynamic>(
+      key: state.pageKey,
+      child: builder(context, state),
+    ),
+  );
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -226,19 +247,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/practice/session',
         builder: (context, state) => const PracticeSessionScreen(),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/announcements/:id',
         builder: (context, state) => AnnouncementDetailScreen(
           announcementId: state.pathParameters['id']!,
         ),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/notifications/:id',
         builder: (context, state) => NotificationDetailScreen(
           notificationId: Uri.decodeComponent(state.pathParameters['id']!),
@@ -248,7 +269,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/meetings/:id',
         builder: (context, state) => MeetingDetailScreen(
           meetingId: state.pathParameters['id']!,
@@ -258,7 +279,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/assignments/:id',
         builder: (context, state) => AssignmentDetailScreen(
           assignmentId: state.pathParameters['id']!,
@@ -268,7 +289,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/exams/:id',
         builder: (context, state) => ExamDetailScreen(
           examId: state.pathParameters['id']!,
@@ -285,7 +306,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/forms/:id',
         builder: (context, state) => FormDetailScreen(
           formId: state.pathParameters['id']!,
@@ -295,31 +316,31 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/solutions/subjects',
         builder: (context, state) => const SolutionsSubjectScreen(),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/solutions/books',
         builder: (context, state) => const SolutionsBooksScreen(),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/solutions/pages',
         builder: (context, state) => const SolutionsPagesScreen(),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/solutions/questions',
         builder: (context, state) => const SolutionsQuestionsScreen(),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/messages/request/:id',
         name: 'message_request',
         builder: (context, state) => MessageRequestScreen(
           threadId: state.pathParameters['id']!,
         ),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/messages/:id',
         name: 'dm_thread',
         builder: (context, state) => MessageThreadScreen(
@@ -328,12 +349,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // ── Classroom detail — full screen, no shell wrapper ─────────────────
-      GoRoute(
+      _slideRoute(
         path: '/classrooms/:id',
         builder: (ctx, st) =>
             ClassroomDetailScreen(courseId: st.pathParameters['id']!),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/classroom/:courseId',
         builder: (context, state) {
           final courseId = state.pathParameters['courseId'] ?? '';
@@ -347,7 +368,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/classroom/:courseId/analytics',
         builder: (context, state) {
           final courseId = state.pathParameters['courseId'] ?? '';
@@ -362,15 +383,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─────────────────────────────────────────────────────────────────────
 
       // ── Full-page create/add screens (outside shell — no top bar) ──────────
-      GoRoute(
+      _slideRoute(
         path: '/teacher/announcements/new',
         builder: (context, state) => const TeacherNewAnnouncementScreen(),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/forms/create',
         builder: (context, state) => const TeacherCreateFormScreen(),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/forms/:id/responses',
         builder: (context, state) {
           final formId = state.pathParameters['id'] ?? '';
@@ -378,14 +399,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           return TeacherFormResponsesScreen(formId: formId, formTitle: title);
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/exams/create',
         builder: (context, state) {
           final exam = state.extra as Map<String, dynamic>?;
           return TeacherCreateExamScreen(initialExam: exam);
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/exams/edit',
         builder: (context, state) {
           // Legacy route used by grades screen — extra is a TeacherAssessment
@@ -410,18 +431,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           return TeacherCreateExamScreen(initialExam: examMap);
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/exams/:id/grades',
         builder: (context, state) {
           final exam = state.extra as Map<String, dynamic>? ?? {};
           return TeacherExamGradesScreen(exam: exam);
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/diplomas/create',
         builder: (context, state) => const TeacherCreateDiplomaScreen(),
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/grades/add',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -434,7 +455,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/slot/:slotId/attachments',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? const {};
@@ -452,7 +473,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/materials/add',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -470,7 +491,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/meetings/add',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -482,7 +503,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/assignments/add',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -496,7 +517,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/assignments/:id/detail',
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
@@ -504,7 +525,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           return TeacherAssignmentDetailScreen(assignmentId: id, assignmentTitle: title);
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/classroom/:courseId/assignment/add',
         builder: (context, state) {
           final courseId = state.pathParameters['courseId'] ?? '';
@@ -515,7 +536,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/classroom/:courseId/material/add',
         builder: (context, state) {
           final courseId = state.pathParameters['courseId'] ?? '';
@@ -526,7 +547,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/classroom/:courseId/meeting/add',
         builder: (context, state) {
           final courseId = state.pathParameters['courseId'] ?? '';
@@ -538,7 +559,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       // ── Full-screen teacher pages (pushed on top of shell, no shell wrapper) ─
-      GoRoute(
+      _slideRoute(
         path: '/teacher/attendance/mark',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
@@ -550,7 +571,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-      GoRoute(
+      _slideRoute(
         path: '/teacher/student/:studentId',
         builder: (context, state) {
           final studentId = state.pathParameters['studentId'] ?? '';

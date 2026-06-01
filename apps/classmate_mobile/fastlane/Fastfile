@@ -28,7 +28,12 @@ platform :ios do
     flutter_build_ios
     upload_to_testflight(
       ipa:                        IOS_IPA,
-      skip_waiting_for_build_processing: true,
+      # Wait for processing, then auto-assign to the internal "Devs" group so
+      # the build appears in TestFlight without a manual add. (skip_waiting +
+      # group distribution don't mix — a still-processing build can't be
+      # distributed.)
+      groups:                     ["Devs"],
+      distribute_external:        false,
       changelog:                  "ClassMate beta build — #{Time.now.strftime('%Y-%m-%d')}",
     )
     UI.success "✅ Uploaded to TestFlight!"
@@ -38,7 +43,8 @@ platform :ios do
   lane :upload do
     upload_to_testflight(
       ipa:                        IOS_IPA,
-      skip_waiting_for_build_processing: true,
+      groups:                     ["Devs"],
+      distribute_external:        false,
       changelog:                  "ClassMate beta build — #{Time.now.strftime('%Y-%m-%d')}",
     )
     UI.success "✅ Uploaded to TestFlight!"
