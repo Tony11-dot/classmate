@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,7 +38,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
   Future<void> _openGroupFlow(List<MessageDirectoryPerson> people) async {
     final nav = Navigator.of(context);
     final threadId = await nav.push<String>(
-      MaterialPageRoute<String>(builder: (_) => NewGroupScreen(people: people)),
+      CupertinoPageRoute<String>(builder: (_) => NewGroupScreen(people: people)),
     );
     if (!mounted || threadId == null || threadId.trim().isEmpty) return;
     nav.pop(threadId.trim());

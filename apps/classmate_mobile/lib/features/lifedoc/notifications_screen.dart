@@ -349,29 +349,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(20),
                                     onTap: () {
-                                      // Route by source (grades/messages/
-                                      // assignment/meeting/exam/…) the same
-                                      // way push-notification taps do, so an
-                                      // in-app tap lands on the right tab
-                                      // instead of a generic detail page.
-                                      final id = item.id;
-                                      final payload = '${item.source}|$id';
-                                      final route =
-                                          LocalNotificationsService.routeFromPayload(payload);
-                                      // Fall back to the detail screen only
-                                      // if no source-route resolved (the
-                                      // route helper returns /notifications
-                                      // in that case — which keeps the old
-                                      // detail-view behaviour for unknown
-                                      // sources).
-                                      if (route == '/notifications') {
-                                        context.push(
-                                          '/notifications/${Uri.encodeComponent(id)}',
-                                          extra: item,
-                                        );
-                                      } else {
-                                        context.push(route);
-                                      }
+                                      // Always open the detail screen first; it
+                                      // shows the full notification and a
+                                      // "redirect" button to the relevant tab.
+                                      context.push(
+                                        '/notifications/${Uri.encodeComponent(item.id)}',
+                                        extra: item,
+                                      );
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(14),
@@ -529,6 +513,30 @@ class _NotificationDetailScreenState
     return widget.initialNotification;
   }
 
+  /// "Open" button that redirects to the screen this notification is about
+  /// (grades / meeting / assignment / announcement / …). Uses go() so the
+  /// app shell resolves the destination — updating the drawer highlight, the
+  /// top pill title, and showing the bottom nav when it's a core tab.
+  Widget _redirectButton(StudentNotificationItem item) {
+    final route = LocalNotificationsService.routeFromPayload(
+      '${item.source}|${item.id}',
+    );
+    if (route.isEmpty || route == '/notifications') {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: () => context.go(route),
+          icon: const Icon(Icons.open_in_new_rounded),
+          label: Text(AppLocalizations.of(context)!.commonOpen),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final async = ref.watch(notificationInboxProvider);
@@ -553,6 +561,7 @@ class _NotificationDetailScreenState
                 ),
                 child: _NotificationDetailBody(item: initial),
               ),
+              _redirectButton(initial),
             ],
           );
         },
@@ -587,6 +596,7 @@ class _NotificationDetailScreenState
                   ),
                   child: _NotificationDetailBody(item: item),
                 ),
+                _redirectButton(item),
               ],
             ),
           );

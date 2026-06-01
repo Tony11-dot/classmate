@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,8 +32,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
 
   Future<void> _startNewChat() async {
     final threadId = await Navigator.of(context, rootNavigator: true).push<String>(
-      MaterialPageRoute<String>(
-        fullscreenDialog: false,
+      CupertinoPageRoute<String>(
         builder: (_) => const NewChatScreen(),
       ),
     );
@@ -45,7 +45,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
 
   void _openBlockedPeople() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const BlockedPeopleScreen()),
+      CupertinoPageRoute(builder: (_) => const BlockedPeopleScreen()),
     );
   }
 

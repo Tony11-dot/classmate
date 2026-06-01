@@ -70,9 +70,37 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l.messagesBlockedPeopleTitle)),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      // Full-screen — no AppBar. A small floating back chevron + heading sits
+      // inside SafeArea; the screen is pushed as a CupertinoPage so the
+      // left-edge swipe-back works too.
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 16, 4),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      l.messagesBlockedPeopleTitle,
+                      style: theme.textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
@@ -122,6 +150,10 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
             ),
           );
         },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
