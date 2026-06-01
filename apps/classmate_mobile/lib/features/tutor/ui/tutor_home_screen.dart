@@ -102,11 +102,14 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     final repo = ref.read(tutorRepositoryProvider);
 
     try {
+      // Do NOT seed the prompt as a message (no `initialMessage`). Seeding it
+      // created a phantom "already sent" user bubble with no reply, and since
+      // we also prefill the composer, sending produced a duplicate. We only
+      // open a fresh session and prefill the composer — the user sends it.
       final created = await repo.createSession(
         subject: (subject ?? '').trim().isEmpty ? null : subject,
         title: (title ?? '').trim().isEmpty ? _defaultNovaTitle : title,
         topic: (subject ?? '').trim().isEmpty ? null : subject,
-        initialMessage: prompt.trim().isEmpty ? null : prompt.trim(),
       );
 
       final session = (created['session'] is Map<String, dynamic>)
@@ -114,10 +117,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
           : created;
 
       final sessionId = (session['id'] ?? '').toString();
-      final seededPrompt = (created['seededPrompt'] ?? '').toString();
-      final effectivePrompt = seededPrompt.trim().isNotEmpty
-          ? seededPrompt
-          : prompt.trim();
+      final effectivePrompt = prompt.trim();
 
       ref.invalidate(tutorSessionsProvider);
 

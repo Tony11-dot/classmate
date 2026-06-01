@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import '../../../core/config/env.dart';
 
@@ -425,8 +426,11 @@ class PracticeGenerator {
     final out = <PracticeQuestion>[];
     final count = filter.questionCount < 1 ? 1 : filter.questionCount;
 
+    // Offset by a random salt so the local fallback set isn't byte-identical
+    // every session (it's only reached when the AI generator is unreachable).
+    final salt = math.Random().nextInt(11);
     for (var i = 0; i < count; i++) {
-      out.add(_localQuestion(filter, i));
+      out.add(_localQuestion(filter, i + salt));
     }
 
     return out;

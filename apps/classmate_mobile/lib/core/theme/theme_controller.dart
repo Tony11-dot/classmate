@@ -265,9 +265,26 @@ class _FadePageTransitionsBuilder extends PageTransitionsBuilder {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    return FadeTransition(
-      opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-      child: child,
+    // An opaque background sits BEHIND the fading page so the outgoing route
+    // is covered immediately — you never see both pages' content blended
+    // together mid-transition (the overlap where Classrooms + Schedule were
+    // briefly visible at once). The page content then fades in over it.
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+    final fade = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Opaque cover that fades in slightly faster than the content, so the
+        // previous page is hidden almost instantly.
+        FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
+          ),
+          child: ColoredBox(color: bg),
+        ),
+        FadeTransition(opacity: fade, child: child),
+      ],
     );
   }
 }
