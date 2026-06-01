@@ -863,6 +863,8 @@
   "announcementsLoadError": "We could not load announcements right now. Pull to refresh or try again.",
   "announcementsLoadTimeout": "Announcements are taking too long to load. Pull to refresh or try again in a moment.",
   "announcementsLoadNetwork": "Announcements could not connect right now. Check your connection and try again.",
+  "announcementsTabReceived": "Received",
+  "announcementsTabPublished": "Published",
   "announcementsAudienceTeacher": "teacher",
   "announcementsAudienceAccount": "account",
   "announcementsAudienceTeacherWorkspace": "teacher workspace",

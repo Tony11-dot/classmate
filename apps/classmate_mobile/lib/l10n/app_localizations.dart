@@ -3356,6 +3356,18 @@ abstract class AppLocalizations {
   /// **'Announcements could not connect right now. Check your connection and try again.'**
   String get announcementsLoadNetwork;
 
+  /// No description provided for @announcementsTabReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get announcementsTabReceived;
+
+  /// No description provided for @announcementsTabPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get announcementsTabPublished;
+
   /// No description provided for @announcementsAudienceTeacher.
   ///
   /// In en, this message translates to:

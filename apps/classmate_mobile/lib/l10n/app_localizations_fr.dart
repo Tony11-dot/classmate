@@ -1916,6 +1916,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les annonces n\'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.';
 
   @override
+  String get announcementsTabReceived => 'Received';
+
+  @override
+  String get announcementsTabPublished => 'Published';
+
+  @override
   String get announcementsAudienceTeacher => 'enseignant';
 
   @override

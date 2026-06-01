@@ -263,11 +263,26 @@ class ClassroomChatThreadController extends ChatThreadController {
   }
 
   List<ChatMessage> _cachedMessages = [];
+  // Last non-empty server thread. A poll/refresh that comes back empty
+  // (transient 500 / timeout → repo returns {items: []}) used to wipe the
+  // whole thread, leaving only the just-sent optimistic message until the
+  // next successful poll. We reuse the last known server items on an empty
+  // response so the thread never collapses to a single message on send.
+  List<dynamic> _lastServerItems = const [];
 
   List<ChatMessage> _computeMessages(dynamic chatData) {
-    final serverItems = (chatData is Map && chatData['items'] is List)
+    final rawServerItems = (chatData is Map && chatData['items'] is List)
         ? (chatData['items'] as List)
         : const [];
+    final List<dynamic> serverItems;
+    if (rawServerItems.isNotEmpty) {
+      _lastServerItems = rawServerItems;
+      serverItems = rawServerItems;
+    } else {
+      // Empty response — fall back to the last known server thread rather
+      // than dropping everything the user already saw.
+      serverItems = _lastServerItems;
+    }
 
 
     final serverIds = serverItems

@@ -543,7 +543,7 @@ export class StudentClassroomsController {
     const [profile, studentCohorts, memberships] = await Promise.all([
       this.prisma.studentProfile.findUnique({
         where: { userId: uid },
-        select: { grade: true },
+        select: { grade: true, cohortId: true },
       }),
       this.prisma.studentCohort.findMany({
         where: { studentId: uid },
@@ -555,7 +555,16 @@ export class StudentClassroomsController {
       }),
     ]);
     const grade = profile?.grade ?? null;
-    const cohortIds = studentCohorts.map((c) => c.cohortId);
+    // Include BOTH the StudentCohort join-table rows AND the legacy
+    // studentProfile.cohortId scalar. A student whose cohort was only ever
+    // set via the scalar (older enrolment paths) would otherwise have an
+    // empty cohort list here and miss every cohort-targeted meeting.
+    const cohortIds = Array.from(
+      new Set([
+        ...studentCohorts.map((c) => c.cohortId),
+        ...(profile?.cohortId ? [profile.cohortId] : []),
+      ]),
+    );
     const classroomIds = memberships.map((m) => m.classroomId);
     const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
 
@@ -671,7 +680,64 @@ export class StudentClassroomsController {
       }
     }
     if (!matchedId || !matchedCohortId) {
-      throw new BadRequestException('Invalid or expired code');
+      // ── Fallback: classroom code ──────────────────────────────────────
+      // The teacher's "People" screen shows a 6-char code derived directly
+      // from the classroom id (first 6 chars, dashes stripped, uppercased)
+      // — classrooms don't carry a CohortJoinCode, so that code never
+      // matched above and the student got "Invalid or expired code". Match
+      // it here against the classrooms in the student's school and join
+      // directly as a ClassroomMember.
+      const wanted = normalisedCode.toUpperCase();
+      const schoolId = (req?.user?.schoolId as string | undefined) ?? undefined;
+      const classrooms = await this.prisma.classroom.findMany({
+        where: schoolId ? { schoolId } : {},
+        select: { id: true, name: true },
+        take: 5000,
+      });
+      const derive = (id: string) =>
+        id.replace(/-/g, '').substring(0, 6).toUpperCase();
+      const hit = classrooms.find((c) => derive(c.id) === wanted);
+      if (!hit) {
+        throw new BadRequestException('Invalid or expired code');
+      }
+
+      await this.prisma.classroomMember.upsert({
+        where: { classroomId_studentId: { classroomId: hit.id, studentId } },
+        update: {},
+        create: { classroomId: hit.id, studentId },
+      });
+
+      // Pull the student into any cohort this classroom's schedule targets,
+      // so cohort/grade-scoped meetings, announcements and assignments also
+      // surface for them.
+      const slotCohorts = await this.prisma.scheduleSlotCohort.findMany({
+        where: { slot: { classroomId: hit.id } },
+        select: { cohortId: true },
+      });
+      const cohortIds = Array.from(
+        new Set(slotCohorts.map((s) => s.cohortId).filter(Boolean)),
+      );
+      for (const cohortId of cohortIds) {
+        await this.prisma.studentCohort.upsert({
+          where: { studentId_cohortId: { studentId, cohortId } },
+          update: {},
+          create: { studentId, cohortId },
+        });
+      }
+
+      try {
+        await this.hub.notify({
+          recipientUserIds: [studentId],
+          type: 'CLASSROOM_INVITE',
+          title: `Joined ${hit.name}`,
+          body: hit.name,
+          data: { classroomIds: [hit.id] },
+        });
+      } catch (e) {
+        console.error('[student] classroom-code join notify failed:', e);
+      }
+
+      return { ok: true, classroomIds: [hit.id], cohortIds };
     }
 
     // Single-use: deactivate the matched code.  updateMany returns 0 if a

@@ -1886,6 +1886,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Announcements could not connect right now. Check your connection and try again.';
 
   @override
+  String get announcementsTabReceived => 'Received';
+
+  @override
+  String get announcementsTabPublished => 'Published';
+
+  @override
   String get announcementsAudienceTeacher => 'teacher';
 
   @override

@@ -36,6 +36,10 @@ class AnnouncementItem {
   /// announcements; populated for teacher/admin/secretary posts that
   /// include uploads.
   final List<Map<String, dynamic>> attachments;
+  /// User id of the author (server `createdBy`). Empty for system-generated
+  /// rows. Used by the teacher Announcements screen to split "Received"
+  /// (createdBy != me) from "Published" (createdBy == me).
+  final String createdBy;
 
   const AnnouncementItem({
     required this.id,
@@ -47,5 +51,6 @@ class AnnouncementItem {
     this.template,
     this.templateArgs = const {},
     this.attachments = const [],
+    this.createdBy = '',
   });
 }

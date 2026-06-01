@@ -2550,10 +2550,26 @@ export class TeacherService {
     if (teacherAssignment) {
       const submissions = await this.prisma.teacherAssignmentSubmission.findMany({
         where: { assignmentId },
-        include: { student: { select: { name: true, email: true } } },
+        include: { student: { select: { name: true, displayName: true, email: true } } },
         orderBy: { submittedAt: 'desc' },
       });
-      return { ok: true, submissions };
+      return {
+        ok: true,
+        submissions: submissions.map((s) => ({
+          id: s.id,
+          assignmentId: s.assignmentId,
+          studentId: s.studentId,
+          studentName: (s as any).student?.displayName || (s as any).student?.name || 'Student',
+          note: s.note ?? null,
+          files: s.files ?? [],
+          grade: s.grade ?? null,
+          feedback: s.feedback ?? null,
+          status: (s as any).status ?? 'SUBMITTED',
+          gradedAt: s.gradedAt ?? null,
+          submittedAt: s.submittedAt,
+          student: (s as any).student,
+        })),
+      };
     }
 
     // Fall back to ClassroomAssignment (created from classroom context)
@@ -2596,10 +2612,36 @@ export class TeacherService {
     }
     await this.prisma.teacherAssignmentSubmission.upsert({
       where: { assignmentId_studentId: { assignmentId, studentId } },
-      update: { grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date() },
-      create: { assignmentId, studentId, grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date() },
+      update: { grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date(), status: 'GRADED' },
+      create: { assignmentId, studentId, grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date(), status: 'GRADED' },
     });
     this.realtime.emitToUser(studentId, { type: 'grade_updated', studentId });
+    return { ok: true };
+  }
+
+  /// Return a submission to the student for re-solution. Flips status to
+  /// RETURNED, attaches the teacher's note as feedback, and clears any prior
+  /// grade so the student's resubmission starts clean. The student's feed
+  /// then reopens the hand-in form for this assignment.
+  async returnAssignmentSubmission(user: any, assignmentId: string, studentId: string, body: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const assignment = await this.prisma.teacherAssignment.findFirst({ where: { id: assignmentId, teacherId } });
+    if (!assignment) throw new NotFoundException('Assignment not found');
+    const existing = await this.prisma.teacherAssignmentSubmission.findUnique({
+      where: { assignmentId_studentId: { assignmentId, studentId } },
+    });
+    if (!existing) throw new NotFoundException('Submission not found');
+    await this.prisma.teacherAssignmentSubmission.update({
+      where: { assignmentId_studentId: { assignmentId, studentId } },
+      data: {
+        status: 'RETURNED',
+        feedback: body?.feedback != null ? String(body.feedback) : existing.feedback,
+        grade: null,
+        gradedAt: null,
+      },
+    });
+    this.realtime.emitToUser(studentId, { type: 'assignment_returned', assignmentId, studentId });
     return { ok: true };
   }
 

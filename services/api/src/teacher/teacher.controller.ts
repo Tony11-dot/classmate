@@ -364,6 +364,9 @@ export class TeacherController {
   @Patch('assignments/:id/submissions/:studentId/grade')
   gradeAssignmentSubmission(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string, @Body() body: any) { return this.teacher.gradeAssignmentSubmission(req.user, id, studentId, body); }
 
+  @Post('assignments/:id/submissions/:studentId/return')
+  returnAssignmentSubmission(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string, @Body() body: any) { return this.teacher.returnAssignmentSubmission(req.user, id, studentId, body); }
+
   // ── Teacher Materials ─────────────────────────────────────────────────────
 
   @Get('materials')

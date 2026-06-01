@@ -374,6 +374,22 @@ class TeacherMobileRepository {
     await _api.deleteJson('/teacher/assignments/$assignmentId/submissions/$studentId');
   }
 
+  /// Returns a submission to the student for re-solution: keeps their work on
+  /// record, attaches an optional feedback note, and reopens the hand-in form
+  /// on the student side (status → RETURNED).
+  Future<void> returnAssignmentSubmission(
+    String assignmentId,
+    String studentId, {
+    String? feedback,
+  }) async {
+    await _api.postJson(
+      '/teacher/assignments/$assignmentId/submissions/$studentId/return',
+      body: <String, dynamic>{
+        if ((feedback ?? '').trim().isNotEmpty) 'feedback': feedback!.trim(),
+      },
+    );
+  }
+
   Future<List<Map<String, dynamic>>> fetchClassroomMaterials(String courseId) async {
     final raw = await _api.getJson('/teacher/classrooms/$courseId/materials');
     final map = _asMap(raw);

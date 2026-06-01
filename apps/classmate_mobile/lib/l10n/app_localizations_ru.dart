@@ -1873,6 +1873,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementsLoadNetwork => 'Нет подключения';
 
   @override
+  String get announcementsTabReceived => 'Received';
+
+  @override
+  String get announcementsTabPublished => 'Published';
+
+  @override
   String get announcementsAudienceTeacher => 'Учитель';
 
   @override

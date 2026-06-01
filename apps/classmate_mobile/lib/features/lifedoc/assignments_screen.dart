@@ -594,16 +594,44 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
   bool _submitting = false;
   bool _submitted = false;
   bool _initializedFromData = false;
+  // Persisted submission (re-hydrated on entry so the student sees exactly
+  // what they handed in, plus any grade / returned-for-re-solution note).
+  List<Map<String, dynamic>> _submittedFiles = const [];
+  String _submittedNote = '';
+  String _statusValue = '';
+  String _feedback = '';
+  num? _grade;
 
   void _initFromAssignment(Map<String, dynamic> assignment) {
     if (_initializedFromData) return;
     _initializedFromData = true;
-    final alreadySubmitted = assignment['submitted'] == true;
-    if (alreadySubmitted && !_submitted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _submitted = true);
+    final status = _stringValue(assignment, 'status').toUpperCase();
+    final alreadySubmitted = assignment['submitted'] == true && status != 'RETURNED';
+    final sub = assignment['submission'];
+    final subMap = sub is Map ? Map<String, dynamic>.from(sub) : const <String, dynamic>{};
+    final rawFiles = subMap['files'];
+    final files = rawFiles is List
+        ? rawFiles.whereType<Map>().map((f) => Map<String, dynamic>.from(f)).toList()
+        : <Map<String, dynamic>>[];
+    final note = (subMap['note'] ?? '').toString();
+    final feedback = (subMap['feedback'] ?? assignment['feedback'] ?? '').toString();
+    final grade = subMap['grade'] ?? assignment['grade'];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _submitted = alreadySubmitted;
+        _submittedFiles = files;
+        _submittedNote = note;
+        _statusValue = status;
+        _feedback = feedback;
+        _grade = grade is num ? grade : num.tryParse('${grade ?? ''}');
+        // If the teacher returned it for re-solution, pre-fill the prior note
+        // so the student can revise rather than retype from scratch.
+        if (status == 'RETURNED' && note.isNotEmpty && _noteCtrl.text.isEmpty) {
+          _noteCtrl.text = note;
+        }
       });
-    }
+    });
   }
 
   Future<void> _pickFiles() async {
@@ -673,10 +701,20 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
       }
 
       final courseId = widget._courseId;
+      final repo = ref.read(classroomsRepoProvider);
       if (courseId.isNotEmpty) {
-        final repo = ref.read(classroomsRepoProvider);
+        // Classroom-scoped assignment.
         await repo.submitAssignment(
           courseId,
+          widget.assignmentId,
+          note: note.isNotEmpty ? note : null,
+          files: uploadedFiles,
+        );
+      } else {
+        // Teacher-wide assignment (no classroom id) — the feed's default.
+        // Previously this branch did nothing, so hand-ins silently never
+        // persisted. Now it posts to /student/assignments/:id/submit.
+        await repo.submitTeacherAssignment(
           widget.assignmentId,
           note: note.isNotEmpty ? note : null,
           files: uploadedFiles,
@@ -924,7 +962,88 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                         ),
                                       ]),
                                     ),
+                                    if (_submittedNote.trim().isNotEmpty) ...[
+                                      const SizedBox(height: 12),
+                                      Text(_submittedNote.trim(),
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                              height: 1.4)),
+                                    ],
+                                    if (_submittedFiles.isNotEmpty) ...[
+                                      const SizedBox(height: 12),
+                                      AttachmentPills(attachments: _submittedFiles),
+                                    ],
+                                    if (_grade != null) ...[
+                                      const SizedBox(height: 12),
+                                      Row(children: [
+                                        const Icon(Icons.grade_rounded,
+                                            size: 18, color: Color(0xFF6366F1)),
+                                        const SizedBox(width: 8),
+                                        Text('Grade: ${_grade! % 1 == 0 ? _grade!.toInt() : _grade!}',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w800)),
+                                      ]),
+                                    ],
+                                    if (_feedback.trim().isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Text('Feedback: ${_feedback.trim()}',
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                              height: 1.4)),
+                                    ],
                                   ] else ...[
+                                    if (_statusValue == 'RETURNED' && _feedback.trim().isNotEmpty) ...[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 10),
+                                        margin: const EdgeInsets.only(bottom: 12),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF59E0B)
+                                              .withValues(alpha: 0.12),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                              color: const Color(0xFFF59E0B)
+                                                  .withValues(alpha: 0.4)),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Icon(Icons.replay_rounded,
+                                                size: 18,
+                                                color: Color(0xFFB45309)),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                      'Returned for re-solution',
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                          color: Color(
+                                                              0xFFB45309))),
+                                                  const SizedBox(height: 2),
+                                                  Text(_feedback.trim(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: Theme.of(
+                                                                  context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant)),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                     // Note field — optional text comment with submission
                                     TextField(
                                       controller: _noteCtrl,

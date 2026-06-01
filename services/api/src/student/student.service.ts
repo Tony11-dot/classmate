@@ -577,12 +577,24 @@ export class StudentService {
       include: { teacher: { select: { name: true } } },
     });
 
-    // Check submission status for each
+    // Check submission status for each — include the full submission so the
+    // detail screen can re-hydrate the student's own files + note and show
+    // "already handed in" / "returned for re-solution" on re-entry.
     const items = await Promise.all(assignments.map(async (a) => {
       const sub = await this.prisma.teacherAssignmentSubmission.findFirst({
         where: { assignmentId: a.id, studentId },
-        select: { id: true, submittedAt: true, grade: true },
+        select: {
+          id: true,
+          submittedAt: true,
+          grade: true,
+          feedback: true,
+          note: true,
+          files: true,
+          status: true,
+          gradedAt: true,
+        },
       });
+      const status = (sub as any)?.status ?? (sub ? 'SUBMITTED' : null);
       return {
         id: a.id,
         title: a.title,
@@ -592,13 +604,87 @@ export class StudentService {
         maxGrade: a.maxGrade ?? null,
         attachments: a.attachments,
         teacherName: (a as any).teacher?.name ?? null,
-        submitted: !!sub,
+        // RETURNED submissions are awaiting a fresh hand-in, so the student
+        // should still see the form open — report submitted=false for those.
+        submitted: !!sub && status !== 'RETURNED',
         submittedAt: sub?.submittedAt ?? null,
         grade: sub?.grade ?? null,
+        feedback: sub?.feedback ?? null,
+        status,
+        submission: sub
+          ? {
+              note: sub.note ?? null,
+              files: sub.files ?? [],
+              grade: sub.grade ?? null,
+              feedback: sub.feedback ?? null,
+              status,
+              submittedAt: sub.submittedAt ?? null,
+              gradedAt: (sub as any).gradedAt ?? null,
+            }
+          : null,
       };
     }));
 
     return { ok: true, items };
+  }
+
+  /// Student hands in (or re-hands-in) a teacher-wide assignment. Upserts the
+  /// TeacherAssignmentSubmission keyed by (assignment, student). A resubmit
+  /// after a teacher "return for re-solution" clears the prior grade and
+  /// flips the status back to SUBMITTED.
+  async submitTeacherAssignment(user: any, assignmentId: string, body: any) {
+    this.ensureStudent(user);
+    const studentId = String(user.sub ?? user.id ?? '');
+    if (!studentId) throw new BadRequestException('Missing student identity');
+
+    const assignment = await this.prisma.teacherAssignment.findUnique({
+      where: { id: assignmentId },
+      select: { id: true, teacherId: true },
+    });
+    if (!assignment) throw new NotFoundException('Assignment not found');
+
+    const note = body?.note != null ? String(body.note) : null;
+    const files = Array.isArray(body?.files) ? body.files : [];
+
+    const sub = await this.prisma.teacherAssignmentSubmission.upsert({
+      where: { assignmentId_studentId: { assignmentId, studentId } },
+      update: {
+        note,
+        files: files as any,
+        status: 'SUBMITTED',
+        grade: null,
+        gradedAt: null,
+        submittedAt: new Date(),
+      },
+      create: {
+        assignmentId,
+        studentId,
+        note,
+        files: files as any,
+        status: 'SUBMITTED',
+      },
+    });
+
+    // Let the teacher's open submissions list refresh in real time.
+    try {
+      this.realtime?.emitToUser?.(assignment.teacherId, {
+        type: 'assignment_submission',
+        assignmentId,
+        studentId,
+      });
+    } catch (_) {}
+
+    return { ok: true, submission: sub };
+  }
+
+  /// The student's own submission for a single teacher assignment.
+  async myTeacherAssignmentSubmission(user: any, assignmentId: string) {
+    this.ensureStudent(user);
+    const studentId = String(user.sub ?? user.id ?? '');
+    const sub = await this.prisma.teacherAssignmentSubmission.findFirst({
+      where: { assignmentId, studentId },
+    });
+    return { ok: true, submission: sub ?? null };
   }
 
   async myDiplomas(user: any) {

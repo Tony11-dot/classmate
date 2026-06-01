@@ -18,6 +18,14 @@ final publishedAnnouncementsProvider =
       return api.feed();
     });
 
+/// Announcements the current teacher/admin PUBLISHED (server `/announcements/mine`).
+/// Backs the "Published" tab of the teacher Announcements screen.
+final myAnnouncementsProvider =
+    FutureProvider.autoDispose<List<AnnouncementItem>>((ref) async {
+      final api = ref.watch(announcementsApiProvider);
+      return api.mine();
+    });
+
 final announcementsProvider = Provider<List<AnnouncementItem>>((ref) {
   final unified = ref
       .watch(unifiedStudentInsightsProvider)
@@ -179,9 +187,16 @@ class StudentAnnouncementsApi {
 
   CMApi get _api => CMApi(token: token);
 
-  Future<List<AnnouncementItem>> feed({int take = 50}) async {
+  Future<List<AnnouncementItem>> feed({int take = 50}) =>
+      _fetchList('/announcements/feed', take: take);
+
+  /// Announcements the current user published — server `/announcements/mine`.
+  Future<List<AnnouncementItem>> mine({int take = 100}) =>
+      _fetchList('/announcements/mine', take: take);
+
+  Future<List<AnnouncementItem>> _fetchList(String path, {int take = 50}) async {
     final raw = await _api.getJson(
-      '/announcements/feed',
+      path,
       query: <String, String>{'take': '$take'},
     );
 
@@ -215,6 +230,7 @@ class StudentAnnouncementsApi {
         source: 'system',
         createdAt: createdAt,
         attachments: attachments,
+        createdBy: '${map['createdBy'] ?? ''}',
       );
     }).toList(growable: false)
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));

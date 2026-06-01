@@ -566,6 +566,27 @@ class ClassroomsRepository {
     return Map<String, dynamic>.from(j);
   }
 
+  /// Hands in a teacher-wide assignment (the kind surfaced by
+  /// `/student/assignments`, which have no classroom id). Persists the note
+  /// + files server-side so re-entering the assignment shows "already
+  /// handed in" with the same attachments.
+  Future<Map<String, dynamic>> submitTeacherAssignment(
+    String assignmentId, {
+    String? note,
+    List<Map<String, String>> files = const [],
+  }) async {
+    final j = await _postJson(
+      '/student/assignments/$assignmentId/submit',
+      <String, dynamic>{
+        if ((note ?? '').trim().isNotEmpty) 'note': note!.trim(),
+        if (files.isNotEmpty) 'files': files,
+      },
+      label: 'classrooms.submitTeacherAssignment',
+    );
+    if (j is! Map) return <String, dynamic>{'ok': true};
+    return Map<String, dynamic>.from(j);
+  }
+
   Future<Map<String, dynamic>> sendChatText(
     String courseId,
     String text, {

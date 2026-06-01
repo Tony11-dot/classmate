@@ -1881,6 +1881,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم تتمكن الإعلانات من الاتصال الآن. تحقق من الاتصال وحاول مرة أخرى.';
 
   @override
+  String get announcementsTabReceived => 'Received';
+
+  @override
+  String get announcementsTabPublished => 'Published';
+
+  @override
   String get announcementsAudienceTeacher => 'معلم';
 
   @override

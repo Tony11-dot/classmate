@@ -48,6 +48,18 @@ export class AnnouncementsController {
     });
   }
 
+  @Get('mine')
+  mine(
+    @Req() req: any,
+    @Query('take') take?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.announcements.mine(req.user, {
+      take: take ? Number(take) : 50,
+      skip: skip ? Number(skip) : 0,
+    });
+  }
+
   @Get('targets')
   targets(@Req() req: any) {
     return this.announcements.targets(req.user);

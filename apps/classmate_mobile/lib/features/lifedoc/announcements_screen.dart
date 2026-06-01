@@ -243,12 +243,15 @@ class AnnouncementsScreen extends ConsumerStatefulWidget {
   ConsumerState<AnnouncementsScreen> createState() => _AnnouncementsScreenState();
 }
 
+enum _AnnouncementsView { received, published }
+
 class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
   static const String _allSources = '__all_sources__';
   static const String _allReadStates = '__all_read_states__';
 
   String _selectedSource = _allSources;
   String _selectedReadState = _allReadStates;
+  _AnnouncementsView _view = _AnnouncementsView.received;
   Timer? _realtimeDebounce;
 
   @override
@@ -307,10 +310,15 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final announcementsAsync = ref.watch(publishedAnnouncementsProvider);
-    final readIds = ref.watch(announcementReadStateProvider);
     final session = ref.watch(authSessionProvider);
+    final isTeacher = session.isTeacherLike;
+    final showPublished = isTeacher && _view == _AnnouncementsView.published;
+    final announcementsAsync = showPublished
+        ? ref.watch(myAnnouncementsProvider)
+        : ref.watch(publishedAnnouncementsProvider);
+    final readIds = ref.watch(announcementReadStateProvider);
     final accountLabel = _audienceLabel(context, session.isTeacherLike);
+    final myId = session.userId;
 
     // Refresh when a new announcement is created (real-time push)
     ref.listen(realtimeEventProvider, (_, event) {
@@ -318,7 +326,9 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
         // Debounce rapid events (e.g. bulk announcements) to avoid multiple fetches
         _realtimeDebounce?.cancel();
         _realtimeDebounce = Timer(const Duration(milliseconds: 500), () {
-          if (mounted) ref.invalidate(publishedAnnouncementsProvider);
+          if (!mounted) return;
+          ref.invalidate(publishedAnnouncementsProvider);
+          ref.invalidate(myAnnouncementsProvider);
         });
       }
     });
@@ -339,7 +349,15 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
           ],
         ),
       ),
-      data: (announcements) {
+      data: (rawAnnouncements) {
+        // "Received" excludes the teacher's own published posts (those live
+        // on the Published tab); system-generated rows have an empty
+        // createdBy and always stay in Received.
+        final announcements = showPublished
+            ? rawAnnouncements
+            : rawAnnouncements
+                .where((item) => item.createdBy.isEmpty || item.createdBy != myId)
+                .toList(growable: false);
 
         final sources = announcements.map((item) => item.source).toSet().toList()..sort();
         final safeSource = sources.contains(_selectedSource) ? _selectedSource : _allSources;
@@ -361,12 +379,26 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
         return Scaffold(
           body: RefreshIndicator(
             onRefresh: () async {
-              ref.invalidate(publishedAnnouncementsProvider);
-              await ref.read(publishedAnnouncementsProvider.future);
+              if (showPublished) {
+                ref.invalidate(myAnnouncementsProvider);
+                await ref.read(myAnnouncementsProvider.future);
+              } else {
+                ref.invalidate(publishedAnnouncementsProvider);
+                await ref.read(publishedAnnouncementsProvider.future);
+              }
             },
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
+                if (isTeacher) ...[
+                  _ViewToggle(
+                    view: _view,
+                    receivedLabel: l.announcementsTabReceived,
+                    publishedLabel: l.announcementsTabPublished,
+                    onChanged: (v) => setState(() => _view = v),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 _HeroCard(
                   title: l.navAnnouncements,
                   subtitle: l.announcementsHeroSubtitle(accountLabel),
@@ -624,7 +656,17 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
       data: (announcements) {
         final session = ref.watch(authSessionProvider);
         final accountLabel = _workspaceLabel(context, session.isTeacherLike);
-        final announcement = announcements.cast<AnnouncementItem?>().firstWhere(
+        // Teachers may open an announcement they published that isn't in
+        // their received feed (e.g. targeted only at students). Merge in
+        // their "Published" list so the detail still resolves.
+        final published = session.isTeacherLike
+            ? ref.watch(myAnnouncementsProvider).maybeWhen(
+                  data: (v) => v,
+                  orElse: () => const <AnnouncementItem>[],
+                )
+            : const <AnnouncementItem>[];
+        final pool = <AnnouncementItem>[...announcements, ...published];
+        final announcement = pool.cast<AnnouncementItem?>().firstWhere(
           (item) => item?.id == widget.announcementId,
           orElse: () => null,
         );
@@ -956,6 +998,68 @@ class _AnnouncementCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ViewToggle extends StatelessWidget {
+  const _ViewToggle({
+    required this.view,
+    required this.receivedLabel,
+    required this.publishedLabel,
+    required this.onChanged,
+  });
+
+  final _AnnouncementsView view;
+  final String receivedLabel;
+  final String publishedLabel;
+  final ValueChanged<_AnnouncementsView> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    Widget seg(String label, _AnnouncementsView v, IconData icon) {
+      final selected = view == v;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onChanged(v),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: selected ? cs.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 16, color: selected ? cs.onPrimary : cs.onSurfaceVariant),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return LiquidGlassCard(
+      padding: const EdgeInsets.all(4),
+      borderRadius: BorderRadius.circular(999),
+      color: cs.surfaceContainerLow,
+      border: Border.all(color: cs.outlineVariant),
+      child: Row(
+        children: [
+          seg(receivedLabel, _AnnouncementsView.received, Icons.inbox_rounded),
+          seg(publishedLabel, _AnnouncementsView.published, Icons.campaign_rounded),
+        ],
       ),
     );
   }

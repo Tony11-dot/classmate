@@ -1,6 +1,6 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import {
   StudentScheduleTodayResponseSchema,
@@ -169,6 +169,20 @@ export class StudentController {
   @Get('assignments')
   assignments(@Req() req: any) {
     return this.student.myTeacherAssignments(req.user);
+  }
+
+  @Post('assignments/:id/submit')
+  submitAssignment(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.student.submitTeacherAssignment(req.user, id, body);
+  }
+
+  @Get('assignments/:id/my-submission')
+  mySubmission(@Req() req: any, @Param('id') id: string) {
+    return this.student.myTeacherAssignmentSubmission(req.user, id);
   }
 
   @SkipThrottle()

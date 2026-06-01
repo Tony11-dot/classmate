@@ -1986,6 +1986,9 @@ model TeacherAssignmentSubmission {
   grade        Int?
   feedback     String?
   gradedAt     DateTime?
+  // Lifecycle: SUBMITTED (handed in), GRADED (teacher scored it), RETURNED
+  // (teacher sent it back for re-solution — the student may resubmit).
+  status       String    @default("SUBMITTED")
   submittedAt  DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 

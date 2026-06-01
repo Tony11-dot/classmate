@@ -705,10 +705,23 @@ export class PracticeService {
     let bestLocalValidCount = 0;
     let bestStrictLocalValid: RawGeneratedQuestion[] = [];
     let bestTopicFirstValid: RawGeneratedQuestion[] = [];
+    // Largest PARTIAL set of topic-valid AI questions seen across attempts.
+    // The pipeline below only promotes a set when it has EXACTLY
+    // questionCount survivors at every stage — a single dropped item used
+    // to discard an otherwise-good batch and could cascade all the way to a
+    // hard failure (which left the client showing the hard-coded stub
+    // question). We keep the best partial here and return it as a last
+    // resort so the student always gets real AI questions when the model
+    // produced any valid ones.
+    let bestPartialValid: RawGeneratedQuestion[] = [];
     const generationDeadlineAt = Date.now() + this.practiceGenerationBudgetMs();
     let lastAiFailure: unknown = null;
 
-    for (let attempt = 0; attempt < attemptNotes.length; attempt++) {
+    // Cap retries in cheap mode so a stubborn topic can't rack up calls:
+    // one generation usually suffices, a second covers the odd short set.
+    const cheapMode = process.env.PRACTICE_VERIFY !== 'full';
+    const maxAttempts = cheapMode ? Math.min(2, attemptNotes.length) : attemptNotes.length;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const attemptTimeoutMs = this.remainingPracticeBudgetMs(generationDeadlineAt);
       if (attemptTimeoutMs <= 0) {
         this.logPracticeEvent('generation_budget_exhausted', {
@@ -759,6 +772,11 @@ export class PracticeService {
           topicFirstValid as any,
         ) as any;
       }
+      // Track the largest partial topic-valid set so we can always return
+      // real AI questions even if no single attempt hits the exact count.
+      if (topicFirstValid.length > bestPartialValid.length) {
+        bestPartialValid = normalizeQuestionSetShape(topicFirstValid as any) as any;
+      }
 
       this.logPracticeEvent('attempt_local_validation', {
         attempt: attempt + 1,
@@ -770,6 +788,23 @@ export class PracticeService {
         localValid: locallyValid.length,
         requested: questionCount,
       });
+
+      // ── Cheap path (default) ──────────────────────────────────────────
+      // One generation call + free local validation, no extra AI
+      // verification round-trips. validateQuestionSet already enforces the
+      // important correctness invariants (exactly 4 options, correctIndex
+      // in range, correctAnswerText === options[correctIndex], distinct
+      // prompts, topic match), so this keeps decent quality at ~1/4 the
+      // token cost. Set PRACTICE_VERIFY=full to re-enable the multi-pass
+      // self-verify/verify pipeline below.
+      if (cheapMode) {
+        if (locallyValid.length === questionCount) {
+          finalQuestions = normalizeQuestionSetShape(locallyValid as any) as any;
+          break;
+        }
+        // Not a full set this attempt — retry (bestPartialValid is kept).
+        continue;
+      }
 
       if (locallyValid.length !== questionCount) continue;
 
@@ -957,6 +992,32 @@ export class PracticeService {
           difficulty,
           deterministic: validatedDeterministic,
         });
+      }
+
+      // Last resort before erroring: if the model produced ANY valid
+      // topic-matched questions across the attempts, return that partial
+      // set. A short set of real, on-topic AI questions beats both a hard
+      // error and the client's hard-coded stub fallback.
+      if (bestPartialValid.length > 0) {
+        this.logPracticeEvent('generation_partial_fallback', {
+          subject,
+          topicLabel,
+          mode,
+          difficulty,
+          questionCount,
+          returned: bestPartialValid.length,
+        });
+        return {
+          questions: this.materializeQuestions({
+            subject,
+            topicLabel,
+            mode,
+            difficulty,
+            routeTag: 'ai',
+            now: Date.now(),
+            questions: bestPartialValid,
+          }),
+        };
       }
 
       this.logPracticeEvent('generation_failed', {
@@ -1849,14 +1910,33 @@ export class PracticeService {
 
     const Anthropic = require('@anthropic-ai/sdk').default ?? require('@anthropic-ai/sdk');
     const client = new Anthropic({ apiKey });
-    const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+    // Default to Haiku — cheapest tier, and plenty for generating
+    // well-formed multiple-choice practice questions. Override with
+    // ANTHROPIC_MODEL if a school wants higher-tier generation.
+    const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+
+    // Scale the token budget with how many questions were asked for. The
+    // previous fixed 4000 routinely TRUNCATED larger sets (10+ questions
+    // with full LaTeX explanations) — a cut-off response is invalid JSON,
+    // which made the whole AI path fail and the client fall back to the
+    // hard-coded "compute 3 * 2 + 1" stub. Derive a count from the schema's
+    // maxItems when present, otherwise be generous.
+    let questionCountHint = 8;
+    try {
+      const qs: any = (schema as any)?.properties?.questions;
+      if (qs && Number.isFinite(qs.maxItems)) questionCountHint = Number(qs.maxItems);
+    } catch {}
+    const maxTokens = Math.max(
+      4000,
+      Math.min(16000, 1200 + questionCountHint * 900),
+    );
 
     let res: any;
     try {
       res = await Promise.race([
         client.messages.create({
           model,
-          max_tokens: 4000,
+          max_tokens: maxTokens,
           system: `${system}\n\nIMPORTANT: Return ONLY valid JSON. No markdown fences, no explanation. The JSON must conform to this schema:\n${JSON.stringify(schema)}`,
           messages: [{ role: 'user', content: user }],
           temperature: args.temperature ?? 0,
@@ -1885,13 +1965,39 @@ export class PracticeService {
       });
     }
 
-    const jsonText = res?.content?.[0]?.type === 'text' ? res.content[0].text : '';
+    // Join every text block (a long response can be split across multiple
+    // content parts) instead of reading only content[0].
+    const rawText: string = Array.isArray(res?.content)
+      ? res.content
+          .filter((b: any) => b?.type === 'text' && typeof b.text === 'string')
+          .map((b: any) => b.text)
+          .join('')
+      : '';
 
     try {
-      return JSON.parse(jsonText);
+      return JSON.parse(this.extractJsonPayload(rawText));
     } catch {
       throw new InternalServerErrorException('Model did not return valid JSON');
     }
+  }
+
+  /// Best-effort extraction of a JSON object from a model response. Strips
+  /// ```json fences and any prose before/after the first balanced object so
+  /// an otherwise-valid answer that arrives wrapped in markdown still parses
+  /// (a common reason the whole AI path used to fail and fall back to the
+  /// stub question).
+  private extractJsonPayload(text: string): string {
+    let t = (text ?? '').trim();
+    if (!t) return t;
+    // Strip a leading ```json / ``` fence and trailing ```.
+    const fence = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+    if (fence) t = fence[1].trim();
+    // If there's still surrounding prose, slice from the first { to the
+    // matching last }.
+    const first = t.indexOf('{');
+    const last = t.lastIndexOf('}');
+    if (first > 0 && last > first) t = t.slice(first, last + 1);
+    return t;
   }
 
   private practiceGenerationBudgetMs(): number {

@@ -320,6 +320,34 @@ export class AnnouncementsService {
     return { ok: true, announcements };
   }
 
+  /// Announcements the current user PUBLISHED (createdBy == user.id),
+  /// newest first. Backs the teacher "Published" tab so an author can
+  /// always see what they sent regardless of who it was targeted at.
+  async mine(user: any, opts: { take: number; skip: number }) {
+    this.ensureCanPost(user);
+    const take = Number.isFinite(opts.take)
+      ? Math.min(Math.max(opts.take, 1), 100)
+      : 50;
+    const skip = Number.isFinite(opts.skip) ? Math.max(opts.skip, 0) : 0;
+
+    const announcements = await this.prisma.announcement.findMany({
+      where: { createdBy: user.id },
+      include: {
+        targets: true,
+        creator: { select: { id: true, email: true, name: true } },
+      },
+      orderBy: [
+        { pinned: 'desc' },
+        { publishAt: 'desc' },
+        { createdAt: 'desc' },
+      ],
+      take,
+      skip,
+    });
+
+    return { ok: true, announcements };
+  }
+
   private async visibleAnnouncementIds(user: any): Promise<string[]> {
     const now = new Date();
     const roles: any[] = user?.roles ?? [];

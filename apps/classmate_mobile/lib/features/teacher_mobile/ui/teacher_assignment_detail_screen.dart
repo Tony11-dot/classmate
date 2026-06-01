@@ -386,37 +386,55 @@ class _TeacherAssignmentDetailScreenState
                                     );
                                   }(),
 
+                                  if (((sub['status'] ?? '') as String).toUpperCase() == 'RETURNED') ...[
+                                    const SizedBox(height: 10),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                                      ),
+                                      child: const Text('Returned for re-solution',
+                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFB45309))),
+                                    ),
+                                  ],
                                   const SizedBox(height: 12),
                                   const Divider(height: 1),
-                                  // Allow re-submit button (deletes submission so student can hand in again)
+                                  // Return for re-solution — keeps the student's
+                                  // work on record, flags it RETURNED, attaches
+                                  // the feedback note, and reopens the student's
+                                  // hand-in form so they can revise & resubmit.
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: TextButton.icon(
                                       style: TextButton.styleFrom(
-                                        foregroundColor: cs.error,
+                                        foregroundColor: const Color(0xFFB45309),
                                         textStyle: const TextStyle(fontSize: 12),
                                       ),
-                                      icon: const Icon(Icons.restart_alt_rounded, size: 14),
-                                      label: Text(AppLocalizations.of(context)!.teacherAllowResubmitLabel),
+                                      icon: const Icon(Icons.replay_rounded, size: 14),
+                                      label: const Text('Return for re-solution'),
                                       onPressed: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: Text(AppLocalizations.of(ctx)!.teacherAllowResubmitTitle),
-                                            content: Text(AppLocalizations.of(ctx)!.teacherAllowResubmitBody(name)),
+                                            title: const Text('Return for re-solution'),
+                                            content: Text(
+                                                'Send this submission back to $name to revise and hand in again? Any feedback you typed will be included.'),
                                             actions: [
                                               TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
                                               FilledButton(
                                                 onPressed: () => Navigator.pop(ctx, true),
-                                                child: Text(AppLocalizations.of(ctx)!.teacherAllowButton),
+                                                child: const Text('Return'),
                                               ),
                                             ],
                                           ),
                                         );
                                         if (confirm != true || !mounted) return;
                                         try {
-                                          await ref.read(teacherMobileRepositoryProvider).resetAssignmentSubmission(
+                                          await ref.read(teacherMobileRepositoryProvider).returnAssignmentSubmission(
                                             widget.assignmentId, sid,
+                                            feedback: _feedbackControllers[sid]?.text.trim(),
                                           );
                                           _load();
                                         } catch (e) {

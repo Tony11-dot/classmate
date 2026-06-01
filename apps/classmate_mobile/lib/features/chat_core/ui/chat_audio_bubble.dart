@@ -199,12 +199,17 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     // accent.
     final Color accent = widget.isMine ? Colors.white : scheme.primary;
     final Color onAccent = widget.isMine ? scheme.primary : scheme.onPrimary;
+    // For OTHER people's bubbles the background is a light neutral surface in
+    // light mode, where `outlineVariant` (inactive ticks) and
+    // `onSurfaceVariant` (duration text) both wash out and read as barely
+    // visible. Use stronger, onSurface-derived tones so the waveform track
+    // and the duration are clearly legible on either theme.
     final Color inactiveColor = widget.isMine
         ? Colors.white.withValues(alpha: 0.35)
-        : scheme.outlineVariant;
+        : scheme.onSurface.withValues(alpha: 0.38);
     final Color timeColor = widget.isMine
         ? Colors.white.withValues(alpha: 0.85)
-        : scheme.onSurfaceVariant;
+        : scheme.onSurface.withValues(alpha: 0.75);
 
     // ── Waveform bars ──────────────────────────────────────────────────────
     const baseHeights = <double>[5, 9, 14, 18, 12, 8, 16, 10, 15, 6];

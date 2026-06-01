@@ -1872,6 +1872,12 @@ class AppLocalizationsHe extends AppLocalizations {
       'הודעות לא היו יכולות להתחבר כעת. בדוק את החיבור שלך ונסה שוב.';
 
   @override
+  String get announcementsTabReceived => 'Received';
+
+  @override
+  String get announcementsTabPublished => 'Published';
+
+  @override
   String get announcementsAudienceTeacher => 'מורה';
 
   @override

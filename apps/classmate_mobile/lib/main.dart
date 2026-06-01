@@ -39,37 +39,54 @@ void main() {
   runApp(const ProviderScope(child: _RootApp()));
 }
 
-class _RootApp extends StatefulWidget {
+class _RootApp extends ConsumerStatefulWidget {
   const _RootApp();
 
   @override
-  State<_RootApp> createState() => _RootAppState();
+  ConsumerState<_RootApp> createState() => _RootAppState();
 }
 
-class _RootAppState extends State<_RootApp> {
-  bool _splashDone = false;
+class _RootAppState extends ConsumerState<_RootApp> {
+  bool _animationDone = false;
 
   @override
   Widget build(BuildContext context) {
-    // After splash: hand off to the full app (which has its own MaterialApp, theme, etc.)
-    if (_splashDone) return const RealtimeListener(child: ClassMateApp());
+    // Keep the splash on screen until BOTH the intro animation has finished
+    // AND the auth session has resolved (token loaded + /auth/me validated).
+    // Previously we handed off as soon as the animation completed — for an
+    // already-logged-in user the router's initialLocation (/login) rendered
+    // for one frame before the redirect bounced them home, producing a
+    // visible login flash. Gating on session readiness removes that: a
+    // logged-out user lands straight on /login, a logged-in user straight
+    // on their home, with no wrong-page blink in between.
+    final session = ref.watch(authSessionProvider);
+    return ListenableBuilder(
+      listenable: session,
+      builder: (context, _) {
+        final ready = _animationDone && session.ready;
+        // After splash: hand off to the full app (which has its own
+        // MaterialApp, theme, etc.)
+        if (ready) return const RealtimeListener(child: ClassMateApp());
 
-    // Wrap splash in a minimal MaterialApp so Directionality, DefaultTextStyle,
-    // MediaQuery, etc. are all available — avoids "No Directionality widget found"
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(brightness: Brightness.light),
-      home: Scaffold(
-        // White all the way through — matches native splash, matches Dart
-        // splash, matches the icon's white-baked background. No more
-        // black flashes at any boundary.
-        backgroundColor: Colors.white,
-        body: SplashScreen(
-          onComplete: () {
-            if (mounted) setState(() => _splashDone = true);
-          },
-        ),
-      ),
+        // Wrap splash in a minimal MaterialApp so Directionality,
+        // DefaultTextStyle, MediaQuery, etc. are all available — avoids
+        // "No Directionality widget found".
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(brightness: Brightness.light),
+          home: Scaffold(
+            // White all the way through — matches native splash, matches
+            // Dart splash, matches the icon's white-baked background. No
+            // more black flashes at any boundary.
+            backgroundColor: Colors.white,
+            body: SplashScreen(
+              onComplete: () {
+                if (mounted) setState(() => _animationDone = true);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

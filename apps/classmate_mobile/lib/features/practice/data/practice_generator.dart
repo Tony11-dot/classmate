@@ -688,20 +688,29 @@ class PracticeGenerator {
       );
     }
 
-    final x = 2 + index;
-    final y = x * 3 + 1;
-
+    // Generic last-resort fallback — only reached when the AI generator is
+    // completely unreachable (offline / server down). Instead of a fake
+    // arithmetic placeholder (the old "compute 3 * 2 + 1" that shipped for
+    // every topic), route the student to NOVA for a real, topic-accurate
+    // walkthrough. Honest and never looks broken.
     return PracticeQuestion(
       id: 'fallback-$index',
       subject: filter.subject,
       topicLabel: filter.topicLabel,
       mode: filter.mode,
       difficulty: filter.difficulty,
-      prompt: '${filter.subject} • ${filter.topicLabel}: compute 3 * $x + 1.',
-      options: ['$y', '${y + 1}', '${y - 1}', '${x + 1}'],
+      prompt:
+          'Practice a ${filter.difficulty.name} ${filter.subject} question on ${filter.topicLabel}.',
+      options: const [
+        'Open with NOVA',
+        'Show a worked solution',
+        'Save for later',
+        'End session',
+      ],
       correctIndex: 0,
-      explanation: '3 * $x + 1 = $y.',
-      recommendedTimeSeconds: filter.timePreferenceSeconds ?? 20,
+      explanation:
+          'We could not reach the question generator just now. Open this topic with NOVA for a full step-by-step walkthrough, then try Practice again when you are back online.',
+      recommendedTimeSeconds: filter.timePreferenceSeconds ?? 30,
     );
   }
 
