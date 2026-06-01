@@ -171,7 +171,11 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     super.initState();
     _scrollController.addListener(_handleScroll);
     _textController.addListener(_handleTextChange);
-    _pollTimer = Timer.periodic(const Duration(milliseconds: 1000), (_) {
+    // SSE delivers messages in real-time; this poll is only a fallback for a
+    // stalled connection. 1s was hammering the API (contributed to 429 rate-
+    // limit errors during active use). 4s keeps a near-instant feel without
+    // the request storm.
+    _pollTimer = Timer.periodic(const Duration(milliseconds: 4000), (_) {
       if (!mounted) return;
       widget.controller.invalidate();
     });
@@ -471,8 +475,15 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     if (_deleteSelectedMessageIds.isEmpty) return;
     final ids = List<String>.from(_deleteSelectedMessageIds);
 
-    final canEveryone =
-        widget.policy.canDeleteForEveryone || widget.policy.canModeratorDelete;
+    // "Delete for everyone" is only offered when EITHER you can moderate
+    // (teacher/admin deleting anyone's message) OR every selected message is
+    // your own. A non-admin selecting someone else's message gets only
+    // "delete for me" — no "delete for everyone" option.
+    final selectedMsgs =
+        _lastKnownMessages.where((m) => _deleteSelectedMessageIds.contains(m.id)).toList();
+    final allOwn = selectedMsgs.isNotEmpty && selectedMsgs.every((m) => m.isOwn);
+    final canEveryone = widget.policy.canModeratorDelete ||
+        (widget.policy.canDeleteForEveryone && allOwn);
 
     ChatDeleteMode mode;
     if (canEveryone) {

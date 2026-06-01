@@ -314,8 +314,8 @@ class ClassroomChatThreadController extends ChatThreadController {
     final patchedServerItems = serverItems.map((raw) {
       final senderUserId = _pick(raw, 'senderUserId');
       final serverIsMine = raw is Map && raw['isMine'] == true;
-      final isMine = senderUserId.isNotEmpty
-          ? (_currentUserId.isNotEmpty && senderUserId == _currentUserId)
+      final isMine = (_currentUserId.isNotEmpty && senderUserId.isNotEmpty)
+          ? senderUserId == _currentUserId
           : serverIsMine;
       if (!isMine) return raw; // Never patch others' messages
 
@@ -588,8 +588,13 @@ class ClassroomChatThreadController extends ChatThreadController {
     // previous logged-in user on this device can still carry isMine=true.
     final senderUserId = _pick(row, 'senderUserId');
     final serverIsMine = row is Map && row['isMine'] == true;
-    final isMine = senderUserId.isNotEmpty
-        ? (_currentUserId.isNotEmpty && senderUserId == _currentUserId)
+    // Compare UUIDs when we have BOTH (authoritative, and avoids trusting a
+    // stale cross-login cached flag). When our own id is unknown (JWT not yet
+    // decoded) fall back to the server's flag instead of forcing "not mine" —
+    // forcing false is what flipped a student's just-sent message onto the
+    // other side after the server row arrived.
+    final isMine = (_currentUserId.isNotEmpty && senderUserId.isNotEmpty)
+        ? senderUserId == _currentUserId
         : serverIsMine;
 
     // Server may return text in 'text', 'body', or 'content'

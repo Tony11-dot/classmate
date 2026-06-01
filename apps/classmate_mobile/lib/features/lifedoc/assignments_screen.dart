@@ -908,8 +908,23 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                   ? rawAtt
                                       .whereType<Map>()
                                       .map((a) => Map<String, dynamic>.from(a))
-                                      .where((a) => seen.add(
-                                          '${a['url'] ?? ''}|${a['name'] ?? ''}'))
+                                      .where((a) {
+                                        // De-dupe by URL first (same file is
+                                        // sometimes stored under url + fileUrl
+                                        // with different name/title fields);
+                                        // fall back to name/title when no URL.
+                                        final url = (a['url'] ?? a['fileUrl'] ?? '')
+                                            .toString()
+                                            .trim()
+                                            .toLowerCase();
+                                        final key = url.isNotEmpty
+                                            ? url
+                                            : (a['name'] ?? a['title'] ?? '')
+                                                .toString()
+                                                .trim()
+                                                .toLowerCase();
+                                        return key.isEmpty || seen.add(key);
+                                      })
                                       .toList()
                                   : <Map<String, dynamic>>[];
                               if (pills.isEmpty) return const SizedBox.shrink();

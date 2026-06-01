@@ -29,6 +29,7 @@ import { ReportMessageDto } from './dto/report-message.dto';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN, Role.TEACHER, Role.PARENT, Role.SECRETARY)
+@SkipThrottle()
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly service: MessagesService) {}

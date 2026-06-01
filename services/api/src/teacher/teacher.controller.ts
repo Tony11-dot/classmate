@@ -13,12 +13,14 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TeacherService } from './teacher.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.TEACHER, Role.ADMIN)
+@SkipThrottle()
 @Controller('teacher')
 export class TeacherController {
   

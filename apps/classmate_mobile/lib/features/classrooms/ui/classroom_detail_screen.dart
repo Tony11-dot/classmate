@@ -56,7 +56,9 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     _loadClassroomTabsCollapsed();
     _tabs.addListener(() {
       if (!mounted) return;
-      if (!_tabs.indexIsChanging && _activeClassroomTabIndex != _tabs.index) {
+      // Rebuild as soon as the target index changes so the fade switcher
+      // tracks the new tab (don't wait for the slide animation to settle).
+      if (_activeClassroomTabIndex != _tabs.index) {
         setState(() => _activeClassroomTabIndex = _tabs.index);
       }
       if (!_tabs.indexIsChanging && _tabs.index == 0) {
@@ -260,9 +262,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             if (!_classroomTabsCollapsed) _CenteredTabs(controller: _tabs),
             const SizedBox(height: 2),
             Expanded(
-              child: TabBarView(
-                controller: _tabs,
-                children: [
+              child: Builder(builder: (_) {
+                final tabChildren = <Widget>[
                   RefreshIndicator(
                     onRefresh: () async {
                       _chatController.invalidate();
@@ -410,8 +411,22 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                     },
                   ),
                   _peopleTab(people),
-                ],
-              ),
+                ];
+                // Cross-fade between tabs instead of a horizontal slide that
+                // rendered the incoming tab over the outgoing one.
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  switchInCurve: Curves.easeOut,
+                  switchOutCurve: Curves.easeIn,
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+                  child: KeyedSubtree(
+                    key: ValueKey<int>(_tabs.index),
+                    child: tabChildren[
+                        _tabs.index.clamp(0, tabChildren.length - 1)],
+                  ),
+                );
+              }),
             ),
           ],
         ),

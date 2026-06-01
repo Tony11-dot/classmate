@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
 import '../../../l10n/app_localizations.dart';
@@ -340,49 +339,22 @@ class _TeacherAssignmentDetailScreenState
                                       child: Text(note, style: theme.textTheme.bodySmall),
                                     ),
                                   ],
-                                  // Submitted file attachments
+                                  // Submitted file attachments — rendered with
+                                  // AttachmentPills so the teacher opens them
+                                  // IN-APP (same viewer as everywhere else),
+                                  // not bounced to an external browser.
                                   () {
                                     final rawFiles = sub['files'];
-                                    final fileList = rawFiles is List ? rawFiles : const [];
+                                    final fileList = rawFiles is List
+                                        ? rawFiles
+                                            .whereType<Map>()
+                                            .map((f) => Map<String, dynamic>.from(f))
+                                            .toList()
+                                        : const <Map<String, dynamic>>[];
                                     if (fileList.isEmpty) return const SizedBox.shrink();
                                     return Padding(
                                       padding: const EdgeInsets.only(top: 10),
-                                      child: Wrap(
-                                        spacing: 8,
-                                        runSpacing: 6,
-                                        children: fileList.map<Widget>((f) {
-                                          final url = (f is Map ? (f['url'] ?? '') : '').toString().trim();
-                                          final name = (f is Map ? (f['name'] ?? '') : '').toString().trim();
-                                          final label = name.isNotEmpty ? name : url.split('/').last.split('?').first;
-                                          return InkWell(
-                                            onTap: url.isNotEmpty ? () async {
-                                              final uri = Uri.tryParse(url);
-                                              if (uri != null && uri.hasScheme) {
-                                                await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                              }
-                                            } : null,
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                              decoration: BoxDecoration(
-                                                color: cs.primaryContainer,
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                                Icon(Icons.attach_file_rounded, size: 13, color: cs.onPrimaryContainer),
-                                                const SizedBox(width: 4),
-                                                ConstrainedBox(
-                                                  constraints: const BoxConstraints(maxWidth: 180),
-                                                  child: Text(label,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onPrimaryContainer)),
-                                                ),
-                                              ]),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
+                                      child: AttachmentPills(attachments: fileList),
                                     );
                                   }(),
 

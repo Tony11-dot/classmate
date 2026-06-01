@@ -388,6 +388,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
               }
             },
             child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 if (isTeacher) ...[

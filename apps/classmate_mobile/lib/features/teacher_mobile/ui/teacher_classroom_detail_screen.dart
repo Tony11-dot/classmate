@@ -63,6 +63,8 @@ class _TeacherClassroomDetailScreenState
     _loadCollapsed();
     _tabs.addListener(() {
       if (!mounted) return;
+      // Rebuild so the fade-based switcher follows the selected tab.
+      setState(() {});
       if (!_tabs.indexIsChanging && _tabs.index == 0) {
         Future.microtask(() => _chatController.markRead());
       }
@@ -89,6 +91,36 @@ class _TeacherClassroomDetailScreenState
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_collapsedKey, _tabsCollapsed);
     } catch (_) {}
+  }
+
+  Widget _buildTabChild(int index) {
+    switch (index) {
+      case 0:
+        return ChatThreadView(
+          controller: _chatController,
+          policy: ChatActionPolicy.classroom(isTeacher: true),
+        );
+      case 1:
+        return _AssignmentsTab(
+          courseId: widget.courseId,
+          subject: widget.subject,
+          cohortId: widget.cohortName ?? '',
+        );
+      case 2:
+        return _MaterialsTab(
+          courseId: widget.courseId,
+          subject: widget.subject,
+          cohortId: widget.cohortName ?? '',
+        );
+      case 3:
+        return _MeetingsTab(
+          courseId: widget.courseId,
+          subject: widget.subject,
+          cohortId: widget.cohortName ?? '',
+        );
+      default:
+        return _PeopleTab(courseId: widget.courseId);
+    }
   }
 
   String get _subtitle {
@@ -122,30 +154,19 @@ class _TeacherClassroomDetailScreenState
           if (!_tabsCollapsed) _CenteredTabs(controller: _tabs),
           const SizedBox(height: 2),
           Expanded(
-            child: TabBarView(
-              controller: _tabs,
-              children: [
-                ChatThreadView(
-                  controller: _chatController,
-                  policy: ChatActionPolicy.classroom(isTeacher: true),
-                ),
-                _AssignmentsTab(
-                  courseId: widget.courseId,
-                  subject: widget.subject,
-                  cohortId: widget.cohortName ?? '',
-                ),
-                _MaterialsTab(
-                  courseId: widget.courseId,
-                  subject: widget.subject,
-                  cohortId: widget.cohortName ?? '',
-                ),
-                _MeetingsTab(
-                  courseId: widget.courseId,
-                  subject: widget.subject,
-                  cohortId: widget.cohortName ?? '',
-                ),
-                _PeopleTab(courseId: widget.courseId),
-              ],
+            // Fade between tabs instead of TabBarView's horizontal slide —
+            // the slide was rendering the incoming tab on top of the outgoing
+            // one mid-transition, which looked broken. A cross-fade is clean.
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: KeyedSubtree(
+                key: ValueKey<int>(_tabs.index),
+                child: _buildTabChild(_tabs.index),
+              ),
             ),
           ),
         ],

@@ -1,10 +1,12 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { HttpException } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PracticeService } from './practice.service';
 import { isPracticeHttpException } from './errors/practice-error.util';
 
 @UseGuards(JwtAuthGuard)
+@SkipThrottle()
 @Controller('practice')
 export class PracticeController {
   constructor(private readonly practiceService: PracticeService) {}

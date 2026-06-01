@@ -16,6 +16,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
@@ -38,6 +39,11 @@ function safeClassroomName(raw: string) {
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN)
+// Authenticated, high-frequency app traffic (chat polling, classroom list,
+// meetings, join). Exempt from the global default throttle — it was tripping
+// 429s during normal use ("cannot send", classrooms.list failed). Login stays
+// strictly throttled in its own controller.
+@SkipThrottle()
 @Controller('student/classrooms')
 export class StudentClassroomsController {
   constructor(

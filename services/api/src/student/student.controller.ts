@@ -17,6 +17,7 @@ import { OnboardStudentDto } from './dto/onboard-student.dto';
 
 @UseGuards(JwtAuthGuard)
 @Roles(Role.STUDENT, Role.ADMIN)
+@SkipThrottle()
 @Controller('student')
 export class StudentController {
   constructor(private readonly student: StudentService) {}

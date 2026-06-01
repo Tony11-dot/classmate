@@ -3188,12 +3188,27 @@ export class TeacherService {
   /// each tagged with `_sourceMaterialId` so we can later identify them.
   private _materialAttachmentSnapshot(material: any): any[] {
     const out: any[] = [];
+    // De-dupe by URL: a material commonly stores the SAME file both in its
+    // primary `url` and in its inner `attachments[]`, which produced two
+    // identical pills for one file on the student/teacher assignment view.
+    const seenUrls = new Set<string>();
+    const urlOf = (a: any) =>
+      String(a?.url ?? a?.fileUrl ?? '').trim().toLowerCase();
+    const pushUnique = (item: any) => {
+      const key = urlOf(item);
+      if (key) {
+        if (seenUrls.has(key)) return;
+        seenUrls.add(key);
+      }
+      out.push(item);
+    };
+
     const primaryUrl =
       typeof material.url === 'string' && material.url.length > 0
         ? material.url
         : '';
     if (primaryUrl) {
-      out.push({
+      pushUnique({
         title: material.title,
         url: primaryUrl,
         _sourceMaterialId: material.id,
@@ -3205,7 +3220,7 @@ export class TeacherService {
       : [];
     for (const a of inner) {
       if (a && typeof a === 'object') {
-        out.push({
+        pushUnique({
           ...a,
           _sourceMaterialId: material.id,
           _sourceMaterialTitle: material.title,
