@@ -75,14 +75,12 @@ class ClassMateApp extends ConsumerWidget {
           },
           child: scaledChild,
         );
-        // Global left-edge swipe-back: dragging right from the left edge pops
-        // the current route (same as the on-screen "<" buttons). Restores the
-        // iOS back gesture that the pure-fade transition removed — works on
-        // every pushed screen; a no-op on top-level tabs (nothing to pop).
+        // Left-edge swipe-back on screens that have something to pop (detail
+        // screens with a "<"). Disabled on top-level tabs so it doesn't steal
+        // the gesture from the Scaffold's native swipe-to-open-drawer.
         final withSwipeBack = _EdgeSwipeBack(
-          onBack: () {
-            if (router.canPop()) router.pop();
-          },
+          enabled: router.canPop(),
+          onBack: router.pop,
           child: dismissOnDragChild,
         );
         return _NotificationReceiverHost(child: withSwipeBack);
@@ -95,10 +93,15 @@ class ClassMateApp extends ConsumerWidget {
 /// rightward drag (only horizontal drags starting at the edge — taps, vertical
 /// scrolls and mid-screen swipes fall through) and triggers [onBack].
 class _EdgeSwipeBack extends StatefulWidget {
-  const _EdgeSwipeBack({required this.child, required this.onBack});
+  const _EdgeSwipeBack({
+    required this.child,
+    required this.onBack,
+    this.enabled = true,
+  });
 
   final Widget child;
   final VoidCallback onBack;
+  final bool enabled;
 
   @override
   State<_EdgeSwipeBack> createState() => _EdgeSwipeBackState();
@@ -110,6 +113,9 @@ class _EdgeSwipeBackState extends State<_EdgeSwipeBack> {
 
   @override
   Widget build(BuildContext context) {
+    // When there's nothing to pop (top-level tabs), don't render the strip so
+    // the Scaffold's native edge-drag can open the drawer instead.
+    if (!widget.enabled) return widget.child;
     return Stack(
       fit: StackFit.expand,
       children: [

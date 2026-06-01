@@ -75,8 +75,8 @@ class BagrutRepository {
       ..connectionTimeout = const Duration(seconds: 15);
 
     try {
-      // Use the `/api`-prefixed base like the rest of the app.
-      final base = Env.ensureApiSuffix(Env.apiBaseUrl);
+      // Root base — no /api prefix on the server.
+      final base = Env.stripApiSuffix(Env.apiBaseUrl);
       final uri = Uri.parse('$base/bagrut/question');
       final req = await client.postUrl(uri);
       req.headers.contentType = ContentType.json;

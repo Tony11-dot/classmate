@@ -455,11 +455,11 @@ class PracticeGenerator {
       ..connectionTimeout = const Duration(seconds: 60);
 
     try {
-      // The API mounts routes under the `/api` global prefix. The rest of the
-      // app reaches them via cm_api which appends `/api`; practice was posting
-      // to the RAW base (no `/api`), so every request 404'd and silently fell
-      // back to a local question. Use the normalized `/api` base here too.
-      final base = Env.ensureApiSuffix(Env.apiBaseUrl);
+      // Routes live at the ROOT (there is NO /api prefix on the server —
+      // /practice/generate is 401 with no auth, /api/practice/generate is
+      // 404). Adding /api was a mistake that made every request 404 → silent
+      // fallback. Post to the root base; auth is sent below.
+      final base = Env.stripApiSuffix(Env.apiBaseUrl);
       final uri = Uri.parse('$base/practice/generate');
       final req = await client
           .postUrl(uri)
