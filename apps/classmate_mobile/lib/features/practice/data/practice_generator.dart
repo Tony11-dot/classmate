@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import '../../../core/config/env.dart';
+
 
 import '../domain/practice_models.dart';
 import 'practice_prompt_builder.dart';
@@ -327,11 +329,6 @@ String _replaceOutsideMathDelimiters(
 }
 
 class PracticeGenerator {
-  static const _apiBase = String.fromEnvironment(
-    'CM_API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:3001',
-  );
-
   static const _devToken = String.fromEnvironment('CM_DEV_TOKEN');
 
   final BagrutRepository _bagrutRepo = BagrutRepository();
@@ -434,7 +431,12 @@ class PracticeGenerator {
       ..connectionTimeout = const Duration(seconds: 60);
 
     try {
-      final uri = Uri.parse('$_apiBase/practice/generate');
+      // The API mounts routes under the `/api` global prefix. The rest of the
+      // app reaches them via cm_api which appends `/api`; practice was posting
+      // to the RAW base (no `/api`), so every request 404'd and silently fell
+      // back to a local question. Use the normalized `/api` base here too.
+      final base = Env.ensureApiSuffix(Env.apiBaseUrl);
+      final uri = Uri.parse('$base/practice/generate');
       final req = await client
           .postUrl(uri)
           .timeout(
