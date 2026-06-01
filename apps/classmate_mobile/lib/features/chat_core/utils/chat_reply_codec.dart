@@ -1,7 +1,22 @@
 String replyPreviewText(String text) {
-  final t = text.trim();
+  var t = text.trim();
 
   if (t.isEmpty) return 'Message';
+
+  // Unwrap an encoded reply ("↪ Sender: <quoted> — <body>") down to just
+  // THIS message's own content, so a reply-to-a-reply doesn't show the ↪
+  // marker / nested quote — only the underlying text (or media type).
+  if (t.startsWith('↪ ')) {
+    final dash = t.lastIndexOf(' — ');
+    if (dash != -1) {
+      t = t.substring(dash + 3).trim(); // the body the sender actually wrote
+    } else {
+      // No body — fall back to the quoted content after "Sender: ".
+      final colon = t.indexOf(': ');
+      t = (colon != -1 ? t.substring(colon + 2) : t.substring(2)).trim();
+    }
+    if (t.isEmpty) return 'Message';
+  }
 
   final pretty = _formatAttachmentMarker(t);
   if (pretty != null) return pretty;

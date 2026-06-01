@@ -1298,6 +1298,12 @@ model Classroom {
   subject   String
   teacherId String
   schoolId  String?
+  // Short, unique, human-typable join code (e.g. "K7M4QP"). Replaces the old
+  // approach of deriving a code from the first 6 chars of the cuid id — those
+  // collided across classrooms created in the same window (cuids share a
+  // timestamp prefix). Nullable for legacy rows; lazily generated on first
+  // teacher fetch.
+  joinCode  String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -1872,6 +1872,16 @@ class AppLocalizationsHe extends AppLocalizations {
       'הודעות לא היו יכולות להתחבר כעת. בדוק את החיבור שלך ונסה שוב.';
 
   @override
+  String get teacherDeleteClassroom => 'Delete classroom';
+
+  @override
+  String get teacherDeleteClassroomConfirm =>
+      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+
+  @override
+  String get teacherClassroomDeleted => 'Classroom deleted';
+
+  @override
   String get announcementsTabReceived => 'Received';
 
   @override

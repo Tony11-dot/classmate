@@ -1077,6 +1077,7 @@ class _PeopleTab extends ConsumerStatefulWidget {
 
 class _PeopleTabState extends ConsumerState<_PeopleTab> {
   Map<String, dynamic> _data = const {};
+  String _joinCode = '';
   bool _loading = true;
   String? _error;
 
@@ -1089,20 +1090,27 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
   Future<void> _load() async {
     setState(() { _loading = true; _error = null; });
     try {
-      final data = await ref.read(teacherMobileRepositoryProvider).fetchClassroomPeople(widget.courseId);
+      final repo = ref.read(teacherMobileRepositoryProvider);
+      final results = await Future.wait([
+        repo.fetchClassroomPeople(widget.courseId),
+        repo.fetchClassroomDetail(widget.courseId),
+      ]);
       if (!mounted) return;
-      setState(() { _data = data; _loading = false; });
+      final data = results[0];
+      final detail = results[1];
+      setState(() {
+        _data = data;
+        _joinCode = (detail['joinCode'] ?? '').toString();
+        _loading = false;
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() { _error = e.toString(); _loading = false; });
     }
   }
 
-  // Derive stable 6-char uppercase code from courseId UUID.
-  String get _classCode {
-    final clean = widget.courseId.replaceAll('-', '');
-    return clean.substring(0, clean.length >= 6 ? 6 : clean.length).toUpperCase();
-  }
+  // The real, unique, server-issued join code (no longer derived from the id).
+  String get _classCode => _joinCode;
 
   @override
   Widget build(BuildContext context) {
@@ -1263,9 +1271,58 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
               ),
             );
           }),
+
+          // ── Danger zone: delete classroom (owner only; API enforces) ────
+          const SizedBox(height: 28),
+          OutlinedButton.icon(
+            icon: Icon(Icons.delete_forever_rounded, size: 18, color: cs.error),
+            label: Text(l.teacherDeleteClassroom, style: TextStyle(color: cs.error, fontWeight: FontWeight.w700)),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+              minimumSize: const Size.fromHeight(48),
+            ),
+            onPressed: () => _confirmDeleteClassroom(context),
+          ),
+          const SizedBox(height: 8),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDeleteClassroom(BuildContext context) async {
+    final l = AppLocalizations.of(context)!;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.teacherDeleteClassroom),
+        content: Text(l.teacherDeleteClassroomConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.commonDelete),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    try {
+      await ref.read(teacherMobileRepositoryProvider).deleteClassroom(widget.courseId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.teacherClassroomDeleted)),
+      );
+      // Leave the detail screen back to the classrooms list.
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('/teacher/classrooms');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
+    }
   }
 
   Future<void> _openStudentPicker(BuildContext context, Set<String> enrolledIds) async {

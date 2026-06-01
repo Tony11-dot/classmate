@@ -1886,6 +1886,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Announcements could not connect right now. Check your connection and try again.';
 
   @override
+  String get teacherDeleteClassroom => 'Delete classroom';
+
+  @override
+  String get teacherDeleteClassroomConfirm =>
+      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+
+  @override
+  String get teacherClassroomDeleted => 'Classroom deleted';
+
+  @override
   String get announcementsTabReceived => 'Received';
 
   @override

@@ -3356,6 +3356,24 @@ abstract class AppLocalizations {
   /// **'Announcements could not connect right now. Check your connection and try again.'**
   String get announcementsLoadNetwork;
 
+  /// No description provided for @teacherDeleteClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete classroom'**
+  String get teacherDeleteClassroom;
+
+  /// No description provided for @teacherDeleteClassroomConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.'**
+  String get teacherDeleteClassroomConfirm;
+
+  /// No description provided for @teacherClassroomDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom deleted'**
+  String get teacherClassroomDeleted;
+
   /// No description provided for @announcementsTabReceived.
   ///
   /// In en, this message translates to:

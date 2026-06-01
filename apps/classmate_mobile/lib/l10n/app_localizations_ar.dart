@@ -1881,6 +1881,16 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم تتمكن الإعلانات من الاتصال الآن. تحقق من الاتصال وحاول مرة أخرى.';
 
   @override
+  String get teacherDeleteClassroom => 'Delete classroom';
+
+  @override
+  String get teacherDeleteClassroomConfirm =>
+      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+
+  @override
+  String get teacherClassroomDeleted => 'Classroom deleted';
+
+  @override
   String get announcementsTabReceived => 'Received';
 
   @override

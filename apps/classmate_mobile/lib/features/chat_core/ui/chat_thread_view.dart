@@ -37,6 +37,46 @@ import 'chat_recording_tokens.dart';
 import 'chat_scroll_to_bottom_fab.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+/// Content string used for a reply preview. For text messages it's the text;
+/// for media (which often has empty text) it's a wire marker the reply-preview
+/// formatter turns into "🎤 Voice message", "🖼️ Photo", "📎 File", so the
+/// reply chip shows the type + icon rather than nothing.
+String _replyContentFor(ChatMessage m) {
+  final t = m.text.trim();
+  if (t.isNotEmpty) return t;
+  switch (m.kind) {
+    case ChatMessageKind.voice:
+      final d = m.voiceDurationSeconds ?? 0;
+      return d > 0 ? '[VOICE] [duration:$d]' : '[VOICE]';
+    case ChatMessageKind.image:
+      return '[IMAGE]';
+    case ChatMessageKind.file:
+      return '[FILE]';
+    default:
+      return t;
+  }
+}
+
+/// Snippet for the quoted reply shown inside a message bubble. Falls back to a
+/// media marker derived from `replyToKind` when the replied-to message had no
+/// text (so the quote reads "🎤 Voice message" / "🖼️ Photo" / "📎 File").
+String? _replySnippetFor(ChatMessage m) {
+  final t = (m.replyToText ?? '').trim();
+  if (t.isNotEmpty) return t;
+  switch ((m.replyToKind ?? '').toLowerCase()) {
+    case 'voice':
+      return '[VOICE]';
+    case 'image':
+    case 'photo':
+      return '[IMAGE]';
+    case 'file':
+    case 'video':
+      return '[FILE]';
+    default:
+      return m.replyToText;
+  }
+}
+
 /// Shared chat thread surface used by both DM and Classroom screens.
 class ChatThreadView extends ConsumerStatefulWidget {
   const ChatThreadView({
@@ -983,7 +1023,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         setState(() {
           _replyToMessageId = message.id;
           _replyToSenderName = message.senderName;
-          _replyToText = message.text;
+          _replyToText = _replyContentFor(message);
         });
       case 'copy':
         await Clipboard.setData(ClipboardData(text: message.text));
@@ -1232,7 +1272,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           ? () => widget.controller.markVoicePlayed(message.id)
           : null,
       replySender: message.replyToSenderName,
-      replySnippet: message.replyToText,
+      replySnippet: _replySnippetFor(message),
       onReplyTap: message.replyToMessageId == null
           ? null
           : () => _jumpToMessage(message.replyToMessageId!),
@@ -1883,7 +1923,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                                   setState(() {
                                     _replyToMessageId = row.id;
                                     _replyToSenderName = row.senderName;
-                                    _replyToText = row.text;
+                                    _replyToText = _replyContentFor(row);
                                   });
                                 } else if (cur <= -44 &&
                                     widget.policy.canViewInfo) {

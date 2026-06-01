@@ -1266,7 +1266,7 @@ export class TeacherService {
   private async assertTeacherOwnsClassroom(teacherId: string, classroomId: string) {
     const cr = await this.prisma.classroom.findUnique({
       where: { id: classroomId },
-      select: { id: true, name: true, subject: true, teacherId: true },
+      select: { id: true, name: true, subject: true, teacherId: true, joinCode: true },
     });
     if (!cr) throw new NotFoundException('Classroom not found');
     if (cr.teacherId !== teacherId) throw new ForbiddenException('Not your classroom');
@@ -1312,6 +1312,47 @@ export class TeacherService {
     } catch {}
   }
 
+  /// Generate a short, unique, human-typable classroom join code. Uses an
+  /// unambiguous charset (no 0/O, 1/I/L) and retries on the rare collision
+  /// against the unique index.
+  private async generateUniqueClassroomCode(): Promise<string> {
+    const charset = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    for (let attempt = 0; attempt < 20; attempt++) {
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += charset[Math.floor(Math.random() * charset.length)];
+      }
+      const existing = await this.prisma.classroom.findUnique({
+        where: { joinCode: code },
+        select: { id: true },
+      });
+      if (!existing) return code;
+    }
+    // Extremely unlikely fallback — widen with a timestamp tail.
+    return `C${Date.now().toString(36).toUpperCase().slice(-7)}`;
+  }
+
+  /// Returns the classroom's join code, generating + persisting a unique one
+  /// if it doesn't have one yet (backfills legacy rows on first access).
+  private async ensureClassroomCode(classroomId: string, current?: string | null): Promise<string> {
+    if (current && current.trim()) return current.trim();
+    const code = await this.generateUniqueClassroomCode();
+    try {
+      await this.prisma.classroom.update({
+        where: { id: classroomId },
+        data: { joinCode: code },
+      });
+    } catch (_) {
+      // Lost a race — re-read whatever code won.
+      const row = await this.prisma.classroom.findUnique({
+        where: { id: classroomId },
+        select: { joinCode: true },
+      });
+      return row?.joinCode ?? code;
+    }
+    return code;
+  }
+
   async createClassroom(user: any, body: any) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -1322,8 +1363,9 @@ export class TeacherService {
     if (!name) throw new BadRequestException('name is required');
     if (!subject) throw new BadRequestException('subject is required');
 
+    const joinCode = await this.generateUniqueClassroomCode();
     const classroom = await this.prisma.classroom.create({
-      data: { name, subject, teacherId, schoolId },
+      data: { name, subject, teacherId, schoolId, joinCode },
     });
 
     // Add students individually
@@ -1355,7 +1397,7 @@ export class TeacherService {
       where: { teacherId },
       orderBy: { createdAt: 'desc' },
       select: {
-        id: true, name: true, subject: true, createdAt: true,
+        id: true, name: true, subject: true, createdAt: true, joinCode: true,
         _count: { select: { members: true } },
       },
     });
@@ -1375,9 +1417,11 @@ export class TeacherService {
       this.prisma.classroomMember.count({ where: { classroomId } }),
     ]);
 
+    const joinCode = await this.ensureClassroomCode(cr.id, (cr as any).joinCode);
+
     return {
       ok: true,
-      classroom: { id: cr.id, name: cr.name, subject: cr.subject },
+      classroom: { id: cr.id, name: cr.name, subject: cr.subject, joinCode },
       stats: { assignmentCount, materialCount, meetingCount, messageCount, memberCount },
     };
   }

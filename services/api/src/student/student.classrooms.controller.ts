@@ -680,23 +680,15 @@ export class StudentClassroomsController {
       }
     }
     if (!matchedId || !matchedCohortId) {
-      // ── Fallback: classroom code ──────────────────────────────────────
-      // The teacher's "People" screen shows a 6-char code derived directly
-      // from the classroom id (first 6 chars, dashes stripped, uppercased)
-      // — classrooms don't carry a CohortJoinCode, so that code never
-      // matched above and the student got "Invalid or expired code". Match
-      // it here against the classrooms in the student's school and join
-      // directly as a ClassroomMember.
+      // ── Fallback: classroom join code ────────────────────────────────
+      // Classrooms carry their own unique `joinCode` (shown on the teacher's
+      // People screen). Match it directly — case-insensitive, whitespace
+      // already stripped. This is a single unique lookup, so no collisions.
       const wanted = normalisedCode.toUpperCase();
-      const schoolId = (req?.user?.schoolId as string | undefined) ?? undefined;
-      const classrooms = await this.prisma.classroom.findMany({
-        where: schoolId ? { schoolId } : {},
+      const hit = await this.prisma.classroom.findUnique({
+        where: { joinCode: wanted },
         select: { id: true, name: true },
-        take: 5000,
       });
-      const derive = (id: string) =>
-        id.replace(/-/g, '').substring(0, 6).toUpperCase();
-      const hit = classrooms.find((c) => derive(c.id) === wanted);
       if (!hit) {
         throw new BadRequestException('Invalid or expired code');
       }

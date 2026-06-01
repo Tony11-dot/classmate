@@ -1916,6 +1916,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les annonces n\'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.';
 
   @override
+  String get teacherDeleteClassroom => 'Delete classroom';
+
+  @override
+  String get teacherDeleteClassroomConfirm =>
+      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+
+  @override
+  String get teacherClassroomDeleted => 'Classroom deleted';
+
+  @override
   String get announcementsTabReceived => 'Received';
 
   @override

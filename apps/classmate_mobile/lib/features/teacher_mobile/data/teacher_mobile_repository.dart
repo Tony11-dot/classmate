@@ -450,6 +450,19 @@ class TeacherMobileRepository {
     await _api.deleteJson('/teacher/classrooms/$courseId/meetings/$id');
   }
 
+  /// Classroom detail incl. the real unique `joinCode` (generated/backfilled
+  /// server-side). Returns the `classroom` map.
+  Future<Map<String, dynamic>> fetchClassroomDetail(String courseId) async {
+    final raw = await _api.getJson('/teacher/classrooms/$courseId');
+    final map = _asMap(raw);
+    return _asMap(map['classroom']);
+  }
+
+  /// Permanently delete a classroom. Server enforces owner-only.
+  Future<void> deleteClassroom(String courseId) async {
+    await _api.deleteJson('/teacher/classrooms/$courseId');
+  }
+
   Future<Map<String, dynamic>> fetchClassroomPeople(String courseId) async {
     final raw = await _api.getJson('/teacher/classrooms/$courseId/members');
     final map = _asMap(raw);
