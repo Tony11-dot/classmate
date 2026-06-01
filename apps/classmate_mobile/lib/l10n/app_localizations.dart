@@ -3586,7 +3586,7 @@ abstract class AppLocalizations {
   /// No description provided for @meetingsEmptyForAccount.
   ///
   /// In en, this message translates to:
-  /// **'No classroom meetings are available for this student account right now.'**
+  /// **'No meetings are scheduled for you right now. Pull down to check again.'**
   String get meetingsEmptyForAccount;
 
   /// No description provided for @meetingsLatestBody.

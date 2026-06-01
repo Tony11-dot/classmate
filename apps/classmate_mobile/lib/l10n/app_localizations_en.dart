@@ -2035,7 +2035,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meetingsEmptyForAccount =>
-      'No classroom meetings are available for this student account right now.';
+      'No meetings are scheduled for you right now. Pull down to check again.';
 
   @override
   String meetingsLatestBody(Object title, Object updatedAt) {

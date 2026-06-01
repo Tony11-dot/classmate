@@ -940,7 +940,7 @@
   "meetingsJoinReadyMetric": "Join-ready",
   "meetingsNoLinkMetric": "No link",
   "meetingsNoPostedTitle": "No meetings posted yet",
-  "meetingsEmptyForAccount": "No classroom meetings are available for this student account right now.",
+  "meetingsEmptyForAccount": "No meetings are scheduled for you right now. Pull down to check again.",
   "meetingsLatestBody": "{title} was updated {updatedAt}. Open it for the attached link and classroom context.",
   "@meetingsLatestBody": {
     "placeholders": {

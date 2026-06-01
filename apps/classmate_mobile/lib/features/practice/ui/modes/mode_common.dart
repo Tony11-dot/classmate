@@ -553,9 +553,11 @@ Widget answerResultBar(ModeContextData d) {
     width: double.infinity,
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: accent,
+      // Subtle tint, NOT a solid fill — the icon/title are accent-colored, so a
+      // solid accent background made them invisible (the empty green bar).
+      color: accent.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: accent),
+      border: Border.all(color: accent.withValues(alpha: 0.5)),
     ),
     child: Row(
       children: [
@@ -581,9 +583,11 @@ Widget explanationCard(ModeContextData d, {String? title}) {
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: d.accent,
+      // Subtle tint so the accent title AND the dark explanation body are both
+      // readable (was a solid accent fill → invisible title, washed-out body).
+      color: d.accent.withValues(alpha: 0.10),
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: d.accent),
+      border: Border.all(color: d.accent.withValues(alpha: 0.4)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
