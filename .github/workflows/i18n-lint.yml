@@ -5,15 +5,19 @@ name: i18n lint
 # patterns containing capitalized English and fails if any are found.
 # Quick — no Flutter SDK install, just Dart 3.
 
+# Temporarily paused — fails on hardcoded English strings added during rapid
+# iteration and was spamming the owner's inbox on every push (same reason CI
+# was paused). Run manually via "Run workflow" (workflow_dispatch), or restore
+# the push/pull_request triggers below before a release to re-enable the check.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'apps/classmate_mobile/**'
-  pull_request:
-    paths:
-      - 'apps/classmate_mobile/**'
   workflow_dispatch:
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'apps/classmate_mobile/**'
+  # pull_request:
+  #   paths:
+  #     - 'apps/classmate_mobile/**'
 
 concurrency:
   group: i18n-lint-${{ github.ref }}
