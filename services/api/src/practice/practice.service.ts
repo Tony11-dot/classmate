@@ -1931,12 +1931,19 @@ export class PracticeService {
       const qs: any = (schema as any)?.properties?.questions;
       if (qs && Number.isFinite(qs.maxItems)) questionCountHint = Number(qs.maxItems);
     } catch {}
-    // Tighter ceiling = faster completion + bounded cost. ~550 output tokens
-    // per question is plenty for an MCQ + short explanation.
+    // Enough headroom that the structured output is never truncated (a cut-off
+    // tool input = invalid JSON). Anthropic bills actual output, not the cap,
+    // so a generous ceiling doesn't cost more.
     const maxTokens = Math.max(
-      1500,
-      Math.min(8000, 600 + questionCountHint * 550),
+      3000,
+      Math.min(12000, 1200 + questionCountHint * 900),
     );
+
+    // Force STRUCTURED output via tool-use: the model fills a tool whose
+    // input_schema is our JSON schema, so Anthropic guarantees schema-valid
+    // JSON — no more "Model did not return valid JSON" from free-form output
+    // (markdown fences, prose, truncation, etc.).
+    const toolName = (args.schemaName || 'result').replace(/[^a-zA-Z0-9_-]/g, '_');
 
     let res: any;
     try {
@@ -1944,8 +1951,17 @@ export class PracticeService {
         client.messages.create({
           model,
           max_tokens: maxTokens,
-          system: `${system}\n\nIMPORTANT: Return ONLY valid JSON. No markdown fences, no explanation. The JSON must conform to this schema:\n${JSON.stringify(schema)}`,
+          system,
           messages: [{ role: 'user', content: user }],
+          tools: [
+            {
+              name: toolName,
+              description:
+                'Return the requested result strictly as this tool\'s structured input.',
+              input_schema: schema,
+            },
+          ],
+          tool_choice: { type: 'tool', name: toolName },
           temperature: args.temperature ?? 0,
         }),
         new Promise((_, reject) =>
@@ -1961,8 +1977,8 @@ export class PracticeService {
       throw error;
     }
 
-    // Charge the user for the call we just made. Done before JSON
-    // parsing so a malformed response still bills (Anthropic charged us).
+    // Charge the user for the call we just made. Done before parsing so a
+    // malformed response still bills (Anthropic charged us).
     if (args.billingUserId && this.tokens) {
       await this.tokens.chargeAnthropicResponse({
         userId: args.billingUserId,
@@ -1972,8 +1988,15 @@ export class PracticeService {
       });
     }
 
-    // Join every text block (a long response can be split across multiple
-    // content parts) instead of reading only content[0].
+    // Preferred path: the tool_use block's `input` IS the validated object.
+    if (Array.isArray(res?.content)) {
+      const toolUse = res.content.find(
+        (b: any) => b?.type === 'tool_use' && b.input != null,
+      );
+      if (toolUse) return toolUse.input;
+    }
+
+    // Fallback: some responses still come back as text — parse defensively.
     const rawText: string = Array.isArray(res?.content)
       ? res.content
           .filter((b: any) => b?.type === 'text' && typeof b.text === 'string')
