@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'router.dart';
 
@@ -15,6 +16,10 @@ import '../features/lifedoc/notifications_provider.dart';
 import '../l10n/app_localizations.dart';
 
 final appScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+/// Persisted set of notification ids already surfaced as an OS notification /
+/// snackbar, so each one fires exactly once across syncs and app launches.
+const String _shownNotificationIdsKey = 'shown_notification_ids_v1';
 
 class ClassMateApp extends ConsumerWidget {
   const ClassMateApp({super.key});
@@ -153,12 +158,30 @@ class _NotificationReceiverHostState
 
     _syncing = true;
     try {
-      final newItems = await ref.read(notificationSyncServiceProvider).sync(
+      final synced = await ref.read(notificationSyncServiceProvider).sync(
             baselineIfEmpty: baselineIfNeeded && !_didBaseline,
           );
       _didBaseline = true;
 
-      if (!mounted || newItems.isEmpty) return;
+      if (!mounted || synced.isEmpty) return;
+
+      // Only raise an OS notification / snackbar for REAL server-pushed
+      // events — never for the client-derived insight items ("all good",
+      // "grade risk", etc.), which recompute on every sync and were
+      // re-firing constantly. And guard each id with a persisted set so a
+      // given notification is surfaced exactly once, even if a later sync
+      // returns it again.
+      final prefs = await SharedPreferences.getInstance();
+      final shown = (prefs.getStringList(_shownNotificationIdsKey) ?? const <String>[]).toSet();
+      final newItems = synced
+          .where((item) => !item.isLocal && item.id.trim().isNotEmpty && !shown.contains(item.id))
+          .toList(growable: false);
+      if (newItems.isEmpty) return;
+      shown.addAll(newItems.map((item) => item.id));
+      // Cap the persisted set so it can't grow unbounded.
+      final capped = shown.toList();
+      if (capped.length > 500) capped.removeRange(0, capped.length - 500);
+      await prefs.setStringList(_shownNotificationIdsKey, capped);
 
       final localNotifications = ref.read(localNotificationsServiceProvider);
       for (final item in newItems) {

@@ -900,8 +900,17 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                             // Teacher-attached files
                             Builder(builder: (context) {
                               final rawAtt = assignment['attachments'];
+                              // De-dupe by url+name: some assignments were saved
+                              // with the same file listed twice, which showed up
+                              // as duplicate pills for the student.
+                              final seen = <String>{};
                               final List<Map<String, dynamic>> pills = rawAtt is List
-                                  ? rawAtt.whereType<Map>().map((a) => Map<String, dynamic>.from(a)).toList()
+                                  ? rawAtt
+                                      .whereType<Map>()
+                                      .map((a) => Map<String, dynamic>.from(a))
+                                      .where((a) => seen.add(
+                                          '${a['url'] ?? ''}|${a['name'] ?? ''}'))
+                                      .toList()
                                   : <Map<String, dynamic>>[];
                               if (pills.isEmpty) return const SizedBox.shrink();
                               return Padding(

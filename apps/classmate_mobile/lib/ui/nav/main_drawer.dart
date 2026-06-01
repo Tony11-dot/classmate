@@ -296,7 +296,6 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/parent/overview'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
-                    navItem(icon: Icons.workspace_premium_rounded, label: l.navPlans, route: '/plans'),
                     sectionHeader(l.sectionSchoolTools),
                     navItem(icon: Icons.how_to_reg_rounded, label: l.navAttendance, route: '/parent/attendance'),
                     navItem(icon: Icons.grade_rounded, label: l.navGrades, route: '/parent/grades'),
@@ -340,7 +339,6 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.event_note_rounded, label: l.navSchedule, route: '/teacher/schedule'),
                     navItem(icon: Icons.groups_rounded, label: l.navClassrooms, route: '/teacher/classrooms'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
-                    navItem(icon: Icons.workspace_premium_rounded, label: l.navPlans, route: '/plans'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     sectionHeader(l.sectionSchoolTools),
@@ -365,7 +363,6 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.auto_awesome_rounded, label: l.navPractice, route: '/practice'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
-                    navItem(icon: Icons.workspace_premium_rounded, label: l.navPlans, route: '/plans'),
                     sectionHeader(l.sectionSchoolTools),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     navItem(icon: Icons.how_to_reg_rounded, label: l.navAttendance, route: '/attendance'),
@@ -387,9 +384,15 @@ class MainDrawer extends ConsumerWidget {
                     label: l.navProfile,
                     route: '/profile',
                   ),
-                  // NOVA Plans now lives directly under the NOVA item in each
-                  // role's CORE section (students / teachers / parents) so it
-                  // reads as part of NOVA. Admins/secretaries never saw it.
+                  // NOVA Plans sits in the Account section (students / teachers
+                  // / parents — the tutor-using roles). Admins/secretaries
+                  // manage a school, not a tutor subscription.
+                  if (!isPureAdmin && !isSecretary)
+                    navItem(
+                      icon: Icons.workspace_premium_rounded,
+                      label: l.navPlans,
+                      route: '/plans',
+                    ),
                   navItem(
                     icon: Icons.settings_rounded,
                     label: l.navSettings,

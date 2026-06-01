@@ -517,7 +517,11 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                           ),
                         ),
                         OutlinedButton.icon(
-                          onPressed: () => context.push('/plans'),
+                          // go (not push): /plans lives in the same ShellRoute,
+                          // so push would keep the shell's location on /tutor —
+                          // pill/bottom-nav/drawer wouldn't update. go re-resolves
+                          // the shell to /plans (NOVA Plans pill, no bottom nav).
+                          onPressed: () => context.go('/plans'),
                           icon: const Icon(Icons.workspace_premium_rounded, size: 16),
                           label: Text(l.tutorYourNovaPlanTitle),
                           style: OutlinedButton.styleFrom(

@@ -1988,7 +1988,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 padding: const EdgeInsets.only(right: 10),
                 child: Center(
                   child: OutlinedButton(
-                    onPressed: () => context.push('/plans'),
+                    // go (not push) so the shell resolves to /plans and shows
+                    // the NOVA Plans pill with no bottom nav.
+                    onPressed: () => context.go('/plans'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
