@@ -177,16 +177,14 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     textTheme: fixedTextTheme,
     primaryTextTheme: fixedPrimaryTextTheme,
     scaffoldBackgroundColor: scheme.surface,
-    // Use the iOS slide-in transition AND swipe-back gesture for every
-    // MaterialPageRoute push on iOS. Without this, Material's default
-    // transition gives iOS users an Android-style fade with no swipe-back
-    // — surprising on a platform where edge-swipe-to-go-back is muscle
-    // memory. Android keeps the platform default.
+    // Pure cross-fade for every route transition (tab switches + pushes),
+    // on all platforms — no horizontal slide. A real page transition fades
+    // the incoming route in over the outgoing one, so there's no white gap.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
-        TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
-        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.iOS:     _FadePageTransitionsBuilder(),
+        TargetPlatform.macOS:   _FadePageTransitionsBuilder(),
+        TargetPlatform.android: _FadePageTransitionsBuilder(),
       },
     ),
     appBarTheme: AppBarTheme(
@@ -252,4 +250,24 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
   );
+}
+
+/// Pure cross-fade page transition (no horizontal slide) used app-wide so
+/// tab switches and pushes fade instead of sliding right-to-left.
+class _FadePageTransitionsBuilder extends PageTransitionsBuilder {
+  const _FadePageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return FadeTransition(
+      opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+      child: child,
+    );
+  }
 }
