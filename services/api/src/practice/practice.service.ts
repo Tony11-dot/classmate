@@ -140,8 +140,13 @@ type PracticeRoutingDecision = {
   hasDeterministicCatalogTopic: boolean;
 };
 
-const PRACTICE_OPENAI_TIMEOUT_MS = 15000;
-const PRACTICE_GENERATE_BUDGET_MS = 30000;
+// Anthropic generation routinely needs more than 15s (a full 10-question set
+// on Haiku takes ~20-40s end-to-end from Railway). The old 15s cap made every
+// request time out → 500 → the client silently fell back to local questions
+// and no tokens were ever charged. 60s per call, 100s total budget across the
+// (cheap-mode) retries — the mobile client waits up to 180s, so this is safe.
+const PRACTICE_OPENAI_TIMEOUT_MS = 60000;
+const PRACTICE_GENERATE_BUDGET_MS = 100000;
 
 
 
@@ -1926,9 +1931,11 @@ export class PracticeService {
       const qs: any = (schema as any)?.properties?.questions;
       if (qs && Number.isFinite(qs.maxItems)) questionCountHint = Number(qs.maxItems);
     } catch {}
+    // Tighter ceiling = faster completion + bounded cost. ~550 output tokens
+    // per question is plenty for an MCQ + short explanation.
     const maxTokens = Math.max(
-      4000,
-      Math.min(16000, 1200 + questionCountHint * 900),
+      1500,
+      Math.min(8000, 600 + questionCountHint * 550),
     );
 
     let res: any;
