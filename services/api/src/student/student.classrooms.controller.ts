@@ -211,6 +211,97 @@ export class StudentClassroomsController {
     return { ok: true, items };
   }
 
+  /// Aggregated meetings across every classroom the student is in PLUS
+  /// any TeacherMeeting whose audience targets them directly (EVERYONE,
+  /// this student, one of their cohorts, or their grade). Mirrors the
+  /// shape of `all-materials` so the mobile feed only needs one call.
+  ///
+  /// MUST be declared before the `:id` route below — otherwise Nest
+  /// matches `/student/classrooms/all-meetings` against `:id` (id =
+  /// "all-meetings") and 404s with "Classroom not found".
+  @Get('all-meetings')
+  async allMeetings(@Req() req: any) {
+    const uid = this.uid(req);
+    const [profile, studentCohorts, memberships] = await Promise.all([
+      this.prisma.studentProfile.findUnique({
+        where: { userId: uid },
+        select: { grade: true, cohortId: true },
+      }),
+      this.prisma.studentCohort.findMany({
+        where: { studentId: uid },
+        select: { cohortId: true },
+      }),
+      this.prisma.classroomMember.findMany({
+        where: { studentId: uid },
+        select: { classroomId: true, classroom: { select: { name: true, subject: true } } },
+      }),
+    ]);
+    const grade = profile?.grade ?? null;
+    // Include BOTH the StudentCohort join-table rows AND the legacy
+    // studentProfile.cohortId scalar. A student whose cohort was only ever
+    // set via the scalar (older enrolment paths) would otherwise have an
+    // empty cohort list here and miss every cohort-targeted meeting.
+    const cohortIds = Array.from(
+      new Set([
+        ...studentCohorts.map((c) => c.cohortId),
+        ...(profile?.cohortId ? [profile.cohortId] : []),
+      ]),
+    );
+    const classroomIds = memberships.map((m) => m.classroomId);
+    const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
+
+    const [classroomMeetings, teacherMeetings] = await Promise.all([
+      classroomIds.length
+        ? this.prisma.classroomMeeting.findMany({
+            where: { classroomId: { in: classroomIds } },
+            orderBy: [{ startsAt: 'asc' }],
+          })
+        : [],
+      this.prisma.teacherMeeting.findMany({
+        where: {
+          OR: [
+            { targetType: 'EVERYONE' },
+            { targetStudentIds: { has: uid } },
+            ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+            ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+          ],
+        },
+        orderBy: [{ startsAt: 'asc' }],
+      }),
+    ]);
+
+    // Dedupe: a TeacherMeeting that already has a ClassroomMeeting mirror
+    // should appear once, not twice. Mirror rows carry teacherMeetingId.
+    const mirroredTeacherIds = new Set(
+      (classroomMeetings as any[])
+        .map((m) => m.teacherMeetingId)
+        .filter((v): v is string => typeof v === 'string' && v.length > 0),
+    );
+
+    const items = [
+      ...classroomMeetings.map((m) => ({
+        ...m,
+        _source: 'classroom',
+        classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
+        classroomSubject: classroomNameMap.get(m.classroomId)?.subject ?? null,
+      })),
+      ...teacherMeetings
+        .filter((tm) => !mirroredTeacherIds.has(tm.id))
+        .map((tm) => ({
+          ...tm,
+          _source: 'teacher',
+          classroomName: null,
+          classroomSubject: tm.subject ?? null,
+        })),
+    ].sort((a, b) => {
+      const da = (a as any).startsAt ? new Date((a as any).startsAt).getTime() : 0;
+      const db = (b as any).startsAt ? new Date((b as any).startsAt).getTime() : 0;
+      return da - db;
+    });
+
+    return { ok: true, items };
+  }
+
   @Get(':id')
   async detail(@Req() req: any, @Param('id') id: string) {
     const cr = await this.assertAccess(req, id);
@@ -551,105 +642,6 @@ export class StudentClassroomsController {
       orderBy: [{ startsAt: 'asc' }],
       select: { id: true, title: true, link: true, startsAt: true, endsAt: true, createdBy: true, createdAt: true, updatedAt: true },
     });
-    return { ok: true, items };
-  }
-
-  /// Aggregated meetings across every classroom the student is in PLUS
-  /// any TeacherMeeting whose audience targets them directly (EVERYONE,
-  /// this student, one of their cohorts, or their grade). Mirrors the
-  /// shape of `all-materials` so the mobile feed only needs one call.
-  @Get('all-meetings')
-  async allMeetings(@Req() req: any) {
-    const uid = this.uid(req);
-    const [profile, studentCohorts, memberships] = await Promise.all([
-      this.prisma.studentProfile.findUnique({
-        where: { userId: uid },
-        select: { grade: true, cohortId: true },
-      }),
-      this.prisma.studentCohort.findMany({
-        where: { studentId: uid },
-        select: { cohortId: true },
-      }),
-      this.prisma.classroomMember.findMany({
-        where: { studentId: uid },
-        select: { classroomId: true, classroom: { select: { name: true, subject: true } } },
-      }),
-    ]);
-    const grade = profile?.grade ?? null;
-    // Include BOTH the StudentCohort join-table rows AND the legacy
-    // studentProfile.cohortId scalar. A student whose cohort was only ever
-    // set via the scalar (older enrolment paths) would otherwise have an
-    // empty cohort list here and miss every cohort-targeted meeting.
-    const cohortIds = Array.from(
-      new Set([
-        ...studentCohorts.map((c) => c.cohortId),
-        ...(profile?.cohortId ? [profile.cohortId] : []),
-      ]),
-    );
-    const classroomIds = memberships.map((m) => m.classroomId);
-    const classroomNameMap = new Map(memberships.map((m) => [m.classroomId, m.classroom]));
-
-    const [classroomMeetings, teacherMeetings] = await Promise.all([
-      classroomIds.length
-        ? this.prisma.classroomMeeting.findMany({
-            where: { classroomId: { in: classroomIds } },
-            orderBy: [{ startsAt: 'asc' }],
-          })
-        : [],
-      this.prisma.teacherMeeting.findMany({
-        where: {
-          OR: [
-            { targetType: 'EVERYONE' },
-            { targetStudentIds: { has: uid } },
-            ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
-            ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
-          ],
-        },
-        orderBy: [{ startsAt: 'asc' }],
-      }),
-    ]);
-
-    // eslint-disable-next-line no-console
-    console.log('[diag.all-meetings]', JSON.stringify({
-      uid,
-      grade,
-      cohortIds,
-      classroomIds,
-      classroomMeetingCount: (classroomMeetings as any[]).length,
-      teacherMeetingMatched: (teacherMeetings as any[]).length,
-      totalTeacherMeetings: await this.prisma.teacherMeeting.count(),
-      everyoneCount: await this.prisma.teacherMeeting.count({ where: { targetType: 'EVERYONE' as any } }),
-    }));
-
-    // Dedupe: a TeacherMeeting that already has a ClassroomMeeting mirror
-    // should appear once, not twice. Mirror rows carry teacherMeetingId.
-    const mirroredTeacherIds = new Set(
-      (classroomMeetings as any[])
-        .map((m) => m.teacherMeetingId)
-        .filter((v): v is string => typeof v === 'string' && v.length > 0),
-    );
-
-    const items = [
-      ...classroomMeetings.map((m) => ({
-        ...m,
-        _source: 'classroom',
-        classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
-        classroomSubject: classroomNameMap.get(m.classroomId)?.subject ?? null,
-      })),
-      ...teacherMeetings
-        .filter((tm) => !mirroredTeacherIds.has(tm.id))
-        .map((tm) => ({
-          ...tm,
-          _source: 'teacher',
-          classroomName: null,
-          classroomSubject: tm.subject ?? null,
-        })),
-    ].sort((a, b) => {
-      const da = (a as any).startsAt ? new Date((a as any).startsAt).getTime() : 0;
-      const db = (b as any).startsAt ? new Date((b as any).startsAt).getTime() : 0;
-      return da - db;
-    });
-
     return { ok: true, items };
   }
 
