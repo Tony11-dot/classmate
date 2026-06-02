@@ -733,7 +733,7 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
 
     if (wide && !widget.hideBottomNav) {
       return Scaffold(
-        appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
+        appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle, showMenuButton: false),
         body: SafeArea(
           child: Row(
             children: [
@@ -1454,9 +1454,12 @@ class _FabAction extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget implements PreferredSizeWidget {
-  const _TopBar({required this.title});
+  const _TopBar({required this.title, this.showMenuButton = true});
 
   final String title;
+  // On wide layouts the full menu is already pinned open as a permanent
+  // sidebar, so the hamburger is redundant — hide it there.
+  final bool showMenuButton;
 
   @override
   Size get preferredSize => const Size.fromHeight(88);
@@ -1470,12 +1473,15 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
       toolbarHeight: 88,
       titleSpacing: 0,
       centerTitle: true,
-      leadingWidth: 52,
+      leadingWidth: showMenuButton ? 52 : 0,
+      automaticallyImplyLeading: false,
       backgroundColor: cs.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: Builder(
+      leading: !showMenuButton
+          ? null
+          : Builder(
         builder: (ctx) => Padding(
           padding: const EdgeInsets.only(left: 4),
           child: IconButton(
