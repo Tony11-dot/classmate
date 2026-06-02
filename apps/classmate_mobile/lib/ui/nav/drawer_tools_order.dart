@@ -87,7 +87,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/secretary/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/announcements', icon: Icons.campaign_rounded, label: l.navAnnouncements),
         DrawerTool(route: '/messages', icon: Icons.chat_bubble_rounded, label: l.navMessages),
-        DrawerTool(route: '/secretary/reports', icon: Icons.flag_outlined, label: l.navReports),
         DrawerTool(route: '/secretary/export', icon: Icons.download_rounded, label: l.navExportData),
       ];
     default: // student

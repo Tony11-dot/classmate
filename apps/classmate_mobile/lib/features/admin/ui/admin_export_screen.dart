@@ -84,7 +84,10 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
       final cohorts = results[1];
       final teachers = results[2];
 
-      final gradeSet = <int>{};
+      // Show the school's FULL grade range (every grade the school covers),
+      // not just grades that currently have students/cohorts. Union with any
+      // cohort grades as a safety net for out-of-range cohorts.
+      final gradeSet = <int>{...ref.read(authSessionProvider).schoolGrades};
       for (final c in cohorts) {
         final gs = c['grades'];
         if (gs is List && gs.isNotEmpty) {

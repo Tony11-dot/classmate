@@ -14252,6 +14252,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reorder the tools in your side menu'**
   String get reorderToolsSettingsSubtitle;
+
+  /// No description provided for @adminSchoolGradeRangesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Set which grades your school covers. Add multiple ranges if some grades are skipped (e.g. 4-6 and 9-12).'**
+  String get adminSchoolGradeRangesDescription;
+
+  /// No description provided for @adminSchoolAddGradeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Add range'**
+  String get adminSchoolAddGradeRange;
 }
 
 class _AppLocalizationsDelegate

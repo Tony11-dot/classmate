@@ -41,6 +41,27 @@ function normalizeGrades(grades: unknown, fallback?: unknown): number[] {
   return Array.from(new Set(cleaned)).sort((a, b) => a - b);
 }
 
+/// Parses "4-6,9-12" (also ";"/space separated, single grades, reversed
+/// bounds) into sorted, merged-free inclusive [lo,hi] tuples.
+function parseGradeRangesServer(raw: string): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (const part of String(raw ?? '').split(/[,;\s]+/)) {
+    const p = part.trim();
+    if (!p) continue;
+    const m = /^(\d+)-(\d+)$/.exec(p);
+    if (m) {
+      let lo = Number(m[1]);
+      let hi = Number(m[2]);
+      if (lo > hi) [lo, hi] = [hi, lo];
+      out.push([lo, hi]);
+    } else {
+      const single = Number(p);
+      if (Number.isFinite(single)) out.push([single, single]);
+    }
+  }
+  return out.sort((a, b) => a[0] - b[0]);
+}
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -1923,7 +1944,24 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const data: any = {};
     if (dto?.name !== undefined) data.name = String(dto.name).trim();
     if (dto?.logoUrl !== undefined) data.logoUrl = dto.logoUrl ? String(dto.logoUrl).trim() : null;
-    if (dto?.minGrade !== undefined || dto?.maxGrade !== undefined) {
+
+    if (dto?.gradeRanges !== undefined) {
+      // Multi-range path, e.g. "4-6,9-12". Normalize, validate, and keep
+      // minGrade/maxGrade synced to the overall bounds for every legacy reader.
+      const ranges = parseGradeRangesServer(String(dto.gradeRanges ?? ''));
+      if (ranges.length === 0) {
+        throw new BadRequestException('Provide at least one grade range, e.g. "4-6,9-12".');
+      }
+      for (const [lo, hi] of ranges) {
+        if (lo < 1 || hi > 20) {
+          throw new BadRequestException(`Invalid grade range ${lo}–${hi}. Grades must be 1..20.`);
+        }
+      }
+      const flat = ranges.map(([lo, hi]) => `${lo}-${hi}`).join(',');
+      data.gradeRanges = flat;
+      data.minGrade = Math.min(...ranges.map((r) => r[0]));
+      data.maxGrade = Math.max(...ranges.map((r) => r[1]));
+    } else if (dto?.minGrade !== undefined || dto?.maxGrade !== undefined) {
       const current = await this.prisma.school.findUnique({ where: { id: schoolId }, select: { minGrade: true, maxGrade: true } as any }) as any;
       const min = dto?.minGrade !== undefined ? Number(dto.minGrade) : current?.minGrade ?? 5;
       const max = dto?.maxGrade !== undefined ? Number(dto.maxGrade) : current?.maxGrade ?? 12;
@@ -1932,6 +1970,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       }
       data.minGrade = min;
       data.maxGrade = max;
+      data.gradeRanges = null; // single contiguous range supersedes any multi-range
     }
 
     const row = await this.prisma.school.update({ where: { id: schoolId }, data });

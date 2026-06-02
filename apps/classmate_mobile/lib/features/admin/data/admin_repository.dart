@@ -243,11 +243,12 @@ class AdminRepository {
   /// passed get sent — omitted fields stay untouched on the server.
   /// `logoUrl == null` means "don't touch the logo"; pass an empty string
   /// to explicitly clear it.
-  Future<AdminSchool> updateMySchool({String? name, String? logoUrl, int? minGrade, int? maxGrade}) async {
+  Future<AdminSchool> updateMySchool({String? name, String? logoUrl, int? minGrade, int? maxGrade, String? gradeRanges}) async {
     final body = <String, dynamic>{
       'name': ?name,
       'minGrade': ?minGrade,
       'maxGrade': ?maxGrade,
+      'gradeRanges': ?gradeRanges,
     };
     if (logoUrl != null) {
       // Caller explicitly asked to touch the logo. Empty string clears.
@@ -704,6 +705,7 @@ class AdminSchool {
     this.logoUrl,
     this.minGrade = 5,
     this.maxGrade = 12,
+    this.gradeRanges = '',
   });
 
   final String id;
@@ -711,6 +713,8 @@ class AdminSchool {
   final String? logoUrl;
   final int minGrade;
   final int maxGrade;
+  /// Multi-range string e.g. "4-6,9-12"; empty = single minGrade..maxGrade.
+  final String gradeRanges;
 
   factory AdminSchool.fromJson(Map<String, dynamic> m) => AdminSchool(
         id: m['id']?.toString() ?? '',
@@ -718,6 +722,7 @@ class AdminSchool {
         logoUrl: m['logoUrl']?.toString(),
         minGrade: (m['minGrade'] as num?)?.toInt() ?? 5,
         maxGrade: (m['maxGrade'] as num?)?.toInt() ?? 12,
+        gradeRanges: m['gradeRanges']?.toString() ?? '',
       );
 }
 

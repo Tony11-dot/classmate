@@ -8063,4 +8063,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get reorderToolsSettingsSubtitle =>
       'إعادة ترتيب الأدوات في القائمة الجانبية';
+
+  @override
+  String get adminSchoolGradeRangesDescription =>
+      'حدّد الصفوف التي تغطيها مدرستك. أضف أكثر من نطاق إذا كانت بعض الصفوف غير موجودة (مثل 4-6 و9-12).';
+
+  @override
+  String get adminSchoolAddGradeRange => 'إضافة نطاق';
 }

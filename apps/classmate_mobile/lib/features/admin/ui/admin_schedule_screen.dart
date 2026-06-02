@@ -327,9 +327,29 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     required int period,
     required List<Map<String, dynamic>> slots,
   }) async {
-    // Secretary mode: tapping a cell does nothing. The grid is purely a
-    // view — no add, no edit, no delete entry points.
-    if (widget.readOnly) return;
+    // Secretary mode: read-only. Tapping a cell with periods still opens the
+    // SAME detail sheet as admin — they can view subjects, teachers and the
+    // student roster — but with no add / edit / delete actions.
+    if (widget.readOnly) {
+      if (slots.isEmpty) return;
+      await showModalBottomSheet<_SquareSheetAction>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (_) => _SquarePeriodsSheet(
+          day: day,
+          period: period,
+          slots: slots,
+          readOnly: true,
+          onDelete: (_) async => false,
+        ),
+      );
+      return;
+    }
     final repo = ref.read(adminRepositoryProvider);
     final action = await showModalBottomSheet<_SquareSheetAction>(
       context: context,
@@ -814,26 +834,6 @@ class _SlotCard extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final subject     = slot['subject']?.toString() ?? '';
     final teacherName = slot['teacher'] is Map ? (slot['teacher']['name']?.toString() ?? '') : '';
-    final cohorts     = slot['cohorts'] as List? ?? [];
-    final cohortRows = cohorts.whereType<Map>().map((c) => Map<String, dynamic>.from(c)).toList();
-    final cohortNames = cohortRows
-        .map((c) => (c['cohort'] is Map ? c['cohort']['name'] : null)?.toString() ?? '')
-        .where((n) => n.isNotEmpty)
-        .toList();
-    // If this slot covers every cohort at some grade, prefer "Grade N" over
-    // listing cohort names — that's what the admin originally chose.
-    final allCohorts = ref.watch(_cohortsDdlProvider).maybeWhen(
-          data: (d) => d,
-          orElse: () => const <Map<String, dynamic>>[],
-        );
-    final gradeForSlot = slotAudienceGrade(slot, allCohorts);
-    final cohortLabel = gradeForSlot != null
-        ? 'Grade $gradeForSlot'
-        : (cohortNames.isEmpty
-            ? ''
-            : cohortNames.length == 1
-                ? cohortNames.first
-                : '${cohortNames.first} +${cohortNames.length - 1}');
     final freq = (slot['frequencyWeeks'] as num?)?.toInt() ?? 1;
 
     // Color resolution: slot.color (per-period override) → subject's color
@@ -869,14 +869,15 @@ class _SlotCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            subject.isNotEmpty ? subject : teacherName.isNotEmpty ? teacherName : 'Period',
+            subject.isNotEmpty ? subject : 'Period',
             style: TextStyle(fontWeight: FontWeight.w800, fontSize: 10, color: fg),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          if (cohortLabel.isNotEmpty)
+          // Secondary line shows the TEACHER (not the cohort).
+          if (teacherName.isNotEmpty)
             Text(
-              cohortLabel,
+              teacherName,
               style: TextStyle(fontSize: 9, color: fg.withValues(alpha: 0.78)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -3235,12 +3236,14 @@ class _SquarePeriodsSheet extends ConsumerStatefulWidget {
     required this.period,
     required this.slots,
     required this.onDelete,
+    this.readOnly = false,
   });
 
   final int day;
   final int period;
   final List<Map<String, dynamic>> slots;
   final Future<bool> Function(String slotId) onDelete;
+  final bool readOnly;
 
   @override
   ConsumerState<_SquarePeriodsSheet> createState() =>
@@ -3324,15 +3327,16 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
-                  FilledButton.icon(
-                    onPressed: () => Navigator.pop(context, const _SquareSheetAction.add()),
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: Text(AppLocalizations.of(context)!.adminScheduleAddPeriod),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      visualDensity: VisualDensity.compact,
+                  if (!widget.readOnly)
+                    FilledButton.icon(
+                      onPressed: () => Navigator.pop(context, const _SquareSheetAction.add()),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: Text(AppLocalizations.of(context)!.adminScheduleAddPeriod),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -3354,11 +3358,14 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
                       itemBuilder: (ctx, i) => _SquareSlotTile(
                         slot: _slots[i],
                         subjectColors: subjectColors,
+                        readOnly: widget.readOnly,
                         onDelete: () => _delete(_slots[i]),
-                        onTap: () => Navigator.pop(
-                          context,
-                          _SquareSheetAction.edit(_slots[i]),
-                        ),
+                        onTap: widget.readOnly
+                            ? () {}
+                            : () => Navigator.pop(
+                                  context,
+                                  _SquareSheetAction.edit(_slots[i]),
+                                ),
                       ),
                     ),
             ),
@@ -3376,12 +3383,14 @@ class _SquareSlotTile extends ConsumerStatefulWidget {
     required this.subjectColors,
     required this.onDelete,
     required this.onTap,
+    this.readOnly = false,
   });
 
   final Map<String, dynamic> slot;
   final Map<String, String> subjectColors;
   final VoidCallback onDelete;
   final VoidCallback onTap;
+  final bool readOnly;
 
   @override
   ConsumerState<_SquareSlotTile> createState() => _SquareSlotTileState();
@@ -3527,7 +3536,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        onTap: widget.onTap,
+        onTap: widget.readOnly ? null : widget.onTap,
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
           decoration: BoxDecoration(
@@ -3654,12 +3663,13 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                   ],
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.delete_outline_rounded, color: cs.error),
-                tooltip: AppLocalizations.of(context)!.tooltipDeletePeriod,
-                onPressed: widget.onDelete,
-                visualDensity: VisualDensity.compact,
-              ),
+              if (!widget.readOnly)
+                IconButton(
+                  icon: Icon(Icons.delete_outline_rounded, color: cs.error),
+                  tooltip: AppLocalizations.of(context)!.tooltipDeletePeriod,
+                  onPressed: widget.onDelete,
+                  visualDensity: VisualDensity.compact,
+                ),
             ],
           ),
         ),

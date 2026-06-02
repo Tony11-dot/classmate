@@ -3809,5 +3809,7 @@
   "reorderToolsSubtitle": "Drag to reorder your School Tools. The Core and Account sections stay put.",
   "reorderToolsReset": "Reset",
   "reorderToolsSettingsSection": "Menu",
-  "reorderToolsSettingsSubtitle": "Reorder the tools in your side menu"
+  "reorderToolsSettingsSubtitle": "Reorder the tools in your side menu",
+  "adminSchoolGradeRangesDescription": "Set which grades your school covers. Add multiple ranges if some grades are skipped (e.g. 4-6 and 9-12).",
+  "adminSchoolAddGradeRange": "Add range"
 }

@@ -8089,4 +8089,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get reorderToolsSettingsSubtitle =>
       'Изменить порядок инструментов в боковом меню';
+
+  @override
+  String get adminSchoolGradeRangesDescription =>
+      'Укажите, какие классы есть в школе. Добавьте несколько диапазонов, если некоторые классы отсутствуют (например, 4-6 и 9-12).';
+
+  @override
+  String get adminSchoolAddGradeRange => 'Добавить диапазон';
 }

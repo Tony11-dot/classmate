@@ -8028,4 +8028,11 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get reorderToolsSettingsSubtitle => 'סידור הכלים בתפריט הצד';
+
+  @override
+  String get adminSchoolGradeRangesDescription =>
+      'הגדירו אילו כיתות קיימות בבית הספר. הוסיפו מספר טווחים אם מדלגים על כיתות (למשל 4-6 ו-9-12).';
+
+  @override
+  String get adminSchoolAddGradeRange => 'הוספת טווח';
 }

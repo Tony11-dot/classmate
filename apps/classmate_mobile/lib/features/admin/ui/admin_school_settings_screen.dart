@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/auth/auth_session.dart' show parseGradeRanges;
 import '../../../core/config/env.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../data/admin_repository.dart';
@@ -95,9 +96,9 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
   // School logo stored as a URL (from server) — updated after upload
   String? _logoUrl;
 
-  // Grade range (admin-editable)
-  int _minGrade = 5;
-  int _maxGrade = 12;
+  // Grade ranges (admin-editable). Each entry is [lo, hi]. Most schools have
+  // one contiguous range; some skip grades (e.g. 4-6 and 9-12).
+  List<List<int>> _ranges = <List<int>>[[5, 12]];
 
   @override
   void dispose() {
@@ -162,6 +163,27 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     }
   }
 
+  /// Clamps each range to 1..20 with lo ≤ hi, drops nothing, sorts by start,
+  /// and guarantees at least one range.
+  List<List<int>> _normalizedRanges() {
+    final out = <List<int>>[];
+    for (final r in _ranges) {
+      var lo = r[0];
+      var hi = r[1];
+      if (lo > hi) {
+        final t = lo;
+        lo = hi;
+        hi = t;
+      }
+      lo = lo.clamp(1, 20);
+      hi = hi.clamp(1, 20);
+      out.add([lo, hi]);
+    }
+    if (out.isEmpty) out.add([5, 12]);
+    out.sort((a, b) => a[0] - b[0]);
+    return out;
+  }
+
   Future<void> _save() async {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
@@ -171,10 +193,13 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
       // already persist the logo immediately on user action; including it
       // again here would wipe the logo any time _logoUrl was momentarily
       // null (e.g. on first frame before the postFrame hydrate).
+      final normalized = _normalizedRanges();
+      final rangesStr = normalized.map((r) => '${r[0]}-${r[1]}').join(',');
+      final overallMin = normalized.map((r) => r[0]).reduce((a, b) => a < b ? a : b);
+      final overallMax = normalized.map((r) => r[1]).reduce((a, b) => a > b ? a : b);
       await ref.read(adminRepositoryProvider).updateMySchool(
         name: name,
-        minGrade: _minGrade,
-        maxGrade: _maxGrade,
+        gradeRanges: rangesStr,
       );
       final session = ref.read(authSessionProvider);
       await session.setSchoolName(name);
@@ -188,7 +213,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
       if (localLogo.isNotEmpty) {
         await session.setSchoolLogoUrl(localLogo);
       }
-      session.setSchoolGradeRange(_minGrade, _maxGrade);
+      session.setSchoolGradeRange(overallMin, overallMax, ranges: rangesStr);
       // Don't invalidate + reset _initialized — that briefly drops the
       // textbox into a loading spinner before the new data lands, which
       // looked like nothing had saved. We already have the canonical
@@ -224,8 +249,10 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
             if (!mounted) return;
             _nameCtrl.text = school.name;
             _logoUrl = school.logoUrl;
-            _minGrade = school.minGrade;
-            _maxGrade = school.maxGrade;
+            final parsed = parseGradeRanges(school.gradeRanges);
+            _ranges = parsed.isNotEmpty
+                ? parsed.map((r) => <int>[r.$1, r.$2]).toList()
+                : <List<int>>[[school.minGrade, school.maxGrade]];
             setState(() {});
           });
         }
@@ -352,34 +379,57 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                   _FieldLabel(label: l.adminSchoolGradeRangeLabel),
                   const SizedBox(height: 4),
                   Text(
-                    l.adminSchoolGradeRangeDescription,
+                    l.adminSchoolGradeRangesDescription,
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _GradeStepper(
-                          label: l.adminSchoolLowestGrade,
-                          value: _minGrade,
-                          onChanged: (v) {
-                            if (v < 1 || v > _maxGrade) return;
-                            setState(() { _minGrade = v; _dirty = true; });
-                          },
+                  for (int i = 0; i < _ranges.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _GradeStepper(
+                            label: l.adminSchoolLowestGrade,
+                            value: _ranges[i][0],
+                            onChanged: (v) {
+                              if (v < 1 || v > 20) return;
+                              setState(() { _ranges[i][0] = v; _dirty = true; });
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _GradeStepper(
-                          label: l.adminSchoolHighestGrade,
-                          value: _maxGrade,
-                          onChanged: (v) {
-                            if (v < _minGrade || v > 20) return;
-                            setState(() { _maxGrade = v; _dirty = true; });
-                          },
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _GradeStepper(
+                            label: l.adminSchoolHighestGrade,
+                            value: _ranges[i][1],
+                            onChanged: (v) {
+                              if (v < 1 || v > 20) return;
+                              setState(() { _ranges[i][1] = v; _dirty = true; });
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                        IconButton(
+                          icon: Icon(Icons.close_rounded, color: cs.error),
+                          tooltip: l.commonDelete,
+                          onPressed: _ranges.length <= 1
+                              ? null
+                              : () => setState(() { _ranges.removeAt(i); _dirty = true; }),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      onPressed: () => setState(() {
+                        final lastHi = _ranges.isNotEmpty ? _ranges.last[1] : 5;
+                        _ranges.add([lastHi, lastHi]);
+                        _dirty = true;
+                      }),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: Text(l.adminSchoolAddGradeRange),
+                    ),
                   ),
                 ],
               ),

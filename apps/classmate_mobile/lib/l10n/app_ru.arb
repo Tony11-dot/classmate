@@ -3357,5 +3357,7 @@
   "reorderToolsSubtitle": "Перетаскивайте, чтобы изменить порядок раздела School Tools. Разделы Core и Account остаются на месте.",
   "reorderToolsReset": "Сброс",
   "reorderToolsSettingsSection": "Меню",
-  "reorderToolsSettingsSubtitle": "Изменить порядок инструментов в боковом меню"
+  "reorderToolsSettingsSubtitle": "Изменить порядок инструментов в боковом меню",
+  "adminSchoolGradeRangesDescription": "Укажите, какие классы есть в школе. Добавьте несколько диапазонов, если некоторые классы отсутствуют (например, 4-6 и 9-12).",
+  "adminSchoolAddGradeRange": "Добавить диапазон"
 }

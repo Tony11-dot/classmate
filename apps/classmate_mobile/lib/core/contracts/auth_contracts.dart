@@ -11,6 +11,7 @@ class AuthMe {
     required this.schoolLogoUrl,
     this.schoolMinGrade,
     this.schoolMaxGrade,
+    this.schoolGradeRanges,
   });
 
   final String? id;
@@ -27,6 +28,8 @@ class AuthMe {
   final String? schoolLogoUrl;
   final int? schoolMinGrade;
   final int? schoolMaxGrade;
+  /// Multi-range grade string, e.g. "4-6,9-12". Null/empty = single min..max.
+  final String? schoolGradeRanges;
 
   static AuthMe fromJson(Map<String, dynamic> j) {
     final roles0 =
@@ -44,6 +47,7 @@ class AuthMe {
       schoolLogoUrl: j['schoolLogoUrl']?.toString(),
       schoolMinGrade: (j['schoolMinGrade'] as num?)?.toInt(),
       schoolMaxGrade: (j['schoolMaxGrade'] as num?)?.toInt(),
+      schoolGradeRanges: j['schoolGradeRanges']?.toString(),
     );
   }
 }

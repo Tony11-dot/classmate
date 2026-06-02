@@ -3150,5 +3150,7 @@
   "reorderToolsSubtitle": "اسحب لإعادة ترتيب أدوات المدرسة. يبقى القسم الأساسي والحساب في مكانهما.",
   "reorderToolsReset": "إعادة تعيين",
   "reorderToolsSettingsSection": "القائمة",
-  "reorderToolsSettingsSubtitle": "إعادة ترتيب الأدوات في القائمة الجانبية"
+  "reorderToolsSettingsSubtitle": "إعادة ترتيب الأدوات في القائمة الجانبية",
+  "adminSchoolGradeRangesDescription": "حدّد الصفوف التي تغطيها مدرستك. أضف أكثر من نطاق إذا كانت بعض الصفوف غير موجودة (مثل 4-6 و9-12).",
+  "adminSchoolAddGradeRange": "إضافة نطاق"
 }

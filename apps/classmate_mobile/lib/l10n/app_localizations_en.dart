@@ -8110,4 +8110,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reorderToolsSettingsSubtitle =>
       'Reorder the tools in your side menu';
+
+  @override
+  String get adminSchoolGradeRangesDescription =>
+      'Set which grades your school covers. Add multiple ranges if some grades are skipped (e.g. 4-6 and 9-12).';
+
+  @override
+  String get adminSchoolAddGradeRange => 'Add range';
 }

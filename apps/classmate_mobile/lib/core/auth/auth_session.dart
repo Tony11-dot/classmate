@@ -47,6 +47,7 @@ class AuthSession extends ChangeNotifier {
   String? _schoolLogoUrl;
   int? _schoolMinGrade;
   int? _schoolMaxGrade;
+  String? _schoolGradeRanges;
   String? _nameEn;
   String? _nameAr;
   String? _nameHe;
@@ -138,7 +139,22 @@ class AuthSession extends ChangeNotifier {
   String get schoolLogoUrl => (_schoolLogoUrl ?? '').trim();
   int get schoolMinGrade => _schoolMinGrade ?? 5;
   int get schoolMaxGrade => _schoolMaxGrade ?? 12;
+  /// Raw multi-range string, e.g. "4-6,9-12". Empty/null = single min..max range.
+  String get schoolGradeRanges => _schoolGradeRanges ?? '';
+  /// Every grade the school covers. Supports MULTIPLE ranges (e.g. 4-6 and
+  /// 9-12 when 7-8 don't exist). Falls back to the single min..max range.
   List<int> get schoolGrades {
+    final ranges = parseGradeRanges(_schoolGradeRanges ?? '');
+    if (ranges.isNotEmpty) {
+      final set = <int>{};
+      for (final r in ranges) {
+        for (int g = r.$1; g <= r.$2; g++) {
+          set.add(g);
+        }
+      }
+      final list = set.toList()..sort();
+      return list;
+    }
     final lo = schoolMinGrade;
     final hi = schoolMaxGrade;
     if (hi < lo) return const <int>[];
@@ -416,10 +432,14 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSchoolGradeRange(int? min, int? max) {
-    final changed = _schoolMinGrade != min || _schoolMaxGrade != max;
+  void setSchoolGradeRange(int? min, int? max, {String? ranges}) {
+    final normalizedRanges = (ranges ?? '').trim();
+    final changed = _schoolMinGrade != min ||
+        _schoolMaxGrade != max ||
+        (_schoolGradeRanges ?? '') != normalizedRanges;
     _schoolMinGrade = min;
     _schoolMaxGrade = max;
+    _schoolGradeRanges = normalizedRanges.isEmpty ? null : normalizedRanges;
     if (changed) notifyListeners();
   }
 
@@ -538,7 +558,7 @@ class AuthSession extends ChangeNotifier {
       if (serverLogo.isNotEmpty || (_schoolLogoUrl ?? '').trim().isEmpty) {
         await setSchoolLogoUrl(me.schoolLogoUrl);
       }
-      setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade);
+      setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade, ranges: me.schoolGradeRanges);
       // Cohort display name
       final cn = (raw['cohortName'] ?? '').toString().trim();
       if (cn.isNotEmpty) {
@@ -663,3 +683,31 @@ final authSessionProvider = Provider<AuthSession>((ref) {
   ref.onDispose(s.dispose);
   return s;
 });
+
+/// Parses a multi-range grade string like "4-6,9-12" (also accepts ";" or
+/// space separators, single grades like "5", and reversed bounds) into a list
+/// of inclusive (lo, hi) ranges. Returns empty for blank input.
+List<(int, int)> parseGradeRanges(String raw) {
+  final s = raw.trim();
+  if (s.isEmpty) return const <(int, int)>[];
+  final out = <(int, int)>[];
+  for (final part in s.split(RegExp(r'[,;\s]+'))) {
+    final p = part.trim();
+    if (p.isEmpty) continue;
+    final m = RegExp(r'^(\d+)-(\d+)$').firstMatch(p);
+    if (m != null) {
+      var lo = int.parse(m.group(1)!);
+      var hi = int.parse(m.group(2)!);
+      if (lo > hi) {
+        final t = lo;
+        lo = hi;
+        hi = t;
+      }
+      out.add((lo, hi));
+    } else {
+      final single = int.tryParse(p);
+      if (single != null) out.add((single, single));
+    }
+  }
+  return out;
+}

@@ -38,6 +38,11 @@ model School {
   logoUrl           String?
   minGrade          Int      @default(5)
   maxGrade          Int      @default(12)
+  /// Optional multi-range grade coverage, e.g. "4-6,9-12" when a school skips
+  /// grades 7-8. Empty/null means the single contiguous minGrade..maxGrade.
+  /// minGrade/maxGrade are always kept in sync with the overall min/max so all
+  /// existing consumers keep working.
+  gradeRanges       String?
   /// Year of the most recent Sept-1 grade bump that succeeded for this
   /// school.  The bump runs at most once per year per school and is idempotent
   /// — see GradeBumpService.

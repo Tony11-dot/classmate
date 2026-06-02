@@ -8224,4 +8224,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get reorderToolsSettingsSubtitle =>
       'Réorganiser les outils du menu latéral';
+
+  @override
+  String get adminSchoolGradeRangesDescription =>
+      'Définissez les niveaux couverts par votre école. Ajoutez plusieurs plages si certains niveaux sont absents (ex. 4-6 et 9-12).';
+
+  @override
+  String get adminSchoolAddGradeRange => 'Ajouter une plage';
 }

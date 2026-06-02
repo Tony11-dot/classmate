@@ -3150,5 +3150,7 @@
   "reorderToolsSubtitle": "Faites glisser pour réorganiser vos outils scolaires. Les sections principale et compte restent en place.",
   "reorderToolsReset": "Réinitialiser",
   "reorderToolsSettingsSection": "Menu",
-  "reorderToolsSettingsSubtitle": "Réorganiser les outils du menu latéral"
+  "reorderToolsSettingsSubtitle": "Réorganiser les outils du menu latéral",
+  "adminSchoolGradeRangesDescription": "Définissez les niveaux couverts par votre école. Ajoutez plusieurs plages si certains niveaux sont absents (ex. 4-6 et 9-12).",
+  "adminSchoolAddGradeRange": "Ajouter une plage"
 }
