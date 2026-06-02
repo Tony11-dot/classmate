@@ -143,6 +143,7 @@ class LocalNotificationsService {
       'attendance' || 'attendance_marked' => '/attendance',
       'practice' || 'practice_completed' => '/practice',
       'solutions' || 'solution' => '/solutions',
+      'solution_report' || 'solution_reported' || 'reported_solution' => '/admin/solution-reports',
       'messages' || 'chat' || 'message' || 'new_message' || 'dm' || 'dm_message' => '/messages',
       'classrooms' || 'classroom' || 'classroom_message' => '/classrooms',
       'form' || 'forms' || 'new_form' =>
