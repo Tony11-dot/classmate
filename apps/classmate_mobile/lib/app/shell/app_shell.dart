@@ -747,12 +747,10 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
               Expanded(
                 child: Center(
                   child: ConstrainedBox(
-                    // Cap the main column at a comfortable reading width so
-                    // screens designed for phones don't stretch across a
-                    // 27" monitor. Instagram/Twitter web use the same
-                    // pattern. Per-screen layouts can opt into wider
-                    // multi-column views by checking MediaQuery themselves.
-                    constraints: const BoxConstraints(maxWidth: 820),
+                    // Fill most of the window next to the sidebar (no big empty
+                    // gutters) while still capping width so phone-first screens
+                    // don't stretch across a 27" monitor.
+                    constraints: const BoxConstraints(maxWidth: 1100),
                     child: body,
                   ),
                 ),
@@ -847,10 +845,11 @@ class _DesktopNavRail extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final width = MediaQuery.sizeOf(context).width;
-    // 1200+ uses a full label-bearing rail (240px). Between 900 and 1200
-    // we stay compact (icon-only, 76px) so content has room to breathe.
-    final extended = width >= 1200;
-    final railWidth = extended ? 240.0 : 76.0;
+    // On any desktop-width viewport (>=900) show a full label-bearing rail —
+    // a persistent "menu always open" sidebar, which feels far more native on
+    // PC / laptop / iPad than an icon-only strip.
+    final extended = width >= 900;
+    final railWidth = extended ? 248.0 : 76.0;
 
     return Container(
       width: railWidth,
