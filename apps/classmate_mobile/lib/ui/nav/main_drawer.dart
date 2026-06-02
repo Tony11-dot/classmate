@@ -11,11 +11,17 @@ import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
 import 'package:classmate_mobile/ui/nav/drawer_tools_order.dart';
 
 class MainDrawer extends ConsumerWidget {
-  const MainDrawer({super.key});
+  const MainDrawer({super.key, this.permanent = false});
+
+  /// When true, render as a permanent left panel (desktop/web) instead of a
+  /// slide-out Drawer — no rounded edge, no close button, and tapping an item
+  /// navigates without popping a route.
+  final bool permanent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    void closeDrawer() { if (!permanent) Navigator.of(context).pop(); }
     final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final isTeacherLike = session.isTeacherLike;
@@ -98,7 +104,7 @@ class MainDrawer extends ConsumerWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: () {
-              Navigator.of(context).pop();
+              closeDrawer();
               context.go(route);
             },
             child: Padding(
@@ -152,14 +158,7 @@ class MainDrawer extends ConsumerWidget {
 
     // ── build ─────────────────────────────────────────────────────────────
 
-    return Drawer(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-      ),
-      child: SafeArea(
+    final inner = SafeArea(
         child: Column(
           children: [
             // ── School branding ─────────────────────────────────────────
@@ -277,18 +276,19 @@ class MainDrawer extends ConsumerWidget {
                   // Close button — always shows the CM mark. The school logo
                   // already appears in the dedicated branding row above, so
                   // mirroring it here just doubled the visual noise.
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(14),
+                  if (!permanent)
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Center(child: ClassMateIcon(size: 32)),
                       ),
-                      child: const Center(child: ClassMateIcon(size: 32)),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -389,7 +389,7 @@ class MainDrawer extends ConsumerWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () async {
-                          Navigator.of(context).pop();
+                          closeDrawer();
                           await ref.read(authControllerProvider).logout(context);
                         },
                         child: Padding(
@@ -433,8 +433,19 @@ class MainDrawer extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+
+    return permanent
+        ? Material(color: cs.surface, child: SizedBox(width: 290, child: inner))
+        : Drawer(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(28),
+                bottomRight: Radius.circular(28),
+              ),
+            ),
+            child: inner,
+          );
   }
 }
 

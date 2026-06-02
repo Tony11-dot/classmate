@@ -3173,5 +3173,7 @@
   "adminSchoolSemestersLabel": "סמסטרים",
   "adminSchoolSemestersDescription": "חלקו את שנת הלימודים לסמסטרים לפי חודשים. ציונים, מבחנים, מפגשים ועוד מקובצים לפי סמסטר אוטומטית.",
   "adminSchoolSemesterN": "סמסטר {n}",
-  "adminSchoolAddSemester": "הוספת סמסטר"
+  "adminSchoolAddSemester": "הוספת סמסטר",
+  "semesterStarts": "מתחיל",
+  "semesterEnds": "מסתיים"
 }

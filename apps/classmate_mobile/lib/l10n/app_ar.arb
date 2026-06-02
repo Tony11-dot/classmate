@@ -3173,5 +3173,7 @@
   "adminSchoolSemestersLabel": "الفصول الدراسية",
   "adminSchoolSemestersDescription": "قسّم السنة الدراسية إلى فصول حسب الأشهر. تُجمَّع العلامات والامتحانات واللقاءات وغيرها حسب الفصل تلقائيًا.",
   "adminSchoolSemesterN": "الفصل {n}",
-  "adminSchoolAddSemester": "إضافة فصل"
+  "adminSchoolAddSemester": "إضافة فصل",
+  "semesterStarts": "يبدأ",
+  "semesterEnds": "ينتهي"
 }

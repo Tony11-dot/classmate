@@ -8,6 +8,7 @@ import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/auth/auth_session.dart' show parseGradeRanges;
 import '../../../core/semester/school_semester.dart' show parseSchoolSemesters;
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import 'package:intl/intl.dart';
 import '../../../core/config/env.dart';
 import '../../../core/contracts/school_subject.dart';
@@ -188,22 +189,19 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     return out;
   }
 
-  Widget _monthDropdown(BuildContext context, int value, ValueChanged<int> onChanged) {
+  Widget _monthDropdown(BuildContext context, String label, int value, ValueChanged<int> onChanged) {
     final loc = Localizations.localeOf(context).toString();
     String monthName(int m) => DateFormat.MMMM(loc).format(DateTime(2020, m, 1));
-    return DropdownButtonFormField<int>(
-      initialValue: value.clamp(1, 12),
-      isExpanded: true,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        isDense: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      ),
+    final v = value.clamp(1, 12);
+    return LiquidGlassDropdown<int>(
+      label: label,
+      value: v,
       items: [
         for (int m = 1; m <= 12; m++)
-          DropdownMenuItem(value: m, child: Text(monthName(m), overflow: TextOverflow.ellipsis)),
+          LiquidGlassDropdownItem<int>(value: m, label: monthName(m), icon: Icons.calendar_month_rounded),
       ],
-      onChanged: (v) { if (v != null) onChanged(v); },
+      onChanged: onChanged,
+      searchHint: monthName(v),
     );
   }
 
@@ -498,9 +496,9 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Expanded(child: _monthDropdown(context, _semesters[i][0], (m) => setState(() { _semesters[i][0] = m; _dirty = true; }))),
+                        Expanded(child: _monthDropdown(context, l.semesterStarts, _semesters[i][0], (m) => setState(() { _semesters[i][0] = m; _dirty = true; }))),
                         const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward_rounded, size: 18)),
-                        Expanded(child: _monthDropdown(context, _semesters[i][1], (m) => setState(() { _semesters[i][1] = m; _dirty = true; }))),
+                        Expanded(child: _monthDropdown(context, l.semesterEnds, _semesters[i][1], (m) => setState(() { _semesters[i][1] = m; _dirty = true; }))),
                       ],
                     ),
                   ],

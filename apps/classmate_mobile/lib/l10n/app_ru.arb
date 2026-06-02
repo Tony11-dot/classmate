@@ -3380,5 +3380,7 @@
   "adminSchoolSemestersLabel": "Семестры",
   "adminSchoolSemestersDescription": "Разделите учебный год на семестры по месяцам. Оценки, экзамены, встречи и прочее группируются по семестрам автоматически.",
   "adminSchoolSemesterN": "Семестр {n}",
-  "adminSchoolAddSemester": "Добавить семестр"
+  "adminSchoolAddSemester": "Добавить семестр",
+  "semesterStarts": "Начало",
+  "semesterEnds": "Конец"
 }

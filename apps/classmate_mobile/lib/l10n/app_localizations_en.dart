@@ -8193,4 +8193,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminSchoolAddSemester => 'Add semester';
+
+  @override
+  String get semesterStarts => 'Starts';
+
+  @override
+  String get semesterEnds => 'Ends';
 }

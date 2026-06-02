@@ -3797,5 +3797,7 @@
   "adminSchoolSemestersLabel": "‹‹Semesters››",
   "adminSchoolSemestersDescription": "‹‹Split the school year into semesters by month. Grades, exams, meetings and more are grouped by semester automatically.››",
   "adminSchoolSemesterN": "‹‹Semester {n}››",
-  "adminSchoolAddSemester": "‹‹Add semester››"
+  "adminSchoolAddSemester": "‹‹Add semester››",
+  "semesterStarts": "‹‹Starts››",
+  "semesterEnds": "‹‹Ends››"
 }

@@ -39,8 +39,8 @@ img { display: block; max-width: 100%; }
 ::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); }
 
 /* ── Logo swap ── */
-.brand-logo { height: 30px; width: auto; display: block; }
-.footer-brand .brand-logo { height: 34px; }
+.brand-logo { height: 42px; width: auto; display: block; }
+.footer-brand .brand-logo { height: 48px; }
 .dark-only { display: none; }
 [data-theme="dark"] .light-only { display: none; }
 [data-theme="dark"] .dark-only { display: block; }

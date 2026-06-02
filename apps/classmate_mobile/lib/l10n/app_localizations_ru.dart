@@ -8172,4 +8172,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminSchoolAddSemester => 'Добавить семестр';
+
+  @override
+  String get semesterStarts => 'Начало';
+
+  @override
+  String get semesterEnds => 'Конец';
 }

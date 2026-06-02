@@ -5,7 +5,9 @@ import '../../core/realtime/realtime_listener.dart';
 import '../../l10n/app_localizations.dart';
 import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
+import '../../core/semester/school_semester.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 
 class GradesScreen extends ConsumerStatefulWidget {
   const GradesScreen({super.key});
@@ -16,6 +18,7 @@ class GradesScreen extends ConsumerStatefulWidget {
 
 class _GradesScreenState extends ConsumerState<GradesScreen> {
   final Set<String> _expanded = {};
+  bool _showingPrevious = false;
 
   DateTime? _parseDate(String? raw) {
     final value = (raw ?? '').trim();
@@ -131,14 +134,19 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
         data: (data) {
           final raw = data?.grades.latest ?? const <UnifiedGradeInsight>[];
           final all = _sorted(raw);
+          // Semester split (by grade date) — pills only show when the school
+          // configured semesters.
+          final semWindow = ref.watch(currentSemesterWindowProvider);
+          final semParts = partitionBySemester<UnifiedGradeInsight>(all, (g) => _parseDate(g.date), semWindow);
+          final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
 
           final bySubject = <String, List<UnifiedGradeInsight>>{};
-          for (final item in all) {
+          for (final item in visible) {
             bySubject.putIfAbsent(_subjectLabel(context, item), () => []).add(item);
           }
 
           final subjects = bySubject.keys.toList()..sort();
-          final overallAvg = _average(all);
+          final overallAvg = _average(visible);
 
           String? bestSubject;
           String? weakestSubject;
@@ -157,8 +165,13 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _buildHero(context, overallAvg, bestSubject, weakestSubject),
-                const SizedBox(height: 20),
-                if (all.isEmpty)
+                const SizedBox(height: 12),
+                SemesterFilterBar(
+                  visible: semWindow != null,
+                  showingPrevious: _showingPrevious,
+                  onChanged: (v) => setState(() => _showingPrevious = v),
+                ),
+                if (visible.isEmpty)
                   _EmptyCard(title: l.gradesEmptyTitle, subtitle: l.gradesEmptySubtitle)
                 else
                   ...subjects.map((subject) {

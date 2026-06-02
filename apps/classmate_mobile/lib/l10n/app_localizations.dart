@@ -14390,6 +14390,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add semester'**
   String get adminSchoolAddSemester;
+
+  /// No description provided for @semesterStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get semesterStarts;
+
+  /// No description provided for @semesterEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get semesterEnds;
 }
 
 class _AppLocalizationsDelegate

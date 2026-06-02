@@ -8308,4 +8308,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminSchoolAddSemester => 'Ajouter un semestre';
+
+  @override
+  String get semesterStarts => 'Début';
+
+  @override
+  String get semesterEnds => 'Fin';
 }

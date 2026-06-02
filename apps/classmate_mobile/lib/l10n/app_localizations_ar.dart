@@ -8143,4 +8143,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSchoolAddSemester => 'إضافة فصل';
+
+  @override
+  String get semesterStarts => 'يبدأ';
+
+  @override
+  String get semesterEnds => 'ينتهي';
 }

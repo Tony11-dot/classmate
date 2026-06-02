@@ -734,15 +734,12 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
     if (wide && !widget.hideBottomNav) {
       return Scaffold(
         appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
-        drawer: widget.hideTopBar ? null : const MainDrawer(),
         body: SafeArea(
           child: Row(
             children: [
-              _DesktopNavRail(
-                items: navItems,
-                index: widget.idx,
-                onTap: widget.onTap,
-              ),
+              // The full menu, pinned open as a permanent sidebar (no core-tab
+              // rail, no hamburger) — feels native on PC / laptop / iPad.
+              const MainDrawer(permanent: true),
               const VerticalDivider(width: 1, thickness: 1),
               Expanded(
                 child: Center(

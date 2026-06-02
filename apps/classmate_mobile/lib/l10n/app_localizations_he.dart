@@ -8110,4 +8110,10 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSchoolAddSemester => 'הוספת סמסטר';
+
+  @override
+  String get semesterStarts => 'מתחיל';
+
+  @override
+  String get semesterEnds => 'מסתיים';
 }
