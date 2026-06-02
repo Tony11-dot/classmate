@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="scroll-progress" id="scrollProgress"></div>
   <!-- NAV -->
   <header class="nav" id="nav">
     <a class="brand" href="#top" aria-label="ClassMate home">
@@ -144,18 +145,34 @@
     </div>
   </section>
 
-  <!-- SCREENS GALLERY -->
-  <section class="section" id="screens">
+  <!-- SHOWCASE — sticky phone that morphs its screen as you scroll -->
+  <section class="section showcase" id="screens">
     <div class="section-head reveal">
       <h2>Beautiful on every screen</h2>
-      <p>Phone, tablet, laptop — wherever you are.</p>
+      <p>Scroll — watch it come to life.</p>
     </div>
-    <div class="screens-row reveal">
-      <div class="phone"><div class="phone-screen ph" data-shot="shot-schedule"><span class="ph-label">Schedule<br /><small>shot-schedule-light.png</small></span></div></div>
-      <div class="phone"><div class="phone-screen ph" data-shot="shot-classroom"><span class="ph-label">Classroom<br /><small>shot-classroom-light.png</small></span></div></div>
-      <div class="phone"><div class="phone-screen ph" data-shot="shot-solutions"><span class="ph-label">Solutions<br /><small>shot-solutions-light.png</small></span></div></div>
-      <div class="phone"><div class="phone-screen ph" data-shot="shot-grades"><span class="ph-label">Grades<br /><small>shot-grades-light.png</small></span></div></div>
-      <div class="phone"><div class="phone-screen ph" data-shot="shot-practice"><span class="ph-label">Practice<br /><small>shot-practice-light.png</small></span></div></div>
+    <div class="showcase-inner">
+      <div class="showcase-sticky">
+        <div class="phone phone-showcase">
+          <div class="phone-notch"></div>
+          <div class="showcase-screens">
+            <img class="showcase-shot is-active" data-step="0" src="assets/shot-nova-light.png" alt="NOVA" />
+            <img class="showcase-shot" data-step="1" src="assets/shot-schedule-light.png" alt="Schedule" />
+            <img class="showcase-shot" data-step="2" src="assets/shot-classroom-light.png" alt="Classroom" />
+            <img class="showcase-shot" data-step="3" src="assets/shot-solutions-light.png" alt="Solutions" />
+            <img class="showcase-shot" data-step="4" src="assets/shot-grades-light.png" alt="Grades" />
+            <img class="showcase-shot" data-step="5" src="assets/shot-practice-light.png" alt="Practice" />
+          </div>
+        </div>
+      </div>
+      <div class="showcase-steps">
+        <div class="showcase-step" data-step="0"><span class="step-kicker">AI tutor</span><h3>Ask NOVA anything</h3><p>Step-by-step help with real math &amp; code rendering, in your language.</p></div>
+        <div class="showcase-step" data-step="1"><span class="step-kicker">Schedule</span><h3>Your whole day, at a glance</h3><p>Every period, time and teacher — tap a class for students &amp; materials.</p></div>
+        <div class="showcase-step" data-step="2"><span class="step-kicker">Classrooms</span><h3>Everything in one place</h3><p>Announcements, assignments, materials and real-time chat per class.</p></div>
+        <div class="showcase-step" data-step="3"><span class="step-kicker">Solutions</span><h3>A library of worked answers</h3><p>Searchable solutions by subject &amp; book — shared across schools.</p></div>
+        <div class="showcase-step" data-step="4"><span class="step-kicker">Grades</span><h3>Track every result</h3><p>Grades, attendance and progress in clean dashboards.</p></div>
+        <div class="showcase-step" data-step="5"><span class="step-kicker">Practice</span><h3>Adaptive practice &amp; Bagrut prep</h3><p>Questions that adjust to each student.</p></div>
+      </div>
     </div>
   </section>
 

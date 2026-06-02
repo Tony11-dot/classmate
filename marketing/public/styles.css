@@ -215,3 +215,41 @@ img { display: block; max-width: 100%; }
   .role-panel ul { grid-template-columns: 1fr; }
   .nav-cta .btn { display: none; }
 }
+
+/* ── Scroll progress bar ── */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2), var(--primary-3));
+  transform: scaleX(0); transform-origin: 0 50%; will-change: transform;
+}
+
+/* Hero phone is parallaxed by JS — drop the keyframe so it doesn't fight the
+   inline transform. (Keeps the glow drift.) */
+.phone-hero { animation: none; will-change: transform; }
+
+/* ── Sticky morphing showcase ── */
+.showcase-inner { max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 40px; align-items: start; }
+.showcase-sticky { position: sticky; top: 14vh; display: flex; justify-content: center; }
+.phone-showcase { width: 320px; box-shadow: var(--shadow), var(--shadow-glow); }
+.showcase-screens { position: relative; width: 100%; height: 100%; border-radius: 32px; overflow: hidden; }
+.showcase-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; opacity: 0; transform: scale(1.04); transition: opacity .55s ease, transform .7s ease; }
+.showcase-shot.is-active { opacity: 1; transform: scale(1); }
+.showcase-steps { display: flex; flex-direction: column; }
+.showcase-step { min-height: 74vh; display: flex; flex-direction: column; justify-content: center; opacity: .28; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+.showcase-step.is-active { opacity: 1; transform: none; }
+.step-kicker { display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 6px 12px; border-radius: 999px; margin-bottom: 16px; }
+.showcase-step h3 { font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -0.03em; font-weight: 900; line-height: 1.08; }
+.showcase-step p { color: var(--muted); margin-top: 12px; font-size: clamp(16px, 1.6vw, 19px); max-width: 32ch; }
+
+@media (max-width: 900px) {
+  .showcase-inner { grid-template-columns: 1fr; gap: 8px; }
+  .showcase-sticky { top: 9vh; }
+  .phone-showcase { width: 230px; }
+  .showcase-step { min-height: 58vh; align-items: center; text-align: center; }
+  .step-kicker { align-self: center; }
+  .showcase-step p { margin-left: auto; margin-right: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showcase-shot { transition: none; }
+  .showcase-step { opacity: 1; transform: none; }
+}

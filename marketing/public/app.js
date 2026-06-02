@@ -1,7 +1,7 @@
 // Year
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// Theme toggle (respects saved choice, then system)
+// ── Theme toggle (saved choice → system) ──
 const root = document.documentElement;
 const saved = localStorage.getItem('cm-theme');
 if (saved) {
@@ -21,14 +21,14 @@ toggle.addEventListener('click', () => {
   syncToggleIcon();
 });
 
-// Scroll reveal
+// ── Reveal on scroll ──
 const io = new IntersectionObserver(
   (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
   { threshold: 0.12 }
 );
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
-// Role tabs
+// ── Role tabs ──
 const tabs = document.querySelectorAll('.role-tab');
 const panels = document.querySelectorAll('.role-panel');
 tabs.forEach((tab) => {
@@ -39,8 +39,7 @@ tabs.forEach((tab) => {
   });
 });
 
-// When real screenshots are dropped in /assets, swap any placeholder whose
-// matching <shot>-light.png exists. Filenames follow data-shot + "-light.png".
+// ── Hero placeholder → real screenshot swap (if file exists) ──
 document.querySelectorAll('.ph[data-shot]').forEach((el) => {
   const name = el.getAttribute('data-shot');
   const img = new Image();
@@ -52,3 +51,51 @@ document.querySelectorAll('.ph[data-shot]').forEach((el) => {
   };
   img.src = `assets/${name}-light.png`;
 });
+
+// ── Sticky showcase: crossfade the phone's screenshot as steps scroll in ──
+const shots = Array.from(document.querySelectorAll('.showcase-shot'));
+const steps = Array.from(document.querySelectorAll('.showcase-step'));
+if (shots.length && steps.length) {
+  function setStep(n) {
+    shots.forEach((s) => s.classList.toggle('is-active', s.dataset.step === String(n)));
+    steps.forEach((s) => s.classList.toggle('is-active', s.dataset.step === String(n)));
+  }
+  const stepIO = new IntersectionObserver(
+    (entries) => {
+      // Pick the most-visible step near the viewport middle.
+      let best = null;
+      entries.forEach((e) => {
+        if (e.isIntersecting && (!best || e.intersectionRatio > best.intersectionRatio)) best = e;
+      });
+      if (best) setStep(best.target.dataset.step);
+    },
+    { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.5, 1] }
+  );
+  steps.forEach((s) => stepIO.observe(s));
+}
+
+// ── Scroll-driven effects: progress bar, nav state, hero parallax ──
+const progress = document.getElementById('scrollProgress');
+const nav = document.getElementById('nav');
+const heroPhone = document.querySelector('.phone-hero');
+const heroGlow = document.querySelector('.hero-glow');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let ticking = false;
+function onScroll() {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const y = window.scrollY || window.pageYOffset;
+    const docH = document.documentElement.scrollHeight - window.innerHeight;
+    if (progress) progress.style.transform = `scaleX(${docH > 0 ? y / docH : 0})`;
+    if (nav) nav.classList.toggle('scrolled', y > 8);
+    if (!reduceMotion) {
+      if (heroPhone) heroPhone.style.transform = `translateY(${y * -0.08}px) rotate(-3deg)`;
+      if (heroGlow) heroGlow.style.transform = `translateY(${y * 0.12}px)`;
+    }
+    ticking = false;
+  });
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
