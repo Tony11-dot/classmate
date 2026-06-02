@@ -12,6 +12,22 @@ import '../../data/solutions_api.dart';
 import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
 
+/// Opens the add/edit book sheet (title + pages + cover). Returns true if a
+/// book was saved. Reusable so the per-subject books screen can host the same
+/// editor via a FAB (teachers/admins) without a separate management tab.
+Future<bool?> showSolutionBookEditor(
+  BuildContext context, {
+  required String subjectKey,
+  Map<String, dynamic>? existing,
+}) {
+  return showModalBottomSheet<bool>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => _BookEditorSheet(subjectKey: subjectKey, existing: existing),
+  );
+}
+
 String _resolveCover(String? raw) {
   final s = (raw ?? '').trim();
   if (s.isEmpty || s.startsWith('http')) return s;

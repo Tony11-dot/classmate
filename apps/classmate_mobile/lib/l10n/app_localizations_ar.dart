@@ -24,7 +24,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navSchedule => 'الجدول';
 
   @override
-  String get navClassrooms => 'الفصول';
+  String get navClassrooms => 'الصفوف';
 
   @override
   String get navPractice => 'التدريب';
@@ -105,7 +105,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get titleSchedule => 'الجدول';
 
   @override
-  String get titleClasses => 'الفصول';
+  String get titleClasses => 'الصفوف';
 
   @override
   String get titlePractice => 'التدريب';
@@ -424,15 +424,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherClassroomsLoadError =>
-      'لم نتمكن من تحميل الفصول الدراسية الآن. اسحب للتحديث أو حاول مجددًا.';
+      'لم نتمكن من تحميل الصفوف الآن. اسحب للتحديث أو حاول مجددًا.';
 
   @override
   String get teacherClassroomsLoadTimeout =>
-      'يستغرق تحميل الفصول الدراسية وقتًا طويلاً. اسحب للتحديث أو حاول بعد قليل.';
+      'يستغرق تحميل الصفوف وقتًا طويلاً. اسحب للتحديث أو حاول بعد قليل.';
 
   @override
   String get teacherClassroomsLoadNetwork =>
-      'لا يمكن الاتصال بالفصول الدراسية الآن. تحقق من الاتصال وحاول مجددًا.';
+      'لا يمكن الاتصال بالصفوف الآن. تحقق من الاتصال وحاول مجددًا.';
 
   @override
   String get teacherClassroomsSubtitle =>
@@ -466,7 +466,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherClassroomsNoStudents =>
-      'لم يتم تسجيل أي طلاب في هذا الفصل الدراسي بعد.';
+      'لم يتم تسجيل أي طلاب في هذا الصف بعد.';
 
   @override
   String get teacherAttendanceLoadError =>
@@ -542,7 +542,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scheduleNotOnboarded =>
-      'ملف الطالب الخاص بك غير مكتمل. اطلب من مسؤول مدرستك تعيينك في فصل.';
+      'ملف الطالب الخاص بك غير مكتمل. اطلب من مسؤول مدرستك تعيينك في صف.';
 
   @override
   String get scheduleLoadError => 'تعذر تحميل الجدول حتى الآن.';
@@ -741,30 +741,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editProfileStatusPublic => 'الحالة عامة';
 
   @override
-  String get classroomsYourClassrooms => 'فصولك الدراسية';
+  String get classroomsYourClassrooms => 'صفوفك';
 
   @override
-  String get classroomsReorder => 'إعادة ترتيب الفصول';
+  String get classroomsReorder => 'إعادة ترتيب الصفوف';
 
   @override
   String classroomsCount(Object count) {
-    return '$count فصول';
+    return '$count صفوف';
   }
 
   @override
-  String get classroomsSearchHint => 'ابحث في الفصول';
+  String get classroomsSearchHint => 'ابحث في الصفوف';
 
   @override
-  String get classroomsNoSearchMatches => 'لا توجد فصول تطابق بحثك';
+  String get classroomsNoSearchMatches => 'لا توجد صفوف تطابق بحثك';
 
   @override
-  String get classroomsClassroomLabel => 'فصل';
+  String get classroomsClassroomLabel => 'صف';
 
   @override
   String get classroomsLoadingLatestMessage => 'جارٍ تحميل آخر رسالة...';
 
   @override
-  String get classroomsTapToOpen => 'اضغط لفتح الفصل';
+  String get classroomsTapToOpen => 'اضغط لفتح الصف';
 
   @override
   String get classroomsNoMessagesYet => 'لا توجد رسائل بعد';
@@ -1556,7 +1556,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutorExplainTitle => 'شرح NOVA';
 
   @override
-  String get classroomsThreadTypeClassroom => 'فصل';
+  String get classroomsThreadTypeClassroom => 'صف';
 
   @override
   String get classroomsThreadTypeGroup => 'مجموعة';
@@ -1745,7 +1745,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomsForwardNoChatsFound => 'لم يتم العثور على محادثات';
 
   @override
-  String get classroomsForwardSectionClassrooms => 'الفصول';
+  String get classroomsForwardSectionClassrooms => 'الصفوف';
 
   @override
   String get classroomsForwardSectionDirectMessages => 'الرسائل المباشرة';
@@ -2147,7 +2147,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'كل ما يتعلق بالطالب والمتاح حالياً في حمولة الحصة الدراسية في الفصل.';
 
   @override
-  String get meetingsDetailClassroomLabel => 'الفصل الدراسي';
+  String get meetingsDetailClassroomLabel => 'الصف';
 
   @override
   String get meetingsSharedByLabel => 'شاركها';
@@ -2378,10 +2378,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomDetailEditMessageHint => 'عدّل رسالتك...';
 
   @override
-  String get classroomDetailLeaveClassroomTitle => 'مغادرة الفصل؟';
+  String get classroomDetailLeaveClassroomTitle => 'مغادرة الصف؟';
 
   @override
-  String get classroomDetailLeaveClassroomBody => 'ستتم إزالتك من هذا الفصل.';
+  String get classroomDetailLeaveClassroomBody => 'ستتم إزالتك من هذا الصف.';
 
   @override
   String get classroomDetailLeaveAction => 'مغادرة';
@@ -2391,7 +2391,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classroomDetailNoAssignmentsSubtitle =>
-      'لا توجد واجبات في هذا الفصل حالياً.';
+      'لا توجد واجبات في هذا الصف حالياً.';
 
   @override
   String get classroomDetailAssignmentFallback => 'واجب';
@@ -2401,7 +2401,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classroomDetailNoMaterialsSubtitle =>
-      'لا توجد مواد في هذا الفصل حالياً.';
+      'لا توجد مواد في هذا الصف حالياً.';
 
   @override
   String get classroomDetailMaterialFallback => 'مادة';
@@ -2411,7 +2411,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classroomDetailNoMeetingsSubtitle =>
-      'لا توجد اجتماعات في هذا الفصل حالياً.';
+      'لا توجد اجتماعات في هذا الصف حالياً.';
 
   @override
   String get classroomDetailMeetingFallback => 'اجتماع';
@@ -2423,7 +2423,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomDetailNoPeopleTitle => 'لا يوجد أشخاص بعد';
 
   @override
-  String get classroomDetailNoPeopleSubtitle => 'لا يظهر أحد في هذا الفصل بعد.';
+  String get classroomDetailNoPeopleSubtitle => 'لا يظهر أحد في هذا الصف بعد.';
 
   @override
   String get classroomDetailTabChat => 'الدردشة';
@@ -2438,7 +2438,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomChatMediaSendPhoto => 'إرسال صورة';
 
   @override
-  String get classroomChatMediaSendPhotoSubtitle => 'شارك صورة في دردشة الفصل';
+  String get classroomChatMediaSendPhotoSubtitle => 'شارك صورة في دردشة الصف';
 
   @override
   String get classroomChatMediaSendVoiceMessage => 'إرسال رسالة صوتية';
@@ -3382,15 +3382,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherGradesAssessmentDeleted => 'تم حذف التقييم';
 
   @override
-  String get teacherGradesRosterLinkError =>
-      'هذا التقييم غير مرتبط بقائمة فصل.';
+  String get teacherGradesRosterLinkError => 'هذا التقييم غير مرتبط بقائمة صف.';
 
   @override
   String get teacherGradesSaved => 'تم حفظ الدرجات';
 
   @override
   String get teacherGradesSubtitle =>
-      'أنشئ التقييمات واحفظ الدرجات مقابل قائمة الفصل المباشرة.';
+      'أنشئ التقييمات واحفظ الدرجات مقابل قائمة الصف المباشرة.';
 
   @override
   String get teacherGradesCreateAssessmentTitle => 'إنشاء تقييم';
@@ -3562,7 +3561,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assignmentsDetailDueLabel => 'الموعد النهائي';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'الفصل الدراسي';
+  String get assignmentsDetailClassroomLabel => 'الصف';
 
   @override
   String get assignmentsDetailTeacherLabel => 'المعلم';
@@ -4221,7 +4220,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get insightsRefreshAction => 'تحديث';
 
   @override
-  String get teacherGoToClassroom => 'الذهاب إلى الفصل';
+  String get teacherGoToClassroom => 'الذهاب إلى الصف';
 
   @override
   String get teacherMarkAttendance => 'تسجيل الحضور';
@@ -4395,13 +4394,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherRemoveStudentContent =>
-      'سيتم إزالة هذا الطالب من هذه الفصل الدراسي.';
+      'سيتم إزالة هذا الطالب من هذا الصف.';
 
   @override
   String get teacherStudentAdded => 'تمت إضافة الطالب';
 
   @override
-  String get teacherClassroomAnalyticsTitle => 'تحليلات الفصل';
+  String get teacherClassroomAnalyticsTitle => 'تحليلات الصف';
 
   @override
   String get teacherOpenAnalyticsAction => 'فتح التحليلات';
@@ -4522,16 +4521,16 @@ class AppLocalizationsAr extends AppLocalizations {
       'الموضوعات المخصصة مُولَّدة بالذكاء الاصطناعي فورياً. قد تنحرف الأسئلة عن الموضوع أو تكون غير دقيقة للمواضيع المتخصصة. تحقق من الإجابات غير المألوفة باستقلالية.';
 
   @override
-  String get classroomsJoined => 'لقد انضممت إلى الفصل الدراسي!';
+  String get classroomsJoined => 'لقد انضممت إلى الصف!';
 
   @override
-  String get classroomsJoinAction => 'انضم إلى الفصل';
+  String get classroomsJoinAction => 'انضم إلى الصف';
 
   @override
-  String get classroomsJoinTooltip => 'انضم إلى فصل دراسي';
+  String get classroomsJoinTooltip => 'انضم إلى صف';
 
   @override
-  String get classroomsJoinTitle => 'الانضمام إلى فصل دراسي';
+  String get classroomsJoinTitle => 'الانضمام إلى صف';
 
   @override
   String get classroomsJoinSubtitle => 'أدخل الرمز الذي أعطاك إياه معلمك';
@@ -4540,10 +4539,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomsCouldNotOpenLink => 'تعذر فتح الرابط';
 
   @override
-  String get classroomsReorderTitle => 'إعادة ترتيب الفصول';
+  String get classroomsReorderTitle => 'إعادة ترتيب الصفوف';
 
   @override
-  String get classroomsNoClassroomsToReorder => 'لا توجد فصول لإعادة ترتيبها.';
+  String get classroomsNoClassroomsToReorder => 'لا توجد صفوف لإعادة ترتيبها.';
 
   @override
   String get teacherPostAnnouncementAction => 'نشر إعلان';
@@ -4561,7 +4560,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherGreetingEvening => 'مساء الخير';
 
   @override
-  String get teacherTodaysClasses => 'فصول اليوم';
+  String get teacherTodaysClasses => 'صفوف اليوم';
 
   @override
   String get teacherNoDate => 'لا يوجد تاريخ';
@@ -4570,7 +4569,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherUpcomingTestsSubtitle => 'الاختبارات القادمة';
 
   @override
-  String get teacherNoClassesThisWeek => 'لا توجد فصول هذا الأسبوع';
+  String get teacherNoClassesThisWeek => 'لا توجد صفوف هذا الأسبوع';
 
   @override
   String get teacherNoClassesThisWeekSub => 'جدولك لهذا الأسبوع فارغ';
@@ -4603,7 +4602,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherStudentEmailLabel => 'بريد الطالب الإلكتروني أو معرفه';
 
   @override
-  String get teacherTooltipRemoveStudent => 'إزالة من الفصل الدراسي';
+  String get teacherTooltipRemoveStudent => 'إزالة من الصف';
 
   @override
   String get teacherCouldNotLoad => 'تعذر التحميل';
@@ -4618,14 +4617,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherNoMaterialsYet => 'لا توجد مواد بعد';
 
   @override
-  String get teacherNoMaterialsSub =>
-      'شارك الروابط والمستندات والموارد مع فصلك';
+  String get teacherNoMaterialsSub => 'شارك الروابط والمستندات والموارد مع صفك';
 
   @override
   String get teacherNoMeetingsScheduled => 'لا توجد اجتماعات مجدولة';
 
   @override
-  String get teacherNoMeetingsSub => 'اضغط + لجدولة اجتماع الفصل';
+  String get teacherNoMeetingsSub => 'اضغط + لجدولة اجتماع الصف';
 
   @override
   String get teacherAttendanceOther => 'أخرى';

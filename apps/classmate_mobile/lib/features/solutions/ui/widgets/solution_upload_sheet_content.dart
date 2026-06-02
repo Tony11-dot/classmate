@@ -37,6 +37,12 @@ Future<void> showSolutionUploadSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
+    // Cap the height a touch below full-screen so the rounded top + drag
+    // handle peek above the sheet — making it obvious it's a draggable sheet
+    // and not a full page.
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.9,
+    ),
     // A non-transparent, fixed-height container prevents taps on the empty
     // space below the list from falling through to the barrier (which would
     // close the sheet and lose TextField focus).

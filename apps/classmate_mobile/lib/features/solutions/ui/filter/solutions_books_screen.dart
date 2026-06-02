@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/auth/auth_controller.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../data/solutions_api.dart';
 import '../../domain/solutions_models.dart';
 import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
+import '../admin/solutions_books_admin_screen.dart' show showSolutionBookEditor;
 
 class SolutionsBooksScreen extends ConsumerStatefulWidget {
   const SolutionsBooksScreen({super.key});
@@ -32,6 +35,50 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
     return all.where((b) => b.title.toLowerCase().contains(q)).toList();
   }
 
+  Future<void> _addBook(String subjectKey) async {
+    final saved = await showSolutionBookEditor(context, subjectKey: subjectKey);
+    if (saved == true) ref.read(solutionsFlowProvider.notifier).reloadBooks();
+  }
+
+  Future<void> _editBook(String subjectKey, SolutionBook b) async {
+    final saved = await showSolutionBookEditor(context, subjectKey: subjectKey, existing: {
+      'id': b.id,
+      'title': b.title,
+      'pages': b.pageCount,
+      'coverUrl': b.coverUrl,
+    });
+    if (saved == true) ref.read(solutionsFlowProvider.notifier).reloadBooks();
+  }
+
+  Future<void> _deleteBook(SolutionBook b) async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.solutionsDeleteBookTitle),
+        content: Text(l.solutionsDeleteBookBody(b.title)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.tutorCancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.commonDelete),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(solutionsApiProvider).deleteBook(b.id);
+      ref.read(solutionsFlowProvider.notifier).reloadBooks();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.solutionsBookSaveFailed('$e'))),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -41,6 +88,9 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
     final allBooks = notifier.booksForSelectedSubject();
     final books = _filtered(allBooks);
     final cs = Theme.of(context).colorScheme;
+
+    final session = ref.watch(authSessionProvider);
+    final canManage = session.primaryRole == 'ADMIN' || session.isTeacherLike;
 
     final subjectTitle =
         subject == null ? l.solutionsBooksTitle : solutionSubjectTitle(l, subject.id);
@@ -53,6 +103,13 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
           onPressed: () => context.pop(),
         ),
       ),
+      floatingActionButton: (canManage && subject != null)
+          ? FloatingActionButton.extended(
+              onPressed: () => _addBook(subject.id),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l.solutionsAddBookAction),
+            )
+          : null,
       body: Column(
         children: [
           Padding(
@@ -140,7 +197,20 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.chevron_right_rounded),
+                                if (canManage)
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
+                                    onSelected: (v) {
+                                      if (v == 'edit') _editBook(subject.id, book);
+                                      if (v == 'delete') _deleteBook(book);
+                                    },
+                                    itemBuilder: (_) => [
+                                      PopupMenuItem(value: 'edit', child: Text(l.solutionsEditBookTitle)),
+                                      PopupMenuItem(value: 'delete', child: Text(l.commonDelete)),
+                                    ],
+                                  )
+                                else
+                                  const Icon(Icons.chevron_right_rounded),
                               ],
                             ),
                           ),
