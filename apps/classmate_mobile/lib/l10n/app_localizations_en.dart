@@ -7915,4 +7915,182 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teacherUploadFiles => 'Upload files';
+
+  @override
+  String get solSubjectMathematics => 'Mathematics';
+
+  @override
+  String get solSubjectComputerScience => 'Computer Science';
+
+  @override
+  String get solSubjectPhysics => 'Physics';
+
+  @override
+  String get solSubjectChemistry => 'Chemistry';
+
+  @override
+  String get solSubjectHebrew => 'Hebrew';
+
+  @override
+  String get solSubjectBiology => 'Biology';
+
+  @override
+  String get solSubjectHistory => 'History';
+
+  @override
+  String get solSubjectArabic => 'Arabic';
+
+  @override
+  String get solSubjectElectronics => 'Electronics';
+
+  @override
+  String get solSubjectMechanics => 'Mechanics';
+
+  @override
+  String get solSubjectFrench => 'French';
+
+  @override
+  String get solSubjectEnvironmentalScience => 'Environmental Science';
+
+  @override
+  String get solSubjectCommunicationCinema => 'Communication and Cinema';
+
+  @override
+  String get solSubjectCitizenship => 'Citizenship';
+
+  @override
+  String get solSubjectSociology => 'Sociology';
+
+  @override
+  String get solSubjectReligion => 'Religion';
+
+  @override
+  String get solSubjectGeography => 'Geography';
+
+  @override
+  String get commonUnknown => 'Unknown';
+
+  @override
+  String get solutionsReportTitle => 'Report this solution';
+
+  @override
+  String get solutionsReportBody =>
+      'Tell the admins what\'s wrong. The admins of both schools will review it.';
+
+  @override
+  String get solutionsReportReasonHint => 'Reason (optional)';
+
+  @override
+  String get solutionsReportAction => 'Report';
+
+  @override
+  String get solutionsReportSubmitted => 'Thanks — reported to the admins.';
+
+  @override
+  String get solutionsReportAlready => 'You already reported this.';
+
+  @override
+  String solutionsBookPagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get solutionsNoBooksYetForStudents =>
+      'No books here yet. Your teacher will add them.';
+
+  @override
+  String get solutionsManageBooksTitle => 'Manage books';
+
+  @override
+  String get solutionsNoBooksManageHint =>
+      'No books for this subject yet. Tap + to add one.';
+
+  @override
+  String get solutionsDeleteBookTitle => 'Delete book?';
+
+  @override
+  String solutionsDeleteBookBody(String title) {
+    return 'Delete \"$title\"? This can\'t be undone.';
+  }
+
+  @override
+  String solutionsBookSaveFailed(String error) {
+    return 'Couldn\'t save: $error';
+  }
+
+  @override
+  String get solutionsBookNeedTitlePages => 'Enter a title and page count.';
+
+  @override
+  String get solutionsEditBookTitle => 'Edit book';
+
+  @override
+  String get solutionsBookCoverLabel => 'Cover';
+
+  @override
+  String solutionsGradeLabel(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get solutionsReportsTitle => 'Reported solutions';
+
+  @override
+  String get solutionsReportsEmpty => 'No reports to review.';
+
+  @override
+  String get solutionsReportPostedBy => 'Posted by';
+
+  @override
+  String get solutionsReportReportedBy => 'Reported by';
+
+  @override
+  String get solutionsReportReasonLabel => 'Reason';
+
+  @override
+  String get solutionsReportKeepAction => 'Keep';
+
+  @override
+  String get solutionsReportRemoveAction => 'Remove';
+
+  @override
+  String get solutionsReportStatusPending => 'Pending';
+
+  @override
+  String get solutionsReportStatusApproved => 'Kept';
+
+  @override
+  String get solutionsReportStatusRemoved => 'Removed';
+
+  @override
+  String get solutionsReportRemoved => 'Solution removed.';
+
+  @override
+  String get solutionsReportApproved => 'Report dismissed — solution kept.';
+
+  @override
+  String solutionsReportFailed(String error) {
+    return 'Couldn\'t report: $error';
+  }
+
+  @override
+  String get teacherAddGradeTitle => 'Add Grade';
+
+  @override
+  String get commonCohort => 'Cohort';
+
+  @override
+  String get teacherCreateNewExam => 'Create new exam';
+
+  @override
+  String get teacherCreateNewAssignment => 'Create new assignment';
+
+  @override
+  String get commonReturn => 'Return';
 }

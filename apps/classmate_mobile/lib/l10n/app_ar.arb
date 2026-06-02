@@ -233,16 +233,16 @@
     }
   },
   "scheduleClassFallback": "حصة",
-  "scheduleNoSubjectLocation": "No subject or location yet",
-  "scheduleNotes": "Notes",
-  "scheduleGoToClassroom": "Go to Classroom",
+  "scheduleNoSubjectLocation": "لا يوجد موضوع أو موقع بعد",
+  "scheduleNotes": "ملاحظات",
+  "scheduleGoToClassroom": "الذهاب إلى الصف",
   "loginTitle": "تسجيل الدخول للجوال للطلاب والمعلمين",
   "loginSubtitle": "حسابات المعلمين تفتح مساحة المعلم. حسابات الطلاب تبقى في تجربة الطالب.",
   "loginSignIn": "تسجيل الدخول",
   "loginWelcomeTitle": "مرحبًا بعودتك",
   "loginWelcomeSubtitle": "سجّل الدخول إلى حسابك في ClassMate.",
   "loginSigningIn": "جارٍ تسجيل الدخول...",
-  "loginEmailLabel": "البريد الإلكتروني",
+  "loginEmailLabel": "البريد الإلكتروني أو اسم المستخدم",
   "loginPasswordLabel": "كلمة المرور",
   "profileNotAvailable": "غير متاح",
   "profileSchoolInfo": "معلومات المدرسة",
@@ -452,7 +452,7 @@
   "chatComposerLockTitle": "قفل",
   "chatComposerSlideLeftToCancel": "اسحب لليسار للإلغاء",
   "chatComposerSlideUpToLock": "اسحب للأعلى للقفل",
-  "chatComposerReleaseToCancel": "اترك للإلغاء",
+  "chatComposerReleaseToCancel": "حرر للإلغاء",
   "chatComposerKeepSlidingToCancel": "استمر بالسحب للإلغاء",
   "chatComposerReleaseToLock": "اترك للقفل",
   "chatComposerRelease": "اترك",
@@ -1658,7 +1658,7 @@
   "examCouldNotOpenCalendar": "تعذر فتح التقويم.",
   "formTitle": "النموذج",
   "formNotFound": "النموذج غير موجود",
-  "formClosed": "هذا النموذج مغلق.",
+  "formClosed": "مغلق",
   "formCompletion": "الإكمال",
   "formNoTextResponses": "لا توجد ردود نصية بعد.",
   "meetingsCouldNotLoad": "تعذر تحميل الاجتماعات",
@@ -1692,22 +1692,22 @@
   "teacherAnnounceMessageLabel": "الرسالة *",
   "teacherAnnounceMessageHint": "اكتب الإعلان كاملاً هنا…",
   "teacherStudentsLabel": "الطلاب",
-  "teacherSearchStudents": "بحث بالاسم أو الصف...",
+  "teacherSearchStudents": "ابحث عن الطلاب…",
   "teacherNoStudentsLoaded": "لا يوجد طلاب في هذه المدرسة.",
   "teacherActions": "إجراءات سريعة",
   "teacherParentsLabel": "أولياء الأمور",
   "teacherTeachersLabel": "المعلمون",
   "teacherWeekScheduleTitle": "جدول الأسبوع",
   "teacherCouldNotLoadSchedule": "تعذر تحميل الجدول",
-  "teacherAttendanceLast30": "Attendance (last 30 days)",
-  "teacherAttendanceFrom": "From {date}",
+  "teacherAttendanceLast30": "الحضور (آخر 30 يومًا)",
+  "teacherAttendanceFrom": "من {date}",
   "@teacherAttendanceFrom": {
     "placeholders": {
       "date": {}
     }
   },
-  "teacherAttendanceChangeDate": "Change date",
-  "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
+  "teacherAttendanceChangeDate": "تغيير التاريخ",
+  "teacherAttendanceNoSessions": "لا توجد جلسات حضور محفوظة.\nسجّل الحضور من الجدول.",
   "teacherRecentGrades": "الدرجات الأخيرة",
   "teacherNoGradesRecorded": "لا توجد درجات مسجلة بعد",
   "teacherGradeAvg": "متوسط الدرجات",
@@ -1732,7 +1732,7 @@
   "teacherNewAssignment": "مهمة جديدة",
   "teacherDeleteAssignment": "حذف المهمة؟",
   "teacherDeleteAssignmentContent": "سيتم إزالتها لجميع الطلاب.",
-  "teacherShareMaterialTitle": "مشاركة المادة",
+  "teacherShareMaterialTitle": "مشاركة مادة",
   "teacherRemoveMaterial": "إزالة المادة؟",
   "teacherScheduleMeetingTitle": "جدولة اجتماع",
   "teacherCancelMeetingTitle": "إلغاء الاجتماع؟",
@@ -1927,34 +1927,61 @@
   "adminResetPassword": "إعادة تعيين كلمة المرور",
   "adminPasswordReset": "إعادة تعيين كلمة المرور",
   "adminTempPasswordFor": "كلمة المرور المؤقتة لـ {name}",
-  "@adminTempPasswordFor": {"placeholders": {"name": {}}},
+  "@adminTempPasswordFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteUser": "حذف المستخدم",
   "adminDeleteUserConfirm": "حذف {name}؟ لا يمكن التراجع عن هذا.",
-  "@adminDeleteUserConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteUserConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteCohort": "حذف المجموعة",
   "adminDeleteCohortConfirm": "حذف \"{name}\"؟ ستُحذف جميع عضويات الطلاب.",
-  "@adminDeleteCohortConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteCohortConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminAddCohort": "إضافة مجموعة",
   "adminNewCohort": "مجموعة جديدة",
   "adminCohortName": "اسم المجموعة (مثال: 10أ)",
   "adminCohortGrade": "الصف",
-  "adminRenameCohort": "إعادة تسمية المجموعة",
+  "adminRenameCohort": "إعادة تسمية",
   "adminAddStudents": "إضافة طلاب",
   "adminAddTo": "إضافة إلى {name}",
-  "@adminAddTo": {"placeholders": {"name": {}}},
+  "@adminAddTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminRemoveStudent": "إزالة الطالب",
   "adminRemoveStudentConfirm": "إزالة {name} من {cohort}؟",
-  "@adminRemoveStudentConfirm": {"placeholders": {"name": {}, "cohort": {}}},
+  "@adminRemoveStudentConfirm": {
+    "placeholders": {
+      "name": {},
+      "cohort": {}
+    }
+  },
   "adminNoCohortsYet": "لا توجد مجموعات بعد",
   "adminNoStudentsInCohort": "لا يوجد طلاب في هذه المجموعة",
   "adminStudentCount": "{count, plural, =1{طالب واحد} other{{count} طلاب}}",
-  "@adminStudentCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSearchStudents": "ابحث عن الطلاب…",
   "adminScheduleTitle": "الجدول الدراسي",
   "adminScheduleAddPeriod": "إضافة حصة",
   "adminScheduleNewPeriod": "حصة جديدة",
   "adminScheduleDayLabel": "اليوم",
-  "adminSchedulePeriodLabel": "الحصة",
+  "adminSchedulePeriodLabel": "ح{period}",
   "adminScheduleTeacherLabel": "المعلم",
   "adminScheduleNoneTeacher": "لا يوجد معلم",
   "adminScheduleCohortLabel": "المجموعة / الطلاب",
@@ -1964,8 +1991,14 @@
   "adminScheduleFreqMonthly": "كل 4 أسابيع",
   "adminScheduleFreqCustom": "مخصص",
   "adminScheduleFreqCustomLabel": "كل {n} أسابيع",
-  "@adminScheduleFreqCustomLabel": {"placeholders": {"n": {"type": "int"}}},
-  "adminScheduleAddSlot": "إضافة وقت",
+  "@adminScheduleFreqCustomLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "adminScheduleAddSlot": "إضافة فترة",
   "adminScheduleAddAnother": "إضافة يوم / حصة أخرى",
   "adminScheduleSave": "حفظ",
   "adminScheduleSearchTeacher": "ابحث عن المعلمين…",
@@ -1982,7 +2015,13 @@
   "adminSchoolSaved": "تم الحفظ",
   "adminSubjectsTitle": "المواد الدراسية",
   "adminSubjectsGrade": "الصف {grade}",
-  "@adminSubjectsGrade": {"placeholders": {"grade": {"type": "int"}}},
+  "@adminSubjectsGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectsAddHint": "أضف مادة…",
   "adminSubjectsNoSubjects": "لم يتم تكوين مواد دراسية",
   "adminSubjectsAdd": "إضافة",
@@ -1997,10 +2036,17 @@
   "adminCancel": "إلغاء",
   "adminSearchPeople": "ابحث بالاسم…",
   "adminNoResults": "لا نتائج لـ \"{query}\"",
-  "@adminNoResults": {"placeholders": {"query": {}}},
+  "@adminNoResults": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "adminNoPeopleYet": "لا يوجد {role} بعد",
-  "@adminNoPeopleYet": {"placeholders": {"role": {}}},
-
+  "@adminNoPeopleYet": {
+    "placeholders": {
+      "role": {}
+    }
+  },
   "commonRetry": "إعادة المحاولة",
   "commonBack": "رجوع",
   "commonClose": "إغلاق",
@@ -2016,7 +2062,6 @@
   "commonLoading": "جارٍ التحميل…",
   "commonError": "حدث خطأ ما",
   "commonTryAgain": "حاول مرة أخرى",
-
   "studentMaterialsTitle": "المواد",
   "studentMaterialsEmptyTitle": "لا توجد مواد بعد",
   "studentMaterialsEmptyHint": "سيشارك معلمك الموارد هنا.",
@@ -2031,27 +2076,30 @@
   "studentAssignmentAddMoreFiles": "إضافة ملفات أخرى",
   "studentAssignmentYourSubmission": "تسليمك",
   "studentAssignmentTeacherAttachments": "المرفقات",
-
   "secretaryWelcomeGreeting": "مرحبًا {name} 👋",
-  "@secretaryWelcomeGreeting": {"placeholders": {"name": {}}},
+  "@secretaryWelcomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "secretaryYourTools": "أدواتك",
   "secretaryReports": "البلاغات",
   "secretaryExportData": "تصدير البيانات",
   "secretaryHomeTile": "الرئيسية",
-
   "parentHomeGreeting": "مرحبًا {name} 👋",
-  "@parentHomeGreeting": {"placeholders": {"name": {}}},
+  "@parentHomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "parentYourTools": "أدواتك",
   "parentNoChildLinked": "لم يتم ربط أي طفل بعد",
   "parentPickChildFirst": "اختر طفلاً أولاً",
   "parentNoApprovedChildren": "لا يوجد أطفال معتمدون بعد. اطلب من مدرستك ربط حسابك.",
-
   "loginEmptyFieldsError": "يرجى إدخال البريد الإلكتروني أو اسم المستخدم وكلمة المرور.",
   "loginConnectionError": "لا يوجد اتصال. تحقق من الإنترنت وحاول مرة أخرى.",
   "loginTimeoutError": "انتهت مهلة الطلب. حاول مرة أخرى.",
-  "loginEmailLabel": "البريد الإلكتروني أو اسم المستخدم",
   "loginForgotPasswordLink": "نسيت كلمة المرور؟",
-
   "forgotPasswordTitle": "إعادة تعيين كلمة المرور",
   "forgotPasswordModeEmail": "البريد",
   "forgotPasswordModeSms": "رسالة نصية",
@@ -2061,12 +2109,14 @@
   "forgotPasswordEmailButton": "أرسل لي رابط إعادة التعيين عبر البريد",
   "forgotPasswordSmsButton": "أرسل لي رابط إعادة التعيين برسالة",
   "forgotPasswordLinkExpires": "تنتهي صلاحية الرابط خلال ساعة ويمكن استخدامه مرة واحدة فقط.",
-
   "pushPermissionTitle": "ابقَ على اطلاع",
   "pushPermissionBody": "فعّل الإشعارات حتى لا تفوتك الدرجات أو الرسائل أو تغييرات الجدول.",
-
   "commonRequiredField": "{field} مطلوب",
-  "@commonRequiredField": {"placeholders": {"field": {}}},
+  "@commonRequiredField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "commonAttachments": "المرفقات",
   "commonAttachFile": "إرفاق ملف",
   "commonReplaceFile": "استبدال الملف",
@@ -2085,8 +2135,6 @@
   "commonOptional": "اختياري",
   "commonRequired": "مطلوب",
   "commonAuto": "تلقائي",
-
-  "teacherShareMaterialTitle": "مشاركة مادة",
   "teacherShareButton": "مشاركة",
   "teacherMaterialDetails": "تفاصيل المادة",
   "teacherMaterialTitleLabel": "العنوان *",
@@ -2094,9 +2142,11 @@
   "teacherMaterialContentSection": "المحتوى",
   "teacherMaterialContentRequired": "يرجى إرفاق ملف أو إضافة رابط",
   "teacherFilePickError": "تعذّر اختيار الملف: {error}",
-  "@teacherFilePickError": {"placeholders": {"error": {}}},
-
-  "teacherScheduleMeetingTitle": "جدولة اجتماع",
+  "@teacherFilePickError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherScheduleButton": "جدولة",
   "teacherMeetingTitleField": "عنوان الاجتماع *",
   "teacherMeetingLinkField": "رابط الاجتماع *",
@@ -2108,7 +2158,6 @@
   "teacherMeetingEndDate": "تاريخ النهاية (اختياري)",
   "teacherMeetingEndTime": "وقت النهاية (اختياري)",
   "teacherClearEndTime": "مسح وقت النهاية",
-
   "teacherAssignmentTitleField": "العنوان *",
   "teacherAssignmentInstructions": "التعليمات (اختياري)",
   "teacherAssignmentDueDate": "تاريخ التسليم (اختياري)",
@@ -2117,18 +2166,14 @@
   "teacherAssignmentPublished": "تم نشر الواجب.",
   "teacherAssignmentDraftSaved": "تم حفظ المسودة.",
   "teacherCreateAssignment": "إنشاء",
-
   "teacherExamSubject": "المادة *",
   "teacherExamDate": "تاريخ الامتحان *",
   "teacherSelectSubject": "اختر مادة",
   "teacherNoSubjectOption": "بدون مادة",
   "teacherOtherSubjectOption": "أخرى",
-
-  "teacherSearchStudents": "ابحث عن الطلاب…",
   "teacherSearchClassrooms": "ابحث عن الصفوف…",
   "teacherSearchMaterials": "ابحث عن المواد…",
   "teacherClassroomName": "اسم الصف *",
-
   "adminReportsOpenTab": "مفتوحة",
   "adminReportsResolvedTab": "تم الحل",
   "adminReportsDismissedTab": "تم الرفض",
@@ -2139,42 +2184,79 @@
   "adminReportsDismiss": "رفض",
   "adminReportsResolve": "حل",
   "adminReportsReason": "السبب: {reason}",
-  "@adminReportsReason": {"placeholders": {"reason": {}}},
-
+  "@adminReportsReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
   "chatReportTitle": "الإبلاغ عن رسالة",
   "chatReportButton": "إبلاغ",
   "chatReportSuccess": "تم الإبلاغ. شكرًا — سيراجعها المسؤول.",
   "chatReportFailed": "فشل الإبلاغ: {error}",
-  "@chatReportFailed": {"placeholders": {"error": {}}},
+  "@chatReportFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "chatSendError": "تعذّر الإرسال: {message}",
-  "@chatSendError": {"placeholders": {"message": {}}},
+  "@chatSendError": {
+    "placeholders": {
+      "message": {}
+    }
+  },
   "chatForwardLabel": "إعادة توجيه {count}",
-  "@chatForwardLabel": {"placeholders": {"count": {}}},
+  "@chatForwardLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatDeleteLabel": "حذف {count}",
-  "@chatDeleteLabel": {"placeholders": {"count": {}}},
+  "@chatDeleteLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatSelectedCount": "{count} محدد",
-  "@chatSelectedCount": {"placeholders": {"count": {}}},
-
+  "@chatSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "adminPasswordReqEmpty": "لا توجد طلبات معلّقة",
   "adminPasswordReqExplainer": "لن يظهر هنا المستخدمون الذين وافقت عليهم أو رفضتهم. تنتهي الطلبات المعلقة بعد 24 ساعة.",
   "adminPasswordReqApproveTitle": "هل توافق على تغيير كلمة المرور؟",
   "adminPasswordReqApproveExplain": "سيؤدي ذلك إلى تعيين كلمة مرور {name} إلى تلك التي كتبها (لن تراها أنت).",
-  "@adminPasswordReqApproveExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqVerifyWarning": "وافق فقط بعد التأكد أن مقدّم الطلب هو فعلًا {name} — اتصل به أو تأكد شخصيًا. يمكن لأي شخص يعرف اسم المستخدم تقديم هذا الطلب.",
-  "@adminPasswordReqVerifyWarning": {"placeholders": {"name": {}}},
+  "@adminPasswordReqVerifyWarning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqConfirmApprove": "تحققت — موافقة",
   "adminPasswordReqApproveSnackbar": "تمت الموافقة — يمكن لـ {name} تسجيل الدخول الآن.",
-  "@adminPasswordReqApproveSnackbar": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectTitle": "هل ترفض تغيير كلمة المرور؟",
   "adminPasswordReqRejectExplain": "لن تتغيّر كلمة مرور {name}. يستطيع تقديم طلب جديد عند الحاجة.",
-  "@adminPasswordReqRejectExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqRejectExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectSnackbar": "تم الرفض.",
   "adminPasswordReqRejectButton": "رفض",
   "adminPasswordReqApproveButton": "موافقة",
   "adminPasswordReqCardCopy": "يريد تغيير كلمة المرور. كلمة المرور الجديدة مخفية.",
   "adminPasswordReqCallTooltip": "اتصال",
   "adminPasswordReqSmsTooltip": "رسالة نصية",
-
   "adminSetupSchoolSetup": "إعداد المدرسة",
   "adminSetupComplete": "اكتمل الإعداد. اضغط أي عنصر لإعادة زيارته أو تعديله.",
   "adminSetupInstructions": "أكمل هذه الخطوات لإعداد مدرستك بالكامل.",
@@ -2192,13 +2274,11 @@
   "adminSetupStudentsSubtitle": "إنشاء حسابات أو توليد رموز انضمام",
   "adminSetupTeachersTitle": "إضافة معلمين",
   "adminSetupTeachersSubtitle": "إنشاء حسابات للمعلمين",
-
   "supportContactTitle": "تواصل معنا",
   "supportContactDescription": "لم تجد إجابتك أدناه؟ تواصل معنا وسنردّ خلال يوم عمل.",
   "supportEmailLabel": "البريد الإلكتروني",
   "supportPhoneLabel": "الهاتف",
   "supportSmsLabel": "رسالة",
-
   "aboutWhatIsClassmate": "ما هو ClassMate؟",
   "aboutClassmateDescription": "ClassMate هو نظام تشغيل المدرسة للطلاب والمعلمين والإداريين وأولياء الأمور. تطبيق واحد، أربعة أدوار، وكل ما يخصّ اليوم الدراسي في مكان واحد — الجدول، الحضور، العلامات، الصفوف، الواجبات، الرسائل، ورفيق دراسة بالذكاء الاصطناعي.",
   "aboutMultilingualTitle": "مبني للمدارس التي تتحدث أكثر من لغة",
@@ -2208,8 +2288,11 @@
   "aboutContactTitle": "تواصل",
   "aboutContactDescription": "صنعه Tony Aboud وفريق ClassMate.\nاستفسارات: tony@classmateapp.org",
   "aboutVersionLabel": "ClassMate · إصدار {version}",
-  "@aboutVersionLabel": {"placeholders": {"version": {}}},
-
+  "@aboutVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "adminAddStudent": "إضافة طالب",
   "adminAddTeacher": "إضافة معلم",
   "adminAddParent": "إضافة ولي أمر",
@@ -2221,23 +2304,28 @@
   "adminUsernameRequired": "اسم المستخدم مطلوب",
   "adminPasswordMinLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل (أو اتركها فارغة للتوليد التلقائي)",
   "adminUserCreatedMsg": "تم إنشاء {name}.",
-  "@adminUserCreatedMsg": {"placeholders": {"name": {}}},
+  "@adminUserCreatedMsg": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminCredsUsername": "اسم المستخدم",
   "adminCredsEmail": "البريد الإلكتروني",
   "adminCredsPassword": "كلمة المرور",
   "adminShareCredsHint": "شارك هذه البيانات مع الطالب.",
   "adminCopyCredsButton": "نسخ الكل",
   "adminGradeLabel": "الصف",
-
   "adminCohortGradeFormat": "الصف {grade}",
-  "@adminCohortGradeFormat": {"placeholders": {"grade": {}}},
+  "@adminCohortGradeFormat": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "adminCreateAndAddStudents": "إنشاء وإضافة طلاب",
   "adminAddStudentsTitle": "إضافة طلاب",
   "adminSkipAdding": "تخطّي",
   "adminInCohortBadge": "ضمن المجموعة",
-  "adminRenameCohort": "إعادة تسمية",
   "adminNoStudentsFoundCohort": "لا يوجد طلاب في صفوف هذه المجموعة",
-
   "adminScheduleByCohort": "حسب المجموعة ▾",
   "adminScheduleByStudent": "حسب الطالب ▾",
   "adminScheduleByGrade": "حسب الصف ▾",
@@ -2247,13 +2335,19 @@
   "adminScheduleAddCohort": "إضافة مجموعة",
   "adminScheduleAddStudent": "إضافة طالب",
   "adminScheduleClearFilters": "مسح",
-  "adminSchedulePeriodLabel": "ح{period}",
-  "@adminSchedulePeriodLabel": {"placeholders": {"period": {}}},
+  "@adminSchedulePeriodLabel": {
+    "placeholders": {
+      "period": {}
+    }
+  },
   "adminSchedulePickSubjectRequired": "اختر مادة قبل حفظ الحصة.",
   "adminSchedulePickDateOnce": "اختر تاريخًا لحصة لمرة واحدة.",
   "adminSchedulePickDateRecurring": "اختر تاريخ بداية للجدول كل {freq} أسابيع.",
-  "@adminSchedulePickDateRecurring": {"placeholders": {"freq": {}}},
-
+  "@adminSchedulePickDateRecurring": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
   "adminSchoolLogoLabel": "شعار المدرسة",
   "adminSchoolLogoUploaded": "تم رفع الشعار",
   "adminSchoolNoLogoYet": "لا يوجد شعار بعد",
@@ -2273,7 +2367,6 @@
   "adminSchoolBellInfo": "حدّد وقت البداية والنهاية لكل حصة. تصبح هذه الأوقات الافتراضية المستخدمة عند بناء الجدول الأسبوعي.",
   "adminSchoolStartTime": "البداية",
   "adminSchoolEndTime": "النهاية",
-
   "adminExportStudentsTab": "الطلاب",
   "adminExportCohortsTab": "المجموعات",
   "adminExportGradesTab": "الصفوف",
@@ -2285,66 +2378,105 @@
   "teacherCreateClassroomTooltip": "إنشاء صف",
   "teacherClassroomNameRequired": "اسم الصف *",
   "teacherSubjectRequired": "المادة *",
-
   "messagesStartChatError": "تعذّر بدء المحادثة: {error}",
-  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "@messagesStartChatError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "messagesNoPeopleMatch": "لا يوجد أشخاص يطابقون \"{query}\"",
-  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "@messagesNoPeopleMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "messagesNoPeopleFound": "لم يتم العثور على أشخاص",
   "messagesPeopleCount": "{count, plural, =1{شخص واحد} other{{count} أشخاص}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@messagesPeopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "studentAssignmentValidationRequired": "أضف ملاحظة أو أرفق ملفًا قبل التسليم.",
   "studentFormSubmittedBanner": "إجاباتك المُسلَّمة",
   "studentFormSubmitError": "تعذّر التسليم: {error}",
-  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "@studentFormSubmitError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "studentFormFieldRequired": "مطلوب: {field}",
-  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "@studentFormFieldRequired": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "studentFormClosedButton": "النموذج مغلق",
   "studentFormAlreadySubmittedButton": "تم التسليم مسبقًا",
-
   "studentDiplomaEditTitle": "تعديل الشهادة",
   "studentDiplomaDeleteTitle": "حذف الشهادة؟",
   "studentDiplomaDeleteConfirm": "هل تريد إزالة شهادة \"{name}\"؟",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
-
+  "@studentDiplomaDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherDeleteItemConfirm": "حذف \"{title}\"؟",
-  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "@teacherDeleteItemConfirm": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherPublishTooltip": "نشر",
-
   "teacherMeetingEnterTitle": "يرجى إدخال عنوان.",
   "teacherMeetingEnterLink": "يرجى إدخال رابط الاجتماع.",
   "teacherMeetingEnterValidUrl": "يرجى إدخال رابط صالح (مثال: https://zoom.us/j/...)",
   "teacherMeetingPickStartTime": "يرجى اختيار وقت البداية.",
   "teacherMeetingVisibleToEveryone": "مرئي للجميع",
   "teacherMeetingDoneCount": "تم ({count} محدد)",
-  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMeetingDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "teacherDeleteAssignmentTitle": "حذف الواجب؟",
   "teacherDeleteAssignmentBody": "سيؤدي ذلك إلى حذف الواجب وكل التسليمات نهائيًا.",
   "teacherEditTooltip": "تعديل",
   "teacherDeleteTooltip": "حذف",
-
   "teacherClassroomBackTooltip": "رجوع",
   "teacherClassroomGenericError": "خطأ: {error}",
-  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "@teacherClassroomGenericError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomAttachFailed": "فشل الإرفاق: {error}",
-  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherClassroomAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomFileUnavailable": "هذا الملف غير متاح — يجب على المعلم إعادة رفعه.",
   "teacherClassroomCodeLabel": "رمز الصف",
   "teacherClassroomCodeCopied": "تم نسخ الرمز",
   "teacherClassroomCopyCodeTooltip": "نسخ الرمز",
   "teacherClassroomCouldNotAdd": "تعذّر إضافة: {emails} — تحقق من بريدهم الإلكتروني.",
-  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "@teacherClassroomCouldNotAdd": {
+    "placeholders": {
+      "emails": {}
+    }
+  },
   "teacherClassroomAddStudents": "إضافة طلاب",
   "teacherClassroomSearchNameGrade": "ابحث بالاسم أو الصف…",
   "teacherClassroomNoStudentsFound": "لم يتم العثور على طلاب",
-
   "teacherClassroomNameSubjectRequired": "الاسم والمادة مطلوبان.",
   "teacherClassroomCreated": "تم إنشاء الصف!",
   "teacherCustomSubjectLabel": "مادة مخصصة *",
   "teacherCreateClassroomButton": "إنشاء صف",
-
   "teacherCreateFormTitle": "إنشاء نموذج",
   "teacherFormSaveDraft": "حفظ مسودة",
   "teacherFormTitleHint": "عنوان النموذج *",
@@ -2355,35 +2487,50 @@
   "teacherFormQuestionsSection": "الأسئلة",
   "teacherFormAddQuestionButton": "إضافة سؤال",
   "teacherFormQuestionPlaceholder": "السؤال {index}",
-  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "@teacherFormQuestionPlaceholder": {
+    "placeholders": {
+      "index": {}
+    }
+  },
   "teacherFormRequiredToggle": "مطلوب",
   "teacherFormAddOptionButton": "إضافة خيار",
   "teacherFormMinLabel": "الحد الأدنى",
   "teacherFormMaxLabel": "الحد الأقصى",
   "teacherFormEnterTitle": "يرجى إدخال عنوان للنموذج.",
-
   "teacherExamUploadFailedSkipped": "فشل رفع {name}. تم تجاهل الملف.",
-  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "@teacherExamUploadFailedSkipped": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherExamEnterTitle": "يرجى إدخال عنوان.",
   "teacherExamPickDate": "يرجى اختيار تاريخ الامتحان.",
   "teacherExamSelectSubject": "يرجى اختيار مادة.",
-
   "teacherSlotDetachFailed": "فشل الفصل: {error}",
-  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotDetachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachFailed": "فشل الإرفاق: {error}",
-  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachMaterial": "إرفاق مادة",
   "teacherSlotDetachTooltip": "فصل",
-
   "teacherDiplomaSelectStudent": "اختر طالبًا أولاً.",
   "teacherDiplomaUploadingWait": "يرجى الانتظار — لا تزال الملفات تُرفع.",
   "teacherDiplomaIssueFailed": "تعذّر إصدار الشهادة: {error}",
-  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "@teacherDiplomaIssueFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherDiplomaCertTitleLabel": "عنوان الشهادة",
   "teacherDiplomaSearchStudent": "ابحث عن طالب…",
-
   "teacherProfileChatError": "تعذّر بدء المحادثة",
-
   "teacherGradeAssignmentType": "واجب",
   "teacherGradeExamType": "امتحان",
   "teacherGradeOtherType": "أخرى",
@@ -2395,65 +2542,81 @@
   "teacherMaterialAddFile": "إضافة ملف",
   "teacherMaterialSearchStudentsGrade": "ابحث عن الطلاب أو الصف...",
   "teacherMaterialDoneSelected": "تم ({count} محدد)",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMaterialDoneSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectEnglishNameRequired": "الاسم بالإنجليزية مطلوب",
   "adminSubjectNameInLang": "الاسم بـ {language}",
-  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "@adminSubjectNameInLang": {
+    "placeholders": {
+      "language": {}
+    }
+  },
   "adminSubjectResetButton": "إعادة تعيين",
-
   "teacherAnnounceBroadcastTitle": "إرسال للجميع؟",
   "teacherAnnounceSendToEveryone": "إرسال للجميع",
   "teacherAnnounceNoCohorts": "لا توجد مجموعات متاحة",
   "teacherAnnounceNothingFound": "لم يتم العثور على شيء",
   "teacherAnnounceNoParents": "لم يتم العثور على أولياء أمور في هذه المدرسة.",
-
-  "teacherGradesSaved": "تم حفظ الدرجات",
   "teacherGradesToGrade": "للتقدير",
   "teacherGradesGraded": "تم التقدير",
   "teacherSaveGradesButton": "حفظ الدرجات",
   "teacherAllowResubmitLabel": "السماح بإعادة التسليم",
   "teacherAllowResubmitTitle": "السماح بإعادة التسليم؟",
   "teacherAllowResubmitBody": "سيؤدي ذلك إلى حذف تسليم {name} ليتمكن من التسليم مجددًا.",
-  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "@teacherAllowResubmitBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAllowButton": "السماح",
   "teacherGradeFieldLabel": "الدرجة",
   "teacherFeedbackOptionalLabel": "ملاحظات (اختياري)",
-
   "teacherCreateClassroomFabLabel": "إنشاء",
   "teacherLoadingStudents": "جارٍ تحميل الطلاب…",
   "teacherSearchHintShort": "بحث…",
   "teacherCreateClassroomTitle": "صف جديد",
-
   "teacherAssignmentUploadFailed": "تعذّر رفع {name}",
-  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "@teacherAssignmentUploadFailed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAssignmentEnterTitle": "يرجى إدخال عنوان.",
   "teacherAssignmentSelectSubject": "يرجى اختيار مادة.",
   "teacherAssignmentInstructionsLabel": "التعليمات / الوصف",
   "teacherAttachFilesButton": "إرفاق ملفات",
-
   "tutorDeleteConversationTitle": "حذف المحادثة؟",
   "tutorDeleteConversationButton": "حذف نهائيًا",
   "tutorDeleteFailed": "تعذّر الحذف: {error}",
-  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "@tutorDeleteFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorDeleteMenuTitle": "حذف المحادثة",
   "tutorDeleteMenuSubtitle": "يحذف المحادثة نهائيًا من الخادم",
-
   "accountVerifyButton": "تحقق",
   "accountConfirmButton": "تأكيد",
   "accountResendCode": "إعادة إرسال الرمز",
   "accountCodeResent": "تم إرسال رمز جديد.",
   "accountContinueButton": "متابعة",
-
   "studentClassroomFileUnavailable": "هذا الملف غير متاح حاليًا.",
   "studentClassroomDeleteMaterial": "حذف المادة؟",
   "studentClassroomCodeLabel": "رمز الصف",
   "studentClassroomLeaveTooltip": "مغادرة الصف",
-
   "adminEditUserEnglishNameRequired": "الاسم بالإنجليزية مطلوب",
   "adminEditUserSaved": "تم الحفظ",
   "adminEditUserPasswordChanged": "تم تغيير كلمة المرور لـ {name}.",
-  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "@adminEditUserPasswordChanged": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminEditUserLoginSection": "تسجيل الدخول",
   "adminEditUserUsernameLabel": "اسم المستخدم",
   "adminEditUserEmailOptional": "البريد الإلكتروني (اختياري)",
@@ -2469,7 +2632,6 @@
   "adminEditUserNewPasswordLabel": "كلمة المرور الجديدة",
   "adminEditUserConfirmPasswordLabel": "تأكيد كلمة المرور",
   "adminEditUserSetPasswordButton": "تعيين كلمة المرور",
-
   "adminPeriodsTitle": "إدارة الحصص",
   "adminPeriodsAddPeriod": "إضافة حصة",
   "adminPeriodsNoPeriods": "لا توجد حصص بعد",
@@ -2483,7 +2645,6 @@
   "adminPeriodsCohortsLabel": "المجموعات",
   "adminPeriodsStudentsOptional": "الطلاب (اختياري)",
   "adminPeriodsSearchByName": "ابحث بالاسم…",
-
   "commonErrorWith": "خطأ: {error}",
   "commonAddCount": "إضافة {count}",
   "teacherStudentGradesSaved": "تم حفظ الدرجات",
@@ -2499,7 +2660,6 @@
   "plansTryAgain": "أعد المحاولة",
   "adminCohortsGradeOnly": "الصف {grade} فقط",
   "adminCohortsGradeRangeOnly": "الصفوف {from}-{to} فقط",
-
   "adminExportNeedStudents": "اختر طالبًا واحدًا أو مجموعة على الأقل أولاً",
   "adminExportButton": "تصدير {count}",
   "adminExportNoStudents": "لم يتم العثور على طلاب",
@@ -2554,10 +2714,6 @@
   "teacherMaterialPickerClassroomTitle": "اختر الصف",
   "teacherMaterialPickerStudentsTitle": "اختر الطلاب",
   "teacherMaterialPickerGradesTitle": "اختر الصفوف",
-
-  "adminScheduleAddSlot": "إضافة فترة",
-  "adminScheduleAddPeriod": "إضافة حصة",
-  "adminScheduleAddStudent": "إضافة طالب",
   "adminScheduleAddNew": "إضافة جديد",
   "adminScheduleAddCount": "إضافة ({count})",
   "adminScheduleCaptionOptional": "تسمية توضيحية (اختياري)",
@@ -2584,7 +2740,6 @@
   "adminScheduleCreatedSlots": "تم إنشاء {created}/{total} فترات. {error}",
   "adminScheduleSavedLabelOnlyError": "تم الحفظ كتسمية فقط — تعذرت الإضافة إلى المكتبة: {error}",
   "adminScheduleSavedLabelPickAudience": "تم الحفظ كتسمية. اختر جمهورًا أولاً لإضافة المادة إلى مكتبة المدرسة أيضًا.",
-
   "commonNothingFound": "لم يتم العثور على شيء",
   "commonDownloadFailed": "فشل التنزيل: {error}",
   "commonFailedWith": "فشل: {error}",
@@ -2599,7 +2754,13 @@
   "adminPasswordReqTitle": "طلبات كلمات المرور",
   "adminPasswordReqBlurb": "مستخدمون من مدرستك طلبوا منك الموافقة على تغيير كلمة المرور.",
   "adminPasswordReqWaiting": "{count, plural, =1{مستخدم واحد ينتظر موافقتك.} other{{count} مستخدمون ينتظرون موافقتك.}}",
-  "@adminPasswordReqWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "@adminPasswordReqWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminPasswordReqWantsChange": "يريد تغيير كلمة المرور الخاصة به. كلمة المرور الجديدة مخفية.",
   "adminPasswordReqReject": "رفض",
   "adminPasswordReqApprove": "موافقة",
@@ -2607,7 +2768,6 @@
   "adminSchoolSettingsTapToAddTranslations": "اضغط لإضافة الترجمات",
   "adminSchoolSettingsAddPeriodNum": "إضافة حصة (P{num})",
   "adminVisibleToEveryone": "مرئي للجميع",
-
   "navMaterials": "المواد التعليمية",
   "navPlans": "خطط NOVA",
   "navReports": "البلاغات",
@@ -2616,12 +2776,9 @@
   "sectionSecretaryTools": "أدوات السكرتارية",
   "sectionSchoolToolsLabel": "أدوات المدرسة",
   "sectionAdminTools": "أدوات الإدارة",
-
   "chatVideoTrimTitle": "اقتطاع الفيديو",
   "chatMediaPreviewTrimAction": "اقتطاع",
-
   "commonUntitled": "بدون عنوان",
-
   "plansMonthlyPlans": "الخطط الشهرية",
   "plansTokenTopups": "حزم الرموز",
   "plansTopupsSubtitle": "عمليات شراء لمرة واحدة. لا تنتهي صلاحيتها. تُضاف فوق خطتك.",
@@ -2640,9 +2797,21 @@
   "planBlurbBalance": "للطلاب الذين يدرسون كل يوم.",
   "planBlurbCommitment": "تدريب مكثف + فضول بلا حدود.",
   "plansTokensPerMonth": "{tokens} رمزًا / شهر",
-  "@plansTokensPerMonth": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensPerMonth": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "plansTokensOneTime": "{tokens} رمزًا",
-  "@plansTokensOneTime": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensOneTime": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "planPriceFree": "مجاني",
   "plansTokensRemaining": "رموز متبقية",
   "plansPlanResetsAt": "تُعاد تهيئة الخطة {when}",
@@ -2652,7 +2821,6 @@
   "plansPerMonthSuffix": " / شهريًا",
   "plansCurrentBadge": "الحالية",
   "plansCouldntLoadPlans": "تعذر تحميل الخطط",
-
   "paywallPlansUnavailable": "الخطط غير متاحة. حاول مرة أخرى بعد قليل.",
   "paywallTopupUnavailable": "الحزمة غير متاحة. لم يكتمل اعتماد المنتج من قبل المتجر.",
   "paywallRestored": "تمت استعادة اشتراكك.",
@@ -2691,10 +2859,8 @@
   "paywallFeatureImages": "تحليل الصور ورفع الملفات مشمولان",
   "paywallFeatureReset": "تُعاد تهيئة الرموز في بداية كل شهر",
   "paywallFeatureCancel": "ألغِ في أي وقت — دون التزام",
-
   "studentMaterialsGeneralSubject": "عام",
   "studentMaterialsResourceCount": "{count, plural, one{مصدر واحد من معلميك} other{{count} مصادر من معلميك}}",
-
   "classroomsCouldNotLoadWithError": "تعذر تحميل الصفوف\n{error}",
   "parentNoNotificationsYet": "لا توجد إشعارات بعد.",
   "forwardCouldNotLoadChats": "تعذر تحميل المحادثات: {error}",
@@ -2702,13 +2868,11 @@
   "forgotPasswordFindAdmins": "ابحث عن مديري مدرستي",
   "forgotPasswordChooseAdmin": "اختر مديرًا من {school}:",
   "forgotPasswordSendRequest": "إرسال طلب كلمة المرور",
-
   "commonTitle": "العنوان",
   "commonNotes": "ملاحظات",
   "commonEmail": "البريد الإلكتروني",
   "commonPassword": "كلمة المرور",
   "commonNumberOfPages": "عدد الصفحات",
-
   "messagesSearchByNameOrGrade": "ابحث بالاسم أو الصف…",
   "meetingStartDateRequired": "تاريخ البدء *",
   "meetingStartTimeRequired": "وقت البدء *",
@@ -2726,24 +2890,19 @@
   "forgotPasswordYourPhone": "رقم هاتفك (حتى يتمكن المدير من التحقق من هويتك)",
   "forgotPasswordPhoneHelper": "سيتصل المدير أو يرسل رسالة نصية إلى هذا الرقم قبل الموافقة.",
   "forgotPasswordNewPasswordHelper": "على الأقل 8 أحرف. تُخزن مشفّرة — لن يراها المدير.",
-
   "adminExportPasswordsWarning": "{count, plural, one{سيحتوي الملف على معلومات تسجيل الدخول لطالب واحد، بما في ذلك كلمة المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كهذا الطالب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم المستخدم بتسجيل الدخول التالي أو إعادة التعيين.} other{سيحتوي الملف على معلومات تسجيل الدخول لـ {count} طلاب، بما في ذلك كلمات المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كأحد هؤلاء الطلاب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم كل مستخدم بتسجيل الدخول التالي أو إعادة التعيين.}}",
-
   "pickerSelectStudents": "اختر الطلاب",
   "pickerSelectCohorts": "اختر المجموعات",
   "pickerSelectGrades": "اختر الصفوف",
   "pickerSelectClassroom": "اختر الصف",
   "pickerSelectClasses": "اختر الصفوف",
-
   "drawerLoadingChildren": "جاري تحميل الأبناء…",
   "drawerCouldNotLoadChildren": "تعذر تحميل الأبناء",
   "drawerNoChildrenLinked": "لا يوجد أبناء مرتبطون",
   "drawerSwitchChild": "تبديل الابن",
-
   "shellAssessmentCreated": "تم إنشاء التقييم",
   "commonCouldNotOpenLink": "تعذر فتح رابط {scheme}",
   "commonCouldntSend": "تعذر الإرسال: {error}",
-
   "teacherExamDetailsSection": "تفاصيل الامتحان",
   "teacherExamStudyMaterialsWithCount": "مواد الدراسة ({count})",
   "teacherMeetingDetailsSection": "تفاصيل الاجتماع",
@@ -2757,7 +2916,6 @@
   "studentFilesSharedByTeacher": "ملفات شاركها معلمك",
   "studentYourSubmission": "تسليمك",
   "studentFilesSharedWithAnnouncement": "ملفات مشاركة مع هذا الإعلان.",
-
   "announcementGradeRiskTitle": "تم رصد خطر في الدرجات",
   "announcementWeakSubjectTitle": "تم رصد مادة ضعيفة",
   "announcementLowAttendanceTitle": "حضور منخفض",
@@ -2766,7 +2924,6 @@
   "announcementPracticeTrendDroppedTitle": "انخفض اتجاه التدريب",
   "announcementSolutionsActivityTitle": "نشاط الحلول مباشر",
   "announcementAllGoodTitle": "كل شيء بخير",
-
   "supportSectionGettingStarted": "البدء",
   "supportSectionAccountPassword": "الحساب وكلمة المرور",
   "supportSectionForStudents": "للطلاب",
@@ -2774,15 +2931,11 @@
   "supportSectionForAdministrators": "للإداريين",
   "supportSectionForParents": "للأهالي",
   "supportSectionPrivacyData": "الخصوصية والبيانات",
-
   "novaDisclaimerCanMakeMistakes": "قد يخطئ",
   "novaDisclaimerEducationalUseOnly": "للاستخدام التعليمي فقط",
   "novaDisclaimerYourPrivacy": "خصوصيتك",
-
   "profileNameInLanguage": "الاسم بـ{language}",
-
   "adminSettingsScheduleSubtitle": "تعيين المعلمين والمجموعات في فترات أسبوعية",
-
   "practiceModeBalancedSubtitle": "تدريب يومي متوازن",
   "practiceModeRevealSubtitle": "كشف واسترجاع ذاتي",
   "practiceModeFastSubtitle": "تدريب سريع بضغط",
@@ -2790,17 +2943,10 @@
   "practiceModeConceptSubtitle": "المفهوم أولاً، الحل لاحقًا",
   "practiceModeAdaptiveSubtitle": "تتغير الصعوبة مباشرة",
   "practiceModeStrictSubtitle": "نمط رسمي صارم",
-
-  "commonEdit": "تعديل",
-  "commonBack": "رجوع",
-  "commonClose": "إغلاق",
-  "commonDownload": "تنزيل",
-  "commonOpenExternally": "فتح خارجيًا",
   "commonCall": "اتصال",
   "tooltipClearEndTime": "مسح وقت الانتهاء",
   "tooltipDeletePeriod": "حذف الحصة",
   "tooltipLeaveClassroom": "مغادرة الصف",
-
   "announcementGradeRiskBody": "انخفض معدلك إلى ما دون 70. ننصح باتخاذ إجراء فوري.",
   "announcementWeakSubjectBody": "{subject} يحتاج إلى اهتمام.",
   "announcementLowAttendanceBody": "حضورك في انخفاض. سيؤثر هذا على درجاتك.",
@@ -2809,7 +2955,6 @@
   "announcementPracticeDropBody": "تدريبك الأخير دون مستواك الأساسي. أبطئ وأعد البناء.",
   "announcementSolutionsActivityBody": "مساحة الحلول الخاصة بك نشطة على الصفحة {page} والسؤال {question}. تحقق من عمل زملائك أو ارفع عملك.",
   "announcementAllGoodBody": "لا توجد مخاطر أكاديمية كبيرة الآن.",
-
   "faqStartedQ1": "كيف أسجل الدخول؟",
   "faqStartedA1": "اضغط على \"تسجيل الدخول\" في شاشة الترحيب وأدخل البريد الإلكتروني أو اسم المستخدم الذي زودك به مدير المدرسة، بالإضافة إلى كلمة المرور المؤقتة. سيُطلب منك تعيين كلمة مرور جديدة في المرة الأولى.",
   "faqStartedQ2": "ليس لدي حساب بعد.",
@@ -2862,17 +3007,13 @@
   "faqPrivacyA1": "فقط الأشخاص في مدرستك. يرى المعلمون بيانات صفوفهم، يرى المديرون بيانات المدرسة بأكملها، يرى الأهالي أطفالهم المرتبطين. لا نبيع البيانات للمعلنين أبدًا.",
   "faqPrivacyQ2": "كيف أحذف حسابي؟",
   "faqPrivacyA2": "اطلب من مدير المدرسة حذفه. يمكنه إزالة الحساب من تطبيق الإدارة، مما يمسح ملفك الشخصي وجدولك ومحادثاتك.",
-
   "solutionsPagesCount": "{count, plural, one{صفحة واحدة} other{{count} صفحات}}",
-
   "teacherMeetingEditTitle": "تعديل الاجتماع",
   "teacherMeetingNewTitle": "جدولة اجتماع",
   "teacherExamEditTitle": "تعديل الامتحان",
   "teacherExamNewTitle": "إنشاء امتحان",
   "teacherAssignmentEditTitle": "تعديل الواجب",
   "teacherAssignmentNewTitle": "واجب جديد",
-  "teacherAssignmentPublished": "تم نشر الواجب.",
-  "teacherAssignmentDraftSaved": "تم حفظ المسودة.",
   "tooltipShowTabs": "إظهار التبويبات",
   "tooltipHideTabs": "إخفاء التبويبات",
   "examsCouldNotLoadForms": "تعذر تحميل النماذج",
@@ -2883,18 +3024,14 @@
   "commonReadMore": "اقرأ المزيد",
   "commonReadLess": "اقرأ أقل",
   "chatComposerSlideToCancel": "اسحب للإلغاء",
-  "chatComposerReleaseToCancel": "حرر للإلغاء",
   "adminNoRoleYet": "لا يوجد {role} بعد",
   "profileVerified": "تم التحقق.",
   "profileUpdatedPendingVerification": "تم التحديث وفي انتظار إعادة التحقق.",
   "adminSearchCohorts": "ابحث عن المجموعات…",
-
   "commonAdding": "جاري الإضافة…",
-  "commonAdd": "إضافة",
   "teacherDiplomaIssuing": "جاري الإصدار…",
   "teacherDiplomaIssue": "إصدار",
   "formAccepting": "قبول",
-  "formClosed": "مغلق",
   "profileVerifiedShort": "موثق",
   "profileUnverified": "غير موثق",
   "notificationNewGradePosted": "تم نشر درجة جديدة",
@@ -2903,7 +3040,6 @@
   "notificationFallbackTitle": "إشعار",
   "adminCohortGradeRange": "الصف {from}-{to}",
   "adminCohortGradesList": "الصفوف {list}",
-
   "adminExportHeaderTitle": "تصدير المستخدمين",
   "adminExportHeaderSubtitle": "أضف الفلاتر كشارات — كل شارة تضيف مستخدمين إلى التصدير. اضغط على شارة لإزالتها.",
   "adminExportAddFilter": "إضافة فلتر",
@@ -2914,9 +3050,24 @@
   "adminExportFilterUsersTab": "المستخدمون",
   "adminExportSelectAll": "تحديد الكل",
   "adminExportSelectedCount": "{selected} من {total} محدد",
-  "@adminExportSelectedCount": {"placeholders": {"selected": {"type": "int"}, "total": {"type": "int"}}},
+  "@adminExportSelectedCount": {
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportRolePickedCount": "{count, plural, =1{محدد واحد} other{{count} محدد}}",
-  "@adminExportRolePickedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminExportRolePickedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportPillRolePrefix": "دور:",
   "adminExportPillCohortPrefix": "مجموعة:",
   "adminExportActiveFilters": "{count, plural, one{فلتر نشط واحد} other{{count} فلاتر نشطة}}",
@@ -2935,7 +3086,64 @@
   "adminExportPasswordsOff": "لن يحتوي التصدير على أي كلمات مرور.",
   "adminExportPdfUserDirectory": "دليل المستخدمين",
   "adminExportPdfUsersCount": "{count, plural, one{مستخدم واحد} other{{count} مستخدمين}}",
-
   "teacherAttachFromMaterials": "من المواد",
-  "teacherUploadFiles": "رفع ملفات"
+  "teacherUploadFiles": "رفع ملفات",
+  "solSubjectMathematics": "الرياضيات",
+  "solSubjectComputerScience": "علوم الحاسوب",
+  "solSubjectPhysics": "الفيزياء",
+  "solSubjectChemistry": "الكيمياء",
+  "solSubjectHebrew": "العبرية",
+  "solSubjectBiology": "الأحياء",
+  "solSubjectHistory": "التاريخ",
+  "solSubjectArabic": "العربية",
+  "solSubjectElectronics": "الإلكترونيات",
+  "solSubjectMechanics": "الميكانيكا",
+  "solSubjectFrench": "الفرنسية",
+  "solSubjectEnvironmentalScience": "علوم البيئة",
+  "solSubjectCommunicationCinema": "الاتصال والسينما",
+  "solSubjectCitizenship": "مدنيات",
+  "solSubjectSociology": "علم الاجتماع",
+  "solSubjectReligion": "الدين",
+  "solSubjectGeography": "الجغرافيا",
+  "commonUnknown": "غير معروف",
+  "solutionsReportTitle": "الإبلاغ عن هذا الحل",
+  "solutionsReportBody": "أخبر المشرفين بالمشكلة. سيراجعها مشرفو المدرستين.",
+  "solutionsReportReasonHint": "السبب (اختياري)",
+  "solutionsReportAction": "إبلاغ",
+  "solutionsReportSubmitted": "شكرًا — تم الإبلاغ للمشرفين.",
+  "solutionsReportAlready": "لقد أبلغت عن هذا بالفعل.",
+  "solutionsBookPagesCount": "{count} صفحة",
+  "solutionsNoBooksYetForStudents": "لا توجد كتب هنا بعد. سيضيفها معلمك.",
+  "solutionsManageBooksTitle": "إدارة الكتب",
+  "solutionsNoBooksManageHint": "لا توجد كتب لهذه المادة بعد. اضغط + للإضافة.",
+  "solutionsDeleteBookTitle": "حذف الكتاب؟",
+  "solutionsDeleteBookBody": "حذف \"{title}\"؟ لا يمكن التراجع.",
+  "solutionsBookSaveFailed": "تعذّر الحفظ: {error}",
+  "solutionsBookNeedTitlePages": "أدخل عنوانًا وعدد الصفحات.",
+  "solutionsEditBookTitle": "تعديل الكتاب",
+  "solutionsBookCoverLabel": "غلاف",
+  "solutionsGradeLabel": "الصف {grade}",
+  "solutionsReportsTitle": "الحلول المُبلّغ عنها",
+  "solutionsReportsEmpty": "لا توجد بلاغات للمراجعة.",
+  "solutionsReportPostedBy": "نشر بواسطة",
+  "solutionsReportReportedBy": "أبلغ عنه",
+  "solutionsReportReasonLabel": "السبب",
+  "solutionsReportKeepAction": "إبقاء",
+  "solutionsReportRemoveAction": "إزالة",
+  "solutionsReportStatusPending": "قيد المراجعة",
+  "solutionsReportStatusApproved": "تم الإبقاء",
+  "solutionsReportStatusRemoved": "تمت الإزالة",
+  "solutionsReportRemoved": "تمت إزالة الحل.",
+  "solutionsReportApproved": "تم تجاهل البلاغ — تم إبقاء الحل.",
+  "solutionsReportFailed": "تعذّر الإبلاغ: {error}",
+  "teacherDeleteClassroom": "حذف الصف",
+  "teacherDeleteClassroomConfirm": "سيؤدي هذا إلى حذف الصف نهائيًا مع جميع محادثاته وواجباته وموادّه ولقاءاته وقائمة أعضائه. لا يمكن التراجع عن ذلك.",
+  "teacherClassroomDeleted": "تم حذف الصف",
+  "announcementsTabReceived": "الواردة",
+  "announcementsTabPublished": "المنشورة",
+  "teacherAddGradeTitle": "إضافة علامة",
+  "commonCohort": "الفوج",
+  "teacherCreateNewExam": "إنشاء امتحان جديد",
+  "teacherCreateNewAssignment": "إنشاء واجب جديد",
+  "commonReturn": "إرجاع"
 }

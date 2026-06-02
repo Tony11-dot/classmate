@@ -397,7 +397,7 @@ class _TeacherAssignmentDetailScreenState
                                               TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
                                               FilledButton(
                                                 onPressed: () => Navigator.pop(ctx, true),
-                                                child: const Text('Return'),
+                                                child: Text(AppLocalizations.of(context)!.commonReturn),
                                               ),
                                             ],
                                           ),

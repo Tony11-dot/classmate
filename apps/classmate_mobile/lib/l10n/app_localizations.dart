@@ -13904,6 +13904,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload files'**
   String get teacherUploadFiles;
+
+  /// No description provided for @solSubjectMathematics.
+  ///
+  /// In en, this message translates to:
+  /// **'Mathematics'**
+  String get solSubjectMathematics;
+
+  /// No description provided for @solSubjectComputerScience.
+  ///
+  /// In en, this message translates to:
+  /// **'Computer Science'**
+  String get solSubjectComputerScience;
+
+  /// No description provided for @solSubjectPhysics.
+  ///
+  /// In en, this message translates to:
+  /// **'Physics'**
+  String get solSubjectPhysics;
+
+  /// No description provided for @solSubjectChemistry.
+  ///
+  /// In en, this message translates to:
+  /// **'Chemistry'**
+  String get solSubjectChemistry;
+
+  /// No description provided for @solSubjectHebrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Hebrew'**
+  String get solSubjectHebrew;
+
+  /// No description provided for @solSubjectBiology.
+  ///
+  /// In en, this message translates to:
+  /// **'Biology'**
+  String get solSubjectBiology;
+
+  /// No description provided for @solSubjectHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get solSubjectHistory;
+
+  /// No description provided for @solSubjectArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic'**
+  String get solSubjectArabic;
+
+  /// No description provided for @solSubjectElectronics.
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics'**
+  String get solSubjectElectronics;
+
+  /// No description provided for @solSubjectMechanics.
+  ///
+  /// In en, this message translates to:
+  /// **'Mechanics'**
+  String get solSubjectMechanics;
+
+  /// No description provided for @solSubjectFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get solSubjectFrench;
+
+  /// No description provided for @solSubjectEnvironmentalScience.
+  ///
+  /// In en, this message translates to:
+  /// **'Environmental Science'**
+  String get solSubjectEnvironmentalScience;
+
+  /// No description provided for @solSubjectCommunicationCinema.
+  ///
+  /// In en, this message translates to:
+  /// **'Communication and Cinema'**
+  String get solSubjectCommunicationCinema;
+
+  /// No description provided for @solSubjectCitizenship.
+  ///
+  /// In en, this message translates to:
+  /// **'Citizenship'**
+  String get solSubjectCitizenship;
+
+  /// No description provided for @solSubjectSociology.
+  ///
+  /// In en, this message translates to:
+  /// **'Sociology'**
+  String get solSubjectSociology;
+
+  /// No description provided for @solSubjectReligion.
+  ///
+  /// In en, this message translates to:
+  /// **'Religion'**
+  String get solSubjectReligion;
+
+  /// No description provided for @solSubjectGeography.
+  ///
+  /// In en, this message translates to:
+  /// **'Geography'**
+  String get solSubjectGeography;
+
+  /// No description provided for @commonUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get commonUnknown;
+
+  /// No description provided for @solutionsReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this solution'**
+  String get solutionsReportTitle;
+
+  /// No description provided for @solutionsReportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the admins what\'s wrong. The admins of both schools will review it.'**
+  String get solutionsReportBody;
+
+  /// No description provided for @solutionsReportReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get solutionsReportReasonHint;
+
+  /// No description provided for @solutionsReportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get solutionsReportAction;
+
+  /// No description provided for @solutionsReportSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — reported to the admins.'**
+  String get solutionsReportSubmitted;
+
+  /// No description provided for @solutionsReportAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'You already reported this.'**
+  String get solutionsReportAlready;
+
+  /// No description provided for @solutionsBookPagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String solutionsBookPagesCount(int count);
+
+  /// No description provided for @solutionsNoBooksYetForStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No books here yet. Your teacher will add them.'**
+  String get solutionsNoBooksYetForStudents;
+
+  /// No description provided for @solutionsManageBooksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage books'**
+  String get solutionsManageBooksTitle;
+
+  /// No description provided for @solutionsNoBooksManageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No books for this subject yet. Tap + to add one.'**
+  String get solutionsNoBooksManageHint;
+
+  /// No description provided for @solutionsDeleteBookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete book?'**
+  String get solutionsDeleteBookTitle;
+
+  /// No description provided for @solutionsDeleteBookBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"? This can\'t be undone.'**
+  String solutionsDeleteBookBody(String title);
+
+  /// No description provided for @solutionsBookSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save: {error}'**
+  String solutionsBookSaveFailed(String error);
+
+  /// No description provided for @solutionsBookNeedTitlePages.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a title and page count.'**
+  String get solutionsBookNeedTitlePages;
+
+  /// No description provided for @solutionsEditBookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit book'**
+  String get solutionsEditBookTitle;
+
+  /// No description provided for @solutionsBookCoverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get solutionsBookCoverLabel;
+
+  /// No description provided for @solutionsGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String solutionsGradeLabel(int grade);
+
+  /// No description provided for @solutionsReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported solutions'**
+  String get solutionsReportsTitle;
+
+  /// No description provided for @solutionsReportsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports to review.'**
+  String get solutionsReportsEmpty;
+
+  /// No description provided for @solutionsReportPostedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted by'**
+  String get solutionsReportPostedBy;
+
+  /// No description provided for @solutionsReportReportedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported by'**
+  String get solutionsReportReportedBy;
+
+  /// No description provided for @solutionsReportReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get solutionsReportReasonLabel;
+
+  /// No description provided for @solutionsReportKeepAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get solutionsReportKeepAction;
+
+  /// No description provided for @solutionsReportRemoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get solutionsReportRemoveAction;
+
+  /// No description provided for @solutionsReportStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get solutionsReportStatusPending;
+
+  /// No description provided for @solutionsReportStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept'**
+  String get solutionsReportStatusApproved;
+
+  /// No description provided for @solutionsReportStatusRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed'**
+  String get solutionsReportStatusRemoved;
+
+  /// No description provided for @solutionsReportRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution removed.'**
+  String get solutionsReportRemoved;
+
+  /// No description provided for @solutionsReportApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Report dismissed — solution kept.'**
+  String get solutionsReportApproved;
+
+  /// No description provided for @solutionsReportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t report: {error}'**
+  String solutionsReportFailed(String error);
+
+  /// No description provided for @teacherAddGradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Grade'**
+  String get teacherAddGradeTitle;
+
+  /// No description provided for @commonCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort'**
+  String get commonCohort;
+
+  /// No description provided for @teacherCreateNewExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new exam'**
+  String get teacherCreateNewExam;
+
+  /// No description provided for @teacherCreateNewAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new assignment'**
+  String get teacherCreateNewAssignment;
+
+  /// No description provided for @commonReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return'**
+  String get commonReturn;
 }
 
 class _AppLocalizationsDelegate

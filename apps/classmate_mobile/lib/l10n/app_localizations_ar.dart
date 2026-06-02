@@ -583,13 +583,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleClassFallback => 'حصة';
 
   @override
-  String get scheduleNoSubjectLocation => 'No subject or location yet';
+  String get scheduleNoSubjectLocation => 'لا يوجد موضوع أو موقع بعد';
 
   @override
-  String get scheduleNotes => 'Notes';
+  String get scheduleNotes => 'ملاحظات';
 
   @override
-  String get scheduleGoToClassroom => 'Go to Classroom';
+  String get scheduleGoToClassroom => 'الذهاب إلى الصف';
 
   @override
   String get loginTitle => 'تسجيل الدخول للجوال للطلاب والمعلمين';
@@ -1881,20 +1881,20 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم تتمكن الإعلانات من الاتصال الآن. تحقق من الاتصال وحاول مرة أخرى.';
 
   @override
-  String get teacherDeleteClassroom => 'Delete classroom';
+  String get teacherDeleteClassroom => 'حذف الصف';
 
   @override
   String get teacherDeleteClassroomConfirm =>
-      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+      'سيؤدي هذا إلى حذف الصف نهائيًا مع جميع محادثاته وواجباته وموادّه ولقاءاته وقائمة أعضائه. لا يمكن التراجع عن ذلك.';
 
   @override
-  String get teacherClassroomDeleted => 'Classroom deleted';
+  String get teacherClassroomDeleted => 'تم حذف الصف';
 
   @override
-  String get announcementsTabReceived => 'Received';
+  String get announcementsTabReceived => 'الواردة';
 
   @override
-  String get announcementsTabPublished => 'Published';
+  String get announcementsTabPublished => 'المنشورة';
 
   @override
   String get announcementsAudienceTeacher => 'معلم';
@@ -4310,19 +4310,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'تعذر تحميل الجدول';
 
   @override
-  String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+  String get teacherAttendanceLast30 => 'الحضور (آخر 30 يومًا)';
 
   @override
   String teacherAttendanceFrom(Object date) {
-    return 'From $date';
+    return 'من $date';
   }
 
   @override
-  String get teacherAttendanceChangeDate => 'Change date';
+  String get teacherAttendanceChangeDate => 'تغيير التاريخ';
 
   @override
   String get teacherAttendanceNoSessions =>
-      'No saved attendance sessions.\nMark attendance from the schedule.';
+      'لا توجد جلسات حضور محفوظة.\nسجّل الحضور من الجدول.';
 
   @override
   String get teacherRecentGrades => 'الدرجات الأخيرة';
@@ -7874,4 +7874,176 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherUploadFiles => 'رفع ملفات';
+
+  @override
+  String get solSubjectMathematics => 'الرياضيات';
+
+  @override
+  String get solSubjectComputerScience => 'علوم الحاسوب';
+
+  @override
+  String get solSubjectPhysics => 'الفيزياء';
+
+  @override
+  String get solSubjectChemistry => 'الكيمياء';
+
+  @override
+  String get solSubjectHebrew => 'العبرية';
+
+  @override
+  String get solSubjectBiology => 'الأحياء';
+
+  @override
+  String get solSubjectHistory => 'التاريخ';
+
+  @override
+  String get solSubjectArabic => 'العربية';
+
+  @override
+  String get solSubjectElectronics => 'الإلكترونيات';
+
+  @override
+  String get solSubjectMechanics => 'الميكانيكا';
+
+  @override
+  String get solSubjectFrench => 'الفرنسية';
+
+  @override
+  String get solSubjectEnvironmentalScience => 'علوم البيئة';
+
+  @override
+  String get solSubjectCommunicationCinema => 'الاتصال والسينما';
+
+  @override
+  String get solSubjectCitizenship => 'مدنيات';
+
+  @override
+  String get solSubjectSociology => 'علم الاجتماع';
+
+  @override
+  String get solSubjectReligion => 'الدين';
+
+  @override
+  String get solSubjectGeography => 'الجغرافيا';
+
+  @override
+  String get commonUnknown => 'غير معروف';
+
+  @override
+  String get solutionsReportTitle => 'الإبلاغ عن هذا الحل';
+
+  @override
+  String get solutionsReportBody =>
+      'أخبر المشرفين بالمشكلة. سيراجعها مشرفو المدرستين.';
+
+  @override
+  String get solutionsReportReasonHint => 'السبب (اختياري)';
+
+  @override
+  String get solutionsReportAction => 'إبلاغ';
+
+  @override
+  String get solutionsReportSubmitted => 'شكرًا — تم الإبلاغ للمشرفين.';
+
+  @override
+  String get solutionsReportAlready => 'لقد أبلغت عن هذا بالفعل.';
+
+  @override
+  String solutionsBookPagesCount(int count) {
+    return '$count صفحة';
+  }
+
+  @override
+  String get solutionsNoBooksYetForStudents =>
+      'لا توجد كتب هنا بعد. سيضيفها معلمك.';
+
+  @override
+  String get solutionsManageBooksTitle => 'إدارة الكتب';
+
+  @override
+  String get solutionsNoBooksManageHint =>
+      'لا توجد كتب لهذه المادة بعد. اضغط + للإضافة.';
+
+  @override
+  String get solutionsDeleteBookTitle => 'حذف الكتاب؟';
+
+  @override
+  String solutionsDeleteBookBody(String title) {
+    return 'حذف \"$title\"؟ لا يمكن التراجع.';
+  }
+
+  @override
+  String solutionsBookSaveFailed(String error) {
+    return 'تعذّر الحفظ: $error';
+  }
+
+  @override
+  String get solutionsBookNeedTitlePages => 'أدخل عنوانًا وعدد الصفحات.';
+
+  @override
+  String get solutionsEditBookTitle => 'تعديل الكتاب';
+
+  @override
+  String get solutionsBookCoverLabel => 'غلاف';
+
+  @override
+  String solutionsGradeLabel(int grade) {
+    return 'الصف $grade';
+  }
+
+  @override
+  String get solutionsReportsTitle => 'الحلول المُبلّغ عنها';
+
+  @override
+  String get solutionsReportsEmpty => 'لا توجد بلاغات للمراجعة.';
+
+  @override
+  String get solutionsReportPostedBy => 'نشر بواسطة';
+
+  @override
+  String get solutionsReportReportedBy => 'أبلغ عنه';
+
+  @override
+  String get solutionsReportReasonLabel => 'السبب';
+
+  @override
+  String get solutionsReportKeepAction => 'إبقاء';
+
+  @override
+  String get solutionsReportRemoveAction => 'إزالة';
+
+  @override
+  String get solutionsReportStatusPending => 'قيد المراجعة';
+
+  @override
+  String get solutionsReportStatusApproved => 'تم الإبقاء';
+
+  @override
+  String get solutionsReportStatusRemoved => 'تمت الإزالة';
+
+  @override
+  String get solutionsReportRemoved => 'تمت إزالة الحل.';
+
+  @override
+  String get solutionsReportApproved => 'تم تجاهل البلاغ — تم إبقاء الحل.';
+
+  @override
+  String solutionsReportFailed(String error) {
+    return 'تعذّر الإبلاغ: $error';
+  }
+
+  @override
+  String get teacherAddGradeTitle => 'إضافة علامة';
+
+  @override
+  String get commonCohort => 'الفوج';
+
+  @override
+  String get teacherCreateNewExam => 'إنشاء امتحان جديد';
+
+  @override
+  String get teacherCreateNewAssignment => 'إنشاء واجب جديد';
+
+  @override
+  String get commonReturn => 'إرجاع';
 }

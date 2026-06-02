@@ -233,16 +233,16 @@
     }
   },
   "scheduleClassFallback": "Cours",
-  "scheduleNoSubjectLocation": "No subject or location yet",
+  "scheduleNoSubjectLocation": "Pas encore de matière ni de lieu",
   "scheduleNotes": "Notes",
-  "scheduleGoToClassroom": "Go to Classroom",
+  "scheduleGoToClassroom": "Aller à la classe",
   "loginTitle": "Connexion mobile pour élèves et enseignants",
   "loginSubtitle": "Les comptes enseignants ouvrent l'espace enseignant. Les comptes élèves restent dans l'expérience élève.",
   "loginSignIn": "Se connecter",
   "loginWelcomeTitle": "Bon retour",
   "loginWelcomeSubtitle": "Connectez-vous à votre compte ClassMate.",
   "loginSigningIn": "Connexion en cours...",
-  "loginEmailLabel": "E-mail",
+  "loginEmailLabel": "E-mail ou nom d'utilisateur",
   "loginPasswordLabel": "Mot de passe",
   "profileNotAvailable": "Non disponible",
   "profileSchoolInfo": "Infos école",
@@ -452,7 +452,7 @@
   "chatComposerLockTitle": "Verrouiller",
   "chatComposerSlideLeftToCancel": "Glissez à gauche pour annuler",
   "chatComposerSlideUpToLock": "Glissez vers le haut pour verrouiller",
-  "chatComposerReleaseToCancel": "Relâchez pour annuler",
+  "chatComposerReleaseToCancel": "Relâcher pour annuler",
   "chatComposerKeepSlidingToCancel": "Continuez à glisser pour annuler",
   "chatComposerReleaseToLock": "Relâchez pour verrouiller",
   "chatComposerRelease": "Relâcher",
@@ -1431,7 +1431,7 @@
   "teacherGradesAssessmentCreated": "Évaluation créée",
   "teacherGradesEditAssessmentTitle": "Modifier l’évaluation",
   "teacherGradesFieldTitle": "Titre",
-  "teacherGradesFieldDate": "Date (YYYY-MM-DD)",
+  "teacherGradesFieldDate": "Date (AAAA-MM-JJ)",
   "teacherGradesFieldMaxGrade": "Note maximale",
   "teacherGradesAssessmentUpdated": "Évaluation mise à jour",
   "teacherGradesDeleteAssessmentTitle": "Supprimer l’évaluation ?",
@@ -1658,7 +1658,7 @@
   "examCouldNotOpenCalendar": "Impossible d'ouvrir le calendrier.",
   "formTitle": "Formulaire",
   "formNotFound": "Formulaire introuvable",
-  "formClosed": "Ce formulaire est fermé.",
+  "formClosed": "Fermé",
   "formCompletion": "Complétion",
   "formNoTextResponses": "Aucune réponse textuelle pour l'instant.",
   "meetingsCouldNotLoad": "Impossible de charger les réunions",
@@ -1692,22 +1692,22 @@
   "teacherAnnounceMessageLabel": "Message *",
   "teacherAnnounceMessageHint": "Rédigez l'annonce complète ici…",
   "teacherStudentsLabel": "Élèves",
-  "teacherSearchStudents": "Rechercher par nom ou classe…",
+  "teacherSearchStudents": "Rechercher des élèves…",
   "teacherNoStudentsLoaded": "Aucun élève trouvé dans cette école.",
   "teacherActions": "ACTIONS RAPIDES",
   "teacherParentsLabel": "Parents",
   "teacherTeachersLabel": "Enseignants",
   "teacherWeekScheduleTitle": "Planning de la semaine",
   "teacherCouldNotLoadSchedule": "Impossible de charger le planning",
-  "teacherAttendanceLast30": "Attendance (last 30 days)",
-  "teacherAttendanceFrom": "From {date}",
+  "teacherAttendanceLast30": "Présence (30 derniers jours)",
+  "teacherAttendanceFrom": "À partir du {date}",
   "@teacherAttendanceFrom": {
     "placeholders": {
       "date": {}
     }
   },
-  "teacherAttendanceChangeDate": "Change date",
-  "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
+  "teacherAttendanceChangeDate": "Changer la date",
+  "teacherAttendanceNoSessions": "Aucune session de présence enregistrée.\nMarquez la présence depuis l'emploi du temps.",
   "teacherRecentGrades": "Notes récentes",
   "teacherNoGradesRecorded": "Aucune note enregistrée pour l'instant",
   "teacherGradeAvg": "Moy. notes",
@@ -1732,7 +1732,7 @@
   "teacherNewAssignment": "Nouveau devoir",
   "teacherDeleteAssignment": "Supprimer le devoir ?",
   "teacherDeleteAssignmentContent": "Cela le supprimera pour tous les élèves.",
-  "teacherShareMaterialTitle": "Partager le matériel",
+  "teacherShareMaterialTitle": "Partager une ressource",
   "teacherRemoveMaterial": "Retirer le matériel ?",
   "teacherScheduleMeetingTitle": "Planifier une réunion",
   "teacherCancelMeetingTitle": "Annuler la réunion ?",
@@ -1927,34 +1927,61 @@
   "adminResetPassword": "Réinitialiser le mot de passe",
   "adminPasswordReset": "Réinitialisation du mot de passe",
   "adminTempPasswordFor": "Mot de passe temporaire pour {name}",
-  "@adminTempPasswordFor": {"placeholders": {"name": {}}},
+  "@adminTempPasswordFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteUser": "Supprimer l'utilisateur",
   "adminDeleteUserConfirm": "Supprimer {name} ? Cette action est irréversible.",
-  "@adminDeleteUserConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteUserConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteCohort": "Supprimer la cohorte",
   "adminDeleteCohortConfirm": "Supprimer \"{name}\" ? Toutes les adhésions d'élèves seront supprimées.",
-  "@adminDeleteCohortConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteCohortConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminAddCohort": "Ajouter une cohorte",
   "adminNewCohort": "Nouvelle cohorte",
   "adminCohortName": "Nom (ex. 10ème-2)",
   "adminCohortGrade": "Niveau",
-  "adminRenameCohort": "Renommer la cohorte",
+  "adminRenameCohort": "Renommer",
   "adminAddStudents": "Ajouter des élèves",
   "adminAddTo": "Ajouter à {name}",
-  "@adminAddTo": {"placeholders": {"name": {}}},
+  "@adminAddTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminRemoveStudent": "Retirer l'élève",
   "adminRemoveStudentConfirm": "Retirer {name} de {cohort} ?",
-  "@adminRemoveStudentConfirm": {"placeholders": {"name": {}, "cohort": {}}},
+  "@adminRemoveStudentConfirm": {
+    "placeholders": {
+      "name": {},
+      "cohort": {}
+    }
+  },
   "adminNoCohortsYet": "Aucune cohorte pour l'instant",
   "adminNoStudentsInCohort": "Aucun élève dans cette cohorte",
   "adminStudentCount": "{count, plural, =1{1 élève} other{{count} élèves}}",
-  "@adminStudentCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSearchStudents": "Rechercher des élèves…",
   "adminScheduleTitle": "Emploi du temps",
-  "adminScheduleAddPeriod": "Ajouter un cours",
+  "adminScheduleAddPeriod": "Ajouter une période",
   "adminScheduleNewPeriod": "Nouveau cours",
   "adminScheduleDayLabel": "Jour",
-  "adminSchedulePeriodLabel": "Heure",
+  "adminSchedulePeriodLabel": "P{period}",
   "adminScheduleTeacherLabel": "Enseignant",
   "adminScheduleNoneTeacher": "Aucun enseignant",
   "adminScheduleCohortLabel": "Cohorte / Élèves",
@@ -1964,7 +1991,13 @@
   "adminScheduleFreqMonthly": "Toutes les 4 semaines",
   "adminScheduleFreqCustom": "Personnalisé",
   "adminScheduleFreqCustomLabel": "Toutes les {n} semaines",
-  "@adminScheduleFreqCustomLabel": {"placeholders": {"n": {"type": "int"}}},
+  "@adminScheduleFreqCustomLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "adminScheduleAddSlot": "Ajouter un créneau",
   "adminScheduleAddAnother": "Ajouter un autre jour / cours",
   "adminScheduleSave": "Enregistrer",
@@ -1982,7 +2015,13 @@
   "adminSchoolSaved": "Enregistré",
   "adminSubjectsTitle": "Matières",
   "adminSubjectsGrade": "Niveau {grade}",
-  "@adminSubjectsGrade": {"placeholders": {"grade": {"type": "int"}}},
+  "@adminSubjectsGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectsAddHint": "Ajouter une matière…",
   "adminSubjectsNoSubjects": "Aucune matière configurée",
   "adminSubjectsAdd": "Ajouter",
@@ -1997,10 +2036,17 @@
   "adminCancel": "Annuler",
   "adminSearchPeople": "Rechercher par nom…",
   "adminNoResults": "Aucun résultat pour \"{query}\"",
-  "@adminNoResults": {"placeholders": {"query": {}}},
+  "@adminNoResults": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "adminNoPeopleYet": "Aucun {role} pour l'instant",
-  "@adminNoPeopleYet": {"placeholders": {"role": {}}},
-
+  "@adminNoPeopleYet": {
+    "placeholders": {
+      "role": {}
+    }
+  },
   "commonRetry": "Réessayer",
   "commonBack": "Retour",
   "commonClose": "Fermer",
@@ -2016,7 +2062,6 @@
   "commonLoading": "Chargement…",
   "commonError": "Une erreur est survenue",
   "commonTryAgain": "Réessayer",
-
   "studentMaterialsTitle": "Ressources",
   "studentMaterialsEmptyTitle": "Aucune ressource partagée pour l'instant",
   "studentMaterialsEmptyHint": "Votre enseignant partagera des ressources ici.",
@@ -2031,27 +2076,30 @@
   "studentAssignmentAddMoreFiles": "Ajouter d'autres fichiers",
   "studentAssignmentYourSubmission": "Votre remise",
   "studentAssignmentTeacherAttachments": "Pièces jointes",
-
   "secretaryWelcomeGreeting": "Bonjour {name} 👋",
-  "@secretaryWelcomeGreeting": {"placeholders": {"name": {}}},
+  "@secretaryWelcomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "secretaryYourTools": "Vos outils",
   "secretaryReports": "Signalements",
   "secretaryExportData": "Exporter les données",
   "secretaryHomeTile": "Accueil",
-
   "parentHomeGreeting": "Bonjour {name} 👋",
-  "@parentHomeGreeting": {"placeholders": {"name": {}}},
+  "@parentHomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "parentYourTools": "Vos outils",
   "parentNoChildLinked": "Aucun enfant lié pour l'instant",
   "parentPickChildFirst": "Choisissez d'abord un enfant",
   "parentNoApprovedChildren": "Aucun enfant approuvé pour l'instant. Demandez à votre école de lier votre compte.",
-
   "loginEmptyFieldsError": "Veuillez saisir votre e-mail ou nom d'utilisateur et votre mot de passe.",
   "loginConnectionError": "Pas de connexion. Vérifiez votre internet et réessayez.",
   "loginTimeoutError": "Délai de la requête dépassé. Réessayez.",
-  "loginEmailLabel": "E-mail ou nom d'utilisateur",
   "loginForgotPasswordLink": "Mot de passe oublié ?",
-
   "forgotPasswordTitle": "Réinitialiser votre mot de passe",
   "forgotPasswordModeEmail": "E-mail",
   "forgotPasswordModeSms": "SMS",
@@ -2061,12 +2109,14 @@
   "forgotPasswordEmailButton": "M'envoyer un lien par e-mail",
   "forgotPasswordSmsButton": "M'envoyer un lien par SMS",
   "forgotPasswordLinkExpires": "Le lien expire dans 1 heure et ne peut être utilisé qu'une seule fois.",
-
   "pushPermissionTitle": "Restez informé",
   "pushPermissionBody": "Activez les notifications pour ne rien manquer des notes, messages ou changements d'emploi du temps.",
-
   "commonRequiredField": "{field} requis",
-  "@commonRequiredField": {"placeholders": {"field": {}}},
+  "@commonRequiredField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "commonAttachments": "Pièces jointes",
   "commonAttachFile": "Joindre un fichier",
   "commonReplaceFile": "Remplacer le fichier",
@@ -2085,8 +2135,6 @@
   "commonOptional": "Optionnel",
   "commonRequired": "Obligatoire",
   "commonAuto": "Auto",
-
-  "teacherShareMaterialTitle": "Partager une ressource",
   "teacherShareButton": "Partager",
   "teacherMaterialDetails": "Détails de la ressource",
   "teacherMaterialTitleLabel": "Titre *",
@@ -2094,9 +2142,11 @@
   "teacherMaterialContentSection": "Contenu",
   "teacherMaterialContentRequired": "Veuillez joindre un fichier ou ajouter un lien",
   "teacherFilePickError": "Impossible de choisir le fichier : {error}",
-  "@teacherFilePickError": {"placeholders": {"error": {}}},
-
-  "teacherScheduleMeetingTitle": "Planifier une réunion",
+  "@teacherFilePickError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherScheduleButton": "Planifier",
   "teacherMeetingTitleField": "Titre de la réunion *",
   "teacherMeetingLinkField": "Lien de la réunion *",
@@ -2108,7 +2158,6 @@
   "teacherMeetingEndDate": "Date de fin (optionnel)",
   "teacherMeetingEndTime": "Heure de fin (optionnel)",
   "teacherClearEndTime": "Effacer l'heure de fin",
-
   "teacherAssignmentTitleField": "Titre *",
   "teacherAssignmentInstructions": "Instructions (optionnel)",
   "teacherAssignmentDueDate": "Date d'échéance (optionnel)",
@@ -2117,18 +2166,14 @@
   "teacherAssignmentPublished": "Devoir publié.",
   "teacherAssignmentDraftSaved": "Brouillon enregistré.",
   "teacherCreateAssignment": "Créer",
-
   "teacherExamSubject": "Matière *",
   "teacherExamDate": "Date de l'examen *",
   "teacherSelectSubject": "Choisir une matière",
   "teacherNoSubjectOption": "Aucune matière",
   "teacherOtherSubjectOption": "Autre",
-
-  "teacherSearchStudents": "Rechercher des élèves…",
   "teacherSearchClassrooms": "Rechercher des classes…",
   "teacherSearchMaterials": "Rechercher des ressources…",
   "teacherClassroomName": "Nom de la classe *",
-
   "adminReportsOpenTab": "Ouvert",
   "adminReportsResolvedTab": "Résolu",
   "adminReportsDismissedTab": "Rejeté",
@@ -2139,42 +2184,79 @@
   "adminReportsDismiss": "Rejeter",
   "adminReportsResolve": "Résoudre",
   "adminReportsReason": "Motif : {reason}",
-  "@adminReportsReason": {"placeholders": {"reason": {}}},
-
+  "@adminReportsReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
   "chatReportTitle": "Signaler le message",
   "chatReportButton": "Signaler",
   "chatReportSuccess": "Signalé. Merci — un administrateur l'examinera.",
   "chatReportFailed": "Échec du signalement : {error}",
-  "@chatReportFailed": {"placeholders": {"error": {}}},
+  "@chatReportFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "chatSendError": "Impossible d'envoyer : {message}",
-  "@chatSendError": {"placeholders": {"message": {}}},
+  "@chatSendError": {
+    "placeholders": {
+      "message": {}
+    }
+  },
   "chatForwardLabel": "Transférer {count}",
-  "@chatForwardLabel": {"placeholders": {"count": {}}},
+  "@chatForwardLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatDeleteLabel": "Supprimer {count}",
-  "@chatDeleteLabel": {"placeholders": {"count": {}}},
+  "@chatDeleteLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatSelectedCount": "{count} sélectionné(s)",
-  "@chatSelectedCount": {"placeholders": {"count": {}}},
-
+  "@chatSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "adminPasswordReqEmpty": "Aucune demande en attente",
   "adminPasswordReqExplainer": "Les utilisateurs que vous avez approuvés ou rejetés n'apparaîtront pas ici. Les demandes en attente expirent après 24 heures.",
   "adminPasswordReqApproveTitle": "Approuver le changement de mot de passe ?",
   "adminPasswordReqApproveExplain": "Cela définit le mot de passe de {name} sur celui qu'il a saisi (vous ne le voyez pas).",
-  "@adminPasswordReqApproveExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqVerifyWarning": "N'approuvez que si vous avez vérifié que le demandeur est bien {name} — appelez-le ou confirmez en personne. Toute personne connaissant un nom d'utilisateur peut soumettre cette demande.",
-  "@adminPasswordReqVerifyWarning": {"placeholders": {"name": {}}},
+  "@adminPasswordReqVerifyWarning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqConfirmApprove": "J'ai vérifié — approuver",
   "adminPasswordReqApproveSnackbar": "Approuvé — {name} peut se connecter maintenant.",
-  "@adminPasswordReqApproveSnackbar": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectTitle": "Rejeter le changement de mot de passe ?",
   "adminPasswordReqRejectExplain": "Le mot de passe de {name} ne changera pas. Il pourra soumettre une nouvelle demande si nécessaire.",
-  "@adminPasswordReqRejectExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqRejectExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectSnackbar": "Rejeté.",
   "adminPasswordReqRejectButton": "Rejeter",
   "adminPasswordReqApproveButton": "Approuver",
   "adminPasswordReqCardCopy": "Souhaite changer son mot de passe. Le nouveau mot de passe est masqué.",
   "adminPasswordReqCallTooltip": "Appeler",
   "adminPasswordReqSmsTooltip": "SMS",
-
   "adminSetupSchoolSetup": "Configuration de l'école",
   "adminSetupComplete": "Tout est prêt. Appuyez sur n'importe quel élément pour le revoir ou l'affiner.",
   "adminSetupInstructions": "Complétez ces étapes pour configurer entièrement votre école.",
@@ -2192,13 +2274,11 @@
   "adminSetupStudentsSubtitle": "Créez des comptes ou générez des codes d'inscription",
   "adminSetupTeachersTitle": "Ajouter des enseignants",
   "adminSetupTeachersSubtitle": "Créez des comptes pour les enseignants",
-
   "supportContactTitle": "Parlez-nous",
   "supportContactDescription": "Vous ne trouvez pas votre réponse ci-dessous ? Contactez-nous et nous reviendrons vers vous dans la journée ouvrée.",
   "supportEmailLabel": "E-mail",
   "supportPhoneLabel": "Téléphone",
   "supportSmsLabel": "Message",
-
   "aboutWhatIsClassmate": "Qu'est-ce que ClassMate ?",
   "aboutClassmateDescription": "ClassMate est le système d'exploitation scolaire pour les élèves, enseignants, administrateurs et parents. Une seule application, quatre rôles, et chaque aspect de la journée d'école au même endroit — emploi du temps, présence, notes, classes, devoirs, messagerie, et un assistant d'étude IA.",
   "aboutMultilingualTitle": "Conçu pour les écoles qui parlent plus d'une langue",
@@ -2208,8 +2288,11 @@
   "aboutContactTitle": "Contact",
   "aboutContactDescription": "Conçu par Tony Aboud et l'équipe ClassMate.\nQuestions : tony@classmateapp.org",
   "aboutVersionLabel": "ClassMate · v{version}",
-  "@aboutVersionLabel": {"placeholders": {"version": {}}},
-
+  "@aboutVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "adminAddStudent": "Ajouter un élève",
   "adminAddTeacher": "Ajouter un enseignant",
   "adminAddParent": "Ajouter un parent",
@@ -2221,23 +2304,28 @@
   "adminUsernameRequired": "Le nom d'utilisateur est requis",
   "adminPasswordMinLength": "Le mot de passe doit comporter au moins 8 caractères (ou laissez vide pour génération automatique)",
   "adminUserCreatedMsg": "{name} créé(e).",
-  "@adminUserCreatedMsg": {"placeholders": {"name": {}}},
+  "@adminUserCreatedMsg": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminCredsUsername": "Nom d'utilisateur",
   "adminCredsEmail": "E-mail",
   "adminCredsPassword": "Mot de passe",
   "adminShareCredsHint": "Partagez ces identifiants avec l'élève.",
   "adminCopyCredsButton": "Tout copier",
   "adminGradeLabel": "Niveau",
-
   "adminCohortGradeFormat": "Niveau {grade}",
-  "@adminCohortGradeFormat": {"placeholders": {"grade": {}}},
+  "@adminCohortGradeFormat": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "adminCreateAndAddStudents": "Créer et ajouter des élèves",
   "adminAddStudentsTitle": "Ajouter des élèves",
   "adminSkipAdding": "Passer",
   "adminInCohortBadge": "Dans le groupe",
-  "adminRenameCohort": "Renommer",
   "adminNoStudentsFoundCohort": "Aucun élève trouvé dans les niveaux de ce groupe",
-
   "adminScheduleByCohort": "Par groupe ▾",
   "adminScheduleByStudent": "Par élève ▾",
   "adminScheduleByGrade": "Par niveau ▾",
@@ -2247,13 +2335,19 @@
   "adminScheduleAddCohort": "Ajouter un groupe",
   "adminScheduleAddStudent": "Ajouter un élève",
   "adminScheduleClearFilters": "Effacer",
-  "adminSchedulePeriodLabel": "P{period}",
-  "@adminSchedulePeriodLabel": {"placeholders": {"period": {}}},
+  "@adminSchedulePeriodLabel": {
+    "placeholders": {
+      "period": {}
+    }
+  },
   "adminSchedulePickSubjectRequired": "Choisissez une matière avant d'enregistrer le créneau.",
   "adminSchedulePickDateOnce": "Choisissez une date pour un créneau ponctuel.",
   "adminSchedulePickDateRecurring": "Choisissez une date de début pour le planning toutes les {freq} semaines.",
-  "@adminSchedulePickDateRecurring": {"placeholders": {"freq": {}}},
-
+  "@adminSchedulePickDateRecurring": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
   "adminSchoolLogoLabel": "Logo de l'école",
   "adminSchoolLogoUploaded": "Logo téléversé",
   "adminSchoolNoLogoYet": "Pas encore de logo",
@@ -2273,7 +2367,6 @@
   "adminSchoolBellInfo": "Définissez l'heure de début et de fin de chaque créneau. Ce sont les horaires par défaut utilisés lors de la construction de l'emploi du temps hebdomadaire.",
   "adminSchoolStartTime": "Début",
   "adminSchoolEndTime": "Fin",
-
   "adminExportStudentsTab": "Élèves",
   "adminExportCohortsTab": "Groupes",
   "adminExportGradesTab": "Niveaux",
@@ -2285,66 +2378,105 @@
   "teacherCreateClassroomTooltip": "Créer une classe",
   "teacherClassroomNameRequired": "Nom de la classe *",
   "teacherSubjectRequired": "Matière *",
-
   "messagesStartChatError": "Impossible de démarrer la conversation : {error}",
-  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "@messagesStartChatError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "messagesNoPeopleMatch": "Aucune personne ne correspond à « {query} »",
-  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "@messagesNoPeopleMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "messagesNoPeopleFound": "Aucune personne trouvée",
   "messagesPeopleCount": "{count, plural, =1{1 personne} other{{count} personnes}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@messagesPeopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "studentAssignmentValidationRequired": "Ajoutez une note ou joignez un fichier avant de remettre.",
   "studentFormSubmittedBanner": "Vos réponses soumises",
   "studentFormSubmitError": "Impossible de soumettre : {error}",
-  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "@studentFormSubmitError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "studentFormFieldRequired": "Requis : {field}",
-  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "@studentFormFieldRequired": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "studentFormClosedButton": "Formulaire fermé",
   "studentFormAlreadySubmittedButton": "Déjà soumis",
-
   "studentDiplomaEditTitle": "Modifier le certificat",
   "studentDiplomaDeleteTitle": "Supprimer le certificat ?",
   "studentDiplomaDeleteConfirm": "Retirer le certificat de « {name} » ?",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
-
+  "@studentDiplomaDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherDeleteItemConfirm": "Supprimer « {title} » ?",
-  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "@teacherDeleteItemConfirm": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherPublishTooltip": "Publier",
-
   "teacherMeetingEnterTitle": "Veuillez saisir un titre.",
   "teacherMeetingEnterLink": "Veuillez saisir un lien de réunion.",
   "teacherMeetingEnterValidUrl": "Veuillez saisir une URL valide (ex. https://zoom.us/j/...)",
   "teacherMeetingPickStartTime": "Veuillez choisir une heure de début.",
   "teacherMeetingVisibleToEveryone": "Visible par tous",
   "teacherMeetingDoneCount": "Terminé ({count} sélectionné(s))",
-  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMeetingDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "teacherDeleteAssignmentTitle": "Supprimer le devoir ?",
   "teacherDeleteAssignmentBody": "Cela supprimera définitivement le devoir et toutes les remises.",
   "teacherEditTooltip": "Modifier",
   "teacherDeleteTooltip": "Supprimer",
-
   "teacherClassroomBackTooltip": "Retour",
   "teacherClassroomGenericError": "Erreur : {error}",
-  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "@teacherClassroomGenericError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomAttachFailed": "Échec de la pièce jointe : {error}",
-  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherClassroomAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomFileUnavailable": "Ce fichier n'est pas disponible — l'enseignant doit le réimporter.",
   "teacherClassroomCodeLabel": "Code de la classe",
   "teacherClassroomCodeCopied": "Code copié",
   "teacherClassroomCopyCodeTooltip": "Copier le code",
   "teacherClassroomCouldNotAdd": "Impossible d'ajouter : {emails} — vérifiez leur adresse e-mail.",
-  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "@teacherClassroomCouldNotAdd": {
+    "placeholders": {
+      "emails": {}
+    }
+  },
   "teacherClassroomAddStudents": "Ajouter des élèves",
   "teacherClassroomSearchNameGrade": "Rechercher par nom ou niveau…",
   "teacherClassroomNoStudentsFound": "Aucun élève trouvé",
-
   "teacherClassroomNameSubjectRequired": "Le nom et la matière sont requis.",
   "teacherClassroomCreated": "Classe créée !",
   "teacherCustomSubjectLabel": "Matière personnalisée *",
   "teacherCreateClassroomButton": "Créer une classe",
-
   "teacherCreateFormTitle": "Créer un formulaire",
   "teacherFormSaveDraft": "Enregistrer un brouillon",
   "teacherFormTitleHint": "Titre du formulaire *",
@@ -2355,35 +2487,50 @@
   "teacherFormQuestionsSection": "Questions",
   "teacherFormAddQuestionButton": "Ajouter une question",
   "teacherFormQuestionPlaceholder": "Question {index}",
-  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "@teacherFormQuestionPlaceholder": {
+    "placeholders": {
+      "index": {}
+    }
+  },
   "teacherFormRequiredToggle": "Obligatoire",
   "teacherFormAddOptionButton": "Ajouter une option",
   "teacherFormMinLabel": "Min",
   "teacherFormMaxLabel": "Max",
   "teacherFormEnterTitle": "Veuillez saisir un titre de formulaire.",
-
   "teacherExamUploadFailedSkipped": "Échec de l'envoi de {name}. Fichier ignoré.",
-  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "@teacherExamUploadFailedSkipped": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherExamEnterTitle": "Veuillez saisir un titre.",
   "teacherExamPickDate": "Veuillez choisir une date d'examen.",
   "teacherExamSelectSubject": "Veuillez choisir une matière.",
-
   "teacherSlotDetachFailed": "Échec du détachement : {error}",
-  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotDetachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachFailed": "Échec de la pièce jointe : {error}",
-  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachMaterial": "Joindre une ressource",
   "teacherSlotDetachTooltip": "Détacher",
-
   "teacherDiplomaSelectStudent": "Sélectionnez d'abord un élève.",
   "teacherDiplomaUploadingWait": "Veuillez patienter — les fichiers sont encore en cours d'envoi.",
   "teacherDiplomaIssueFailed": "Impossible de délivrer le certificat : {error}",
-  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "@teacherDiplomaIssueFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherDiplomaCertTitleLabel": "Titre du certificat",
   "teacherDiplomaSearchStudent": "Rechercher un élève…",
-
   "teacherProfileChatError": "Impossible de démarrer la conversation",
-
   "teacherGradeAssignmentType": "Devoir",
   "teacherGradeExamType": "Examen",
   "teacherGradeOtherType": "Autre",
@@ -2395,65 +2542,81 @@
   "teacherMaterialAddFile": "Ajouter un fichier",
   "teacherMaterialSearchStudentsGrade": "Rechercher des élèves ou un niveau...",
   "teacherMaterialDoneSelected": "Terminé ({count} sélectionné(s))",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMaterialDoneSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectEnglishNameRequired": "Le nom en anglais est requis",
   "adminSubjectNameInLang": "Nom en {language}",
-  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "@adminSubjectNameInLang": {
+    "placeholders": {
+      "language": {}
+    }
+  },
   "adminSubjectResetButton": "Réinitialiser",
-
   "teacherAnnounceBroadcastTitle": "Diffuser à tout le monde ?",
   "teacherAnnounceSendToEveryone": "Envoyer à tous",
   "teacherAnnounceNoCohorts": "Aucun groupe disponible",
   "teacherAnnounceNothingFound": "Rien trouvé",
   "teacherAnnounceNoParents": "Aucun parent trouvé dans cette école.",
-
-  "teacherGradesSaved": "Notes enregistrées",
   "teacherGradesToGrade": "À noter",
   "teacherGradesGraded": "Notée",
   "teacherSaveGradesButton": "Enregistrer les notes",
   "teacherAllowResubmitLabel": "Autoriser la re-soumission",
   "teacherAllowResubmitTitle": "Autoriser la re-soumission ?",
   "teacherAllowResubmitBody": "Cela supprimera la remise de {name} pour qu'il puisse remettre à nouveau.",
-  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "@teacherAllowResubmitBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAllowButton": "Autoriser",
   "teacherGradeFieldLabel": "Note",
   "teacherFeedbackOptionalLabel": "Commentaire (optionnel)",
-
   "teacherCreateClassroomFabLabel": "Créer",
   "teacherLoadingStudents": "Chargement des élèves…",
   "teacherSearchHintShort": "Rechercher…",
   "teacherCreateClassroomTitle": "Nouvelle classe",
-
   "teacherAssignmentUploadFailed": "Impossible d'envoyer {name}",
-  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "@teacherAssignmentUploadFailed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAssignmentEnterTitle": "Veuillez saisir un titre.",
   "teacherAssignmentSelectSubject": "Veuillez choisir une matière.",
   "teacherAssignmentInstructionsLabel": "Instructions / Description",
   "teacherAttachFilesButton": "Joindre des fichiers",
-
   "tutorDeleteConversationTitle": "Supprimer la conversation ?",
   "tutorDeleteConversationButton": "Supprimer définitivement",
   "tutorDeleteFailed": "Impossible de supprimer : {error}",
-  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "@tutorDeleteFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorDeleteMenuTitle": "Supprimer la conversation",
   "tutorDeleteMenuSubtitle": "La supprime définitivement du serveur",
-
   "accountVerifyButton": "Vérifier",
   "accountConfirmButton": "Confirmer",
   "accountResendCode": "Renvoyer le code",
   "accountCodeResent": "Nouveau code envoyé.",
   "accountContinueButton": "Continuer",
-
   "studentClassroomFileUnavailable": "Ce fichier n'est pas encore disponible.",
   "studentClassroomDeleteMaterial": "Supprimer la ressource ?",
   "studentClassroomCodeLabel": "Code de la classe",
   "studentClassroomLeaveTooltip": "Quitter la classe",
-
   "adminEditUserEnglishNameRequired": "Le nom en anglais est requis",
   "adminEditUserSaved": "Enregistré",
   "adminEditUserPasswordChanged": "Mot de passe de {name} modifié.",
-  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "@adminEditUserPasswordChanged": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminEditUserLoginSection": "Connexion",
   "adminEditUserUsernameLabel": "Nom d'utilisateur",
   "adminEditUserEmailOptional": "E-mail (optionnel)",
@@ -2469,7 +2632,6 @@
   "adminEditUserNewPasswordLabel": "Nouveau mot de passe",
   "adminEditUserConfirmPasswordLabel": "Confirmer le mot de passe",
   "adminEditUserSetPasswordButton": "Définir le mot de passe",
-
   "adminPeriodsTitle": "Gérer les créneaux",
   "adminPeriodsAddPeriod": "Ajouter un créneau",
   "adminPeriodsNoPeriods": "Aucun créneau pour l'instant",
@@ -2483,7 +2645,6 @@
   "adminPeriodsCohortsLabel": "Groupes",
   "adminPeriodsStudentsOptional": "Élèves (optionnel)",
   "adminPeriodsSearchByName": "Rechercher par nom…",
-
   "commonErrorWith": "Erreur : {error}",
   "commonAddCount": "Ajouter {count}",
   "teacherStudentGradesSaved": "Notes enregistrées",
@@ -2499,7 +2660,6 @@
   "plansTryAgain": "Réessayer",
   "adminCohortsGradeOnly": "Niveau {grade} uniquement",
   "adminCohortsGradeRangeOnly": "Niveaux {from}-{to} uniquement",
-
   "adminExportNeedStudents": "Sélectionnez d'abord au moins un élève ou un groupe",
   "adminExportButton": "Exporter {count}",
   "adminExportNoStudents": "Aucun élève trouvé",
@@ -2554,10 +2714,6 @@
   "teacherMaterialPickerClassroomTitle": "Sélectionner la classe",
   "teacherMaterialPickerStudentsTitle": "Sélectionner les élèves",
   "teacherMaterialPickerGradesTitle": "Sélectionner les niveaux",
-
-  "adminScheduleAddSlot": "Ajouter un créneau",
-  "adminScheduleAddPeriod": "Ajouter une période",
-  "adminScheduleAddStudent": "Ajouter un élève",
   "adminScheduleAddNew": "Ajouter",
   "adminScheduleAddCount": "Ajouter ({count})",
   "adminScheduleCaptionOptional": "Légende (optionnel)",
@@ -2584,7 +2740,6 @@
   "adminScheduleCreatedSlots": "{created}/{total} créneaux créés. {error}",
   "adminScheduleSavedLabelOnlyError": "Enregistré comme étiquette uniquement — impossible d'ajouter à la bibliothèque : {error}",
   "adminScheduleSavedLabelPickAudience": "Enregistré comme étiquette. Choisissez d'abord une audience pour ajouter aussi à la bibliothèque de l'école.",
-
   "commonNothingFound": "Rien trouvé",
   "commonDownloadFailed": "Échec du téléchargement : {error}",
   "commonFailedWith": "Échec : {error}",
@@ -2599,7 +2754,13 @@
   "adminPasswordReqTitle": "Demandes de mot de passe",
   "adminPasswordReqBlurb": "Utilisateurs de votre établissement qui demandent votre approbation pour changer leur mot de passe.",
   "adminPasswordReqWaiting": "{count, plural, =1{1 utilisateur en attente de votre approbation.} other{{count} utilisateurs en attente de votre approbation.}}",
-  "@adminPasswordReqWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "@adminPasswordReqWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminPasswordReqWantsChange": "Souhaite changer son mot de passe. Le nouveau mot de passe est caché.",
   "adminPasswordReqReject": "Refuser",
   "adminPasswordReqApprove": "Approuver",
@@ -2607,7 +2768,6 @@
   "adminSchoolSettingsTapToAddTranslations": "Toucher pour ajouter des traductions",
   "adminSchoolSettingsAddPeriodNum": "Ajouter une période (P{num})",
   "adminVisibleToEveryone": "Visible par tous",
-
   "navMaterials": "Supports de cours",
   "navPlans": "Forfaits NOVA",
   "navReports": "Signalements",
@@ -2616,12 +2776,9 @@
   "sectionSecretaryTools": "Outils du secrétariat",
   "sectionSchoolToolsLabel": "Outils de l'école",
   "sectionAdminTools": "Outils d'administration",
-
   "chatVideoTrimTitle": "Rogner la vidéo",
   "chatMediaPreviewTrimAction": "Rogner",
-
   "commonUntitled": "Sans titre",
-
   "plansMonthlyPlans": "Forfaits mensuels",
   "plansTokenTopups": "Recharges de jetons",
   "plansTopupsSubtitle": "Achats uniques. Sans expiration. Cumulables avec votre forfait.",
@@ -2640,9 +2797,21 @@
   "planBlurbBalance": "Pour les élèves qui étudient tous les jours.",
   "planBlurbCommitment": "Pratique intensive + curiosité illimitée.",
   "plansTokensPerMonth": "{tokens} jetons / mois",
-  "@plansTokensPerMonth": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensPerMonth": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "plansTokensOneTime": "{tokens} jetons",
-  "@plansTokensOneTime": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensOneTime": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "planPriceFree": "Gratuit",
   "plansTokensRemaining": "jetons restants",
   "plansPlanResetsAt": "Le forfait se réinitialise {when}",
@@ -2652,7 +2821,6 @@
   "plansPerMonthSuffix": " / mois",
   "plansCurrentBadge": "ACTUEL",
   "plansCouldntLoadPlans": "Impossible de charger les forfaits",
-
   "paywallPlansUnavailable": "Forfaits indisponibles. Réessayez dans un instant.",
   "paywallTopupUnavailable": "Recharge indisponible. Le store n'a pas fini d'approuver ce produit.",
   "paywallRestored": "Votre abonnement a été restauré.",
@@ -2691,10 +2859,8 @@
   "paywallFeatureImages": "Analyse d'images et envoi de fichiers inclus",
   "paywallFeatureReset": "Les jetons se réinitialisent au début de chaque mois",
   "paywallFeatureCancel": "Annulez à tout moment — sans engagement",
-
   "studentMaterialsGeneralSubject": "Général",
   "studentMaterialsResourceCount": "{count, plural, one{{count} ressource de vos enseignants} other{{count} ressources de vos enseignants}}",
-
   "classroomsCouldNotLoadWithError": "Impossible de charger les classes\n{error}",
   "parentNoNotificationsYet": "Aucune notification pour l'instant.",
   "forwardCouldNotLoadChats": "Impossible de charger les discussions : {error}",
@@ -2702,13 +2868,11 @@
   "forgotPasswordFindAdmins": "Trouver les administrateurs de mon école",
   "forgotPasswordChooseAdmin": "Choisissez un administrateur dans {school} :",
   "forgotPasswordSendRequest": "Envoyer la demande de mot de passe",
-
   "commonTitle": "Titre",
   "commonNotes": "Notes",
   "commonEmail": "E-mail",
   "commonPassword": "Mot de passe",
   "commonNumberOfPages": "Nombre de pages",
-
   "messagesSearchByNameOrGrade": "Rechercher par nom ou niveau…",
   "meetingStartDateRequired": "Date de début *",
   "meetingStartTimeRequired": "Heure de début *",
@@ -2726,24 +2890,19 @@
   "forgotPasswordYourPhone": "Votre téléphone (pour que l'administrateur puisse vérifier votre identité)",
   "forgotPasswordPhoneHelper": "L'administrateur appellera ou enverra un SMS à ce numéro avant d'approuver.",
   "forgotPasswordNewPasswordHelper": "Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas.",
-
   "adminExportPasswordsWarning": "{count, plural, one{Le fichier contiendra les identifiants de connexion d'{count} élève, y compris le mot de passe actuel. Toute personne ayant le fichier peut se connecter en tant que cet élève — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de l'utilisateur.} other{Le fichier contiendra les identifiants de connexion de {count} élèves, y compris les mots de passe actuels. Toute personne ayant le fichier peut se connecter en tant que l'un de ces élèves — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de chaque utilisateur.}}",
-
   "pickerSelectStudents": "Sélectionner les élèves",
   "pickerSelectCohorts": "Sélectionner les groupes",
   "pickerSelectGrades": "Sélectionner les niveaux",
   "pickerSelectClassroom": "Sélectionner la classe",
   "pickerSelectClasses": "Sélectionner les classes",
-
   "drawerLoadingChildren": "Chargement des enfants…",
   "drawerCouldNotLoadChildren": "Impossible de charger les enfants",
   "drawerNoChildrenLinked": "Aucun enfant lié",
   "drawerSwitchChild": "Changer d'enfant",
-
   "shellAssessmentCreated": "Évaluation créée",
   "commonCouldNotOpenLink": "Impossible d'ouvrir le lien {scheme}",
   "commonCouldntSend": "Échec de l'envoi : {error}",
-
   "teacherExamDetailsSection": "Détails de l'examen",
   "teacherExamStudyMaterialsWithCount": "Supports d'étude ({count})",
   "teacherMeetingDetailsSection": "Détails de la réunion",
@@ -2757,7 +2916,6 @@
   "studentFilesSharedByTeacher": "Fichiers partagés par votre enseignant",
   "studentYourSubmission": "Votre soumission",
   "studentFilesSharedWithAnnouncement": "Fichiers partagés avec cette annonce.",
-
   "announcementGradeRiskTitle": "Risque de note détecté",
   "announcementWeakSubjectTitle": "Matière faible détectée",
   "announcementLowAttendanceTitle": "Faible présence",
@@ -2766,7 +2924,6 @@
   "announcementPracticeTrendDroppedTitle": "Tendance de pratique en baisse",
   "announcementSolutionsActivityTitle": "Activité Solutions en direct",
   "announcementAllGoodTitle": "Tout va bien",
-
   "supportSectionGettingStarted": "Commencer",
   "supportSectionAccountPassword": "Compte et mot de passe",
   "supportSectionForStudents": "Pour les élèves",
@@ -2774,15 +2931,11 @@
   "supportSectionForAdministrators": "Pour les administrateurs",
   "supportSectionForParents": "Pour les parents",
   "supportSectionPrivacyData": "Confidentialité et données",
-
   "novaDisclaimerCanMakeMistakes": "Peut faire des erreurs",
   "novaDisclaimerEducationalUseOnly": "Usage éducatif uniquement",
   "novaDisclaimerYourPrivacy": "Votre vie privée",
-
   "profileNameInLanguage": "Nom en {language}",
-
   "adminSettingsScheduleSubtitle": "Assigner enseignants et groupes aux créneaux hebdomadaires",
-
   "practiceModeBalancedSubtitle": "Pratique quotidienne équilibrée",
   "practiceModeRevealSubtitle": "Révéler et auto-restituer",
   "practiceModeFastSubtitle": "Exercice rapide sous pression",
@@ -2790,17 +2943,10 @@
   "practiceModeConceptSubtitle": "Concept d'abord, résolution ensuite",
   "practiceModeAdaptiveSubtitle": "La difficulté change en direct",
   "practiceModeStrictSubtitle": "Style officiel strict",
-
-  "commonEdit": "Modifier",
-  "commonBack": "Retour",
-  "commonClose": "Fermer",
-  "commonDownload": "Télécharger",
-  "commonOpenExternally": "Ouvrir en externe",
   "commonCall": "Appeler",
   "tooltipClearEndTime": "Effacer l'heure de fin",
   "tooltipDeletePeriod": "Supprimer la période",
   "tooltipLeaveClassroom": "Quitter la classe",
-
   "announcementGradeRiskBody": "Votre moyenne est tombée sous 70. Action immédiate recommandée.",
   "announcementWeakSubjectBody": "{subject} nécessite votre attention.",
   "announcementLowAttendanceBody": "Votre présence diminue. Cela impactera vos notes.",
@@ -2809,7 +2955,6 @@
   "announcementPracticeDropBody": "Votre pratique récente est en dessous de votre niveau. Ralentissez et reconstruisez.",
   "announcementSolutionsActivityBody": "Votre espace de solutions est actif à la page {page}, question {question}. Consultez le travail des pairs ou téléversez le vôtre.",
   "announcementAllGoodBody": "Aucun risque académique majeur détecté pour le moment.",
-
   "faqStartedQ1": "Comment je me connecte ?",
   "faqStartedA1": "Appuyez sur « Se connecter » sur l'écran d'accueil et saisissez l'e-mail ou le nom d'utilisateur que votre administrateur scolaire vous a donné, ainsi que votre mot de passe temporaire. Vous serez invité à définir un nouveau mot de passe la première fois.",
   "faqStartedQ2": "Je n'ai pas encore de compte.",
@@ -2862,17 +3007,13 @@
   "faqPrivacyA1": "Seules les personnes de votre école. Les enseignants voient les données de leurs classes, les administrateurs voient les données de toute l'école, les parents voient leurs enfants liés. Nous ne vendons jamais de données à des annonceurs.",
   "faqPrivacyQ2": "Comment supprimer mon compte ?",
   "faqPrivacyA2": "Demandez à votre administrateur scolaire de le supprimer. Il peut retirer le compte depuis son application d'administration, ce qui efface votre profil, votre emploi du temps et vos conversations.",
-
   "solutionsPagesCount": "{count, plural, one{{count} page} other{{count} pages}}",
-
   "teacherMeetingEditTitle": "Modifier la réunion",
   "teacherMeetingNewTitle": "Planifier une réunion",
   "teacherExamEditTitle": "Modifier l'examen",
   "teacherExamNewTitle": "Créer un examen",
   "teacherAssignmentEditTitle": "Modifier le devoir",
   "teacherAssignmentNewTitle": "Nouveau devoir",
-  "teacherAssignmentPublished": "Devoir publié.",
-  "teacherAssignmentDraftSaved": "Brouillon enregistré.",
   "tooltipShowTabs": "Afficher les onglets",
   "tooltipHideTabs": "Masquer les onglets",
   "examsCouldNotLoadForms": "Impossible de charger les formulaires",
@@ -2883,18 +3024,14 @@
   "commonReadMore": "Lire plus",
   "commonReadLess": "Lire moins",
   "chatComposerSlideToCancel": "Glisser pour annuler",
-  "chatComposerReleaseToCancel": "Relâcher pour annuler",
   "adminNoRoleYet": "Aucun {role} pour l'instant",
   "profileVerified": "Vérifié.",
   "profileUpdatedPendingVerification": "Mis à jour, en attente de re-vérification.",
   "adminSearchCohorts": "Rechercher des groupes…",
-
   "commonAdding": "Ajout en cours…",
-  "commonAdd": "Ajouter",
   "teacherDiplomaIssuing": "Émission…",
   "teacherDiplomaIssue": "Émettre",
   "formAccepting": "Accepte",
-  "formClosed": "Fermé",
   "profileVerifiedShort": "Vérifié",
   "profileUnverified": "Non vérifié",
   "notificationNewGradePosted": "Nouvelle note publiée",
@@ -2903,7 +3040,6 @@
   "notificationFallbackTitle": "Notification",
   "adminCohortGradeRange": "Niveau {from}-{to}",
   "adminCohortGradesList": "Niveaux {list}",
-
   "adminExportHeaderTitle": "Exporter les utilisateurs",
   "adminExportHeaderSubtitle": "Ajoutez des filtres sous forme de puces — chaque puce ajoute des utilisateurs à l'export. Appuyez sur une puce pour la retirer.",
   "adminExportAddFilter": "Ajouter un filtre",
@@ -2914,9 +3050,24 @@
   "adminExportFilterUsersTab": "Utilisateurs",
   "adminExportSelectAll": "Tout sélectionner",
   "adminExportSelectedCount": "{selected} sur {total} sélectionnés",
-  "@adminExportSelectedCount": {"placeholders": {"selected": {"type": "int"}, "total": {"type": "int"}}},
+  "@adminExportSelectedCount": {
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportRolePickedCount": "{count, plural, =1{1 sélectionné} other{{count} sélectionnés}}",
-  "@adminExportRolePickedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminExportRolePickedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportPillRolePrefix": "Rôle :",
   "adminExportPillCohortPrefix": "Groupe :",
   "adminExportActiveFilters": "{count, plural, one{{count} filtre actif} other{{count} filtres actifs}}",
@@ -2935,7 +3086,64 @@
   "adminExportPasswordsOff": "L'export ne contiendra aucun mot de passe.",
   "adminExportPdfUserDirectory": "Annuaire des utilisateurs",
   "adminExportPdfUsersCount": "{count, plural, one{{count} utilisateur} other{{count} utilisateurs}}",
-
   "teacherAttachFromMaterials": "Depuis les supports",
-  "teacherUploadFiles": "Téléverser des fichiers"
+  "teacherUploadFiles": "Téléverser des fichiers",
+  "solSubjectMathematics": "Mathématiques",
+  "solSubjectComputerScience": "Informatique",
+  "solSubjectPhysics": "Physique",
+  "solSubjectChemistry": "Chimie",
+  "solSubjectHebrew": "Hébreu",
+  "solSubjectBiology": "Biologie",
+  "solSubjectHistory": "Histoire",
+  "solSubjectArabic": "Arabe",
+  "solSubjectElectronics": "Électronique",
+  "solSubjectMechanics": "Mécanique",
+  "solSubjectFrench": "Français",
+  "solSubjectEnvironmentalScience": "Sciences de l'environnement",
+  "solSubjectCommunicationCinema": "Communication et cinéma",
+  "solSubjectCitizenship": "Éducation civique",
+  "solSubjectSociology": "Sociologie",
+  "solSubjectReligion": "Religion",
+  "solSubjectGeography": "Géographie",
+  "commonUnknown": "Inconnu",
+  "solutionsReportTitle": "Signaler cette solution",
+  "solutionsReportBody": "Indiquez le problème aux administrateurs. Les admins des deux écoles l'examineront.",
+  "solutionsReportReasonHint": "Motif (facultatif)",
+  "solutionsReportAction": "Signaler",
+  "solutionsReportSubmitted": "Merci — signalé aux administrateurs.",
+  "solutionsReportAlready": "Vous avez déjà signalé ceci.",
+  "solutionsBookPagesCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "solutionsNoBooksYetForStudents": "Aucun livre ici pour l'instant. Votre enseignant les ajoutera.",
+  "solutionsManageBooksTitle": "Gérer les livres",
+  "solutionsNoBooksManageHint": "Aucun livre pour cette matière. Touchez + pour en ajouter un.",
+  "solutionsDeleteBookTitle": "Supprimer le livre ?",
+  "solutionsDeleteBookBody": "Supprimer « {title} » ? Action irréversible.",
+  "solutionsBookSaveFailed": "Échec de l'enregistrement : {error}",
+  "solutionsBookNeedTitlePages": "Saisissez un titre et un nombre de pages.",
+  "solutionsEditBookTitle": "Modifier le livre",
+  "solutionsBookCoverLabel": "Couverture",
+  "solutionsGradeLabel": "Niveau {grade}",
+  "solutionsReportsTitle": "Solutions signalées",
+  "solutionsReportsEmpty": "Aucun signalement à examiner.",
+  "solutionsReportPostedBy": "Publié par",
+  "solutionsReportReportedBy": "Signalé par",
+  "solutionsReportReasonLabel": "Motif",
+  "solutionsReportKeepAction": "Conserver",
+  "solutionsReportRemoveAction": "Supprimer",
+  "solutionsReportStatusPending": "En attente",
+  "solutionsReportStatusApproved": "Conservé",
+  "solutionsReportStatusRemoved": "Supprimé",
+  "solutionsReportRemoved": "Solution supprimée.",
+  "solutionsReportApproved": "Signalement rejeté — solution conservée.",
+  "solutionsReportFailed": "Échec du signalement : {error}",
+  "teacherDeleteClassroom": "Supprimer la classe",
+  "teacherDeleteClassroomConfirm": "Cette action supprime définitivement la classe ainsi que tout son chat, ses devoirs, ses supports, ses réunions et sa liste de membres. Action irréversible.",
+  "teacherClassroomDeleted": "Classe supprimée",
+  "announcementsTabReceived": "Reçues",
+  "announcementsTabPublished": "Publiées",
+  "teacherAddGradeTitle": "Ajouter une note",
+  "commonCohort": "Cohorte",
+  "teacherCreateNewExam": "Créer un examen",
+  "teacherCreateNewAssignment": "Créer un devoir",
+  "commonReturn": "Retourner"
 }

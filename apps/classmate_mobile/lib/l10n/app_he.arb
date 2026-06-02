@@ -233,16 +233,16 @@
     }
   },
   "scheduleClassFallback": "שיעור",
-  "scheduleNoSubjectLocation": "No subject or location yet",
-  "scheduleNotes": "Notes",
-  "scheduleGoToClassroom": "Go to Classroom",
+  "scheduleNoSubjectLocation": "אין עדיין מקצוע או מיקום",
+  "scheduleNotes": "הערות",
+  "scheduleGoToClassroom": "מעבר לכיתה",
   "loginTitle": "התחברות בנייד לתלמידים ומורים",
   "loginSubtitle": "חשבונות מורים פותחים את סביבת המורה. חשבונות תלמידים נשארים בחוויית התלמיד.",
   "loginSignIn": "התחבר",
   "loginWelcomeTitle": "ברוך שובך",
   "loginWelcomeSubtitle": "התחבר לחשבון ClassMate שלך.",
   "loginSigningIn": "מתחבר...",
-  "loginEmailLabel": "אימייל",
+  "loginEmailLabel": "דוא\"ל או שם משתמש",
   "loginPasswordLabel": "סיסמה",
   "profileNotAvailable": "לא זמין",
   "profileSchoolInfo": "פרטי בית הספר",
@@ -452,7 +452,7 @@
   "chatComposerLockTitle": "נעילה",
   "chatComposerSlideLeftToCancel": "החליקו שמאלה כדי לבטל",
   "chatComposerSlideUpToLock": "החליקו למעלה כדי לנעול",
-  "chatComposerReleaseToCancel": "שחררו כדי לבטל",
+  "chatComposerReleaseToCancel": "שחרר לביטול",
   "chatComposerKeepSlidingToCancel": "המשיכו להחליק כדי לבטל",
   "chatComposerReleaseToLock": "שחררו כדי לנעול",
   "chatComposerRelease": "שחרור",
@@ -1658,7 +1658,7 @@
   "examCouldNotOpenCalendar": "לא ניתן לפתוח את היומן.",
   "formTitle": "טופס",
   "formNotFound": "הטופס לא נמצא",
-  "formClosed": "טופס זה סגור.",
+  "formClosed": "סגור",
   "formCompletion": "השלמה",
   "formNoTextResponses": "אין תשובות טקסט עדיין.",
   "meetingsCouldNotLoad": "לא ניתן לטעון פגישות",
@@ -1692,22 +1692,22 @@
   "teacherAnnounceMessageLabel": "הודעה *",
   "teacherAnnounceMessageHint": "כתוב את ההודעה המלאה כאן…",
   "teacherStudentsLabel": "תלמידים",
-  "teacherSearchStudents": "חפש לפי שם או כיתה...",
+  "teacherSearchStudents": "חפש תלמידים…",
   "teacherNoStudentsLoaded": "לא נמצאו תלמידים בבית ספר זה.",
   "teacherActions": "פעולות מהירות",
   "teacherParentsLabel": "הורים",
   "teacherTeachersLabel": "מורים",
   "teacherWeekScheduleTitle": "לוח שבועי",
   "teacherCouldNotLoadSchedule": "לא ניתן לטעון את הלוח",
-  "teacherAttendanceLast30": "Attendance (last 30 days)",
-  "teacherAttendanceFrom": "From {date}",
+  "teacherAttendanceLast30": "נוכחות (30 הימים האחרונים)",
+  "teacherAttendanceFrom": "מ-{date}",
   "@teacherAttendanceFrom": {
     "placeholders": {
       "date": {}
     }
   },
-  "teacherAttendanceChangeDate": "Change date",
-  "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
+  "teacherAttendanceChangeDate": "שינוי תאריך",
+  "teacherAttendanceNoSessions": "אין מפגשי נוכחות שמורים.\nסמנו נוכחות מתוך המערכת.",
   "teacherRecentGrades": "ציונים אחרונים",
   "teacherNoGradesRecorded": "לא נרשמו ציונים עדיין",
   "teacherGradeAvg": "ממוצע ציונים",
@@ -1927,34 +1927,61 @@
   "adminResetPassword": "אפס סיסמה",
   "adminPasswordReset": "איפוס סיסמה",
   "adminTempPasswordFor": "סיסמה זמנית עבור {name}",
-  "@adminTempPasswordFor": {"placeholders": {"name": {}}},
+  "@adminTempPasswordFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteUser": "מחק משתמש",
   "adminDeleteUserConfirm": "למחוק את {name}? לא ניתן לבטל.",
-  "@adminDeleteUserConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteUserConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteCohort": "מחק קבוצה",
   "adminDeleteCohortConfirm": "למחוק \"{name}\"? כל חברויות הסטודנטים יוסרו.",
-  "@adminDeleteCohortConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteCohortConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminAddCohort": "הוסף קבוצה",
   "adminNewCohort": "קבוצה חדשה",
   "adminCohortName": "שם הקבוצה (למשל י׳א)",
   "adminCohortGrade": "כיתה",
-  "adminRenameCohort": "שנה שם קבוצה",
+  "adminRenameCohort": "שנה שם",
   "adminAddStudents": "הוסף תלמידים",
   "adminAddTo": "הוסף ל-{name}",
-  "@adminAddTo": {"placeholders": {"name": {}}},
+  "@adminAddTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminRemoveStudent": "הסר תלמיד",
   "adminRemoveStudentConfirm": "להסיר את {name} מ-{cohort}?",
-  "@adminRemoveStudentConfirm": {"placeholders": {"name": {}, "cohort": {}}},
+  "@adminRemoveStudentConfirm": {
+    "placeholders": {
+      "name": {},
+      "cohort": {}
+    }
+  },
   "adminNoCohortsYet": "אין קבוצות עדיין",
   "adminNoStudentsInCohort": "אין תלמידים בקבוצה זו",
   "adminStudentCount": "{count, plural, =1{תלמיד אחד} other{{count} תלמידים}}",
-  "@adminStudentCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSearchStudents": "חפש תלמידים…",
   "adminScheduleTitle": "מערכת שעות",
   "adminScheduleAddPeriod": "הוסף שיעור",
   "adminScheduleNewPeriod": "שיעור חדש",
   "adminScheduleDayLabel": "יום",
-  "adminSchedulePeriodLabel": "שיעור",
+  "adminSchedulePeriodLabel": "ש{period}",
   "adminScheduleTeacherLabel": "מורה",
   "adminScheduleNoneTeacher": "ללא מורה",
   "adminScheduleCohortLabel": "קבוצה / תלמידים",
@@ -1964,8 +1991,14 @@
   "adminScheduleFreqMonthly": "כל 4 שבועות",
   "adminScheduleFreqCustom": "מותאם",
   "adminScheduleFreqCustomLabel": "כל {n} שבועות",
-  "@adminScheduleFreqCustomLabel": {"placeholders": {"n": {"type": "int"}}},
-  "adminScheduleAddSlot": "הוסף חריץ",
+  "@adminScheduleFreqCustomLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "adminScheduleAddSlot": "הוסף משבצת",
   "adminScheduleAddAnother": "הוסף יום / שיעור נוסף",
   "adminScheduleSave": "שמור",
   "adminScheduleSearchTeacher": "חפש מורים…",
@@ -1982,7 +2015,13 @@
   "adminSchoolSaved": "נשמר",
   "adminSubjectsTitle": "מקצועות",
   "adminSubjectsGrade": "כיתה {grade}",
-  "@adminSubjectsGrade": {"placeholders": {"grade": {"type": "int"}}},
+  "@adminSubjectsGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectsAddHint": "הוסף מקצוע…",
   "adminSubjectsNoSubjects": "לא הוגדרו מקצועות",
   "adminSubjectsAdd": "הוסף",
@@ -1997,14 +2036,21 @@
   "adminCancel": "ביטול",
   "adminSearchPeople": "חפש לפי שם…",
   "adminNoResults": "אין תוצאות עבור \"{query}\"",
-  "@adminNoResults": {"placeholders": {"query": {}}},
+  "@adminNoResults": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "adminNoPeopleYet": "אין {role} עדיין",
-  "@adminNoPeopleYet": {"placeholders": {"role": {}}},
-
+  "@adminNoPeopleYet": {
+    "placeholders": {
+      "role": {}
+    }
+  },
   "commonRetry": "נסה שוב",
-  "commonBack": "חזרה",
-  "commonClose": "סגירה",
-  "commonDownload": "הורדה",
+  "commonBack": "חזור",
+  "commonClose": "סגור",
+  "commonDownload": "הורד",
   "commonOpenExternally": "פתח חיצונית",
   "commonSave": "שמור",
   "commonCancel": "ביטול",
@@ -2016,7 +2062,6 @@
   "commonLoading": "טוען…",
   "commonError": "משהו השתבש",
   "commonTryAgain": "נסה שוב",
-
   "studentMaterialsTitle": "חומרים",
   "studentMaterialsEmptyTitle": "אין חומרים שותפו עדיין",
   "studentMaterialsEmptyHint": "המורה ישתף משאבים כאן.",
@@ -2031,27 +2076,30 @@
   "studentAssignmentAddMoreFiles": "הוסף קבצים נוספים",
   "studentAssignmentYourSubmission": "ההגשה שלך",
   "studentAssignmentTeacherAttachments": "קבצים מצורפים",
-
   "secretaryWelcomeGreeting": "שלום {name} 👋",
-  "@secretaryWelcomeGreeting": {"placeholders": {"name": {}}},
+  "@secretaryWelcomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "secretaryYourTools": "הכלים שלך",
   "secretaryReports": "דיווחים",
   "secretaryExportData": "ייצוא נתונים",
   "secretaryHomeTile": "בית",
-
   "parentHomeGreeting": "שלום {name} 👋",
-  "@parentHomeGreeting": {"placeholders": {"name": {}}},
+  "@parentHomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "parentYourTools": "הכלים שלך",
   "parentNoChildLinked": "אין ילד מקושר עדיין",
   "parentPickChildFirst": "בחר ילד תחילה",
   "parentNoApprovedChildren": "אין ילדים מאושרים עדיין. בקש מבית הספר לקשר את חשבונך.",
-
   "loginEmptyFieldsError": "הזן דוא\"ל או שם משתמש וסיסמה.",
   "loginConnectionError": "אין חיבור. בדוק את האינטרנט ונסה שוב.",
   "loginTimeoutError": "הבקשה נכשלה בגלל פסק זמן. נסה שוב.",
-  "loginEmailLabel": "דוא\"ל או שם משתמש",
   "loginForgotPasswordLink": "שכחת סיסמה?",
-
   "forgotPasswordTitle": "איפוס סיסמה",
   "forgotPasswordModeEmail": "דוא\"ל",
   "forgotPasswordModeSms": "SMS",
@@ -2061,12 +2109,14 @@
   "forgotPasswordEmailButton": "שלח לי קישור איפוס בדוא\"ל",
   "forgotPasswordSmsButton": "שלח לי קישור איפוס ב-SMS",
   "forgotPasswordLinkExpires": "תוקף הקישור יפוג בעוד שעה וניתן לשימוש פעם אחת בלבד.",
-
   "pushPermissionTitle": "הישאר מעודכן",
   "pushPermissionBody": "הפעל התראות כדי שלא תפספס ציונים, הודעות או שינויים במערכת השעות.",
-
   "commonRequiredField": "{field} נדרש",
-  "@commonRequiredField": {"placeholders": {"field": {}}},
+  "@commonRequiredField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "commonAttachments": "קבצים מצורפים",
   "commonAttachFile": "צרף קובץ",
   "commonReplaceFile": "החלף קובץ",
@@ -2085,8 +2135,6 @@
   "commonOptional": "אופציונלי",
   "commonRequired": "חובה",
   "commonAuto": "אוטומטי",
-
-  "teacherShareMaterialTitle": "שתף חומר",
   "teacherShareButton": "שתף",
   "teacherMaterialDetails": "פרטי החומר",
   "teacherMaterialTitleLabel": "כותרת *",
@@ -2094,9 +2142,11 @@
   "teacherMaterialContentSection": "תוכן",
   "teacherMaterialContentRequired": "אנא צרף קובץ או הוסף קישור",
   "teacherFilePickError": "לא ניתן לבחור קובץ: {error}",
-  "@teacherFilePickError": {"placeholders": {"error": {}}},
-
-  "teacherScheduleMeetingTitle": "תזמן פגישה",
+  "@teacherFilePickError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherScheduleButton": "תזמן",
   "teacherMeetingTitleField": "כותרת הפגישה *",
   "teacherMeetingLinkField": "קישור לפגישה *",
@@ -2108,27 +2158,22 @@
   "teacherMeetingEndDate": "תאריך סיום (אופציונלי)",
   "teacherMeetingEndTime": "שעת סיום (אופציונלי)",
   "teacherClearEndTime": "נקה שעת סיום",
-
   "teacherAssignmentTitleField": "כותרת *",
   "teacherAssignmentInstructions": "הוראות (אופציונלי)",
   "teacherAssignmentDueDate": "תאריך הגשה (אופציונלי)",
   "teacherAssignmentClearDueDate": "נקה תאריך הגשה",
   "teacherAssignmentMaxGrade": "ציון מקסימלי (אופציונלי)",
   "teacherAssignmentPublished": "המטלה פורסמה.",
-  "teacherAssignmentDraftSaved": "טיוטה נשמרה.",
+  "teacherAssignmentDraftSaved": "הטיוטה נשמרה.",
   "teacherCreateAssignment": "צור",
-
   "teacherExamSubject": "מקצוע *",
   "teacherExamDate": "תאריך מבחן *",
   "teacherSelectSubject": "בחר מקצוע",
   "teacherNoSubjectOption": "ללא מקצוע",
   "teacherOtherSubjectOption": "אחר",
-
-  "teacherSearchStudents": "חפש תלמידים…",
   "teacherSearchClassrooms": "חפש כיתות…",
   "teacherSearchMaterials": "חפש חומרים…",
   "teacherClassroomName": "שם הכיתה *",
-
   "adminReportsOpenTab": "פתוחים",
   "adminReportsResolvedTab": "טופלו",
   "adminReportsDismissedTab": "נדחו",
@@ -2139,42 +2184,79 @@
   "adminReportsDismiss": "דחה",
   "adminReportsResolve": "טפל",
   "adminReportsReason": "סיבה: {reason}",
-  "@adminReportsReason": {"placeholders": {"reason": {}}},
-
+  "@adminReportsReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
   "chatReportTitle": "דווח על הודעה",
   "chatReportButton": "דווח",
   "chatReportSuccess": "הדיווח התקבל. תודה — מנהל יבדוק.",
   "chatReportFailed": "הדיווח נכשל: {error}",
-  "@chatReportFailed": {"placeholders": {"error": {}}},
+  "@chatReportFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "chatSendError": "לא ניתן לשלוח: {message}",
-  "@chatSendError": {"placeholders": {"message": {}}},
+  "@chatSendError": {
+    "placeholders": {
+      "message": {}
+    }
+  },
   "chatForwardLabel": "העבר {count}",
-  "@chatForwardLabel": {"placeholders": {"count": {}}},
+  "@chatForwardLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatDeleteLabel": "מחק {count}",
-  "@chatDeleteLabel": {"placeholders": {"count": {}}},
+  "@chatDeleteLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatSelectedCount": "{count} נבחרו",
-  "@chatSelectedCount": {"placeholders": {"count": {}}},
-
+  "@chatSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "adminPasswordReqEmpty": "אין בקשות ממתינות",
   "adminPasswordReqExplainer": "משתמשים שאישרת או דחית לא יופיעו כאן. בקשות ממתינות פגות לאחר 24 שעות.",
   "adminPasswordReqApproveTitle": "לאשר שינוי סיסמה?",
   "adminPasswordReqApproveExplain": "פעולה זו תגדיר את הסיסמה של {name} לזו שהוא הקליד (אתה לא רואה אותה).",
-  "@adminPasswordReqApproveExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqVerifyWarning": "אשר רק לאחר שאימתת שמגיש הבקשה הוא באמת {name} — התקשר אליו או אמת אישית. כל מי שיודע שם משתמש יכול להגיש בקשה כזו.",
-  "@adminPasswordReqVerifyWarning": {"placeholders": {"name": {}}},
+  "@adminPasswordReqVerifyWarning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqConfirmApprove": "אימתתי — אשר",
   "adminPasswordReqApproveSnackbar": "אושר — {name} יכול להתחבר עכשיו.",
-  "@adminPasswordReqApproveSnackbar": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectTitle": "לדחות שינוי סיסמה?",
   "adminPasswordReqRejectExplain": "הסיסמה של {name} לא תשתנה. הוא יכול להגיש בקשה חדשה במידת הצורך.",
-  "@adminPasswordReqRejectExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqRejectExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectSnackbar": "נדחה.",
   "adminPasswordReqRejectButton": "דחה",
   "adminPasswordReqApproveButton": "אשר",
   "adminPasswordReqCardCopy": "מעוניין בשינוי סיסמה. הסיסמה החדשה מוסתרת.",
   "adminPasswordReqCallTooltip": "התקשר",
   "adminPasswordReqSmsTooltip": "SMS",
-
   "adminSetupSchoolSetup": "הגדרת בית הספר",
   "adminSetupComplete": "הכול מוכן. הקש על כל פריט כדי לחזור אליו או לעדכן.",
   "adminSetupInstructions": "השלם שלבים אלה כדי להגדיר את בית הספר במלואו.",
@@ -2192,13 +2274,11 @@
   "adminSetupStudentsSubtitle": "צור חשבונות או הפק קודי הצטרפות",
   "adminSetupTeachersTitle": "הוספת מורים",
   "adminSetupTeachersSubtitle": "צור חשבונות למורים",
-
   "supportContactTitle": "דבר איתנו",
   "supportContactDescription": "לא מצאת את התשובה למטה? צור קשר ונחזור אליך תוך יום עסקים.",
   "supportEmailLabel": "דוא\"ל",
   "supportPhoneLabel": "טלפון",
   "supportSmsLabel": "הודעה",
-
   "aboutWhatIsClassmate": "מהו ClassMate?",
   "aboutClassmateDescription": "ClassMate הוא מערכת ההפעלה של בית הספר עבור תלמידים, מורים, מנהלים והורים. אפליקציה אחת, ארבעה תפקידים, וכל היבט של יום הלימודים במקום אחד — מערכת שעות, נוכחות, ציונים, כיתות, מטלות, הודעות, ושותף לימוד מבוסס בינה מלאכותית.",
   "aboutMultilingualTitle": "בנוי לבתי ספר שמדברים יותר משפה אחת",
@@ -2208,8 +2288,11 @@
   "aboutContactTitle": "צור קשר",
   "aboutContactDescription": "נבנה על ידי Tony Aboud וצוות ClassMate.\nשאלות: tony@classmateapp.org",
   "aboutVersionLabel": "ClassMate · גרסה {version}",
-  "@aboutVersionLabel": {"placeholders": {"version": {}}},
-
+  "@aboutVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "adminAddStudent": "הוסף תלמיד",
   "adminAddTeacher": "הוסף מורה",
   "adminAddParent": "הוסף הורה",
@@ -2221,23 +2304,28 @@
   "adminUsernameRequired": "נדרש שם משתמש",
   "adminPasswordMinLength": "הסיסמה חייבת להיות בת 8 תווים לפחות (או השאר ריק לייצור אוטומטי)",
   "adminUserCreatedMsg": "{name} נוצר.",
-  "@adminUserCreatedMsg": {"placeholders": {"name": {}}},
+  "@adminUserCreatedMsg": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminCredsUsername": "שם משתמש",
   "adminCredsEmail": "דוא\"ל",
   "adminCredsPassword": "סיסמה",
   "adminShareCredsHint": "שתף את פרטי הגישה עם התלמיד.",
   "adminCopyCredsButton": "העתק הכול",
   "adminGradeLabel": "שכבה",
-
   "adminCohortGradeFormat": "שכבה {grade}",
-  "@adminCohortGradeFormat": {"placeholders": {"grade": {}}},
+  "@adminCohortGradeFormat": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "adminCreateAndAddStudents": "צור והוסף תלמידים",
   "adminAddStudentsTitle": "הוספת תלמידים",
   "adminSkipAdding": "דלג",
   "adminInCohortBadge": "בקבוצה",
-  "adminRenameCohort": "שנה שם",
   "adminNoStudentsFoundCohort": "לא נמצאו תלמידים בשכבות של קבוצה זו",
-
   "adminScheduleByCohort": "לפי קבוצה ▾",
   "adminScheduleByStudent": "לפי תלמיד ▾",
   "adminScheduleByGrade": "לפי כיתה ▾",
@@ -2247,13 +2335,19 @@
   "adminScheduleAddCohort": "הוסף קבוצה",
   "adminScheduleAddStudent": "הוסף תלמיד",
   "adminScheduleClearFilters": "נקה",
-  "adminSchedulePeriodLabel": "ש{period}",
-  "@adminSchedulePeriodLabel": {"placeholders": {"period": {}}},
+  "@adminSchedulePeriodLabel": {
+    "placeholders": {
+      "period": {}
+    }
+  },
   "adminSchedulePickSubjectRequired": "בחר מקצוע לפני שמירת השיעור.",
   "adminSchedulePickDateOnce": "בחר תאריך לשיעור חד-פעמי.",
   "adminSchedulePickDateRecurring": "בחר תאריך התחלה ללוז של כל {freq} שבועות.",
-  "@adminSchedulePickDateRecurring": {"placeholders": {"freq": {}}},
-
+  "@adminSchedulePickDateRecurring": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
   "adminSchoolLogoLabel": "לוגו בית הספר",
   "adminSchoolLogoUploaded": "הלוגו הועלה",
   "adminSchoolNoLogoYet": "אין לוגו עדיין",
@@ -2273,7 +2367,6 @@
   "adminSchoolBellInfo": "הגדר את שעות ההתחלה והסיום לכל שיעור. אלו הופכות לשעות ברירת המחדל לבניית המערכת השבועית.",
   "adminSchoolStartTime": "התחלה",
   "adminSchoolEndTime": "סיום",
-
   "adminExportStudentsTab": "תלמידים",
   "adminExportCohortsTab": "קבוצות",
   "adminExportGradesTab": "שכבות",
@@ -2285,66 +2378,105 @@
   "teacherCreateClassroomTooltip": "יצירת כיתה",
   "teacherClassroomNameRequired": "שם הכיתה *",
   "teacherSubjectRequired": "מקצוע *",
-
   "messagesStartChatError": "לא ניתן להתחיל צ'אט: {error}",
-  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "@messagesStartChatError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "messagesNoPeopleMatch": "אין אנשים שתואמים ל-\"{query}\"",
-  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "@messagesNoPeopleMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "messagesNoPeopleFound": "לא נמצאו אנשים",
   "messagesPeopleCount": "{count, plural, =1{אדם אחד} other{{count} אנשים}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@messagesPeopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "studentAssignmentValidationRequired": "הוסף הערה או צרף קובץ לפני ההגשה.",
   "studentFormSubmittedBanner": "התשובות שהגשת",
   "studentFormSubmitError": "לא ניתן להגיש: {error}",
-  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "@studentFormSubmitError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "studentFormFieldRequired": "חובה: {field}",
-  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "@studentFormFieldRequired": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "studentFormClosedButton": "הטופס סגור",
   "studentFormAlreadySubmittedButton": "כבר הוגש",
-
   "studentDiplomaEditTitle": "ערוך תעודה",
   "studentDiplomaDeleteTitle": "למחוק תעודה?",
   "studentDiplomaDeleteConfirm": "להסיר את התעודה של \"{name}\"?",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
-
+  "@studentDiplomaDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherDeleteItemConfirm": "למחוק את \"{title}\"?",
-  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "@teacherDeleteItemConfirm": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherPublishTooltip": "פרסם",
-
   "teacherMeetingEnterTitle": "אנא הזן כותרת.",
   "teacherMeetingEnterLink": "אנא הזן קישור לפגישה.",
   "teacherMeetingEnterValidUrl": "אנא הזן כתובת תקינה (לדוגמה https://zoom.us/j/...)",
   "teacherMeetingPickStartTime": "אנא בחר שעת התחלה.",
   "teacherMeetingVisibleToEveryone": "גלוי לכולם",
   "teacherMeetingDoneCount": "סיום ({count} נבחרו)",
-  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMeetingDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "teacherDeleteAssignmentTitle": "למחוק את המטלה?",
   "teacherDeleteAssignmentBody": "פעולה זו תמחק את המטלה ואת כל ההגשות לצמיתות.",
   "teacherEditTooltip": "ערוך",
   "teacherDeleteTooltip": "מחק",
-
   "teacherClassroomBackTooltip": "חזרה",
   "teacherClassroomGenericError": "שגיאה: {error}",
-  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "@teacherClassroomGenericError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomAttachFailed": "צירוף נכשל: {error}",
-  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherClassroomAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomFileUnavailable": "הקובץ אינו זמין — המורה צריך להעלות אותו מחדש.",
   "teacherClassroomCodeLabel": "קוד הכיתה",
   "teacherClassroomCodeCopied": "הקוד הועתק",
   "teacherClassroomCopyCodeTooltip": "העתק קוד",
   "teacherClassroomCouldNotAdd": "לא ניתן להוסיף: {emails} — בדוק את כתובת הדוא\"ל שלהם.",
-  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "@teacherClassroomCouldNotAdd": {
+    "placeholders": {
+      "emails": {}
+    }
+  },
   "teacherClassroomAddStudents": "הוספת תלמידים",
   "teacherClassroomSearchNameGrade": "חפש לפי שם או שכבה…",
   "teacherClassroomNoStudentsFound": "לא נמצאו תלמידים",
-
   "teacherClassroomNameSubjectRequired": "שם ומקצוע נדרשים.",
   "teacherClassroomCreated": "הכיתה נוצרה!",
   "teacherCustomSubjectLabel": "מקצוע מותאם *",
   "teacherCreateClassroomButton": "צור כיתה",
-
   "teacherCreateFormTitle": "יצירת טופס",
   "teacherFormSaveDraft": "שמור טיוטה",
   "teacherFormTitleHint": "כותרת הטופס *",
@@ -2355,35 +2487,50 @@
   "teacherFormQuestionsSection": "שאלות",
   "teacherFormAddQuestionButton": "הוסף שאלה",
   "teacherFormQuestionPlaceholder": "שאלה {index}",
-  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "@teacherFormQuestionPlaceholder": {
+    "placeholders": {
+      "index": {}
+    }
+  },
   "teacherFormRequiredToggle": "חובה",
   "teacherFormAddOptionButton": "הוסף אפשרות",
   "teacherFormMinLabel": "מינ'",
   "teacherFormMaxLabel": "מקס'",
   "teacherFormEnterTitle": "אנא הזן כותרת לטופס.",
-
   "teacherExamUploadFailedSkipped": "העלאה נכשלה עבור {name}. הקובץ דולג.",
-  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "@teacherExamUploadFailedSkipped": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherExamEnterTitle": "אנא הזן כותרת.",
   "teacherExamPickDate": "אנא בחר תאריך מבחן.",
   "teacherExamSelectSubject": "אנא בחר מקצוע.",
-
   "teacherSlotDetachFailed": "ניתוק נכשל: {error}",
-  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotDetachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachFailed": "צירוף נכשל: {error}",
-  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachMaterial": "צרף חומר",
   "teacherSlotDetachTooltip": "נתק",
-
   "teacherDiplomaSelectStudent": "בחר תלמיד תחילה.",
   "teacherDiplomaUploadingWait": "אנא המתן — קבצים עדיין מועלים.",
   "teacherDiplomaIssueFailed": "לא ניתן להנפיק תעודה: {error}",
-  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "@teacherDiplomaIssueFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherDiplomaCertTitleLabel": "כותרת התעודה",
   "teacherDiplomaSearchStudent": "חפש תלמיד…",
-
   "teacherProfileChatError": "לא ניתן להתחיל צ'אט",
-
   "teacherGradeAssignmentType": "מטלה",
   "teacherGradeExamType": "מבחן",
   "teacherGradeOtherType": "אחר",
@@ -2395,65 +2542,81 @@
   "teacherMaterialAddFile": "הוסף קובץ",
   "teacherMaterialSearchStudentsGrade": "חפש תלמידים או שכבה...",
   "teacherMaterialDoneSelected": "סיום ({count} נבחרו)",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMaterialDoneSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectEnglishNameRequired": "שם באנגלית נדרש",
   "adminSubjectNameInLang": "שם ב{language}",
-  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "@adminSubjectNameInLang": {
+    "placeholders": {
+      "language": {}
+    }
+  },
   "adminSubjectResetButton": "אפס",
-
   "teacherAnnounceBroadcastTitle": "לשלוח לכולם?",
   "teacherAnnounceSendToEveryone": "שלח לכולם",
   "teacherAnnounceNoCohorts": "אין קבוצות זמינות",
   "teacherAnnounceNothingFound": "לא נמצא דבר",
   "teacherAnnounceNoParents": "לא נמצאו הורים בבית ספר זה.",
-
-  "teacherGradesSaved": "הציונים נשמרו",
   "teacherGradesToGrade": "לציון",
   "teacherGradesGraded": "צוין",
   "teacherSaveGradesButton": "שמור ציונים",
   "teacherAllowResubmitLabel": "אפשר הגשה חוזרת",
   "teacherAllowResubmitTitle": "לאפשר הגשה חוזרת?",
   "teacherAllowResubmitBody": "פעולה זו תמחק את ההגשה של {name} כדי שיוכל להגיש שוב.",
-  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "@teacherAllowResubmitBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAllowButton": "אפשר",
   "teacherGradeFieldLabel": "ציון",
   "teacherFeedbackOptionalLabel": "משוב (אופציונלי)",
-
   "teacherCreateClassroomFabLabel": "צור",
   "teacherLoadingStudents": "טוען תלמידים…",
   "teacherSearchHintShort": "חיפוש…",
   "teacherCreateClassroomTitle": "כיתה חדשה",
-
   "teacherAssignmentUploadFailed": "לא ניתן להעלות את {name}",
-  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "@teacherAssignmentUploadFailed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAssignmentEnterTitle": "אנא הזן כותרת.",
   "teacherAssignmentSelectSubject": "אנא בחר מקצוע.",
   "teacherAssignmentInstructionsLabel": "הוראות / תיאור",
   "teacherAttachFilesButton": "צרף קבצים",
-
   "tutorDeleteConversationTitle": "למחוק שיחה?",
   "tutorDeleteConversationButton": "מחק לצמיתות",
   "tutorDeleteFailed": "לא ניתן למחוק: {error}",
-  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "@tutorDeleteFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorDeleteMenuTitle": "מחק שיחה",
   "tutorDeleteMenuSubtitle": "מוחק לצמיתות מהשרת",
-
   "accountVerifyButton": "אמת",
   "accountConfirmButton": "אשר",
   "accountResendCode": "שלח קוד מחדש",
   "accountCodeResent": "נשלח קוד חדש.",
   "accountContinueButton": "המשך",
-
   "studentClassroomFileUnavailable": "הקובץ אינו זמין כעת.",
   "studentClassroomDeleteMaterial": "למחוק חומר?",
   "studentClassroomCodeLabel": "קוד הכיתה",
   "studentClassroomLeaveTooltip": "עזוב כיתה",
-
   "adminEditUserEnglishNameRequired": "שם באנגלית נדרש",
   "adminEditUserSaved": "נשמר",
   "adminEditUserPasswordChanged": "הסיסמה של {name} שונתה.",
-  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "@adminEditUserPasswordChanged": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminEditUserLoginSection": "התחברות",
   "adminEditUserUsernameLabel": "שם משתמש",
   "adminEditUserEmailOptional": "דוא\"ל (אופציונלי)",
@@ -2469,7 +2632,6 @@
   "adminEditUserNewPasswordLabel": "סיסמה חדשה",
   "adminEditUserConfirmPasswordLabel": "אישור סיסמה",
   "adminEditUserSetPasswordButton": "הגדר סיסמה",
-
   "adminPeriodsTitle": "ניהול שיעורים",
   "adminPeriodsAddPeriod": "הוסף שיעור",
   "adminPeriodsNoPeriods": "אין שיעורים עדיין",
@@ -2483,7 +2645,6 @@
   "adminPeriodsCohortsLabel": "קבוצות",
   "adminPeriodsStudentsOptional": "תלמידים (אופציונלי)",
   "adminPeriodsSearchByName": "חפש לפי שם…",
-
   "commonErrorWith": "שגיאה: {error}",
   "commonAddCount": "הוסף {count}",
   "teacherStudentGradesSaved": "הציונים נשמרו",
@@ -2499,7 +2660,6 @@
   "plansTryAgain": "נסה שוב",
   "adminCohortsGradeOnly": "כיתה {grade} בלבד",
   "adminCohortsGradeRangeOnly": "כיתות {from}-{to} בלבד",
-
   "adminExportNeedStudents": "בחר לפחות תלמיד או קבוצה אחת",
   "adminExportButton": "ייצא {count}",
   "adminExportNoStudents": "לא נמצאו תלמידים",
@@ -2554,10 +2714,6 @@
   "teacherMaterialPickerClassroomTitle": "בחר כיתה",
   "teacherMaterialPickerStudentsTitle": "בחר תלמידים",
   "teacherMaterialPickerGradesTitle": "בחר כיתות",
-
-  "adminScheduleAddSlot": "הוסף משבצת",
-  "adminScheduleAddPeriod": "הוסף שיעור",
-  "adminScheduleAddStudent": "הוסף תלמיד",
   "adminScheduleAddNew": "הוסף חדש",
   "adminScheduleAddCount": "הוסף ({count})",
   "adminScheduleCaptionOptional": "כותרת (אופציונלי)",
@@ -2584,7 +2740,6 @@
   "adminScheduleCreatedSlots": "נוצרו {created}/{total} משבצות. {error}",
   "adminScheduleSavedLabelOnlyError": "נשמר ככותרת בלבד — לא ניתן היה להוסיף לספריה: {error}",
   "adminScheduleSavedLabelPickAudience": "נשמר ככותרת. בחר תחילה קהל כדי להוסיף גם לספריית בית הספר.",
-
   "commonNothingFound": "לא נמצא דבר",
   "commonDownloadFailed": "ההורדה נכשלה: {error}",
   "commonFailedWith": "נכשל: {error}",
@@ -2599,7 +2754,13 @@
   "adminPasswordReqTitle": "בקשות סיסמה",
   "adminPasswordReqBlurb": "משתמשים מבית הספר שלך שביקשו את אישורך לשינוי סיסמה.",
   "adminPasswordReqWaiting": "{count, plural, =1{משתמש אחד ממתין לאישור שלך.} other{{count} משתמשים ממתינים לאישור שלך.}}",
-  "@adminPasswordReqWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "@adminPasswordReqWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminPasswordReqWantsChange": "רוצה לשנות את הסיסמה. הסיסמה החדשה מוסתרת.",
   "adminPasswordReqReject": "דחה",
   "adminPasswordReqApprove": "אשר",
@@ -2607,7 +2768,6 @@
   "adminSchoolSettingsTapToAddTranslations": "לחץ להוספת תרגומים",
   "adminSchoolSettingsAddPeriodNum": "הוסף שיעור (P{num})",
   "adminVisibleToEveryone": "גלוי לכולם",
-
   "navMaterials": "חומרי לימוד",
   "navPlans": "תוכניות NOVA",
   "navReports": "דיווחים",
@@ -2616,12 +2776,9 @@
   "sectionSecretaryTools": "כלי מזכירות",
   "sectionSchoolToolsLabel": "כלי בית הספר",
   "sectionAdminTools": "כלי מנהל",
-
   "chatVideoTrimTitle": "קיצוץ סרטון",
   "chatMediaPreviewTrimAction": "קצוץ",
-
   "commonUntitled": "ללא כותרת",
-
   "plansMonthlyPlans": "תוכניות חודשיות",
   "plansTokenTopups": "חבילות אסימונים",
   "plansTopupsSubtitle": "רכישות חד-פעמיות. לא פגות. נצברות מעל לתוכנית שלך.",
@@ -2640,9 +2797,21 @@
   "planBlurbBalance": "לתלמידים שלומדים מדי יום.",
   "planBlurbCommitment": "תרגול אינטנסיבי + סקרנות בלי גבולות.",
   "plansTokensPerMonth": "{tokens} אסימונים / חודש",
-  "@plansTokensPerMonth": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensPerMonth": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "plansTokensOneTime": "{tokens} אסימונים",
-  "@plansTokensOneTime": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensOneTime": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "planPriceFree": "חינם",
   "plansTokensRemaining": "אסימונים נותרו",
   "plansPlanResetsAt": "התוכנית מתאפסת {when}",
@@ -2652,7 +2821,6 @@
   "plansPerMonthSuffix": " / לחודש",
   "plansCurrentBadge": "נוכחית",
   "plansCouldntLoadPlans": "לא ניתן לטעון תוכניות",
-
   "paywallPlansUnavailable": "התוכניות לא זמינות. נסה שוב בעוד רגע.",
   "paywallTopupUnavailable": "החבילה לא זמינה. החנות עוד לא אישרה את המוצר.",
   "paywallRestored": "המנוי שלך שוחזר.",
@@ -2691,10 +2859,8 @@
   "paywallFeatureImages": "ניתוח תמונות והעלאת קבצים כלולים",
   "paywallFeatureReset": "האסימונים מתאפסים בתחילת כל חודש",
   "paywallFeatureCancel": "בטל בכל עת — ללא התחייבות",
-
   "studentMaterialsGeneralSubject": "כללי",
   "studentMaterialsResourceCount": "{count, plural, one{משאב אחד מהמורים שלך} other{{count} משאבים מהמורים שלך}}",
-
   "classroomsCouldNotLoadWithError": "לא ניתן לטעון את הכיתות\n{error}",
   "parentNoNotificationsYet": "אין התראות עדיין.",
   "forwardCouldNotLoadChats": "לא ניתן לטעון את הצ'אטים: {error}",
@@ -2702,13 +2868,11 @@
   "forgotPasswordFindAdmins": "מצא את מנהלי בית הספר שלי",
   "forgotPasswordChooseAdmin": "בחר מנהל מתוך {school}:",
   "forgotPasswordSendRequest": "שלח בקשת סיסמה",
-
   "commonTitle": "כותרת",
   "commonNotes": "הערות",
   "commonEmail": "דוא\"ל",
   "commonPassword": "סיסמה",
   "commonNumberOfPages": "מספר עמודים",
-
   "messagesSearchByNameOrGrade": "חפש לפי שם או כיתה…",
   "meetingStartDateRequired": "תאריך התחלה *",
   "meetingStartTimeRequired": "שעת התחלה *",
@@ -2726,24 +2890,19 @@
   "forgotPasswordYourPhone": "הטלפון שלך (כדי שהמנהל יוכל לאמת שזה באמת אתה)",
   "forgotPasswordPhoneHelper": "המנהל יתקשר או ישלח הודעה למספר זה לפני האישור.",
   "forgotPasswordNewPasswordHelper": "לפחות 8 תווים. נשמר מוצפן — המנהל לא יראה אותה.",
-
   "adminExportPasswordsWarning": "{count, plural, one{הקובץ יכיל את פרטי הכניסה של תלמיד אחד, כולל הסיסמה הנוכחית. כל מי שיש לו גישה לקובץ יכול להתחבר כתלמיד הזה — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שהמשתמש יתחבר שוב או יאפס.} other{הקובץ יכיל את פרטי הכניסה של {count} תלמידים, כולל סיסמאות נוכחיות. כל מי שיש לו גישה לקובץ יכול להתחבר כאחד התלמידים — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שכל משתמש יתחבר שוב או יאפס.}}",
-
   "pickerSelectStudents": "בחר תלמידים",
   "pickerSelectCohorts": "בחר קבוצות",
   "pickerSelectGrades": "בחר כיתות",
   "pickerSelectClassroom": "בחר כיתה",
   "pickerSelectClasses": "בחר כיתות",
-
   "drawerLoadingChildren": "טוען ילדים…",
   "drawerCouldNotLoadChildren": "לא ניתן לטעון את הילדים",
   "drawerNoChildrenLinked": "אין ילדים מקושרים",
   "drawerSwitchChild": "החלף ילד",
-
   "shellAssessmentCreated": "ההערכה נוצרה",
   "commonCouldNotOpenLink": "לא ניתן לפתוח קישור {scheme}",
   "commonCouldntSend": "לא ניתן לשלוח: {error}",
-
   "teacherExamDetailsSection": "פרטי המבחן",
   "teacherExamStudyMaterialsWithCount": "חומרי לימוד ({count})",
   "teacherMeetingDetailsSection": "פרטי המפגש",
@@ -2757,7 +2916,6 @@
   "studentFilesSharedByTeacher": "קבצים ששיתף המורה שלך",
   "studentYourSubmission": "ההגשה שלך",
   "studentFilesSharedWithAnnouncement": "קבצים ששותפו עם ההודעה הזו.",
-
   "announcementGradeRiskTitle": "זוהה סיכון בציונים",
   "announcementWeakSubjectTitle": "זוהה מקצוע חלש",
   "announcementLowAttendanceTitle": "נוכחות נמוכה",
@@ -2766,7 +2924,6 @@
   "announcementPracticeTrendDroppedTitle": "מגמת התרגול ירדה",
   "announcementSolutionsActivityTitle": "פעילות פתרונות פעילה",
   "announcementAllGoodTitle": "הכל בסדר",
-
   "supportSectionGettingStarted": "התחלת השימוש",
   "supportSectionAccountPassword": "חשבון וסיסמה",
   "supportSectionForStudents": "לתלמידים",
@@ -2774,15 +2931,11 @@
   "supportSectionForAdministrators": "למנהלים",
   "supportSectionForParents": "להורים",
   "supportSectionPrivacyData": "פרטיות ונתונים",
-
   "novaDisclaimerCanMakeMistakes": "יכול לטעות",
   "novaDisclaimerEducationalUseOnly": "לשימוש חינוכי בלבד",
   "novaDisclaimerYourPrivacy": "הפרטיות שלך",
-
   "profileNameInLanguage": "שם ב{language}",
-
   "adminSettingsScheduleSubtitle": "שייך מורים וקבוצות למשבצות זמן שבועיות",
-
   "practiceModeBalancedSubtitle": "תרגול יומי מאוזן",
   "practiceModeRevealSubtitle": "חשיפה והיזכרות עצמית",
   "practiceModeFastSubtitle": "אימון מהיר בלחץ",
@@ -2790,17 +2943,10 @@
   "practiceModeConceptSubtitle": "מושג קודם, פתרון אחר כך",
   "practiceModeAdaptiveSubtitle": "הקושי משתנה בזמן אמת",
   "practiceModeStrictSubtitle": "סגנון רשמי מחמיר",
-
-  "commonEdit": "ערוך",
-  "commonBack": "חזור",
-  "commonClose": "סגור",
-  "commonDownload": "הורד",
-  "commonOpenExternally": "פתח חיצונית",
   "commonCall": "התקשר",
   "tooltipClearEndTime": "נקה שעת סיום",
   "tooltipDeletePeriod": "מחק שיעור",
   "tooltipLeaveClassroom": "עזוב כיתה",
-
   "announcementGradeRiskBody": "הממוצע שלך ירד מתחת ל-70. מומלץ לפעול מיד.",
   "announcementWeakSubjectBody": "{subject} צריך תשומת לב.",
   "announcementLowAttendanceBody": "הנוכחות שלך יורדת. זה ישפיע על הציונים.",
@@ -2809,7 +2955,6 @@
   "announcementPracticeDropBody": "התרגול האחרון שלך מתחת לבסיס. האט ובנה מחדש.",
   "announcementSolutionsActivityBody": "מרחב הפתרונות שלך פעיל בעמוד {page}, שאלה {question}. בדוק עבודות עמיתים או העלה משלך.",
   "announcementAllGoodBody": "לא זוהו סיכונים אקדמיים גדולים כרגע.",
-
   "faqStartedQ1": "איך אני מתחבר?",
   "faqStartedA1": "הקש על \"היכנס\" במסך הפתיחה והזן את הדוא\"ל או שם המשתמש שמנהל בית הספר נתן לך, יחד עם הסיסמה הזמנית. תתבקש להגדיר סיסמה חדשה בפעם הראשונה.",
   "faqStartedQ2": "אין לי עדיין חשבון.",
@@ -2862,17 +3007,13 @@
   "faqPrivacyA1": "רק אנשים בבית הספר שלך. מורים רואים את נתוני הכיתות שלהם, מנהלים רואים נתונים ברחבי בית הספר, הורים רואים את ילדיהם המקושרים. אנחנו לעולם לא מוכרים נתונים למפרסמים.",
   "faqPrivacyQ2": "איך אני מוחק את החשבון?",
   "faqPrivacyA2": "בקש ממנהל בית הספר למחוק אותו. הוא יכול להסיר את החשבון מאפליקציית הניהול, מה שמוחק את הפרופיל, מערכת השעות והצ'אטים שלך.",
-
   "solutionsPagesCount": "{count, plural, one{עמוד אחד} other{{count} עמודים}}",
-
   "teacherMeetingEditTitle": "ערוך מפגש",
   "teacherMeetingNewTitle": "תזמן מפגש",
   "teacherExamEditTitle": "ערוך מבחן",
   "teacherExamNewTitle": "צור מבחן",
   "teacherAssignmentEditTitle": "ערוך מטלה",
   "teacherAssignmentNewTitle": "מטלה חדשה",
-  "teacherAssignmentPublished": "המטלה פורסמה.",
-  "teacherAssignmentDraftSaved": "הטיוטה נשמרה.",
   "tooltipShowTabs": "הצג כרטיסיות",
   "tooltipHideTabs": "הסתר כרטיסיות",
   "examsCouldNotLoadForms": "לא ניתן לטעון טפסים",
@@ -2883,18 +3024,14 @@
   "commonReadMore": "קרא עוד",
   "commonReadLess": "קרא פחות",
   "chatComposerSlideToCancel": "החלק לביטול",
-  "chatComposerReleaseToCancel": "שחרר לביטול",
   "adminNoRoleYet": "אין עדיין {role}",
   "profileVerified": "אומת.",
   "profileUpdatedPendingVerification": "עודכן וממתין לאימות מחדש.",
   "adminSearchCohorts": "חפש קבוצות…",
-
   "commonAdding": "מוסיף…",
-  "commonAdd": "הוסף",
   "teacherDiplomaIssuing": "מנפיק…",
   "teacherDiplomaIssue": "הנפק",
   "formAccepting": "מקבל",
-  "formClosed": "סגור",
   "profileVerifiedShort": "מאומת",
   "profileUnverified": "לא מאומת",
   "notificationNewGradePosted": "פורסם ציון חדש",
@@ -2903,7 +3040,6 @@
   "notificationFallbackTitle": "התראה",
   "adminCohortGradeRange": "כיתה {from}-{to}",
   "adminCohortGradesList": "כיתות {list}",
-
   "adminExportHeaderTitle": "ייצוא משתמשים",
   "adminExportHeaderSubtitle": "הוסף סננים כתגיות — כל תגית מוסיפה משתמשים לייצוא. הקש על תגית להסרתה.",
   "adminExportAddFilter": "הוסף סנן",
@@ -2914,9 +3050,24 @@
   "adminExportFilterUsersTab": "משתמשים",
   "adminExportSelectAll": "בחר הכול",
   "adminExportSelectedCount": "נבחרו {selected} מתוך {total}",
-  "@adminExportSelectedCount": {"placeholders": {"selected": {"type": "int"}, "total": {"type": "int"}}},
+  "@adminExportSelectedCount": {
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportRolePickedCount": "{count, plural, =1{נבחר אחד} other{{count} נבחרו}}",
-  "@adminExportRolePickedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminExportRolePickedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportPillRolePrefix": "תפקיד:",
   "adminExportPillCohortPrefix": "קבוצה:",
   "adminExportActiveFilters": "{count, plural, one{סנן פעיל אחד} other{{count} סננים פעילים}}",
@@ -2935,7 +3086,64 @@
   "adminExportPasswordsOff": "הייצוא לא יכיל סיסמאות.",
   "adminExportPdfUserDirectory": "ספריית משתמשים",
   "adminExportPdfUsersCount": "{count, plural, one{משתמש אחד} other{{count} משתמשים}}",
-
   "teacherAttachFromMaterials": "מחומרים",
-  "teacherUploadFiles": "העלה קבצים"
+  "teacherUploadFiles": "העלה קבצים",
+  "solSubjectMathematics": "מתמטיקה",
+  "solSubjectComputerScience": "מדעי המחשב",
+  "solSubjectPhysics": "פיזיקה",
+  "solSubjectChemistry": "כימיה",
+  "solSubjectHebrew": "עברית",
+  "solSubjectBiology": "ביולוגיה",
+  "solSubjectHistory": "היסטוריה",
+  "solSubjectArabic": "ערבית",
+  "solSubjectElectronics": "אלקטרוניקה",
+  "solSubjectMechanics": "מכניקה",
+  "solSubjectFrench": "צרפתית",
+  "solSubjectEnvironmentalScience": "מדעי הסביבה",
+  "solSubjectCommunicationCinema": "תקשורת וקולנוע",
+  "solSubjectCitizenship": "אזרחות",
+  "solSubjectSociology": "סוציולוגיה",
+  "solSubjectReligion": "דת",
+  "solSubjectGeography": "גאוגרפיה",
+  "commonUnknown": "לא ידוע",
+  "solutionsReportTitle": "דיווח על פתרון זה",
+  "solutionsReportBody": "ספרו למנהלים מה הבעיה. מנהלי שני בתי הספר יבדקו זאת.",
+  "solutionsReportReasonHint": "סיבה (אופציונלי)",
+  "solutionsReportAction": "דווח",
+  "solutionsReportSubmitted": "תודה — הדיווח נשלח למנהלים.",
+  "solutionsReportAlready": "כבר דיווחת על זה.",
+  "solutionsBookPagesCount": "{count} עמודים",
+  "solutionsNoBooksYetForStudents": "אין כאן ספרים עדיין. המורה יוסיף אותם.",
+  "solutionsManageBooksTitle": "ניהול ספרים",
+  "solutionsNoBooksManageHint": "אין ספרים למקצוע זה. הקש + להוספה.",
+  "solutionsDeleteBookTitle": "למחוק ספר?",
+  "solutionsDeleteBookBody": "למחוק את \"{title}\"? לא ניתן לבטל.",
+  "solutionsBookSaveFailed": "השמירה נכשלה: {error}",
+  "solutionsBookNeedTitlePages": "הזינו כותרת ומספר עמודים.",
+  "solutionsEditBookTitle": "עריכת ספר",
+  "solutionsBookCoverLabel": "כריכה",
+  "solutionsGradeLabel": "כיתה {grade}",
+  "solutionsReportsTitle": "פתרונות שדווחו",
+  "solutionsReportsEmpty": "אין דיווחים לבדיקה.",
+  "solutionsReportPostedBy": "פורסם על ידי",
+  "solutionsReportReportedBy": "דווח על ידי",
+  "solutionsReportReasonLabel": "סיבה",
+  "solutionsReportKeepAction": "השאר",
+  "solutionsReportRemoveAction": "הסר",
+  "solutionsReportStatusPending": "ממתין",
+  "solutionsReportStatusApproved": "נשמר",
+  "solutionsReportStatusRemoved": "הוסר",
+  "solutionsReportRemoved": "הפתרון הוסר.",
+  "solutionsReportApproved": "הדיווח נדחה — הפתרון נשמר.",
+  "solutionsReportFailed": "הדיווח נכשל: {error}",
+  "teacherDeleteClassroom": "מחיקת כיתה",
+  "teacherDeleteClassroomConfirm": "פעולה זו תמחק לצמיתות את הכיתה ואת כל הצ׳אט, המטלות, החומרים, המפגשים ורשימת החברים שלה. לא ניתן לבטל.",
+  "teacherClassroomDeleted": "הכיתה נמחקה",
+  "announcementsTabReceived": "התקבלו",
+  "announcementsTabPublished": "פורסמו",
+  "teacherAddGradeTitle": "הוספת ציון",
+  "commonCohort": "קבוצה",
+  "teacherCreateNewExam": "יצירת מבחן חדש",
+  "teacherCreateNewAssignment": "יצירת מטלה חדשה",
+  "commonReturn": "החזרה"
 }

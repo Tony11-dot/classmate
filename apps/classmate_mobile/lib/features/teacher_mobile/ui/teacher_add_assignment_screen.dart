@@ -770,7 +770,7 @@ class _TeacherAddAssignmentScreenState
                         child: FilledButton.tonalIcon(
                           onPressed: _pickMaterial,
                           icon: const Icon(Icons.attach_file_rounded, size: 18),
-                          label: const Text('Attach material'),
+                          label: Text(AppLocalizations.of(context)!.teacherSlotAttachMaterial),
                           style: FilledButton.styleFrom(
                             minimumSize: const Size.fromHeight(44),
                           ),

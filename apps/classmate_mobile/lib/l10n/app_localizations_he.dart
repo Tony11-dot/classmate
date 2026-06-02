@@ -577,13 +577,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get scheduleClassFallback => 'שיעור';
 
   @override
-  String get scheduleNoSubjectLocation => 'No subject or location yet';
+  String get scheduleNoSubjectLocation => 'אין עדיין מקצוע או מיקום';
 
   @override
-  String get scheduleNotes => 'Notes';
+  String get scheduleNotes => 'הערות';
 
   @override
-  String get scheduleGoToClassroom => 'Go to Classroom';
+  String get scheduleGoToClassroom => 'מעבר לכיתה';
 
   @override
   String get loginTitle => 'התחברות בנייד לתלמידים ומורים';
@@ -1872,20 +1872,20 @@ class AppLocalizationsHe extends AppLocalizations {
       'הודעות לא היו יכולות להתחבר כעת. בדוק את החיבור שלך ונסה שוב.';
 
   @override
-  String get teacherDeleteClassroom => 'Delete classroom';
+  String get teacherDeleteClassroom => 'מחיקת כיתה';
 
   @override
   String get teacherDeleteClassroomConfirm =>
-      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+      'פעולה זו תמחק לצמיתות את הכיתה ואת כל הצ׳אט, המטלות, החומרים, המפגשים ורשימת החברים שלה. לא ניתן לבטל.';
 
   @override
-  String get teacherClassroomDeleted => 'Classroom deleted';
+  String get teacherClassroomDeleted => 'הכיתה נמחקה';
 
   @override
-  String get announcementsTabReceived => 'Received';
+  String get announcementsTabReceived => 'התקבלו';
 
   @override
-  String get announcementsTabPublished => 'Published';
+  String get announcementsTabPublished => 'פורסמו';
 
   @override
   String get announcementsAudienceTeacher => 'מורה';
@@ -4290,19 +4290,19 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'לא ניתן לטעון את הלוח';
 
   @override
-  String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+  String get teacherAttendanceLast30 => 'נוכחות (30 הימים האחרונים)';
 
   @override
   String teacherAttendanceFrom(Object date) {
-    return 'From $date';
+    return 'מ-$date';
   }
 
   @override
-  String get teacherAttendanceChangeDate => 'Change date';
+  String get teacherAttendanceChangeDate => 'שינוי תאריך';
 
   @override
   String get teacherAttendanceNoSessions =>
-      'No saved attendance sessions.\nMark attendance from the schedule.';
+      'אין מפגשי נוכחות שמורים.\nסמנו נוכחות מתוך המערכת.';
 
   @override
   String get teacherRecentGrades => 'ציונים אחרונים';
@@ -7841,4 +7841,175 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherUploadFiles => 'העלה קבצים';
+
+  @override
+  String get solSubjectMathematics => 'מתמטיקה';
+
+  @override
+  String get solSubjectComputerScience => 'מדעי המחשב';
+
+  @override
+  String get solSubjectPhysics => 'פיזיקה';
+
+  @override
+  String get solSubjectChemistry => 'כימיה';
+
+  @override
+  String get solSubjectHebrew => 'עברית';
+
+  @override
+  String get solSubjectBiology => 'ביולוגיה';
+
+  @override
+  String get solSubjectHistory => 'היסטוריה';
+
+  @override
+  String get solSubjectArabic => 'ערבית';
+
+  @override
+  String get solSubjectElectronics => 'אלקטרוניקה';
+
+  @override
+  String get solSubjectMechanics => 'מכניקה';
+
+  @override
+  String get solSubjectFrench => 'צרפתית';
+
+  @override
+  String get solSubjectEnvironmentalScience => 'מדעי הסביבה';
+
+  @override
+  String get solSubjectCommunicationCinema => 'תקשורת וקולנוע';
+
+  @override
+  String get solSubjectCitizenship => 'אזרחות';
+
+  @override
+  String get solSubjectSociology => 'סוציולוגיה';
+
+  @override
+  String get solSubjectReligion => 'דת';
+
+  @override
+  String get solSubjectGeography => 'גאוגרפיה';
+
+  @override
+  String get commonUnknown => 'לא ידוע';
+
+  @override
+  String get solutionsReportTitle => 'דיווח על פתרון זה';
+
+  @override
+  String get solutionsReportBody =>
+      'ספרו למנהלים מה הבעיה. מנהלי שני בתי הספר יבדקו זאת.';
+
+  @override
+  String get solutionsReportReasonHint => 'סיבה (אופציונלי)';
+
+  @override
+  String get solutionsReportAction => 'דווח';
+
+  @override
+  String get solutionsReportSubmitted => 'תודה — הדיווח נשלח למנהלים.';
+
+  @override
+  String get solutionsReportAlready => 'כבר דיווחת על זה.';
+
+  @override
+  String solutionsBookPagesCount(int count) {
+    return '$count עמודים';
+  }
+
+  @override
+  String get solutionsNoBooksYetForStudents =>
+      'אין כאן ספרים עדיין. המורה יוסיף אותם.';
+
+  @override
+  String get solutionsManageBooksTitle => 'ניהול ספרים';
+
+  @override
+  String get solutionsNoBooksManageHint => 'אין ספרים למקצוע זה. הקש + להוספה.';
+
+  @override
+  String get solutionsDeleteBookTitle => 'למחוק ספר?';
+
+  @override
+  String solutionsDeleteBookBody(String title) {
+    return 'למחוק את \"$title\"? לא ניתן לבטל.';
+  }
+
+  @override
+  String solutionsBookSaveFailed(String error) {
+    return 'השמירה נכשלה: $error';
+  }
+
+  @override
+  String get solutionsBookNeedTitlePages => 'הזינו כותרת ומספר עמודים.';
+
+  @override
+  String get solutionsEditBookTitle => 'עריכת ספר';
+
+  @override
+  String get solutionsBookCoverLabel => 'כריכה';
+
+  @override
+  String solutionsGradeLabel(int grade) {
+    return 'כיתה $grade';
+  }
+
+  @override
+  String get solutionsReportsTitle => 'פתרונות שדווחו';
+
+  @override
+  String get solutionsReportsEmpty => 'אין דיווחים לבדיקה.';
+
+  @override
+  String get solutionsReportPostedBy => 'פורסם על ידי';
+
+  @override
+  String get solutionsReportReportedBy => 'דווח על ידי';
+
+  @override
+  String get solutionsReportReasonLabel => 'סיבה';
+
+  @override
+  String get solutionsReportKeepAction => 'השאר';
+
+  @override
+  String get solutionsReportRemoveAction => 'הסר';
+
+  @override
+  String get solutionsReportStatusPending => 'ממתין';
+
+  @override
+  String get solutionsReportStatusApproved => 'נשמר';
+
+  @override
+  String get solutionsReportStatusRemoved => 'הוסר';
+
+  @override
+  String get solutionsReportRemoved => 'הפתרון הוסר.';
+
+  @override
+  String get solutionsReportApproved => 'הדיווח נדחה — הפתרון נשמר.';
+
+  @override
+  String solutionsReportFailed(String error) {
+    return 'הדיווח נכשל: $error';
+  }
+
+  @override
+  String get teacherAddGradeTitle => 'הוספת ציון';
+
+  @override
+  String get commonCohort => 'קבוצה';
+
+  @override
+  String get teacherCreateNewExam => 'יצירת מבחן חדש';
+
+  @override
+  String get teacherCreateNewAssignment => 'יצירת מטלה חדשה';
+
+  @override
+  String get commonReturn => 'החזרה';
 }

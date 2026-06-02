@@ -163,10 +163,16 @@ class SolutionsApi {
     required String subject,
     required String title,
     required int pages,
+    String? coverUrl,
   }) async {
     final raw = await _api.postJson(
       '/solutions/books',
-      body: <String, dynamic>{'subject': subject, 'title': title, 'pages': pages},
+      body: <String, dynamic>{
+        'subject': subject,
+        'title': title,
+        'pages': pages,
+        if ((coverUrl ?? '').trim().isNotEmpty) 'coverUrl': coverUrl!.trim(),
+      },
     );
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
   }
@@ -175,12 +181,14 @@ class SolutionsApi {
     required String id,
     String? title,
     int? pages,
+    String? coverUrl,
   }) async {
     final raw = await _api.patchJson(
       '/solutions/books/$id',
       body: <String, dynamic>{
         if ((title ?? '').trim().isNotEmpty) 'title': title!.trim(),
         if (pages != null) 'pages': pages,
+        if ((coverUrl ?? '').trim().isNotEmpty) 'coverUrl': coverUrl!.trim(),
       },
     );
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};

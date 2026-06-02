@@ -576,13 +576,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scheduleClassFallback => 'Урок';
 
   @override
-  String get scheduleNoSubjectLocation => 'No subject or location yet';
+  String get scheduleNoSubjectLocation => 'Пока нет предмета или места';
 
   @override
-  String get scheduleNotes => 'Notes';
+  String get scheduleNotes => 'Заметки';
 
   @override
-  String get scheduleGoToClassroom => 'Go to Classroom';
+  String get scheduleGoToClassroom => 'Перейти к классу';
 
   @override
   String get loginTitle => 'Вход для учеников и учителей';
@@ -1873,20 +1873,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementsLoadNetwork => 'Нет подключения';
 
   @override
-  String get teacherDeleteClassroom => 'Delete classroom';
+  String get teacherDeleteClassroom => 'Удалить класс';
 
   @override
   String get teacherDeleteClassroomConfirm =>
-      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+      'Это безвозвратно удалит класс и весь его чат, задания, материалы, встречи и список участников. Отменить нельзя.';
 
   @override
-  String get teacherClassroomDeleted => 'Classroom deleted';
+  String get teacherClassroomDeleted => 'Класс удалён';
 
   @override
-  String get announcementsTabReceived => 'Received';
+  String get announcementsTabReceived => 'Полученные';
 
   @override
-  String get announcementsTabPublished => 'Published';
+  String get announcementsTabPublished => 'Опубликованные';
 
   @override
   String get announcementsAudienceTeacher => 'Учитель';
@@ -7899,4 +7899,177 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherUploadFiles => 'Загрузить файлы';
+
+  @override
+  String get solSubjectMathematics => 'Математика';
+
+  @override
+  String get solSubjectComputerScience => 'Информатика';
+
+  @override
+  String get solSubjectPhysics => 'Физика';
+
+  @override
+  String get solSubjectChemistry => 'Химия';
+
+  @override
+  String get solSubjectHebrew => 'Иврит';
+
+  @override
+  String get solSubjectBiology => 'Биология';
+
+  @override
+  String get solSubjectHistory => 'История';
+
+  @override
+  String get solSubjectArabic => 'Арабский';
+
+  @override
+  String get solSubjectElectronics => 'Электроника';
+
+  @override
+  String get solSubjectMechanics => 'Механика';
+
+  @override
+  String get solSubjectFrench => 'Французский';
+
+  @override
+  String get solSubjectEnvironmentalScience => 'Экология';
+
+  @override
+  String get solSubjectCommunicationCinema => 'Коммуникация и кино';
+
+  @override
+  String get solSubjectCitizenship => 'Граждановедение';
+
+  @override
+  String get solSubjectSociology => 'Социология';
+
+  @override
+  String get solSubjectReligion => 'Религия';
+
+  @override
+  String get solSubjectGeography => 'География';
+
+  @override
+  String get commonUnknown => 'Неизвестно';
+
+  @override
+  String get solutionsReportTitle => 'Пожаловаться на решение';
+
+  @override
+  String get solutionsReportBody =>
+      'Опишите проблему. Её рассмотрят администраторы обеих школ.';
+
+  @override
+  String get solutionsReportReasonHint => 'Причина (необязательно)';
+
+  @override
+  String get solutionsReportAction => 'Пожаловаться';
+
+  @override
+  String get solutionsReportSubmitted =>
+      'Спасибо — жалоба отправлена администраторам.';
+
+  @override
+  String get solutionsReportAlready => 'Вы уже пожаловались на это.';
+
+  @override
+  String solutionsBookPagesCount(int count) {
+    return '$count стр.';
+  }
+
+  @override
+  String get solutionsNoBooksYetForStudents =>
+      'Здесь пока нет книг. Их добавит ваш учитель.';
+
+  @override
+  String get solutionsManageBooksTitle => 'Управление книгами';
+
+  @override
+  String get solutionsNoBooksManageHint =>
+      'Для этого предмета пока нет книг. Нажмите +, чтобы добавить.';
+
+  @override
+  String get solutionsDeleteBookTitle => 'Удалить книгу?';
+
+  @override
+  String solutionsDeleteBookBody(String title) {
+    return 'Удалить «$title»? Это нельзя отменить.';
+  }
+
+  @override
+  String solutionsBookSaveFailed(String error) {
+    return 'Не удалось сохранить: $error';
+  }
+
+  @override
+  String get solutionsBookNeedTitlePages => 'Укажите название и число страниц.';
+
+  @override
+  String get solutionsEditBookTitle => 'Редактировать книгу';
+
+  @override
+  String get solutionsBookCoverLabel => 'Обложка';
+
+  @override
+  String solutionsGradeLabel(int grade) {
+    return 'Класс $grade';
+  }
+
+  @override
+  String get solutionsReportsTitle => 'Жалобы на решения';
+
+  @override
+  String get solutionsReportsEmpty => 'Нет жалоб для рассмотрения.';
+
+  @override
+  String get solutionsReportPostedBy => 'Автор';
+
+  @override
+  String get solutionsReportReportedBy => 'Пожаловался';
+
+  @override
+  String get solutionsReportReasonLabel => 'Причина';
+
+  @override
+  String get solutionsReportKeepAction => 'Оставить';
+
+  @override
+  String get solutionsReportRemoveAction => 'Удалить';
+
+  @override
+  String get solutionsReportStatusPending => 'На рассмотрении';
+
+  @override
+  String get solutionsReportStatusApproved => 'Оставлено';
+
+  @override
+  String get solutionsReportStatusRemoved => 'Удалено';
+
+  @override
+  String get solutionsReportRemoved => 'Решение удалено.';
+
+  @override
+  String get solutionsReportApproved => 'Жалоба отклонена — решение оставлено.';
+
+  @override
+  String solutionsReportFailed(String error) {
+    return 'Не удалось пожаловаться: $error';
+  }
+
+  @override
+  String get teacherAddGradeTitle => 'Добавить оценку';
+
+  @override
+  String get commonCohort => 'Группа';
+
+  @override
+  String get teacherCreateNewExam => 'Создать экзамен';
+
+  @override
+  String get teacherCreateNewAssignment => 'Создать задание';
+
+  @override
+  String get commonReturn => 'Вернуть';
 }

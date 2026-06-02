@@ -541,22 +541,22 @@ class _TeacherNewAnnouncementScreenState
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: _AudienceMode.roles,
-                      label: Text('Role', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                      label: Text(AppLocalizations.of(context)!.adminRoleLabel, maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                     ),
                     ButtonSegment(
                       value: _AudienceMode.grades,
-                      label: Text('Grade', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                      label: Text(AppLocalizations.of(context)!.adminGradeLabel, maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                     ),
                     ButtonSegment(
                       value: _AudienceMode.cohorts,
-                      label: Text('Cohort', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                      label: Text(AppLocalizations.of(context)!.commonCohort, maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                     ),
                     ButtonSegment(
                       value: _AudienceMode.individuals,
-                      label: Text('People', maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
+                      label: Text(AppLocalizations.of(context)!.classroomDetailTabPeople, maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                     ),
                   ],
                   selected: {_audienceMode},

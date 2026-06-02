@@ -258,16 +258,16 @@
     }
   },
   "scheduleClassFallback": "Урок",
-  "scheduleNoSubjectLocation": "No subject or location yet",
-  "scheduleNotes": "Notes",
-  "scheduleGoToClassroom": "Go to Classroom",
+  "scheduleNoSubjectLocation": "Пока нет предмета или места",
+  "scheduleNotes": "Заметки",
+  "scheduleGoToClassroom": "Перейти к классу",
   "loginTitle": "Вход для учеников и учителей",
   "loginSubtitle": "Войдите, чтобы продолжить",
   "loginSignIn": "Войти",
   "loginWelcomeTitle": "С возвращением",
   "loginWelcomeSubtitle": "Войдите в свой аккаунт ClassMate.",
   "loginSigningIn": "Вход…",
-  "loginEmailLabel": "Email",
+  "loginEmailLabel": "Email или имя пользователя",
   "loginPasswordLabel": "Пароль",
   "profileNotAvailable": "Недоступно",
   "profileSchoolInfo": "Информация о школе",
@@ -1865,7 +1865,7 @@
   "examCouldNotOpenCalendar": "Не удалось открыть календарь.",
   "formTitle": "Форма",
   "formNotFound": "Форма не найдена",
-  "formClosed": "Эта форма закрыта.",
+  "formClosed": "Закрыт",
   "formCompletion": "Завершение",
   "formNoTextResponses": "Текстовых ответов пока нет.",
   "meetingsCouldNotLoad": "Не удалось загрузить встречи",
@@ -1899,7 +1899,7 @@
   "teacherAnnounceMessageLabel": "Сообщение *",
   "teacherAnnounceMessageHint": "Напишите полное объявление здесь…",
   "teacherStudentsLabel": "Ученики",
-  "teacherSearchStudents": "Поиск по имени или классу…",
+  "teacherSearchStudents": "Поиск учеников…",
   "teacherNoStudentsLoaded": "В этой школе нет учеников.",
   "teacherActions": "БЫСТРЫЕ ДЕЙСТВИЯ",
   "teacherParentsLabel": "Родители",
@@ -2134,34 +2134,61 @@
   "adminResetPassword": "Сбросить пароль",
   "adminPasswordReset": "Сброс пароля",
   "adminTempPasswordFor": "Временный пароль для {name}",
-  "@adminTempPasswordFor": {"placeholders": {"name": {}}},
+  "@adminTempPasswordFor": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteUser": "Удалить пользователя",
   "adminDeleteUserConfirm": "Удалить {name}? Это действие нельзя отменить.",
-  "@adminDeleteUserConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteUserConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminDeleteCohort": "Удалить группу",
   "adminDeleteCohortConfirm": "Удалить \"{name}\"? Все участники будут удалены.",
-  "@adminDeleteCohortConfirm": {"placeholders": {"name": {}}},
+  "@adminDeleteCohortConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminAddCohort": "Добавить группу",
   "adminNewCohort": "Новая группа",
   "adminCohortName": "Название группы (напр. 10-2)",
   "adminCohortGrade": "Класс",
-  "adminRenameCohort": "Переименовать группу",
+  "adminRenameCohort": "Переименовать",
   "adminAddStudents": "Добавить учеников",
   "adminAddTo": "Добавить в {name}",
-  "@adminAddTo": {"placeholders": {"name": {}}},
+  "@adminAddTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminRemoveStudent": "Удалить ученика",
   "adminRemoveStudentConfirm": "Удалить {name} из {cohort}?",
-  "@adminRemoveStudentConfirm": {"placeholders": {"name": {}, "cohort": {}}},
+  "@adminRemoveStudentConfirm": {
+    "placeholders": {
+      "name": {},
+      "cohort": {}
+    }
+  },
   "adminNoCohortsYet": "Нет групп",
   "adminNoStudentsInCohort": "В этой группе нет учеников",
   "adminStudentCount": "{count, plural, =1{1 ученик} other{{count} учеников}}",
-  "@adminStudentCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSearchStudents": "Поиск учеников…",
   "adminScheduleTitle": "Расписание",
   "adminScheduleAddPeriod": "Добавить урок",
   "adminScheduleNewPeriod": "Новый урок",
   "adminScheduleDayLabel": "День",
-  "adminSchedulePeriodLabel": "Урок",
+  "adminSchedulePeriodLabel": "У{period}",
   "adminScheduleTeacherLabel": "Учитель",
   "adminScheduleNoneTeacher": "Нет учителя",
   "adminScheduleCohortLabel": "Группа / Ученики",
@@ -2171,7 +2198,13 @@
   "adminScheduleFreqMonthly": "Каждые 4 недели",
   "adminScheduleFreqCustom": "Настроить",
   "adminScheduleFreqCustomLabel": "Каждые {n} недели",
-  "@adminScheduleFreqCustomLabel": {"placeholders": {"n": {"type": "int"}}},
+  "@adminScheduleFreqCustomLabel": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "adminScheduleAddSlot": "Добавить слот",
   "adminScheduleAddAnother": "Добавить ещё день / урок",
   "adminScheduleSave": "Сохранить",
@@ -2189,7 +2222,13 @@
   "adminSchoolSaved": "Сохранено",
   "adminSubjectsTitle": "Предметы",
   "adminSubjectsGrade": "Класс {grade}",
-  "@adminSubjectsGrade": {"placeholders": {"grade": {"type": "int"}}},
+  "@adminSubjectsGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectsAddHint": "Добавить предмет…",
   "adminSubjectsNoSubjects": "Предметы не настроены",
   "adminSubjectsAdd": "Добавить",
@@ -2204,10 +2243,17 @@
   "adminCancel": "Отмена",
   "adminSearchPeople": "Поиск по имени…",
   "adminNoResults": "Нет результатов для \"{query}\"",
-  "@adminNoResults": {"placeholders": {"query": {}}},
+  "@adminNoResults": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "adminNoPeopleYet": "Нет {role}",
-  "@adminNoPeopleYet": {"placeholders": {"role": {}}},
-
+  "@adminNoPeopleYet": {
+    "placeholders": {
+      "role": {}
+    }
+  },
   "commonRetry": "Повторить",
   "commonBack": "Назад",
   "commonClose": "Закрыть",
@@ -2223,7 +2269,6 @@
   "commonLoading": "Загрузка…",
   "commonError": "Что-то пошло не так",
   "commonTryAgain": "Попробуйте снова",
-
   "studentMaterialsTitle": "Материалы",
   "studentMaterialsEmptyTitle": "Материалы ещё не добавлены",
   "studentMaterialsEmptyHint": "Учитель добавит материалы здесь.",
@@ -2238,27 +2283,30 @@
   "studentAssignmentAddMoreFiles": "Добавить ещё файлы",
   "studentAssignmentYourSubmission": "Ваша работа",
   "studentAssignmentTeacherAttachments": "Вложения",
-
   "secretaryWelcomeGreeting": "Привет, {name} 👋",
-  "@secretaryWelcomeGreeting": {"placeholders": {"name": {}}},
+  "@secretaryWelcomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "secretaryYourTools": "Ваши инструменты",
   "secretaryReports": "Жалобы",
   "secretaryExportData": "Экспорт данных",
   "secretaryHomeTile": "Главная",
-
   "parentHomeGreeting": "Привет, {name} 👋",
-  "@parentHomeGreeting": {"placeholders": {"name": {}}},
+  "@parentHomeGreeting": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "parentYourTools": "Ваши инструменты",
   "parentNoChildLinked": "Дети ещё не привязаны",
   "parentPickChildFirst": "Сначала выберите ребёнка",
   "parentNoApprovedChildren": "Подтверждённых детей пока нет. Попросите школу привязать ваш аккаунт.",
-
   "loginEmptyFieldsError": "Введите email или имя пользователя и пароль.",
   "loginConnectionError": "Нет подключения. Проверьте интернет и попробуйте снова.",
   "loginTimeoutError": "Время запроса истекло. Попробуйте снова.",
-  "loginEmailLabel": "Email или имя пользователя",
   "loginForgotPasswordLink": "Забыли пароль?",
-
   "forgotPasswordTitle": "Сброс пароля",
   "forgotPasswordModeEmail": "Email",
   "forgotPasswordModeSms": "SMS",
@@ -2268,12 +2316,14 @@
   "forgotPasswordEmailButton": "Отправить ссылку по email",
   "forgotPasswordSmsButton": "Отправить ссылку по SMS",
   "forgotPasswordLinkExpires": "Срок действия ссылки — 1 час, использовать можно только один раз.",
-
   "pushPermissionTitle": "Будьте в курсе",
   "pushPermissionBody": "Включите уведомления, чтобы не пропустить оценки, сообщения или изменения в расписании.",
-
   "commonRequiredField": "{field} обязательно",
-  "@commonRequiredField": {"placeholders": {"field": {}}},
+  "@commonRequiredField": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "commonAttachments": "Вложения",
   "commonAttachFile": "Прикрепить файл",
   "commonReplaceFile": "Заменить файл",
@@ -2292,8 +2342,6 @@
   "commonOptional": "Необязательно",
   "commonRequired": "Обязательно",
   "commonAuto": "Авто",
-
-  "teacherShareMaterialTitle": "Поделиться материалом",
   "teacherShareButton": "Поделиться",
   "teacherMaterialDetails": "Сведения о материале",
   "teacherMaterialTitleLabel": "Название *",
@@ -2301,9 +2349,11 @@
   "teacherMaterialContentSection": "Содержимое",
   "teacherMaterialContentRequired": "Прикрепите файл или добавьте ссылку",
   "teacherFilePickError": "Не удалось выбрать файл: {error}",
-  "@teacherFilePickError": {"placeholders": {"error": {}}},
-
-  "teacherScheduleMeetingTitle": "Запланировать встречу",
+  "@teacherFilePickError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherScheduleButton": "Запланировать",
   "teacherMeetingTitleField": "Название встречи *",
   "teacherMeetingLinkField": "Ссылка на встречу *",
@@ -2315,7 +2365,6 @@
   "teacherMeetingEndDate": "Дата окончания (необязательно)",
   "teacherMeetingEndTime": "Время окончания (необязательно)",
   "teacherClearEndTime": "Очистить время окончания",
-
   "teacherAssignmentTitleField": "Название *",
   "teacherAssignmentInstructions": "Инструкции (необязательно)",
   "teacherAssignmentDueDate": "Срок сдачи (необязательно)",
@@ -2324,18 +2373,14 @@
   "teacherAssignmentPublished": "Задание опубликовано.",
   "teacherAssignmentDraftSaved": "Черновик сохранён.",
   "teacherCreateAssignment": "Создать",
-
   "teacherExamSubject": "Предмет *",
   "teacherExamDate": "Дата экзамена *",
   "teacherSelectSubject": "Выберите предмет",
   "teacherNoSubjectOption": "Без предмета",
   "teacherOtherSubjectOption": "Другое",
-
-  "teacherSearchStudents": "Поиск учеников…",
   "teacherSearchClassrooms": "Поиск классов…",
   "teacherSearchMaterials": "Поиск материалов…",
   "teacherClassroomName": "Название класса *",
-
   "adminReportsOpenTab": "Открытые",
   "adminReportsResolvedTab": "Решённые",
   "adminReportsDismissedTab": "Отклонённые",
@@ -2346,42 +2391,79 @@
   "adminReportsDismiss": "Отклонить",
   "adminReportsResolve": "Решить",
   "adminReportsReason": "Причина: {reason}",
-  "@adminReportsReason": {"placeholders": {"reason": {}}},
-
+  "@adminReportsReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
   "chatReportTitle": "Пожаловаться на сообщение",
   "chatReportButton": "Пожаловаться",
   "chatReportSuccess": "Жалоба отправлена. Спасибо — администратор рассмотрит.",
   "chatReportFailed": "Не удалось отправить жалобу: {error}",
-  "@chatReportFailed": {"placeholders": {"error": {}}},
+  "@chatReportFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "chatSendError": "Не удалось отправить: {message}",
-  "@chatSendError": {"placeholders": {"message": {}}},
+  "@chatSendError": {
+    "placeholders": {
+      "message": {}
+    }
+  },
   "chatForwardLabel": "Переслать {count}",
-  "@chatForwardLabel": {"placeholders": {"count": {}}},
+  "@chatForwardLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatDeleteLabel": "Удалить {count}",
-  "@chatDeleteLabel": {"placeholders": {"count": {}}},
+  "@chatDeleteLabel": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "chatSelectedCount": "Выбрано: {count}",
-  "@chatSelectedCount": {"placeholders": {"count": {}}},
-
+  "@chatSelectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "adminPasswordReqEmpty": "Нет ожидающих запросов",
   "adminPasswordReqExplainer": "Пользователи, которых вы одобрили или отклонили, здесь не появятся. Ожидающие запросы истекают через 24 часа.",
   "adminPasswordReqApproveTitle": "Одобрить смену пароля?",
   "adminPasswordReqApproveExplain": "Это установит пароль {name} тот, который он ввёл (вы его не видите).",
-  "@adminPasswordReqApproveExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqVerifyWarning": "Одобряйте только если вы убедились, что заявитель действительно {name} — позвоните ему или подтвердите лично. Любой, кто знает имя пользователя, может подать такой запрос.",
-  "@adminPasswordReqVerifyWarning": {"placeholders": {"name": {}}},
+  "@adminPasswordReqVerifyWarning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqConfirmApprove": "Подтвердил — одобрить",
   "adminPasswordReqApproveSnackbar": "Одобрено — {name} теперь может войти.",
-  "@adminPasswordReqApproveSnackbar": {"placeholders": {"name": {}}},
+  "@adminPasswordReqApproveSnackbar": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectTitle": "Отклонить смену пароля?",
   "adminPasswordReqRejectExplain": "Пароль {name} не изменится. При необходимости он может подать новый запрос.",
-  "@adminPasswordReqRejectExplain": {"placeholders": {"name": {}}},
+  "@adminPasswordReqRejectExplain": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminPasswordReqRejectSnackbar": "Отклонено.",
   "adminPasswordReqRejectButton": "Отклонить",
   "adminPasswordReqApproveButton": "Одобрить",
   "adminPasswordReqCardCopy": "Хочет сменить пароль. Новый пароль скрыт.",
   "adminPasswordReqCallTooltip": "Позвонить",
   "adminPasswordReqSmsTooltip": "SMS",
-
   "adminSetupSchoolSetup": "Настройка школы",
   "adminSetupComplete": "Всё готово. Нажмите на любой пункт, чтобы вернуться или уточнить.",
   "adminSetupInstructions": "Завершите эти шаги для полной настройки школы.",
@@ -2399,13 +2481,11 @@
   "adminSetupStudentsSubtitle": "Создайте аккаунты или сгенерируйте коды присоединения",
   "adminSetupTeachersTitle": "Добавить учителей",
   "adminSetupTeachersSubtitle": "Создайте аккаунты учителей",
-
   "supportContactTitle": "Свяжитесь с нами",
   "supportContactDescription": "Не нашли ответ ниже? Напишите нам, и мы ответим в течение рабочего дня.",
   "supportEmailLabel": "Email",
   "supportPhoneLabel": "Телефон",
   "supportSmsLabel": "Сообщение",
-
   "aboutWhatIsClassmate": "Что такое ClassMate?",
   "aboutClassmateDescription": "ClassMate — это операционная система школы для учеников, учителей, администраторов и родителей. Одно приложение, четыре роли, все стороны учебного дня в одном месте — расписание, посещаемость, оценки, классы, задания, сообщения и AI-помощник.",
   "aboutMultilingualTitle": "Создано для школ, где говорят на нескольких языках",
@@ -2415,8 +2495,11 @@
   "aboutContactTitle": "Контакты",
   "aboutContactDescription": "Создано Tony Aboud и командой ClassMate.\nВопросы: tony@classmateapp.org",
   "aboutVersionLabel": "ClassMate · в. {version}",
-  "@aboutVersionLabel": {"placeholders": {"version": {}}},
-
+  "@aboutVersionLabel": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "adminAddStudent": "Добавить ученика",
   "adminAddTeacher": "Добавить учителя",
   "adminAddParent": "Добавить родителя",
@@ -2428,23 +2511,28 @@
   "adminUsernameRequired": "Требуется имя пользователя",
   "adminPasswordMinLength": "Пароль должен содержать не менее 8 символов (или оставьте пустым для авто-генерации)",
   "adminUserCreatedMsg": "{name} создан.",
-  "@adminUserCreatedMsg": {"placeholders": {"name": {}}},
+  "@adminUserCreatedMsg": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminCredsUsername": "Имя пользователя",
   "adminCredsEmail": "Email",
   "adminCredsPassword": "Пароль",
   "adminShareCredsHint": "Передайте эти данные ученику.",
   "adminCopyCredsButton": "Копировать всё",
   "adminGradeLabel": "Класс",
-
   "adminCohortGradeFormat": "Класс {grade}",
-  "@adminCohortGradeFormat": {"placeholders": {"grade": {}}},
+  "@adminCohortGradeFormat": {
+    "placeholders": {
+      "grade": {}
+    }
+  },
   "adminCreateAndAddStudents": "Создать и добавить учеников",
   "adminAddStudentsTitle": "Добавить учеников",
   "adminSkipAdding": "Пропустить",
   "adminInCohortBadge": "В группе",
-  "adminRenameCohort": "Переименовать",
   "adminNoStudentsFoundCohort": "Ученики не найдены в классах этой группы",
-
   "adminScheduleByCohort": "По группе ▾",
   "adminScheduleByStudent": "По ученику ▾",
   "adminScheduleByGrade": "По классу ▾",
@@ -2454,13 +2542,19 @@
   "adminScheduleAddCohort": "Добавить группу",
   "adminScheduleAddStudent": "Добавить ученика",
   "adminScheduleClearFilters": "Очистить",
-  "adminSchedulePeriodLabel": "У{period}",
-  "@adminSchedulePeriodLabel": {"placeholders": {"period": {}}},
+  "@adminSchedulePeriodLabel": {
+    "placeholders": {
+      "period": {}
+    }
+  },
   "adminSchedulePickSubjectRequired": "Выберите предмет перед сохранением урока.",
   "adminSchedulePickDateOnce": "Выберите дату для разового урока.",
   "adminSchedulePickDateRecurring": "Выберите дату начала для расписания каждые {freq} нед.",
-  "@adminSchedulePickDateRecurring": {"placeholders": {"freq": {}}},
-
+  "@adminSchedulePickDateRecurring": {
+    "placeholders": {
+      "freq": {}
+    }
+  },
   "adminSchoolLogoLabel": "Логотип школы",
   "adminSchoolLogoUploaded": "Логотип загружен",
   "adminSchoolNoLogoYet": "Логотипа ещё нет",
@@ -2480,7 +2574,6 @@
   "adminSchoolBellInfo": "Установите время начала и окончания каждого урока. Это время будет использоваться по умолчанию при построении недельного расписания.",
   "adminSchoolStartTime": "Начало",
   "adminSchoolEndTime": "Конец",
-
   "adminExportStudentsTab": "Ученики",
   "adminExportCohortsTab": "Группы",
   "adminExportGradesTab": "Классы",
@@ -2492,66 +2585,105 @@
   "teacherCreateClassroomTooltip": "Создать класс",
   "teacherClassroomNameRequired": "Название класса *",
   "teacherSubjectRequired": "Предмет *",
-
   "messagesStartChatError": "Не удалось начать чат: {error}",
-  "@messagesStartChatError": {"placeholders": {"error": {}}},
+  "@messagesStartChatError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "messagesNoPeopleMatch": "Никто не соответствует запросу «{query}»",
-  "@messagesNoPeopleMatch": {"placeholders": {"query": {}}},
+  "@messagesNoPeopleMatch": {
+    "placeholders": {
+      "query": {}
+    }
+  },
   "messagesNoPeopleFound": "Никого не найдено",
   "messagesPeopleCount": "{count, plural, =1{1 человек} few{{count} человека} many{{count} человек} other{{count} человек}}",
-  "@messagesPeopleCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@messagesPeopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "studentAssignmentValidationRequired": "Добавьте заметку или прикрепите файл перед сдачей.",
   "studentFormSubmittedBanner": "Ваши отправленные ответы",
   "studentFormSubmitError": "Не удалось отправить: {error}",
-  "@studentFormSubmitError": {"placeholders": {"error": {}}},
+  "@studentFormSubmitError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "studentFormFieldRequired": "Обязательно: {field}",
-  "@studentFormFieldRequired": {"placeholders": {"field": {}}},
+  "@studentFormFieldRequired": {
+    "placeholders": {
+      "field": {}
+    }
+  },
   "studentFormClosedButton": "Форма закрыта",
   "studentFormAlreadySubmittedButton": "Уже отправлено",
-
   "studentDiplomaEditTitle": "Изменить сертификат",
   "studentDiplomaDeleteTitle": "Удалить сертификат?",
   "studentDiplomaDeleteConfirm": "Удалить сертификат для «{name}»?",
-  "@studentDiplomaDeleteConfirm": {"placeholders": {"name": {}}},
-
+  "@studentDiplomaDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherDeleteItemConfirm": "Удалить «{title}»?",
-  "@teacherDeleteItemConfirm": {"placeholders": {"title": {}}},
+  "@teacherDeleteItemConfirm": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "teacherPublishTooltip": "Опубликовать",
-
   "teacherMeetingEnterTitle": "Пожалуйста, введите название.",
   "teacherMeetingEnterLink": "Пожалуйста, введите ссылку на встречу.",
   "teacherMeetingEnterValidUrl": "Пожалуйста, введите корректный URL (например, https://zoom.us/j/...)",
   "teacherMeetingPickStartTime": "Пожалуйста, выберите время начала.",
   "teacherMeetingVisibleToEveryone": "Видно всем",
   "teacherMeetingDoneCount": "Готово (выбрано {count})",
-  "@teacherMeetingDoneCount": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMeetingDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "teacherDeleteAssignmentTitle": "Удалить задание?",
   "teacherDeleteAssignmentBody": "Это навсегда удалит задание и все сданные работы.",
   "teacherEditTooltip": "Изменить",
   "teacherDeleteTooltip": "Удалить",
-
   "teacherClassroomBackTooltip": "Назад",
   "teacherClassroomGenericError": "Ошибка: {error}",
-  "@teacherClassroomGenericError": {"placeholders": {"error": {}}},
+  "@teacherClassroomGenericError": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomAttachFailed": "Не удалось прикрепить: {error}",
-  "@teacherClassroomAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherClassroomAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherClassroomFileUnavailable": "Этот файл недоступен — учителю нужно загрузить его заново.",
   "teacherClassroomCodeLabel": "Код класса",
   "teacherClassroomCodeCopied": "Код скопирован",
   "teacherClassroomCopyCodeTooltip": "Копировать код",
   "teacherClassroomCouldNotAdd": "Не удалось добавить: {emails} — проверьте их email.",
-  "@teacherClassroomCouldNotAdd": {"placeholders": {"emails": {}}},
+  "@teacherClassroomCouldNotAdd": {
+    "placeholders": {
+      "emails": {}
+    }
+  },
   "teacherClassroomAddStudents": "Добавить учеников",
   "teacherClassroomSearchNameGrade": "Поиск по имени или классу…",
   "teacherClassroomNoStudentsFound": "Ученики не найдены",
-
   "teacherClassroomNameSubjectRequired": "Требуется имя и предмет.",
   "teacherClassroomCreated": "Класс создан!",
   "teacherCustomSubjectLabel": "Свой предмет *",
   "teacherCreateClassroomButton": "Создать класс",
-
   "teacherCreateFormTitle": "Создание формы",
   "teacherFormSaveDraft": "Сохранить черновик",
   "teacherFormTitleHint": "Название формы *",
@@ -2562,35 +2694,50 @@
   "teacherFormQuestionsSection": "Вопросы",
   "teacherFormAddQuestionButton": "Добавить вопрос",
   "teacherFormQuestionPlaceholder": "Вопрос {index}",
-  "@teacherFormQuestionPlaceholder": {"placeholders": {"index": {}}},
+  "@teacherFormQuestionPlaceholder": {
+    "placeholders": {
+      "index": {}
+    }
+  },
   "teacherFormRequiredToggle": "Обязательный",
   "teacherFormAddOptionButton": "Добавить вариант",
   "teacherFormMinLabel": "Мин",
   "teacherFormMaxLabel": "Макс",
   "teacherFormEnterTitle": "Пожалуйста, введите название формы.",
-
   "teacherExamUploadFailedSkipped": "Не удалось загрузить {name}. Файл пропущен.",
-  "@teacherExamUploadFailedSkipped": {"placeholders": {"name": {}}},
+  "@teacherExamUploadFailedSkipped": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherExamEnterTitle": "Пожалуйста, введите название.",
   "teacherExamPickDate": "Пожалуйста, выберите дату экзамена.",
   "teacherExamSelectSubject": "Пожалуйста, выберите предмет.",
-
   "teacherSlotDetachFailed": "Не удалось открепить: {error}",
-  "@teacherSlotDetachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotDetachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachFailed": "Не удалось прикрепить: {error}",
-  "@teacherSlotAttachFailed": {"placeholders": {"error": {}}},
+  "@teacherSlotAttachFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherSlotAttachMaterial": "Прикрепить материал",
   "teacherSlotDetachTooltip": "Открепить",
-
   "teacherDiplomaSelectStudent": "Сначала выберите ученика.",
   "teacherDiplomaUploadingWait": "Пожалуйста, подождите — файлы ещё загружаются.",
   "teacherDiplomaIssueFailed": "Не удалось выдать сертификат: {error}",
-  "@teacherDiplomaIssueFailed": {"placeholders": {"error": {}}},
+  "@teacherDiplomaIssueFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "teacherDiplomaCertTitleLabel": "Название сертификата",
   "teacherDiplomaSearchStudent": "Поиск ученика…",
-
   "teacherProfileChatError": "Не удалось начать чат",
-
   "teacherGradeAssignmentType": "Задание",
   "teacherGradeExamType": "Экзамен",
   "teacherGradeOtherType": "Другое",
@@ -2602,65 +2749,81 @@
   "teacherMaterialAddFile": "Добавить файл",
   "teacherMaterialSearchStudentsGrade": "Поиск учеников или класса...",
   "teacherMaterialDoneSelected": "Готово (выбрано {count})",
-  "@teacherMaterialDoneSelected": {"placeholders": {"count": {"type": "int"}}},
-
+  "@teacherMaterialDoneSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminSubjectEnglishNameRequired": "Требуется название на английском",
   "adminSubjectNameInLang": "Название на {language}",
-  "@adminSubjectNameInLang": {"placeholders": {"language": {}}},
+  "@adminSubjectNameInLang": {
+    "placeholders": {
+      "language": {}
+    }
+  },
   "adminSubjectResetButton": "Сбросить",
-
   "teacherAnnounceBroadcastTitle": "Отправить всем?",
   "teacherAnnounceSendToEveryone": "Отправить всем",
   "teacherAnnounceNoCohorts": "Нет доступных групп",
   "teacherAnnounceNothingFound": "Ничего не найдено",
   "teacherAnnounceNoParents": "В этой школе не найдено родителей.",
-
-  "teacherGradesSaved": "Оценки сохранены",
   "teacherGradesToGrade": "К оценке",
   "teacherGradesGraded": "Оценено",
   "teacherSaveGradesButton": "Сохранить оценки",
   "teacherAllowResubmitLabel": "Разрешить пересдачу",
   "teacherAllowResubmitTitle": "Разрешить пересдачу?",
   "teacherAllowResubmitBody": "Это удалит работу {name}, чтобы он мог сдать ещё раз.",
-  "@teacherAllowResubmitBody": {"placeholders": {"name": {}}},
+  "@teacherAllowResubmitBody": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAllowButton": "Разрешить",
   "teacherGradeFieldLabel": "Оценка",
   "teacherFeedbackOptionalLabel": "Отзыв (необязательно)",
-
   "teacherCreateClassroomFabLabel": "Создать",
   "teacherLoadingStudents": "Загрузка учеников…",
   "teacherSearchHintShort": "Поиск…",
   "teacherCreateClassroomTitle": "Новый класс",
-
   "teacherAssignmentUploadFailed": "Не удалось загрузить {name}",
-  "@teacherAssignmentUploadFailed": {"placeholders": {"name": {}}},
+  "@teacherAssignmentUploadFailed": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "teacherAssignmentEnterTitle": "Пожалуйста, введите название.",
   "teacherAssignmentSelectSubject": "Пожалуйста, выберите предмет.",
   "teacherAssignmentInstructionsLabel": "Инструкции / Описание",
   "teacherAttachFilesButton": "Прикрепить файлы",
-
   "tutorDeleteConversationTitle": "Удалить разговор?",
   "tutorDeleteConversationButton": "Удалить навсегда",
   "tutorDeleteFailed": "Не удалось удалить: {error}",
-  "@tutorDeleteFailed": {"placeholders": {"error": {}}},
+  "@tutorDeleteFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
   "tutorDeleteMenuTitle": "Удалить разговор",
   "tutorDeleteMenuSubtitle": "Безвозвратно удаляет с сервера",
-
   "accountVerifyButton": "Проверить",
   "accountConfirmButton": "Подтвердить",
   "accountResendCode": "Отправить код снова",
   "accountCodeResent": "Отправлен новый код.",
   "accountContinueButton": "Продолжить",
-
   "studentClassroomFileUnavailable": "Этот файл пока недоступен.",
   "studentClassroomDeleteMaterial": "Удалить материал?",
   "studentClassroomCodeLabel": "Код класса",
   "studentClassroomLeaveTooltip": "Покинуть класс",
-
   "adminEditUserEnglishNameRequired": "Требуется имя на английском",
   "adminEditUserSaved": "Сохранено",
   "adminEditUserPasswordChanged": "Пароль для {name} изменён.",
-  "@adminEditUserPasswordChanged": {"placeholders": {"name": {}}},
+  "@adminEditUserPasswordChanged": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "adminEditUserLoginSection": "Вход",
   "adminEditUserUsernameLabel": "Имя пользователя",
   "adminEditUserEmailOptional": "Email (необязательно)",
@@ -2676,7 +2839,6 @@
   "adminEditUserNewPasswordLabel": "Новый пароль",
   "adminEditUserConfirmPasswordLabel": "Подтвердите пароль",
   "adminEditUserSetPasswordButton": "Установить пароль",
-
   "adminPeriodsTitle": "Управление уроками",
   "adminPeriodsAddPeriod": "Добавить урок",
   "adminPeriodsNoPeriods": "Уроков пока нет",
@@ -2690,7 +2852,6 @@
   "adminPeriodsCohortsLabel": "Группы",
   "adminPeriodsStudentsOptional": "Ученики (необязательно)",
   "adminPeriodsSearchByName": "Поиск по имени…",
-
   "commonErrorWith": "Ошибка: {error}",
   "commonAddCount": "Добавить {count}",
   "teacherStudentGradesSaved": "Оценки сохранены",
@@ -2706,7 +2867,6 @@
   "plansTryAgain": "Повторить",
   "adminCohortsGradeOnly": "Только {grade} класс",
   "adminCohortsGradeRangeOnly": "Только классы {from}-{to}",
-
   "adminExportNeedStudents": "Сначала выберите хотя бы одного ученика или группу",
   "adminExportButton": "Экспортировать {count}",
   "adminExportNoStudents": "Ученики не найдены",
@@ -2761,10 +2921,6 @@
   "teacherMaterialPickerClassroomTitle": "Выберите класс",
   "teacherMaterialPickerStudentsTitle": "Выберите учеников",
   "teacherMaterialPickerGradesTitle": "Выберите параллели",
-
-  "adminScheduleAddSlot": "Добавить слот",
-  "adminScheduleAddPeriod": "Добавить урок",
-  "adminScheduleAddStudent": "Добавить ученика",
   "adminScheduleAddNew": "Добавить",
   "adminScheduleAddCount": "Добавить ({count})",
   "adminScheduleCaptionOptional": "Подпись (необязательно)",
@@ -2791,7 +2947,6 @@
   "adminScheduleCreatedSlots": "Создано {created}/{total} слотов. {error}",
   "adminScheduleSavedLabelOnlyError": "Сохранено как метка — не удалось добавить в библиотеку: {error}",
   "adminScheduleSavedLabelPickAudience": "Сохранено как метка. Сначала выберите аудиторию, чтобы добавить также в библиотеку школы.",
-
   "commonNothingFound": "Ничего не найдено",
   "commonDownloadFailed": "Не удалось скачать: {error}",
   "commonFailedWith": "Не удалось: {error}",
@@ -2806,7 +2961,13 @@
   "adminPasswordReqTitle": "Запросы пароля",
   "adminPasswordReqBlurb": "Пользователи вашей школы, которые попросили вас одобрить смену пароля.",
   "adminPasswordReqWaiting": "{count, plural, one{{count} пользователь ожидает вашего одобрения.} few{{count} пользователя ожидают вашего одобрения.} many{{count} пользователей ожидают вашего одобрения.} other{{count} пользователя ожидают вашего одобрения.}}",
-  "@adminPasswordReqWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "@adminPasswordReqWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminPasswordReqWantsChange": "Хочет изменить пароль. Новый пароль скрыт.",
   "adminPasswordReqReject": "Отклонить",
   "adminPasswordReqApprove": "Одобрить",
@@ -2814,7 +2975,6 @@
   "adminSchoolSettingsTapToAddTranslations": "Нажмите, чтобы добавить переводы",
   "adminSchoolSettingsAddPeriodNum": "Добавить урок (P{num})",
   "adminVisibleToEveryone": "Видно всем",
-
   "navMaterials": "Материалы",
   "navPlans": "Планы NOVA",
   "navReports": "Жалобы",
@@ -2823,12 +2983,9 @@
   "sectionSecretaryTools": "Инструменты секретаря",
   "sectionSchoolToolsLabel": "Инструменты школы",
   "sectionAdminTools": "Инструменты администратора",
-
   "chatVideoTrimTitle": "Обрезать видео",
   "chatMediaPreviewTrimAction": "Обрезать",
-
   "commonUntitled": "Без названия",
-
   "plansMonthlyPlans": "Месячные планы",
   "plansTokenTopups": "Пакеты токенов",
   "plansTopupsSubtitle": "Разовые покупки. Не истекают. Добавляются к вашему плану.",
@@ -2847,9 +3004,21 @@
   "planBlurbBalance": "Для учеников, которые занимаются каждый день.",
   "planBlurbCommitment": "Интенсивная практика + безграничное любопытство.",
   "plansTokensPerMonth": "{tokens} токенов / месяц",
-  "@plansTokensPerMonth": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensPerMonth": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "plansTokensOneTime": "{tokens} токенов",
-  "@plansTokensOneTime": {"placeholders": {"tokens": {"type": "String"}}},
+  "@plansTokensOneTime": {
+    "placeholders": {
+      "tokens": {
+        "type": "String"
+      }
+    }
+  },
   "planPriceFree": "Бесплатно",
   "plansTokensRemaining": "токенов осталось",
   "plansPlanResetsAt": "План обнуляется {when}",
@@ -2859,7 +3028,6 @@
   "plansPerMonthSuffix": " / мес",
   "plansCurrentBadge": "ТЕКУЩИЙ",
   "plansCouldntLoadPlans": "Не удалось загрузить планы",
-
   "paywallPlansUnavailable": "Планы недоступны. Попробуйте через мгновение.",
   "paywallTopupUnavailable": "Пакет недоступен. Магазин ещё не одобрил этот продукт.",
   "paywallRestored": "Ваша подписка восстановлена.",
@@ -2898,10 +3066,8 @@
   "paywallFeatureImages": "Анализ изображений и загрузка файлов включены",
   "paywallFeatureReset": "Токены обнуляются в начале каждого месяца",
   "paywallFeatureCancel": "Отмена в любое время — без обязательств",
-
   "studentMaterialsGeneralSubject": "Общие",
   "studentMaterialsResourceCount": "{count, plural, one{{count} материал от ваших учителей} few{{count} материала от ваших учителей} many{{count} материалов от ваших учителей} other{{count} материалов от ваших учителей}}",
-
   "classroomsCouldNotLoadWithError": "Не удалось загрузить классы\n{error}",
   "parentNoNotificationsYet": "Уведомлений пока нет.",
   "forwardCouldNotLoadChats": "Не удалось загрузить чаты: {error}",
@@ -2909,13 +3075,11 @@
   "forgotPasswordFindAdmins": "Найти администраторов моей школы",
   "forgotPasswordChooseAdmin": "Выберите администратора из {school}:",
   "forgotPasswordSendRequest": "Отправить запрос пароля",
-
   "commonTitle": "Заголовок",
   "commonNotes": "Заметки",
   "commonEmail": "Эл. почта",
   "commonPassword": "Пароль",
   "commonNumberOfPages": "Количество страниц",
-
   "messagesSearchByNameOrGrade": "Поиск по имени или классу…",
   "meetingStartDateRequired": "Дата начала *",
   "meetingStartTimeRequired": "Время начала *",
@@ -2933,24 +3097,19 @@
   "forgotPasswordYourPhone": "Ваш телефон (чтобы администратор мог подтвердить вашу личность)",
   "forgotPasswordPhoneHelper": "Администратор позвонит или отправит SMS на этот номер перед одобрением.",
   "forgotPasswordNewPasswordHelper": "Не менее 8 символов. Хранится зашифрованным — администратор её не увидит.",
-
   "adminExportPasswordsWarning": "{count, plural, one{Файл будет содержать данные входа {count} ученика, включая текущий пароль. Любой, у кого есть файл, может войти как этот ученик — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока пользователь не войдёт снова или не сбросит его.} few{Файл будет содержать данные входа {count} учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.} many{Файл будет содержать данные входа {count} учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.} other{Файл будет содержать данные входа {count} учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.}}",
-
   "pickerSelectStudents": "Выберите учеников",
   "pickerSelectCohorts": "Выберите группы",
   "pickerSelectGrades": "Выберите классы",
   "pickerSelectClassroom": "Выберите класс",
   "pickerSelectClasses": "Выберите классы",
-
   "drawerLoadingChildren": "Загрузка детей…",
   "drawerCouldNotLoadChildren": "Не удалось загрузить детей",
   "drawerNoChildrenLinked": "Нет привязанных детей",
   "drawerSwitchChild": "Сменить ребёнка",
-
   "shellAssessmentCreated": "Оценка создана",
   "commonCouldNotOpenLink": "Не удалось открыть ссылку {scheme}",
   "commonCouldntSend": "Не удалось отправить: {error}",
-
   "teacherExamDetailsSection": "Детали экзамена",
   "teacherExamStudyMaterialsWithCount": "Учебные материалы ({count})",
   "teacherMeetingDetailsSection": "Детали встречи",
@@ -2964,7 +3123,6 @@
   "studentFilesSharedByTeacher": "Файлы, поделённые учителем",
   "studentYourSubmission": "Ваша работа",
   "studentFilesSharedWithAnnouncement": "Файлы, прикреплённые к этому объявлению.",
-
   "announcementGradeRiskTitle": "Обнаружен риск по оценкам",
   "announcementWeakSubjectTitle": "Обнаружен слабый предмет",
   "announcementLowAttendanceTitle": "Низкая посещаемость",
@@ -2973,7 +3131,6 @@
   "announcementPracticeTrendDroppedTitle": "Тренд тренировок упал",
   "announcementSolutionsActivityTitle": "Активность Solutions в эфире",
   "announcementAllGoodTitle": "Всё в порядке",
-
   "supportSectionGettingStarted": "Начало работы",
   "supportSectionAccountPassword": "Аккаунт и пароль",
   "supportSectionForStudents": "Для учеников",
@@ -2981,15 +3138,11 @@
   "supportSectionForAdministrators": "Для администраторов",
   "supportSectionForParents": "Для родителей",
   "supportSectionPrivacyData": "Конфиденциальность и данные",
-
   "novaDisclaimerCanMakeMistakes": "Может ошибаться",
   "novaDisclaimerEducationalUseOnly": "Только для учебных целей",
   "novaDisclaimerYourPrivacy": "Ваша приватность",
-
   "profileNameInLanguage": "Имя на {language}",
-
   "adminSettingsScheduleSubtitle": "Привязать учителей и группы к еженедельным временным слотам",
-
   "practiceModeBalancedSubtitle": "Сбалансированная ежедневная тренировка",
   "practiceModeRevealSubtitle": "Открытие и самопроверка",
   "practiceModeFastSubtitle": "Быстрая тренировка под давлением",
@@ -2997,17 +3150,10 @@
   "practiceModeConceptSubtitle": "Сначала концепция, потом решение",
   "practiceModeAdaptiveSubtitle": "Сложность меняется в реальном времени",
   "practiceModeStrictSubtitle": "Строгий официальный стиль",
-
-  "commonEdit": "Изменить",
-  "commonBack": "Назад",
-  "commonClose": "Закрыть",
-  "commonDownload": "Скачать",
-  "commonOpenExternally": "Открыть внешне",
   "commonCall": "Позвонить",
   "tooltipClearEndTime": "Очистить время окончания",
   "tooltipDeletePeriod": "Удалить урок",
   "tooltipLeaveClassroom": "Покинуть класс",
-
   "announcementGradeRiskBody": "Ваш средний балл упал ниже 70. Рекомендуется немедленное действие.",
   "announcementWeakSubjectBody": "{subject} требует внимания.",
   "announcementLowAttendanceBody": "Ваша посещаемость падает. Это повлияет на оценки.",
@@ -3016,7 +3162,6 @@
   "announcementPracticeDropBody": "Ваша недавняя практика ниже базового уровня. Замедлитесь и пересоберитесь.",
   "announcementSolutionsActivityBody": "Ваше пространство решений активно на странице {page}, вопрос {question}. Проверьте работы сверстников или загрузите свою.",
   "announcementAllGoodBody": "Серьёзных академических рисков сейчас не обнаружено.",
-
   "faqStartedQ1": "Как мне войти?",
   "faqStartedA1": "Нажмите «Войти» на экране приветствия и введите электронную почту или имя пользователя, которые дал вам школьный администратор, плюс временный пароль. В первый раз вас попросят установить новый пароль.",
   "faqStartedQ2": "У меня ещё нет аккаунта.",
@@ -3069,17 +3214,13 @@
   "faqPrivacyA1": "Только люди в вашей школе. Учителя видят данные своих классов, администраторы — данные по всей школе, родители — связанных детей. Мы никогда не продаём данные рекламодателям.",
   "faqPrivacyQ2": "Как удалить аккаунт?",
   "faqPrivacyA2": "Попросите школьного администратора удалить его. Он может удалить аккаунт из приложения администратора, что стирает ваш профиль, расписание и чаты.",
-
   "solutionsPagesCount": "{count, plural, one{{count} страница} few{{count} страницы} many{{count} страниц} other{{count} страниц}}",
-
   "teacherMeetingEditTitle": "Изменить встречу",
   "teacherMeetingNewTitle": "Назначить встречу",
   "teacherExamEditTitle": "Изменить экзамен",
   "teacherExamNewTitle": "Создать экзамен",
   "teacherAssignmentEditTitle": "Изменить задание",
   "teacherAssignmentNewTitle": "Новое задание",
-  "teacherAssignmentPublished": "Задание опубликовано.",
-  "teacherAssignmentDraftSaved": "Черновик сохранён.",
   "tooltipShowTabs": "Показать вкладки",
   "tooltipHideTabs": "Скрыть вкладки",
   "examsCouldNotLoadForms": "Не удалось загрузить формы",
@@ -3090,18 +3231,14 @@
   "commonReadMore": "Читать дальше",
   "commonReadLess": "Скрыть",
   "chatComposerSlideToCancel": "Сдвиньте для отмены",
-  "chatComposerReleaseToCancel": "Отпустите для отмены",
   "adminNoRoleYet": "Нет ещё {role}",
   "profileVerified": "Подтверждено.",
   "profileUpdatedPendingVerification": "Обновлено, ожидает повторной проверки.",
   "adminSearchCohorts": "Поиск групп…",
-
   "commonAdding": "Добавление…",
-  "commonAdd": "Добавить",
   "teacherDiplomaIssuing": "Выдача…",
   "teacherDiplomaIssue": "Выдать",
   "formAccepting": "Принимает",
-  "formClosed": "Закрыт",
   "profileVerifiedShort": "Подтверждено",
   "profileUnverified": "Не подтверждено",
   "notificationNewGradePosted": "Опубликована новая оценка",
@@ -3110,7 +3247,6 @@
   "notificationFallbackTitle": "Уведомление",
   "adminCohortGradeRange": "Класс {from}-{to}",
   "adminCohortGradesList": "Классы {list}",
-
   "adminExportHeaderTitle": "Экспорт пользователей",
   "adminExportHeaderSubtitle": "Добавляйте фильтры как метки — каждая метка добавляет пользователей в экспорт. Нажмите на метку, чтобы убрать её.",
   "adminExportAddFilter": "Добавить фильтр",
@@ -3121,9 +3257,24 @@
   "adminExportFilterUsersTab": "Пользователи",
   "adminExportSelectAll": "Выбрать всех",
   "adminExportSelectedCount": "Выбрано {selected} из {total}",
-  "@adminExportSelectedCount": {"placeholders": {"selected": {"type": "int"}, "total": {"type": "int"}}},
+  "@adminExportSelectedCount": {
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportRolePickedCount": "{count, plural, one{выбран {count}} few{выбрано {count}} many{выбрано {count}} other{выбрано {count}}}",
-  "@adminExportRolePickedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@adminExportRolePickedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "adminExportPillRolePrefix": "Роль:",
   "adminExportPillCohortPrefix": "Группа:",
   "adminExportActiveFilters": "{count, plural, one{{count} активный фильтр} few{{count} активных фильтра} many{{count} активных фильтров} other{{count} активных фильтров}}",
@@ -3142,7 +3293,64 @@
   "adminExportPasswordsOff": "Экспорт не будет содержать паролей.",
   "adminExportPdfUserDirectory": "Справочник пользователей",
   "adminExportPdfUsersCount": "{count, plural, one{{count} пользователь} few{{count} пользователя} many{{count} пользователей} other{{count} пользователей}}",
-
   "teacherAttachFromMaterials": "Из материалов",
-  "teacherUploadFiles": "Загрузить файлы"
+  "teacherUploadFiles": "Загрузить файлы",
+  "solSubjectMathematics": "Математика",
+  "solSubjectComputerScience": "Информатика",
+  "solSubjectPhysics": "Физика",
+  "solSubjectChemistry": "Химия",
+  "solSubjectHebrew": "Иврит",
+  "solSubjectBiology": "Биология",
+  "solSubjectHistory": "История",
+  "solSubjectArabic": "Арабский",
+  "solSubjectElectronics": "Электроника",
+  "solSubjectMechanics": "Механика",
+  "solSubjectFrench": "Французский",
+  "solSubjectEnvironmentalScience": "Экология",
+  "solSubjectCommunicationCinema": "Коммуникация и кино",
+  "solSubjectCitizenship": "Граждановедение",
+  "solSubjectSociology": "Социология",
+  "solSubjectReligion": "Религия",
+  "solSubjectGeography": "География",
+  "commonUnknown": "Неизвестно",
+  "solutionsReportTitle": "Пожаловаться на решение",
+  "solutionsReportBody": "Опишите проблему. Её рассмотрят администраторы обеих школ.",
+  "solutionsReportReasonHint": "Причина (необязательно)",
+  "solutionsReportAction": "Пожаловаться",
+  "solutionsReportSubmitted": "Спасибо — жалоба отправлена администраторам.",
+  "solutionsReportAlready": "Вы уже пожаловались на это.",
+  "solutionsBookPagesCount": "{count} стр.",
+  "solutionsNoBooksYetForStudents": "Здесь пока нет книг. Их добавит ваш учитель.",
+  "solutionsManageBooksTitle": "Управление книгами",
+  "solutionsNoBooksManageHint": "Для этого предмета пока нет книг. Нажмите +, чтобы добавить.",
+  "solutionsDeleteBookTitle": "Удалить книгу?",
+  "solutionsDeleteBookBody": "Удалить «{title}»? Это нельзя отменить.",
+  "solutionsBookSaveFailed": "Не удалось сохранить: {error}",
+  "solutionsBookNeedTitlePages": "Укажите название и число страниц.",
+  "solutionsEditBookTitle": "Редактировать книгу",
+  "solutionsBookCoverLabel": "Обложка",
+  "solutionsGradeLabel": "Класс {grade}",
+  "solutionsReportsTitle": "Жалобы на решения",
+  "solutionsReportsEmpty": "Нет жалоб для рассмотрения.",
+  "solutionsReportPostedBy": "Автор",
+  "solutionsReportReportedBy": "Пожаловался",
+  "solutionsReportReasonLabel": "Причина",
+  "solutionsReportKeepAction": "Оставить",
+  "solutionsReportRemoveAction": "Удалить",
+  "solutionsReportStatusPending": "На рассмотрении",
+  "solutionsReportStatusApproved": "Оставлено",
+  "solutionsReportStatusRemoved": "Удалено",
+  "solutionsReportRemoved": "Решение удалено.",
+  "solutionsReportApproved": "Жалоба отклонена — решение оставлено.",
+  "solutionsReportFailed": "Не удалось пожаловаться: {error}",
+  "teacherDeleteClassroom": "Удалить класс",
+  "teacherDeleteClassroomConfirm": "Это безвозвратно удалит класс и весь его чат, задания, материалы, встречи и список участников. Отменить нельзя.",
+  "teacherClassroomDeleted": "Класс удалён",
+  "announcementsTabReceived": "Полученные",
+  "announcementsTabPublished": "Опубликованные",
+  "teacherAddGradeTitle": "Добавить оценку",
+  "commonCohort": "Группа",
+  "teacherCreateNewExam": "Создать экзамен",
+  "teacherCreateNewAssignment": "Создать задание",
+  "commonReturn": "Вернуть"
 }

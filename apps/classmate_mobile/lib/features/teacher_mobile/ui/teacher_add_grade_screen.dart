@@ -525,7 +525,7 @@ class _TeacherAddGradeScreenState
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text('Add Grade',
+        title: Text(AppLocalizations.of(context)!.teacherAddGradeTitle,
             style: theme.textTheme.titleLarge
                 ?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
@@ -571,20 +571,20 @@ class _TeacherAddGradeScreenState
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        segments: const [
+                        segments: [
                           ButtonSegment(
                             value: _AudienceMode.students,
-                            label: Text('Students',
+                            label: Text(AppLocalizations.of(context)!.teacherMaterialAudienceStudents,
                                 maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                           ),
                           ButtonSegment(
                             value: _AudienceMode.cohorts,
-                            label: Text('Cohorts',
+                            label: Text(AppLocalizations.of(context)!.teacherMaterialAudienceCohorts,
                                 maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                           ),
                           ButtonSegment(
                             value: _AudienceMode.grades,
-                            label: Text('Grades',
+                            label: Text(AppLocalizations.of(context)!.teacherMaterialAudienceGrades,
                                 maxLines: 1, overflow: TextOverflow.fade, softWrap: false),
                           ),
                         ],
@@ -802,7 +802,7 @@ class _TeacherAddGradeScreenState
                         TextButton.icon(
                           onPressed: () => _createExamOnSpot(),
                           icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
-                          label: const Text('Create new exam'),
+                          label: Text(AppLocalizations.of(context)!.teacherCreateNewExam),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             minimumSize: const Size(0, 32),
@@ -864,7 +864,7 @@ class _TeacherAddGradeScreenState
                         TextButton.icon(
                           onPressed: () => _createAssignmentOnSpot(),
                           icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
-                          label: const Text('Create new assignment'),
+                          label: Text(AppLocalizations.of(context)!.teacherCreateNewAssignment),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             minimumSize: const Size(0, 32),
@@ -1222,7 +1222,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text('Done'),
+                child: Text(AppLocalizations.of(context)!.commonDone),
               ),
             ),
           ),
@@ -1391,7 +1391,7 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text('Done'),
+                child: Text(AppLocalizations.of(context)!.commonDone),
               ),
             ),
           ),

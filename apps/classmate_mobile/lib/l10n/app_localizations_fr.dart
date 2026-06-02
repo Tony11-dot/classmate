@@ -592,13 +592,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scheduleClassFallback => 'Cours';
 
   @override
-  String get scheduleNoSubjectLocation => 'No subject or location yet';
+  String get scheduleNoSubjectLocation => 'Pas encore de matière ni de lieu';
 
   @override
   String get scheduleNotes => 'Notes';
 
   @override
-  String get scheduleGoToClassroom => 'Go to Classroom';
+  String get scheduleGoToClassroom => 'Aller à la classe';
 
   @override
   String get loginTitle => 'Connexion mobile pour élèves et enseignants';
@@ -1916,20 +1916,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les annonces n\'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.';
 
   @override
-  String get teacherDeleteClassroom => 'Delete classroom';
+  String get teacherDeleteClassroom => 'Supprimer la classe';
 
   @override
   String get teacherDeleteClassroomConfirm =>
-      'This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.';
+      'Cette action supprime définitivement la classe ainsi que tout son chat, ses devoirs, ses supports, ses réunions et sa liste de membres. Action irréversible.';
 
   @override
-  String get teacherClassroomDeleted => 'Classroom deleted';
+  String get teacherClassroomDeleted => 'Classe supprimée';
 
   @override
-  String get announcementsTabReceived => 'Received';
+  String get announcementsTabReceived => 'Reçues';
 
   @override
-  String get announcementsTabPublished => 'Published';
+  String get announcementsTabPublished => 'Publiées';
 
   @override
   String get announcementsAudienceTeacher => 'enseignant';
@@ -3431,7 +3431,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherGradesFieldTitle => 'Titre';
 
   @override
-  String get teacherGradesFieldDate => 'Date (YYYY-MM-DD)';
+  String get teacherGradesFieldDate => 'Date (AAAA-MM-JJ)';
 
   @override
   String get teacherGradesFieldMaxGrade => 'Note maximale';
@@ -4391,19 +4391,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherCouldNotLoadSchedule => 'Impossible de charger le planning';
 
   @override
-  String get teacherAttendanceLast30 => 'Attendance (last 30 days)';
+  String get teacherAttendanceLast30 => 'Présence (30 derniers jours)';
 
   @override
   String teacherAttendanceFrom(Object date) {
-    return 'From $date';
+    return 'À partir du $date';
   }
 
   @override
-  String get teacherAttendanceChangeDate => 'Change date';
+  String get teacherAttendanceChangeDate => 'Changer la date';
 
   @override
   String get teacherAttendanceNoSessions =>
-      'No saved attendance sessions.\nMark attendance from the schedule.';
+      'Aucune session de présence enregistrée.\nMarquez la présence depuis l\'emploi du temps.';
 
   @override
   String get teacherRecentGrades => 'Notes récentes';
@@ -8027,4 +8027,184 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherUploadFiles => 'Téléverser des fichiers';
+
+  @override
+  String get solSubjectMathematics => 'Mathématiques';
+
+  @override
+  String get solSubjectComputerScience => 'Informatique';
+
+  @override
+  String get solSubjectPhysics => 'Physique';
+
+  @override
+  String get solSubjectChemistry => 'Chimie';
+
+  @override
+  String get solSubjectHebrew => 'Hébreu';
+
+  @override
+  String get solSubjectBiology => 'Biologie';
+
+  @override
+  String get solSubjectHistory => 'Histoire';
+
+  @override
+  String get solSubjectArabic => 'Arabe';
+
+  @override
+  String get solSubjectElectronics => 'Électronique';
+
+  @override
+  String get solSubjectMechanics => 'Mécanique';
+
+  @override
+  String get solSubjectFrench => 'Français';
+
+  @override
+  String get solSubjectEnvironmentalScience => 'Sciences de l\'environnement';
+
+  @override
+  String get solSubjectCommunicationCinema => 'Communication et cinéma';
+
+  @override
+  String get solSubjectCitizenship => 'Éducation civique';
+
+  @override
+  String get solSubjectSociology => 'Sociologie';
+
+  @override
+  String get solSubjectReligion => 'Religion';
+
+  @override
+  String get solSubjectGeography => 'Géographie';
+
+  @override
+  String get commonUnknown => 'Inconnu';
+
+  @override
+  String get solutionsReportTitle => 'Signaler cette solution';
+
+  @override
+  String get solutionsReportBody =>
+      'Indiquez le problème aux administrateurs. Les admins des deux écoles l\'examineront.';
+
+  @override
+  String get solutionsReportReasonHint => 'Motif (facultatif)';
+
+  @override
+  String get solutionsReportAction => 'Signaler';
+
+  @override
+  String get solutionsReportSubmitted => 'Merci — signalé aux administrateurs.';
+
+  @override
+  String get solutionsReportAlready => 'Vous avez déjà signalé ceci.';
+
+  @override
+  String solutionsBookPagesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get solutionsNoBooksYetForStudents =>
+      'Aucun livre ici pour l\'instant. Votre enseignant les ajoutera.';
+
+  @override
+  String get solutionsManageBooksTitle => 'Gérer les livres';
+
+  @override
+  String get solutionsNoBooksManageHint =>
+      'Aucun livre pour cette matière. Touchez + pour en ajouter un.';
+
+  @override
+  String get solutionsDeleteBookTitle => 'Supprimer le livre ?';
+
+  @override
+  String solutionsDeleteBookBody(String title) {
+    return 'Supprimer « $title » ? Action irréversible.';
+  }
+
+  @override
+  String solutionsBookSaveFailed(String error) {
+    return 'Échec de l\'enregistrement : $error';
+  }
+
+  @override
+  String get solutionsBookNeedTitlePages =>
+      'Saisissez un titre et un nombre de pages.';
+
+  @override
+  String get solutionsEditBookTitle => 'Modifier le livre';
+
+  @override
+  String get solutionsBookCoverLabel => 'Couverture';
+
+  @override
+  String solutionsGradeLabel(int grade) {
+    return 'Niveau $grade';
+  }
+
+  @override
+  String get solutionsReportsTitle => 'Solutions signalées';
+
+  @override
+  String get solutionsReportsEmpty => 'Aucun signalement à examiner.';
+
+  @override
+  String get solutionsReportPostedBy => 'Publié par';
+
+  @override
+  String get solutionsReportReportedBy => 'Signalé par';
+
+  @override
+  String get solutionsReportReasonLabel => 'Motif';
+
+  @override
+  String get solutionsReportKeepAction => 'Conserver';
+
+  @override
+  String get solutionsReportRemoveAction => 'Supprimer';
+
+  @override
+  String get solutionsReportStatusPending => 'En attente';
+
+  @override
+  String get solutionsReportStatusApproved => 'Conservé';
+
+  @override
+  String get solutionsReportStatusRemoved => 'Supprimé';
+
+  @override
+  String get solutionsReportRemoved => 'Solution supprimée.';
+
+  @override
+  String get solutionsReportApproved =>
+      'Signalement rejeté — solution conservée.';
+
+  @override
+  String solutionsReportFailed(String error) {
+    return 'Échec du signalement : $error';
+  }
+
+  @override
+  String get teacherAddGradeTitle => 'Ajouter une note';
+
+  @override
+  String get commonCohort => 'Cohorte';
+
+  @override
+  String get teacherCreateNewExam => 'Créer un examen';
+
+  @override
+  String get teacherCreateNewAssignment => 'Créer un devoir';
+
+  @override
+  String get commonReturn => 'Retourner';
 }
