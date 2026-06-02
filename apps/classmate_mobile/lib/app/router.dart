@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart' show CupertinoPage;
+import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -101,6 +102,46 @@ GoRoute _slideRoute({
     pageBuilder: (context, state) => CupertinoPage<dynamic>(
       key: state.pageKey,
       child: builder(context, state),
+    ),
+  );
+}
+
+/// A top-level TAB route that cross-fades (no slide). The global transition is
+/// the iOS slide (for detail pushes + swipe-back); tabs opt into this fade.
+/// An opaque cover fades in first so the outgoing tab is hidden immediately —
+/// no mid-transition overlap of two tabs.
+GoRoute _fadeRoute({
+  required String path,
+  String? name,
+  required Widget Function(BuildContext, GoRouterState) builder,
+}) {
+  return GoRoute(
+    path: path,
+    name: name,
+    pageBuilder: (context, state) => CustomTransitionPage<dynamic>(
+      key: state.pageKey,
+      transitionDuration: const Duration(milliseconds: 200),
+      reverseTransitionDuration: const Duration(milliseconds: 200),
+      child: builder(context, state),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final bg = Theme.of(context).scaffoldBackgroundColor;
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            FadeTransition(
+              opacity: CurvedAnimation(
+                parent: animation,
+                curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
+              ),
+              child: ColoredBox(color: bg),
+            ),
+            FadeTransition(
+              opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+              child: child,
+            ),
+          ],
+        );
+      },
     ),
   );
 }
@@ -587,95 +628,95 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-          GoRoute(
+          _fadeRoute(
             path: '/messages',
             name: 'messages_inbox',
             builder: (context, state) => const MessagesInboxScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/assignments',
             builder: (context, state) => const TeacherAssignmentsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/materials',
             builder: (context, state) => const TeacherMaterialsStandaloneScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/schedule',
             builder: (context, state) => const TeacherScheduleScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/periods',
             builder: (context, state) => const AdminPeriodsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/dashboard',
             builder: (context, state) => const AdminDashboardScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/people',
             builder: (context, state) => const AdminPeopleScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/cohorts',
             builder: (context, state) => const AdminCohortsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/schedule',
             builder: (context, state) => const AdminScheduleScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/school',
             builder: (context, state) => const AdminSchoolSettingsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/bell-schedule',
             builder: (context, state) => const AdminBellScheduleScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/export',
             builder: (context, state) => const AdminExportScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/password-requests',
             builder: (context, state) => const AdminPasswordRequestsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/reports',
             builder: (context, state) => const AdminReportsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/admin/settings',
             builder: (context, state) => const AdminSettingsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/support',
             builder: (context, state) => const SupportScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/about',
             builder: (context, state) => const AboutScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/home',
             builder: (context, state) => const SecretaryHomeScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/students',
             builder: (context, state) => const SecretaryStudentsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/schedule',
             builder: (context, state) => const AdminScheduleScreen(readOnly: true),
           ),
           // Secretary's all-users view: same screen as admin's People,
           // but isAdmin==false auto-hides the FAB + edit/delete actions
           // — view-only access matching the role spec.
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/people',
             builder: (context, state) => const AdminPeopleScreen(),
           ),
@@ -683,15 +724,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           // those screens already gate their write affordances on
           // primaryRole == 'ADMIN', so the secretary view comes out
           // view-only with no extra code path.
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/cohorts',
             builder: (context, state) => const AdminCohortsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/reports',
             builder: (context, state) => const AdminReportsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/secretary/export',
             builder: (context, state) => const AdminExportScreen(),
           ),
@@ -704,102 +745,102 @@ final routerProvider = Provider<GoRouter>((ref) {
           // server-side. Result: zero UI duplication; identical look-and-
           // feel; parent can switch between children and the data
           // re-fetches.
-          GoRoute(
+          _fadeRoute(
             path: '/parent/home',
             builder: (context, state) => const ParentHomeScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/grades',
             builder: (context, state) => const GradesScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/attendance',
             builder: (context, state) => const AttendanceScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/exams',
             builder: (context, state) => const ExamsScreen(mode: ExamsScreenMode.examsOnly),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/certificates',
             builder: (context, state) => const DiplomasScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/assignments',
             builder: (context, state) => const AssignmentsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/meetings',
             builder: (context, state) => const MeetingsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/parent/materials',
             builder: (context, state) => const StudentMaterialsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             // Parent overview = student insights scoped to the selected
             // child via viewedStudentIdProvider. Reuses InsightsScreen
             // 1:1 — no parent-specific code needed.
             path: '/parent/overview',
             builder: (context, state) => const InsightsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/insights',
             builder: (context, state) => const TeacherInsightsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/home',
             builder: (context, state) => const TeacherHomeScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/classrooms',
             builder: (context, state) => const TeacherClassroomsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/grades',
             builder: (context, state) => const TeacherGradesScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/exams',
             builder: (context, state) => const TeacherExamsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/meetings',
             builder: (context, state) => const TeacherMeetingsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/forms',
             builder: (context, state) => const TeacherFormsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/attendance',
             builder: (context, state) => const TeacherAttendanceHistoryScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/teacher/students',
             builder: (context, state) => const TeacherStudentsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/practice',
             builder: (context, state) => const PracticeSetupScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/classrooms',
             builder: (context, state) => const ClassroomsHomeScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/solutions',
             builder: (context, state) => const SolutionsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/insights',
             builder: (context, state) => const InsightsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/tutor',
             builder: (context, state) => TutorScreen(
               initialPrompt: state.uri.queryParameters['prompt'],
@@ -807,59 +848,59 @@ final routerProvider = Provider<GoRouter>((ref) {
               initialTitle: state.uri.queryParameters['title'],
             ),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/attendance',
             builder: (context, state) => const AttendanceScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/grades',
             builder: (context, state) => const GradesScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/assignments',
             builder: (context, state) => const AssignmentsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/meetings',
             builder: (context, state) => const MeetingsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/exams',
             builder: (context, state) => const ExamsScreen(mode: ExamsScreenMode.examsOnly),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/announcements',
             builder: (context, state) => const AnnouncementsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/diplomas',
             builder: (context, state) => const DiplomasScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/materials',
             builder: (context, state) => const StudentMaterialsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/saved-questions',
             builder: (context, state) => const SavedQuestionsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/profile',
             builder: (context, state) => const ProfileScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/plans',
             builder: (context, state) => const PlansScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/settings',
             builder: (context, state) => const SettingsScreen(),
           ),
-          GoRoute(
+          _fadeRoute(
             path: '/dev/animation-demo',
             builder: (context, state) => const AnimationDemoScreen(),
           ),

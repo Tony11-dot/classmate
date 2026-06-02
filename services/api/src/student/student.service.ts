@@ -239,7 +239,9 @@ export class StudentService {
       grades.push({
         id: `asn-${s.id}`,
         grade: s.grade as any,
-        comment: s.feedback ?? null,
+        // Feedback is intentionally NOT surfaced in the Grades list — it only
+        // shows inside the assignment detail. Grades shows just title + score.
+        comment: null,
         assessment: {
           id: `assignment-${(s as any).assignment?.id ?? s.assignmentId}`,
           title: (s as any).assignment?.title ?? 'Assignment',

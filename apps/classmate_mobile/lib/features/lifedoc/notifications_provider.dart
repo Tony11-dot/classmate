@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../parent/data/viewed_student_context.dart';
 import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
 import 'announcements_models.dart';
@@ -247,6 +248,18 @@ class NotificationSyncService {
 }
 
 Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async {
+  // These are STUDENT insight alerts (grade risk, weak subject, low
+  // attendance, …) derived from the viewer's own academic data. They make no
+  // sense for a teacher/admin/secretary — suppress them unless the viewer is a
+  // student (or a parent viewing a child, who sees the child's insights).
+  final session = ref.read(authSessionProvider);
+  final isStudent = session.primaryRole == 'STUDENT';
+  final isParentViewingChild =
+      session.primaryRole == 'PARENT' && ref.read(viewedStudentIdProvider) != null;
+  if (!isStudent && !isParentViewingChild) {
+    return const <StudentNotificationItem>[];
+  }
+
   final announcements = ref.read(announcementsProvider);
   final items = <StudentNotificationItem>[];
 

@@ -3416,6 +3416,19 @@ export class TeacherService {
     return { meetings: all };
   }
 
+  /// Readable date/time for notification bodies (e.g. "08:15 · Jun 2, 2026")
+  /// instead of a raw ISO timestamp. Uses the stored wall-clock components.
+  private _friendlyDateTime(d: Date): string {
+    try {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${hh}:${mm} · ${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+    } catch {
+      return d.toISOString();
+    }
+  }
+
   async createTeacherMeeting(user: any, body: any) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -3458,11 +3471,15 @@ export class TeacherService {
     try {
       const recipients = await this._audienceUserIds(user, m);
       if (recipients.length) {
+        const teacherName =
+          (user?.displayName || user?.name || user?.fullName || 'Your teacher')
+            .toString()
+            .trim();
         await this.hub.notify({
           recipientUserIds: recipients,
           type: 'NEW_MEETING',
-          title: `New meeting: ${title}`,
-          body: `Starts ${startsAt.toISOString()}`,
+          title: title,
+          body: `New meeting scheduled by ${teacherName} at ${this._friendlyDateTime(startsAt)}`,
           data: { meetingId: m.id, classroomId },
         });
       }

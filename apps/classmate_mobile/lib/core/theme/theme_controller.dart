@@ -177,14 +177,15 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     textTheme: fixedTextTheme,
     primaryTextTheme: fixedPrimaryTextTheme,
     scaffoldBackgroundColor: scheme.surface,
-    // Pure cross-fade for every route transition (tab switches + pushes),
-    // on all platforms — no horizontal slide. A real page transition fades
-    // the incoming route in over the outgoing one, so there's no white gap.
+    // Native iOS slide + finger-following swipe-back for EVERY pushed route
+    // (MaterialPageRoute and CupertinoPage alike) — so swipe-back works on
+    // every detail screen, NOVA thread, classroom, etc., for free. Top-level
+    // TABS override this with a fade via _fadeRoute in router.dart.
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.iOS:     _FadePageTransitionsBuilder(),
-        TargetPlatform.macOS:   _FadePageTransitionsBuilder(),
-        TargetPlatform.android: _FadePageTransitionsBuilder(),
+        TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
       },
     ),
     appBarTheme: AppBarTheme(
@@ -250,41 +251,4 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
   );
-}
-
-/// Pure cross-fade page transition (no horizontal slide) used app-wide so
-/// tab switches and pushes fade instead of sliding right-to-left.
-class _FadePageTransitionsBuilder extends PageTransitionsBuilder {
-  const _FadePageTransitionsBuilder();
-
-  @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    // An opaque background sits BEHIND the fading page so the outgoing route
-    // is covered immediately — you never see both pages' content blended
-    // together mid-transition (the overlap where Classrooms + Schedule were
-    // briefly visible at once). The page content then fades in over it.
-    final bg = Theme.of(context).scaffoldBackgroundColor;
-    final fade = CurvedAnimation(parent: animation, curve: Curves.easeOut);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Opaque cover that fades in slightly faster than the content, so the
-        // previous page is hidden almost instantly.
-        FadeTransition(
-          opacity: CurvedAnimation(
-            parent: animation,
-            curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
-          ),
-          child: ColoredBox(color: bg),
-        ),
-        FadeTransition(opacity: fade, child: child),
-      ],
-    );
-  }
 }
