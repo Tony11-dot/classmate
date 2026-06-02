@@ -3155,5 +3155,13 @@
   "adminSchoolAddGradeRange": "إضافة نطاق",
   "teacherListStudents": "قائمة الطلاب",
   "teacherNoStudentsInvolved": "لا يوجد طلاب في هذه الحصة بعد.",
-  "messagesFilterAdmins": "المشرفون"
+  "messagesFilterAdmins": "المشرفون",
+  "teacherAssignmentGradedStatus": "تم التقييم",
+  "teacherAssignmentReturnedStatus": "أُعيد لإعادة الحل",
+  "teacherAssignmentReturnAction": "إعادة لإعادة الحل",
+  "teacherAssignmentReturnDialogBody": "إعادة هذا التسليم إلى {name} لمراجعته وتسليمه مجددًا؟ ستُرفق أي ملاحظات كتبتها.",
+  "teacherGradesSavedOf": "تم حفظ {saved} من {total}.",
+  "teacherGradesSkippedSuffix": "تم تخطّي {dropped} طالب — غير مسجّلين في فوج.",
+  "adminPeopleGradeLevelRequired": "اختر صفًا لهذا الطالب.",
+  "teacherAddGradeLabel": "الصف {grade}"
 }

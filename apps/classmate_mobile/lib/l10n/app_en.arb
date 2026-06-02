@@ -3814,5 +3814,44 @@
   "adminSchoolAddGradeRange": "Add range",
   "teacherListStudents": "List students",
   "teacherNoStudentsInvolved": "No students in this period yet.",
-  "messagesFilterAdmins": "Admins"
+  "messagesFilterAdmins": "Admins",
+  "teacherAssignmentGradedStatus": "Graded",
+  "teacherAssignmentReturnedStatus": "Returned for re-solution",
+  "teacherAssignmentReturnAction": "Return for re-solution",
+  "teacherAssignmentReturnDialogBody": "Send this submission back to {name} to revise and hand in again? Any feedback you typed will be included.",
+  "@teacherAssignmentReturnDialogBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherGradesSavedOf": "Saved {saved} of {total}.",
+  "@teacherGradesSavedOf": {
+    "placeholders": {
+      "saved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherGradesSkippedSuffix": "{dropped} student(s) skipped — not in a cohort.",
+  "@teacherGradesSkippedSuffix": {
+    "placeholders": {
+      "dropped": {
+        "type": "int"
+      }
+    }
+  },
+  "adminPeopleGradeLevelRequired": "Pick a grade level for this student.",
+  "teacherAddGradeLabel": "Grade {grade}",
+  "@teacherAddGradeLabel": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  }
 }

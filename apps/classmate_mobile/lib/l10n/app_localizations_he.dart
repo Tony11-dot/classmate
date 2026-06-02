@@ -8044,4 +8044,36 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get messagesFilterAdmins => 'מנהלים';
+
+  @override
+  String get teacherAssignmentGradedStatus => 'נבדק';
+
+  @override
+  String get teacherAssignmentReturnedStatus => 'הוחזר לפתרון מחדש';
+
+  @override
+  String get teacherAssignmentReturnAction => 'החזרה לפתרון מחדש';
+
+  @override
+  String teacherAssignmentReturnDialogBody(String name) {
+    return 'להחזיר את ההגשה ל-$name לתיקון והגשה מחדש? כל משוב שכתבת ייכלל.';
+  }
+
+  @override
+  String teacherGradesSavedOf(int saved, int total) {
+    return 'נשמרו $saved מתוך $total.';
+  }
+
+  @override
+  String teacherGradesSkippedSuffix(int dropped) {
+    return '$dropped תלמידים דולגו — לא משויכים לקבוצה.';
+  }
+
+  @override
+  String get adminPeopleGradeLevelRequired => 'בחרו כיתה לתלמיד זה.';
+
+  @override
+  String teacherAddGradeLabel(int grade) {
+    return 'כיתה $grade';
+  }
 }

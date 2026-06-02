@@ -287,7 +287,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginScreen(),
       ),
 
-      GoRoute(
+      _slideRoute(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
       ),

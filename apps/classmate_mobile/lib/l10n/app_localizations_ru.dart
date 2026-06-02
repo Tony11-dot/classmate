@@ -8105,4 +8105,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get messagesFilterAdmins => 'Администраторы';
+
+  @override
+  String get teacherAssignmentGradedStatus => 'Оценено';
+
+  @override
+  String get teacherAssignmentReturnedStatus => 'Возвращено на доработку';
+
+  @override
+  String get teacherAssignmentReturnAction => 'Вернуть на доработку';
+
+  @override
+  String teacherAssignmentReturnDialogBody(String name) {
+    return 'Вернуть эту работу ученику $name на доработку и повторную сдачу? Все ваши комментарии будут включены.';
+  }
+
+  @override
+  String teacherGradesSavedOf(int saved, int total) {
+    return 'Сохранено $saved из $total.';
+  }
+
+  @override
+  String teacherGradesSkippedSuffix(int dropped) {
+    return '$dropped ученик(ов) пропущено — не в группе.';
+  }
+
+  @override
+  String get adminPeopleGradeLevelRequired =>
+      'Выберите класс для этого ученика.';
+
+  @override
+  String teacherAddGradeLabel(int grade) {
+    return 'Класс $grade';
+  }
 }

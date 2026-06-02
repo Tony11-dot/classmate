@@ -3362,5 +3362,13 @@
   "adminSchoolAddGradeRange": "Добавить диапазон",
   "teacherListStudents": "Список учеников",
   "teacherNoStudentsInvolved": "В этом уроке пока нет учеников.",
-  "messagesFilterAdmins": "Администраторы"
+  "messagesFilterAdmins": "Администраторы",
+  "teacherAssignmentGradedStatus": "Оценено",
+  "teacherAssignmentReturnedStatus": "Возвращено на доработку",
+  "teacherAssignmentReturnAction": "Вернуть на доработку",
+  "teacherAssignmentReturnDialogBody": "Вернуть эту работу ученику {name} на доработку и повторную сдачу? Все ваши комментарии будут включены.",
+  "teacherGradesSavedOf": "Сохранено {saved} из {total}.",
+  "teacherGradesSkippedSuffix": "{dropped} ученик(ов) пропущено — не в группе.",
+  "adminPeopleGradeLevelRequired": "Выберите класс для этого ученика.",
+  "teacherAddGradeLabel": "Класс {grade}"
 }

@@ -127,13 +127,11 @@ String _friendlyModeLoadingTitle(BuildContext context, PracticeMode mode) {
 }
 
 class PracticeSessionRouteHelper {
-  static Route<void> get screen => PageRouteBuilder<void>(
-    pageBuilder: (context, animation, secondaryAnimation) =>
-        const PracticeSessionScreen(),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(opacity: animation, child: child);
-    },
-  );
+  // MaterialPageRoute (not a custom PageRouteBuilder) so the global
+  // CupertinoPageTransitionsBuilder applies — giving the session screen the
+  // iOS edge-swipe-back gesture like every other pushed screen.
+  static Route<void> get screen =>
+      MaterialPageRoute<void>(builder: (_) => const PracticeSessionScreen());
 }
 
 enum _ReviewFilter { all, wrong, correct }

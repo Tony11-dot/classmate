@@ -501,7 +501,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     // (exams, assignments, grade lists) place them correctly from day 1.
     if (_role == 'STUDENT' && _grade == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pick a grade level for this student.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminPeopleGradeLevelRequired)),
       );
       return;
     }

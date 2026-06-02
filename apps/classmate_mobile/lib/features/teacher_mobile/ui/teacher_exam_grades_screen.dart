@@ -140,7 +140,8 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
       if (dropped > 0 || saved < dirtyGrades.length) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Saved $saved of ${dirtyGrades.length}. ${dropped > 0 ? "$dropped student(s) skipped — not in a cohort." : ""}'),
+            content: Text(AppLocalizations.of(context)!.teacherGradesSavedOf(saved, dirtyGrades.length) +
+                (dropped > 0 ? ' ${AppLocalizations.of(context)!.teacherGradesSkippedSuffix(dropped)}' : '')),
             backgroundColor: Theme.of(context).colorScheme.tertiary,
           ),
         );

@@ -668,7 +668,7 @@ class _TeacherAddGradeScreenState
                               final selected = _selectedGrades.contains(g);
                               return ChoiceChip(
                                 visualDensity: VisualDensity.compact,
-                                label: Text('Grade $g'),
+                                label: Text(AppLocalizations.of(context)!.teacherAddGradeLabel(g)),
                                 selected: selected,
                                 onSelected: (_) => _toggleGrade(g),
                               );
@@ -1358,7 +1358,7 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
                                       ?.copyWith(fontWeight: FontWeight.w700),
                                 ),
                                 if (grade != null)
-                                  Text('Grade $grade',
+                                  Text(AppLocalizations.of(context)!.teacherAddGradeLabel(grade),
                                       style: theme.textTheme.labelSmall
                                           ?.copyWith(
                                               color: cs.onSurfaceVariant)),

@@ -161,16 +161,21 @@ class _BlockMathWidget extends StatelessWidget {
     // No internal vertical padding — the parent column's _blockGap is the
     // only source of spacing around display math now. Eliminates the
     // "blank line right before/after a formula" effect the user reported.
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.hardEdge,
-        child: Math.tex(
-          math,
-          mathStyle: MathStyle.display,
-          textStyle: style?.copyWith(fontSize: fontSize),
-          onErrorFallback: (_) => _MathFallback(math, style: style),
+    // Force LTR — math is always left-to-right even inside Arabic/Hebrew (RTL)
+    // text, where the bidi algorithm would otherwise mis-position the formula.
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.hardEdge,
+          child: Math.tex(
+            math,
+            mathStyle: MathStyle.display,
+            textStyle: style?.copyWith(fontSize: fontSize),
+            onErrorFallback: (_) => _MathFallback(math, style: style),
+          ),
         ),
       ),
     );
@@ -229,11 +234,11 @@ class _ProseWidget extends StatelessWidget {
           const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       code: TextStyle(
         fontFamily: 'monospace',
+        fontFamilyFallback: const ['Menlo', 'Courier New', 'monospace'],
         fontSize: 13,
-        // Was onSurface text on an onSurface background → invisible inline
-        // code (the "color on color" the user saw in light mode).
-        color: cs.onSurface,
-        backgroundColor: cs.surfaceContainerHighest,
+        // Tinted text on a soft container — readable in both light and dark.
+        color: cs.primary,
+        backgroundColor: cs.surfaceContainerHigh.withValues(alpha: 0.6),
       ),
       codeblockDecoration: BoxDecoration(
         color: const Color(0xFF282C34),
@@ -356,14 +361,17 @@ class _InlineMathWidget extends StatelessWidget {
     // shrinks proportionally when the parent is too narrow (e.g. table cells).
     // This prevents RenderLine overflow errors from flutter_math_fork while
     // keeping math legible — never clips or causes overflow assertions.
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Math.tex(
-        math,
-        mathStyle: MathStyle.text,
-        textStyle: style,
-        onErrorFallback: (_) => _MathFallback(math, style: style, inline: true),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Math.tex(
+          math,
+          mathStyle: MathStyle.text,
+          textStyle: style,
+          onErrorFallback: (_) => _MathFallback(math, style: style, inline: true),
+        ),
       ),
     );
   }

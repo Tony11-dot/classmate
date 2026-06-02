@@ -8077,4 +8077,36 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get messagesFilterAdmins => 'المشرفون';
+
+  @override
+  String get teacherAssignmentGradedStatus => 'تم التقييم';
+
+  @override
+  String get teacherAssignmentReturnedStatus => 'أُعيد لإعادة الحل';
+
+  @override
+  String get teacherAssignmentReturnAction => 'إعادة لإعادة الحل';
+
+  @override
+  String teacherAssignmentReturnDialogBody(String name) {
+    return 'إعادة هذا التسليم إلى $name لمراجعته وتسليمه مجددًا؟ ستُرفق أي ملاحظات كتبتها.';
+  }
+
+  @override
+  String teacherGradesSavedOf(int saved, int total) {
+    return 'تم حفظ $saved من $total.';
+  }
+
+  @override
+  String teacherGradesSkippedSuffix(int dropped) {
+    return 'تم تخطّي $dropped طالب — غير مسجّلين في فوج.';
+  }
+
+  @override
+  String get adminPeopleGradeLevelRequired => 'اختر صفًا لهذا الطالب.';
+
+  @override
+  String teacherAddGradeLabel(int grade) {
+    return 'الصف $grade';
+  }
 }

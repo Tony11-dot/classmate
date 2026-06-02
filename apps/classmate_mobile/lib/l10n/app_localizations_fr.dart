@@ -8241,4 +8241,37 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get messagesFilterAdmins => 'Admins';
+
+  @override
+  String get teacherAssignmentGradedStatus => 'Noté';
+
+  @override
+  String get teacherAssignmentReturnedStatus => 'Renvoyé pour correction';
+
+  @override
+  String get teacherAssignmentReturnAction => 'Renvoyer pour correction';
+
+  @override
+  String teacherAssignmentReturnDialogBody(String name) {
+    return 'Renvoyer cette remise à $name pour révision et nouvelle remise ? Tout commentaire saisi sera inclus.';
+  }
+
+  @override
+  String teacherGradesSavedOf(int saved, int total) {
+    return '$saved sur $total enregistrés.';
+  }
+
+  @override
+  String teacherGradesSkippedSuffix(int dropped) {
+    return '$dropped élève(s) ignoré(s) — pas dans une cohorte.';
+  }
+
+  @override
+  String get adminPeopleGradeLevelRequired =>
+      'Choisissez un niveau pour cet élève.';
+
+  @override
+  String teacherAddGradeLabel(int grade) {
+    return 'Niveau $grade';
+  }
 }

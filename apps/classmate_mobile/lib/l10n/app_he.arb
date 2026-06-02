@@ -3155,5 +3155,13 @@
   "adminSchoolAddGradeRange": "הוספת טווח",
   "teacherListStudents": "רשימת תלמידים",
   "teacherNoStudentsInvolved": "אין תלמידים בשיעור הזה עדיין.",
-  "messagesFilterAdmins": "מנהלים"
+  "messagesFilterAdmins": "מנהלים",
+  "teacherAssignmentGradedStatus": "נבדק",
+  "teacherAssignmentReturnedStatus": "הוחזר לפתרון מחדש",
+  "teacherAssignmentReturnAction": "החזרה לפתרון מחדש",
+  "teacherAssignmentReturnDialogBody": "להחזיר את ההגשה ל-{name} לתיקון והגשה מחדש? כל משוב שכתבת ייכלל.",
+  "teacherGradesSavedOf": "נשמרו {saved} מתוך {total}.",
+  "teacherGradesSkippedSuffix": "{dropped} תלמידים דולגו — לא משויכים לקבוצה.",
+  "adminPeopleGradeLevelRequired": "בחרו כיתה לתלמיד זה.",
+  "teacherAddGradeLabel": "כיתה {grade}"
 }

@@ -318,8 +318,8 @@ class _TeacherAssignmentDetailScreenState
                                             borderRadius: BorderRadius.circular(6),
                                             border: Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.4)),
                                           ),
-                                          child: const Text(
-                                            'Graded',
+                                          child: Text(
+                                            AppLocalizations.of(context)!.teacherAssignmentGradedStatus,
                                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF22C55E)),
                                           ),
                                         ),
@@ -367,7 +367,7 @@ class _TeacherAssignmentDetailScreenState
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
                                       ),
-                                      child: const Text('Returned for re-solution',
+                                      child: Text(AppLocalizations.of(context)!.teacherAssignmentReturnedStatus,
                                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFB45309))),
                                     ),
                                   ],
@@ -385,14 +385,14 @@ class _TeacherAssignmentDetailScreenState
                                         textStyle: const TextStyle(fontSize: 12),
                                       ),
                                       icon: const Icon(Icons.replay_rounded, size: 14),
-                                      label: const Text('Return for re-solution'),
+                                      label: Text(AppLocalizations.of(context)!.teacherAssignmentReturnAction),
                                       onPressed: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: const Text('Return for re-solution'),
+                                            title: Text(AppLocalizations.of(ctx)!.teacherAssignmentReturnAction),
                                             content: Text(
-                                                'Send this submission back to $name to revise and hand in again? Any feedback you typed will be included.'),
+                                                AppLocalizations.of(ctx)!.teacherAssignmentReturnDialogBody(name)),
                                             actions: [
                                               TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
                                               FilledButton(

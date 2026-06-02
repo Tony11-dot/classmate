@@ -3155,5 +3155,13 @@
   "adminSchoolAddGradeRange": "Ajouter une plage",
   "teacherListStudents": "Liste des élèves",
   "teacherNoStudentsInvolved": "Aucun élève dans ce créneau pour l'instant.",
-  "messagesFilterAdmins": "Admins"
+  "messagesFilterAdmins": "Admins",
+  "teacherAssignmentGradedStatus": "Noté",
+  "teacherAssignmentReturnedStatus": "Renvoyé pour correction",
+  "teacherAssignmentReturnAction": "Renvoyer pour correction",
+  "teacherAssignmentReturnDialogBody": "Renvoyer cette remise à {name} pour révision et nouvelle remise ? Tout commentaire saisi sera inclus.",
+  "teacherGradesSavedOf": "{saved} sur {total} enregistrés.",
+  "teacherGradesSkippedSuffix": "{dropped} élève(s) ignoré(s) — pas dans une cohorte.",
+  "adminPeopleGradeLevelRequired": "Choisissez un niveau pour cet élève.",
+  "teacherAddGradeLabel": "Niveau {grade}"
 }

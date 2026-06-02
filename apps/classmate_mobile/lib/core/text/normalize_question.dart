@@ -246,6 +246,19 @@ String prepareRenderableText(String input) {
     (m) => '\$${m.group(1)!}\$',
   );
 
+  // Fallback for MALFORMED LaTeX (a common model glitch): an opening delimiter
+  // with no matching close. Paired delimiters were already consumed above, so
+  // any remaining `\[` / `\(` is unmatched — wrap it to end-of-line so it still
+  // renders as math instead of leaking raw "\[" / "\(" into the UI.
+  text = text.replaceAllMapped(
+    RegExp(r'\\\[([^\n]*)$', multiLine: true),
+    (m) => '\$\$${m.group(1)!}\$\$',
+  );
+  text = text.replaceAllMapped(
+    RegExp(r'\\\(([^\n]*)$', multiLine: true),
+    (m) => '\$${m.group(1)!}\$',
+  );
+
   // Wrap bare \begin{env}...\end{env} not already inside delimiters.
   text = _wrapBareEnvironments(text);
 

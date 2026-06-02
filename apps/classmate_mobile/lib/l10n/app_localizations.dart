@@ -14282,6 +14282,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Admins'**
   String get messagesFilterAdmins;
+
+  /// No description provided for @teacherAssignmentGradedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded'**
+  String get teacherAssignmentGradedStatus;
+
+  /// No description provided for @teacherAssignmentReturnedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned for re-solution'**
+  String get teacherAssignmentReturnedStatus;
+
+  /// No description provided for @teacherAssignmentReturnAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Return for re-solution'**
+  String get teacherAssignmentReturnAction;
+
+  /// No description provided for @teacherAssignmentReturnDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this submission back to {name} to revise and hand in again? Any feedback you typed will be included.'**
+  String teacherAssignmentReturnDialogBody(String name);
+
+  /// No description provided for @teacherGradesSavedOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {saved} of {total}.'**
+  String teacherGradesSavedOf(int saved, int total);
+
+  /// No description provided for @teacherGradesSkippedSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{dropped} student(s) skipped — not in a cohort.'**
+  String teacherGradesSkippedSuffix(int dropped);
+
+  /// No description provided for @adminPeopleGradeLevelRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a grade level for this student.'**
+  String get adminPeopleGradeLevelRequired;
+
+  /// No description provided for @teacherAddGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String teacherAddGradeLabel(int grade);
 }
 
 class _AppLocalizationsDelegate
