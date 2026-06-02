@@ -3370,5 +3370,8 @@
   "teacherGradesSavedOf": "Сохранено {saved} из {total}.",
   "teacherGradesSkippedSuffix": "{dropped} ученик(ов) пропущено — не в группе.",
   "adminPeopleGradeLevelRequired": "Выберите класс для этого ученика.",
-  "teacherAddGradeLabel": "Класс {grade}"
+  "teacherAddGradeLabel": "Класс {grade}",
+  "teacherGradeOutOfHint": "напр. 20",
+  "plansDowngrade": "Понизить план",
+  "plansDowngradeNote": "Начнётся после окончания текущего плана — он сохранится до тех пор, без возврата средств."
 }

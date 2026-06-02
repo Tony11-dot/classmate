@@ -8076,4 +8076,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String teacherAddGradeLabel(int grade) {
     return 'כיתה $grade';
   }
+
+  @override
+  String get teacherGradeOutOfHint => 'למשל 20';
+
+  @override
+  String get plansDowngrade => 'שנמוך תוכנית';
+
+  @override
+  String get plansDowngradeNote =>
+      'מתחיל בתום התוכנית הנוכחית — היא נשמרת עד אז, ללא החזר.';
 }

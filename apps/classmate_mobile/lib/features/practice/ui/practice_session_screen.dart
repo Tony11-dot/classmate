@@ -295,10 +295,6 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           value: '$total',
                         ),
                         _MetricPill(
-                          label: l.practiceSessionMetricXp,
-                          value: '${state.stats.xp}',
-                        ),
-                        _MetricPill(
                           label: l.practiceSessionMetricStreak,
                           value: '${state.stats.streak}',
                         ),
@@ -703,10 +699,6 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                             state.secondsRemaining,
                           ),
                         ),
-                      _MetricPill(
-                        label: l.practiceSessionMetricXp,
-                        value: '${state.stats.xp}',
-                      ),
                       _MetricPill(
                         label: l.practiceSessionMetricStreak,
                         value: '${state.stats.streak}',

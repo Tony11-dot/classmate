@@ -8205,4 +8205,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String teacherAddGradeLabel(int grade) {
     return '‹‹Grade $grade››';
   }
+
+  @override
+  String get teacherGradeOutOfHint => '‹‹e.g. 20››';
+
+  @override
+  String get plansDowngrade => '‹‹Downgrade››';
+
+  @override
+  String get plansDowngradeNote =>
+      '‹‹Starts when your current plan ends — you keep it until then, no refund.››';
 }

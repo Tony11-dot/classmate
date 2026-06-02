@@ -3163,5 +3163,8 @@
   "teacherGradesSavedOf": "נשמרו {saved} מתוך {total}.",
   "teacherGradesSkippedSuffix": "{dropped} תלמידים דולגו — לא משויכים לקבוצה.",
   "adminPeopleGradeLevelRequired": "בחרו כיתה לתלמיד זה.",
-  "teacherAddGradeLabel": "כיתה {grade}"
+  "teacherAddGradeLabel": "כיתה {grade}",
+  "teacherGradeOutOfHint": "למשל 20",
+  "plansDowngrade": "שנמוך תוכנית",
+  "plansDowngradeNote": "מתחיל בתום התוכנית הנוכחית — היא נשמרת עד אז, ללא החזר."
 }

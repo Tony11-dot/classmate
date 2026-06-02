@@ -3787,5 +3787,8 @@
   "teacherGradesSavedOf": "‹‹Saved {saved} of {total}.››",
   "teacherGradesSkippedSuffix": "‹‹{dropped} student(s) skipped — not in a cohort.››",
   "adminPeopleGradeLevelRequired": "‹‹Pick a grade level for this student.››",
-  "teacherAddGradeLabel": "‹‹Grade {grade}››"
+  "teacherAddGradeLabel": "‹‹Grade {grade}››",
+  "teacherGradeOutOfHint": "‹‹e.g. 20››",
+  "plansDowngrade": "‹‹Downgrade››",
+  "plansDowngradeNote": "‹‹Starts when your current plan ends — you keep it until then, no refund.››"
 }

@@ -8109,4 +8109,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String teacherAddGradeLabel(int grade) {
     return 'الصف $grade';
   }
+
+  @override
+  String get teacherGradeOutOfHint => 'مثال: 20';
+
+  @override
+  String get plansDowngrade => 'تخفيض الخطة';
+
+  @override
+  String get plansDowngradeNote =>
+      'يبدأ عند انتهاء خطتك الحالية — تبقى لديك حتى ذلك الحين، دون استرداد.';
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,20 @@ import 'ui/widgets/splash_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
+  // TEMP web diagnostic: render build errors as readable text instead of a
+  // blank/grey screen, so a startup crash is visible without DevTools.
+  if (kIsWeb) {
+    ErrorWidget.builder = (FlutterErrorDetails details) => Material(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'ClassMate error — screenshot this:\n\n${details.exceptionAsString()}\n\n${details.stack}',
+              style: const TextStyle(color: Color(0xFFB00020), fontSize: 12, height: 1.4),
+            ),
+          ),
+        );
+  }
   // Lock the app to portrait — landscape layouts are not designed for and
   // produce broken-looking screens on phones.
   SystemChrome.setPreferredOrientations(const [

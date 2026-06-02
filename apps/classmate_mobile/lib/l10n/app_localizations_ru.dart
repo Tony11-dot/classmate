@@ -8138,4 +8138,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String teacherAddGradeLabel(int grade) {
     return 'Класс $grade';
   }
+
+  @override
+  String get teacherGradeOutOfHint => 'напр. 20';
+
+  @override
+  String get plansDowngrade => 'Понизить план';
+
+  @override
+  String get plansDowngradeNote =>
+      'Начнётся после окончания текущего плана — он сохранится до тех пор, без возврата средств.';
 }

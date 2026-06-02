@@ -215,8 +215,7 @@ class _HistoryCard extends ConsumerWidget {
         subtitle: CMAiMessage(
           '${_practiceModeLabel(context, session.mode)} • '
           '${session.correct}/${session.answered} • '
-          '${session.accuracyPercent}% • '
-          '${AppLocalizations.of(context)!.practiceSessionMetricXp} ${session.xp}',
+          '${session.accuracyPercent}%',
           compact: true,
           textStyle: Theme.of(context).textTheme.bodyMedium,
         ),

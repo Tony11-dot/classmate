@@ -8274,4 +8274,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String teacherAddGradeLabel(int grade) {
     return 'Niveau $grade';
   }
+
+  @override
+  String get teacherGradeOutOfHint => 'ex. 20';
+
+  @override
+  String get plansDowngrade => 'Rétrograder';
+
+  @override
+  String get plansDowngradeNote =>
+      'Prend effet à la fin de votre plan actuel — vous le gardez jusque-là, sans remboursement.';
 }

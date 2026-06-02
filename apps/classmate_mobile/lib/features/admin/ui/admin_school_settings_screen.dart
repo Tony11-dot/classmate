@@ -1082,27 +1082,44 @@ class _GradeStepper extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: cs.outlineVariant),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                Text(AppLocalizations.of(context)!.adminCohortGradeFormat(value.toString()), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-              ],
-            ),
+          // Label on its own full-width line so it never wraps character by
+          // character when the stepper is squeezed (multi-range rows).
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
           ),
-          IconButton(
-            icon: const Icon(Icons.remove_rounded),
-            onPressed: () => onChanged(value - 1),
-            visualDensity: VisualDensity.compact,
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_rounded),
-            onPressed: () => onChanged(value + 1),
-            visualDensity: VisualDensity.compact,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.adminCohortGradeFormat(value.toString()),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.remove_rounded),
+                onPressed: () => onChanged(value - 1),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
+              ),
+              IconButton(
+                icon: const Icon(Icons.add_rounded),
+                onPressed: () => onChanged(value + 1),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
+              ),
+            ],
           ),
         ],
       ),

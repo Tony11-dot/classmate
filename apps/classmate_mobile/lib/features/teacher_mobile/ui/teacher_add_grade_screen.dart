@@ -54,6 +54,8 @@ class _TeacherAddGradeScreenState
 
   // ── "Other" fields (only used when type = other) ────────────────────────
   final _otherTitleCtrl = TextEditingController();
+  // "Out of" / max score for an Other (free-form) grade — e.g. score out of 20.
+  final _otherMaxCtrl = TextEditingController();
   String? _otherSubject;
 
   // ── Per-student grade + notes inputs ────────────────────────────────────
@@ -78,6 +80,7 @@ class _TeacherAddGradeScreenState
       c.dispose();
     }
     _otherTitleCtrl.dispose();
+    _otherMaxCtrl.dispose();
     super.dispose();
   }
 
@@ -229,7 +232,7 @@ class _TeacherAddGradeScreenState
             ? null
             : _otherTitleCtrl.text.trim(),
         subject: _otherSubject,
-        maxGrade: null,
+        maxGrade: int.tryParse(_otherMaxCtrl.text.trim()),
       );
     }
     final list =
@@ -924,6 +927,18 @@ class _TeacherAddGradeScreenState
                           onChanged: (v) => setState(
                               () => _otherSubject = v.isEmpty ? null : v),
                           searchHint: 'Search subjects…',
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _otherMaxCtrl,
+                          keyboardType: TextInputType.number,
+                          onChanged: (_) => setState(() {}),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.teacherGradeOutOfLabel,
+                            hintText: AppLocalizations.of(context)!.teacherGradeOutOfHint,
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.percent_rounded),
+                          ),
                         ),
                       ],
                     ],

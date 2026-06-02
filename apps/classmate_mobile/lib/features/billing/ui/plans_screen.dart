@@ -82,6 +82,7 @@ class PlansScreen extends ConsumerWidget {
                     child: _PlanTile(
                       plan: plan,
                       isCurrent: balanceAsync.asData?.value.activeTier == plan.tier,
+                      currentTier: balanceAsync.asData?.value.activeTier ?? 'FREE',
                     ),
                   )),
 
@@ -320,14 +321,26 @@ class _TokenExplainer extends StatelessWidget {
 }
 
 class _PlanTile extends StatelessWidget {
-  const _PlanTile({required this.plan, required this.isCurrent});
+  const _PlanTile({required this.plan, required this.isCurrent, this.currentTier = 'FREE'});
   final SubscriptionPlan plan;
   final bool isCurrent;
+  final String currentTier;
+
+  static int _rank(String tier) => switch (tier) {
+        'FREE' => 0,
+        'BUDGET' => 1,
+        'BALANCE' => 2,
+        'COMMITMENT' => 3,
+        _ => 0,
+      };
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    // A lower paid tier than the one the user is on = a downgrade. The store
+    // defers it to the next renewal (current plan runs to its end, no refund).
+    final isDowngrade = !plan.isFree && !isCurrent && _rank(plan.tier) < _rank(currentTier);
 
     return InkWell(
       borderRadius: BorderRadius.circular(20),
@@ -420,11 +433,25 @@ class _PlanTile extends StatelessWidget {
               const SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => _openPaywall(context, plan: plan),
-                  child: Text(AppLocalizations.of(context)!.plansUpgrade),
-                ),
+                child: isDowngrade
+                    ? FilledButton.tonal(
+                        onPressed: () => _openPaywall(context, plan: plan),
+                        child: Text(AppLocalizations.of(context)!.plansDowngrade),
+                      )
+                    : FilledButton(
+                        onPressed: () => _openPaywall(context, plan: plan),
+                        child: Text(AppLocalizations.of(context)!.plansUpgrade),
+                      ),
               ),
+              if (isDowngrade)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    AppLocalizations.of(context)!.plansDowngradeNote,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ),
             ],
           ],
         ),

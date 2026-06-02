@@ -103,7 +103,7 @@ class _PracticeHistoryReviewScreenState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${_practiceModeLabel(context, widget.session.mode)} • ${widget.session.correct}/${widget.session.answered} • ${widget.session.accuracyPercent}% • ${l.practiceSessionMetricXp} ${widget.session.xp}',
+                  '${_practiceModeLabel(context, widget.session.mode)} • ${widget.session.correct}/${widget.session.answered} • ${widget.session.accuracyPercent}%',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: cs.onSurfaceVariant,

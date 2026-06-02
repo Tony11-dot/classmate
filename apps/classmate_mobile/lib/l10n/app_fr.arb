@@ -3163,5 +3163,8 @@
   "teacherGradesSavedOf": "{saved} sur {total} enregistrés.",
   "teacherGradesSkippedSuffix": "{dropped} élève(s) ignoré(s) — pas dans une cohorte.",
   "adminPeopleGradeLevelRequired": "Choisissez un niveau pour cet élève.",
-  "teacherAddGradeLabel": "Niveau {grade}"
+  "teacherAddGradeLabel": "Niveau {grade}",
+  "teacherGradeOutOfHint": "ex. 20",
+  "plansDowngrade": "Rétrograder",
+  "plansDowngradeNote": "Prend effet à la fin de votre plan actuel — vous le gardez jusque-là, sans remboursement."
 }

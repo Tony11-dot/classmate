@@ -14330,6 +14330,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Grade {grade}'**
   String teacherAddGradeLabel(int grade);
+
+  /// No description provided for @teacherGradeOutOfHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 20'**
+  String get teacherGradeOutOfHint;
+
+  /// No description provided for @plansDowngrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Downgrade'**
+  String get plansDowngrade;
+
+  /// No description provided for @plansDowngradeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts when your current plan ends — you keep it until then, no refund.'**
+  String get plansDowngradeNote;
 }
 
 class _AppLocalizationsDelegate

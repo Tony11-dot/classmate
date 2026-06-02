@@ -109,6 +109,37 @@
   </script>
 </head>
 <body>
+  <!-- TEMP diagnostic: surface any startup error on-screen (no DevTools needed). -->
+  <script>
+    (function () {
+      function show(msg) {
+        var d = document.getElementById('cm-err');
+        if (!d) {
+          d = document.createElement('pre');
+          d.id = 'cm-err';
+          d.style.cssText = 'position:fixed;inset:0;z-index:2147483647;margin:0;padding:16px;background:#fff;color:#b00020;font:12px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow:auto;';
+          (document.body || document.documentElement).appendChild(d);
+          var h = document.createElement('div');
+          h.textContent = 'ClassMate web startup error — screenshot this:';
+          h.style.cssText = 'font-weight:700;margin-bottom:10px;color:#111';
+          d.appendChild(h);
+        }
+        var line = document.createElement('div');
+        line.textContent = msg;
+        line.style.marginBottom = '10px';
+        d.appendChild(line);
+      }
+      window.addEventListener('error', function (e) {
+        show('[error] ' + (e.message || '') + '\n' + (((e.error && e.error.stack) || (e.filename + ':' + e.lineno + ':' + e.colno)) || ''));
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        show('[promise] ' + ((r && (r.stack || r.message)) || String(r)));
+      });
+      window.__cmShowError = show;
+    })();
+  </script>
+
   <picture id="splash">
       <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
       <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">

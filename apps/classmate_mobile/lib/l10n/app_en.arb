@@ -3853,5 +3853,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "teacherGradeOutOfHint": "e.g. 20",
+  "plansDowngrade": "Downgrade",
+  "plansDowngradeNote": "Starts when your current plan ends — you keep it until then, no refund."
 }
