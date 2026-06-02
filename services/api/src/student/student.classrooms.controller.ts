@@ -609,6 +609,18 @@ export class StudentClassroomsController {
       }),
     ]);
 
+    // eslint-disable-next-line no-console
+    console.log('[diag.all-meetings]', JSON.stringify({
+      uid,
+      grade,
+      cohortIds,
+      classroomIds,
+      classroomMeetingCount: (classroomMeetings as any[]).length,
+      teacherMeetingMatched: (teacherMeetings as any[]).length,
+      totalTeacherMeetings: await this.prisma.teacherMeeting.count(),
+      everyoneCount: await this.prisma.teacherMeeting.count({ where: { targetType: 'EVERYONE' as any } }),
+    }));
+
     // Dedupe: a TeacherMeeting that already has a ClassroomMeeting mirror
     // should appear once, not twice. Mirror rows carry teacherMeetingId.
     const mirroredTeacherIds = new Set(
