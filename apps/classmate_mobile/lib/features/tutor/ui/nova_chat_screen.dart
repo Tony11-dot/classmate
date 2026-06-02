@@ -599,14 +599,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   void _showOutOfTokensSnackbar() {
+    final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text(
-          'You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.',
-        ),
+        content: Text(l.novaOutOfTokens),
         duration: const Duration(seconds: 6),
         action: SnackBarAction(
-          label: 'Upgrade',
+          label: l.plansUpgrade,
           onPressed: () => context.push('/plans'),
         ),
       ),
@@ -1973,7 +1972,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           // ⓘ — always visible; tapping shows the AI disclosure sheet.
           IconButton(
             icon: const Icon(Icons.info_outline_rounded, size: 20),
-            tooltip: 'About NOVA',
+            tooltip: AppLocalizations.of(context)!.novaAbout,
             onPressed: () => _showNovaAboutSheet(context),
           ),
           if (showPlanButton)

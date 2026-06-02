@@ -389,7 +389,7 @@ class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
               // Add a grade
               _ActionChip(
                 icon: Icons.add_chart_rounded,
-                label: 'Add grade',
+                label: l.teacherAddGradeTitle,
                 color: cs.tertiary,
                 onColor: cs.onTertiary,
                 onTap: () => context.push('/teacher/grades/add', extra: <String, dynamic>{

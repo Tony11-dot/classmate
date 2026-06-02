@@ -205,7 +205,7 @@ class _TeacherClassroomAddMeetingScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Meeting Details',
+                    AppLocalizations.of(context)!.teacherMeetingDetailsSection,
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
@@ -226,7 +226,7 @@ class _TeacherClassroomAddMeetingScreenState
                     keyboardType: TextInputType.url,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherMeetingLinkField,
-                      hintText: 'e.g. https://zoom.us/j/...',
+                      hintText: AppLocalizations.of(context)!.teacherMeetingLinkHint,
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.videocam_outlined),
                     ),
@@ -235,7 +235,7 @@ class _TeacherClassroomAddMeetingScreenState
                   Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: Text(
-                      'e.g. https://zoom.us/j/...',
+                      AppLocalizations.of(context)!.teacherMeetingLinkHint,
                       style: theme.textTheme.bodySmall
                           ?.copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -258,7 +258,7 @@ class _TeacherClassroomAddMeetingScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'When',
+                    AppLocalizations.of(context)!.commonWhen,
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),

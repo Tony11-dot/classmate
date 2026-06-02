@@ -251,7 +251,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          _nameEnCtrl.text.trim().isEmpty ? 'Edit user' : _nameEnCtrl.text.trim(),
+                          _nameEnCtrl.text.trim().isEmpty ? l.adminEditUser : _nameEnCtrl.text.trim(),
                           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -304,11 +304,11 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   const SizedBox(height: 4),
                   Text(l.adminEditUserAtLeastEnglish, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 12),
-                  _langField(_nameEnCtrl, 'Name in English', req: true),
-                  _langField(_nameArCtrl, 'Name in Arabic (اسم)'),
-                  _langField(_nameHeCtrl, 'Name in Hebrew (שם)'),
-                  _langField(_nameFrCtrl, 'Name in French'),
-                  _langField(_nameRuCtrl, 'Name in Russian'),
+                  _langField(_nameEnCtrl, l.nameInEnglish, req: true),
+                  _langField(_nameArCtrl, l.nameInArabic),
+                  _langField(_nameHeCtrl, l.nameInHebrew),
+                  _langField(_nameFrCtrl, l.nameInFrench),
+                  _langField(_nameRuCtrl, l.nameInRussian),
                   const SizedBox(height: 20),
 
                   // ── Role ───────────────────────────────────────────────────
@@ -343,7 +343,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     const SizedBox(height: 4),
                     Text(
                       _cohorts.isEmpty
-                          ? "Not in any cohort yet — assign from the Cohorts screen."
+                          ? l.adminNotInAnyCohort
                           : 'Member of ${_cohorts.length} cohort${_cohorts.length == 1 ? '' : 's'}.',
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -414,7 +414,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                         TextButton.icon(
                           onPressed: () => setState(() => _showAddChild = !_showAddChild),
                           icon: Icon(_showAddChild ? Icons.close_rounded : Icons.add_rounded, size: 16),
-                          label: Text(_showAddChild ? 'Cancel' : 'Link Child'),
+                          label: Text(_showAddChild ? l.commonCancel : l.adminLinkChild),
                         ),
                       ],
                     ),
@@ -422,11 +422,11 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
                     if (_showAddChild) ...[
                       LiquidGlassDropdown<String>(
-                        label: 'Select student to link',
+                        label: l.adminSelectStudentToLink,
                         value: _linkStudentId ?? '',
                         searchHint: 'Search students…',
                         items: [
-                          const LiquidGlassDropdownItem(value: '', label: '— Choose student —'),
+                          LiquidGlassDropdownItem(value: '', label: l.adminChooseStudentDash),
                           ..._allStudents.map((s) {
                             final name = s['name']?.toString() ?? '';
                             final grade = (s['grade'] as num?)?.toInt();
@@ -515,14 +515,15 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
   }
 
   void _submit() {
+    final l = AppLocalizations.of(context)!;
     final p1 = _pw1.text;
     final p2 = _pw2.text;
     if (p1.length < 8) {
-      setState(() => _error = 'At least 8 characters.');
+      setState(() => _error = l.passwordMinChars);
       return;
     }
     if (p1 != p2) {
-      setState(() => _error = "Passwords don't match.");
+      setState(() => _error = l.passwordsDoNotMatch);
       return;
     }
     Navigator.pop(context, p1);
@@ -560,9 +561,9 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
             Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
           ],
           const SizedBox(height: 8),
-          const Text(
-            'The user will be signed in with this password next time they log in. Any pending password-reset links are invalidated.',
-            style: TextStyle(fontSize: 12, color: Colors.black54),
+          Text(
+            l.adminPasswordChangeWarning,
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
           ),
         ],
       ),

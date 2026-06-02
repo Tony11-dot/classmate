@@ -319,7 +319,7 @@ class _ActionPanel extends StatelessWidget {
       if (canReport)
         (
           icon: Icons.flag_outlined,
-          label: 'Report',
+          label: l.chatReportButton,
           key: 'report',
           isDanger: true,
         ),

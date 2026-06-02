@@ -1296,9 +1296,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final cmWordmark = pw.MemoryImage(
       (await rootBundle.load('assets/images/logo_light.png')).buffer.asUint8List(),
     );
-    final cmIcon = pw.MemoryImage(
-      (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
-    );
+    const supportEmail = 'tony@classmateapp.org';
 
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(
@@ -1356,74 +1354,39 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         build: (ctx) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            // ── Top metadata strip — icon chip + school + date/by ──
-            pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
-              children: [
-                pw.Container(
-                  width: 32,
-                  height: 32,
-                  padding: const pw.EdgeInsets.all(4),
-                  decoration: pw.BoxDecoration(
-                    color: brandBlue,
-                    borderRadius: pw.BorderRadius.circular(8),
-                  ),
-                  child: pw.Image(cmIcon, fit: pw.BoxFit.contain),
-                ),
-                pw.SizedBox(width: 10),
-                pw.Expanded(
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      if (schoolName.isNotEmpty)
-                        pw.Text(
-                          schoolName,
-                          style: pw.TextStyle(
-                            fontSize: 11,
-                            color: brandDeep,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                      pw.Text(
-                        l.adminExportPdfUserDirectory,
-                        style: const pw.TextStyle(
-                          fontSize: 9,
-                          color: fieldLabel,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.end,
-                  children: [
-                    pw.Text(
-                      dateStr,
-                      style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
-                    ),
-                    pw.Text(
-                      l.adminExportPdfBy(exportedBy),
-                      style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            pw.SizedBox(height: 20),
-            // ── Big centred wordmark ─────────────────────────────────────
+            // ── Centred wordmark at the very top ─────────────────────────
             // SizedBox needs BOTH width and height — Container(height: …)
             // alone collapses to zero width in the pdf layout engine, so
             // the image renders as a 0-px invisible blip. logo_light.png
-            // is 1530×344 (≈4.45:1), so we lock the height at 52 and let
-            // BoxFit.contain pick a width within the available 220.
+            // is 1530×344 (≈4.45:1), so we lock the height at 56 and let
+            // BoxFit.contain pick a width within the available 240.
             pw.Center(
               child: pw.SizedBox(
-                width: 230,
-                height: 52,
+                width: 240,
+                height: 56,
                 child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
               ),
             ),
-            pw.SizedBox(height: 22),
+            pw.SizedBox(height: 10),
+            if (schoolName.isNotEmpty)
+              pw.Center(
+                child: pw.Text(
+                  schoolName,
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    color: brandDeep,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+            pw.SizedBox(height: 2),
+            pw.Center(
+              child: pw.Text(
+                '$dateStr · ${l.adminExportPdfBy(exportedBy)}',
+                style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
+              ),
+            ),
+            pw.SizedBox(height: 20),
             // ── Welcome intro text ───────────────────────────────────────
             pw.Container(
               padding: const pw.EdgeInsets.fromLTRB(18, 14, 18, 14),
@@ -1436,7 +1399,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    'Welcome to ClassMate',
+                    l.adminWelcomeHeading,
                     style: pw.TextStyle(
                       fontSize: 14,
                       fontWeight: pw.FontWeight.bold,
@@ -1446,8 +1409,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   pw.SizedBox(height: 4),
                   pw.Text(
                     withPasswords
-                        ? 'This sheet contains your ClassMate account details. Use the username and password below to sign in to the ClassMate app on iOS or Android. You can change your password from the app once you\'re in.'
-                        : 'This sheet contains your ClassMate account details. Use your username to sign in to the ClassMate app on iOS or Android.',
+                        ? l.adminExportWelcomeBodyWithPw
+                        : l.adminExportWelcomeBodyNoPw,
                     style: const pw.TextStyle(
                       fontSize: 10,
                       color: brandDeep,
@@ -1583,7 +1546,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    'IMPORTANT',
+                    l.adminExportImportantHeading.toUpperCase(),
                     style: pw.TextStyle(
                       fontSize: 8,
                       color: noteBorder,
@@ -1591,24 +1554,20 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                       letterSpacing: 0.8,
                     ),
                   ),
-                  pw.SizedBox(height: 4),
-                  pw.Bullet(
-                    text: 'Keep these credentials private. Do not share your password.',
-                    style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
-                  ),
-                  if (withPasswords)
-                    pw.Bullet(
-                      text: 'Change your password after first sign-in (Settings → Account).',
-                      style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                  pw.SizedBox(height: 5),
+                  for (final note in <String>[
+                    l.adminExportNotePrivate,
+                    if (withPasswords) l.adminExportNoteChangePw,
+                    l.adminExportNoteLegal,
+                    l.adminExportNoteHelp(supportEmail),
+                  ])
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(bottom: 3),
+                      child: pw.Text(
+                        note,
+                        style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                      ),
                     ),
-                  pw.Bullet(
-                    text: 'By using ClassMate you agree to our Terms of Service and Privacy Policy at classmate.app/legal.',
-                    style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
-                  ),
-                  pw.Bullet(
-                    text: 'For help, contact your school administrator or support@classmate.app.',
-                    style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
-                  ),
                 ],
               ),
             ),

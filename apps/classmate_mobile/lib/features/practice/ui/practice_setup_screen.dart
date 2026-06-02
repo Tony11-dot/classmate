@@ -938,8 +938,8 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               _timingMode == TimingMode.ai
                                   ? l.practiceSetupTimingCaption
                                   : _timingScope == TimingScope.perQuestion
-                                  ? '$_customPerQuestionSeconds s / question'
-                                  : '$_customExamMinutes min / quiz',
+                                  ? '$_customPerQuestionSeconds ${l.practiceTimingSecPerQuestion}'
+                                  : '$_customExamMinutes ${l.practiceTimingMinPerQuiz}',
                               style: text.labelMedium?.copyWith(
                                 color: cs.onSurfaceVariant,
                                 fontWeight: FontWeight.w700,
@@ -1154,8 +1154,8 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text(
                                     e.toString().contains('socket') || e.toString().contains('connection')
-                                        ? 'No internet connection. Please try again.'
-                                        : 'Could not generate questions. Please try again.',
+                                        ? l.practiceNoInternet
+                                        : l.practiceGenerationFailed,
                                   )),
                                 );
                               }

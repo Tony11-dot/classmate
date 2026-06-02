@@ -1078,9 +1078,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'This message will be flagged for review by an admin.',
-                style: TextStyle(fontSize: 13),
+              Text(
+                l.chatReportFlagWarning,
+                style: const TextStyle(fontSize: 13),
               ),
               const SizedBox(height: 12),
               TextField(

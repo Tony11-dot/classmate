@@ -355,6 +355,7 @@ class _SubjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -386,9 +387,9 @@ class _SubjectCard extends StatelessWidget {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              if (isBest) _SmallBadge(label: 'Top subject', color: cs.secondaryContainer, textColor: cs.onSecondaryContainer),
+                              if (isBest) _SmallBadge(label: l.savedQuestionsTopSubjectMetric, color: cs.secondaryContainer, textColor: cs.onSecondaryContainer),
                               if (isBest && isWeak) const SizedBox(width: 6),
-                              if (isWeak) _SmallBadge(label: 'Needs work', color: cs.errorContainer, textColor: cs.onErrorContainer),
+                              if (isWeak) _SmallBadge(label: l.gradesMetricNeedsWork, color: cs.errorContainer, textColor: cs.onErrorContainer),
                             ],
                           ),
                         ],

@@ -479,9 +479,9 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                     LiquidGlassDropdown<String>(
                       label: AppLocalizations.of(context)!.teacherSubjectRequired,
                       value: _subject,
-                      searchHint: 'Search subjects…',
+                      searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch,
                       items: [
-                        const LiquidGlassDropdownItem(value: '__other__', label: 'Other (type custom)'),
+                        LiquidGlassDropdownItem(value: '__other__', label: AppLocalizations.of(context)!.teacherOtherCustomSubject),
                         for (final s in subjects)
                           LiquidGlassDropdownItem(value: s.nameEn, label: s.nameEn),
                       ],

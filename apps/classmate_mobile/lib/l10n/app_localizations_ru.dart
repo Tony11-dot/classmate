@@ -8178,4 +8178,226 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get semesterEnds => 'Конец';
+
+  @override
+  String get commonWhen => 'Когда';
+
+  @override
+  String get commonFiles => 'Файлы';
+
+  @override
+  String get commonOnce => 'Один раз';
+
+  @override
+  String get commonNoneDash => '— Нет —';
+
+  @override
+  String get commonNotesOptional => 'Заметки (необязательно)';
+
+  @override
+  String get commonSubjectOptional => 'Предмет (необязательно)';
+
+  @override
+  String get colorBlue => 'Синий';
+
+  @override
+  String get colorIndigo => 'Индиго';
+
+  @override
+  String get colorViolet => 'Фиолетовый';
+
+  @override
+  String get colorTeal => 'Бирюзовый';
+
+  @override
+  String get colorGreen => 'Зелёный';
+
+  @override
+  String get colorOrange => 'Оранжевый';
+
+  @override
+  String get colorRose => 'Розовый';
+
+  @override
+  String get teacherAddClassNotes => 'Добавить заметки к уроку';
+
+  @override
+  String get teacherStudentsWithGrades => 'Ученики с оценками';
+
+  @override
+  String get teacherOtherStudentsSameGrade =>
+      'Другие ученики того же класса/группы';
+
+  @override
+  String get teacherChooseExam => 'Выберите экзамен';
+
+  @override
+  String get teacherChooseAssignment => 'Выберите задание';
+
+  @override
+  String get teacherSearchExams => 'Поиск экзаменов…';
+
+  @override
+  String get teacherSearchAssignments => 'Поиск заданий…';
+
+  @override
+  String get teacherSearchQuestionTypes => 'Поиск типов вопросов…';
+
+  @override
+  String get teacherOtherCustomSubject => 'Другое (свой вариант)';
+
+  @override
+  String get adminLinkChild => 'Привязать ребёнка';
+
+  @override
+  String get adminChooseStudentDash => '— Выберите ученика —';
+
+  @override
+  String get adminSelectStudentToLink => 'Выберите ученика для привязки';
+
+  @override
+  String get adminEditPeriod => 'Изменить период';
+
+  @override
+  String get adminNotInAnyCohort =>
+      'Пока не состоит в группе — назначьте на экране «Группы».';
+
+  @override
+  String get adminPasswordChangeWarning =>
+      'При следующем входе пользователь войдёт с этим паролем. Все ожидающие ссылки для сброса станут недействительными.';
+
+  @override
+  String get nameInEnglish => 'Имя на английском';
+
+  @override
+  String get nameInArabic => 'Имя на арабском';
+
+  @override
+  String get nameInHebrew => 'Имя на иврите';
+
+  @override
+  String get nameInFrench => 'Имя на французском';
+
+  @override
+  String get nameInRussian => 'Имя на русском';
+
+  @override
+  String get passwordMinChars => 'Не менее 8 символов.';
+
+  @override
+  String get passwordsDoNotMatch => 'Пароли не совпадают.';
+
+  @override
+  String get adminWelcomeHeading => 'Добро пожаловать в ClassMate';
+
+  @override
+  String get forgotPasswordSendRequestTo => 'Отправить запрос';
+
+  @override
+  String get forgotPasswordChooseAdminDash => '— Выберите администратора —';
+
+  @override
+  String get diplomasNoFilesAttached =>
+      'К этому сертификату не прикреплены файлы.';
+
+  @override
+  String get diplomasFilesProcessing =>
+      'Не удалось открыть файлы — возможно, они ещё обрабатываются.';
+
+  @override
+  String get novaOutOfTokens =>
+      'Вы израсходовали все токены за этот период. Обновите план или пополните, чтобы продолжить общение с NOVA.';
+
+  @override
+  String get tutorDeleteConversationWarning =>
+      'Это навсегда удалит беседу и все её сообщения с сервера. Отменить будет нельзя.';
+
+  @override
+  String get chatReportFlagWarning =>
+      'Это сообщение будет отправлено на проверку администратору.';
+
+  @override
+  String get solutionPreviewFailFallback =>
+      'Откройте из вложения в чате, если предпросмотр не работает';
+
+  @override
+  String get practiceNoInternet =>
+      'Нет подключения к интернету. Повторите попытку.';
+
+  @override
+  String get practiceGenerationFailed =>
+      'Не удалось сгенерировать вопросы. Повторите попытку.';
+
+  @override
+  String get practiceTimingSecPerQuestion => 'с / вопрос';
+
+  @override
+  String get practiceTimingMinPerQuiz => 'мин / тест';
+
+  @override
+  String adminScheduleFrequencyWeeks(Object freq) {
+    return '×$freq нед';
+  }
+
+  @override
+  String gradeLevelLabel(Object grade) {
+    return 'Класс $grade';
+  }
+
+  @override
+  String adminPeriodOption(Object period) {
+    return 'Период $period';
+  }
+
+  @override
+  String adminPasswordRequestHoursLeft(Object hours) {
+    return 'осталось $hours ч';
+  }
+
+  @override
+  String cohortStudentsCount(Object count) {
+    return '$count учеников';
+  }
+
+  @override
+  String diplomasIssuedCount(Object count) {
+    return 'Выдано сертификатов: $count';
+  }
+
+  @override
+  String get adminExportImportantHeading => 'Важно';
+
+  @override
+  String get adminExportWelcomeBodyWithPw =>
+      'Это данные вашей учётной записи ClassMate. Войдите в приложение ClassMate на iOS или Android, используя имя пользователя и пароль ниже. Пароль можно изменить в приложении.';
+
+  @override
+  String get adminExportWelcomeBodyNoPw =>
+      'Это данные вашей учётной записи ClassMate. Войдите в приложение ClassMate на iOS или Android, используя имя пользователя.';
+
+  @override
+  String get adminExportNotePrivate =>
+      'Храните эти данные в секрете. Не сообщайте пароль.';
+
+  @override
+  String get adminExportNoteChangePw =>
+      'Смените пароль после первого входа в разделе «Настройки → Аккаунт».';
+
+  @override
+  String get adminExportNoteLegal =>
+      'Используя ClassMate, вы принимаете Условия использования и Политику конфиденциальности.';
+
+  @override
+  String adminExportNoteHelp(String email) {
+    return 'Нужна помощь? Обратитесь к администратору школы или на $email.';
+  }
+
+  @override
+  String get teacherGradeTitleHint => 'напр. Работа на уроке, Тест 3';
+
+  @override
+  String get teacherClassroomNameHint => 'напр. Математика 10A';
+
+  @override
+  String get novaAbout => 'О NOVA';
 }

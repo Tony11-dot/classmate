@@ -489,7 +489,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                 // Selected grade pills
                 for (final g in _filterGrades) ...[
                   _FilterChipItem(
-                    label: 'Grade $g',
+                    label: l.gradeLevelLabel(g),
                     selected: true,
                     showRemove: true,
                     onTap: () => setState(() => _filterGrades.remove(g)),
@@ -503,7 +503,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                             .firstWhere((c) => c['id']?.toString() == cid,
                                 orElse: () => const {})['name']
                             ?.toString() ??
-                        'Cohort',
+                        l.commonCohort,
                     selected: true,
                     showRemove: true,
                     onTap: () => setState(() => _filterCohortIds.remove(cid)),
@@ -517,7 +517,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
                             .firstWhere((s) => s['id']?.toString() == sid,
                                 orElse: () => const {})['name']
                             ?.toString() ??
-                        'Student',
+                        l.roleStudent,
                     selected: true,
                     showRemove: true,
                     onTap: () => setState(() => _filterStudentIds.remove(sid)),
@@ -704,6 +704,7 @@ class _ScheduleGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -758,7 +759,7 @@ class _ScheduleGrid extends StatelessWidget {
                         width: _headerW,
                         alignment: Alignment.center,
                         child: Text(
-                          'P$period',
+                          l.adminSchedulePeriodLabel(period),
                           style: theme.textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             color: cs.onSurfaceVariant,
@@ -831,6 +832,7 @@ class _SlotCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final subject     = slot['subject']?.toString() ?? '';
     final teacherName = slot['teacher'] is Map ? (slot['teacher']['name']?.toString() ?? '') : '';
@@ -869,7 +871,7 @@ class _SlotCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            subject.isNotEmpty ? subject : 'Period',
+            subject.isNotEmpty ? subject : l.adminPeriodsPeriodLabel,
             style: TextStyle(fontWeight: FontWeight.w800, fontSize: 10, color: fg),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -891,7 +893,7 @@ class _SlotCard extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                '×$freq wks',
+                l.adminScheduleFrequencyWeeks(freq),
                 style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, color: fg),
               ),
             ),
@@ -1589,7 +1591,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  _isEditing ? 'Edit period' : l.adminScheduleAddPeriod,
+                  _isEditing ? l.adminEditPeriod : l.adminScheduleAddPeriod,
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
@@ -1629,7 +1631,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               value: _teacherId ?? '',
               searchHint: l.adminScheduleSearchTeacher,
               items: [
-                LiquidGlassDropdownItem(value: '', label: '— None —'),
+                LiquidGlassDropdownItem(value: '', label: l.commonNoneDash),
                 ...widget.teachers.map((t) => LiquidGlassDropdownItem(
                   value: t['id']?.toString() ?? '',
                   label: t['name']?.toString() ?? '',
@@ -1803,7 +1805,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               children: [
                 // Once = one-off override; replaces the regular slot just for
                 // the chosen date. Persisted as frequencyWeeks=0 + startDate.
-                _FreqChip(label: 'Once', selected: !_customFreq && _frequencyWeeks == 0,
+                _FreqChip(label: l.commonOnce, selected: !_customFreq && _frequencyWeeks == 0,
                     onTap: () => setState(() { _frequencyWeeks = 0; _customFreq = false; })),
                 _FreqChip(label: l.adminScheduleFreqWeekly, selected: !_customFreq && _frequencyWeeks == 1,
                     onTap: () => setState(() { _frequencyWeeks = 1; _customFreq = false; })),
@@ -2349,6 +2351,7 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -2393,7 +2396,7 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
           const SizedBox(height: 10),
           // Period picker (LiquidGlass style)
           LiquidGlassDropdown<int>(
-            label: 'Period',
+            label: l.adminPeriodsPeriodLabel,
             value: widget.slot.period,
             items: List.generate(9, (i) => i + 1).map((p) {
               final def = widget.defaults.firstWhere(
@@ -2401,7 +2404,7 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
               final hint = def.isNotEmpty && (def['startTime'] ?? '').toString().isNotEmpty
                   ? ' · ${def['startTime']}'
                   : '';
-              return LiquidGlassDropdownItem(value: p, label: 'Period $p$hint');
+              return LiquidGlassDropdownItem(value: p, label: '${l.adminPeriodOption(p)}$hint');
             }).toList(),
             onChanged: (v) {
               setState(() => widget.slot.period = v);
@@ -3469,6 +3472,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final slot = widget.slot;
@@ -3506,7 +3510,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
         );
     final gradeForSlot = slotAudienceGrade(slot, allCohorts);
     final cohortLabels = gradeForSlot != null
-        ? <String>['Grade $gradeForSlot']
+        ? <String>[l.gradeLevelLabel(gradeForSlot)]
         : cohortRows.map(_cohortDisplayLabel).where((s) => s.isNotEmpty).toList();
 
     // For cohort/grade periods we lazily fetch the union of cohort rosters
@@ -3552,7 +3556,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      subject.isNotEmpty ? subject : (teacherName.isNotEmpty ? teacherName : 'Period'),
+                      subject.isNotEmpty ? subject : (teacherName.isNotEmpty ? teacherName : l.adminPeriodsPeriodLabel),
                       style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     if (teacherName.isNotEmpty && subject.isNotEmpty)

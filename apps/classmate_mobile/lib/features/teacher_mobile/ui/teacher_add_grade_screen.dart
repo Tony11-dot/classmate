@@ -560,9 +560,9 @@ class _TeacherAddGradeScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const _SectionHeader(
+                      _SectionHeader(
                         icon: Icons.people_outline_rounded,
-                        title: 'Audience',
+                        title: AppLocalizations.of(context)!.teacherAudienceSectionTitle,
                       ),
                       const SizedBox(height: 12),
                       SegmentedButton<_AudienceMode>(
@@ -766,27 +766,27 @@ class _TeacherAddGradeScreenState
                                 ? Icons.assignment_outlined
                                 : Icons.edit_outlined,
                         title: _gradeType == _GradeType.exam
-                            ? 'Exam'
+                            ? AppLocalizations.of(context)!.teacherGradeExamType
                             : _gradeType == _GradeType.assignment
-                                ? 'Assignment'
-                                : 'Details',
+                                ? AppLocalizations.of(context)!.teacherGradeAssignmentType
+                                : AppLocalizations.of(context)!.teacherMaterialDetailsTitle,
                       ),
                       const SizedBox(height: 14),
                       if (_gradeType == _GradeType.exam) ...[
                         LiquidGlassDropdown<String>(
                           label: _selectedExamId == null
-                              ? 'Choose exam'
+                              ? AppLocalizations.of(context)!.teacherChooseExam
                               : _filteredExams
                                       .where((e) =>
                                           (e['id'] ?? '') == _selectedExamId)
                                       .firstOrNull?['title']
                                       ?.toString() ??
-                                  'Choose exam',
+                                  AppLocalizations.of(context)!.teacherChooseExam,
                           value: _selectedExamId ?? '',
                           items: [
-                            const LiquidGlassDropdownItem(
+                            LiquidGlassDropdownItem(
                               value: '',
-                              label: 'Choose exam',
+                              label: AppLocalizations.of(context)!.teacherChooseExam,
                               icon: Icons.quiz_outlined,
                             ),
                             ..._filteredExams.map(
@@ -799,7 +799,7 @@ class _TeacherAddGradeScreenState
                           ],
                           onChanged: (v) => setState(
                               () => _selectedExamId = v.isEmpty ? null : v),
-                          searchHint: 'Search exams…',
+                          searchHint: AppLocalizations.of(context)!.teacherSearchExams,
                         ),
                         const SizedBox(height: 10),
                         TextButton.icon(
@@ -829,26 +829,26 @@ class _TeacherAddGradeScreenState
                             padding: const EdgeInsets.only(top: 10),
                             child: _InheritedRow(
                               icon: Icons.menu_book_rounded,
-                              label: 'Subject',
+                              label: AppLocalizations.of(context)!.assignmentsSubjectLabel,
                               value: inherited.subject!,
                             ),
                           ),
                       ] else if (_gradeType == _GradeType.assignment) ...[
                         LiquidGlassDropdown<String>(
                           label: _selectedAssignmentId == null
-                              ? 'Choose assignment'
+                              ? AppLocalizations.of(context)!.teacherChooseAssignment
                               : _filteredAssignments
                                       .where((a) =>
                                           (a['id'] ?? '') ==
                                           _selectedAssignmentId)
                                       .firstOrNull?['title']
                                       ?.toString() ??
-                                  'Choose assignment',
+                                  AppLocalizations.of(context)!.teacherChooseAssignment,
                           value: _selectedAssignmentId ?? '',
                           items: [
-                            const LiquidGlassDropdownItem(
+                            LiquidGlassDropdownItem(
                               value: '',
-                              label: 'Choose assignment',
+                              label: AppLocalizations.of(context)!.teacherChooseAssignment,
                               icon: Icons.assignment_outlined,
                             ),
                             ..._filteredAssignments.map(
@@ -861,7 +861,7 @@ class _TeacherAddGradeScreenState
                           ],
                           onChanged: (v) => setState(() =>
                               _selectedAssignmentId = v.isEmpty ? null : v),
-                          searchHint: 'Search assignments…',
+                          searchHint: AppLocalizations.of(context)!.teacherSearchAssignments,
                         ),
                         const SizedBox(height: 10),
                         TextButton.icon(
@@ -891,7 +891,7 @@ class _TeacherAddGradeScreenState
                             padding: const EdgeInsets.only(top: 10),
                             child: _InheritedRow(
                               icon: Icons.menu_book_rounded,
-                              label: 'Subject',
+                              label: AppLocalizations.of(context)!.assignmentsSubjectLabel,
                               value: inherited.subject!,
                             ),
                           ),
@@ -900,20 +900,20 @@ class _TeacherAddGradeScreenState
                           controller: _otherTitleCtrl,
                           textCapitalization: TextCapitalization.sentences,
                           onChanged: (_) => setState(() {}),
-                          decoration: const InputDecoration(
-                            labelText: 'Title',
-                            hintText: 'e.g. Class participation, Quiz 3',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.commonTitle,
+                            hintText: AppLocalizations.of(context)!.teacherGradeTitleHint,
+                            border: const OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: 12),
                         LiquidGlassDropdown<String>(
-                          label: _otherSubject ?? 'Select subject',
+                          label: _otherSubject ?? AppLocalizations.of(context)!.teacherSelectSubject,
                           value: _otherSubject ?? '',
                           items: [
-                            const LiquidGlassDropdownItem(
+                            LiquidGlassDropdownItem(
                               value: '',
-                              label: 'Select subject',
+                              label: AppLocalizations.of(context)!.teacherSelectSubject,
                               icon: Icons.auto_stories_outlined,
                             ),
                             ..._schoolSubjects.map(
@@ -926,7 +926,7 @@ class _TeacherAddGradeScreenState
                           ],
                           onChanged: (v) => setState(
                               () => _otherSubject = v.isEmpty ? null : v),
-                          searchHint: 'Search subjects…',
+                          searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch,
                         ),
                         const SizedBox(height: 12),
                         TextField(
@@ -1327,7 +1327,7 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
             child: TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search cohorts…',
+                hintText: AppLocalizations.of(context)!.adminSearchCohorts,
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -1514,7 +1514,7 @@ class _StudentGradeRow extends StatelessWidget {
           maxLines: 2,
           style: theme.textTheme.bodySmall,
           decoration: InputDecoration(
-            hintText: 'Notes (optional)',
+            hintText: AppLocalizations.of(context)!.commonNotesOptional,
             hintStyle: TextStyle(color: cs.onSurfaceVariant),
             isDense: true,
             contentPadding:

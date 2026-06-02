@@ -654,6 +654,7 @@ class _CohortCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -690,7 +691,7 @@ class _CohortCard extends StatelessWidget {
                 children: [
                   Text(cohort.name, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text('${cohort.studentCount} students', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(l.cohortStudentsCount(cohort.studentCount), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),
             ),

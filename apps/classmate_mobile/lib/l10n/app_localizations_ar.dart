@@ -8149,4 +8149,224 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get semesterEnds => 'ينتهي';
+
+  @override
+  String get commonWhen => 'الوقت';
+
+  @override
+  String get commonFiles => 'ملفات';
+
+  @override
+  String get commonOnce => 'مرة واحدة';
+
+  @override
+  String get commonNoneDash => '— لا شيء —';
+
+  @override
+  String get commonNotesOptional => 'ملاحظات (اختياري)';
+
+  @override
+  String get commonSubjectOptional => 'المادة (اختياري)';
+
+  @override
+  String get colorBlue => 'أزرق';
+
+  @override
+  String get colorIndigo => 'نيلي';
+
+  @override
+  String get colorViolet => 'بنفسجي';
+
+  @override
+  String get colorTeal => 'أزرق مخضر';
+
+  @override
+  String get colorGreen => 'أخضر';
+
+  @override
+  String get colorOrange => 'برتقالي';
+
+  @override
+  String get colorRose => 'وردي';
+
+  @override
+  String get teacherAddClassNotes => 'إضافة ملاحظات الحصة';
+
+  @override
+  String get teacherStudentsWithGrades => 'الطلاب الحاصلون على علامات';
+
+  @override
+  String get teacherOtherStudentsSameGrade => 'طلاب آخرون في نفس الصف/المجموعة';
+
+  @override
+  String get teacherChooseExam => 'اختر امتحاناً';
+
+  @override
+  String get teacherChooseAssignment => 'اختر واجباً';
+
+  @override
+  String get teacherSearchExams => 'ابحث عن امتحانات…';
+
+  @override
+  String get teacherSearchAssignments => 'ابحث عن واجبات…';
+
+  @override
+  String get teacherSearchQuestionTypes => 'ابحث عن أنواع الأسئلة…';
+
+  @override
+  String get teacherOtherCustomSubject => 'أخرى (إدخال مخصص)';
+
+  @override
+  String get adminLinkChild => 'ربط طفل';
+
+  @override
+  String get adminChooseStudentDash => '— اختر طالباً —';
+
+  @override
+  String get adminSelectStudentToLink => 'اختر طالباً للربط';
+
+  @override
+  String get adminEditPeriod => 'تعديل الحصة';
+
+  @override
+  String get adminNotInAnyCohort =>
+      'ليس ضمن أي مجموعة بعد — يمكن التعيين من شاشة المجموعات.';
+
+  @override
+  String get adminPasswordChangeWarning =>
+      'سيسجّل المستخدم الدخول بكلمة المرور هذه في المرة القادمة. وستُلغى أي روابط إعادة تعيين معلّقة.';
+
+  @override
+  String get nameInEnglish => 'الاسم بالإنجليزية';
+
+  @override
+  String get nameInArabic => 'الاسم بالعربية';
+
+  @override
+  String get nameInHebrew => 'الاسم بالعبرية';
+
+  @override
+  String get nameInFrench => 'الاسم بالفرنسية';
+
+  @override
+  String get nameInRussian => 'الاسم بالروسية';
+
+  @override
+  String get passwordMinChars => '8 أحرف على الأقل.';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get adminWelcomeHeading => 'مرحباً بك في ClassMate';
+
+  @override
+  String get forgotPasswordSendRequestTo => 'إرسال الطلب إلى';
+
+  @override
+  String get forgotPasswordChooseAdminDash => '— اختر مسؤولاً —';
+
+  @override
+  String get diplomasNoFilesAttached => 'لا توجد ملفات مرفقة بهذه الشهادة.';
+
+  @override
+  String get diplomasFilesProcessing =>
+      'تعذّر فتح الملفات — قد تكون لا تزال قيد المعالجة.';
+
+  @override
+  String get novaOutOfTokens =>
+      'لقد استهلكت كل رصيدك لهذه الفترة. قم بالترقية أو الشحن لمواصلة الدردشة مع NOVA.';
+
+  @override
+  String get tutorDeleteConversationWarning =>
+      'سيؤدي هذا إلى حذف المحادثة وجميع رسائلها نهائياً من الخادم. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get chatReportFlagWarning =>
+      'سيتم الإبلاغ عن هذه الرسالة لمراجعتها من قبل مسؤول.';
+
+  @override
+  String get solutionPreviewFailFallback =>
+      'افتحه من مرفق الدردشة إذا تعذّرت المعاينة';
+
+  @override
+  String get practiceNoInternet =>
+      'لا يوجد اتصال بالإنترنت. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get practiceGenerationFailed =>
+      'تعذّر إنشاء الأسئلة. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get practiceTimingSecPerQuestion => 'ث / سؤال';
+
+  @override
+  String get practiceTimingMinPerQuiz => 'د / اختبار';
+
+  @override
+  String adminScheduleFrequencyWeeks(Object freq) {
+    return '×$freq أسبوع';
+  }
+
+  @override
+  String gradeLevelLabel(Object grade) {
+    return 'الصف $grade';
+  }
+
+  @override
+  String adminPeriodOption(Object period) {
+    return 'الحصة $period';
+  }
+
+  @override
+  String adminPasswordRequestHoursLeft(Object hours) {
+    return 'باقٍ $hours س';
+  }
+
+  @override
+  String cohortStudentsCount(Object count) {
+    return '$count طالب';
+  }
+
+  @override
+  String diplomasIssuedCount(Object count) {
+    return '$count شهادة صادرة';
+  }
+
+  @override
+  String get adminExportImportantHeading => 'هام';
+
+  @override
+  String get adminExportWelcomeBodyWithPw =>
+      'هذه تفاصيل حسابك في ClassMate. سجّل الدخول إلى تطبيق ClassMate على iOS أو Android باستخدام اسم المستخدم وكلمة المرور أدناه. يمكنك تغيير كلمة المرور داخل التطبيق.';
+
+  @override
+  String get adminExportWelcomeBodyNoPw =>
+      'هذه تفاصيل حسابك في ClassMate. سجّل الدخول إلى تطبيق ClassMate على iOS أو Android باستخدام اسم المستخدم.';
+
+  @override
+  String get adminExportNotePrivate =>
+      'احتفظ بهذه البيانات سرية. لا تشارك كلمة المرور.';
+
+  @override
+  String get adminExportNoteChangePw =>
+      'غيّر كلمة المرور بعد أول تسجيل دخول من الإعدادات ← الحساب.';
+
+  @override
+  String get adminExportNoteLegal =>
+      'باستخدامك ClassMate فإنك توافق على شروط الخدمة وسياسة الخصوصية.';
+
+  @override
+  String adminExportNoteHelp(String email) {
+    return 'بحاجة إلى مساعدة؟ تواصل مع مسؤول مدرستك أو عبر $email.';
+  }
+
+  @override
+  String get teacherGradeTitleHint => 'مثال: المشاركة الصفية، اختبار 3';
+
+  @override
+  String get teacherClassroomNameHint => 'مثال: رياضيات 10أ';
+
+  @override
+  String get novaAbout => 'حول NOVA';
 }

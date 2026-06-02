@@ -8245,4 +8245,226 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get semesterEnds => '‹‹Ends››';
+
+  @override
+  String get commonWhen => '‹‹When››';
+
+  @override
+  String get commonFiles => '‹‹Files››';
+
+  @override
+  String get commonOnce => '‹‹Once››';
+
+  @override
+  String get commonNoneDash => '‹‹— None —››';
+
+  @override
+  String get commonNotesOptional => '‹‹Notes (optional)››';
+
+  @override
+  String get commonSubjectOptional => '‹‹Subject (optional)››';
+
+  @override
+  String get colorBlue => '‹‹Blue››';
+
+  @override
+  String get colorIndigo => '‹‹Indigo››';
+
+  @override
+  String get colorViolet => '‹‹Violet››';
+
+  @override
+  String get colorTeal => '‹‹Teal››';
+
+  @override
+  String get colorGreen => '‹‹Green››';
+
+  @override
+  String get colorOrange => '‹‹Orange››';
+
+  @override
+  String get colorRose => '‹‹Rose››';
+
+  @override
+  String get teacherAddClassNotes => '‹‹Add Class Notes››';
+
+  @override
+  String get teacherStudentsWithGrades => '‹‹Students with grades››';
+
+  @override
+  String get teacherOtherStudentsSameGrade =>
+      '‹‹Other students in the same grade/cohort››';
+
+  @override
+  String get teacherChooseExam => '‹‹Choose exam››';
+
+  @override
+  String get teacherChooseAssignment => '‹‹Choose assignment››';
+
+  @override
+  String get teacherSearchExams => '‹‹Search exams…››';
+
+  @override
+  String get teacherSearchAssignments => '‹‹Search assignments…››';
+
+  @override
+  String get teacherSearchQuestionTypes => '‹‹Search question types…››';
+
+  @override
+  String get teacherOtherCustomSubject => '‹‹Other (type custom)››';
+
+  @override
+  String get adminLinkChild => '‹‹Link Child››';
+
+  @override
+  String get adminChooseStudentDash => '‹‹— Choose student —››';
+
+  @override
+  String get adminSelectStudentToLink => '‹‹Select student to link››';
+
+  @override
+  String get adminEditPeriod => '‹‹Edit period››';
+
+  @override
+  String get adminNotInAnyCohort =>
+      '‹‹Not in any cohort yet — assign from the Cohorts screen.››';
+
+  @override
+  String get adminPasswordChangeWarning =>
+      '‹‹The user will be signed in with this password next time they log in. Any pending password-reset links are invalidated.››';
+
+  @override
+  String get nameInEnglish => '‹‹Name in English››';
+
+  @override
+  String get nameInArabic => '‹‹Name in Arabic››';
+
+  @override
+  String get nameInHebrew => '‹‹Name in Hebrew››';
+
+  @override
+  String get nameInFrench => '‹‹Name in French››';
+
+  @override
+  String get nameInRussian => '‹‹Name in Russian››';
+
+  @override
+  String get passwordMinChars => '‹‹At least 8 characters.››';
+
+  @override
+  String get passwordsDoNotMatch => '‹‹Passwords don\'t match.››';
+
+  @override
+  String get adminWelcomeHeading => '‹‹Welcome to ClassMate››';
+
+  @override
+  String get forgotPasswordSendRequestTo => '‹‹Send request to››';
+
+  @override
+  String get forgotPasswordChooseAdminDash => '‹‹— Choose admin —››';
+
+  @override
+  String get diplomasNoFilesAttached =>
+      '‹‹No files attached to this certificate.››';
+
+  @override
+  String get diplomasFilesProcessing =>
+      '‹‹Files could not be opened — they may still be processing.››';
+
+  @override
+  String get novaOutOfTokens =>
+      '‹‹You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.››';
+
+  @override
+  String get tutorDeleteConversationWarning =>
+      '‹‹This will permanently delete the conversation and all its messages from the server. This cannot be undone.››';
+
+  @override
+  String get chatReportFlagWarning =>
+      '‹‹This message will be flagged for review by an admin.››';
+
+  @override
+  String get solutionPreviewFailFallback =>
+      '‹‹Open from the chat attachment if preview fails››';
+
+  @override
+  String get practiceNoInternet =>
+      '‹‹No internet connection. Please try again.››';
+
+  @override
+  String get practiceGenerationFailed =>
+      '‹‹Could not generate questions. Please try again.››';
+
+  @override
+  String get practiceTimingSecPerQuestion => '‹‹s / question››';
+
+  @override
+  String get practiceTimingMinPerQuiz => '‹‹min / quiz››';
+
+  @override
+  String adminScheduleFrequencyWeeks(Object freq) {
+    return '‹‹×$freq wks››';
+  }
+
+  @override
+  String gradeLevelLabel(Object grade) {
+    return '‹‹Grade $grade››';
+  }
+
+  @override
+  String adminPeriodOption(Object period) {
+    return '‹‹Period $period››';
+  }
+
+  @override
+  String adminPasswordRequestHoursLeft(Object hours) {
+    return '‹‹${hours}h left››';
+  }
+
+  @override
+  String cohortStudentsCount(Object count) {
+    return '‹‹$count students››';
+  }
+
+  @override
+  String diplomasIssuedCount(Object count) {
+    return '‹‹$count certificates issued››';
+  }
+
+  @override
+  String get adminExportImportantHeading => '‹‹Important››';
+
+  @override
+  String get adminExportWelcomeBodyWithPw =>
+      '‹‹These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using the username and password below. You can change your password in the app.››';
+
+  @override
+  String get adminExportWelcomeBodyNoPw =>
+      '‹‹These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using your username.››';
+
+  @override
+  String get adminExportNotePrivate =>
+      '‹‹Keep these credentials private. Do not share your password.››';
+
+  @override
+  String get adminExportNoteChangePw =>
+      '‹‹Change your password after your first sign-in from Settings → Account.››';
+
+  @override
+  String get adminExportNoteLegal =>
+      '‹‹By using ClassMate you accept our Terms of Service and Privacy Policy.››';
+
+  @override
+  String adminExportNoteHelp(String email) {
+    return '‹‹Need help? Contact your school administrator or $email.››';
+  }
+
+  @override
+  String get teacherGradeTitleHint => '‹‹e.g. Class participation, Quiz 3››';
+
+  @override
+  String get teacherClassroomNameHint => '‹‹e.g. Mathematics 10A››';
+
+  @override
+  String get novaAbout => '‹‹About NOVA››';
 }

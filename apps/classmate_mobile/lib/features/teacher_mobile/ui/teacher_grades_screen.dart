@@ -256,7 +256,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                     const SizedBox(width: 8),
                     _GradeStatPill(
                       value: '${_allSubjects.length}',
-                      label: 'Subjects',
+                      label: l.adminSubjectsTitle,
                       accentColor: cs.secondary,
                     ),
                     const SizedBox(width: 8),
@@ -329,7 +329,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
           else ...[
             if (sections.graded.isNotEmpty) ...[
               _SectionHeading(
-                title: 'Students with grades',
+                title: l.teacherStudentsWithGrades,
                 count: sections.graded.length,
               ),
               ...sections.graded.map((row) => _StudentGradeCard(
@@ -362,7 +362,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
             if (sections.peers.isNotEmpty) ...[
               const SizedBox(height: 6),
               _SectionHeading(
-                title: 'Other students in the same grade/cohort',
+                title: l.teacherOtherStudentsSameGrade,
                 count: sections.peers.length,
               ),
               ...sections.peers.map((row) => _StudentGradeCard(

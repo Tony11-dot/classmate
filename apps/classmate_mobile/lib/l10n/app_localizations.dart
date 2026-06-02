@@ -14402,6 +14402,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ends'**
   String get semesterEnds;
+
+  /// commonWhen
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get commonWhen;
+
+  /// commonFiles
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get commonFiles;
+
+  /// commonOnce
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get commonOnce;
+
+  /// commonNoneDash
+  ///
+  /// In en, this message translates to:
+  /// **'— None —'**
+  String get commonNoneDash;
+
+  /// commonNotesOptional
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get commonNotesOptional;
+
+  /// commonSubjectOptional
+  ///
+  /// In en, this message translates to:
+  /// **'Subject (optional)'**
+  String get commonSubjectOptional;
+
+  /// colorBlue
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get colorBlue;
+
+  /// colorIndigo
+  ///
+  /// In en, this message translates to:
+  /// **'Indigo'**
+  String get colorIndigo;
+
+  /// colorViolet
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get colorViolet;
+
+  /// colorTeal
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get colorTeal;
+
+  /// colorGreen
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get colorGreen;
+
+  /// colorOrange
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get colorOrange;
+
+  /// colorRose
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get colorRose;
+
+  /// teacherAddClassNotes
+  ///
+  /// In en, this message translates to:
+  /// **'Add Class Notes'**
+  String get teacherAddClassNotes;
+
+  /// teacherStudentsWithGrades
+  ///
+  /// In en, this message translates to:
+  /// **'Students with grades'**
+  String get teacherStudentsWithGrades;
+
+  /// teacherOtherStudentsSameGrade
+  ///
+  /// In en, this message translates to:
+  /// **'Other students in the same grade/cohort'**
+  String get teacherOtherStudentsSameGrade;
+
+  /// teacherChooseExam
+  ///
+  /// In en, this message translates to:
+  /// **'Choose exam'**
+  String get teacherChooseExam;
+
+  /// teacherChooseAssignment
+  ///
+  /// In en, this message translates to:
+  /// **'Choose assignment'**
+  String get teacherChooseAssignment;
+
+  /// teacherSearchExams
+  ///
+  /// In en, this message translates to:
+  /// **'Search exams…'**
+  String get teacherSearchExams;
+
+  /// teacherSearchAssignments
+  ///
+  /// In en, this message translates to:
+  /// **'Search assignments…'**
+  String get teacherSearchAssignments;
+
+  /// teacherSearchQuestionTypes
+  ///
+  /// In en, this message translates to:
+  /// **'Search question types…'**
+  String get teacherSearchQuestionTypes;
+
+  /// teacherOtherCustomSubject
+  ///
+  /// In en, this message translates to:
+  /// **'Other (type custom)'**
+  String get teacherOtherCustomSubject;
+
+  /// adminLinkChild
+  ///
+  /// In en, this message translates to:
+  /// **'Link Child'**
+  String get adminLinkChild;
+
+  /// adminChooseStudentDash
+  ///
+  /// In en, this message translates to:
+  /// **'— Choose student —'**
+  String get adminChooseStudentDash;
+
+  /// adminSelectStudentToLink
+  ///
+  /// In en, this message translates to:
+  /// **'Select student to link'**
+  String get adminSelectStudentToLink;
+
+  /// adminEditPeriod
+  ///
+  /// In en, this message translates to:
+  /// **'Edit period'**
+  String get adminEditPeriod;
+
+  /// adminNotInAnyCohort
+  ///
+  /// In en, this message translates to:
+  /// **'Not in any cohort yet — assign from the Cohorts screen.'**
+  String get adminNotInAnyCohort;
+
+  /// adminPasswordChangeWarning
+  ///
+  /// In en, this message translates to:
+  /// **'The user will be signed in with this password next time they log in. Any pending password-reset links are invalidated.'**
+  String get adminPasswordChangeWarning;
+
+  /// nameInEnglish
+  ///
+  /// In en, this message translates to:
+  /// **'Name in English'**
+  String get nameInEnglish;
+
+  /// nameInArabic
+  ///
+  /// In en, this message translates to:
+  /// **'Name in Arabic'**
+  String get nameInArabic;
+
+  /// nameInHebrew
+  ///
+  /// In en, this message translates to:
+  /// **'Name in Hebrew'**
+  String get nameInHebrew;
+
+  /// nameInFrench
+  ///
+  /// In en, this message translates to:
+  /// **'Name in French'**
+  String get nameInFrench;
+
+  /// nameInRussian
+  ///
+  /// In en, this message translates to:
+  /// **'Name in Russian'**
+  String get nameInRussian;
+
+  /// passwordMinChars
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters.'**
+  String get passwordMinChars;
+
+  /// passwordsDoNotMatch
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords don\'t match.'**
+  String get passwordsDoNotMatch;
+
+  /// adminWelcomeHeading
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to ClassMate'**
+  String get adminWelcomeHeading;
+
+  /// forgotPasswordSendRequestTo
+  ///
+  /// In en, this message translates to:
+  /// **'Send request to'**
+  String get forgotPasswordSendRequestTo;
+
+  /// forgotPasswordChooseAdminDash
+  ///
+  /// In en, this message translates to:
+  /// **'— Choose admin —'**
+  String get forgotPasswordChooseAdminDash;
+
+  /// diplomasNoFilesAttached
+  ///
+  /// In en, this message translates to:
+  /// **'No files attached to this certificate.'**
+  String get diplomasNoFilesAttached;
+
+  /// diplomasFilesProcessing
+  ///
+  /// In en, this message translates to:
+  /// **'Files could not be opened — they may still be processing.'**
+  String get diplomasFilesProcessing;
+
+  /// novaOutOfTokens
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.'**
+  String get novaOutOfTokens;
+
+  /// tutorDeleteConversationWarning
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete the conversation and all its messages from the server. This cannot be undone.'**
+  String get tutorDeleteConversationWarning;
+
+  /// chatReportFlagWarning
+  ///
+  /// In en, this message translates to:
+  /// **'This message will be flagged for review by an admin.'**
+  String get chatReportFlagWarning;
+
+  /// solutionPreviewFailFallback
+  ///
+  /// In en, this message translates to:
+  /// **'Open from the chat attachment if preview fails'**
+  String get solutionPreviewFailFallback;
+
+  /// practiceNoInternet
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please try again.'**
+  String get practiceNoInternet;
+
+  /// practiceGenerationFailed
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate questions. Please try again.'**
+  String get practiceGenerationFailed;
+
+  /// practiceTimingSecPerQuestion
+  ///
+  /// In en, this message translates to:
+  /// **'s / question'**
+  String get practiceTimingSecPerQuestion;
+
+  /// practiceTimingMinPerQuiz
+  ///
+  /// In en, this message translates to:
+  /// **'min / quiz'**
+  String get practiceTimingMinPerQuiz;
+
+  /// adminScheduleFrequencyWeeks
+  ///
+  /// In en, this message translates to:
+  /// **'×{freq} wks'**
+  String adminScheduleFrequencyWeeks(Object freq);
+
+  /// gradeLevelLabel
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String gradeLevelLabel(Object grade);
+
+  /// adminPeriodOption
+  ///
+  /// In en, this message translates to:
+  /// **'Period {period}'**
+  String adminPeriodOption(Object period);
+
+  /// adminPasswordRequestHoursLeft
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h left'**
+  String adminPasswordRequestHoursLeft(Object hours);
+
+  /// cohortStudentsCount
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students'**
+  String cohortStudentsCount(Object count);
+
+  /// diplomasIssuedCount
+  ///
+  /// In en, this message translates to:
+  /// **'{count} certificates issued'**
+  String diplomasIssuedCount(Object count);
+
+  /// adminExportImportantHeading
+  ///
+  /// In en, this message translates to:
+  /// **'Important'**
+  String get adminExportImportantHeading;
+
+  /// adminExportWelcomeBodyWithPw
+  ///
+  /// In en, this message translates to:
+  /// **'These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using the username and password below. You can change your password in the app.'**
+  String get adminExportWelcomeBodyWithPw;
+
+  /// adminExportWelcomeBodyNoPw
+  ///
+  /// In en, this message translates to:
+  /// **'These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using your username.'**
+  String get adminExportWelcomeBodyNoPw;
+
+  /// adminExportNotePrivate
+  ///
+  /// In en, this message translates to:
+  /// **'Keep these credentials private. Do not share your password.'**
+  String get adminExportNotePrivate;
+
+  /// adminExportNoteChangePw
+  ///
+  /// In en, this message translates to:
+  /// **'Change your password after your first sign-in from Settings → Account.'**
+  String get adminExportNoteChangePw;
+
+  /// adminExportNoteLegal
+  ///
+  /// In en, this message translates to:
+  /// **'By using ClassMate you accept our Terms of Service and Privacy Policy.'**
+  String get adminExportNoteLegal;
+
+  /// adminExportNoteHelp
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Contact your school administrator or {email}.'**
+  String adminExportNoteHelp(String email);
+
+  /// teacherGradeTitleHint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Class participation, Quiz 3'**
+  String get teacherGradeTitleHint;
+
+  /// teacherClassroomNameHint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Mathematics 10A'**
+  String get teacherClassroomNameHint;
+
+  /// novaAbout
+  ///
+  /// In en, this message translates to:
+  /// **'About NOVA'**
+  String get novaAbout;
 }
 
 class _AppLocalizationsDelegate

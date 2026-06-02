@@ -125,7 +125,7 @@ class ChatComposer extends StatelessWidget {
         ),
       (
         icon: Icons.attach_file_rounded,
-        label: 'Files',
+        label: l.commonFiles,
         onTap: onAttach,
       ),
     ];

@@ -319,11 +319,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ),
                 LiquidGlassDropdown<String>(
-                  label: 'Send request to',
+                  label: AppLocalizations.of(context)!.forgotPasswordSendRequestTo,
                   value: _pickedAdmin?.id ?? '',
                   searchHint: 'Search admins…',
                   items: [
-                    const LiquidGlassDropdownItem(value: '', label: '— Choose admin —'),
+                    LiquidGlassDropdownItem(value: '', label: AppLocalizations.of(context)!.forgotPasswordChooseAdminDash),
                     ..._admins.map((a) => LiquidGlassDropdownItem(
                       value: a.id,
                       label: a.email != null && a.email!.isNotEmpty

@@ -3872,5 +3872,296 @@
   },
   "adminSchoolAddSemester": "Add semester",
   "semesterStarts": "Starts",
-  "semesterEnds": "Ends"
+  "semesterEnds": "Ends",
+  "commonWhen": "When",
+  "@commonWhen": {
+    "description": "commonWhen"
+  },
+  "commonFiles": "Files",
+  "@commonFiles": {
+    "description": "commonFiles"
+  },
+  "commonOnce": "Once",
+  "@commonOnce": {
+    "description": "commonOnce"
+  },
+  "commonNoneDash": "— None —",
+  "@commonNoneDash": {
+    "description": "commonNoneDash"
+  },
+  "commonNotesOptional": "Notes (optional)",
+  "@commonNotesOptional": {
+    "description": "commonNotesOptional"
+  },
+  "commonSubjectOptional": "Subject (optional)",
+  "@commonSubjectOptional": {
+    "description": "commonSubjectOptional"
+  },
+  "colorBlue": "Blue",
+  "@colorBlue": {
+    "description": "colorBlue"
+  },
+  "colorIndigo": "Indigo",
+  "@colorIndigo": {
+    "description": "colorIndigo"
+  },
+  "colorViolet": "Violet",
+  "@colorViolet": {
+    "description": "colorViolet"
+  },
+  "colorTeal": "Teal",
+  "@colorTeal": {
+    "description": "colorTeal"
+  },
+  "colorGreen": "Green",
+  "@colorGreen": {
+    "description": "colorGreen"
+  },
+  "colorOrange": "Orange",
+  "@colorOrange": {
+    "description": "colorOrange"
+  },
+  "colorRose": "Rose",
+  "@colorRose": {
+    "description": "colorRose"
+  },
+  "teacherAddClassNotes": "Add Class Notes",
+  "@teacherAddClassNotes": {
+    "description": "teacherAddClassNotes"
+  },
+  "teacherStudentsWithGrades": "Students with grades",
+  "@teacherStudentsWithGrades": {
+    "description": "teacherStudentsWithGrades"
+  },
+  "teacherOtherStudentsSameGrade": "Other students in the same grade/cohort",
+  "@teacherOtherStudentsSameGrade": {
+    "description": "teacherOtherStudentsSameGrade"
+  },
+  "teacherChooseExam": "Choose exam",
+  "@teacherChooseExam": {
+    "description": "teacherChooseExam"
+  },
+  "teacherChooseAssignment": "Choose assignment",
+  "@teacherChooseAssignment": {
+    "description": "teacherChooseAssignment"
+  },
+  "teacherSearchExams": "Search exams…",
+  "@teacherSearchExams": {
+    "description": "teacherSearchExams"
+  },
+  "teacherSearchAssignments": "Search assignments…",
+  "@teacherSearchAssignments": {
+    "description": "teacherSearchAssignments"
+  },
+  "teacherSearchQuestionTypes": "Search question types…",
+  "@teacherSearchQuestionTypes": {
+    "description": "teacherSearchQuestionTypes"
+  },
+  "teacherOtherCustomSubject": "Other (type custom)",
+  "@teacherOtherCustomSubject": {
+    "description": "teacherOtherCustomSubject"
+  },
+  "adminLinkChild": "Link Child",
+  "@adminLinkChild": {
+    "description": "adminLinkChild"
+  },
+  "adminChooseStudentDash": "— Choose student —",
+  "@adminChooseStudentDash": {
+    "description": "adminChooseStudentDash"
+  },
+  "adminSelectStudentToLink": "Select student to link",
+  "@adminSelectStudentToLink": {
+    "description": "adminSelectStudentToLink"
+  },
+  "adminEditPeriod": "Edit period",
+  "@adminEditPeriod": {
+    "description": "adminEditPeriod"
+  },
+  "adminNotInAnyCohort": "Not in any cohort yet — assign from the Cohorts screen.",
+  "@adminNotInAnyCohort": {
+    "description": "adminNotInAnyCohort"
+  },
+  "adminPasswordChangeWarning": "The user will be signed in with this password next time they log in. Any pending password-reset links are invalidated.",
+  "@adminPasswordChangeWarning": {
+    "description": "adminPasswordChangeWarning"
+  },
+  "nameInEnglish": "Name in English",
+  "@nameInEnglish": {
+    "description": "nameInEnglish"
+  },
+  "nameInArabic": "Name in Arabic",
+  "@nameInArabic": {
+    "description": "nameInArabic"
+  },
+  "nameInHebrew": "Name in Hebrew",
+  "@nameInHebrew": {
+    "description": "nameInHebrew"
+  },
+  "nameInFrench": "Name in French",
+  "@nameInFrench": {
+    "description": "nameInFrench"
+  },
+  "nameInRussian": "Name in Russian",
+  "@nameInRussian": {
+    "description": "nameInRussian"
+  },
+  "passwordMinChars": "At least 8 characters.",
+  "@passwordMinChars": {
+    "description": "passwordMinChars"
+  },
+  "passwordsDoNotMatch": "Passwords don't match.",
+  "@passwordsDoNotMatch": {
+    "description": "passwordsDoNotMatch"
+  },
+  "adminWelcomeHeading": "Welcome to ClassMate",
+  "@adminWelcomeHeading": {
+    "description": "adminWelcomeHeading"
+  },
+  "forgotPasswordSendRequestTo": "Send request to",
+  "@forgotPasswordSendRequestTo": {
+    "description": "forgotPasswordSendRequestTo"
+  },
+  "forgotPasswordChooseAdminDash": "— Choose admin —",
+  "@forgotPasswordChooseAdminDash": {
+    "description": "forgotPasswordChooseAdminDash"
+  },
+  "diplomasNoFilesAttached": "No files attached to this certificate.",
+  "@diplomasNoFilesAttached": {
+    "description": "diplomasNoFilesAttached"
+  },
+  "diplomasFilesProcessing": "Files could not be opened — they may still be processing.",
+  "@diplomasFilesProcessing": {
+    "description": "diplomasFilesProcessing"
+  },
+  "novaOutOfTokens": "You've used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.",
+  "@novaOutOfTokens": {
+    "description": "novaOutOfTokens"
+  },
+  "tutorDeleteConversationWarning": "This will permanently delete the conversation and all its messages from the server. This cannot be undone.",
+  "@tutorDeleteConversationWarning": {
+    "description": "tutorDeleteConversationWarning"
+  },
+  "chatReportFlagWarning": "This message will be flagged for review by an admin.",
+  "@chatReportFlagWarning": {
+    "description": "chatReportFlagWarning"
+  },
+  "solutionPreviewFailFallback": "Open from the chat attachment if preview fails",
+  "@solutionPreviewFailFallback": {
+    "description": "solutionPreviewFailFallback"
+  },
+  "practiceNoInternet": "No internet connection. Please try again.",
+  "@practiceNoInternet": {
+    "description": "practiceNoInternet"
+  },
+  "practiceGenerationFailed": "Could not generate questions. Please try again.",
+  "@practiceGenerationFailed": {
+    "description": "practiceGenerationFailed"
+  },
+  "practiceTimingSecPerQuestion": "s / question",
+  "@practiceTimingSecPerQuestion": {
+    "description": "practiceTimingSecPerQuestion"
+  },
+  "practiceTimingMinPerQuiz": "min / quiz",
+  "@practiceTimingMinPerQuiz": {
+    "description": "practiceTimingMinPerQuiz"
+  },
+  "adminScheduleFrequencyWeeks": "×{freq} wks",
+  "@adminScheduleFrequencyWeeks": {
+    "description": "adminScheduleFrequencyWeeks",
+    "placeholders": {
+      "freq": {
+        "type": "Object"
+      }
+    }
+  },
+  "gradeLevelLabel": "Grade {grade}",
+  "@gradeLevelLabel": {
+    "description": "gradeLevelLabel",
+    "placeholders": {
+      "grade": {
+        "type": "Object"
+      }
+    }
+  },
+  "adminPeriodOption": "Period {period}",
+  "@adminPeriodOption": {
+    "description": "adminPeriodOption",
+    "placeholders": {
+      "period": {
+        "type": "Object"
+      }
+    }
+  },
+  "adminPasswordRequestHoursLeft": "{hours}h left",
+  "@adminPasswordRequestHoursLeft": {
+    "description": "adminPasswordRequestHoursLeft",
+    "placeholders": {
+      "hours": {
+        "type": "Object"
+      }
+    }
+  },
+  "cohortStudentsCount": "{count} students",
+  "@cohortStudentsCount": {
+    "description": "cohortStudentsCount",
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "diplomasIssuedCount": "{count} certificates issued",
+  "@diplomasIssuedCount": {
+    "description": "diplomasIssuedCount",
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "adminExportImportantHeading": "Important",
+  "@adminExportImportantHeading": {
+    "description": "adminExportImportantHeading"
+  },
+  "adminExportWelcomeBodyWithPw": "These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using the username and password below. You can change your password in the app.",
+  "@adminExportWelcomeBodyWithPw": {
+    "description": "adminExportWelcomeBodyWithPw"
+  },
+  "adminExportWelcomeBodyNoPw": "These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using your username.",
+  "@adminExportWelcomeBodyNoPw": {
+    "description": "adminExportWelcomeBodyNoPw"
+  },
+  "adminExportNotePrivate": "Keep these credentials private. Do not share your password.",
+  "@adminExportNotePrivate": {
+    "description": "adminExportNotePrivate"
+  },
+  "adminExportNoteChangePw": "Change your password after your first sign-in from Settings → Account.",
+  "@adminExportNoteChangePw": {
+    "description": "adminExportNoteChangePw"
+  },
+  "adminExportNoteLegal": "By using ClassMate you accept our Terms of Service and Privacy Policy.",
+  "@adminExportNoteLegal": {
+    "description": "adminExportNoteLegal"
+  },
+  "adminExportNoteHelp": "Need help? Contact your school administrator or {email}.",
+  "@adminExportNoteHelp": {
+    "description": "adminExportNoteHelp",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherGradeTitleHint": "e.g. Class participation, Quiz 3",
+  "@teacherGradeTitleHint": {
+    "description": "teacherGradeTitleHint"
+  },
+  "teacherClassroomNameHint": "e.g. Mathematics 10A",
+  "@teacherClassroomNameHint": {
+    "description": "teacherClassroomNameHint"
+  },
+  "novaAbout": "About NOVA",
+  "@novaAbout": {
+    "description": "novaAbout"
+  }
 }

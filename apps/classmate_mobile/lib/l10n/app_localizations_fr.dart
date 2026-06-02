@@ -8314,4 +8314,225 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get semesterEnds => 'Fin';
+
+  @override
+  String get commonWhen => 'Quand';
+
+  @override
+  String get commonFiles => 'Fichiers';
+
+  @override
+  String get commonOnce => 'Une fois';
+
+  @override
+  String get commonNoneDash => '— Aucun —';
+
+  @override
+  String get commonNotesOptional => 'Notes (facultatif)';
+
+  @override
+  String get commonSubjectOptional => 'Matière (facultatif)';
+
+  @override
+  String get colorBlue => 'Bleu';
+
+  @override
+  String get colorIndigo => 'Indigo';
+
+  @override
+  String get colorViolet => 'Violet';
+
+  @override
+  String get colorTeal => 'Sarcelle';
+
+  @override
+  String get colorGreen => 'Vert';
+
+  @override
+  String get colorOrange => 'Orange';
+
+  @override
+  String get colorRose => 'Rose';
+
+  @override
+  String get teacherAddClassNotes => 'Ajouter des notes de cours';
+
+  @override
+  String get teacherStudentsWithGrades => 'Élèves avec notes';
+
+  @override
+  String get teacherOtherStudentsSameGrade =>
+      'Autres élèves de la même classe/cohorte';
+
+  @override
+  String get teacherChooseExam => 'Choisir un examen';
+
+  @override
+  String get teacherChooseAssignment => 'Choisir un devoir';
+
+  @override
+  String get teacherSearchExams => 'Rechercher des examens…';
+
+  @override
+  String get teacherSearchAssignments => 'Rechercher des devoirs…';
+
+  @override
+  String get teacherSearchQuestionTypes => 'Rechercher des types de questions…';
+
+  @override
+  String get teacherOtherCustomSubject => 'Autre (saisie libre)';
+
+  @override
+  String get adminLinkChild => 'Associer un enfant';
+
+  @override
+  String get adminChooseStudentDash => '— Choisir un élève —';
+
+  @override
+  String get adminSelectStudentToLink => 'Sélectionner l\'élève à associer';
+
+  @override
+  String get adminEditPeriod => 'Modifier la période';
+
+  @override
+  String get adminNotInAnyCohort =>
+      'Pas encore dans une cohorte — à assigner depuis l\'écran Cohortes.';
+
+  @override
+  String get adminPasswordChangeWarning =>
+      'L\'utilisateur se connectera avec ce mot de passe à sa prochaine connexion. Tout lien de réinitialisation en attente sera invalidé.';
+
+  @override
+  String get nameInEnglish => 'Nom en anglais';
+
+  @override
+  String get nameInArabic => 'Nom en arabe';
+
+  @override
+  String get nameInHebrew => 'Nom en hébreu';
+
+  @override
+  String get nameInFrench => 'Nom en français';
+
+  @override
+  String get nameInRussian => 'Nom en russe';
+
+  @override
+  String get passwordMinChars => 'Au moins 8 caractères.';
+
+  @override
+  String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas.';
+
+  @override
+  String get adminWelcomeHeading => 'Bienvenue sur ClassMate';
+
+  @override
+  String get forgotPasswordSendRequestTo => 'Envoyer la demande à';
+
+  @override
+  String get forgotPasswordChooseAdminDash => '— Choisir un admin —';
+
+  @override
+  String get diplomasNoFilesAttached => 'Aucun fichier joint à ce certificat.';
+
+  @override
+  String get diplomasFilesProcessing =>
+      'Impossible d\'ouvrir les fichiers — ils sont peut-être encore en traitement.';
+
+  @override
+  String get novaOutOfTokens =>
+      'Vous avez utilisé tous vos jetons pour cette période. Améliorez votre offre ou rechargez pour continuer avec NOVA.';
+
+  @override
+  String get tutorDeleteConversationWarning =>
+      'Cela supprimera définitivement la conversation et tous ses messages du serveur. Cette action est irréversible.';
+
+  @override
+  String get chatReportFlagWarning =>
+      'Ce message sera signalé pour examen par un administrateur.';
+
+  @override
+  String get solutionPreviewFailFallback =>
+      'Ouvrez depuis la pièce jointe du chat si l\'aperçu échoue';
+
+  @override
+  String get practiceNoInternet =>
+      'Pas de connexion Internet. Veuillez réessayer.';
+
+  @override
+  String get practiceGenerationFailed =>
+      'Impossible de générer les questions. Veuillez réessayer.';
+
+  @override
+  String get practiceTimingSecPerQuestion => 's / question';
+
+  @override
+  String get practiceTimingMinPerQuiz => 'min / quiz';
+
+  @override
+  String adminScheduleFrequencyWeeks(Object freq) {
+    return '×$freq sem';
+  }
+
+  @override
+  String gradeLevelLabel(Object grade) {
+    return 'Niveau $grade';
+  }
+
+  @override
+  String adminPeriodOption(Object period) {
+    return 'Période $period';
+  }
+
+  @override
+  String adminPasswordRequestHoursLeft(Object hours) {
+    return '${hours}h restant';
+  }
+
+  @override
+  String cohortStudentsCount(Object count) {
+    return '$count élèves';
+  }
+
+  @override
+  String diplomasIssuedCount(Object count) {
+    return '$count certificats délivrés';
+  }
+
+  @override
+  String get adminExportImportantHeading => 'Important';
+
+  @override
+  String get adminExportWelcomeBodyWithPw =>
+      'Voici les détails de votre compte ClassMate. Connectez-vous à l\'application ClassMate sur iOS ou Android avec le nom d\'utilisateur et le mot de passe ci-dessous. Vous pourrez changer votre mot de passe dans l\'application.';
+
+  @override
+  String get adminExportWelcomeBodyNoPw =>
+      'Voici les détails de votre compte ClassMate. Connectez-vous à l\'application ClassMate sur iOS ou Android avec votre nom d\'utilisateur.';
+
+  @override
+  String get adminExportNotePrivate =>
+      'Gardez ces identifiants confidentiels. Ne partagez pas votre mot de passe.';
+
+  @override
+  String get adminExportNoteChangePw =>
+      'Changez votre mot de passe après la première connexion dans Paramètres → Compte.';
+
+  @override
+  String get adminExportNoteLegal =>
+      'En utilisant ClassMate, vous acceptez nos Conditions d\'utilisation et notre Politique de confidentialité.';
+
+  @override
+  String adminExportNoteHelp(String email) {
+    return 'Besoin d\'aide ? Contactez l\'administrateur de votre école ou $email.';
+  }
+
+  @override
+  String get teacherGradeTitleHint => 'ex. Participation en classe, Quiz 3';
+
+  @override
+  String get teacherClassroomNameHint => 'ex. Mathématiques 10A';
+
+  @override
+  String get novaAbout => 'À propos de NOVA';
 }

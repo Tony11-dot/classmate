@@ -193,19 +193,19 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
         children: [
           // ── 1. Audience ─────────────────────────────────────────────────────
           _GlassCard(
-            title: 'Audience',
+            title: AppLocalizations.of(context)!.teacherAudienceSectionTitle,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (_subjects.isNotEmpty) ...[
                 LiquidGlassDropdown<String?>(
-                  label: 'Subject (optional)',
+                  label: AppLocalizations.of(context)!.commonSubjectOptional,
                   value: _selectedSubject,
                   items: [
-                    const LiquidGlassDropdownItem(value: null, label: 'No subject', icon: Icons.subject_rounded),
+                    LiquidGlassDropdownItem(value: null, label: AppLocalizations.of(context)!.teacherNoSubjectOption, icon: Icons.subject_rounded),
                     ..._subjects.map((s) => LiquidGlassDropdownItem(value: s, label: s, icon: Icons.menu_book_rounded)),
-                    const LiquidGlassDropdownItem(value: 'Other', label: 'Other', icon: Icons.category_rounded),
+                    LiquidGlassDropdownItem(value: 'Other', label: AppLocalizations.of(context)!.teacherOtherSubjectOption, icon: Icons.category_rounded),
                   ],
                   onChanged: (v) => setState(() => _selectedSubject = v),
-                  searchHint: 'Search subjects...'),
+                  searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch),
                 const SizedBox(height: 12),
               ],
               AudienceSection(
@@ -223,7 +223,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
 
           // ── 2. Form title + description ─────────────────────────────────────
           _GlassCard(
-            title: 'Form',
+            title: AppLocalizations.of(context)!.formTitle,
             child: Column(children: [
               TextField(
                 controller: _titleCtrl,
@@ -241,7 +241,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
 
           // ── 3. Settings ──────────────────────────────────────────────────────
           _GlassCard(
-            title: 'Settings',
+            title: AppLocalizations.of(context)!.settingsTitle,
             child: Column(
               children: [
                 SwitchListTile(
@@ -402,7 +402,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                 });
                 widget.onChanged();
               },
-              searchHint: 'Search question types...',
+              searchHint: AppLocalizations.of(context)!.teacherSearchQuestionTypes,
             ),
           ),
           const Icon(Icons.drag_handle_rounded, size: 20),

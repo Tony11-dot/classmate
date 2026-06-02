@@ -189,6 +189,7 @@ class _RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final hoursLeft = request.expiresAt.difference(DateTime.now()).inHours;
@@ -223,7 +224,7 @@ class _RequestCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Text('${hoursLeft.clamp(0, 24)}h left',
+              Text(l.adminPasswordRequestHoursLeft(hoursLeft.clamp(0, 24)),
                   style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
             ],
           ),

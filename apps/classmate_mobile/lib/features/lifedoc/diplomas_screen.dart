@@ -97,10 +97,11 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     }
 
     if (openable.isEmpty) {
+      final l = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(list.isEmpty
-            ? 'No files attached to this certificate.'
-            : 'Files could not be opened — they may still be processing.')),
+            ? l.diplomasNoFilesAttached
+            : l.diplomasFilesProcessing)),
       );
       return;
     }
@@ -287,7 +288,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                     children: [
                       Text(l.diplomasTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
                       const SizedBox(height: 4),
-                      Text('${_diplomas.length} certificates issued', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      Text(l.diplomasIssuedCount(_diplomas.length), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                     ],
                   ),
                 ),

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 import '../../domain/solutions_models.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../ui/widgets/cm_loading.dart';
 
 /// Opens a full-screen, swipeable gallery starting at [initialIndex].
@@ -497,9 +498,9 @@ class _InlinePdfViewState extends State<_InlinePdfView> {
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: Colors.white12),
               ),
-              child: const Text(
-                'Open from the chat attachment if preview fails',
-                style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+              child: Text(
+                AppLocalizations.of(context)!.solutionPreviewFailFallback,
+                style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
             ),

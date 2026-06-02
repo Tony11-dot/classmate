@@ -336,7 +336,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
               children: [
                 // ── Targeting ──────────────────────────────────────────────
                 _Card(
-                  title: 'Audience',
+                  title: AppLocalizations.of(context)!.teacherAudienceSectionTitle,
                   child: AudienceSection(
                     cohorts: _cohorts,
                     allStudents: _allStudents,
@@ -358,15 +358,15 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       // Subject DDL
                       if (_subjects.isNotEmpty) ...[
                         LiquidGlassDropdown<String?>(
-                          label: 'Subject *',
+                          label: AppLocalizations.of(context)!.teacherSubjectRequired,
                           value: _selectedSubject,
                           items: [
-                            const LiquidGlassDropdownItem(value: null, label: 'Select subject', icon: Icons.subject_rounded),
+                            LiquidGlassDropdownItem(value: null, label: AppLocalizations.of(context)!.teacherSelectSubject, icon: Icons.subject_rounded),
                             ..._subjects.map((s) => LiquidGlassDropdownItem(value: s, label: s, icon: Icons.menu_book_rounded)),
-                            const LiquidGlassDropdownItem(value: 'Other', label: 'Other', icon: Icons.category_rounded),
+                            LiquidGlassDropdownItem(value: 'Other', label: AppLocalizations.of(context)!.teacherOtherSubjectOption, icon: Icons.category_rounded),
                           ],
                           onChanged: (v) => setState(() => _selectedSubject = v),
-                          searchHint: 'Search subjects...',
+                          searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch,
                         ),
                         const SizedBox(height: 12),
                       ],

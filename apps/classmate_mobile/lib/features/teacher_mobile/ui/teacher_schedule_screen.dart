@@ -811,7 +811,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   ),
                   _SheetAction(
                     icon: Icons.notes_rounded,
-                    label: 'Add Class Notes',
+                    label: l.teacherAddClassNotes,
                     onTap: () {
                       Navigator.of(ctx).pop();
                       context.push('/teacher/attendance/mark', extra: <String, dynamic>{
@@ -827,7 +827,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   if (slotId.isNotEmpty)
                     _SheetAction(
                       icon: Icons.attach_file_rounded,
-                      label: 'Attachments',
+                      label: l.commonAttachments,
                       onTap: () {
                         Navigator.of(ctx).pop();
                         // Pass the period's audience hints so the

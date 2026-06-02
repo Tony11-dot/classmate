@@ -1007,7 +1007,7 @@ class _VerifiableContactRowsState extends ConsumerState<_VerifiableContactRows> 
         _VerifiableRow(
           channel: 'sms',
           icon: Icons.phone_rounded,
-          label: 'Phone',
+          label: l.supportPhoneLabel,
           value: status.phone ?? '',
           verified: status.phoneVerified,
         ),

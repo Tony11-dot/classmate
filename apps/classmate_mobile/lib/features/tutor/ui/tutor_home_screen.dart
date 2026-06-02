@@ -272,9 +272,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: Text(AppLocalizations.of(ctx)!.tutorDeleteConversationTitle),
-            content: const Text(
-              'This will permanently delete the conversation and all its messages from the server. This cannot be undone.',
-            ),
+            content: Text(AppLocalizations.of(ctx)!.tutorDeleteConversationWarning),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),

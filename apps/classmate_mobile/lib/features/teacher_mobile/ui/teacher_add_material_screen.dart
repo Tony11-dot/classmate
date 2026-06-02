@@ -946,13 +946,13 @@ class _TeacherMaterialsStandaloneScreenState
                         // single tap (no swipe required).
                         IconButton(
                           icon: const Icon(Icons.edit_rounded, size: 18),
-                          tooltip: 'Edit',
+                          tooltip: l.commonEdit,
                           onPressed: () => context.push('/teacher/materials/add', extra: {...m, '_edit': true}).then((_) => _load()),
                           visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
                         ),
                         IconButton(
                           icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
-                          tooltip: 'Delete',
+                          tooltip: l.commonDelete,
                           onPressed: () => _delete(id),
                           visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
                         ),

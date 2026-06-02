@@ -1233,7 +1233,7 @@ class _AssignmentCard extends StatelessWidget {
               children: [
                 if (assignment['submitted'] == true)
                   _Chip(
-                    label: 'Handed in',
+                    label: l.studentAssignmentHandedInBadge,
                     backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.15),
                     foregroundColor: const Color(0xFF22C55E),
                   )

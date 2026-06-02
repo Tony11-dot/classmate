@@ -1015,6 +1015,7 @@ class _BellPeriodRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final hasTime = times.start.isNotEmpty && times.end.isNotEmpty;
@@ -1035,7 +1036,7 @@ class _BellPeriodRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: hasTime ? cs.onPrimaryContainer : cs.onSurfaceVariant)),
+              child: Text(l.adminSchedulePeriodLabel(period), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: hasTime ? cs.onPrimaryContainer : cs.onSurfaceVariant)),
             ),
           ),
           const SizedBox(width: 14),

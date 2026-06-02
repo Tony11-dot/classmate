@@ -557,17 +557,17 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
               children: [
                 // ── Audience first ──────────────────────────────────────────
-                _SectionCard(title: 'Audience', child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _MtgAudiencePicker(icon: Icons.class_rounded, label: 'Classrooms', summary: _selectedCourseId == null ? null : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!, onTap: () async { await _openClassroomPickerMtg(context); if (_selectedCourseId != null) _fetchMembersFor(_selectedCourseId!, isClassroom: true); }, cs: cs, theme: theme),
+                _SectionCard(title: AppLocalizations.of(context)!.teacherAudienceSectionTitle, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  _MtgAudiencePicker(icon: Icons.class_rounded, label: AppLocalizations.of(context)!.teacherMaterialAudienceClassrooms, summary: _selectedCourseId == null ? null : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!, onTap: () async { await _openClassroomPickerMtg(context); if (_selectedCourseId != null) _fetchMembersFor(_selectedCourseId!, isClassroom: true); }, cs: cs, theme: theme),
                   const SizedBox(height: 8),
-                  _MtgAudiencePicker(icon: Icons.groups_rounded, label: 'Cohorts', summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPickerMtg(); for (final id in _selectedCohortIds) {
+                  _MtgAudiencePicker(icon: Icons.groups_rounded, label: AppLocalizations.of(context)!.teacherMaterialAudienceCohorts, summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '), onTap: () async { await _openCohortPickerMtg(); for (final id in _selectedCohortIds) {
                     _fetchMembersFor(id);
                   } }, cs: cs, theme: theme),
                   const SizedBox(height: 8),
                   if (_availableGrades.isNotEmpty) ...[
                     _MtgAudiencePicker(
                       icon: Icons.school_rounded,
-                      label: 'Grades',
+                      label: AppLocalizations.of(context)!.teacherMaterialAudienceGrades,
                       summary: _selectedGrades.isEmpty
                           ? null
                           : (_selectedGrades.toList()..sort())
@@ -579,7 +579,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     ),
                     const SizedBox(height: 8),
                   ],
-                  _MtgAudiencePicker(icon: Icons.person_rounded, label: 'Students', summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
+                  _MtgAudiencePicker(icon: Icons.person_rounded, label: AppLocalizations.of(context)!.teacherMaterialAudienceStudents, summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
                   if (_previewMembers.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     _MembersPreview(members: _previewMembers, cs: cs, theme: theme),
@@ -598,15 +598,15 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                 _SectionCard(title: AppLocalizations.of(context)!.teacherMeetingDetailsSection, child: Column(children: [
                   if (_subjects.isNotEmpty) ...[
                     LiquidGlassDropdown<String?>(
-                      label: 'Subject',
+                      label: AppLocalizations.of(context)!.assignmentsSubjectLabel,
                       value: _selectedSubject,
                       items: [
-                        const LiquidGlassDropdownItem(value: null, label: 'No subject', icon: Icons.subject_rounded),
+                        LiquidGlassDropdownItem(value: null, label: AppLocalizations.of(context)!.teacherNoSubjectOption, icon: Icons.subject_rounded),
                         ..._subjects.map((s) => LiquidGlassDropdownItem(value: s, label: s, icon: Icons.menu_book_rounded)),
-                            const LiquidGlassDropdownItem(value: 'Other', label: 'Other', icon: Icons.category_rounded),
+                            LiquidGlassDropdownItem(value: 'Other', label: AppLocalizations.of(context)!.teacherOtherSubjectOption, icon: Icons.category_rounded),
                       ],
                       onChanged: (v) => setState(() => _selectedSubject = v),
-                      searchHint: 'Search subjects...'),
+                      searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch),
                     const SizedBox(height: 12),
                   ],
                   TextField(

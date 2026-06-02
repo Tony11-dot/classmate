@@ -220,24 +220,24 @@ class _TeacherCreateClassroomScreenState
                   autofocus: true,
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
-                    hintText: 'e.g. Mathematics 10A',
+                    hintText: AppLocalizations.of(context)!.teacherClassroomNameHint,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                 ),
                 const SizedBox(height: 20),
 
                 // ── Subject ────────────────────────────────────────────────────
-                _SectionHeader(icon: Icons.menu_book_rounded, title: 'Subject'),
+                _SectionHeader(icon: Icons.menu_book_rounded, title: AppLocalizations.of(context)!.assignmentsSubjectLabel),
                 const SizedBox(height: 10),
                 LiquidGlassDropdown<String>(
-                  label: _selectedSubject ?? 'Select subject…',
+                  label: _selectedSubject ?? AppLocalizations.of(context)!.teacherSelectSubject,
                   value: _selectedSubject ?? '',
                   items: [
-                    const LiquidGlassDropdownItem(value: '', label: 'Select subject…', icon: Icons.auto_stories_outlined),
+                    LiquidGlassDropdownItem(value: '', label: AppLocalizations.of(context)!.teacherSelectSubject, icon: Icons.auto_stories_outlined),
                     ..._schoolSubjects.map((s) => LiquidGlassDropdownItem(value: s, label: s, icon: Icons.menu_book_rounded)),
                   ],
                   onChanged: (v) => setState(() => _selectedSubject = v.isEmpty ? null : v),
-                  searchHint: 'Search subjects…',
+                  searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch,
                 ),
                 const SizedBox(height: 24),
 

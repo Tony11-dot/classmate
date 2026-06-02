@@ -33,17 +33,27 @@ const _kLanguages = [
 
 // ── Accent colour palette ────────────────────────────────────────────────────
 
-typedef _Accent = ({Color color, String label});
-
-const _kAccents = <_Accent>[
-  (color: Color(0xFF0EA5E9), label: 'Blue'),
-  (color: Color(0xFF4F46E5), label: 'Indigo'),
-  (color: Color(0xFF7C3AED), label: 'Violet'),
-  (color: Color(0xFF0D9488), label: 'Teal'),
-  (color: Color(0xFF16A34A), label: 'Green'),
-  (color: Color(0xFFEA580C), label: 'Orange'),
-  (color: Color(0xFFE11D48), label: 'Rose'),
+const _kAccents = <Color>[
+  Color(0xFF0EA5E9), // Blue
+  Color(0xFF4F46E5), // Indigo
+  Color(0xFF7C3AED), // Violet
+  Color(0xFF0D9488), // Teal
+  Color(0xFF16A34A), // Green
+  Color(0xFFEA580C), // Orange
+  Color(0xFFE11D48), // Rose
 ];
+
+String _accentLabel(Color color, AppLocalizations l) {
+  return switch (color.toARGB32()) {
+    0xFF0EA5E9 => l.colorBlue,
+    0xFF4F46E5 => l.colorIndigo,
+    0xFF7C3AED => l.colorViolet,
+    0xFF0D9488 => l.colorTeal,
+    0xFF16A34A => l.colorGreen,
+    0xFFEA580C => l.colorOrange,
+    _ => l.colorRose,
+  };
+}
 
 bool _accentMatch(Color a, Color b) => a.toARGB32() == b.toARGB32();
 
@@ -219,41 +229,44 @@ class SettingsScreen extends ConsumerWidget {
                         const SizedBox(height: 14),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: _kAccents.map((a) {
-                            final selected = _accentMatch(t.accent, a.color);
-                            return GestureDetector(
-                              onTap: () => tc.setAccent(a.color),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                width: selected ? 40 : 34,
-                                height: selected ? 40 : 34,
-                                decoration: BoxDecoration(
-                                  color: a.color,
-                                  shape: BoxShape.circle,
-                                  border: selected
-                                      ? Border.all(
-                                          color: cs.onSurface,
-                                          width: 2.5,
+                          children: _kAccents.map((accent) {
+                            final selected = _accentMatch(t.accent, accent);
+                            return Tooltip(
+                              message: _accentLabel(accent, l),
+                              child: GestureDetector(
+                                onTap: () => tc.setAccent(accent),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  width: selected ? 40 : 34,
+                                  height: selected ? 40 : 34,
+                                  decoration: BoxDecoration(
+                                    color: accent,
+                                    shape: BoxShape.circle,
+                                    border: selected
+                                        ? Border.all(
+                                            color: cs.onSurface,
+                                            width: 2.5,
+                                          )
+                                        : null,
+                                    boxShadow: selected
+                                        ? [
+                                            BoxShadow(
+                                              color: accent
+                                                  .withValues(alpha: 0.5),
+                                              blurRadius: 8,
+                                              spreadRadius: 1,
+                                            ),
+                                          ]
+                                        : null,
+                                  ),
+                                  child: selected
+                                      ? const Icon(
+                                          Icons.check_rounded,
+                                          color: Colors.white,
+                                          size: 18,
                                         )
                                       : null,
-                                  boxShadow: selected
-                                      ? [
-                                          BoxShadow(
-                                            color: a.color
-                                                .withValues(alpha: 0.5),
-                                            blurRadius: 8,
-                                            spreadRadius: 1,
-                                          ),
-                                        ]
-                                      : null,
                                 ),
-                                child: selected
-                                    ? const Icon(
-                                        Icons.check_rounded,
-                                        color: Colors.white,
-                                        size: 18,
-                                      )
-                                    : null,
                               ),
                             );
                           }).toList(),

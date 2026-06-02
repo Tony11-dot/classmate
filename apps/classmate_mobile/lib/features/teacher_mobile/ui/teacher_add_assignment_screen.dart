@@ -483,14 +483,14 @@ class _TeacherAddAssignmentScreenState
               children: [
                 // ── Targeting card ──────────────────────────────────────────
                 _SectionCard(
-                  title: 'Audience',
+                  title: AppLocalizations.of(context)!.teacherAudienceSectionTitle,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ── Classrooms ─────────────────────────────────────────
                       _AudiencePicker(
                         icon: Icons.class_rounded,
-                        label: 'Classrooms',
+                        label: AppLocalizations.of(context)!.teacherMaterialAudienceClassrooms,
                         summary: _selectedCourseId == null
                             ? null
                             : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!,
@@ -521,7 +521,7 @@ class _TeacherAddAssignmentScreenState
                       const SizedBox(height: 8),
                       _AudiencePicker(
                         icon: Icons.groups_rounded,
-                        label: 'Cohorts',
+                        label: AppLocalizations.of(context)!.teacherMaterialAudienceCohorts,
                         summary: _selectedCohortIds.isEmpty ? null : _cohorts.where((c) => _selectedCohortIds.contains(c.id)).map((c) => c.name).join(', '),
                         onTap: () async {
                           await _openCohortPicker();
@@ -536,7 +536,7 @@ class _TeacherAddAssignmentScreenState
                       if (_availableGrades.isNotEmpty) ...[
                         _AudiencePicker(
                           icon: Icons.school_rounded,
-                          label: 'Grades',
+                          label: AppLocalizations.of(context)!.teacherMaterialAudienceGrades,
                           summary: _selectedGrades.isEmpty
                               ? null
                               : (_selectedGrades.toList()..sort())
@@ -550,7 +550,7 @@ class _TeacherAddAssignmentScreenState
                       ],
                       _AudiencePicker(
                         icon: Icons.person_rounded,
-                        label: 'Students',
+                        label: AppLocalizations.of(context)!.teacherMaterialAudienceStudents,
                         summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}',
                         onTap: _openStudentPicker,
                         cs: cs,
@@ -599,18 +599,18 @@ class _TeacherAddAssignmentScreenState
 
                 // ── Details card ────────────────────────────────────────────
                 _SectionCard(
-                  title: 'Details',
+                  title: AppLocalizations.of(context)!.teacherMaterialDetailsTitle,
                   child: Column(
                     children: [
                       // Subject DDL
                       if (_subjects.isNotEmpty) ...[
                         LiquidGlassDropdown<String?>(
-                          label: 'Subject *',
+                          label: AppLocalizations.of(context)!.teacherSubjectRequired,
                           value: _selectedSubject,
                           items: [
-                            const LiquidGlassDropdownItem(
+                            LiquidGlassDropdownItem(
                               value: null,
-                              label: 'No subject',
+                              label: AppLocalizations.of(context)!.teacherNoSubjectOption,
                               icon: Icons.subject_rounded,
                             ),
                             ..._subjects.map((s) => LiquidGlassDropdownItem(
@@ -618,14 +618,14 @@ class _TeacherAddAssignmentScreenState
                                   label: s,
                                   icon: Icons.menu_book_rounded,
                                 )),
-                            const LiquidGlassDropdownItem(
+                            LiquidGlassDropdownItem(
                               value: 'Other',
-                              label: 'Other',
+                              label: AppLocalizations.of(context)!.teacherOtherSubjectOption,
                               icon: Icons.category_rounded,
                             ),
                           ],
                           onChanged: (v) => setState(() => _selectedSubject = v),
-                          searchHint: 'Search subjects...',
+                          searchHint: AppLocalizations.of(context)!.teacherMaterialSubjectSearch,
                         ),
                         const SizedBox(height: 12),
                       ],
