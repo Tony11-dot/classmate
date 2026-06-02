@@ -14222,6 +14222,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Return'**
   String get commonReturn;
+
+  /// No description provided for @reorderToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder menu'**
+  String get reorderToolsTitle;
+
+  /// No description provided for @reorderToolsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder your School Tools. The Core and Account sections stay put.'**
+  String get reorderToolsSubtitle;
+
+  /// No description provided for @reorderToolsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reorderToolsReset;
+
+  /// No description provided for @reorderToolsSettingsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get reorderToolsSettingsSection;
+
+  /// No description provided for @reorderToolsSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder the tools in your side menu'**
+  String get reorderToolsSettingsSubtitle;
 }
 
 class _AppLocalizationsDelegate

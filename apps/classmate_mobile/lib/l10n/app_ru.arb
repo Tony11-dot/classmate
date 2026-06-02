@@ -3352,5 +3352,10 @@
   "commonCohort": "Группа",
   "teacherCreateNewExam": "Создать экзамен",
   "teacherCreateNewAssignment": "Создать задание",
-  "commonReturn": "Вернуть"
+  "commonReturn": "Вернуть",
+  "reorderToolsTitle": "Порядок меню",
+  "reorderToolsSubtitle": "Перетаскивайте, чтобы изменить порядок раздела School Tools. Разделы Core и Account остаются на месте.",
+  "reorderToolsReset": "Сброс",
+  "reorderToolsSettingsSection": "Меню",
+  "reorderToolsSettingsSubtitle": "Изменить порядок инструментов в боковом меню"
 }

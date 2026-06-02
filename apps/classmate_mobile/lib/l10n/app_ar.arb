@@ -3145,5 +3145,10 @@
   "commonCohort": "الفوج",
   "teacherCreateNewExam": "إنشاء امتحان جديد",
   "teacherCreateNewAssignment": "إنشاء واجب جديد",
-  "commonReturn": "إرجاع"
+  "commonReturn": "إرجاع",
+  "reorderToolsTitle": "إعادة ترتيب القائمة",
+  "reorderToolsSubtitle": "اسحب لإعادة ترتيب أدوات المدرسة. يبقى القسم الأساسي والحساب في مكانهما.",
+  "reorderToolsReset": "إعادة تعيين",
+  "reorderToolsSettingsSection": "القائمة",
+  "reorderToolsSettingsSubtitle": "إعادة ترتيب الأدوات في القائمة الجانبية"
 }

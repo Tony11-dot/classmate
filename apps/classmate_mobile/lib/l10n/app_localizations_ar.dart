@@ -8046,4 +8046,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonReturn => 'إرجاع';
+
+  @override
+  String get reorderToolsTitle => 'إعادة ترتيب القائمة';
+
+  @override
+  String get reorderToolsSubtitle =>
+      'اسحب لإعادة ترتيب أدوات المدرسة. يبقى القسم الأساسي والحساب في مكانهما.';
+
+  @override
+  String get reorderToolsReset => 'إعادة تعيين';
+
+  @override
+  String get reorderToolsSettingsSection => 'القائمة';
+
+  @override
+  String get reorderToolsSettingsSubtitle =>
+      'إعادة ترتيب الأدوات في القائمة الجانبية';
 }

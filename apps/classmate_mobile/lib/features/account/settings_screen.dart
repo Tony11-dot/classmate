@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/locale/locale_controller.dart';
@@ -271,6 +272,24 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+        ),
+
+        // ── Menu ──────────────────────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: _Section(
+              title: l.reorderToolsSettingsSection,
+              icon: Icons.menu_rounded,
+              child: _SettingRow(
+                icon: Icons.reorder_rounded,
+                title: l.reorderToolsTitle,
+                subtitle: l.reorderToolsSettingsSubtitle,
+                onTap: () => context.push('/settings/reorder-tools'),
+                trailing: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
               ),
             ),
           ),

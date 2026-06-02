@@ -8,6 +8,7 @@ import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
 import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
 import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
+import 'package:classmate_mobile/ui/nav/drawer_tools_order.dart';
 
 class MainDrawer extends ConsumerWidget {
   const MainDrawer({super.key});
@@ -33,6 +34,15 @@ class MainDrawer extends ConsumerWidget {
       'PARENT' => l.roleParent,
       _ => l.student,
     };
+
+    // User-reorderable "School Tools" section (Core + Account stay fixed).
+    final toolsRoleKey = drawerToolsRoleKey(
+      primaryRole: session.primaryRole,
+      isTeacherLike: isTeacherLike,
+    );
+    final toolsOrder = ref.watch(drawerToolsOrderProvider);
+    final orderedTools =
+        applyDrawerToolsOrder(defaultDrawerTools(toolsRoleKey, l), toolsOrder);
 
     // ── helpers ──────────────────────────────────────────────────────────
 
@@ -297,26 +307,13 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     sectionHeader(l.sectionSchoolTools),
-                    navItem(icon: Icons.how_to_reg_rounded, label: l.navAttendance, route: '/parent/attendance'),
-                    navItem(icon: Icons.grade_rounded, label: l.navGrades, route: '/parent/grades'),
-                    navItem(icon: Icons.quiz_rounded, label: l.navExams, route: '/parent/exams'),
-                    navItem(icon: Icons.workspace_premium_rounded, label: l.navDiplomas, route: '/parent/certificates'),
-                    navItem(icon: Icons.assignment_rounded, label: l.navAssignments, route: '/parent/assignments'),
-                    navItem(icon: Icons.video_call_rounded, label: l.navMeetings, route: '/parent/meetings'),
-                    navItem(icon: Icons.folder_rounded, label: l.navMaterials, route: '/parent/materials'),
-                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
-                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/parent/notifications'),
+                    for (final t in orderedTools)
+                      navItem(icon: t.icon, label: t.label, route: t.route),
                     sectionHeader(l.sectionAccount),
                   ] else if (isSecretary) ...[
                     sectionHeader(l.sectionSecretaryTools),
-                    navItem(icon: Icons.dashboard_rounded, label: l.navHome, route: '/secretary/home'),
-                    navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/secretary/schedule'),
-                    navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/secretary/people'),
-                    navItem(icon: Icons.groups_rounded, label: l.navCohorts, route: '/secretary/cohorts'),
-                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
-                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
-                    navItem(icon: Icons.flag_outlined, label: l.navReports, route: '/secretary/reports'),
-                    navItem(icon: Icons.download_rounded, label: l.navExportData, route: '/secretary/export'),
+                    for (final t in orderedTools)
+                      navItem(icon: t.icon, label: t.label, route: t.route),
                     sectionHeader(l.sectionAccount),
                   ] else if (isPureAdmin) ...[
                     sectionHeader(l.sectionSchoolToolsLabel),
@@ -324,16 +321,8 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
                     sectionHeader(l.sectionAdminTools),
-                    navItem(icon: Icons.dashboard_rounded, label: l.navDashboard, route: '/admin/dashboard'),
-                    navItem(icon: Icons.people_rounded, label: l.navPeople, route: '/admin/people'),
-                    navItem(icon: Icons.groups_rounded, label: l.navCohorts, route: '/admin/cohorts'),
-                    navItem(icon: Icons.manage_history_rounded, label: l.adminScheduleTitle, route: '/admin/schedule'),
-                    navItem(icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle, route: '/admin/school'),
-                    navItem(icon: Icons.menu_book_rounded, label: l.solutionsManageBooksTitle, route: '/solutions/manage-books'),
-                    navItem(icon: Icons.report_gmailerrorred_rounded, label: l.solutionsReportsTitle, route: '/admin/solution-reports'),
-                    navItem(icon: Icons.shield_outlined, label: l.navPasswordRequests, route: '/admin/password-requests'),
-                    navItem(icon: Icons.flag_outlined, label: l.navReports, route: '/admin/reports'),
-                    navItem(icon: Icons.download_rounded, label: l.navExportData, route: '/admin/export'),
+                    for (final t in orderedTools)
+                      navItem(icon: t.icon, label: t.label, route: t.route),
                     sectionHeader(l.sectionAccount),
                   // ── Teacher drawer ────────────────────────────────────────
                   ] else if (isTeacherLike) ...[
@@ -344,20 +333,8 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     sectionHeader(l.sectionSchoolTools),
-                    navItem(icon: Icons.dashboard_rounded, label: l.navTeacherWorkspace, route: '/teacher/home'),
-                    navItem(icon: Icons.fact_check_rounded, label: l.navAttendance, route: '/teacher/attendance'),
-                    navItem(icon: Icons.grade_rounded, label: l.navGrades, route: '/teacher/grades'),
-                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
-                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
-                    navItem(icon: Icons.assignment_rounded, label: l.navAssignments, route: '/teacher/assignments'),
-                    navItem(icon: Icons.folder_shared_rounded, label: l.navMaterials, route: '/teacher/materials'),
-                    navItem(icon: Icons.video_call_rounded, label: l.navMeetings, route: '/teacher/meetings'),
-                    navItem(icon: Icons.lightbulb_rounded, label: l.titleSolutions, route: '/solutions'),
-                    navItem(icon: Icons.menu_book_rounded, label: l.solutionsManageBooksTitle, route: '/solutions/manage-books'),
-                    navItem(icon: Icons.people_rounded, label: l.teacherStudentsLabel, route: '/teacher/students'),
-                    navItem(icon: Icons.quiz_rounded, label: l.navExams, route: '/teacher/exams'),
-                    navItem(icon: Icons.assignment_turned_in_rounded, label: l.navForms, route: '/teacher/forms'),
-                    navItem(icon: Icons.workspace_premium_rounded, label: l.navDiplomas, route: '/diplomas'),
+                    for (final t in orderedTools)
+                      navItem(icon: t.icon, label: t.label, route: t.route),
                     sectionHeader(l.sectionAccount),
                   // ── Student drawer ────────────────────────────────────────
                   ] else ...[
@@ -368,19 +345,8 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     sectionHeader(l.sectionSchoolTools),
-                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
-                    navItem(icon: Icons.how_to_reg_rounded, label: l.navAttendance, route: '/attendance'),
-                    navItem(icon: Icons.grade_rounded, label: l.navGrades, route: '/grades'),
-                    navItem(icon: Icons.assignment_rounded, label: l.navAssignments, route: '/assignments'),
-                    navItem(icon: Icons.folder_rounded, label: l.navMaterials, route: '/materials'),
-                    navItem(icon: Icons.lightbulb_rounded, label: l.titleSolutions, route: '/solutions'),
-                    navItem(icon: Icons.video_call_rounded, label: l.navMeetings, route: '/meetings'),
-                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
-                    navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
-                    navItem(icon: Icons.quiz_rounded, label: l.navExams, route: '/exams'),
-                    navItem(icon: Icons.assignment_turned_in_rounded, label: l.navForms, route: '/forms'),
-                    navItem(icon: Icons.bookmark_rounded, label: l.navSavedQuestions, route: '/saved-questions'),
-                    navItem(icon: Icons.workspace_premium_rounded, label: l.navDiplomas, route: '/diplomas'),
+                    for (final t in orderedTools)
+                      navItem(icon: t.icon, label: t.label, route: t.route),
                     sectionHeader(l.sectionAccount),
                   ],
 

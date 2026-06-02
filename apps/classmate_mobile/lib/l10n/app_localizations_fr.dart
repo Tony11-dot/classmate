@@ -8207,4 +8207,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonReturn => 'Retourner';
+
+  @override
+  String get reorderToolsTitle => 'Réorganiser le menu';
+
+  @override
+  String get reorderToolsSubtitle =>
+      'Faites glisser pour réorganiser vos outils scolaires. Les sections principale et compte restent en place.';
+
+  @override
+  String get reorderToolsReset => 'Réinitialiser';
+
+  @override
+  String get reorderToolsSettingsSection => 'Menu';
+
+  @override
+  String get reorderToolsSettingsSubtitle =>
+      'Réorganiser les outils du menu latéral';
 }

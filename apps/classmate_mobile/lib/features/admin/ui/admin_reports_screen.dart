@@ -38,9 +38,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: SegmentedButton<String>(
                 segments: [
-                  ButtonSegment(value: 'OPEN', label: Text(AppLocalizations.of(context)!.adminReportsOpenTab)),
-                  ButtonSegment(value: 'RESOLVED', label: Text(AppLocalizations.of(context)!.adminReportsResolvedTab)),
-                  ButtonSegment(value: 'DISMISSED', label: Text(AppLocalizations.of(context)!.adminReportsDismissedTab)),
+                  ButtonSegment(value: 'OPEN', label: Text(AppLocalizations.of(context)!.adminReportsOpenTab, maxLines: 1, softWrap: false, overflow: TextOverflow.fade)),
+                  ButtonSegment(value: 'RESOLVED', label: Text(AppLocalizations.of(context)!.adminReportsResolvedTab, maxLines: 1, softWrap: false, overflow: TextOverflow.fade)),
+                  ButtonSegment(value: 'DISMISSED', label: Text(AppLocalizations.of(context)!.adminReportsDismissedTab, maxLines: 1, softWrap: false, overflow: TextOverflow.fade)),
                 ],
                 selected: {_filter},
                 onSelectionChanged: (s) => setState(() => _filter = s.first),

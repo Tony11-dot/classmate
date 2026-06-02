@@ -3145,5 +3145,10 @@
   "commonCohort": "Cohorte",
   "teacherCreateNewExam": "Créer un examen",
   "teacherCreateNewAssignment": "Créer un devoir",
-  "commonReturn": "Retourner"
+  "commonReturn": "Retourner",
+  "reorderToolsTitle": "Réorganiser le menu",
+  "reorderToolsSubtitle": "Faites glisser pour réorganiser vos outils scolaires. Les sections principale et compte restent en place.",
+  "reorderToolsReset": "Réinitialiser",
+  "reorderToolsSettingsSection": "Menu",
+  "reorderToolsSettingsSubtitle": "Réorganiser les outils du menu latéral"
 }

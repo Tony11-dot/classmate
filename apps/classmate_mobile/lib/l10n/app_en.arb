@@ -3804,5 +3804,10 @@
   "commonCohort": "Cohort",
   "teacherCreateNewExam": "Create new exam",
   "teacherCreateNewAssignment": "Create new assignment",
-  "commonReturn": "Return"
+  "commonReturn": "Return",
+  "reorderToolsTitle": "Reorder menu",
+  "reorderToolsSubtitle": "Drag to reorder your School Tools. The Core and Account sections stay put.",
+  "reorderToolsReset": "Reset",
+  "reorderToolsSettingsSection": "Menu",
+  "reorderToolsSettingsSubtitle": "Reorder the tools in your side menu"
 }

@@ -8012,4 +8012,20 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get commonReturn => 'החזרה';
+
+  @override
+  String get reorderToolsTitle => 'סידור התפריט מחדש';
+
+  @override
+  String get reorderToolsSubtitle =>
+      'גררו כדי לסדר מחדש את כלי בית הספר. מקטעי הליבה והחשבון נשארים במקומם.';
+
+  @override
+  String get reorderToolsReset => 'איפוס';
+
+  @override
+  String get reorderToolsSettingsSection => 'תפריט';
+
+  @override
+  String get reorderToolsSettingsSubtitle => 'סידור הכלים בתפריט הצד';
 }

@@ -8093,4 +8093,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonReturn => 'Return';
+
+  @override
+  String get reorderToolsTitle => 'Reorder menu';
+
+  @override
+  String get reorderToolsSubtitle =>
+      'Drag to reorder your School Tools. The Core and Account sections stay put.';
+
+  @override
+  String get reorderToolsReset => 'Reset';
+
+  @override
+  String get reorderToolsSettingsSection => 'Menu';
+
+  @override
+  String get reorderToolsSettingsSubtitle =>
+      'Reorder the tools in your side menu';
 }

@@ -9,6 +9,7 @@ import '../features/account/login_screen.dart';
 import '../features/account/forgot_password_screen.dart';
 import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
+import '../features/account/drawer_tools_order_screen.dart';
 import '../features/billing/ui/plans_screen.dart';
 import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
@@ -219,6 +220,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc.startsWith('/solutions/') ||
           loc == '/profile' ||
           loc == '/settings' ||
+          loc == '/settings/reorder-tools' ||
           loc == '/announcements' ||
           loc.startsWith('/announcements/') ||
           loc == '/notifications' ||
@@ -382,6 +384,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       _slideRoute(
         path: '/admin/solution-reports',
         builder: (context, state) => const SolutionsReportsAdminScreen(),
+      ),
+      _slideRoute(
+        path: '/settings/reorder-tools',
+        builder: (context, state) => const DrawerToolsOrderScreen(),
       ),
 
       _slideRoute(

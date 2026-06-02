@@ -8072,4 +8072,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get commonReturn => 'Вернуть';
+
+  @override
+  String get reorderToolsTitle => 'Порядок меню';
+
+  @override
+  String get reorderToolsSubtitle =>
+      'Перетаскивайте, чтобы изменить порядок раздела School Tools. Разделы Core и Account остаются на месте.';
+
+  @override
+  String get reorderToolsReset => 'Сброс';
+
+  @override
+  String get reorderToolsSettingsSection => 'Меню';
+
+  @override
+  String get reorderToolsSettingsSubtitle =>
+      'Изменить порядок инструментов в боковом меню';
 }

@@ -3145,5 +3145,10 @@
   "commonCohort": "קבוצה",
   "teacherCreateNewExam": "יצירת מבחן חדש",
   "teacherCreateNewAssignment": "יצירת מטלה חדשה",
-  "commonReturn": "החזרה"
+  "commonReturn": "החזרה",
+  "reorderToolsTitle": "סידור התפריט מחדש",
+  "reorderToolsSubtitle": "גררו כדי לסדר מחדש את כלי בית הספר. מקטעי הליבה והחשבון נשארים במקומם.",
+  "reorderToolsReset": "איפוס",
+  "reorderToolsSettingsSection": "תפריט",
+  "reorderToolsSettingsSubtitle": "סידור הכלים בתפריט הצד"
 }
