@@ -60,10 +60,16 @@ class Env {
   }
 
   static String _defaultApiBaseUrl() {
+    // Web is always served from Firebase Hosting and must talk to the
+    // PRODUCTION API — never localhost. (A web build without an explicit
+    // --dart-define would otherwise hit 127.0.0.1:3001 and fail to log in.)
+    if (kIsWeb) {
+      return 'https://pacific-enchantment-production-7a80.up.railway.app';
+    }
     // Physical iPhones cannot reach the host machine through 127.0.0.1.
     // Use the Mac's local hostname for iOS device builds unless the user
     // overrides it with --dart-define=CM_API_BASE_URL=...
-    if (!kIsWeb && Platform.isIOS) {
+    if (Platform.isIOS) {
       return 'http://Tonys-MacBook-Air.local:3001';
     }
     return 'http://127.0.0.1:3001';

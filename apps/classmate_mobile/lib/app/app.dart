@@ -87,15 +87,32 @@ class ClassMateApp extends ConsumerWidget {
         // tablets render full-width, unchanged.
         return LayoutBuilder(
           builder: (ctx, constraints) {
-            const maxContentWidth = 720.0;
+            const maxContentWidth = 760.0;
             if (constraints.maxWidth <= maxContentWidth + 48) return hosted;
             final cs = Theme.of(ctx).colorScheme;
-            return ColoredBox(
-              color: cs.surfaceContainerHighest,
+            final dark = Theme.of(ctx).brightness == Brightness.dark;
+            // Wide screens (Mac / PC / tablet-landscape): float the app as a
+            // centered panel with a soft shadow on a tinted gradient backdrop —
+            // reads as an intentional layout, not a stretched phone.
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.alphaBlend(cs.primary.withValues(alpha: dark ? 0.08 : 0.06), cs.surfaceContainerHigh),
+                    cs.surfaceContainerHighest,
+                  ],
+                ),
+              ),
               child: Center(
-                child: ClipRect(
+                child: Material(
+                  color: cs.surface,
+                  elevation: 10,
+                  shadowColor: Colors.black.withValues(alpha: 0.3),
                   child: SizedBox(
                     width: maxContentWidth,
+                    height: double.infinity,
                     child: hosted,
                   ),
                 ),
