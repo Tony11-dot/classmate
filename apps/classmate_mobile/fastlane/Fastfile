@@ -19,6 +19,18 @@ def flutter_build_android
     --dart-define=CM_API_BASE_URL=#{PROD_API}"
 end
 
+def flutter_build_aab
+  sh "cd .. && flutter build appbundle --release \
+    --dart-define=CM_API_BASE_URL=#{PROD_API}"
+end
+
+# Path (relative to the project root that fastlane runs from) to the Google
+# Play service-account JSON. Download it from Play Console → Setup → API access
+# → Service accounts, grant it "Release apps to testing tracks" + "Release to
+# production", and drop the file here. It is gitignored — never commit it.
+PLAY_JSON = "fastlane/play-service-account.json"
+AAB_PATH  = "build/app/outputs/bundle/release/app-release.aab"
+
 # ── iOS lanes ─────────────────────────────────────────────────────────────────
 
 platform :ios do
@@ -48,14 +60,20 @@ platform :ios do
     UI.success "✅ Uploaded to TestFlight!"
   end
 
-  desc "Submit to App Store for review"
+  desc "Build, upload, and submit to App Store review (1-command public release)"
   lane :release do
     flutter_build_ios
     deliver(
-      ipa:           IOS_IPA,
-      submit_for_review: false,   # set true when ready to submit
-      force:         true,
+      ipa:                 IOS_IPA,
+      submit_for_review:   true,    # actually submits for Apple review
+      automatic_release:   false,   # you press "Release" after approval
+      force:               true,    # skip the HTML preview/confirm prompt
+      skip_metadata:       true,    # use the listing already in App Store Connect
+      skip_screenshots:    true,
+      precheck_include_in_app_purchases: false,
+      submission_information: { export_compliance_uses_encryption: false },
     )
+    UI.success "✅ Submitted to App Store review!"
   end
 
 end
@@ -74,6 +92,40 @@ platform :android do
       apk_path:       "../#{APK_PATH}",
     )
     UI.success "✅ Distributed via Firebase!"
+  end
+
+  desc "Build AAB and upload to Play Console INTERNAL testing track"
+  lane :internal do
+    flutter_build_aab
+    upload_to_play_store(
+      track:                   "internal",
+      aab:                     AAB_PATH,
+      json_key:                PLAY_JSON,
+      skip_upload_apk:         true,
+      skip_upload_metadata:    true,
+      skip_upload_images:      true,
+      skip_upload_screenshots: true,
+      release_status:          "completed",
+    )
+    UI.success "✅ Uploaded to Play internal testing!"
+  end
+
+  desc "Build AAB and roll out to Play Console PRODUCTION"
+  lane :production do
+    flutter_build_aab
+    upload_to_play_store(
+      track:                   "production",
+      aab:                     AAB_PATH,
+      json_key:                PLAY_JSON,
+      skip_upload_apk:         true,
+      skip_upload_metadata:    true,
+      skip_upload_images:      true,
+      skip_upload_screenshots: true,
+      # Staged rollout — bump toward 1.0 as you gain confidence, or remove
+      # this line to release to 100% immediately.
+      rollout:                 "0.2",
+    )
+    UI.success "✅ Rolled out to Play production (20%)!"
   end
 
 end

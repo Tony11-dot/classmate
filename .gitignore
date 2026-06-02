@@ -76,3 +76,9 @@ apps/classmate_mobile/devtools_options.yaml
 # Fastlane build artifacts (regenerated on every run)
 apps/classmate_mobile/fastlane/report.xml
 apps/classmate_mobile/fastlane/README.md
+
+# Store-submission secrets — NEVER commit these
+apps/classmate_mobile/fastlane/play-service-account.json
+**/*-service-account.json
+**/AuthKey_*.p8
+apps/classmate_mobile/fastlane/.env*
