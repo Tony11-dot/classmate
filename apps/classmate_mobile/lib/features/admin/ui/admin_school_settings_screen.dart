@@ -477,7 +477,6 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     final created = await Navigator.of(context, rootNavigator: true)
         .push<SchoolSubject>(
       MaterialPageRoute(
-        fullscreenDialog: true,
         builder: (_) => const AdminSubjectDetailScreen(initial: SchoolSubject(nameEn: '')),
       ),
     );
@@ -510,7 +509,6 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     final updated = await Navigator.of(context, rootNavigator: true)
         .push<SchoolSubject>(
       MaterialPageRoute(
-        fullscreenDialog: true,
         builder: (_) => AdminSubjectDetailScreen(initial: _subjects[index]),
       ),
     );

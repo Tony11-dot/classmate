@@ -3983,7 +3983,6 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
     final created = await Navigator.of(context, rootNavigator: true)
         .push<SchoolSubject>(
       MaterialPageRoute(
-        fullscreenDialog: true,
         builder: (_) => const AdminSubjectDetailScreen(initial: SchoolSubject(nameEn: '')),
       ),
     );

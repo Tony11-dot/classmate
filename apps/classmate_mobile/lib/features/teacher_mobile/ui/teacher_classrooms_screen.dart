@@ -83,8 +83,9 @@ class _TeacherClassroomsScreenState
   void _showCreateClassroomSheet() {
     Navigator.of(context, rootNavigator: true)
         .push<bool>(
+      // No fullscreenDialog — a normal push gets the global Cupertino slide
+      // + edge swipe-back gesture (fullscreenDialog disables horizontal swipe).
       MaterialPageRoute(
-        fullscreenDialog: true,
         builder: (_) => TeacherCreateClassroomScreen(
           onCreated: _load,
         ),
