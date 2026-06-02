@@ -14264,6 +14264,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add range'**
   String get adminSchoolAddGradeRange;
+
+  /// No description provided for @teacherListStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'List students'**
+  String get teacherListStudents;
+
+  /// No description provided for @teacherNoStudentsInvolved.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in this period yet.'**
+  String get teacherNoStudentsInvolved;
+
+  /// No description provided for @messagesFilterAdmins.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins'**
+  String get messagesFilterAdmins;
 }
 
 class _AppLocalizationsDelegate

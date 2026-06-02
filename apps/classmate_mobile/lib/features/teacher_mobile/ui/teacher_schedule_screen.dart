@@ -462,11 +462,25 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
           audienceLine = l.teacherNoCohort;
         }
         final startTime = (s['startTime'] ?? '').toString();
+        final endTime = (s['endTime'] ?? '').toString();
         final color = _subjectColor(subject, cs);
         final subjectLabel = subject.isNotEmpty ? subject : l.teacherUnassignedSlot;
         final attachmentCount = (s['attachments'] is List)
             ? (s['attachments'] as List).length
             : 0;
+
+        // Period stamp shown beside the subject title.
+        final periodStamp = Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            'P$period',
+            style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: color),
+          ),
+        );
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -479,10 +493,10 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               border: Border.all(color: color),
               child: Row(
                 children: [
-                  // Period badge
+                  // Time square (start time on top, end time below).
                   Container(
-                    width: 56,
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    width: 62,
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                     decoration: BoxDecoration(
                       color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(14),
@@ -490,10 +504,13 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
-                        if (startTime.isNotEmpty) ...[
+                        Text(
+                          startTime.isNotEmpty ? startTime : 'P$period',
+                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer),
+                        ),
+                        if (endTime.isNotEmpty) ...[
                           const SizedBox(height: 2),
-                          Text(startTime, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
+                          Text(endTime, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.70))),
                         ],
                       ],
                     ),
@@ -504,7 +521,6 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (caption.isNotEmpty) ...[
-                          // With caption: caption above, subject - audience below.
                           Text(
                             caption,
                             style: theme.textTheme.labelMedium?.copyWith(
@@ -515,27 +531,30 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            '$subjectLabel - $audienceLine',
-                            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ] else ...[
-                          Text(
-                            subjectLabel,
-                            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            audienceLine,
-                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
                         ],
+                        // Subject + period stamp.
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                subjectLabel,
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            periodStamp,
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        // Audience: grade / cohort / specific students.
+                        Text(
+                          audienceLine,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         if (attachmentCount > 0) ...[
                           const SizedBox(height: 6),
                           Container(
@@ -598,6 +617,105 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
   // ── Slot action sheet ─────────────────────────────────────────────────────
 
+  /// Names of every student in a slot's audience. Individual-student periods
+  /// carry pre-resolved [studentNames]; cohort periods fetch the roster.
+  Future<List<String>> _resolveStudents(String cohortId, List<String> fallbackNames) async {
+    if (fallbackNames.isNotEmpty) return fallbackNames;
+    if (cohortId.isEmpty) return const <String>[];
+    try {
+      final roster = await ref.read(teacherMobileRepositoryProvider).fetchCohortStudents(cohortId);
+      return roster.map((e) => e.name).where((n) => n.trim().isNotEmpty).toList();
+    } catch (_) {
+      return const <String>[];
+    }
+  }
+
+  Future<void> _showStudentsSheet(BuildContext context, Map<String, dynamic> s, AppLocalizations l) async {
+    final cohortMap = s['cohort'] is Map ? Map<String, dynamic>.from(s['cohort'] as Map<Object?, Object?>) : <String, dynamic>{};
+    final cohortId = (cohortMap['id'] ?? '').toString();
+    final studentNames = (s['studentNames'] is List)
+        ? (s['studentNames'] as List).map((e) => e.toString()).where((e) => e.isNotEmpty).toList()
+        : const <String>[];
+
+    await showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: LiquidGlassCard(
+              borderRadius: BorderRadius.circular(24),
+              color: cs.surfaceContainerLow,
+              border: Border.all(color: cs.outlineVariant),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.7),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 14, 18, 10),
+                      child: Text(l.teacherListStudents, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
+                    ),
+                    const Divider(height: 1),
+                    Flexible(
+                      child: FutureBuilder<List<String>>(
+                        future: _resolveStudents(cohortId, studentNames),
+                        builder: (context, snap) {
+                          if (snap.connectionState != ConnectionState.done) {
+                            return const Padding(
+                              padding: EdgeInsets.all(28),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          final names = snap.data ?? const <String>[];
+                          if (names.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Text(l.teacherNoStudentsInvolved, style: TextStyle(color: cs.onSurfaceVariant)),
+                            );
+                          }
+                          return ListView.separated(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
+                            itemCount: names.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: 2),
+                            itemBuilder: (context, i) => ListTile(
+                              dense: true,
+                              leading: CircleAvatar(
+                                radius: 15,
+                                backgroundColor: cs.primaryContainer,
+                                child: Text('${i + 1}', style: TextStyle(fontSize: 12, color: cs.onPrimaryContainer)),
+                              ),
+                              title: Text(names[i]),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _showSlotSheet(BuildContext context, dynamic slot, AppLocalizations l) async {
     final s = slot is Map ? Map<String, dynamic>.from(slot) : <String, dynamic>{};
     final cohortMap = s['cohort'] is Map ? Map<String, dynamic>.from(s['cohort'] as Map<Object?, Object?>) : <String, dynamic>{};
@@ -655,6 +773,14 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   ),
                   const SizedBox(height: 14),
                   const Divider(height: 1),
+                  _SheetAction(
+                    icon: Icons.groups_rounded,
+                    label: l.teacherListStudents,
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      _showStudentsSheet(context, s, l);
+                    },
+                  ),
                   if (classroomId.isNotEmpty)
                     _SheetAction(
                       icon: Icons.class_rounded,

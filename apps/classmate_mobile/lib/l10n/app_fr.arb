@@ -3152,5 +3152,8 @@
   "reorderToolsSettingsSection": "Menu",
   "reorderToolsSettingsSubtitle": "Réorganiser les outils du menu latéral",
   "adminSchoolGradeRangesDescription": "Définissez les niveaux couverts par votre école. Ajoutez plusieurs plages si certains niveaux sont absents (ex. 4-6 et 9-12).",
-  "adminSchoolAddGradeRange": "Ajouter une plage"
+  "adminSchoolAddGradeRange": "Ajouter une plage",
+  "teacherListStudents": "Liste des élèves",
+  "teacherNoStudentsInvolved": "Aucun élève dans ce créneau pour l'instant.",
+  "messagesFilterAdmins": "Admins"
 }

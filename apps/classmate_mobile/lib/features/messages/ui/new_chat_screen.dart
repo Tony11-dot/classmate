@@ -67,7 +67,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     final role = p.role.toLowerCase();
     if (_filter == 'students') return role == 'student';
     if (_filter == 'parents') return role == 'parent';
-    if (_filter == 'teachers') return role == 'teacher' || role == 'admin' || role == 'secretary';
+    if (_filter == 'teachers') return role == 'teacher' || role == 'secretary';
+    if (_filter == 'admins') return role == 'admin';
     return true;
   }
 
@@ -152,6 +153,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                           _FilterChip(label: l.teacherParentsLabel, selected: _filter == 'parents', onTap: () => setState(() => _filter = 'parents')),
                           const SizedBox(width: 8),
                           _FilterChip(label: l.teacherTeachersLabel, selected: _filter == 'teachers', onTap: () => setState(() => _filter = 'teachers')),
+                          const SizedBox(width: 8),
+                          _FilterChip(label: l.messagesFilterAdmins, selected: _filter == 'admins', onTap: () => setState(() => _filter = 'admins')),
                         ],
                       ),
                     ),

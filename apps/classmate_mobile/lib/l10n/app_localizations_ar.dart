@@ -8070,4 +8070,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSchoolAddGradeRange => 'إضافة نطاق';
+
+  @override
+  String get teacherListStudents => 'قائمة الطلاب';
+
+  @override
+  String get teacherNoStudentsInvolved => 'لا يوجد طلاب في هذه الحصة بعد.';
+
+  @override
+  String get messagesFilterAdmins => 'المشرفون';
 }

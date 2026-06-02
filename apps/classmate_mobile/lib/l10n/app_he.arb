@@ -3152,5 +3152,8 @@
   "reorderToolsSettingsSection": "תפריט",
   "reorderToolsSettingsSubtitle": "סידור הכלים בתפריט הצד",
   "adminSchoolGradeRangesDescription": "הגדירו אילו כיתות קיימות בבית הספר. הוסיפו מספר טווחים אם מדלגים על כיתות (למשל 4-6 ו-9-12).",
-  "adminSchoolAddGradeRange": "הוספת טווח"
+  "adminSchoolAddGradeRange": "הוספת טווח",
+  "teacherListStudents": "רשימת תלמידים",
+  "teacherNoStudentsInvolved": "אין תלמידים בשיעור הזה עדיין.",
+  "messagesFilterAdmins": "מנהלים"
 }

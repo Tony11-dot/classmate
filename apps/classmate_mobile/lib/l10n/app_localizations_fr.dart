@@ -8231,4 +8231,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminSchoolAddGradeRange => 'Ajouter une plage';
+
+  @override
+  String get teacherListStudents => 'Liste des élèves';
+
+  @override
+  String get teacherNoStudentsInvolved =>
+      'Aucun élève dans ce créneau pour l\'instant.';
+
+  @override
+  String get messagesFilterAdmins => 'Admins';
 }

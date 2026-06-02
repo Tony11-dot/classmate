@@ -8096,4 +8096,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminSchoolAddGradeRange => 'Добавить диапазон';
+
+  @override
+  String get teacherListStudents => 'Список учеников';
+
+  @override
+  String get teacherNoStudentsInvolved => 'В этом уроке пока нет учеников.';
+
+  @override
+  String get messagesFilterAdmins => 'Администраторы';
 }

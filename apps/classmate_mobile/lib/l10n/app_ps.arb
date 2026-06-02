@@ -3776,5 +3776,8 @@
   "reorderToolsSettingsSection": "‹‹Menu››",
   "reorderToolsSettingsSubtitle": "‹‹Reorder the tools in your side menu››",
   "adminSchoolGradeRangesDescription": "‹‹Set which grades your school covers. Add multiple ranges if some grades are skipped (e.g. 4-6 and 9-12).››",
-  "adminSchoolAddGradeRange": "‹‹Add range››"
+  "adminSchoolAddGradeRange": "‹‹Add range››",
+  "teacherListStudents": "‹‹List students››",
+  "teacherNoStudentsInvolved": "‹‹No students in this period yet.››",
+  "messagesFilterAdmins": "‹‹Admins››"
 }

@@ -8035,4 +8035,13 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSchoolAddGradeRange => 'הוספת טווח';
+
+  @override
+  String get teacherListStudents => 'רשימת תלמידים';
+
+  @override
+  String get teacherNoStudentsInvolved => 'אין תלמידים בשיעור הזה עדיין.';
+
+  @override
+  String get messagesFilterAdmins => 'מנהלים';
 }

@@ -3359,5 +3359,8 @@
   "reorderToolsSettingsSection": "Меню",
   "reorderToolsSettingsSubtitle": "Изменить порядок инструментов в боковом меню",
   "adminSchoolGradeRangesDescription": "Укажите, какие классы есть в школе. Добавьте несколько диапазонов, если некоторые классы отсутствуют (например, 4-6 и 9-12).",
-  "adminSchoolAddGradeRange": "Добавить диапазон"
+  "adminSchoolAddGradeRange": "Добавить диапазон",
+  "teacherListStudents": "Список учеников",
+  "teacherNoStudentsInvolved": "В этом уроке пока нет учеников.",
+  "messagesFilterAdmins": "Администраторы"
 }

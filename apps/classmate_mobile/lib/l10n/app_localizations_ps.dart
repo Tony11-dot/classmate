@@ -8163,4 +8163,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminSchoolAddGradeRange => '‹‹Add range››';
+
+  @override
+  String get teacherListStudents => '‹‹List students››';
+
+  @override
+  String get teacherNoStudentsInvolved => '‹‹No students in this period yet.››';
+
+  @override
+  String get messagesFilterAdmins => '‹‹Admins››';
 }
