@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/realtime/realtime_listener.dart';
+import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 import 'data/exams_repository.dart';
 import 'data/forms_repository.dart';
 import 'domain/exam_models.dart';
@@ -71,6 +73,7 @@ class ExamsScreen extends ConsumerStatefulWidget {
 
 class _ExamsScreenState extends ConsumerState<ExamsScreen> {
   String _filter = _allSubjectsFilter;
+  bool _showingPrevious = false;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +121,18 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
     final filteredForms = _filter == _allSubjectsFilter
         ? forms
         : forms.where((f) => f.subject == _filter).toList(growable: false);
+
+    // Semester partition (exams only — forms carry no scheduled date)
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semExams = partitionBySemester<StudentExamItem>(
+      filteredExams,
+      (e) => _parseDate(e.dateLabel),
+      semWindow,
+    );
+    final visibleExams = (semWindow == null || !_showingPrevious)
+        ? semExams.current
+        : semExams.previous;
+    final showSemesterBar = !isFormsOnly && semWindow != null;
 
     final upcomingExams = exams.where((e) => _statusOf(e) != _ExamStatus.past).length;
     final openForms = forms.where((f) => f.acceptingResponses).length;
@@ -231,6 +246,14 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
                     .toList(growable: false),
               ),
             ),
+            if (showSemesterBar)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: SemesterFilterBar(
+                  showingPrevious: _showingPrevious,
+                  onChanged: (v) => setState(() => _showingPrevious = v),
+                ),
+              ),
           ],
         ),
       );
@@ -241,9 +264,9 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
         ? (filteredForms.isEmpty
             ? [_emptyCard(context, cs, l, filter: _filter, isForms: true)]
             : filteredForms.map((f) => _FormCard(form: f)).toList())
-        : (filteredExams.isEmpty
+        : (visibleExams.isEmpty
             ? [_emptyCard(context, cs, l, filter: _filter, isForms: false)]
-            : filteredExams.map((e) => _ExamCard(exam: e, status: _statusOf(e), countdown: _countdownLabel(l, e))).toList());
+            : visibleExams.map((e) => _ExamCard(exam: e, status: _statusOf(e), countdown: _countdownLabel(l, e))).toList());
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),

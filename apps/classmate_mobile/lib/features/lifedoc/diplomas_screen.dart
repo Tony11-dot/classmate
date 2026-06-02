@@ -7,8 +7,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
+import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 import '../teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../parent/data/parent_repository.dart';
@@ -36,6 +38,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
   List<Map<String, dynamic>> _diplomas = [];
   bool _loading = true;
   String? _error;
+  bool _showingPrevious = false;
 
   @override
   void initState() {
@@ -249,6 +252,16 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     final cs = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
 
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semParts = partitionBySemester<Map<String, dynamic>>(
+      _diplomas,
+      (d) => DateTime.tryParse((d['issuedAt'] ?? d['date'] ?? '').toString()),
+      semWindow,
+    );
+    final visible = (semWindow == null || !_showingPrevious)
+        ? semParts.current
+        : semParts.previous;
+
     ref.listen<int>(diplomasCreateTriggerProvider, (prev, next) {
       if ((next) > (prev ?? 0)) {
         context.push<bool>('/diplomas/create').then((_) {
@@ -289,6 +302,12 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
           ),
           const SizedBox(height: 16),
 
+          SemesterFilterBar(
+            visible: semWindow != null,
+            showingPrevious: _showingPrevious,
+            onChanged: (v) => setState(() => _showingPrevious = v),
+          ),
+
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -307,7 +326,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
 
           if (_loading && _diplomas.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
-          else if (_diplomas.isEmpty)
+          else if (visible.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(40),
@@ -325,7 +344,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
               ),
             )
           else
-            ...(_diplomas.map((d) {
+            ...(visible.map((d) {
               final id = d['id'] as String? ?? '';
               // Teacher view uses studentName; student view uses issuedBy (teacher name)
               final isTeacher = _isTeacher;

@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/realtime/realtime_listener.dart';
+import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/attachment_pill.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
@@ -301,6 +303,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
 
   String _selectedSubject = _allSubjects;
   String _selectedState = _allStates;
+  bool _showingPrevious = false;
 
   List<Map<String, dynamic>> _filteredItems(List<Map<String, dynamic>> items) {
     return items.where((item) {
@@ -361,6 +364,16 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
             _assignmentStateNoDueDate,
           ];
           final filtered = _filteredItems(items);
+          final semWindow = ref.watch(currentSemesterWindowProvider);
+          final semParts = partitionBySemester<Map<String, dynamic>>(
+            filtered,
+            (item) => _parseFlexibleDate(_stringValue(item, 'dueAt')) ??
+                _parseFlexibleDate(_stringValue(item, 'createdAt')),
+            semWindow,
+          );
+          final visible = (semWindow == null || !_showingPrevious)
+              ? semParts.current
+              : semParts.previous;
           final dueSoonCount = items
               .where((item) => _statusForAssignment(item) == _assignmentStateDueSoon)
               .length;
@@ -512,7 +525,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                l.assignmentsShowingSummary(filtered.length, items.length),
+                                l.assignmentsShowingSummary(visible.length, items.length),
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   height: 1.35,
@@ -531,8 +544,15 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
                       ],
                     ),
                   ),
+                  if (semWindow != null) ...[
+                    const SizedBox(height: 12),
+                    SemesterFilterBar(
+                      showingPrevious: _showingPrevious,
+                      onChanged: (v) => setState(() => _showingPrevious = v),
+                    ),
+                  ],
                   const SizedBox(height: 16),
-                  if (filtered.isEmpty)
+                  if (visible.isEmpty)
                     _EmptyStateCard(
                       title: l.assignmentsNoFilterMatchesTitle,
                       subtitle: l.assignmentsNoFilterMatchesSubtitle,
@@ -545,7 +565,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
                       title: l.navAssignments,
                       subtitle: l.assignmentsListSubtitle,
                       child: Column(
-                        children: filtered
+                        children: visible
                             .map(
                               (item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 12),

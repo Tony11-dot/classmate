@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../parent/data/parent_repository.dart';
 import '../parent/data/viewed_student_context.dart';
@@ -33,6 +35,8 @@ class StudentMaterialsScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen> {
+  bool _showingPrevious = false;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -60,6 +64,17 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
           ),
         ),
         data: (items) {
+          final semWindow = ref.watch(currentSemesterWindowProvider);
+          final semParts = partitionBySemester<Map<String, dynamic>>(
+            items,
+            (m) => DateTime.tryParse(
+                (m['createdAt'] ?? m['publishedAt'] ?? m['date'] ?? '').toString()),
+            semWindow,
+          );
+          final visible = (semWindow == null || !_showingPrevious)
+              ? semParts.current
+              : semParts.previous;
+
           if (items.isEmpty) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -94,7 +109,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
 
           // Group by subject
           final grouped = <String, List<Map<String, dynamic>>>{};
-          for (final item in items) {
+          for (final item in visible) {
             final subject = (item['subject'] as String? ?? '').trim();
             final key = subject.isNotEmpty ? subject : l.studentMaterialsGeneralSubject;
             grouped.putIfAbsent(key, () => []).add(item);
@@ -122,6 +137,12 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                 ]),
               ),
               const SizedBox(height: 20),
+
+              SemesterFilterBar(
+                visible: semWindow != null,
+                showingPrevious: _showingPrevious,
+                onChanged: (v) => setState(() => _showingPrevious = v),
+              ),
 
               // Subject sections
               for (final subject in subjects) ...[
