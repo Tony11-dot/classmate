@@ -34,3 +34,22 @@ export type ModerateSolutionBody = {
   moderationReason?: string | null;
   isDeleted?: boolean;
 };
+
+export type CreateBookBody = {
+  subject: string;
+  title: string;
+  pages: number;
+};
+
+export type UpdateBookBody = {
+  title?: string;
+  pages?: number;
+};
+
+export type ReportSolutionBody = {
+  reason?: string | null;
+};
+
+export type ResolveReportBody = {
+  action: 'approve' | 'remove';
+};

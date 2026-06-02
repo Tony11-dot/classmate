@@ -1556,17 +1556,48 @@ enum SolutionVerificationStatus {
   REJECTED
 }
 
+// PENDING  — newly filed, awaiting an admin decision
+// APPROVED — admin reviewed and kept the solution (report dismissed)
+// REMOVED  — admin removed the solution (it is soft-deleted)
+enum SolutionReportStatus {
+  PENDING
+  APPROVED
+  REMOVED
+}
+
 model SolutionBook {
   id        String   @id @default(cuid())
   subject   String
   title     String
   slug      String?
+  // Number of pages in the book — set by the admin/teacher who creates it.
+  pages     Int      @default(0)
   createdAt DateTime @default(now())
 
   solutions SolutionUpload[]
 
   @@unique([subject, title])
   @@index([subject])
+}
+
+// A student-filed report against a solution. Reaches the admins of BOTH
+// involved schools (the reporter's and the poster's). Admins view the whole
+// thing and either APPROVE (keep) or REMOVE (soft-delete the solution).
+model SolutionReport {
+  id           String               @id @default(cuid())
+  uploadId     String
+  reporterId   String
+  reason       String?
+  status       SolutionReportStatus @default(PENDING)
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime             @default(now())
+
+  upload SolutionUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@index([uploadId])
+  @@index([status, createdAt])
+  @@index([reporterId])
 }
 
 model SolutionUpload {
@@ -1587,8 +1618,9 @@ model SolutionUpload {
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 
-  book  SolutionBook         @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  files SolutionUploadFile[]
+  book    SolutionBook         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  files   SolutionUploadFile[]
+  reports SolutionReport[]
 
   @@index([userId, createdAt])
   @@index([subject, pageNumber, createdAt])

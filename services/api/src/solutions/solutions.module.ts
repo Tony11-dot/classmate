@@ -3,13 +3,11 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { SolutionsController } from './solutions.controller';
 import { SolutionsStaffController } from './solutions.staff.controller';
 import { SolutionsService } from './solutions.service';
-import { NovaVerifyService } from '../nova/nova.verify.service';
-import { BillingModule } from '../billing/billing.module';
 
 @Module({
-  imports: [PrismaModule, BillingModule],
+  imports: [PrismaModule],
   controllers: [SolutionsController, SolutionsStaffController],
-  providers: [SolutionsService, NovaVerifyService],
+  providers: [SolutionsService],
   exports: [SolutionsService],
 })
 export class SolutionsModule {}

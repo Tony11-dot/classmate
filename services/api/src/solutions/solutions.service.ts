@@ -1,19 +1,22 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NovaVerifyService } from '../nova/nova.verify.service';
+import { NotificationsHubService } from '../notifications/notifications-hub.service';
 import type {
+  CreateBookBody,
   CreateSolutionUploadBody,
   ListSolutionsQuery,
   ModerateSolutionBody,
+  ReportSolutionBody,
+  ResolveReportBody,
+  UpdateBookBody,
   VerifySolutionBody,
 } from './solutions.types';
 
 @Injectable()
-
 export class SolutionsService {
   constructor(
-    private readonly novaVerify: NovaVerifyService,
     private readonly prisma: PrismaService,
+    private readonly hub: NotificationsHubService,
   ) {}
 
   private userIdOf(user: any): string {
@@ -28,6 +31,17 @@ export class SolutionsService {
     const roles = this.rolesOf(user).map((x) => x.toUpperCase());
     return roles.includes('ADMIN') || roles.includes('TEACHER') || roles.includes('SECRETARY');
   }
+
+  private isBookManager(user: any): boolean {
+    const roles = this.rolesOf(user).map((x) => x.toUpperCase());
+    return roles.includes('ADMIN') || roles.includes('TEACHER');
+  }
+
+  private isAdmin(user: any): boolean {
+    return this.rolesOf(user).map((x) => x.toUpperCase()).includes('ADMIN');
+  }
+
+  // ── Solution uploads ──────────────────────────────────────────────────
 
   async create(user: any, body: CreateSolutionUploadBody) {
     const userId = this.userIdOf(user);
@@ -47,28 +61,14 @@ export class SolutionsService {
     }
     if (!files.length) throw new BadRequestException('at least one file required');
 
-    const verification = await this.novaVerify.verifySolution({
-      caption: body.caption?.trim() || undefined,
-      files: files.map((f) => ({
-        mimeType: String(f.mimeType ?? ''),
-      })),
-      billingUserId: userId,
+    // Books are set by admins/teachers only — students can no longer create
+    // them implicitly by uploading. The book MUST already exist.
+    const book = await this.prisma.solutionBook.findUnique({
+      where: { subject_title: { subject, title: bookTitle } },
     });
-
-    const book = await this.prisma.solutionBook.upsert({
-      where: {
-        subject_title: {
-          subject,
-          title: bookTitle,
-        },
-      },
-      update: {},
-      create: {
-        subject,
-        title: bookTitle,
-        slug: bookTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      },
-    });
+    if (!book) {
+      throw new BadRequestException('Selected book does not exist for this subject');
+    }
 
     const created = await this.prisma.solutionUpload.create({
       data: {
@@ -80,14 +80,8 @@ export class SolutionsService {
         questionNumber,
         uploaderName: body.uploaderName?.trim() || null,
         uploaderInitials: body.uploaderInitials?.trim() || null,
-        moderationStatus: 'PENDING',
-        verificationStatus:
-          verification.status === 'VERIFIED'
-            ? 'VERIFIED'
-            : verification.status === 'REJECTED'
-              ? 'REJECTED'
-              : 'UNCHECKED',
-        verificationNote: verification.reason ?? null,
+        moderationStatus: 'APPROVED',
+        verificationStatus: 'UNCHECKED',
         files: {
           create: files.map((f, index) => ({
             kind: String(f.kind ?? 'file'),
@@ -111,6 +105,32 @@ export class SolutionsService {
     return { ok: true, upload: created };
   }
 
+  /// Builds a userId -> { name, grade, schoolName } map for a set of uploads.
+  /// Each solution card shows the poster's name + grade + school, globally.
+  private async authorsFor(userIds: string[]) {
+    const ids = [...new Set(userIds.filter(Boolean))];
+    if (!ids.length) return new Map<string, { name: string; grade: number | null; schoolName: string | null }>();
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: ids } },
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        school: { select: { name: true } },
+        studentProfile: { select: { grade: true } },
+      },
+    });
+    const map = new Map<string, { name: string; grade: number | null; schoolName: string | null }>();
+    for (const u of users) {
+      map.set(u.id, {
+        name: (u.displayName?.trim() || u.name || '').trim(),
+        grade: u.studentProfile?.grade ?? null,
+        schoolName: u.school?.name ?? null,
+      });
+    }
+    return map;
+  }
+
   async list(query: ListSolutionsQuery) {
     const page = Math.max(1, Number(query.page ?? 1));
     const limit = Math.min(30, Math.max(1, Number(query.limit ?? 12)));
@@ -124,19 +144,15 @@ export class SolutionsService {
         ? Number(query.pageNumber)
         : null;
 
+    // GLOBAL feed — intentionally NOT scoped to the viewer's school. Students
+    // see solutions + books from every school.
     const where: any = {
       isDeleted: false,
       moderationStatus: { not: 'REJECTED' },
       ...(subject ? { subject } : {}),
       ...(pageNumber != null ? { pageNumber } : {}),
       ...(questionNumber ? { questionNumber } : {}),
-      ...(bookTitle
-        ? {
-            book: {
-              title: bookTitle,
-            },
-          }
-        : {}),
+      ...(bookTitle ? { book: { title: bookTitle } } : {}),
     };
 
     const [total, items] = await Promise.all([
@@ -145,7 +161,7 @@ export class SolutionsService {
         where,
         skip,
         take: limit,
-        orderBy: [{ verificationStatus: 'desc' }, { createdAt: 'desc' }],
+        orderBy: [{ createdAt: 'desc' }],
         include: {
           book: true,
           files: { orderBy: { sortOrder: 'asc' } },
@@ -153,15 +169,23 @@ export class SolutionsService {
       }),
     ]);
 
+    const authors = await this.authorsFor(items.map((i) => i.userId));
+    const enriched = items.map((i) => ({
+      ...i,
+      author: authors.get(i.userId) ?? { name: i.uploaderName ?? '', grade: null, schoolName: null },
+    }));
+
     return {
       ok: true,
       page,
       limit,
       total,
       hasMore: skip + items.length < total,
-      items,
+      items: enriched,
     };
   }
+
+  // ── Books (admin/teacher managed) ─────────────────────────────────────
 
   async books(subject?: string) {
     const where = subject ? { subject: String(subject).trim() } : {};
@@ -181,27 +205,238 @@ export class SolutionsService {
     return { ok: true, subjects: rows.map((x) => x.subject) };
   }
 
+  private slugify(s: string): string {
+    return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  async createBook(user: any, body: CreateBookBody) {
+    if (!this.isBookManager(user)) throw new ForbiddenException('Only teachers and admins can manage books');
+    const subject = String(body.subject ?? '').trim();
+    const title = String(body.title ?? '').trim();
+    const pages = Number(body.pages ?? 0);
+    if (!subject) throw new BadRequestException('subject required');
+    if (!title) throw new BadRequestException('title required');
+    if (!Number.isFinite(pages) || pages <= 0) throw new BadRequestException('pages must be positive');
+
+    const book = await this.prisma.solutionBook.upsert({
+      where: { subject_title: { subject, title } },
+      update: { pages: Math.trunc(pages) },
+      create: { subject, title, pages: Math.trunc(pages), slug: this.slugify(title) },
+    });
+    return { ok: true, book };
+  }
+
+  async updateBook(user: any, id: string, body: UpdateBookBody) {
+    if (!this.isBookManager(user)) throw new ForbiddenException('Only teachers and admins can manage books');
+    const data: any = {};
+    if (body.title != null && String(body.title).trim()) {
+      data.title = String(body.title).trim();
+      data.slug = this.slugify(data.title);
+    }
+    if (body.pages != null) {
+      const pages = Number(body.pages);
+      if (!Number.isFinite(pages) || pages <= 0) throw new BadRequestException('pages must be positive');
+      data.pages = Math.trunc(pages);
+    }
+    const book = await this.prisma.solutionBook.update({ where: { id }, data });
+    return { ok: true, book };
+  }
+
+  async deleteBook(user: any, id: string) {
+    if (!this.isBookManager(user)) throw new ForbiddenException('Only teachers and admins can manage books');
+    const count = await this.prisma.solutionUpload.count({ where: { bookId: id, isDeleted: false } });
+    if (count > 0) {
+      throw new BadRequestException(`Cannot delete a book that still has ${count} solution(s)`);
+    }
+    await this.prisma.solutionBook.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  // ── Reporting ─────────────────────────────────────────────────────────
+
+  private async adminIdsForSchools(schoolIds: (string | null | undefined)[]): Promise<string[]> {
+    const ids = [...new Set(schoolIds.filter((x): x is string => !!x))];
+    if (!ids.length) return [];
+    const admins = await this.prisma.user.findMany({
+      where: { schoolId: { in: ids }, roles: { some: { role: 'ADMIN' as any } } },
+      select: { id: true },
+    });
+    return admins.map((a) => a.id);
+  }
+
+  async report(user: any, uploadId: string, body: ReportSolutionBody) {
+    const reporterId = this.userIdOf(user);
+    if (!reporterId) throw new ForbiddenException('Unauthorized');
+
+    const upload = await this.prisma.solutionUpload.findUnique({
+      where: { id: uploadId },
+      select: { id: true, userId: true, isDeleted: true },
+    });
+    if (!upload || upload.isDeleted) throw new BadRequestException('Solution not found');
+
+    // Don't pile up duplicate pending reports from the same reporter.
+    const existing = await this.prisma.solutionReport.findFirst({
+      where: { uploadId, reporterId, status: 'PENDING' },
+      select: { id: true },
+    });
+    if (existing) return { ok: true, alreadyReported: true };
+
+    const report = await this.prisma.solutionReport.create({
+      data: { uploadId, reporterId, reason: body?.reason?.trim() || null },
+    });
+
+    const [reporter, poster] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: reporterId }, select: { schoolId: true, name: true } }),
+      this.prisma.user.findUnique({ where: { id: upload.userId }, select: { schoolId: true, name: true } }),
+    ]);
+
+    const adminIds = await this.adminIdsForSchools([reporter?.schoolId, poster?.schoolId]);
+    if (adminIds.length) {
+      await this.hub.notify({
+        recipientUserIds: adminIds,
+        type: 'SOLUTION_REPORT',
+        title: 'Solution reported',
+        body: `A solution by ${poster?.name ?? 'a student'} was reported and needs review.`,
+        data: { reportId: report.id, uploadId, route: '/admin/solution-reports' },
+        fanOutToParents: false,
+        severity: 'warning',
+      });
+    }
+
+    return { ok: true, report };
+  }
+
+  /// Admin view: every report touching the admin's school — whether the
+  /// reporter OR the poster belongs to it — newest pending first.
+  async listReports(user: any) {
+    if (!this.isAdmin(user)) throw new ForbiddenException('Admins only');
+    const adminId = this.userIdOf(user);
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId }, select: { schoolId: true } });
+    const adminSchool = admin?.schoolId ?? null;
+    if (!adminSchool) return { ok: true, items: [] };
+
+    const reports = await this.prisma.solutionReport.findMany({
+      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+      take: 300,
+      include: {
+        upload: {
+          include: { book: true, files: { orderBy: { sortOrder: 'asc' } } },
+        },
+      },
+    });
+
+    const userIds = reports.flatMap((r) => [r.reporterId, r.upload.userId]);
+    const people = await this.prisma.user.findMany({
+      where: { id: { in: [...new Set(userIds)] } },
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        schoolId: true,
+        school: { select: { name: true } },
+        studentProfile: { select: { grade: true } },
+      },
+    });
+    const personMap = new Map(people.map((p) => [p.id, p]));
+
+    const items = reports
+      .map((r) => {
+        const reporter = personMap.get(r.reporterId);
+        const poster = personMap.get(r.upload.userId);
+        return { r, reporter, poster };
+      })
+      // Only reports where THIS admin's school is involved (reporter or poster).
+      .filter(({ reporter, poster }) => reporter?.schoolId === adminSchool || poster?.schoolId === adminSchool)
+      .map(({ r, reporter, poster }) => ({
+        id: r.id,
+        status: r.status,
+        reason: r.reason,
+        createdAt: r.createdAt,
+        resolvedAt: r.resolvedAt,
+        upload: r.upload,
+        reporter: reporter
+          ? {
+              name: (reporter.displayName?.trim() || reporter.name || '').trim(),
+              grade: reporter.studentProfile?.grade ?? null,
+              schoolName: reporter.school?.name ?? null,
+            }
+          : null,
+        poster: poster
+          ? {
+              name: (poster.displayName?.trim() || poster.name || '').trim(),
+              grade: poster.studentProfile?.grade ?? null,
+              schoolName: poster.school?.name ?? null,
+            }
+          : null,
+      }));
+
+    return { ok: true, items };
+  }
+
+  async resolveReport(user: any, reportId: string, body: ResolveReportBody) {
+    if (!this.isAdmin(user)) throw new ForbiddenException('Admins only');
+    const adminId = this.userIdOf(user);
+    const action = String(body?.action ?? '').toLowerCase();
+    if (action !== 'approve' && action !== 'remove') {
+      throw new BadRequestException("action must be 'approve' or 'remove'");
+    }
+
+    const report = await this.prisma.solutionReport.findUnique({
+      where: { id: reportId },
+      include: { upload: { select: { id: true, userId: true } } },
+    });
+    if (!report) throw new BadRequestException('Report not found');
+
+    // Confirm the acting admin's school is involved.
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId }, select: { schoolId: true } });
+    const [reporter, poster] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: report.reporterId }, select: { schoolId: true } }),
+      this.prisma.user.findUnique({ where: { id: report.upload.userId }, select: { schoolId: true } }),
+    ]);
+    const involved =
+      admin?.schoolId && (admin.schoolId === reporter?.schoolId || admin.schoolId === poster?.schoolId);
+    if (!involved) throw new ForbiddenException('This report does not involve your school');
+
+    const status = action === 'remove' ? 'REMOVED' : 'APPROVED';
+
+    if (action === 'remove') {
+      await this.prisma.solutionUpload.update({
+        where: { id: report.uploadId },
+        data: { isDeleted: true, moderationStatus: 'REJECTED', moderationReason: 'Removed after report' },
+      });
+    } else {
+      await this.prisma.solutionUpload.update({
+        where: { id: report.uploadId },
+        data: { moderationStatus: 'APPROVED' },
+      });
+    }
+
+    // Resolve every pending report on this upload in one stroke.
+    await this.prisma.solutionReport.updateMany({
+      where: { uploadId: report.uploadId, status: 'PENDING' },
+      data: { status: status as any, resolvedById: adminId, resolvedAt: new Date() },
+    });
+
+    return { ok: true, status };
+  }
+
+  // ── Legacy staff actions (kept for the staff controller) ──────────────
+
   async verify(user: any, id: string, body: VerifySolutionBody) {
     if (!this.isStaff(user)) throw new ForbiddenException('Staff only');
-
     const updated = await this.prisma.solutionUpload.update({
       where: { id },
       data: {
         verificationStatus: body.verificationStatus,
         verificationNote: body.verificationNote?.trim() || null,
       },
-      include: {
-        book: true,
-        files: { orderBy: { sortOrder: 'asc' } },
-      },
+      include: { book: true, files: { orderBy: { sortOrder: 'asc' } } },
     });
-
     return { ok: true, upload: updated };
   }
 
   async moderate(user: any, id: string, body: ModerateSolutionBody) {
     if (!this.isStaff(user)) throw new ForbiddenException('Staff only');
-
     const updated = await this.prisma.solutionUpload.update({
       where: { id },
       data: {
@@ -209,12 +444,8 @@ export class SolutionsService {
         moderationReason: body.moderationReason?.trim() || null,
         isDeleted: body.isDeleted === true,
       },
-      include: {
-        book: true,
-        files: { orderBy: { sortOrder: 'asc' } },
-      },
+      include: { book: true, files: { orderBy: { sortOrder: 'asc' } } },
     });
-
     return { ok: true, upload: updated };
   }
 }
