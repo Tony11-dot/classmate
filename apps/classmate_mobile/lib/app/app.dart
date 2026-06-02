@@ -79,7 +79,30 @@ class ClassMateApp extends ConsumerWidget {
         // the finger-following swipe-back themselves; top-level tabs keep the
         // Scaffold's native swipe-to-open-drawer. No custom edge gesture
         // needed (a custom one would fight the native back gesture).
-        return _NotificationReceiverHost(child: dismissOnDragChild);
+        final hosted = _NotificationReceiverHost(child: dismissOnDragChild);
+
+        // Responsive frame: on wide screens (web / desktop / tablet-landscape)
+        // the phone-first UI is centered at a comfortable max width with neat
+        // gutters instead of being stretched edge-to-edge. Phones and narrow
+        // tablets render full-width, unchanged.
+        return LayoutBuilder(
+          builder: (ctx, constraints) {
+            const maxContentWidth = 720.0;
+            if (constraints.maxWidth <= maxContentWidth + 48) return hosted;
+            final cs = Theme.of(ctx).colorScheme;
+            return ColoredBox(
+              color: cs.surfaceContainerHighest,
+              child: Center(
+                child: ClipRect(
+                  child: SizedBox(
+                    width: maxContentWidth,
+                    child: hosted,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }
