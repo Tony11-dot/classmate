@@ -79,47 +79,12 @@ class ClassMateApp extends ConsumerWidget {
         // the finger-following swipe-back themselves; top-level tabs keep the
         // Scaffold's native swipe-to-open-drawer. No custom edge gesture
         // needed (a custom one would fight the native back gesture).
-        final hosted = _NotificationReceiverHost(child: dismissOnDragChild);
-
-        // Responsive frame: on wide screens (web / desktop / tablet-landscape)
-        // the phone-first UI is centered at a comfortable max width with neat
-        // gutters instead of being stretched edge-to-edge. Phones and narrow
-        // tablets render full-width, unchanged.
-        return LayoutBuilder(
-          builder: (ctx, constraints) {
-            const maxContentWidth = 760.0;
-            if (constraints.maxWidth <= maxContentWidth + 48) return hosted;
-            final cs = Theme.of(ctx).colorScheme;
-            final dark = Theme.of(ctx).brightness == Brightness.dark;
-            // Wide screens (Mac / PC / tablet-landscape): float the app as a
-            // centered panel with a soft shadow on a tinted gradient backdrop —
-            // reads as an intentional layout, not a stretched phone.
-            return DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.alphaBlend(cs.primary.withValues(alpha: dark ? 0.08 : 0.06), cs.surfaceContainerHigh),
-                    cs.surfaceContainerHighest,
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Material(
-                  color: cs.surface,
-                  elevation: 10,
-                  shadowColor: Colors.black.withValues(alpha: 0.3),
-                  child: SizedBox(
-                    width: maxContentWidth,
-                    height: double.infinity,
-                    child: hosted,
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+        // The app's own shell already provides a proper desktop layout on wide
+        // viewports (persistent nav rail + content capped at a readable width,
+        // à la Twitter/Instagram web — see AppShell, breakpoint 900px). So we
+        // hand off directly and let it fill the window; no extra frame (an
+        // earlier max-width wrapper fought the shell and squished the rail).
+        return _NotificationReceiverHost(child: dismissOnDragChild);
       },
     );
   }
