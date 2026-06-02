@@ -63,6 +63,22 @@ class _RootApp extends ConsumerStatefulWidget {
 
 class _RootAppState extends ConsumerState<_RootApp> {
   bool _animationDone = false;
+  bool _forceReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Safety net so the splash can NEVER trap the app on a white screen — e.g.
+    // if the Lottie intro fails to fire onComplete (seen on web) or the auth
+    // session stalls. After a short grace, stop waiting on the animation; after
+    // a longer one, hand off regardless so the router lands on login/home.
+    Timer(const Duration(milliseconds: 3500), () {
+      if (mounted && !_animationDone) setState(() => _animationDone = true);
+    });
+    Timer(const Duration(seconds: 9), () {
+      if (mounted && !_forceReady) setState(() => _forceReady = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +94,7 @@ class _RootAppState extends ConsumerState<_RootApp> {
     return ListenableBuilder(
       listenable: session,
       builder: (context, _) {
-        final ready = _animationDone && session.ready;
+        final ready = _forceReady || (_animationDone && session.ready);
         // After splash: hand off to the full app (which has its own
         // MaterialApp, theme, etc.)
         if (ready) return const RealtimeListener(child: ClassMateApp());
