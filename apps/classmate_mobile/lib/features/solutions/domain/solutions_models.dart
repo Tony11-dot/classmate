@@ -1,3 +1,5 @@
+import 'solution_subjects.dart';
+
 enum SolutionAssetKind { image, pdf }
 
 class SolutionUploadAsset {
@@ -24,12 +26,15 @@ class SolutionBook {
   final String subjectId;
   /// Total number of pages in the book; used to bound the page drum picker.
   final int pageCount;
+  /// Optional cover image (full URL) set by the admin/teacher.
+  final String? coverUrl;
 
   const SolutionBook({
     required this.id,
     required this.title,
     required this.subjectId,
     this.pageCount = 500,
+    this.coverUrl,
   });
 }
 
@@ -49,6 +54,9 @@ class QuestionSolutionCard {
   final String id;
   final String uploaderName;
   final String uploaderInitials;
+  /// Poster's grade + school — shown on every card (feed is global).
+  final int? grade;
+  final String? schoolName;
   final String subjectId;
   final String bookId;
   final String pageNumber;
@@ -65,6 +73,8 @@ class QuestionSolutionCard {
     required this.id,
     required this.uploaderName,
     required this.uploaderInitials,
+    this.grade,
+    this.schoolName,
     required this.subjectId,
     required this.bookId,
     required this.pageNumber,
@@ -117,49 +127,15 @@ class SolutionsFlowState {
   });
 
   factory SolutionsFlowState.initial() {
-    final mathBooks = <SolutionBook>[
-      const SolutionBook(
-        id: 'math-book-1',
-        title: 'Bagrut Algebra Workbook',
-        subjectId: 'math',
-      ),
-      const SolutionBook(
-        id: 'math-book-2',
-        title: 'Functions and Calculus Prep',
-        subjectId: 'math',
-      ),
-    ];
-
-    final physicsBooks = <SolutionBook>[
-      const SolutionBook(
-        id: 'physics-book-1',
-        title: 'Physics Mechanics Book',
-        subjectId: 'physics',
-      ),
-      const SolutionBook(
-        id: 'physics-book-2',
-        title: 'Electricity and Circuits',
-        subjectId: 'physics',
-      ),
-    ];
-
-    final csBooks = <SolutionBook>[
-      const SolutionBook(
-        id: 'cs-book-1',
-        title: 'Algorithms Basics',
-        subjectId: 'cs',
-      ),
-      const SolutionBook(
-        id: 'cs-book-2',
-        title: 'Intro to C# and Logic',
-        subjectId: 'cs',
-      ),
-    ];
-
+    // Canonical, app-wide subject list (keys). Books are loaded from the API
+    // (admin/teacher-managed) — never hardcoded and never student-created.
     final subjects = <SolutionSubject>[
-      SolutionSubject(id: 'math', title: 'Math', books: mathBooks),
-      SolutionSubject(id: 'physics', title: 'Physics', books: physicsBooks),
-      SolutionSubject(id: 'cs', title: 'Computer Science', books: csBooks),
+      for (final key in kSolutionSubjectKeys)
+        SolutionSubject(
+          id: key,
+          title: kSolutionSubjectEnglish[key] ?? key,
+          books: const <SolutionBook>[],
+        ),
     ];
 
     return SolutionsFlowState(

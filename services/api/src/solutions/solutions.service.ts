@@ -218,10 +218,11 @@ export class SolutionsService {
     if (!title) throw new BadRequestException('title required');
     if (!Number.isFinite(pages) || pages <= 0) throw new BadRequestException('pages must be positive');
 
+    const coverUrl = body.coverUrl?.trim() || null;
     const book = await this.prisma.solutionBook.upsert({
       where: { subject_title: { subject, title } },
-      update: { pages: Math.trunc(pages) },
-      create: { subject, title, pages: Math.trunc(pages), slug: this.slugify(title) },
+      update: { pages: Math.trunc(pages), ...(coverUrl != null ? { coverUrl } : {}) },
+      create: { subject, title, pages: Math.trunc(pages), coverUrl, slug: this.slugify(title) },
     });
     return { ok: true, book };
   }
@@ -237,6 +238,9 @@ export class SolutionsService {
       const pages = Number(body.pages);
       if (!Number.isFinite(pages) || pages <= 0) throw new BadRequestException('pages must be positive');
       data.pages = Math.trunc(pages);
+    }
+    if (body.coverUrl !== undefined) {
+      data.coverUrl = body.coverUrl?.trim() || null;
     }
     const book = await this.prisma.solutionBook.update({ where: { id }, data });
     return { ok: true, book };

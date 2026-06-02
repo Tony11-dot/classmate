@@ -1,15 +1,18 @@
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../core/auth/auth_session.dart';
-import '../../../core/contracts/school_subject.dart';
-import '../../../core/http/cm_api.dart';
+import '../../../core/config/env.dart';
 import '../data/solutions_api.dart';
 import '../domain/solutions_models.dart';
 
-const _kCustomBooksKey = 'solutions_custom_books_v1';
+/// Turns a relative `/uploads/...` path into a full URL; passes absolute
+/// http(s) URLs through unchanged.
+String _resolveUrl(String raw) {
+  final s = raw.trim();
+  if (s.isEmpty) return s;
+  if (s.startsWith('http://') || s.startsWith('https://')) return s;
+  final base = Env.apiBaseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+  return '$base${s.startsWith('/') ? s : '/$s'}';
+}
 
 final solutionsFlowProvider =
     NotifierProvider<SolutionsFlowNotifier, SolutionsFlowState>(
@@ -19,146 +22,80 @@ final solutionsFlowProvider =
 class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   @override
   SolutionsFlowState build() {
-    // Try to populate the subject list from the user's school first, then
-    // merge any locally-persisted custom books on top. Each step is async
-    // and falls back gracefully if it fails (offline, no school, etc.).
-    Future.microtask(() async {
-      await _loadSchoolSubjects();
-      await _loadCustomBooks();
-    });
+    // Subjects are a fixed canonical list (see SolutionsFlowState.initial).
+    // Books are admin/teacher-managed and come from the API — load them once
+    // and group by subject so counts + the books screen are ready instantly.
+    Future.microtask(_loadBooks);
     return SolutionsFlowState.initial();
   }
 
-  /// Replaces the subject list with the school's admin-defined subjects when
-  /// available. Existing book lists (including custom-* persisted books) are
-  /// preserved per-subject by matching on the sluggified subject id.
-  Future<void> _loadSchoolSubjects() async {
-    final session = ref.read(authSessionProvider);
-    final token = (session.token ?? '').trim();
-    if (token.isEmpty) return;
-
-    final api = CMApi(token: token);
+  /// Fetches every admin-managed book and assigns them to their subjects.
+  Future<void> _loadBooks() async {
+    final api = ref.read(solutionsApiProvider);
     Object? raw;
     try {
-      raw = await api.getJson('/auth/me/subjects');
+      raw = await api.fetchBooks();
     } catch (_) {
       return;
-    } finally {
-      api.dispose();
     }
-
     if (raw is! Map) return;
-    final list = raw['subjects'];
-    if (list is! List || list.isEmpty) return;
+    final list = raw['books'];
+    if (list is! List) return;
 
-    final schoolSubjects = list
-        .map(SchoolSubject.fromJson)
-        .where((s) => s.nameEn.isNotEmpty)
-        .toList();
-    if (schoolSubjects.isEmpty) return;
-
-    // Build the new subject list, preserving book lists for any subject we
-    // already had (matched by id).
-    final existingById = {for (final s in state.subjects) s.id: s};
-    final updated = <SolutionSubject>[];
-    for (final ss in schoolSubjects) {
-      final id = _slugify(ss.nameEn);
-      final priorBooks = existingById[id]?.books ?? const <SolutionBook>[];
-      updated.add(SolutionSubject(id: id, title: ss.nameEn, books: priorBooks));
-    }
-    state = state.copyWith(subjects: updated);
-  }
-
-  static String _slugify(String s) {
-    final lower = s.toLowerCase();
-    final ascii = lower.replaceAll(RegExp(r'[^a-z0-9]+'), '-');
-    return ascii.replaceAll(RegExp(r'^-+|-+$'), '');
-  }
-
-  // ── persistence ─────────────────────────────────────────────────────────
-
-  Future<void> _loadCustomBooks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_kCustomBooksKey);
-    if (raw == null || raw.isEmpty) return;
-
-    final List<dynamic> decoded;
-    try {
-      decoded = jsonDecode(raw) as List<dynamic>;
-    } catch (_) {
-      return;
-    }
-
-    // Each entry: { subjectId, bookId, bookTitle }
-    if (decoded.isEmpty) return;
-    var subjects = List<SolutionSubject>.from(state.subjects);
-    for (final entry in decoded) {
-      if (entry is! Map) continue;
-      final subjectId = entry['subjectId'] as String?;
-      final bookId = entry['bookId'] as String?;
-      final bookTitle = entry['bookTitle'] as String?;
-      if (subjectId == null || bookId == null || bookTitle == null) continue;
-
-      final idx = subjects.indexWhere((s) => s.id == subjectId);
-      if (idx == -1) continue;
-
-      // Skip if book already exists (e.g. loaded from server).
-      final alreadyExists = subjects[idx].books.any((b) => b.id == bookId);
-      if (alreadyExists) continue;
-
-      final subject = subjects[idx];
-      subjects[idx] = SolutionSubject(
-        id: subject.id,
-        title: subject.title,
-        books: [...subject.books, SolutionBook(id: bookId, title: bookTitle, subjectId: subjectId)],
+    final bySubject = <String, List<SolutionBook>>{};
+    for (final b in list) {
+      if (b is! Map) continue;
+      final subjectKey = '${b['subject'] ?? ''}'.trim();
+      final id = '${b['id'] ?? ''}'.trim();
+      final title = '${b['title'] ?? ''}'.trim();
+      final pagesRaw = b['pages'];
+      final pages = pagesRaw is int ? pagesRaw : int.tryParse('${pagesRaw ?? ''}') ?? 0;
+      final cover = '${b['coverUrl'] ?? ''}'.trim();
+      if (subjectKey.isEmpty || id.isEmpty || title.isEmpty) continue;
+      (bySubject[subjectKey] ??= <SolutionBook>[]).add(
+        SolutionBook(
+          id: id,
+          title: title,
+          subjectId: subjectKey,
+          pageCount: pages <= 0 ? 500 : pages,
+          coverUrl: cover.isEmpty ? null : _resolveUrl(cover),
+        ),
       );
     }
-    state = state.copyWith(subjects: subjects);
+
+    final updated = state.subjects
+        .map((s) => SolutionSubject(id: s.id, title: s.title, books: bySubject[s.id] ?? const <SolutionBook>[]))
+        .toList(growable: false);
+
+    SolutionSubject? findById(SolutionSubject? prev) =>
+        prev == null ? null : updated.firstWhere((s) => s.id == prev.id, orElse: () => prev);
+
+    state = state.copyWith(
+      subjects: updated,
+      selectedSubject: findById(state.selectedSubject),
+      uploadSelectedSubject: findById(state.uploadSelectedSubject),
+    );
   }
 
-  Future<void> _persistCustomBooks() async {
-    // Collect all books whose IDs start with 'custom-'.
-    final customEntries = <Map<String, String>>[];
-    for (final subject in state.subjects) {
-      for (final book in subject.books) {
-        if (book.id.startsWith('custom-')) {
-          customEntries.add({
-            'subjectId': subject.id,
-            'bookId': book.id,
-            'bookTitle': book.title,
-          });
-        }
-      }
-    }
-    final prefs = await SharedPreferences.getInstance();
-    if (customEntries.isEmpty) {
-      await prefs.remove(_kCustomBooksKey);
-    } else {
-      await prefs.setString(_kCustomBooksKey, jsonEncode(customEntries));
-    }
-  }
+  /// Public hook so screens can refresh the book lists (e.g. after a teacher
+  /// adds/edits a book in the management screen).
+  Future<void> reloadBooks() => _loadBooks();
 
   void search(String value) {
     state = state.copyWith(searchQuery: value);
   }
 
-  List<SolutionSubject> filteredSubjects() {
-    final q = state.searchQuery.trim().toLowerCase();
-    if (q.isEmpty) return state.subjects;
-    return state.subjects
-        .where((s) => s.title.toLowerCase().contains(q))
-        .toList(growable: false);
-  }
-
   void selectSubject(SolutionSubject subject) {
+    // Use the canonical subject from state (with its loaded books).
+    final canonical = state.subjects.firstWhere((s) => s.id == subject.id, orElse: () => subject);
     state = state.copyWith(
-      selectedSubject: subject,
+      selectedSubject: canonical,
       clearSelectedBook: true,
       pageNumber: '',
       questionNumber: '',
       selectedPageQuestions: const <String>[],
       selectedQuestionSolutions: const <QuestionSolutionCard>[],
-      uploadSelectedSubject: subject,
+      uploadSelectedSubject: canonical,
       clearUploadSelectedBook: true,
     );
   }
@@ -180,10 +117,7 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
 
   void setPageNumber(String value) {
     state = state.copyWith(pageNumber: value);
-    _refreshPageContext(
-      pageNumber: value,
-      questionNumber: state.questionNumber,
-    );
+    _refreshPageContext(pageNumber: value, questionNumber: state.questionNumber);
   }
 
   void setQuestionNumber(String value) {
@@ -286,8 +220,9 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   }
 
   void setUploadSelectedSubject(SolutionSubject subject) {
+    final canonical = state.subjects.firstWhere((s) => s.id == subject.id, orElse: () => subject);
     state = state.copyWith(
-      uploadSelectedSubject: subject,
+      uploadSelectedSubject: canonical,
       clearUploadSelectedBook: true,
     );
   }
@@ -304,29 +239,6 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
     state = state.copyWith(
       uploadFiles: state.uploadFiles.where((e) => e.id != id).toList(),
     );
-  }
-
-  void addBook(String subjectId, String bookTitle, {int pageCount = 500}) {
-    final trimmed = bookTitle.trim();
-    if (trimmed.isEmpty) return;
-    final newBook = SolutionBook(
-      id: 'custom-${DateTime.now().microsecondsSinceEpoch}',
-      title: trimmed,
-      subjectId: subjectId,
-      pageCount: pageCount.clamp(1, 9999),
-    );
-    final updatedSubjects = state.subjects
-        .map((s) {
-          if (s.id != subjectId) return s;
-          return SolutionSubject(
-            id: s.id,
-            title: s.title,
-            books: <SolutionBook>[...s.books, newBook],
-          );
-        })
-        .toList(growable: false);
-    state = state.copyWith(subjects: updatedSubjects);
-    _persistCustomBooks();
   }
 
   void addUploadLocally(QuestionSolutionCard newSolution) {
@@ -359,7 +271,7 @@ final liveSolutionsPreviewProvider = FutureProvider<Map<String, dynamic>>((
   final state = ref.watch(solutionsFlowProvider);
   final api = ref.watch(solutionsApiProvider);
 
-  final subject = state.selectedSubject?.title;
+  final subject = state.selectedSubject?.id;
   final bookTitle = state.selectedBook?.title;
   final pageNumber = int.tryParse(state.pageNumber.trim());
   final questionNumber = state.questionNumber;

@@ -1572,6 +1572,8 @@ model SolutionBook {
   slug      String?
   // Number of pages in the book — set by the admin/teacher who creates it.
   pages     Int      @default(0)
+  // Optional cover image URL (served from /uploads), set on create/edit.
+  coverUrl  String?
   createdAt DateTime @default(now())
 
   solutions SolutionUpload[]

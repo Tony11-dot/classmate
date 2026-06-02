@@ -39,11 +39,13 @@ export type CreateBookBody = {
   subject: string;
   title: string;
   pages: number;
+  coverUrl?: string | null;
 };
 
 export type UpdateBookBody = {
   title?: string;
   pages?: number;
+  coverUrl?: string | null;
 };
 
 export type ReportSolutionBody = {

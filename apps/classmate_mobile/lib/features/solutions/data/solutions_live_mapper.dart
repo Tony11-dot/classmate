@@ -32,11 +32,21 @@ class SolutionsLiveMapper {
   static QuestionSolutionCard mapUpload(Map<String, dynamic> raw) {
     final files = raw['files'];
 
+    // The server attaches author = { name, grade, schoolName } per item.
+    final author = raw['author'] is Map
+        ? (raw['author'] as Map).map((k, v) => MapEntry('$k', v))
+        : const <String, dynamic>{};
+
     final uploaderName = _firstNonEmpty([
+      author['name'],
       raw['uploaderName'],
       raw['authorName'],
       raw['userName'],
     ], fallback: 'ClassMate Student');
+
+    final gradeRaw = author['grade'] ?? raw['grade'];
+    final int? grade = gradeRaw is int ? gradeRaw : int.tryParse('${gradeRaw ?? ''}');
+    final schoolName = _nullableText(author['schoolName'] ?? raw['schoolName']);
 
     final verificationStatus = _firstNonEmpty([
       raw['verificationStatus'],
@@ -50,6 +60,8 @@ class SolutionsLiveMapper {
       uploaderInitials: _firstNonEmpty([
         raw['uploaderInitials'],
       ], fallback: _buildInitials(uploaderName)),
+      grade: grade,
+      schoolName: schoolName,
       subjectId: _firstNonEmpty([raw['subject']], fallback: 'general'),
       bookId: _firstNonEmpty([
         raw['bookId'],

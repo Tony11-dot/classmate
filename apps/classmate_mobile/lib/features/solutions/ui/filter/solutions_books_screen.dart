@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/solutions_models.dart';
+import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
 
 class SolutionsBooksScreen extends ConsumerStatefulWidget {
@@ -30,62 +32,6 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
     return all.where((b) => b.title.toLowerCase().contains(q)).toList();
   }
 
-  Future<void> _showAddBookDialog(
-    BuildContext context,
-    String subjectId,
-  ) async {
-    final l = AppLocalizations.of(context)!;
-    final titleCtrl = TextEditingController();
-    final pagesCtrl = TextEditingController();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.solutionsAddBookTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleCtrl,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                labelText: l.solutionsBookTitleHint,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: pagesCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.commonNumberOfPages,
-                hintText: 'e.g. 240',
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.format_list_numbered_rounded),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.tutorCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.solutionsAddBookAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    final pageCount = int.tryParse(pagesCtrl.text.trim()) ?? 500;
-    ref.read(solutionsFlowProvider.notifier)
-        .addBook(subjectId, titleCtrl.text, pageCount: pageCount);
-    titleCtrl.dispose();
-    pagesCtrl.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -96,21 +42,17 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
     final books = _filtered(allBooks);
     final cs = Theme.of(context).colorScheme;
 
+    final subjectTitle =
+        subject == null ? l.solutionsBooksTitle : solutionSubjectTitle(l, subject.id);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(subject?.title ?? l.solutionsBooksTitle),
+        title: Text(subjectTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
       ),
-      floatingActionButton: subject == null
-          ? null
-          : FloatingActionButton.extended(
-              onPressed: () => _showAddBookDialog(context, subject.id),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(l.solutionsAddBookAction),
-            ),
       body: Column(
         children: [
           Padding(
@@ -148,9 +90,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                           const SizedBox(height: 14),
                           Text(
                             _query.trim().isEmpty
-                                ? l.solutionsNoBooksYetBody(
-                                    l.solutionsAddBookAction,
-                                  )
+                                ? l.solutionsNoBooksYetForStudents
                                 : l.solutionsNoBooksMatch(_query),
                             textAlign: TextAlign.center,
                             style: TextStyle(color: cs.onSurfaceVariant),
@@ -174,34 +114,30 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                             context.push('/solutions/pages');
                           },
                           child: Ink(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: cs.surfaceContainerLow.withValues(
-                                alpha: 0.75,
-                              ),
+                              color: cs.surfaceContainerLow.withValues(alpha: 0.75),
                               borderRadius: BorderRadius.circular(22),
-                              border: Border.all(
-                                color: cs.outlineVariant,
-                              ),
+                              border: Border.all(color: cs.outlineVariant),
                             ),
                             child: Row(
                               children: [
-                                CircleAvatar(
-                                  radius: 22,
-                                  backgroundColor: cs.secondaryContainer,
-                                  child: Icon(
-                                    Icons.menu_book_rounded,
-                                    size: 20,
-                                    color: cs.onSecondaryContainer,
-                                  ),
-                                ),
+                                _BookCover(book: book),
                                 const SizedBox(width: 14),
                                 Expanded(
-                                  child: Text(
-                                    book.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        book.title,
+                                        style: const TextStyle(fontWeight: FontWeight.w800),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        l.solutionsBookPagesCount(book.pageCount),
+                                        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const Icon(Icons.chevron_right_rounded),
@@ -214,6 +150,40 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Book cover thumbnail — shows the uploaded image, or a book glyph fallback.
+class _BookCover extends StatelessWidget {
+  const _BookCover({required this.book});
+
+  final SolutionBook book;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final url = (book.coverUrl ?? '').trim();
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 46,
+        height: 60,
+        child: url.isEmpty
+            ? Container(
+                color: cs.secondaryContainer,
+                child: Icon(Icons.menu_book_rounded, size: 22, color: cs.onSecondaryContainer),
+              )
+            : CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => Container(color: cs.surfaceContainerHighest),
+                errorWidget: (_, _, _) => Container(
+                  color: cs.secondaryContainer,
+                  child: Icon(Icons.menu_book_rounded, size: 22, color: cs.onSecondaryContainer),
+                ),
+              ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/solutions_api.dart';
 import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
+import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
 import '../../../solutions/ui/widgets/solution_asset_preview_sheet.dart';
 import '../filter/solutions_pages_screen.dart' show SolutionsDrumPicker;
@@ -314,7 +315,7 @@ class _SolutionUploadSheetBodyState
 
     try {
       final raw = await api.createSolution(
-        subject: subject.title,
+        subject: subject.id,
         bookTitle: book.title,
         pageNumber: page,
         questionNumber: question,
@@ -368,12 +369,14 @@ class _SolutionUploadSheetBodyState
         .map(
           (s) => LiquidGlassDropdownItem<String>(
             value: s.id,
-            label: s.title,
+            label: solutionSubjectTitle(l, s.id),
             icon: Icons.menu_book_rounded,
           ),
         )
         .toList(growable: false);
 
+    // Books are admin/teacher-managed — students pick from the existing list
+    // only. No "add new book" option here anymore.
     final booksForSubject = uploadSubject?.books ?? const <SolutionBook>[];
     final bookItems = <LiquidGlassDropdownItem<String>>[
       ...booksForSubject.map(
@@ -383,78 +386,9 @@ class _SolutionUploadSheetBodyState
           icon: Icons.auto_stories_rounded,
         ),
       ),
-      LiquidGlassDropdownItem<String>(
-        value: '__add_new_book__',
-        label: l.solutionsUploadAddNewBookOption,
-        icon: Icons.add_rounded,
-      ),
     ];
 
     Future<void> handleBookChanged(String bookId) async {
-      if (bookId == '__add_new_book__') {
-        final titleCtrl2 = TextEditingController();
-        final pagesCtrl2 = TextEditingController();
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (dialogCtx) => AlertDialog(
-            title: Text(l.solutionsAddBookTitle),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleCtrl2,
-                  autofocus: true,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: l.solutionsBookTitleHint,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: pagesCtrl2,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.commonNumberOfPages,
-                    hintText: 'e.g. 240',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.format_list_numbered_rounded),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogCtx, false),
-                child: Text(l.tutorCancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(dialogCtx, true),
-                child: Text(l.solutionsUploadAddBookShortAction),
-              ),
-            ],
-          ),
-        );
-        if (confirmed != true) return;
-        final subjectId = uploadSubject?.id;
-        if (subjectId == null) return;
-        final pageCount = int.tryParse(pagesCtrl2.text.trim()) ?? 500;
-        titleCtrl2.dispose();
-        pagesCtrl2.dispose();
-        notifier.addBook(subjectId, titleCtrl2.text, pageCount: pageCount);
-        final updatedBooks = ref
-            .read(solutionsFlowProvider)
-            .subjects
-            .firstWhere((s) => s.id == subjectId, orElse: () => uploadSubject!)
-            .books;
-        final addedTitle = titleCtrl2.text.trim().toLowerCase();
-        final newBook = updatedBooks.lastWhere(
-          (b) => b.title.trim().toLowerCase() == addedTitle,
-          orElse: () => updatedBooks.last,
-        );
-        notifier.setUploadSelectedBook(newBook);
-        return;
-      }
       final book = (uploadSubject?.books ?? <SolutionBook>[]).firstWhere(
         (b) => b.id == bookId,
         orElse: () => SolutionBook(

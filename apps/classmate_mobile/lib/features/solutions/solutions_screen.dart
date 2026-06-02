@@ -3,27 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'domain/solution_subjects.dart';
 import 'providers/solutions_flow_provider.dart';
 import 'ui/widgets/solution_upload_sheet_content.dart';
-
-IconData _subjectIcon(String title) {
-  final t = title.toLowerCase();
-  if (t.contains('math') || t.contains('calcul') || t.contains('algebra')) {
-    return Icons.calculate_rounded;
-  }
-  if (t.contains('phys')) return Icons.science_rounded;
-  if (t.contains('chem') || t.contains('bio')) return Icons.biotech_rounded;
-  if (t.contains('cs') || t.contains('computer') || t.contains('algorithm')) {
-    return Icons.computer_rounded;
-  }
-  if (t.contains('english') || t.contains('lang') || t.contains('lit')) {
-    return Icons.translate_rounded;
-  }
-  if (t.contains('hist')) return Icons.history_edu_rounded;
-  if (t.contains('geo')) return Icons.public_rounded;
-  if (t.contains('econ') || t.contains('biz')) return Icons.bar_chart_rounded;
-  return Icons.menu_book_rounded;
-}
 
 class SolutionsScreen extends ConsumerStatefulWidget {
   const SolutionsScreen({super.key});
@@ -46,7 +28,13 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
     final l = AppLocalizations.of(context)!;
     final state = ref.watch(solutionsFlowProvider);
     final notifier = ref.read(solutionsFlowProvider.notifier);
-    final subjects = notifier.filteredSubjects();
+    // Filter by the LOCALIZED subject title so search works in any language.
+    final query = state.searchQuery.trim().toLowerCase();
+    final subjects = query.isEmpty
+        ? state.subjects
+        : state.subjects
+            .where((s) => solutionSubjectTitle(l, s.id).toLowerCase().contains(query))
+            .toList(growable: false);
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -167,7 +155,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                               radius: 24,
                               backgroundColor: cs.primaryContainer,
                               child: Icon(
-                                _subjectIcon(subject.title),
+                                solutionSubjectIcon(subject.id),
                                 size: 22,
                                 color: cs.onPrimaryContainer,
                               ),
@@ -178,7 +166,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    subject.title,
+                                    solutionSubjectTitle(l, subject.id),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w800,
                                     ),

@@ -156,4 +156,69 @@ class SolutionsApi {
     );
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
   }
+
+  // ── Book management (teachers + admins) ─────────────────────────────────
+
+  Future<Map<String, dynamic>> createBook({
+    required String subject,
+    required String title,
+    required int pages,
+  }) async {
+    final raw = await _api.postJson(
+      '/solutions/books',
+      body: <String, dynamic>{'subject': subject, 'title': title, 'pages': pages},
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> updateBook({
+    required String id,
+    String? title,
+    int? pages,
+  }) async {
+    final raw = await _api.patchJson(
+      '/solutions/books/$id',
+      body: <String, dynamic>{
+        if ((title ?? '').trim().isNotEmpty) 'title': title!.trim(),
+        if (pages != null) 'pages': pages,
+      },
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> deleteBook(String id) async {
+    final raw = await _api.deleteJson('/solutions/books/$id');
+    return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
+
+  // ── Reporting ──────────────────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> reportSolution({
+    required String uploadId,
+    String? reason,
+  }) async {
+    final raw = await _api.postJson(
+      '/solutions/$uploadId/report',
+      body: <String, dynamic>{
+        if ((reason ?? '').trim().isNotEmpty) 'reason': reason!.trim(),
+      },
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> fetchReports() async {
+    final raw = await _api.getJson('/solutions/reports');
+    return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
+
+  Future<Map<String, dynamic>> resolveReport({
+    required String id,
+    required String action, // 'approve' | 'remove'
+  }) async {
+    final raw = await _api.patchJson(
+      '/solutions/reports/$id',
+      body: <String, dynamic>{'action': action},
+    );
+    return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+  }
 }

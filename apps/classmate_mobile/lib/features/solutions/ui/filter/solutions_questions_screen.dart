@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../data/solutions_api.dart';
 import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
+import '../../domain/solution_subjects.dart';
 import '../widgets/solution_asset_preview_sheet.dart';
 import '../../providers/solutions_flow_provider.dart';
 import '../widgets/solution_upload_sheet_content.dart';
@@ -16,7 +17,7 @@ final liveExactSolutionsPageProvider =
       final state = ref.watch(solutionsFlowProvider);
       final api = ref.watch(solutionsApiProvider);
 
-      final subject = state.selectedSubject?.title;
+      final subject = state.selectedSubject?.id;
       final bookTitle = state.selectedBook?.title;
       final pageNumber = int.tryParse(state.pageNumber.trim());
       final questionNumber = state.questionNumber.trim();
@@ -54,7 +55,7 @@ final liveSamePageSolutionsPageProvider =
       final state = ref.watch(solutionsFlowProvider);
       final api = ref.watch(solutionsApiProvider);
 
-      final subject = state.selectedSubject?.title;
+      final subject = state.selectedSubject?.id;
       final bookTitle = state.selectedBook?.title;
       final pageNumber = int.tryParse(state.pageNumber.trim());
 
@@ -181,10 +182,14 @@ class _SolutionsQuestionsScreenState
     final exactHasMore = exactPage?.hasMore ?? false;
     final samePageHasMore = samePagePage?.hasMore ?? false;
 
+    final subjectLabel = state.selectedSubject == null
+        ? l.titleSolutions
+        : solutionSubjectTitle(l, state.selectedSubject!.id);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${state.selectedSubject?.title ?? l.titleSolutions} • ${state.selectedBook?.title ?? ''}',
+          '$subjectLabel • ${state.selectedBook?.title ?? ''}',
           overflow: TextOverflow.ellipsis,
         ),
         leading: IconButton(
@@ -201,7 +206,7 @@ class _SolutionsQuestionsScreenState
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
           children: [
             Text(
-              '${state.selectedSubject?.title ?? l.assignmentsSubjectLabel} • ${state.selectedBook?.title ?? l.solutionsBookLabel}',
+              '$subjectLabel • ${state.selectedBook?.title ?? l.solutionsBookLabel}',
               style: TextStyle(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
@@ -328,15 +333,75 @@ class _EmptyCard extends StatelessWidget {
   }
 }
 
-class _SolutionCard extends StatelessWidget {
+class _SolutionCard extends ConsumerWidget {
   const _SolutionCard({required this.item});
 
   final QuestionSolutionCard item;
 
+  /// "Grade 10 • Northside High" — drops whichever piece is missing.
+  String _authorMeta(AppLocalizations l) {
+    final parts = <String>[];
+    if (item.grade != null) parts.add(l.solutionsGradeLabel(item.grade!));
+    if ((item.schoolName ?? '').trim().isNotEmpty) parts.add(item.schoolName!.trim());
+    return parts.join(' • ');
+  }
+
+  Future<void> _report(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
+    final reasonCtrl = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.solutionsReportTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.solutionsReportBody, style: Theme.of(ctx).textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonCtrl,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: l.solutionsReportReasonHint,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.tutorCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.solutionsReportAction)),
+        ],
+      ),
+    );
+    final reason = reasonCtrl.text;
+    reasonCtrl.dispose();
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      final res = await ref.read(solutionsApiProvider).reportSolution(
+            uploadId: item.id,
+            reason: reason,
+          );
+      if (!context.mounted) return;
+      final already = res['alreadyReported'] == true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(already ? l.solutionsReportAlready : l.solutionsReportSubmitted)),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.solutionsReportFailed('$e'))),
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
+    final meta = _authorMeta(l);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -348,6 +413,7 @@ class _SolutionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(child: Text(item.uploaderInitials)),
               const SizedBox(width: 12),
@@ -359,6 +425,10 @@ class _SolutionCard extends StatelessWidget {
                       item.uploaderName,
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
+                    if (meta.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(meta, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5)),
+                    ],
                     const SizedBox(height: 2),
                     Text(
                       l.solutionsPageQuestionSummary(
@@ -370,44 +440,16 @@ class _SolutionCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (item.verifiedByNova)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.verified_rounded, size: 16),
-                      const SizedBox(width: 6),
-                      Text(l.solutionsVerifiedByNova),
-                    ],
-                  ),
-                ),
+              IconButton(
+                tooltip: l.solutionsReportAction,
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.flag_outlined, size: 20, color: cs.onSurfaceVariant),
+                onPressed: () => _report(context, ref),
+              ),
             ],
           ),
           const SizedBox(height: 14),
           Text(item.caption),
-          if ((item.verificationNote ?? '').trim().isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                item.verificationNote!,
-                style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-              ),
-            ),
-          ],
           const SizedBox(height: 12),
           if (item.assets.isNotEmpty)
             SolutionMediaStrip(assets: item.assets),
