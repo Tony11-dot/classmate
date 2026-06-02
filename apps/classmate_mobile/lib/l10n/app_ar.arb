@@ -3166,5 +3166,12 @@
   "teacherAddGradeLabel": "الصف {grade}",
   "teacherGradeOutOfHint": "مثال: 20",
   "plansDowngrade": "تخفيض الخطة",
-  "plansDowngradeNote": "يبدأ عند انتهاء خطتك الحالية — تبقى لديك حتى ذلك الحين، دون استرداد."
+  "plansDowngradeNote": "يبدأ عند انتهاء خطتك الحالية — تبقى لديك حتى ذلك الحين، دون استرداد.",
+  "semesterThis": "هذا الفصل",
+  "semesterPrevious": "السابقة",
+  "showMore": "عرض المزيد",
+  "adminSchoolSemestersLabel": "الفصول الدراسية",
+  "adminSchoolSemestersDescription": "قسّم السنة الدراسية إلى فصول حسب الأشهر. تُجمَّع العلامات والامتحانات واللقاءات وغيرها حسب الفصل تلقائيًا.",
+  "adminSchoolSemesterN": "الفصل {n}",
+  "adminSchoolAddSemester": "إضافة فصل"
 }

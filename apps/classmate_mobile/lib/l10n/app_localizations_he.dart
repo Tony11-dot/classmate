@@ -8086,4 +8086,28 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get plansDowngradeNote =>
       'מתחיל בתום התוכנית הנוכחית — היא נשמרת עד אז, ללא החזר.';
+
+  @override
+  String get semesterThis => 'הסמסטר הנוכחי';
+
+  @override
+  String get semesterPrevious => 'קודמים';
+
+  @override
+  String get showMore => 'הצג עוד';
+
+  @override
+  String get adminSchoolSemestersLabel => 'סמסטרים';
+
+  @override
+  String get adminSchoolSemestersDescription =>
+      'חלקו את שנת הלימודים לסמסטרים לפי חודשים. ציונים, מבחנים, מפגשים ועוד מקובצים לפי סמסטר אוטומטית.';
+
+  @override
+  String adminSchoolSemesterN(String n) {
+    return 'סמסטר $n';
+  }
+
+  @override
+  String get adminSchoolAddSemester => 'הוספת סמסטר';
 }

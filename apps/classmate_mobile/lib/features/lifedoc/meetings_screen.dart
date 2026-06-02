@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../core/semester/school_semester.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 import '../classrooms/providers/classrooms_providers.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../parent/data/parent_repository.dart';
@@ -322,6 +324,7 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
 
   String _selectedSubject = _allSubjects;
   String _selectedAccessState = _allAccessStates;
+  bool _showingPrevious = false;
 
   List<Map<String, dynamic>> _filteredItems(List<Map<String, dynamic>> items) {
     return items.where((item) {
@@ -372,6 +375,17 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
           }
 
           final filtered = _filteredItems(items);
+          // Semester split (by meeting date) — only when the school configured
+          // semesters; otherwise window is null and everything stays in one list.
+          final semWindow = ref.watch(currentSemesterWindowProvider);
+          final semParts = partitionBySemester<Map<String, dynamic>>(
+            filtered,
+            (m) => _parseFlexibleDate(_stringValue(m, 'startsAt')) ??
+                _parseFlexibleDate(_stringValue(m, 'updatedAt')) ??
+                _parseFlexibleDate(_stringValue(m, 'createdAt')),
+            semWindow,
+          );
+          final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
           final joinReadyCount = items
         .where((item) => _meetingAccessValue(item) == _meetingAccessReady)
               .length;
@@ -547,7 +561,12 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (filtered.isEmpty)
+                  SemesterFilterBar(
+                    visible: semWindow != null,
+                    showingPrevious: _showingPrevious,
+                    onChanged: (v) => setState(() => _showingPrevious = v),
+                  ),
+                  if (visible.isEmpty)
                     _EmptyStateCard(
                       title: l.meetingsNoMatchTitle,
                       subtitle: l.meetingsNoMatchSubtitle,
@@ -557,8 +576,8 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
                     _SectionCard(
                       title: l.navMeetings,
                       subtitle: l.meetingsListSubtitle,
-                      child: Column(
-                        children: filtered
+                      child: ShowMoreList(
+                        children: visible
                             .map(
                               (item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 12),

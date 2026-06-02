@@ -3166,5 +3166,12 @@
   "teacherAddGradeLabel": "כיתה {grade}",
   "teacherGradeOutOfHint": "למשל 20",
   "plansDowngrade": "שנמוך תוכנית",
-  "plansDowngradeNote": "מתחיל בתום התוכנית הנוכחית — היא נשמרת עד אז, ללא החזר."
+  "plansDowngradeNote": "מתחיל בתום התוכנית הנוכחית — היא נשמרת עד אז, ללא החזר.",
+  "semesterThis": "הסמסטר הנוכחי",
+  "semesterPrevious": "קודמים",
+  "showMore": "הצג עוד",
+  "adminSchoolSemestersLabel": "סמסטרים",
+  "adminSchoolSemestersDescription": "חלקו את שנת הלימודים לסמסטרים לפי חודשים. ציונים, מבחנים, מפגשים ועוד מקובצים לפי סמסטר אוטומטית.",
+  "adminSchoolSemesterN": "סמסטר {n}",
+  "adminSchoolAddSemester": "הוספת סמסטר"
 }

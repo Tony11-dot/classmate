@@ -7,6 +7,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/auth/auth_session.dart' show parseGradeRanges;
+import '../../../core/semester/school_semester.dart' show parseSchoolSemesters;
+import 'package:intl/intl.dart';
 import '../../../core/config/env.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../data/admin_repository.dart';
@@ -99,6 +101,8 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
   // Grade ranges (admin-editable). Each entry is [lo, hi]. Most schools have
   // one contiguous range; some skip grades (e.g. 4-6 and 9-12).
   List<List<int>> _ranges = <List<int>>[[5, 12]];
+  // Semesters as [startMonth, endMonth] pairs (1-12). Empty = no semesters.
+  List<List<int>> _semesters = <List<int>>[];
 
   @override
   void dispose() {
@@ -184,6 +188,25 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     return out;
   }
 
+  Widget _monthDropdown(BuildContext context, int value, ValueChanged<int> onChanged) {
+    final loc = Localizations.localeOf(context).toString();
+    String monthName(int m) => DateFormat.MMMM(loc).format(DateTime(2020, m, 1));
+    return DropdownButtonFormField<int>(
+      initialValue: value.clamp(1, 12),
+      isExpanded: true,
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      ),
+      items: [
+        for (int m = 1; m <= 12; m++)
+          DropdownMenuItem(value: m, child: Text(monthName(m), overflow: TextOverflow.ellipsis)),
+      ],
+      onChanged: (v) { if (v != null) onChanged(v); },
+    );
+  }
+
   Future<void> _save() async {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
@@ -197,9 +220,11 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
       final rangesStr = normalized.map((r) => '${r[0]}-${r[1]}').join(',');
       final overallMin = normalized.map((r) => r[0]).reduce((a, b) => a < b ? a : b);
       final overallMax = normalized.map((r) => r[1]).reduce((a, b) => a > b ? a : b);
+      final semestersStr = _semesters.map((s) => '${s[0]}-${s[1]}').join(',');
       await ref.read(adminRepositoryProvider).updateMySchool(
         name: name,
         gradeRanges: rangesStr,
+        semesters: semestersStr,
       );
       final session = ref.read(authSessionProvider);
       await session.setSchoolName(name);
@@ -214,6 +239,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
         await session.setSchoolLogoUrl(localLogo);
       }
       session.setSchoolGradeRange(overallMin, overallMax, ranges: rangesStr);
+      session.setSchoolSemesters(semestersStr);
       // Don't invalidate + reset _initialized — that briefly drops the
       // textbox into a loading spinner before the new data lands, which
       // looked like nothing had saved. We already have the canonical
@@ -253,6 +279,9 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
             _ranges = parsed.isNotEmpty
                 ? parsed.map((r) => <int>[r.$1, r.$2]).toList()
                 : <List<int>>[[school.minGrade, school.maxGrade]];
+            _semesters = parseSchoolSemesters(school.semesters)
+                .map((s) => <int>[s.startMonth, s.endMonth])
+                .toList();
             setState(() {});
           });
         }
@@ -429,6 +458,62 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                       }),
                       icon: const Icon(Icons.add_rounded, size: 18),
                       label: Text(l.adminSchoolAddGradeRange),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ── Semesters section ──────────────────────────────────────────
+            _FieldCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _FieldLabel(label: l.adminSchoolSemestersLabel),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.adminSchoolSemestersDescription,
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 12),
+                  for (int i = 0; i < _semesters.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l.adminSchoolSemesterN((i + 1).toString()),
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close_rounded, color: cs.error),
+                          tooltip: l.commonDelete,
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () => setState(() { _semesters.removeAt(i); _dirty = true; }),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(child: _monthDropdown(context, _semesters[i][0], (m) => setState(() { _semesters[i][0] = m; _dirty = true; }))),
+                        const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward_rounded, size: 18)),
+                        Expanded(child: _monthDropdown(context, _semesters[i][1], (m) => setState(() { _semesters[i][1] = m; _dirty = true; }))),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      onPressed: () => setState(() {
+                        _semesters.add(_semesters.isEmpty ? [9, 1] : [2, 6]);
+                        _dirty = true;
+                      }),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: Text(l.adminSchoolAddSemester),
                     ),
                   ),
                 ],

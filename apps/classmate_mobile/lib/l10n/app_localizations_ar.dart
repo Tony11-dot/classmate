@@ -8119,4 +8119,28 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get plansDowngradeNote =>
       'يبدأ عند انتهاء خطتك الحالية — تبقى لديك حتى ذلك الحين، دون استرداد.';
+
+  @override
+  String get semesterThis => 'هذا الفصل';
+
+  @override
+  String get semesterPrevious => 'السابقة';
+
+  @override
+  String get showMore => 'عرض المزيد';
+
+  @override
+  String get adminSchoolSemestersLabel => 'الفصول الدراسية';
+
+  @override
+  String get adminSchoolSemestersDescription =>
+      'قسّم السنة الدراسية إلى فصول حسب الأشهر. تُجمَّع العلامات والامتحانات واللقاءات وغيرها حسب الفصل تلقائيًا.';
+
+  @override
+  String adminSchoolSemesterN(String n) {
+    return 'الفصل $n';
+  }
+
+  @override
+  String get adminSchoolAddSemester => 'إضافة فصل';
 }

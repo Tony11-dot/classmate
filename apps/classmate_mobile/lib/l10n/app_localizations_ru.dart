@@ -8148,4 +8148,28 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get plansDowngradeNote =>
       'Начнётся после окончания текущего плана — он сохранится до тех пор, без возврата средств.';
+
+  @override
+  String get semesterThis => 'Текущий семестр';
+
+  @override
+  String get semesterPrevious => 'Предыдущие';
+
+  @override
+  String get showMore => 'Показать ещё';
+
+  @override
+  String get adminSchoolSemestersLabel => 'Семестры';
+
+  @override
+  String get adminSchoolSemestersDescription =>
+      'Разделите учебный год на семестры по месяцам. Оценки, экзамены, встречи и прочее группируются по семестрам автоматически.';
+
+  @override
+  String adminSchoolSemesterN(String n) {
+    return 'Семестр $n';
+  }
+
+  @override
+  String get adminSchoolAddSemester => 'Добавить семестр';
 }

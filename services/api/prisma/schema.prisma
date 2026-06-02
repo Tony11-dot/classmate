@@ -43,6 +43,10 @@ model School {
   /// minGrade/maxGrade are always kept in sync with the overall min/max so all
   /// existing consumers keep working.
   gradeRanges       String?
+  /// School-year semesters as month ranges, e.g. "9-1,2-6" (Sem 1 = Sep→Jan,
+  /// Sem 2 = Feb→Jun; wrap-around allowed). Index+1 = "Semester N". A record
+  /// maps to a semester by its date, so existing data is covered automatically.
+  semesters         String?
   /// Year of the most recent Sept-1 grade bump that succeeded for this
   /// school.  The bump runs at most once per year per school and is idempotent
   /// — see GradeBumpService.

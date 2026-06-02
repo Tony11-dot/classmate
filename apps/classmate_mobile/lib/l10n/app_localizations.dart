@@ -14348,6 +14348,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starts when your current plan ends — you keep it until then, no refund.'**
   String get plansDowngradeNote;
+
+  /// No description provided for @semesterThis.
+  ///
+  /// In en, this message translates to:
+  /// **'This semester'**
+  String get semesterThis;
+
+  /// No description provided for @semesterPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get semesterPrevious;
+
+  /// No description provided for @showMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get showMore;
+
+  /// No description provided for @adminSchoolSemestersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Semesters'**
+  String get adminSchoolSemestersLabel;
+
+  /// No description provided for @adminSchoolSemestersDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Split the school year into semesters by month. Grades, exams, meetings and more are grouped by semester automatically.'**
+  String get adminSchoolSemestersDescription;
+
+  /// No description provided for @adminSchoolSemesterN.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester {n}'**
+  String adminSchoolSemesterN(String n);
+
+  /// No description provided for @adminSchoolAddSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'Add semester'**
+  String get adminSchoolAddSemester;
 }
 
 class _AppLocalizationsDelegate

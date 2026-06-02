@@ -8169,4 +8169,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get plansDowngradeNote =>
       'Starts when your current plan ends — you keep it until then, no refund.';
+
+  @override
+  String get semesterThis => 'This semester';
+
+  @override
+  String get semesterPrevious => 'Previous';
+
+  @override
+  String get showMore => 'Show more';
+
+  @override
+  String get adminSchoolSemestersLabel => 'Semesters';
+
+  @override
+  String get adminSchoolSemestersDescription =>
+      'Split the school year into semesters by month. Grades, exams, meetings and more are grouped by semester automatically.';
+
+  @override
+  String adminSchoolSemesterN(String n) {
+    return 'Semester $n';
+  }
+
+  @override
+  String get adminSchoolAddSemester => 'Add semester';
 }

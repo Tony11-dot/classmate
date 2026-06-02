@@ -1973,6 +1973,29 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       data.gradeRanges = null; // single contiguous range supersedes any multi-range
     }
 
+    if (dto?.semesters !== undefined) {
+      // Month-range pairs "9-1,2-6" (Sem 1 = Sep→Jan, Sem 2 = Feb→Jun). Empty
+      // clears them (school uses no semester split).
+      const raw = String(dto.semesters ?? '').trim();
+      if (!raw) {
+        data.semesters = null;
+      } else {
+        const pairs = parseGradeRangesServer(raw); // same "a-b,c-d" parser; months here
+        for (const [a, b] of pairs) {
+          if (a < 1 || a > 12 || b < 1 || b > 12) {
+            throw new BadRequestException('Semester months must be 1..12.');
+          }
+        }
+        if (pairs.length === 0) throw new BadRequestException('Add at least one semester.');
+        // Keep author order (don't sort) — Semester 1, 2, ... as entered.
+        data.semesters = raw
+          .split(/[,;]+/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(',');
+      }
+    }
+
     const row = await this.prisma.school.update({ where: { id: schoolId }, data });
     return { ok: true, school: row };
   }

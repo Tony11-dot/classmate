@@ -3856,5 +3856,19 @@
   },
   "teacherGradeOutOfHint": "e.g. 20",
   "plansDowngrade": "Downgrade",
-  "plansDowngradeNote": "Starts when your current plan ends — you keep it until then, no refund."
+  "plansDowngradeNote": "Starts when your current plan ends — you keep it until then, no refund.",
+  "semesterThis": "This semester",
+  "semesterPrevious": "Previous",
+  "showMore": "Show more",
+  "adminSchoolSemestersLabel": "Semesters",
+  "adminSchoolSemestersDescription": "Split the school year into semesters by month. Grades, exams, meetings and more are grouped by semester automatically.",
+  "adminSchoolSemesterN": "Semester {n}",
+  "@adminSchoolSemesterN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "adminSchoolAddSemester": "Add semester"
 }

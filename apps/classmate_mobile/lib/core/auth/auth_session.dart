@@ -48,6 +48,7 @@ class AuthSession extends ChangeNotifier {
   int? _schoolMinGrade;
   int? _schoolMaxGrade;
   String? _schoolGradeRanges;
+  String? _schoolSemesters;
   String? _nameEn;
   String? _nameAr;
   String? _nameHe;
@@ -141,6 +142,15 @@ class AuthSession extends ChangeNotifier {
   int get schoolMaxGrade => _schoolMaxGrade ?? 12;
   /// Raw multi-range string, e.g. "4-6,9-12". Empty/null = single min..max range.
   String get schoolGradeRanges => _schoolGradeRanges ?? '';
+  /// Raw semester month-ranges, e.g. "9-1,2-6". Empty = school has no semesters.
+  String get schoolSemesters => _schoolSemesters ?? '';
+  void setSchoolSemesters(String? raw) {
+    final v = (raw ?? '').trim();
+    final next = v.isEmpty ? null : v;
+    if (next == _schoolSemesters) return;
+    _schoolSemesters = next;
+    notifyListeners();
+  }
   /// Every grade the school covers. Supports MULTIPLE ranges (e.g. 4-6 and
   /// 9-12 when 7-8 don't exist). Falls back to the single min..max range.
   List<int> get schoolGrades {
@@ -559,6 +569,7 @@ class AuthSession extends ChangeNotifier {
         await setSchoolLogoUrl(me.schoolLogoUrl);
       }
       setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade, ranges: me.schoolGradeRanges);
+      setSchoolSemesters(me.schoolSemesters);
       // Cohort display name
       final cn = (raw['cohortName'] ?? '').toString().trim();
       if (cn.isNotEmpty) {

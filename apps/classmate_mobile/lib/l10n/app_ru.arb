@@ -3373,5 +3373,12 @@
   "teacherAddGradeLabel": "Класс {grade}",
   "teacherGradeOutOfHint": "напр. 20",
   "plansDowngrade": "Понизить план",
-  "plansDowngradeNote": "Начнётся после окончания текущего плана — он сохранится до тех пор, без возврата средств."
+  "plansDowngradeNote": "Начнётся после окончания текущего плана — он сохранится до тех пор, без возврата средств.",
+  "semesterThis": "Текущий семестр",
+  "semesterPrevious": "Предыдущие",
+  "showMore": "Показать ещё",
+  "adminSchoolSemestersLabel": "Семестры",
+  "adminSchoolSemestersDescription": "Разделите учебный год на семестры по месяцам. Оценки, экзамены, встречи и прочее группируются по семестрам автоматически.",
+  "adminSchoolSemesterN": "Семестр {n}",
+  "adminSchoolAddSemester": "Добавить семестр"
 }
