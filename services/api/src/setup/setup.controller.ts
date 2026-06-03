@@ -152,6 +152,8 @@ export class SetupController {
       logoUrl?: string;
       minGrade?: number;
       maxGrade?: number;
+      gradeRanges?: string;
+      semesters?: string;
       subjects?: { nameEn: string; nameAr?: string; nameHe?: string; nameFr?: string; nameRu?: string }[];
       bellSchedule?: { period: number; startTime: string; endTime: string }[];
       adminName: string;
@@ -190,16 +192,56 @@ export class SetupController {
       }
     }
 
-    // ── Grade range ──────────────────────────────────────────────────────────
-    const minGrade = Number.isFinite(body?.minGrade) ? Number(body!.minGrade) : 5;
-    const maxGrade = Number.isFinite(body?.maxGrade) ? Number(body!.maxGrade) : 12;
-    if (minGrade < 1 || maxGrade > 20 || minGrade > maxGrade) {
-      throw new BadRequestException(`Invalid grade range ${minGrade}–${maxGrade}. Must be 1..20 and min ≤ max.`);
+    // ── Grade ranges (multi) ──────────────────────────────────────────────────
+    // Parse "5-8,9-12" → validated pairs; derive min/max for back-compat.
+    let gradeRangesCsv: string | undefined;
+    let minGrade: number;
+    let maxGrade: number;
+    const rawRanges = String(body?.gradeRanges ?? '').trim();
+    if (rawRanges) {
+      const pairs: [number, number][] = [];
+      for (const part of rawRanges.split(',')) {
+        const [a, b] = part.split('-').map((x) => parseInt(x.trim(), 10));
+        if (!Number.isFinite(a) || !Number.isFinite(b)) continue;
+        const lo = Math.min(a, b), hi = Math.max(a, b);
+        if (lo < 1 || hi > 20) {
+          throw new BadRequestException(`Invalid grade range ${a}–${b}. Grades must be 1..20.`);
+        }
+        pairs.push([lo, hi]);
+      }
+      if (!pairs.length) throw new BadRequestException('At least one valid grade range is required.');
+      gradeRangesCsv = pairs.map((p) => `${p[0]}-${p[1]}`).join(',');
+      minGrade = Math.min(...pairs.map((p) => p[0]));
+      maxGrade = Math.max(...pairs.map((p) => p[1]));
+    } else {
+      minGrade = Number.isFinite(body?.minGrade) ? Number(body!.minGrade) : 5;
+      maxGrade = Number.isFinite(body?.maxGrade) ? Number(body!.maxGrade) : 12;
+      if (minGrade < 1 || maxGrade > 20 || minGrade > maxGrade) {
+        throw new BadRequestException(`Invalid grade range ${minGrade}–${maxGrade}. Must be 1..20 and min ≤ max.`);
+      }
+    }
+
+    // ── Semesters (optional) — "9-1,2-6", months 1..12, author order kept ──────
+    let semestersCsv: string | undefined;
+    const rawSems = String(body?.semesters ?? '').trim();
+    if (rawSems) {
+      const sems: string[] = [];
+      for (const part of rawSems.split(',')) {
+        const [s, e] = part.split('-').map((x) => parseInt(x.trim(), 10));
+        if (!Number.isFinite(s) || !Number.isFinite(e)) continue;
+        if (s < 1 || s > 12 || e < 1 || e > 12) {
+          throw new BadRequestException(`Invalid semester ${s}–${e}. Months must be 1..12.`);
+        }
+        sems.push(`${s}-${e}`);
+      }
+      if (sems.length) semestersCsv = sems.join(',');
     }
 
     // ── Create / update school ───────────────────────────────────────────────
     let school = await this.prisma.school.findFirst({ where: { name: schoolName } });
     const schoolData: any = { name: schoolName, minGrade, maxGrade };
+    if (gradeRangesCsv !== undefined) schoolData.gradeRanges = gradeRangesCsv;
+    if (semestersCsv !== undefined) schoolData.semesters = semestersCsv;
     if (body?.logoUrl) schoolData.logoUrl = body.logoUrl;
 
     school = school
@@ -842,15 +884,17 @@ function buildPage(): string {
         <label>School Name <span class="req">*</span></label>
         <input id="schoolName" type="text" placeholder="e.g. Greenwood Academy" required autocomplete="off">
       </div>
-      <div class="row2">
-        <div class="field">
-          <label>Lowest Grade <span class="req">*</span></label>
-          <input id="minGrade" type="number" min="1" max="20" value="5" required>
-        </div>
-        <div class="field">
-          <label>Highest Grade <span class="req">*</span></label>
-          <input id="maxGrade" type="number" min="1" max="20" value="12" required>
-        </div>
+      <div class="field">
+        <label>Grade Ranges <span class="req">*</span></label>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">The grades this school spans. Add more than one for gaps (e.g. 4–6 and 9–12).</div>
+        <div id="rangeList"></div>
+        <button type="button" class="add-btn" id="addRange" style="margin-top:6px">+ Add range</button>
+      </div>
+      <div class="field">
+        <label>Semesters</label>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Optional. Define the school-year terms by start → end month. Students get "This semester / Previous" filters.</div>
+        <div id="semesterList"></div>
+        <button type="button" class="add-btn" id="addSemester" style="margin-top:6px">+ Add semester</button>
       </div>
       <div class="field">
         <label>School Logo</label>
@@ -1147,6 +1191,53 @@ function buildPage(): string {
   // Seed with P1–P5 to start
   for (let i = 0; i < 5; i++) addPeriod();
 
+  // ── Grade ranges ───────────────────────────────────────────────────────────
+  const rangeList = document.getElementById('rangeList');
+  function addRange(lo, hi) {
+    const row = document.createElement('div');
+    row.className = 'range-row';
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:6px';
+    row.innerHTML =
+      '<input type="number" class="rlo" min="1" max="20" value="'+(lo||5)+'" style="width:90px"> ' +
+      '<span class="period-sep">→</span> ' +
+      '<input type="number" class="rhi" min="1" max="20" value="'+(hi||12)+'" style="width:90px"> ' +
+      '<button type="button" class="period-del" title="Remove">×</button>';
+    row.querySelector('.period-del').addEventListener('click', () => {
+      if (rangeList.querySelectorAll('.range-row').length > 1) row.remove();
+    });
+    rangeList.appendChild(row);
+  }
+  document.getElementById('addRange').addEventListener('click', () => addRange());
+  addRange(5, 12);
+
+  // ── Semesters ────────────────────────────────────────────────────────────
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const semesterList = document.getElementById('semesterList');
+  function monthSelect(cls, val) {
+    let opts = '';
+    for (let m = 1; m <= 12; m++) opts += '<option value="'+m+'"'+(m===val?' selected':'')+'>'+MONTHS[m-1]+'</option>';
+    return '<select class="'+cls+'" style="padding:6px;border-radius:8px">'+opts+'</select>';
+  }
+  function renumberSemesters() {
+    semesterList.querySelectorAll('.sem-row').forEach((r,i) => {
+      r.querySelector('.sem-label').textContent = 'Semester '+(i+1);
+    });
+  }
+  function addSemester(start, end) {
+    const row = document.createElement('div');
+    row.className = 'sem-row';
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:6px';
+    row.innerHTML =
+      '<span class="sem-label" style="font-weight:700;min-width:90px"></span> ' +
+      monthSelect('ss', start||9) + ' <span class="period-sep">→</span> ' +
+      monthSelect('se', end||1) +
+      ' <button type="button" class="period-del" title="Remove">×</button>';
+    row.querySelector('.period-del').addEventListener('click', () => { row.remove(); renumberSemesters(); });
+    semesterList.appendChild(row);
+    renumberSemesters();
+  }
+  document.getElementById('addSemester').addEventListener('click', () => addSemester());
+
   // ── Show/hide password toggles ─────────────────────────────────────────────
   // Show/hide password toggles
   function togglePw(inputId, btnId) {
@@ -1218,11 +1309,35 @@ function buildPage(): string {
     const logoOk = await uploadLogoIfPending(secret);
     if (!logoOk) { btn.disabled = false; btn.textContent = 'Create School'; return; }
 
+    // Collect grade ranges → CSV "5-8,9-12" and derive min/max for back-compat
+    const rangePairs = [];
+    document.querySelectorAll('#rangeList .range-row').forEach((row) => {
+      const lo = Number(row.querySelector('.rlo').value);
+      const hi = Number(row.querySelector('.rhi').value);
+      if (lo >= 1 && hi >= 1) rangePairs.push([Math.min(lo,hi), Math.max(lo,hi)]);
+    });
+    const gradeRanges = rangePairs.map((p) => p[0]+'-'+p[1]).join(',');
+    const allLows = rangePairs.map((p) => p[0]);
+    const allHighs = rangePairs.map((p) => p[1]);
+    const derivedMin = allLows.length ? Math.min.apply(null, allLows) : 5;
+    const derivedMax = allHighs.length ? Math.max.apply(null, allHighs) : 12;
+
+    // Collect semesters → CSV "9-1,2-6" (author order, no swap)
+    const semPairs = [];
+    document.querySelectorAll('#semesterList .sem-row').forEach((row) => {
+      const s = Number(row.querySelector('.ss').value);
+      const e = Number(row.querySelector('.se').value);
+      if (s >= 1 && s <= 12 && e >= 1 && e <= 12) semPairs.push(s+'-'+e);
+    });
+    const semesters = semPairs.join(',');
+
     const payload = {
       schoolName:     document.getElementById('schoolName').value.trim(),
       logoUrl:        document.getElementById('logoUrl').value || undefined,
-      minGrade:       Number(document.getElementById('minGrade').value),
-      maxGrade:       Number(document.getElementById('maxGrade').value),
+      minGrade:       derivedMin,
+      maxGrade:       derivedMax,
+      gradeRanges:    gradeRanges || undefined,
+      semesters:      semesters || undefined,
       subjects: subjects.length ? subjects : undefined,
       bellSchedule: bell.length ? bell : undefined,
       adminName:      document.getElementById('adminName').value.trim(),
