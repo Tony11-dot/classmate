@@ -37,7 +37,7 @@ Upload existing IPA to TestFlight (skip build)
 [bundle exec] fastlane ios release
 ```
 
-Submit to App Store for review
+Build, upload, and submit to App Store review (1-command public release)
 
 ----
 
@@ -51,6 +51,22 @@ Submit to App Store for review
 ```
 
 Distribute via Firebase App Distribution (beta)
+
+### android internal
+
+```sh
+[bundle exec] fastlane android internal
+```
+
+Build AAB and upload to Play Console INTERNAL testing track
+
+### android production
+
+```sh
+[bundle exec] fastlane android production
+```
+
+Build AAB and roll out to Play Console PRODUCTION
 
 ----
 

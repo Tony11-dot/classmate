@@ -1150,6 +1150,26 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
+class _StepBtn extends StatelessWidget {
+  const _StepBtn({required this.icon, required this.onTap});
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.surfaceContainerHighest,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(width: 34, height: 34, child: Icon(icon, size: 18, color: cs.primary)),
+      ),
+    );
+  }
+}
+
 class _GradeStepper extends StatelessWidget {
   const _GradeStepper({required this.label, required this.value, required this.onChanged});
 
@@ -1179,30 +1199,22 @@ class _GradeStepper extends StatelessWidget {
             softWrap: false,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
           ),
+          // Buttons pinned at the edges with the value flexing in the middle —
+          // this can never overflow (and so never clips the +/- out of the
+          // hit-test area the way an Expanded-text-then-buttons row could).
           Row(
             children: [
+              _StepBtn(icon: Icons.remove_rounded, onTap: () => onChanged(value - 1)),
               Expanded(
                 child: Text(
                   AppLocalizations.of(context)!.adminCohortGradeFormat(value.toString()),
+                  textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.remove_rounded),
-                onPressed: () => onChanged(value - 1),
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                padding: EdgeInsets.zero,
-              ),
-              IconButton(
-                icon: const Icon(Icons.add_rounded),
-                onPressed: () => onChanged(value + 1),
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                padding: EdgeInsets.zero,
-              ),
+              _StepBtn(icon: Icons.add_rounded, onTap: () => onChanged(value + 1)),
             ],
           ),
         ],

@@ -14,5 +14,14 @@ import 'parent_repository.dart';
 final viewedStudentIdProvider = Provider<String?>((ref) {
   final session = ref.watch(authSessionProvider);
   if (session.primaryRole != 'PARENT') return null;
-  return ref.watch(selectedChildProvider);
+  final selected = ref.watch(selectedChildProvider);
+  if (selected != null && selected.isNotEmpty) return selected;
+  // No child explicitly picked yet (deep-link, fresh launch before the
+  // picker runs) — fall back to the first linked child so parent data
+  // screens never fall through to the STUDENT endpoints (which a parent
+  // role can't hit → "Forbidden resource" / infinite load).
+  return ref.watch(parentChildrenProvider).maybeWhen(
+        data: (kids) => kids.isNotEmpty ? kids.first.studentId : null,
+        orElse: () => null,
+      );
 });

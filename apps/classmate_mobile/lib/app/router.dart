@@ -86,6 +86,7 @@ import '../features/admin/ui/admin_reports_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/secretary/ui/secretary_home_screen.dart';
 import '../features/parent/ui/parent_home_screen.dart';
+import '../features/parent/ui/parent_notifications_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
@@ -784,6 +785,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/parent/certificates',
             builder: (context, state) => const DiplomasScreen(),
+          ),
+          _fadeRoute(
+            path: '/parent/notifications',
+            builder: (context, state) => const ParentNotificationsScreen(),
           ),
           _fadeRoute(
             path: '/parent/assignments',
