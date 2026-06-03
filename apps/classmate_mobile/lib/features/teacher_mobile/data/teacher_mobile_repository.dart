@@ -79,11 +79,13 @@ class TeacherMobileRepository {
     required int period,
     required List<TeacherAttendanceDraftRecord> records,
     String? classNote,
+    String? slotId,
   }) async {
     await _api.postJson(
       '/teacher/attendance/bulk',
       body: <String, dynamic>{
         'cohortId': cohortId,
+        if ((slotId ?? '').isNotEmpty) 'slotId': slotId,
         'date': date,
         'period': period,
         if ((classNote ?? '').trim().isNotEmpty) 'classNote': classNote!.trim(),
@@ -574,6 +576,7 @@ class TeacherMobileRepository {
       period: _asInt(map['period']),
       classNote: _asString(map['classNote']),
       course: TeacherCourse.fromJson(_asMap(map['course'])),
+      slotId: _asString(map['slotId']).isEmpty ? null : _asString(map['slotId']),
       students: _asList(map['students'])
           .map((item) => TeacherAttendanceStudent.fromJson(_asMap(item)))
           .toList(growable: false),
@@ -1366,6 +1369,7 @@ class TeacherAttendanceSession {
     required this.course,
     required this.students,
     this.classNote = '',
+    this.slotId,
   });
 
   final TeacherCohort cohort;
@@ -1374,6 +1378,9 @@ class TeacherAttendanceSession {
   final TeacherCourse course;
   final List<TeacherAttendanceStudent> students;
   final String classNote;
+  /// Set for periods with no cohort (grade/individual-student targeted) —
+  /// the session is then keyed by slot on save.
+  final String? slotId;
 }
 
 class TeacherAttendanceStudent {

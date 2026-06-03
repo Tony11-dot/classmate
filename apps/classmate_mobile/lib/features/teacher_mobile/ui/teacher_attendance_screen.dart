@@ -288,6 +288,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
     try {
       await ref.read(teacherMobileRepositoryProvider).saveBulkAttendance(
             cohortId: session.cohort.id,
+            slotId: session.slotId ?? widget.initialSlotId,
             date: session.date,
             period: session.period,
             records: allRecords,

@@ -290,19 +290,34 @@ export class TeacherService {
 
     if (!cohortId) {
       cohortId = slotForTeacher?.cohorts?.[0]?.cohortId ?? '';
-      if (!cohortId) throw new BadRequestException('No teacher schedule slot found for that day/period (provide cohortId)');
     }
 
     if (slotForTeacher?.teacherId && slotForTeacher.teacherId !== teacherId) {
       throw new ForbiddenException('Not your slot');
     }
 
-    const session = await this.prisma.attendanceSession.upsert({
-      where: { cohortId_date_period: { cohortId, date, period } },
-      update: {},
-      create: { cohortId, date, period },
-      include: { records: true, cohort: true },
-    });
+    // Key the session by cohort when there is one; otherwise by the slot
+    // (periods targeted by grade or individual students have no cohort).
+    const sessionSlotId = slotForTeacher?.id ?? (slotIdHint || null);
+    if (!cohortId && !sessionSlotId) {
+      throw new BadRequestException(
+        'No teacher schedule slot found for that day/period (provide cohortId or slotId)',
+      );
+    }
+
+    const session = cohortId
+      ? await this.prisma.attendanceSession.upsert({
+          where: { cohortId_date_period: { cohortId, date, period } },
+          update: {},
+          create: { cohortId, date, period },
+          include: { records: true, cohort: true },
+        })
+      : await this.prisma.attendanceSession.upsert({
+          where: { slotId_date_period: { slotId: sessionSlotId!, date, period } },
+          update: {},
+          create: { slotId: sessionSlotId!, date, period },
+          include: { records: true, cohort: true },
+        });
 
     // Build the roster from the slot's ACTUAL audience union — cohorts
     // attached to the slot, direct student attaches, and by-grade
@@ -377,15 +392,17 @@ export class TeacherService {
     );
 
     return {
-      cohort: {
-        id: session.cohort.id,
-        name: session.cohort.name,
-        grade: (session.cohort as any).grade,
-      },
+      cohort: session.cohort
+        ? {
+            id: session.cohort.id,
+            name: session.cohort.name,
+            grade: (session.cohort as any).grade,
+          }
+        : { id: '', name: '', grade: 0 },
       date: dateYmd,
       period,
       subject: (slotForTeacher as any)?.subject ?? null,
-      slotId: slotForTeacher?.id ?? null,
+      slotId: session.slotId ?? slotForTeacher?.id ?? null,
       students: students.map((s) => {
         const r = recordByStudent.get(s.userId) as
           | AttendanceRowLite
@@ -561,7 +578,8 @@ export class TeacherService {
   async bulkAttendance(
     user: any,
     body: {
-      cohortId: string;
+      cohortId?: string;
+      slotId?: string;
       date?: string;
       period: number;
       records: {
@@ -575,7 +593,10 @@ export class TeacherService {
 
     const teacherId = user.id ?? user.sub;
 
-    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
+    const cohortId = (body?.cohortId ?? '').trim();
+    const slotId = (body?.slotId ?? '').trim();
+    if (!cohortId && !slotId)
+      throw new BadRequestException('cohortId or slotId is required');
     if (!Number.isInteger(body?.period))
       throw new BadRequestException('period is required');
     if (!Array.isArray(body?.records) || body.records.length === 0)
@@ -584,29 +605,39 @@ export class TeacherService {
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
 
-    const session = await this.prisma.attendanceSession.upsert({
-      where: {
-        cohortId_date_period: {
-          cohortId: body.cohortId,
-          date,
-          period: body.period,
-        },
-      },
-      update: {},
-      create: {
-        cohortId: body.cohortId,
-        date,
-        period: body.period
-      },
-    });
+    // Key by cohort when present; otherwise by slot (grade/individual-student
+    // periods have no cohort).
+    const session = cohortId
+      ? await this.prisma.attendanceSession.upsert({
+          where: { cohortId_date_period: { cohortId, date, period: body.period } },
+          update: {},
+          create: { cohortId, date, period: body.period },
+        })
+      : await this.prisma.attendanceSession.upsert({
+          where: { slotId_date_period: { slotId, date, period: body.period } },
+          update: {},
+          create: { slotId, date, period: body.period },
+        });
 
     const studentIds = body.records.map((r) => r.studentId);
-    // Allow any student enrolled in this cohort via StudentCohort (multi-cohort aware)
-    const cohortLinks = await this.prisma.studentCohort.findMany({
-      where: { cohortId: body.cohortId, studentId: { in: studentIds } },
-      select: { studentId: true },
-    });
-    const okSet = new Set(cohortLinks.map((l) => l.studentId));
+    let okSet: Set<string>;
+    if (cohortId) {
+      // Allow any student enrolled in this cohort via StudentCohort (multi-cohort aware)
+      const cohortLinks = await this.prisma.studentCohort.findMany({
+        where: { cohortId, studentId: { in: studentIds } },
+        select: { studentId: true },
+      });
+      okSet = new Set(cohortLinks.map((l) => l.studentId));
+    } else {
+      // Slot-keyed period — the roster came from getAttendanceSession (the
+      // slot's grade/direct audience). Accept every sent student that is a
+      // real user.
+      const users = await this.prisma.user.findMany({
+        where: { id: { in: studentIds } },
+        select: { id: true },
+      });
+      okSet = new Set(users.map((u) => u.id));
+    }
 
     let written = 0;
     for (const r of body.records) {
@@ -834,7 +865,7 @@ export class TeacherService {
     return sessions.map((s) => {
       const counts = { PRESENT: 0, ABSENT: 0, LATE: 0, EXCUSED: 0 };
       for (const r of s.records) counts[String(r.status) as keyof typeof counts] = (counts[String(r.status) as keyof typeof counts] ?? 0) + 1;
-      const cohortShort = s.cohort.name.replace(/^\d+\s*-\s*/, '');
+      const cohortShort = (s.cohort?.name ?? '').replace(/^\d+\s*-\s*/, '');
       return {
         id: s.id,
         date: s.date.toISOString().slice(0, 10),
@@ -842,8 +873,9 @@ export class TeacherService {
         courseName: cohortShort,
         subject: (s as any).subject ?? cohortShort,
         cohortId: s.cohortId,
-        cohortName: s.cohort.name,
-        grade: s.cohort.grade,
+        slotId: (s as any).slotId ?? null,
+        cohortName: s.cohort?.name ?? '',
+        grade: s.cohort?.grade ?? null,
         totalStudents: s.records.length,
         presentCount: counts.PRESENT,
         absentCount: counts.ABSENT,

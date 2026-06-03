@@ -553,17 +553,23 @@ enum AttendanceStatus {
 
 model AttendanceSession {
   id        String   @id @default(uuid())
-  cohortId  String
+  // cohortId is set for class/cohort periods; slotId is set for periods
+  // targeted by grade or individual students (no cohort to key on). Exactly
+  // one of them keys the session.
+  cohortId  String?
+  slotId    String?
   date      DateTime
   period    Int
   classNote String?
 
-  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  cohort Cohort? @relation(fields: [cohortId], references: [id], onDelete: Cascade)
 
   records AttendanceRecord[]
 
   @@unique([cohortId, date, period])
+  @@unique([slotId, date, period])
   @@index([cohortId, date])
+  @@index([slotId, date])
 }
 
 model AttendanceRecord {
