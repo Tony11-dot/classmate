@@ -140,6 +140,42 @@ export class NotificationsHubService {
       console.error('[notifications-hub] failed parent fan-out lookup:', e);
       return;
     }
+    // Inbox parity: parents who are DIRECT recipients (whole-school broadcast
+    // or PARENT-role-targeted announcements) — and didn't already get a row
+    // via the student fan-out above — also get a parent-notification row, so
+    // the in-app inbox matches the system push they received. studentId is
+    // null (it's about them, not a specific child).
+    try {
+      const fanned = new Set(parentTargets.map((t) => t.parentId));
+      const directParents = await this.prisma.user.findMany({
+        where: {
+          id: { in: uniqueRecipients },
+          roles: { some: { role: 'PARENT' as any } },
+        },
+        select: { id: true },
+      });
+      const directParentIds = directParents
+        .map((u) => u.id)
+        .filter((id) => !fanned.has(id));
+      if (directParentIds.length > 0) {
+        await this.prisma.parentNotification.createMany({
+          data: directParentIds.map((pid) => ({
+            parentId: pid,
+            studentId: null,
+            type: String(params.type),
+            title: params.title,
+            message: params.body ?? null,
+            data: (params.data ?? {}) as any,
+          })),
+        });
+        for (const pid of directParentIds) {
+          this.parentEvents.emit({ type: 'notification.created', parentId: pid });
+        }
+      }
+    } catch (e) {
+      console.error('[notifications-hub] failed direct-parent fan-out:', e);
+    }
+
     if (parentTargets.length === 0) return;
 
     try {
