@@ -3326,7 +3326,7 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      '${_localizedDayName(context, widget.day, short: false)} · ${AppLocalizations.of(context)!.adminSchedulePeriodLabel} ${widget.period}',
+                      '${_localizedDayName(context, widget.day, short: false)} · ${AppLocalizations.of(context)!.adminSchedulePeriodLabel(widget.period)}',
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
