@@ -33,7 +33,7 @@ final weekScheduleProvider =
       // re-runs, hitting /parent/schedule/week?studentId=…
       final session = ref.watch(authSessionProvider);
       final viewedStudentId = ref.watch(viewedStudentIdProvider);
-      if (session.primaryRole == 'PARENT'
+      if (session.roles.contains('PARENT')
           && (viewedStudentId == null || viewedStudentId.isEmpty)) {
         return <String, dynamic>{'items': []};
       }

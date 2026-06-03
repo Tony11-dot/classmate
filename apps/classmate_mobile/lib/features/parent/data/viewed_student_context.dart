@@ -13,7 +13,10 @@ import 'parent_repository.dart';
 /// context check at the data layer.
 final viewedStudentIdProvider = Provider<String?>((ref) {
   final session = ref.watch(authSessionProvider);
-  if (session.primaryRole != 'PARENT') return null;
+  // Use roles.contains, NOT primaryRole — primaryRole ranks TEACHER/ADMIN/
+  // SECRETARY above PARENT, so an owner/staff account that is ALSO a parent
+  // would resolve to null here and every parent data screen would be empty.
+  if (!session.roles.contains('PARENT')) return null;
   final selected = ref.watch(selectedChildProvider);
   if (selected != null && selected.isNotEmpty) return selected;
   // No child explicitly picked yet (deep-link, fresh launch before the

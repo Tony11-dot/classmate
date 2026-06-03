@@ -255,7 +255,7 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
   final session = ref.read(authSessionProvider);
   final isStudent = session.primaryRole == 'STUDENT';
   final isParentViewingChild =
-      session.primaryRole == 'PARENT' && ref.read(viewedStudentIdProvider) != null;
+      session.roles.contains('PARENT') && ref.read(viewedStudentIdProvider) != null;
   if (!isStudent && !isParentViewingChild) {
     return const <StudentNotificationItem>[];
   }

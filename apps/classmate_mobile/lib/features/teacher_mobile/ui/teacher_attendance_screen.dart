@@ -140,6 +140,14 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
     });
   }
 
+  /// True when the screen was opened for ONE specific period (from the
+  /// schedule/home slot sheet) — we then skip the "Today's sessions" picker
+  /// (and its misleading "today looks clear" copy) and just show that
+  /// period's roster.
+  bool get _fromSpecificSlot =>
+      (widget.initialSlotId != null && widget.initialSlotId!.isNotEmpty) ||
+      (widget.initialCohortId != null && widget.initialCohortId!.isNotEmpty);
+
   @override
   void initState() {
     super.initState();
@@ -159,18 +167,28 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
 
     final initCohortId = widget.initialCohortId;
     final initPeriod = widget.initialPeriod;
-    if (initCohortId != null && initCohortId.isNotEmpty && initPeriod != null) {
+    final initSlotId = widget.initialSlotId;
+    // Load the session if we have EITHER a cohort id OR a slot id — the
+    // backend resolves the cohort from the slot when cohortId is empty, so
+    // periods reached from the schedule (which may not carry a cohort id on
+    // the slot map) still load their roster instead of falling through to
+    // the "today looks clear" picker.
+    final hasTarget = (initCohortId != null && initCohortId.isNotEmpty) ||
+        (initSlotId != null && initSlotId.isNotEmpty);
+    if (hasTarget && initPeriod != null) {
       try {
         final repo = ref.read(teacherMobileRepositoryProvider);
         final session = await repo.fetchAttendanceSessionForDate(
-          cohortId: initCohortId,
+          cohortId: initCohortId ?? '',
           date: _formattedDate,
           period: initPeriod,
-          slotId: widget.initialSlotId,
+          slotId: initSlotId,
         );
         if (!mounted) return;
         setState(() {
-          _selectedCohortId = initCohortId;
+          // Adopt the cohort the backend resolved (works whether we passed a
+          // cohort id or only a slot id).
+          _selectedCohortId = session.cohort.id.isNotEmpty ? session.cohort.id : initCohortId;
           _selectedPeriod = initPeriod;
           _session = session;
           _loading = false;
@@ -425,6 +443,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
               ],
             ),
           ),
+          if (!_fromSpecificSlot) ...[
           const SizedBox(height: 18),
           LiquidGlassCard(
             color: cs.surfaceContainerLow,
@@ -459,6 +478,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
               ],
             ),
           ),
+          ],
           const SizedBox(height: 14),
           if (_error != null)
             LiquidGlassCard(

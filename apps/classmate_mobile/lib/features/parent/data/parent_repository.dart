@@ -122,11 +122,15 @@ class ParentRepository {
       final raw = await api.getJson('/parent/notifications', query: {
         'take': '$take',
       });
+      // Server returns { ok, notifications: [...] } — accept that key first
+      // (the old 'items'-only read always fell through to [] → empty inbox).
       final list = raw is List
           ? raw
-          : raw is Map && raw['items'] is List
-              ? raw['items'] as List
-              : const [];
+          : raw is Map && raw['notifications'] is List
+              ? raw['notifications'] as List
+              : raw is Map && raw['items'] is List
+                  ? raw['items'] as List
+                  : const [];
       return list
           .whereType<Map>()
           .map((m) => ParentNotification.fromJson(Map<String, dynamic>.from(m)))
