@@ -8333,4 +8333,12 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get novaAbout => 'אודות NOVA';
+
+  @override
+  String get parentNotifForYou => 'עבורך';
+
+  @override
+  String parentNotifAbout(String name) {
+    return 'על $name';
+  }
 }

@@ -8369,4 +8369,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get novaAbout => 'حول NOVA';
+
+  @override
+  String get parentNotifForYou => 'لك';
+
+  @override
+  String parentNotifAbout(String name) {
+    return 'عن $name';
+  }
 }

@@ -3446,5 +3446,7 @@
   "adminExportNoteHelp": "Нужна помощь? Обратитесь к администратору школы или на {email}.",
   "teacherGradeTitleHint": "напр. Работа на уроке, Тест 3",
   "teacherClassroomNameHint": "напр. Математика 10A",
-  "novaAbout": "О NOVA"
+  "novaAbout": "О NOVA",
+  "parentNotifForYou": "Вам",
+  "parentNotifAbout": "О {name}"
 }

@@ -3239,5 +3239,7 @@
   "adminExportNoteHelp": "Besoin d'aide ? Contactez l'administrateur de votre école ou {email}.",
   "teacherGradeTitleHint": "ex. Participation en classe, Quiz 3",
   "teacherClassroomNameHint": "ex. Mathématiques 10A",
-  "novaAbout": "À propos de NOVA"
+  "novaAbout": "À propos de NOVA",
+  "parentNotifForYou": "Pour vous",
+  "parentNotifAbout": "À propos de {name}"
 }

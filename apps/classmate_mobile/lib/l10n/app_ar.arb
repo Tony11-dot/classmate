@@ -3239,5 +3239,7 @@
   "adminExportNoteHelp": "بحاجة إلى مساعدة؟ تواصل مع مسؤول مدرستك أو عبر {email}.",
   "teacherGradeTitleHint": "مثال: المشاركة الصفية، اختبار 3",
   "teacherClassroomNameHint": "مثال: رياضيات 10أ",
-  "novaAbout": "حول NOVA"
+  "novaAbout": "حول NOVA",
+  "parentNotifForYou": "لك",
+  "parentNotifAbout": "عن {name}"
 }

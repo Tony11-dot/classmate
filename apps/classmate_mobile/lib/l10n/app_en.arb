@@ -4163,5 +4163,18 @@
   "novaAbout": "About NOVA",
   "@novaAbout": {
     "description": "novaAbout"
+  },
+  "parentNotifForYou": "For you",
+  "@parentNotifForYou": {
+    "description": "parentNotifForYou"
+  },
+  "parentNotifAbout": "About {name}",
+  "@parentNotifAbout": {
+    "description": "parentNotifAbout",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

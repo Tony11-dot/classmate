@@ -308,12 +308,21 @@ export class ParentService {
       this.assertLinked(parentId, studentId),
       this.prisma.studentProfile.findUnique({
         where: { userId: studentId },
-        select: { cohortId: true },
+        select: { cohortId: true, user: { select: { schoolId: true } } },
       }),
     ]);
     if (!sp) throw new BadRequestException('Student not onboarded');
 
-    return this.schedule.getWeekForCohort(sp.cohortId ?? '', weekOf);
+    // Use the SAME resolver the child's own schedule uses — it unions
+    // cohort + by-grade + direct-student audiences. getWeekForCohort only
+    // covered cohort slots, so a child with no cohort (grade/student
+    // targeted) produced an error → "Could not load schedule".
+    return this.schedule.getWeekForStudent({
+      schoolId: String((sp as any).user?.schoolId ?? user.schoolId ?? ''),
+      studentId: String(studentId),
+      cohortId: String(sp.cohortId ?? ''),
+      weekOf,
+    });
   }
 
   async attendanceToday(user: any, studentId: string) {

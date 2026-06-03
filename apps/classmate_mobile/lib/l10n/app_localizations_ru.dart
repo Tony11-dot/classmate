@@ -8400,4 +8400,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get novaAbout => 'О NOVA';
+
+  @override
+  String get parentNotifForYou => 'Вам';
+
+  @override
+  String parentNotifAbout(String name) {
+    return 'О $name';
+  }
 }

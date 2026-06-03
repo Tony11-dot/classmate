@@ -14786,6 +14786,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About NOVA'**
   String get novaAbout;
+
+  /// parentNotifForYou
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get parentNotifForYou;
+
+  /// parentNotifAbout
+  ///
+  /// In en, this message translates to:
+  /// **'About {name}'**
+  String parentNotifAbout(String name);
 }
 
 class _AppLocalizationsDelegate

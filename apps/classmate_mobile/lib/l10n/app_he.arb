@@ -3239,5 +3239,7 @@
   "adminExportNoteHelp": "צריך עזרה? פנה למנהל בית הספר או אל {email}.",
   "teacherGradeTitleHint": "לדוגמה: השתתפות בכיתה, בוחן 3",
   "teacherClassroomNameHint": "לדוגמה: מתמטיקה 10A",
-  "novaAbout": "אודות NOVA"
+  "novaAbout": "אודות NOVA",
+  "parentNotifForYou": "עבורך",
+  "parentNotifAbout": "על {name}"
 }

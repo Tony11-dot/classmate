@@ -8420,4 +8420,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get novaAbout => 'About NOVA';
+
+  @override
+  String get parentNotifForYou => 'For you';
+
+  @override
+  String parentNotifAbout(String name) {
+    return 'About $name';
+  }
 }

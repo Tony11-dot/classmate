@@ -108,6 +108,10 @@ class ParentNotification {
   final String? createdAt;
   final bool seen;
   final String? studentName;
+  /// The child this notification is ABOUT. Null = it's about the parent
+  /// directly (broadcast announcement, DM, etc.).
+  final String? studentId;
+  final String? type;
 
   const ParentNotification({
     required this.id,
@@ -116,6 +120,8 @@ class ParentNotification {
     this.createdAt,
     this.seen = false,
     this.studentName,
+    this.studentId,
+    this.type,
   });
 
   factory ParentNotification.fromJson(Map<String, dynamic> j) => ParentNotification(
@@ -123,9 +129,13 @@ class ParentNotification {
         title: (j['title'] ?? '').toString(),
         body: (j['body'] ?? j['message'] ?? '').toString(),
         createdAt: j['createdAt']?.toString(),
-        seen: j['seen'] == true || j['readAt'] != null,
+        seen: j['seen'] == true || j['seenAt'] != null || j['readAt'] != null,
         studentName: (j['studentName'] ?? '').toString().isEmpty
             ? null
             : j['studentName'] as String,
+        studentId: (j['studentId'] ?? '').toString().isEmpty
+            ? null
+            : j['studentId'] as String,
+        type: (j['type'] ?? '').toString().isEmpty ? null : j['type'] as String,
       );
 }

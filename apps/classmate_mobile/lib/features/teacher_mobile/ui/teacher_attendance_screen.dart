@@ -195,8 +195,16 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
         });
         final today = await repo.fetchTodaySchedule();
         if (mounted) setState(() => _today = today);
-      } catch (_) {
-        if (mounted) setState(() => _loading = false);
+      } catch (error) {
+        // Surface the error (with a retry) instead of leaving the screen
+        // blank — happens e.g. when a period has no cohort to attach
+        // attendance to.
+        if (mounted) {
+          setState(() {
+            _error = error.toString();
+            _loading = false;
+          });
+        }
       }
       return;
     }

@@ -8535,4 +8535,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get novaAbout => 'À propos de NOVA';
+
+  @override
+  String get parentNotifForYou => 'Pour vous';
+
+  @override
+  String parentNotifAbout(String name) {
+    return 'À propos de $name';
+  }
 }
