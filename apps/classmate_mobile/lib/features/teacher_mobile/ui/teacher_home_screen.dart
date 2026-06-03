@@ -75,7 +75,7 @@ Future<void> _showSlotActionSheet(
                   label: l.teacherMarkAttendance,
                   onTap: () {
                     Navigator.of(ctx).pop();
-                    context.push('/teacher/attendance', extra: <String, dynamic>{
+                    context.push('/teacher/attendance/mark', extra: <String, dynamic>{
                       'cohortId': cohort.id,
                       'period': slot.period,
                       'date': date,
@@ -154,6 +154,7 @@ class TeacherHomeScreen extends ConsumerStatefulWidget {
 class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
   TeacherTodaySchedule? _today;
   TeacherAssessmentBundle? _bundle;
+  List<Map<String, dynamic>> _assignments = const [];
   String? _error;
   bool _loading = true;
 
@@ -173,11 +174,13 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
       final values = await Future.wait<dynamic>([
         repo.fetchTodaySchedule(),
         repo.fetchAssessments(),
+        repo.listTeacherAssignments().catchError((_) => <Map<String, dynamic>>[]),
       ]);
       if (!mounted) return;
       setState(() {
         _today = values[0] as TeacherTodaySchedule;
         _bundle = values[1] as TeacherAssessmentBundle;
+        _assignments = (values[2] as List).cast<Map<String, dynamic>>();
         _loading = false;
       });
     } on CMApiException catch (error) {
@@ -199,6 +202,41 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
         _loading = false;
       });
     }
+  }
+
+  /// Upcoming = exams + assignments THIS teacher posted that are still
+  /// ahead in time (not yet due/sat), merged and sorted soonest-first.
+  List<({DateTime when, String title, String subtitle, bool isExam})> _buildUpcoming() {
+    final bundle = _bundle;
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final items = <({DateTime when, String title, String subtitle, bool isExam})>[];
+
+    for (final a in bundle?.assessments ?? const <TeacherAssessment>[]) {
+      final dt = DateTime.tryParse(a.date);
+      if (dt == null || dt.isBefore(todayStart)) continue;
+      final courseName = bundle == null
+          ? ''
+          : bundle.courses
+              .firstWhere((c) => c.id == a.courseId,
+                  orElse: () => TeacherCourse(id: '', name: '', subject: '', cohortId: ''))
+              .name;
+      items.add((when: dt, title: a.title, subtitle: courseName, isExam: true));
+    }
+
+    for (final m in _assignments) {
+      final dt = DateTime.tryParse((m['dueAt'] ?? m['date'] ?? '').toString());
+      if (dt == null || dt.isBefore(todayStart)) continue;
+      items.add((
+        when: dt,
+        title: (m['title'] ?? '').toString(),
+        subtitle: (m['subject'] ?? m['courseName'] ?? '').toString(),
+        isExam: false,
+      ));
+    }
+
+    items.sort((a, b) => a.when.compareTo(b.when));
+    return items.take(5).toList(growable: false);
   }
 
   String _greeting(AppLocalizations l) {
@@ -235,7 +273,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
             .where((slot) => slot.period > 0)
             .toList(growable: false) ??
         const <TeacherTodaySlot>[];
-    final upcoming = (bundle?.assessments ?? const <TeacherAssessment>[]).take(4).toList(growable: false);
+    final upcoming = _buildUpcoming();
     final teachingGroups = (bundle?.courses.map((c) => c.cohortId).where((id) => id.isNotEmpty).toSet().length) ?? 0;
     final teacherName = session.displayName.trim().split(' ').first;
     final now = DateTime.now();
@@ -317,31 +355,6 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                // Week schedule shortcut — /teacher/schedule (the route
-                // is registered without /week; the old path used to
-                // throw a go_router "no route" exception).
-                InkWell(
-                  onTap: () => context.push('/teacher/schedule'),
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cs.outlineVariant),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_view_week_rounded, size: 16, color: cs.primary),
-                        const SizedBox(width: 8),
-                        Text(l.teacherViewFullWeekSchedule, style: TextStyle(fontWeight: FontWeight.w700, color: cs.primary, fontSize: 13)),
-                        const Spacer(),
-                        Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
-                      ],
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -383,8 +396,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _ActionChip(icon: Icons.quiz_rounded, label: l.navExams, onTap: () => context.go('/exams')),
-                    _ActionChip(icon: Icons.article_rounded, label: l.navForms, onTap: () => context.go('/forms')),
+                    _ActionChip(icon: Icons.quiz_rounded, label: l.navExams, onTap: () => context.go('/teacher/exams')),
+                    _ActionChip(icon: Icons.article_rounded, label: l.navForms, onTap: () => context.go('/teacher/forms')),
                     _ActionChip(icon: Icons.notifications_rounded, label: l.navNotifications, onTap: () => context.go('/notifications')),
                   ],
                 ),
@@ -486,19 +499,13 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                     ]),
                   )
                 : Column(
-                    children: upcoming.map((assessment) {
-                      final courseName = bundle?.courses.firstWhere(
-                        (c) => c.id == assessment.courseId,
-                        orElse: () => TeacherCourse(id: '', name: '', subject: '', cohortId: ''),
-                      ).name ?? '';
-                      final dateStr = assessment.date.split('T').first;
-                      final dt = DateTime.tryParse(dateStr);
-                      final dateLabel2 = dt != null ? '${DateFormat.MMM(locale).format(dt)} ${dt.day}' : dateStr;
-
+                    children: upcoming.map((item) {
+                      final dateLabel2 = '${DateFormat.MMM(locale).format(item.when)} ${item.when.day}';
+                      final tag = item.isExam ? l.navExams : l.navAssignments;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: InkWell(
-                          onTap: () => context.go('/teacher/grades'),
+                          onTap: () => context.go(item.isExam ? '/teacher/exams' : '/teacher/assignments'),
                           borderRadius: BorderRadius.circular(18),
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -510,16 +517,26 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                 Container(
                                   width: 40,
                                   height: 40,
-                                  decoration: BoxDecoration(color: cs.tertiaryContainer, borderRadius: BorderRadius.circular(12)),
-                                  child: Icon(Icons.quiz_rounded, size: 20, color: cs.onTertiaryContainer),
+                                  decoration: BoxDecoration(
+                                    color: item.isExam ? cs.tertiaryContainer : cs.secondaryContainer,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    item.isExam ? Icons.quiz_rounded : Icons.assignment_rounded,
+                                    size: 20,
+                                    color: item.isExam ? cs.onTertiaryContainer : cs.onSecondaryContainer,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(assessment.title, style: const TextStyle(fontWeight: FontWeight.w800)),
-                                      if (courseName.isNotEmpty) Text(courseName, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                      Text(item.title, style: const TextStyle(fontWeight: FontWeight.w800)),
+                                      Text(
+                                        item.subtitle.isNotEmpty ? '$tag · ${item.subtitle}' : tag,
+                                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                                      ),
                                     ],
                                   ),
                                 ),
