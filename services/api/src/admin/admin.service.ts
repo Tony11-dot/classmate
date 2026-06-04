@@ -1423,7 +1423,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const [attendanceRate, gradeAvg, classrooms] = await Promise.all([
       row.studentProfile
         ? this.prisma.attendanceRecord.count({
-            where: { studentId: row.id, status: 'PRESENT' },
+            // Late students attended — count them as present (only Absent lowers the rate).
+            where: { studentId: row.id, status: { in: ['PRESENT', 'LATE'] } as any },
           }).then(async (present) => {
             const total = await this.prisma.attendanceRecord.count({ where: { studentId: row.id } });
             return total > 0 ? Math.round((present / total) * 100) : null;
@@ -2063,7 +2064,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         const [present, total] = await Promise.all([
           this.prisma.attendanceRecord.count({
             where: {
-              status: 'PRESENT',
+              // Late counts as present (attended); only Absent lowers the rate.
+              status: { in: ['PRESENT', 'LATE'] } as any,
               session: { cohortId: c.id, date: { gte: since } },
             },
           }),

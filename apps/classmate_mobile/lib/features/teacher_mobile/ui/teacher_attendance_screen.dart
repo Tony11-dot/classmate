@@ -347,7 +347,13 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
       final draft = _draftFor(s);
       return draft.status.toUpperCase() == AttendanceStatus.absent;
     }).length;
-    final attPct = markedCount > 0 ? presentCount / markedCount : 0.0;
+    final lateCount = session == null ? 0 : session.students.where((s) {
+      final draft = _draftFor(s);
+      return draft.status.toUpperCase() == AttendanceStatus.late;
+    }).length;
+    // Late students DID attend — count them as present in the rate (only
+    // ABSENT lowers it; Excused is a sanctioned absence, kept out of "present").
+    final attPct = markedCount > 0 ? (presentCount + lateCount) / markedCount : 0.0;
 
     return Scaffold(
       body: SafeArea(
