@@ -213,7 +213,9 @@ class _SessionCard extends StatelessWidget {
     final periodLabel = '${_ordinalPeriod(session.period)} period';
     final gradeLabel = session.grade != null ? 'Grade ${session.grade} · ' : '';
     final total = session.totalStudents;
-    final attendancePct = total > 0 ? session.presentCount / total : 0.0;
+    // Late students attended — count them as present in the rate (matches the
+    // session-detail screen + admin dashboard; only Absent lowers it).
+    final attendancePct = total > 0 ? (session.presentCount + session.lateCount) / total : 0.0;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
