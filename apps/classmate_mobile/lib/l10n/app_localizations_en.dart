@@ -8428,4 +8428,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String parentNotifAbout(String name) {
     return 'About $name';
   }
+
+  @override
+  String get navPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get privacyPolicySubtitle => 'How we protect your data';
 }

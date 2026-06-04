@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
@@ -378,6 +379,52 @@ class MainDrawer extends ConsumerWidget {
                     icon: Icons.info_outline_rounded,
                     label: l.navAbout,
                     route: '/about',
+                  ),
+                  // ── Privacy Policy — a styled card (not a plain row) that
+                  //    opens our legal site in the browser ──────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Material(
+                      color: cs.primaryContainer.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(16),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () async {
+                          closeDrawer();
+                          final uri = Uri.parse('https://classmate-marketing.web.app/privacy.html');
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: cs.primary,
+                                  borderRadius: BorderRadius.circular(11),
+                                ),
+                                child: Icon(Icons.shield_rounded, size: 20, color: cs.onPrimary),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(l.navPrivacyPolicy,
+                                        style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurface)),
+                                    Text(l.privacyPolicySubtitle,
+                                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.open_in_new_rounded, size: 16, color: cs.primary),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                   // Logout (danger style, separate tap handler)
                   Padding(

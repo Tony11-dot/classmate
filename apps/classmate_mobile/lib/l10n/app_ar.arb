@@ -3241,5 +3241,7 @@
   "teacherClassroomNameHint": "مثال: رياضيات 10أ",
   "novaAbout": "حول NOVA",
   "parentNotifForYou": "لك",
-  "parentNotifAbout": "عن {name}"
+  "parentNotifAbout": "عن {name}",
+  "navPrivacyPolicy": "سياسة الخصوصية",
+  "privacyPolicySubtitle": "كيف نحمي بياناتك"
 }

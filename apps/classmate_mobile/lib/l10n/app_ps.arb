@@ -3865,5 +3865,7 @@
   "teacherClassroomNameHint": "‹‹e.g. Mathematics 10A››",
   "novaAbout": "‹‹About NOVA››",
   "parentNotifForYou": "‹‹For you››",
-  "parentNotifAbout": "‹‹About {name}››"
+  "parentNotifAbout": "‹‹About {name}››",
+  "navPrivacyPolicy": "‹‹Privacy Policy››",
+  "privacyPolicySubtitle": "‹‹How we protect your data››"
 }

@@ -14798,6 +14798,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About {name}'**
   String parentNotifAbout(String name);
+
+  /// navPrivacyPolicy
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get navPrivacyPolicy;
+
+  /// privacyPolicySubtitle
+  ///
+  /// In en, this message translates to:
+  /// **'How we protect your data'**
+  String get privacyPolicySubtitle;
 }
 
 class _AppLocalizationsDelegate

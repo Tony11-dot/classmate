@@ -8408,4 +8408,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String parentNotifAbout(String name) {
     return 'О $name';
   }
+
+  @override
+  String get navPrivacyPolicy => 'Политика конфиденциальности';
+
+  @override
+  String get privacyPolicySubtitle => 'Как мы защищаем ваши данные';
 }

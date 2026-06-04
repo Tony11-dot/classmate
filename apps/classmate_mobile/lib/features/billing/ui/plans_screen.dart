@@ -10,6 +10,32 @@ import '../data/billing_repository.dart';
 import '../data/plan_models.dart';
 import 'paywall_sheet.dart';
 
+/// Opens the OS subscription-management page so the user can cancel a paid
+/// plan (which reverts them to Free at period end). Used by the
+/// "Downgrade to Free" action.
+Future<void> _openStoreSubscriptions(BuildContext context) async {
+  final l = AppLocalizations.of(context)!;
+  final messenger = ScaffoldMessenger.of(context);
+  Uri uri;
+  if (kIsWeb) {
+    uri = Uri.parse('https://apps.apple.com/account/subscriptions');
+  } else if (Platform.isIOS) {
+    uri = Uri.parse('itms-apps://apps.apple.com/account/subscriptions');
+  } else if (Platform.isAndroid) {
+    uri = Uri.parse(
+      'https://play.google.com/store/account/subscriptions?package=com.tonyaboud.classmate',
+    );
+  } else {
+    uri = Uri.parse('https://apps.apple.com/account/subscriptions');
+  }
+  try {
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok) messenger.showSnackBar(SnackBar(content: Text(l.plansCouldNotOpenSubscription)));
+  } catch (e) {
+    messenger.showSnackBar(SnackBar(content: Text(l.plansFailedToOpen(e))));
+  }
+}
+
 /// Maps an `activeTier` server string ('FREE' | 'BUDGET' | ...) to the
 /// localized badge label shown on the balance card. Lives here (not on
 /// SubscriptionPlan) because the badge consumes the BalanceSnapshot
@@ -340,7 +366,10 @@ class _PlanTile extends StatelessWidget {
     final cs = theme.colorScheme;
     // A lower paid tier than the one the user is on = a downgrade. The store
     // defers it to the next renewal (current plan runs to its end, no refund).
-    final isDowngrade = !plan.isFree && !isCurrent && _rank(plan.tier) < _rank(currentTier);
+    // Any plan ranked BELOW the current one is a downgrade — including Free
+    // (which means cancelling the paid subscription). Shows on every lower
+    // plan, not just the one directly below.
+    final isDowngrade = !isCurrent && _rank(plan.tier) < _rank(currentTier);
 
     return InkWell(
       borderRadius: BorderRadius.circular(20),
@@ -429,13 +458,17 @@ class _PlanTile extends StatelessWidget {
                 ),
               ],
             ),
-            if (!plan.isFree && !isCurrent) ...[
+            if (!isCurrent && (!plan.isFree || isDowngrade)) ...[
               const SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,
                 child: isDowngrade
                     ? FilledButton.tonal(
-                        onPressed: () => _openPaywall(context, plan: plan),
+                        // Free downgrade = cancel the paid sub via the store;
+                        // a lower paid tier = the store defers it to renewal.
+                        onPressed: () => plan.isFree
+                            ? _openStoreSubscriptions(context)
+                            : _openPaywall(context, plan: plan),
                         child: Text(AppLocalizations.of(context)!.plansDowngrade),
                       )
                     : FilledButton(

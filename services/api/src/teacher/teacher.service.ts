@@ -849,10 +849,23 @@ export class TeacherService {
     const fromDt = query.from ? new Date(`${query.from}T00:00:00.000Z`) : new Date(Date.now() - 30 * 86400000);
     const toDt = query.to ? new Date(`${query.to}T23:59:59.999Z`) : new Date(Date.now() + 30 * 86400000);
 
+    // The teacher's own slots — used both to include slot-keyed sessions
+    // (grade/individual-student periods, which have no cohort) and to label
+    // them by subject in the list.
+    const teacherSlots = await this.prisma.scheduleSlot.findMany({
+      where: { teacherId },
+      select: { id: true, subject: true },
+    });
+    const teacherSlotIds = teacherSlots.map((s) => s.id);
+    const slotSubject = new Map(teacherSlots.map((s) => [s.id, (s as any).subject ?? '']));
+
     const sessions = await this.prisma.attendanceSession.findMany({
       where: {
         date: { gte: fromDt, lte: toDt },
-        cohort: { slotCohorts: { some: { slot: { teacherId } } } },
+        OR: [
+          { cohort: { slotCohorts: { some: { slot: { teacherId } } } } },
+          { slotId: { in: teacherSlotIds } },
+        ],
       },
       include: {
         cohort: { select: { id: true, name: true, grade: true } },
@@ -865,7 +878,8 @@ export class TeacherService {
     return sessions.map((s) => {
       const counts = { PRESENT: 0, ABSENT: 0, LATE: 0, EXCUSED: 0 };
       for (const r of s.records) counts[String(r.status) as keyof typeof counts] = (counts[String(r.status) as keyof typeof counts] ?? 0) + 1;
-      const cohortShort = (s.cohort?.name ?? '').replace(/^\d+\s*-\s*/, '');
+      const cohortShort = (s.cohort?.name ?? '').replace(/^\d+\s*-\s*/, '') ||
+          ((s as any).slotId ? (slotSubject.get((s as any).slotId) ?? '') : '');
       return {
         id: s.id,
         date: s.date.toISOString().slice(0, 10),

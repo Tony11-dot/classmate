@@ -8341,4 +8341,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String parentNotifAbout(String name) {
     return 'על $name';
   }
+
+  @override
+  String get navPrivacyPolicy => 'מדיניות פרטיות';
+
+  @override
+  String get privacyPolicySubtitle => 'כיצד אנו מגינים על הנתונים שלך';
 }

@@ -8377,4 +8377,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String parentNotifAbout(String name) {
     return 'عن $name';
   }
+
+  @override
+  String get navPrivacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get privacyPolicySubtitle => 'كيف نحمي بياناتك';
 }

@@ -4176,5 +4176,13 @@
         "type": "String"
       }
     }
+  },
+  "navPrivacyPolicy": "Privacy Policy",
+  "@navPrivacyPolicy": {
+    "description": "navPrivacyPolicy"
+  },
+  "privacyPolicySubtitle": "How we protect your data",
+  "@privacyPolicySubtitle": {
+    "description": "privacyPolicySubtitle"
   }
 }

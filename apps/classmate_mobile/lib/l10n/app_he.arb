@@ -3241,5 +3241,7 @@
   "teacherClassroomNameHint": "לדוגמה: מתמטיקה 10A",
   "novaAbout": "אודות NOVA",
   "parentNotifForYou": "עבורך",
-  "parentNotifAbout": "על {name}"
+  "parentNotifAbout": "על {name}",
+  "navPrivacyPolicy": "מדיניות פרטיות",
+  "privacyPolicySubtitle": "כיצד אנו מגינים על הנתונים שלך"
 }

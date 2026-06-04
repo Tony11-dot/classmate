@@ -3448,5 +3448,7 @@
   "teacherClassroomNameHint": "напр. Математика 10A",
   "novaAbout": "О NOVA",
   "parentNotifForYou": "Вам",
-  "parentNotifAbout": "О {name}"
+  "parentNotifAbout": "О {name}",
+  "navPrivacyPolicy": "Политика конфиденциальности",
+  "privacyPolicySubtitle": "Как мы защищаем ваши данные"
 }
