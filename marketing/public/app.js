@@ -69,7 +69,10 @@ if (shots.length && steps.length) {
       });
       if (best) setStep(best.target.dataset.step);
     },
-    { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.5, 1] }
+    // A single trigger LINE at the viewport middle — exactly one step
+    // straddles it at a time, so the active step never flickers between two
+    // (the cause of the glitchy feel on phones).
+    { rootMargin: '-50% 0px -50% 0px', threshold: 0 }
   );
   steps.forEach((s) => stepIO.observe(s));
 }

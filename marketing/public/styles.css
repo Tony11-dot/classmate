@@ -39,8 +39,8 @@ img { display: block; max-width: 100%; }
 ::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); }
 
 /* ── Logo swap ── */
-.brand-logo { height: 42px; width: auto; display: block; }
-.footer-brand .brand-logo { height: 48px; }
+.brand-logo { height: 60px; width: auto; display: block; }
+.footer-brand .brand-logo { height: 64px; }
 .dark-only { display: none; }
 [data-theme="dark"] .light-only { display: none; }
 [data-theme="dark"] .dark-only { display: block; }
@@ -213,7 +213,10 @@ img { display: block; max-width: 100%; }
 @media (max-width: 560px) {
   .feature-grid { grid-template-columns: 1fr; }
   .role-panel ul { grid-template-columns: 1fr; }
-  .nav-cta .btn { display: none; }
+  /* Phone nav: just the (bigger) logo, centered. */
+  .nav-cta { display: none; }
+  .nav-inner { justify-content: center; }
+  .brand-logo { height: 52px; }
 }
 
 /* ── Scroll progress bar ── */
@@ -232,7 +235,7 @@ img { display: block; max-width: 100%; }
 .showcase-sticky { position: sticky; top: 14vh; display: flex; justify-content: center; }
 .phone-showcase { width: 320px; box-shadow: var(--shadow), var(--shadow-glow); }
 .showcase-screens { position: relative; width: 100%; height: 100%; border-radius: 32px; overflow: hidden; }
-.showcase-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; opacity: 0; transform: scale(1.04); transition: opacity .55s ease, transform .7s ease; }
+.showcase-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; opacity: 0; transform: scale(1.04); transition: opacity .55s ease, transform .7s ease; will-change: opacity, transform; }
 .showcase-shot.is-active { opacity: 1; transform: scale(1); }
 .showcase-steps { display: flex; flex-direction: column; }
 .showcase-step { min-height: 74vh; display: flex; flex-direction: column; justify-content: center; opacity: .28; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
@@ -245,9 +248,14 @@ img { display: block; max-width: 100%; }
   .showcase-inner { grid-template-columns: 1fr; gap: 8px; }
   .showcase-sticky { top: 9vh; }
   .phone-showcase { width: 230px; }
-  .showcase-step { min-height: 58vh; align-items: center; text-align: center; }
+  .showcase-step { min-height: 58vh; align-items: center; text-align: center; opacity: .55; }
   .step-kicker { align-self: center; }
   .showcase-step p { margin-left: auto; margin-right: auto; }
+  /* Smoother on phones: pure crossfade (no scale repaint) + keep inactive
+     text legible so it never looks half-rendered mid-scroll. */
+  .showcase-shot { transform: none !important; transition: opacity .4s ease; }
+  .showcase-step.is-active { opacity: 1; }
+  .showcase-step p { color: var(--text); }
 }
 @media (prefers-reduced-motion: reduce) {
   .showcase-shot { transition: none; }
