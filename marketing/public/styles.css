@@ -39,8 +39,8 @@ img { display: block; max-width: 100%; }
 ::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); }
 
 /* ── Logo swap ── */
-.brand-logo { height: 60px; width: auto; display: block; }
-.footer-brand .brand-logo { height: 64px; }
+.brand-logo { height: 72px; width: auto; display: block; }
+.footer-brand .brand-logo { height: 68px; }
 .dark-only { display: none; }
 [data-theme="dark"] .light-only { display: none; }
 [data-theme="dark"] .dark-only { display: block; }
@@ -216,7 +216,7 @@ img { display: block; max-width: 100%; }
   /* Phone nav: just the (bigger) logo, centered. */
   .nav-cta { display: none; }
   .nav-inner { justify-content: center; }
-  .brand-logo { height: 52px; }
+  .brand-logo { height: 60px; }
 }
 
 /* ── Scroll progress bar ── */
