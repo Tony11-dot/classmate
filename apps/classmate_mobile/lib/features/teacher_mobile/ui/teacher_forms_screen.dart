@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
@@ -27,6 +29,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
   List<Map<String, dynamic>> _forms = [];
   bool _loading = true;
   String? _error;
+  bool _showingPrevious = false;
 
   @override
   void initState() {
@@ -91,6 +94,16 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
       }
     });
 
+    // Semester split (by created date) — pills only show when the school
+    // configured semesters.
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semParts = partitionBySemester<Map<String, dynamic>>(
+      _forms,
+      (f) => DateTime.tryParse(f['createdAt'] as String? ?? ''),
+      semWindow,
+    );
+    final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
+
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -124,6 +137,12 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
           ),
           const SizedBox(height: 16),
 
+          SemesterFilterBar(
+            visible: semWindow != null,
+            showingPrevious: _showingPrevious,
+            onChanged: (v) => setState(() => _showingPrevious = v),
+          ),
+
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -142,7 +161,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
 
           if (_loading && _forms.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
-          else if (_forms.isEmpty)
+          else if (visible.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(40),
@@ -156,7 +175,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
               ),
             )
           else
-            ...(_forms.map((form) {
+            ...(visible.map((form) {
               final id = form['id'] as String? ?? '';
               final title = form['title'] as String? ?? '';
               final subject = form['subject'] as String? ?? '';

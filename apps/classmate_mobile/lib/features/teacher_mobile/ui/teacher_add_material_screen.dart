@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
@@ -810,6 +812,7 @@ class _TeacherMaterialsStandaloneScreenState
   List<Map<String, dynamic>> _materials = [];
   bool _loading = true;
   String? _error;
+  bool _showingPrevious = false;
 
   @override
   void initState() {
@@ -852,6 +855,16 @@ class _TeacherMaterialsStandaloneScreenState
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
 
+    // Semester split (by created date) — pills only show when the school
+    // configured semesters.
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semParts = partitionBySemester<Map<String, dynamic>>(
+      _materials,
+      (m) => DateTime.tryParse(m['createdAt'] as String? ?? ''),
+      semWindow,
+    );
+    final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
+
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -874,6 +887,11 @@ class _TeacherMaterialsStandaloneScreenState
             ]),
           ),
           const SizedBox(height: 16),
+          SemesterFilterBar(
+            visible: semWindow != null,
+            showingPrevious: _showingPrevious,
+            onChanged: (v) => setState(() => _showingPrevious = v),
+          ),
           if (_error != null)
             LiquidGlassCard(color: cs.errorContainer,
               child: Row(children: [
@@ -884,7 +902,7 @@ class _TeacherMaterialsStandaloneScreenState
               ])),
           if (_loading && _materials.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
-          else if (_materials.isEmpty)
+          else if (visible.isEmpty)
             Center(child: Padding(padding: const EdgeInsets.all(40),
               child: Column(children: [
                 Icon(Icons.folder_open_rounded, size: 48, color: cs.onSurfaceVariant),
@@ -892,7 +910,7 @@ class _TeacherMaterialsStandaloneScreenState
                 Text(l.teacherMaterialNoMaterials, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
               ])))
           else
-            ..._materials.map((m) {
+            ...visible.map((m) {
               final id = m['id'] as String? ?? '';
               final title = m['title'] as String? ?? '';
               final subject = m['subject'] as String? ?? '';

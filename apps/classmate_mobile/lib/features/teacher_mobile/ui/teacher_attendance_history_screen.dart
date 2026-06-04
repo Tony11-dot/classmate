@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../core/semester/school_semester.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/semester_filter_bar.dart';
 
 Color _subjectColor(String subject, ColorScheme cs) {
   final s = subject.toLowerCase();
@@ -44,6 +46,7 @@ class _TeacherAttendanceHistoryScreenState
     extends ConsumerState<TeacherAttendanceHistoryScreen> {
   bool _loading = false;
   String? _error;
+  bool _showingPrevious = false;
   List<TeacherAttendanceSessionSummary> _sessions = const [];
 
   // Default: last 30 days
@@ -87,6 +90,7 @@ class _TeacherAttendanceHistoryScreenState
   void _openSession(TeacherAttendanceSessionSummary s) {
     context.push('/teacher/attendance/mark', extra: <String, dynamic>{
       'cohortId': s.cohortId,
+      if ((s.slotId ?? '').isNotEmpty) 'slotId': s.slotId,
       'period': s.period,
       'date': s.date,
     });
@@ -98,6 +102,17 @@ class _TeacherAttendanceHistoryScreenState
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final fromLabel = DateFormat('MMM d, yyyy').format(_from);
+
+    // Semester split (by session date) — pills only show when the school
+    // configured semesters.
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semParts = partitionBySemester<TeacherAttendanceSessionSummary>(
+      _sessions,
+      (s) => DateTime.tryParse(s.date),
+      semWindow,
+    );
+    final visible =
+        (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -134,6 +149,14 @@ class _TeacherAttendanceHistoryScreenState
           ),
           const SizedBox(height: 14),
 
+          if (semWindow != null) ...[
+            SemesterFilterBar(
+              showingPrevious: _showingPrevious,
+              onChanged: (v) => setState(() => _showingPrevious = v),
+            ),
+            const SizedBox(height: 4),
+          ],
+
           // ── Content ─────────────────────────────────────────────────────
           if (_loading)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
@@ -142,7 +165,7 @@ class _TeacherAttendanceHistoryScreenState
               color: cs.errorContainer,
               child: Text(_error!, style: theme.textTheme.bodyMedium),
             )
-          else if (_sessions.isEmpty)
+          else if (visible.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 60),
@@ -161,7 +184,7 @@ class _TeacherAttendanceHistoryScreenState
               ),
             )
           else
-            ..._sessions.map((s) => _SessionCard(
+            ...visible.map((s) => _SessionCard(
               session: s,
               onTap: () => _openSession(s),
             )),

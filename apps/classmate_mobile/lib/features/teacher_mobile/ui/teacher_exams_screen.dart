@@ -7,7 +7,9 @@ import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../core/semester/school_semester.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/semester_filter_bar.dart';
 
 class TeacherExamsScreen extends ConsumerStatefulWidget {
   const TeacherExamsScreen({super.key});
@@ -20,6 +22,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
   List<Map<String, dynamic>> _exams = [];
   bool _loading = true;
   String? _error;
+  bool _showingPrevious = false;
 
   @override
   void initState() {
@@ -106,11 +109,22 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
     final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
 
-    final upcoming = _exams.where((e) {
+    // Semester split (by exam date) — pills only show when the school
+    // configured semesters.
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semParts = partitionBySemester<Map<String, dynamic>>(
+      _exams,
+      (e) => DateTime.tryParse(e['date'] as String? ?? ''),
+      semWindow,
+    );
+    final visibleExams =
+        (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
+
+    final upcoming = visibleExams.where((e) {
       final d = DateTime.tryParse(e['date'] as String? ?? '');
       return d != null && !d.isBefore(now);
     }).toList();
-    final past = _exams.where((e) {
+    final past = visibleExams.where((e) {
       final d = DateTime.tryParse(e['date'] as String? ?? '');
       return d != null && d.isBefore(now);
     }).toList();
@@ -155,6 +169,14 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
             ),
           ),
           const SizedBox(height: 16),
+
+          if (semWindow != null) ...[
+            SemesterFilterBar(
+              showingPrevious: _showingPrevious,
+              onChanged: (v) => setState(() => _showingPrevious = v),
+            ),
+            const SizedBox(height: 4),
+          ],
 
           if (_error != null)
             Padding(

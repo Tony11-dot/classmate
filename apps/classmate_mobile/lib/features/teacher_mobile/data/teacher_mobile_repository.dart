@@ -1426,6 +1426,7 @@ class TeacherAttendanceSessionSummary {
     required this.courseName,
     required this.subject,
     required this.cohortId,
+    this.slotId,
     required this.cohortName,
     required this.grade,
     required this.totalStudents,
@@ -1444,6 +1445,7 @@ class TeacherAttendanceSessionSummary {
       courseName: _asString(json['courseName']),
       subject: _asString(json['subject']),
       cohortId: _asString(json['cohortId']),
+      slotId: _asString(json['slotId']).isEmpty ? null : _asString(json['slotId']),
       cohortName: _asString(json['cohortName']),
       grade: json['grade'] is num ? (json['grade'] as num).toInt() : null,
       totalStudents: _asInt(json['totalStudents']),
@@ -1461,6 +1463,9 @@ class TeacherAttendanceSessionSummary {
   final String courseName;
   final String subject;
   final String cohortId;
+  /// Set for cohort-less (grade/individual-student) sessions — passed back so
+  /// re-opening the session loads its slot-keyed roster.
+  final String? slotId;
   final String cohortName;
   final int? grade;
   final int totalStudents;

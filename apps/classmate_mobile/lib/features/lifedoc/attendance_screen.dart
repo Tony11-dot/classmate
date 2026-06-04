@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../core/semester/school_semester.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
@@ -19,6 +21,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
   String _selectedSubject = _allSubjects;
   _AttendanceRangeFilter _selectedRange = _AttendanceRangeFilter.all;
+  bool _showingPrevious = false;
 
   DateTime? _parseDate(String? raw) {
     final value = (raw ?? '').trim();
@@ -242,7 +245,18 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         ),
         data: (data) {
           final attendance = data?.attendance;
-          final items = attendance?.latest ?? const <UnifiedAttendanceInsight>[];
+          final allItems = attendance?.latest ?? const <UnifiedAttendanceInsight>[];
+          // Semester split (by mark date) — pills only show when the school
+          // configured semesters.
+          final semWindow = ref.watch(currentSemesterWindowProvider);
+          final semParts = partitionBySemester<UnifiedAttendanceInsight>(
+            allItems,
+            (e) => _parseDate(e.date),
+            semWindow,
+          );
+          final items = (semWindow == null || !_showingPrevious)
+              ? semParts.current
+              : semParts.previous;
           final trackedTotal = attendance?.total ?? items.length;
           final hasSummary = trackedTotal > 0 || attendance?.attendanceRate != null;
           final subjects = items
@@ -360,6 +374,11 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                SemesterFilterBar(
+                  visible: semWindow != null,
+                  showingPrevious: _showingPrevious,
+                  onChanged: (v) => setState(() => _showingPrevious = v),
+                ),
                 if (items.isEmpty)
                   _EmptyStateCard(
                     title: l.attendanceEmptyTitle,

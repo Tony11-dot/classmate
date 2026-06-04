@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
@@ -24,6 +26,7 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
   List<Map<String, dynamic>> _meetings = [];
   bool _loading = true;
   String? _error;
+  bool _showingPrevious = false;
 
   @override
   void initState() {
@@ -74,11 +77,21 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
     final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
 
-    final upcoming = _meetings.where((m) {
+    // Semester split (by meeting start) — pills only show when the school
+    // configured semesters.
+    final semWindow = ref.watch(currentSemesterWindowProvider);
+    final semParts = partitionBySemester<Map<String, dynamic>>(
+      _meetings,
+      (m) => DateTime.tryParse(m['startsAt'] as String? ?? ''),
+      semWindow,
+    );
+    final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
+
+    final upcoming = visible.where((m) {
       final d = DateTime.tryParse(m['startsAt'] as String? ?? '');
       return d != null && !d.isBefore(now);
     }).toList();
-    final past = _meetings.where((m) {
+    final past = visible.where((m) {
       final d = DateTime.tryParse(m['startsAt'] as String? ?? '');
       return d != null && d.isBefore(now);
     }).toList();
@@ -108,6 +121,12 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
           ),
           const SizedBox(height: 16),
 
+          SemesterFilterBar(
+            visible: semWindow != null,
+            showingPrevious: _showingPrevious,
+            onChanged: (v) => setState(() => _showingPrevious = v),
+          ),
+
           if (_error != null)
             Padding(padding: const EdgeInsets.only(bottom: 12),
               child: LiquidGlassCard(color: cs.errorContainer,
@@ -120,7 +139,7 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
 
           if (_loading && _meetings.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
-          else if (_meetings.isEmpty)
+          else if (visible.isEmpty)
             Center(child: Padding(padding: const EdgeInsets.all(40),
               child: Column(children: [
                 Icon(Icons.video_call_outlined, size: 48, color: cs.onSurfaceVariant),

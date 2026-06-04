@@ -391,7 +391,8 @@ class MainDrawer extends ConsumerWidget {
                       child: InkWell(
                         onTap: () async {
                           closeDrawer();
-                          final uri = Uri.parse('https://classmate-marketing.web.app/privacy.html');
+                          // The legal landing (Privacy · Terms · Delete account).
+                          final uri = Uri.parse('https://tony11-dot.github.io/classmate-legal/');
                           await launchUrl(uri, mode: LaunchMode.externalApplication);
                         },
                         child: Padding(

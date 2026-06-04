@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/semester/school_semester.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../ui/widgets/semester_filter_bar.dart';
 import '../../l10n/app_localizations.dart';
 import 'notifications_local_service.dart';
 import 'notifications_models.dart';
@@ -51,6 +53,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   String _selectedSource = _allSources;
   String _selectedState = _allStates;
+  bool _showingPrevious = false;
 
   String _groupLabel(BuildContext context, DateTime date) {
     final l = AppLocalizations.of(context)!;
@@ -150,7 +153,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       body: async.when(
         loading: () => const Center(child: CmLoading()),
         error: (error, _) => Center(child: Text(error.toString())),
-        data: (items) {
+        data: (allItems) {
+          // Semester split (by notification date) — pills only show when the
+          // school configured semesters.
+          final semWindow = ref.watch(currentSemesterWindowProvider);
+          final semParts = partitionBySemester<StudentNotificationItem>(
+            allItems,
+            (e) => e.createdAt,
+            semWindow,
+          );
+          final items = (semWindow == null || !_showingPrevious)
+              ? semParts.current
+              : semParts.previous;
           final sources = items.map((item) => item.source).toSet().toList()..sort();
           final safeSource = sources.contains(_selectedSource) ? _selectedSource : _allSources;
           if (safeSource != _selectedSource) {
@@ -232,6 +246,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                SemesterFilterBar(
+                  visible: semWindow != null,
+                  showingPrevious: _showingPrevious,
+                  onChanged: (v) => setState(() => _showingPrevious = v),
+                ),
                 if (items.isNotEmpty)
                   LiquidGlassCard(
                     padding: const EdgeInsets.all(16),
