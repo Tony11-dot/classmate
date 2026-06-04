@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/semester/school_semester.dart';
+import '../../features/parent/data/parent_models.dart';
+import '../../features/parent/data/parent_repository.dart';
+import '../../features/parent/data/viewed_student_context.dart';
 import '../../l10n/app_localizations.dart';
 
 /// The concrete semester window for "now", or null when the school configured
@@ -14,10 +17,35 @@ final currentSemesterWindowProvider = Provider<SemesterWindow?>((ref) {
 });
 
 /// Every PAST semester (most-recent first) for the school — drives the
-/// "filter to a specific semester" dropdown under the Previous pill.
+/// "filter to a specific semester" dropdown under the Previous pill. Each is
+/// labelled with the grade the VIEWER was in that year (the student's own
+/// grade, or — for a parent — the selected child's), derived from the current
+/// grade. Staff see no grade.
 final pastSemestersProvider = Provider<List<LabeledSemester>>((ref) {
-  final raw = ref.watch(authSessionProvider).schoolSemesters;
-  return enumeratePastSemesters(parseSchoolSemesters(raw), DateTime.now());
+  final session = ref.watch(authSessionProvider);
+  final sems = parseSchoolSemesters(session.schoolSemesters);
+
+  int? currentGrade;
+  if (session.roles.contains('PARENT')) {
+    final childId = ref.watch(viewedStudentIdProvider);
+    final kids = ref.watch(parentChildrenProvider).maybeWhen(
+          data: (k) => k,
+          orElse: () => const <ParentChild>[],
+        );
+    final match = kids.where((k) => k.studentId == childId);
+    currentGrade = match.isNotEmpty
+        ? match.first.grade
+        : (kids.isNotEmpty ? kids.first.grade : null);
+  } else {
+    currentGrade = session.grade; // student's own; null for teacher/admin
+  }
+
+  return enumeratePastSemesters(
+    sems,
+    DateTime.now(),
+    currentGrade: currentGrade,
+    minGrade: session.schoolMinGrade,
+  );
 });
 
 /// Two pills — "This semester" / "Previous" — matching the teacher
@@ -46,8 +74,10 @@ class SemesterFilterBar extends ConsumerWidget {
   /// When non-null, the filter button + dropdown is shown under "Previous".
   final ValueChanged<SemesterWindow?>? onPastChanged;
 
-  String _semLabel(AppLocalizations l, LabeledSemester s) =>
-      '${l.adminSchoolSemesterN(s.number.toString())} · ${s.yearLabel}';
+  String _semLabel(AppLocalizations l, LabeledSemester s) {
+    final base = '${l.adminSchoolSemesterN(s.number.toString())} · ${s.yearLabel}';
+    return s.grade != null ? '$base · ${l.gradeLevelLabel(s.grade.toString())}' : base;
+  }
 
   Future<void> _pickSemester(BuildContext context, WidgetRef ref) async {
     final l = AppLocalizations.of(context)!;

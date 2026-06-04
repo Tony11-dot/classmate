@@ -49,6 +49,7 @@ class AuthSession extends ChangeNotifier {
   int? _schoolMaxGrade;
   String? _schoolGradeRanges;
   String? _schoolSemesters;
+  int? _grade; // the user's own current grade (students); null for staff
   String? _nameEn;
   String? _nameAr;
   String? _nameHe;
@@ -140,6 +141,8 @@ class AuthSession extends ChangeNotifier {
   String get schoolLogoUrl => (_schoolLogoUrl ?? '').trim();
   int get schoolMinGrade => _schoolMinGrade ?? 5;
   int get schoolMaxGrade => _schoolMaxGrade ?? 12;
+  /// The user's own current grade level (students); null for staff.
+  int? get grade => _grade;
   /// Raw multi-range string, e.g. "4-6,9-12". Empty/null = single min..max range.
   String get schoolGradeRanges => _schoolGradeRanges ?? '';
   /// Raw semester month-ranges, e.g. "9-1,2-6". Empty = school has no semesters.
@@ -570,6 +573,7 @@ class AuthSession extends ChangeNotifier {
       }
       setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade, ranges: me.schoolGradeRanges);
       setSchoolSemesters(me.schoolSemesters);
+      _grade = me.grade;
       // Cohort display name
       final cn = (raw['cohortName'] ?? '').toString().trim();
       if (cn.isNotEmpty) {

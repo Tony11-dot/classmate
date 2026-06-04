@@ -23,6 +23,7 @@ export const AuthMeResponseSchema = z.object({
   schoolId: z.string().nullable(),
   cohortId: z.string().nullable(),
   cohortName: z.string().nullable().optional(),
+  grade: z.number().int().nullable().optional(),
   schoolName: z.string().nullable(),
   schoolLogoUrl: z.string().nullable(),
   schoolMinGrade: z.number().int().nullable().optional(),

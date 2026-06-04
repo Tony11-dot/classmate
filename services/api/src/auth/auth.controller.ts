@@ -215,6 +215,19 @@ export class AuthController {
       } catch {}
     }
 
+    // The user's own current grade level (drives the "Grade N" labels in the
+    // semester filter for students viewing their own data).
+    let grade: number | null = null;
+    if (userId) {
+      try {
+        const sp = await this.prisma.studentProfile.findUnique({
+          where: { userId },
+          select: { grade: true },
+        });
+        grade = sp?.grade ?? null;
+      } catch {}
+    }
+
     return require('../contracts/auth.contract').AuthMeResponseSchema.parse({
       id: u.id ?? null,
       email: u.email ?? null,
@@ -224,6 +237,7 @@ export class AuthController {
       schoolId,
       cohortId,
       cohortName,
+      grade,
       schoolName,
       schoolLogoUrl,
       schoolMinGrade,

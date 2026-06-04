@@ -7,6 +7,7 @@ class AuthMe {
     required this.actingStudentId,
     required this.schoolId,
     required this.cohortId,
+    this.grade,
     required this.schoolName,
     required this.schoolLogoUrl,
     this.schoolMinGrade,
@@ -25,6 +26,8 @@ class AuthMe {
   final String? actingStudentId;
   final String? schoolId;
   final String? cohortId;
+  /// The user's own current grade level (students). Null for staff.
+  final int? grade;
   final String? schoolName;
   final String? schoolLogoUrl;
   final int? schoolMinGrade;
@@ -46,6 +49,7 @@ class AuthMe {
       actingStudentId: j['actingStudentId']?.toString(),
       schoolId: j['schoolId']?.toString(),
       cohortId: j['cohortId']?.toString(),
+      grade: (j['grade'] as num?)?.toInt(),
       schoolName: j['schoolName']?.toString(),
       schoolLogoUrl: j['schoolLogoUrl']?.toString(),
       schoolMinGrade: (j['schoolMinGrade'] as num?)?.toInt(),

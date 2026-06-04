@@ -375,7 +375,11 @@ class ChatMessageBubble extends StatelessWidget {
     final inlineReplyPrefix = parts.replyPrefix.trim().replaceAll(',', '');
     String bodyRaw = parts.bodyText.trim();
     // Strip all stacked "Forwarded\n" prefixes (re-forwarded messages accumulate them)
+    // and remember whether any was present, so the "Forwarded" stamp shows even
+    // when the loader didn't set the `forwarded` flag (e.g. DM → classroom,
+    // where the marker only travels in the body prefix).
     bool stripped = true;
+    bool didStripForwarded = false;
     while (stripped) {
       stripped = false;
       if (bodyRaw.startsWith('Forwarded\r\n')) {
@@ -394,7 +398,9 @@ class ChatMessageBubble extends StatelessWidget {
           stripped = true;
         }
       }
+      if (stripped) didStripForwarded = true;
     }
+    final showForwarded = forwarded || didStripForwarded;
     final body = bodyRaw.replaceAll(',', '');
     final resolvedMime = (mediaMimeType ?? '').trim().replaceAll(',', '');
 
@@ -711,7 +717,7 @@ class ChatMessageBubble extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                 ],
-                if (forwarded) ...[
+                if (showForwarded) ...[
                   Container(
                     margin: const EdgeInsets.only(bottom: 3),
                     child: Row(

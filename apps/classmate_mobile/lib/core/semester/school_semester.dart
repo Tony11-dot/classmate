@@ -71,20 +71,34 @@ SemesterWindow? currentSemesterWindow(List<SchoolSemester> sems, DateTime now) {
 /// A concrete past semester window + the parts needed to label it
 /// ("Semester {number} · {yearLabel}", e.g. "Semester 1 · 26/27").
 class LabeledSemester {
-  const LabeledSemester({required this.window, required this.number, required this.yearLabel});
+  const LabeledSemester({
+    required this.window,
+    required this.number,
+    required this.yearLabel,
+    this.grade,
+  });
   final SemesterWindow window;
   final int number;
   final String yearLabel; // "26/27"
+  /// The grade the viewer was in that year (derived: current grade − years
+  /// elapsed). Null for staff or when no current grade is known.
+  final int? grade;
 }
 
 /// Every PAST semester (strictly before the current one), most-recent first.
 /// School-year label is anchored on the first semester's start month, so e.g.
 /// with "9-1,2-6" the year running Sep 2026 → Jun 2027 is "26/27". Pure date
-/// math — 100% accurate regardless of any per-student data.
+/// math — 100% accurate.
+///
+/// When [currentGrade] is provided, each window also carries the grade the
+/// student was in that year (current grade − years elapsed) and the list is
+/// bounded so it never shows years below [minGrade] (i.e. before they started).
 List<LabeledSemester> enumeratePastSemesters(
   List<SchoolSemester> sems,
   DateTime now, {
   int maxYearsBack = 8,
+  int? currentGrade,
+  int minGrade = 1,
 }) {
   if (sems.isEmpty) return const <LabeledSemester>[];
   final cur = currentSemesterWindow(sems, now);
@@ -93,6 +107,9 @@ List<LabeledSemester> enumeratePastSemesters(
   final boundary = cur?.start ?? DateTime(now.year, now.month, 1);
   final out = <LabeledSemester>[];
   for (int y = curAcadStart; y >= curAcadStart - maxYearsBack; y--) {
+    final gradeThen = currentGrade == null ? null : currentGrade - (curAcadStart - y);
+    // Don't list years before the student existed at this school's lowest grade.
+    if (gradeThen != null && gradeThen < minGrade) break;
     for (final s in sems) {
       final startCalYear = (s.startMonth >= anchor) ? y : y + 1;
       final start = DateTime(startCalYear, s.startMonth, 1);
@@ -105,6 +122,7 @@ List<LabeledSemester> enumeratePastSemesters(
         window: SemesterWindow(number: s.number, start: start, end: end),
         number: s.number,
         yearLabel: '$yy/$yy2',
+        grade: gradeThen,
       ));
     }
   }
