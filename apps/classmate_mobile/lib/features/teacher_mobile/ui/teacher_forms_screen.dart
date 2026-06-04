@@ -30,6 +30,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
   bool _loading = true;
   String? _error;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   @override
   void initState() {
@@ -97,12 +98,13 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
     // Semester split (by created date) — pills only show when the school
     // configured semesters.
     final semWindow = ref.watch(currentSemesterWindowProvider);
-    final semParts = partitionBySemester<Map<String, dynamic>>(
+    final visible = visibleForSemester<Map<String, dynamic>>(
       _forms,
       (f) => DateTime.tryParse(f['createdAt'] as String? ?? ''),
       semWindow,
+      _showingPrevious,
+      _selectedPast,
     );
-    final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -140,7 +142,9 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
           SemesterFilterBar(
             visible: semWindow != null,
             showingPrevious: _showingPrevious,
-            onChanged: (v) => setState(() => _showingPrevious = v),
+            selectedPast: _selectedPast,
+            onPastChanged: (w) => setState(() => _selectedPast = w),
+            onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
           ),
 
           if (_error != null)

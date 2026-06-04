@@ -4184,5 +4184,13 @@
   "privacyPolicySubtitle": "How we protect your data",
   "@privacyPolicySubtitle": {
     "description": "privacyPolicySubtitle"
+  },
+  "semesterAllPrevious": "All previous",
+  "@semesterAllPrevious": {
+    "description": "semesterAllPrevious"
+  },
+  "semesterSelectTitle": "Select semester",
+  "@semesterSelectTitle": {
+    "description": "semesterSelectTitle"
   }
 }

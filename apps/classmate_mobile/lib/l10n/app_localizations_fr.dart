@@ -8549,4 +8549,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get privacyPolicySubtitle => 'Comment nous protégeons vos données';
+
+  @override
+  String get semesterAllPrevious => 'Tout le précédent';
+
+  @override
+  String get semesterSelectTitle => 'Choisir le semestre';
 }

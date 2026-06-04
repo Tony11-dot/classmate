@@ -325,6 +325,7 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
   String _selectedSubject = _allSubjects;
   String _selectedAccessState = _allAccessStates;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   List<Map<String, dynamic>> _filteredItems(List<Map<String, dynamic>> items) {
     return items.where((item) {
@@ -378,14 +379,15 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
           // Semester split (by meeting date) — only when the school configured
           // semesters; otherwise window is null and everything stays in one list.
           final semWindow = ref.watch(currentSemesterWindowProvider);
-          final semParts = partitionBySemester<Map<String, dynamic>>(
+          final visible = visibleForSemester<Map<String, dynamic>>(
             filtered,
             (m) => _parseFlexibleDate(_stringValue(m, 'startsAt')) ??
                 _parseFlexibleDate(_stringValue(m, 'updatedAt')) ??
                 _parseFlexibleDate(_stringValue(m, 'createdAt')),
             semWindow,
+            _showingPrevious,
+            _selectedPast,
           );
-          final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
           final joinReadyCount = items
         .where((item) => _meetingAccessValue(item) == _meetingAccessReady)
               .length;
@@ -564,7 +566,9 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
                   SemesterFilterBar(
                     visible: semWindow != null,
                     showingPrevious: _showingPrevious,
-                    onChanged: (v) => setState(() => _showingPrevious = v),
+                    onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                    selectedPast: _selectedPast,
+                    onPastChanged: (w) => setState(() => _selectedPast = w),
                   ),
                   if (visible.isEmpty)
                     _EmptyStateCard(

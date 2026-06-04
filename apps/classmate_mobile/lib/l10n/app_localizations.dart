@@ -14810,6 +14810,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How we protect your data'**
   String get privacyPolicySubtitle;
+
+  /// semesterAllPrevious
+  ///
+  /// In en, this message translates to:
+  /// **'All previous'**
+  String get semesterAllPrevious;
+
+  /// semesterSelectTitle
+  ///
+  /// In en, this message translates to:
+  /// **'Select semester'**
+  String get semesterSelectTitle;
 }
 
 class _AppLocalizationsDelegate

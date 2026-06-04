@@ -8383,4 +8383,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get privacyPolicySubtitle => 'كيف نحمي بياناتك';
+
+  @override
+  String get semesterAllPrevious => 'كل السابقة';
+
+  @override
+  String get semesterSelectTitle => 'اختر الفصل';
 }

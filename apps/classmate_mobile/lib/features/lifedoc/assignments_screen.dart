@@ -304,6 +304,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
   String _selectedSubject = _allSubjects;
   String _selectedState = _allStates;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   List<Map<String, dynamic>> _filteredItems(List<Map<String, dynamic>> items) {
     return items.where((item) {
@@ -365,15 +366,14 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
           ];
           final filtered = _filteredItems(items);
           final semWindow = ref.watch(currentSemesterWindowProvider);
-          final semParts = partitionBySemester<Map<String, dynamic>>(
+          final visible = visibleForSemester<Map<String, dynamic>>(
             filtered,
             (item) => _parseFlexibleDate(_stringValue(item, 'dueAt')) ??
                 _parseFlexibleDate(_stringValue(item, 'createdAt')),
             semWindow,
+            _showingPrevious,
+            _selectedPast,
           );
-          final visible = (semWindow == null || !_showingPrevious)
-              ? semParts.current
-              : semParts.previous;
           final dueSoonCount = items
               .where((item) => _statusForAssignment(item) == _assignmentStateDueSoon)
               .length;
@@ -548,7 +548,9 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
                     const SizedBox(height: 12),
                     SemesterFilterBar(
                       showingPrevious: _showingPrevious,
-                      onChanged: (v) => setState(() => _showingPrevious = v),
+                      onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                      selectedPast: _selectedPast,
+                      onPastChanged: (w) => setState(() => _selectedPast = w),
                     ),
                   ],
                   const SizedBox(height: 16),

@@ -47,6 +47,7 @@ class _TeacherAttendanceHistoryScreenState
   bool _loading = false;
   String? _error;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
   List<TeacherAttendanceSessionSummary> _sessions = const [];
 
   // Default: last 30 days
@@ -106,13 +107,13 @@ class _TeacherAttendanceHistoryScreenState
     // Semester split (by session date) — pills only show when the school
     // configured semesters.
     final semWindow = ref.watch(currentSemesterWindowProvider);
-    final semParts = partitionBySemester<TeacherAttendanceSessionSummary>(
+    final visible = visibleForSemester<TeacherAttendanceSessionSummary>(
       _sessions,
       (s) => DateTime.tryParse(s.date),
       semWindow,
+      _showingPrevious,
+      _selectedPast,
     );
-    final visible =
-        (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -152,7 +153,9 @@ class _TeacherAttendanceHistoryScreenState
           if (semWindow != null) ...[
             SemesterFilterBar(
               showingPrevious: _showingPrevious,
-              onChanged: (v) => setState(() => _showingPrevious = v),
+              selectedPast: _selectedPast,
+              onPastChanged: (w) => setState(() => _selectedPast = w),
+              onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
             ),
             const SizedBox(height: 4),
           ],

@@ -8414,4 +8414,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get privacyPolicySubtitle => 'Как мы защищаем ваши данные';
+
+  @override
+  String get semesterAllPrevious => 'Все предыдущие';
+
+  @override
+  String get semesterSelectTitle => 'Выберите семестр';
 }

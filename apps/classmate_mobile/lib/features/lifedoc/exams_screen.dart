@@ -74,6 +74,7 @@ class ExamsScreen extends ConsumerStatefulWidget {
 class _ExamsScreenState extends ConsumerState<ExamsScreen> {
   String _filter = _allSubjectsFilter;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   @override
   Widget build(BuildContext context) {
@@ -124,14 +125,13 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
 
     // Semester partition (exams only — forms carry no scheduled date)
     final semWindow = ref.watch(currentSemesterWindowProvider);
-    final semExams = partitionBySemester<StudentExamItem>(
+    final visibleExams = visibleForSemester<StudentExamItem>(
       filteredExams,
       (e) => _parseDate(e.dateLabel),
       semWindow,
+      _showingPrevious,
+      _selectedPast,
     );
-    final visibleExams = (semWindow == null || !_showingPrevious)
-        ? semExams.current
-        : semExams.previous;
     final showSemesterBar = !isFormsOnly && semWindow != null;
 
     final upcomingExams = exams.where((e) => _statusOf(e) != _ExamStatus.past).length;
@@ -251,7 +251,9 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
                 padding: const EdgeInsets.only(top: 12),
                 child: SemesterFilterBar(
                   showingPrevious: _showingPrevious,
-                  onChanged: (v) => setState(() => _showingPrevious = v),
+                  onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                  selectedPast: _selectedPast,
+                  onPastChanged: (w) => setState(() => _selectedPast = w),
                 ),
               ),
           ],

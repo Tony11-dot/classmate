@@ -54,6 +54,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   String _selectedSource = _allSources;
   String _selectedState = _allStates;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   String _groupLabel(BuildContext context, DateTime date) {
     final l = AppLocalizations.of(context)!;
@@ -157,14 +158,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           // Semester split (by notification date) — pills only show when the
           // school configured semesters.
           final semWindow = ref.watch(currentSemesterWindowProvider);
-          final semParts = partitionBySemester<StudentNotificationItem>(
+          final items = visibleForSemester<StudentNotificationItem>(
             allItems,
             (e) => e.createdAt,
             semWindow,
+            _showingPrevious,
+            _selectedPast,
           );
-          final items = (semWindow == null || !_showingPrevious)
-              ? semParts.current
-              : semParts.previous;
           final sources = items.map((item) => item.source).toSet().toList()..sort();
           final safeSource = sources.contains(_selectedSource) ? _selectedSource : _allSources;
           if (safeSource != _selectedSource) {
@@ -249,7 +249,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 SemesterFilterBar(
                   visible: semWindow != null,
                   showingPrevious: _showingPrevious,
-                  onChanged: (v) => setState(() => _showingPrevious = v),
+                  onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                  selectedPast: _selectedPast,
+                  onPastChanged: (w) => setState(() => _selectedPast = w),
                 ),
                 if (items.isNotEmpty)
                   LiquidGlassCard(

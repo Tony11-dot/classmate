@@ -26,6 +26,7 @@ class _TeacherAssignmentsScreenState
   bool _loading = true;
   String? _error;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   @override
   void initState() {
@@ -99,7 +100,7 @@ class _TeacherAssignmentsScreenState
     // Semester split (by due date, falling back to created date) — pills only
     // show when the school configured semesters.
     final semWindow = ref.watch(currentSemesterWindowProvider);
-    final semParts = partitionBySemester<Map<String, dynamic>>(
+    final visible = visibleForSemester<Map<String, dynamic>>(
       _assignments,
       (a) => DateTime.tryParse(
         (a['dueAt'] as String?)?.trim().isNotEmpty == true
@@ -107,8 +108,9 @@ class _TeacherAssignmentsScreenState
             : (a['createdAt'] as String? ?? ''),
       ),
       semWindow,
+      _showingPrevious,
+      _selectedPast,
     );
-    final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -156,7 +158,9 @@ class _TeacherAssignmentsScreenState
           SemesterFilterBar(
             visible: semWindow != null,
             showingPrevious: _showingPrevious,
-            onChanged: (v) => setState(() => _showingPrevious = v),
+            selectedPast: _selectedPast,
+            onPastChanged: (w) => setState(() => _selectedPast = w),
+            onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
           ),
 
           if (_error != null)

@@ -8347,4 +8347,10 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get privacyPolicySubtitle => 'כיצד אנו מגינים על הנתונים שלך';
+
+  @override
+  String get semesterAllPrevious => 'כל הקודמים';
+
+  @override
+  String get semesterSelectTitle => 'בחר סמסטר';
 }

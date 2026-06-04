@@ -19,6 +19,7 @@ class GradesScreen extends ConsumerStatefulWidget {
 class _GradesScreenState extends ConsumerState<GradesScreen> {
   final Set<String> _expanded = {};
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   DateTime? _parseDate(String? raw) {
     final value = (raw ?? '').trim();
@@ -137,8 +138,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
           // Semester split (by grade date) — pills only show when the school
           // configured semesters.
           final semWindow = ref.watch(currentSemesterWindowProvider);
-          final semParts = partitionBySemester<UnifiedGradeInsight>(all, (g) => _parseDate(g.date), semWindow);
-          final visible = (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
+          final visible = visibleForSemester<UnifiedGradeInsight>(all, (g) => _parseDate(g.date), semWindow, _showingPrevious, _selectedPast);
 
           final bySubject = <String, List<UnifiedGradeInsight>>{};
           for (final item in visible) {
@@ -169,7 +169,9 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
                 SemesterFilterBar(
                   visible: semWindow != null,
                   showingPrevious: _showingPrevious,
-                  onChanged: (v) => setState(() => _showingPrevious = v),
+                  onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                  selectedPast: _selectedPast,
+                  onPastChanged: (w) => setState(() => _selectedPast = w),
                 ),
                 if (visible.isEmpty)
                   _EmptyCard(title: l.gradesEmptyTitle, subtitle: l.gradesEmptySubtitle)

@@ -3243,5 +3243,7 @@
   "parentNotifForYou": "עבורך",
   "parentNotifAbout": "על {name}",
   "navPrivacyPolicy": "מדיניות פרטיות",
-  "privacyPolicySubtitle": "כיצד אנו מגינים על הנתונים שלך"
+  "privacyPolicySubtitle": "כיצד אנו מגינים על הנתונים שלך",
+  "semesterAllPrevious": "כל הקודמים",
+  "semesterSelectTitle": "בחר סמסטר"
 }

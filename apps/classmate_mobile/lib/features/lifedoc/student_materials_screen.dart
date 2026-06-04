@@ -36,6 +36,7 @@ class StudentMaterialsScreen extends ConsumerStatefulWidget {
 
 class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen> {
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   @override
   Widget build(BuildContext context) {
@@ -65,15 +66,14 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
         ),
         data: (items) {
           final semWindow = ref.watch(currentSemesterWindowProvider);
-          final semParts = partitionBySemester<Map<String, dynamic>>(
+          final visible = visibleForSemester<Map<String, dynamic>>(
             items,
             (m) => DateTime.tryParse(
                 (m['createdAt'] ?? m['publishedAt'] ?? m['date'] ?? '').toString()),
             semWindow,
+            _showingPrevious,
+            _selectedPast,
           );
-          final visible = (semWindow == null || !_showingPrevious)
-              ? semParts.current
-              : semParts.previous;
 
           if (items.isEmpty) {
             return ListView(
@@ -141,7 +141,9 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
               SemesterFilterBar(
                 visible: semWindow != null,
                 showingPrevious: _showingPrevious,
-                onChanged: (v) => setState(() => _showingPrevious = v),
+                onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                selectedPast: _selectedPast,
+                onPastChanged: (w) => setState(() => _selectedPast = w),
               ),
 
               // Subject sections

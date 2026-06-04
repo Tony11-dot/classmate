@@ -8481,4 +8481,10 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get privacyPolicySubtitle => '‹‹How we protect your data››';
+
+  @override
+  String get semesterAllPrevious => '‹‹All previous››';
+
+  @override
+  String get semesterSelectTitle => '‹‹Select semester››';
 }

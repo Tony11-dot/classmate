@@ -3867,5 +3867,7 @@
   "parentNotifForYou": "‹‹For you››",
   "parentNotifAbout": "‹‹About {name}››",
   "navPrivacyPolicy": "‹‹Privacy Policy››",
-  "privacyPolicySubtitle": "‹‹How we protect your data››"
+  "privacyPolicySubtitle": "‹‹How we protect your data››",
+  "semesterAllPrevious": "‹‹All previous››",
+  "semesterSelectTitle": "‹‹Select semester››"
 }

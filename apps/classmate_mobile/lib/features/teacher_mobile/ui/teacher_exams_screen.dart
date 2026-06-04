@@ -23,6 +23,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
   bool _loading = true;
   String? _error;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   @override
   void initState() {
@@ -112,13 +113,13 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
     // Semester split (by exam date) — pills only show when the school
     // configured semesters.
     final semWindow = ref.watch(currentSemesterWindowProvider);
-    final semParts = partitionBySemester<Map<String, dynamic>>(
+    final visibleExams = visibleForSemester<Map<String, dynamic>>(
       _exams,
       (e) => DateTime.tryParse(e['date'] as String? ?? ''),
       semWindow,
+      _showingPrevious,
+      _selectedPast,
     );
-    final visibleExams =
-        (semWindow == null || !_showingPrevious) ? semParts.current : semParts.previous;
 
     final upcoming = visibleExams.where((e) {
       final d = DateTime.tryParse(e['date'] as String? ?? '');
@@ -173,7 +174,9 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
           if (semWindow != null) ...[
             SemesterFilterBar(
               showingPrevious: _showingPrevious,
-              onChanged: (v) => setState(() => _showingPrevious = v),
+              selectedPast: _selectedPast,
+              onPastChanged: (w) => setState(() => _selectedPast = w),
+              onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
             ),
             const SizedBox(height: 4),
           ],

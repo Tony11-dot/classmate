@@ -39,6 +39,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
   bool _loading = true;
   String? _error;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   @override
   void initState() {
@@ -254,14 +255,13 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     final locale = Localizations.localeOf(context).toString();
 
     final semWindow = ref.watch(currentSemesterWindowProvider);
-    final semParts = partitionBySemester<Map<String, dynamic>>(
+    final visible = visibleForSemester<Map<String, dynamic>>(
       _diplomas,
       (d) => DateTime.tryParse((d['issuedAt'] ?? d['date'] ?? '').toString()),
       semWindow,
+      _showingPrevious,
+      _selectedPast,
     );
-    final visible = (semWindow == null || !_showingPrevious)
-        ? semParts.current
-        : semParts.previous;
 
     ref.listen<int>(diplomasCreateTriggerProvider, (prev, next) {
       if ((next) > (prev ?? 0)) {
@@ -306,7 +306,9 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
           SemesterFilterBar(
             visible: semWindow != null,
             showingPrevious: _showingPrevious,
-            onChanged: (v) => setState(() => _showingPrevious = v),
+            onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+            selectedPast: _selectedPast,
+            onPastChanged: (w) => setState(() => _selectedPast = w),
           ),
 
           if (_error != null)

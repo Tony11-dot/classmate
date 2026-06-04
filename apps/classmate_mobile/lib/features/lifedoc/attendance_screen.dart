@@ -22,6 +22,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   String _selectedSubject = _allSubjects;
   _AttendanceRangeFilter _selectedRange = _AttendanceRangeFilter.all;
   bool _showingPrevious = false;
+  SemesterWindow? _selectedPast;
 
   DateTime? _parseDate(String? raw) {
     final value = (raw ?? '').trim();
@@ -249,14 +250,13 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
           // Semester split (by mark date) — pills only show when the school
           // configured semesters.
           final semWindow = ref.watch(currentSemesterWindowProvider);
-          final semParts = partitionBySemester<UnifiedAttendanceInsight>(
+          final items = visibleForSemester<UnifiedAttendanceInsight>(
             allItems,
             (e) => _parseDate(e.date),
             semWindow,
+            _showingPrevious,
+            _selectedPast,
           );
-          final items = (semWindow == null || !_showingPrevious)
-              ? semParts.current
-              : semParts.previous;
           final trackedTotal = attendance?.total ?? items.length;
           final hasSummary = trackedTotal > 0 || attendance?.attendanceRate != null;
           final subjects = items
@@ -377,7 +377,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 SemesterFilterBar(
                   visible: semWindow != null,
                   showingPrevious: _showingPrevious,
-                  onChanged: (v) => setState(() => _showingPrevious = v),
+                  onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+                  selectedPast: _selectedPast,
+                  onPastChanged: (w) => setState(() => _selectedPast = w),
                 ),
                 if (items.isEmpty)
                   _EmptyStateCard(

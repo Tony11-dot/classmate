@@ -3450,5 +3450,7 @@
   "parentNotifForYou": "Вам",
   "parentNotifAbout": "О {name}",
   "navPrivacyPolicy": "Политика конфиденциальности",
-  "privacyPolicySubtitle": "Как мы защищаем ваши данные"
+  "privacyPolicySubtitle": "Как мы защищаем ваши данные",
+  "semesterAllPrevious": "Все предыдущие",
+  "semesterSelectTitle": "Выберите семестр"
 }

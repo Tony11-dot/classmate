@@ -3243,5 +3243,7 @@
   "parentNotifForYou": "لك",
   "parentNotifAbout": "عن {name}",
   "navPrivacyPolicy": "سياسة الخصوصية",
-  "privacyPolicySubtitle": "كيف نحمي بياناتك"
+  "privacyPolicySubtitle": "كيف نحمي بياناتك",
+  "semesterAllPrevious": "كل السابقة",
+  "semesterSelectTitle": "اختر الفصل"
 }

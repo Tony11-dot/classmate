@@ -3243,5 +3243,7 @@
   "parentNotifForYou": "Pour vous",
   "parentNotifAbout": "À propos de {name}",
   "navPrivacyPolicy": "Politique de confidentialité",
-  "privacyPolicySubtitle": "Comment nous protégeons vos données"
+  "privacyPolicySubtitle": "Comment nous protégeons vos données",
+  "semesterAllPrevious": "Tout le précédent",
+  "semesterSelectTitle": "Choisir le semestre"
 }
