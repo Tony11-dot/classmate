@@ -52,38 +52,38 @@ function novaDiskStorage() {
 
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
-// Secretaries are NOT NOVA users — they manage a school, not a tutor
-// session. They were previously included here, which (via method-level
-// inheritance) left the reply / transcribe / followup endpoints open to
-// them even though session creation already blocked them — a half-open
-// door that could burn AI + Whisper budget. The three endpoints a
-// secretary legitimately needs (list materials / list characters / create
-// material) declare SECRETARY explicitly, and method-level @Roles fully
-// overrides this class default (RolesGuard uses getAllAndOverride).
-@Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+// NOVA is a STUDENTS-ONLY feature. Teachers / parents / staff bring no
+// NOVA revenue, so the AI tutor (and the AI + Whisper spend it drives) is
+// locked to students — at the API, not just hidden in the UI, so a stray
+// deep link or old client can't burn tokens. This class default covers
+// every endpoint; the three content-management routes that admins /
+// secretaries legitimately need (list materials / list characters / create
+// material) re-grant their roles explicitly, and method-level @Roles fully
+// overrides this default (RolesGuard uses getAllAndOverride).
+@Roles(Role.STUDENT)
 @Controller('tutor')
 export class TutorController {
   constructor(private svc: TutorService) {}
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Get('me/profile')
   getMyProfile(@Req() req: any) {
     return this.svc.getMyLearningProfile(req.user);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Post('me/profile')
   upsertMyProfile(@Req() req: any, @Body() body: any) {
     return this.svc.upsertMyLearningProfile(req.user, body);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Get('me/academic-context')
   getMyAcademicContext(@Req() req: any) {
     return this.svc.getMyAcademicContext(req.user);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Get('me/brain')
   getMyBrain(@Req() req: any) {
     return this.svc.getMyBrainSnapshot(req.user);
@@ -124,25 +124,25 @@ export class TutorController {
     return this.svc.listCharacters(req.user, { subject });
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Post('sessions')
   createSession(@Req() req: any, @Body() body: any) {
     return this.svc.createSession(req.user, body);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Get('sessions')
   listSessions(@Req() req: any, @Query('characterId') characterId?: string) {
     return this.svc.listSessions(req.user, { characterId });
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Get('sessions/:id')
   getSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.getSession(req.user, id);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Post('sessions/:id/messages')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -159,7 +159,7 @@ export class TutorController {
     return this.svc.addMessage(req.user, id, body, file);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Delete('sessions/:id')
   deleteSession(@Req() req: any, @Param('id') id: string) {
     return this.svc.deleteSession(req.user, String(id));
@@ -179,7 +179,7 @@ export class TutorController {
     return this.svc.replyToSession(req.user, id, body);
   }
 
-  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
+  @Roles(Role.STUDENT)
   @Sse('sessions/:id/reply/stream')
   replyStream(
     @Req() req: any,

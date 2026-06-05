@@ -29,6 +29,10 @@ class MainDrawer extends ConsumerWidget {
     final isSecretary = session.primaryRole == 'SECRETARY';
     final isPureAdmin = session.primaryRole == 'ADMIN';
     final isParent = session.primaryRole == 'PARENT';
+    // NOVA (and its subscription Plans) is a students-only feature now —
+    // teachers/parents/staff bring no NOVA revenue, so they don't get the
+    // tutor in their nav or a plan to buy tokens they can't spend.
+    final isStudent = session.primaryRole == 'STUDENT';
     final displayName = session.displayName.trim();
     final initials = _initials(displayName);
     final schoolName = session.schoolName.trim();
@@ -306,7 +310,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.event_note_rounded, label: l.navSchedule, route: '/parent/schedule'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/parent/overview'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
-                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     sectionHeader(l.sectionSchoolTools),
                     for (final t in orderedTools)
                       navItem(icon: t.icon, label: t.label, route: t.route),
@@ -330,7 +334,7 @@ class MainDrawer extends ConsumerWidget {
                     sectionHeader(l.sectionCore),
                     navItem(icon: Icons.event_note_rounded, label: l.navSchedule, route: '/teacher/schedule'),
                     navItem(icon: Icons.groups_rounded, label: l.navClassrooms, route: '/teacher/classrooms'),
-                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
+                    navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     sectionHeader(l.sectionSchoolTools),
@@ -356,10 +360,9 @@ class MainDrawer extends ConsumerWidget {
                     label: l.navProfile,
                     route: '/profile',
                   ),
-                  // NOVA Plans sits in the Account section (students / teachers
-                  // / parents — the tutor-using roles). Admins/secretaries
-                  // manage a school, not a tutor subscription.
-                  if (!isPureAdmin && !isSecretary)
+                  // NOVA Plans — students only. NOVA is a students-only
+                  // feature, so only they can buy token plans for it.
+                  if (isStudent)
                     navItem(
                       icon: Icons.workspace_premium_rounded,
                       label: l.navPlans,

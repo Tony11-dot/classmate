@@ -103,10 +103,24 @@ GoRoute _slideRoute({
   return GoRoute(
     path: path,
     name: name,
-    pageBuilder: (context, state) => CupertinoPage<dynamic>(
-      key: state.pageKey,
-      child: builder(context, state),
-    ),
+    pageBuilder: (context, state) {
+      // Reduce-motion: skip the Cupertino slide entirely — the page just
+      // appears. (CupertinoPage always slides + ignores disableAnimations,
+      // so we swap in a zero-duration transition instead.)
+      if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+        return CustomTransitionPage<dynamic>(
+          key: state.pageKey,
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          child: builder(context, state),
+          transitionsBuilder: (_, __, ___, child) => child,
+        );
+      }
+      return CupertinoPage<dynamic>(
+        key: state.pageKey,
+        child: builder(context, state),
+      );
+    },
   );
 }
 
@@ -122,12 +136,17 @@ GoRoute _fadeRoute({
   return GoRoute(
     path: path,
     name: name,
-    pageBuilder: (context, state) => CustomTransitionPage<dynamic>(
+    pageBuilder: (context, state) {
+      // Reduce-motion: cross-fade collapses to an instant swap.
+      final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      return CustomTransitionPage<dynamic>(
       key: state.pageKey,
-      transitionDuration: const Duration(milliseconds: 200),
-      reverseTransitionDuration: const Duration(milliseconds: 200),
+      transitionDuration: reduce ? Duration.zero : const Duration(milliseconds: 200),
+      reverseTransitionDuration: reduce ? Duration.zero : const Duration(milliseconds: 200),
       child: builder(context, state),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      transitionsBuilder: reduce
+          ? (context, animation, secondaryAnimation, child) => child
+          : (context, animation, secondaryAnimation, child) {
         final bg = Theme.of(context).scaffoldBackgroundColor;
         return Stack(
           fit: StackFit.expand,
@@ -146,7 +165,8 @@ GoRoute _fadeRoute({
           ],
         );
       },
-    ),
+      );
+    },
   );
 }
 

@@ -59,6 +59,13 @@ class ClassMateApp extends ConsumerWidget {
         final scaledChild = MediaQuery(
           data: (mediaQuery ?? const MediaQueryData()).copyWith(
             textScaler: TextScaler.linear(t.textScale),
+            // Reduce-motion: flips the OS-level "disable animations" flag for
+            // the whole tree. Hero flights, page transitions that honor it,
+            // and our own widgets (which read MediaQuery.disableAnimations)
+            // all go instant. The route helpers in router.dart and the
+            // bottom-nav pill read this same flag, so one toggle quiets the
+            // entire app's motion.
+            disableAnimations: t.reduceMotion,
           ),
           child: child ?? const SizedBox.shrink(),
         );

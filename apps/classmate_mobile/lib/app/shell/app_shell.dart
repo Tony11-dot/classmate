@@ -1143,6 +1143,9 @@ class _SelectionCapsule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final reduce = MediaQuery.of(context).disableAnimations;
+    final slideDur =
+        reduce ? Duration.zero : const Duration(milliseconds: 200);
     final slotW = totalWidth / itemCount;
     final baseW = slotW - 8;
     // More dramatic stretch — up to 55% wider (matches parent sx)
@@ -1170,7 +1173,7 @@ class _SelectionCapsule extends StatelessWidget {
 
     return isRtl
         ? AnimatedPositioned(
-            duration: const Duration(milliseconds: 200),
+            duration: slideDur,
             curve: Curves.easeOutCubic,
             right: edge,
             top: 5,
@@ -1179,7 +1182,7 @@ class _SelectionCapsule extends StatelessWidget {
             child: child,
           )
         : AnimatedPositioned(
-            duration: const Duration(milliseconds: 200),
+            duration: slideDur,
             curve: Curves.easeOutCubic,
             left: edge,
             top: 5,
@@ -1226,10 +1229,17 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
     super.didUpdateWidget(old);
     // Fresh selection → squish-then-bounce. Skipping the case where the tab
     // was already selected avoids a pulse on rebuild for unrelated reasons.
+    // Reduce-motion: snap to full size with no bounce.
     if (widget.selected && !old.selected) {
-      _pulse.stop();
-      _pulse.value = 0.82;
-      _pulse.animateWith(SpringSimulation(_spring, 0.82, 1.0, 0));
+      final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      if (reduce) {
+        _pulse.stop();
+        _pulse.value = 1.0;
+      } else {
+        _pulse.stop();
+        _pulse.value = 0.82;
+        _pulse.animateWith(SpringSimulation(_spring, 0.82, 1.0, 0));
+      }
     }
   }
 
@@ -1245,6 +1255,9 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
     final color = (widget.selected || widget.hovered) ? widget.activeColor : inactiveColor;
     final iconData = widget.selected ? widget.item.selectedIcon : widget.item.icon;
     final hasBadge = widget.item.badge > 0;
+    final swapDur = MediaQuery.of(context).disableAnimations
+        ? Duration.zero
+        : const Duration(milliseconds: 140);
 
     return SizedBox.expand(
       child: Column(
@@ -1257,7 +1270,7 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
                 animation: _pulse,
                 builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
                 child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 140),
+                  duration: swapDur,
                   child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
                 ),
               ),
@@ -1284,7 +1297,7 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
           ),
           const SizedBox(height: 2),
           AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 140),
+            duration: swapDur,
             style: TextStyle(
               fontSize: 10,
               fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w400,
