@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -1170,12 +1171,58 @@ class _StepBtn extends StatelessWidget {
   }
 }
 
-class _GradeStepper extends StatelessWidget {
+class _GradeStepper extends StatefulWidget {
   const _GradeStepper({required this.label, required this.value, required this.onChanged});
 
   final String label;
   final int value;
   final ValueChanged<int> onChanged;
+
+  @override
+  State<_GradeStepper> createState() => _GradeStepperState();
+}
+
+class _GradeStepperState extends State<_GradeStepper> {
+  late final TextEditingController _ctrl;
+  late final FocusNode _focus;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.value.toString());
+    _focus = FocusNode()..addListener(() { if (!_focus.hasFocus) _commit(); });
+  }
+
+  @override
+  void didUpdateWidget(covariant _GradeStepper old) {
+    super.didUpdateWidget(old);
+    // Sync the field when +/- changes the value externally, but never fight the
+    // user mid-type (only overwrite while the field is unfocused).
+    if (widget.value != old.value && !_focus.hasFocus) {
+      _ctrl.text = widget.value.toString();
+    }
+  }
+
+  void _commit() {
+    final parsed = int.tryParse(_ctrl.text.trim());
+    final clamped = (parsed ?? widget.value).clamp(1, 20);
+    if (_ctrl.text != clamped.toString()) _ctrl.text = clamped.toString();
+    if (clamped != widget.value) widget.onChanged(clamped);
+  }
+
+  void _bump(int delta) {
+    _focus.unfocus();
+    final next = (widget.value + delta).clamp(1, 20);
+    _ctrl.text = next.toString();
+    if (next != widget.value) widget.onChanged(next);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1193,28 +1240,40 @@ class _GradeStepper extends StatelessWidget {
           // Label on its own full-width line so it never wraps character by
           // character when the stepper is squeezed (multi-range rows).
           Text(
-            label,
+            widget.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
           ),
-          // Buttons pinned at the edges with the value flexing in the middle —
-          // this can never overflow (and so never clips the +/- out of the
-          // hit-test area the way an Expanded-text-then-buttons row could).
+          // Buttons pinned at the edges with the editable number flexing in the
+          // middle. Shows the bare grade (e.g. "5") so it never truncates, and
+          // is tappable/typeable for direct entry.
           Row(
             children: [
-              _StepBtn(icon: Icons.remove_rounded, onTap: () => onChanged(value - 1)),
+              _StepBtn(icon: Icons.remove_rounded, onTap: () => _bump(-1)),
               Expanded(
-                child: Text(
-                  AppLocalizations.of(context)!.adminCohortGradeFormat(value.toString()),
+                child: TextField(
+                  controller: _ctrl,
+                  focusNode: _focus,
                   textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(2),
+                  ],
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    counterText: '',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 4),
+                  ),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  onSubmitted: (_) => _commit(),
+                  onTapOutside: (_) => _focus.unfocus(),
                 ),
               ),
-              _StepBtn(icon: Icons.add_rounded, onTap: () => onChanged(value + 1)),
+              _StepBtn(icon: Icons.add_rounded, onTap: () => _bump(1)),
             ],
           ),
         ],

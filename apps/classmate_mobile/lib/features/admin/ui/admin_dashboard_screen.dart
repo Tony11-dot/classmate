@@ -92,33 +92,33 @@ class AdminDashboardScreen extends ConsumerWidget {
                           icon: Icons.person_add_rounded,
                           label: l.adminAddUser,
                           color: cs.primary,
-                          onTap: () => context.push('/admin/people'),
+                          onTap: () => context.go('/admin/people'),
                         ),
                         _QuickAction(
                           icon: Icons.group_add_rounded,
                           label: l.navCohorts,
                           color: cs.secondary,
-                          onTap: () => context.push('/admin/cohorts'),
+                          onTap: () => context.go('/admin/cohorts'),
                         ),
                         if (isAdmin)
                           _QuickAction(
                             icon: Icons.manage_history_rounded,
                             label: l.adminScheduleTitle,
                             color: cs.tertiary,
-                            onTap: () => context.push('/admin/schedule'),
+                            onTap: () => context.go('/admin/schedule'),
                           ),
                         _QuickAction(
                           icon: Icons.school_rounded,
                           label: l.navSchool,
                           color: cs.onSurfaceVariant,
-                          onTap: () => context.push('/admin/school'),
+                          onTap: () => context.go('/admin/school'),
                         ),
                         if (isAdmin)
                           _QuickAction(
                             icon: Icons.shield_outlined,
                             label: l.adminPasswordReqTitle,
                             color: cs.error,
-                            onTap: () => context.push('/admin/password-requests'),
+                            onTap: () => context.go('/admin/password-requests'),
                           ),
                       ],
                     ),
@@ -368,7 +368,7 @@ class _SetupStepTile extends StatelessWidget {
     final done = step.done;
 
     return GestureDetector(
-      onTap: () => context.push(step.route),
+      onTap: () => context.go(step.route),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
