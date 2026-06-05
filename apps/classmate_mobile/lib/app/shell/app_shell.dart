@@ -731,25 +731,39 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
           ])
         : widget.child;
 
-    if (wide && !widget.hideBottomNav) {
+    if (wide) {
+      // Desktop / web: the full menu is ALWAYS pinned open as a permanent
+      // sidebar — it never collapses to a hamburger, on any route (including
+      // admin and detail pages). The sidebar is the left child of the
+      // top-level Row, so it spans the FULL window height (reaches the very
+      // top — no top bar sitting above it). The page-title bar lives in the
+      // content column to the right instead of spanning the whole width.
       return Scaffold(
-        appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle, showMenuButton: false),
         body: SafeArea(
           child: Row(
             children: [
-              // The full menu, pinned open as a permanent sidebar (no core-tab
-              // rail, no hamburger) — feels native on PC / laptop / iPad.
               const MainDrawer(permanent: true),
               const VerticalDivider(width: 1, thickness: 1),
               Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    // Fill most of the window next to the sidebar (no big empty
-                    // gutters) while still capping width so phone-first screens
-                    // don't stretch across a 27" monitor.
-                    constraints: const BoxConstraints(maxWidth: 1100),
-                    child: body,
-                  ),
+                child: Column(
+                  children: [
+                    if (!widget.hideTopBar)
+                      SizedBox(
+                        height: 88,
+                        child: _TopBar(title: widget.pageTitle, showMenuButton: false),
+                      ),
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          // Fill most of the window next to the sidebar (no big
+                          // empty gutters) while still capping width so
+                          // phone-first screens don't stretch across a 27".
+                          constraints: const BoxConstraints(maxWidth: 1100),
+                          child: body,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -824,87 +838,6 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
   }
 }
 
-/// Persistent left rail used on desktop / wide viewports (>= 900px).
-/// Mirrors the role-aware nav from the bottom bar but renders as a
-/// vertical column like Instagram / Twitter / Snapchat web.
-class _DesktopNavRail extends StatelessWidget {
-  const _DesktopNavRail({
-    required this.items,
-    required this.index,
-    required this.onTap,
-  });
-
-  final List<_NavItem> items;
-  final int index;
-  final ValueChanged<int> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final width = MediaQuery.sizeOf(context).width;
-    // On any desktop-width viewport (>=900) show a full label-bearing rail —
-    // a persistent "menu always open" sidebar, which feels far more native on
-    // PC / laptop / iPad than an icon-only strip.
-    final extended = width >= 900;
-    final railWidth = extended ? 248.0 : 76.0;
-
-    return Container(
-      width: railWidth,
-      color: cs.surface,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, i) {
-          final item = items[i];
-          final selected = i == index;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: Material(
-              color: selected ? cs.primaryContainer : Colors.transparent,
-              borderRadius: BorderRadius.circular(14),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: () => onTap(i),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: extended ? 14 : 10,
-                    vertical: extended ? 12 : 14,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: extended
-                        ? MainAxisAlignment.start
-                        : MainAxisAlignment.center,
-                    children: [
-                      _BadgedIcon(
-                        icon: selected ? item.selectedIcon : item.icon,
-                        badge: item.badge,
-                      ),
-                      if (extended) ...[
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            item.label,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                                  color: selected
-                                      ? cs.onPrimaryContainer
-                                      : cs.onSurface,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Liquid-glass floating pill nav — Apple Music iOS 26 style

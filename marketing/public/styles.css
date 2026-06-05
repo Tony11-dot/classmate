@@ -114,6 +114,7 @@ img { display: block; max-width: 100%; }
 .ph { display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, color-mix(in srgb, var(--primary) 26%, var(--surface)), var(--surface)); }
 .ph-label { text-align: center; color: var(--muted); font-weight: 800; font-size: 14px; }
 .ph-label small { font-weight: 500; font-size: 11px; opacity: .7; }
+.ph-logo { width: 108px; height: 108px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
 
 /* ── Proof / marquee ── */
 .proof { text-align: center; color: var(--muted); padding: 6px 20px 0; font-weight: 700; letter-spacing: .02em; }
@@ -166,6 +167,8 @@ img { display: block; max-width: 100%; }
 .store-badge { display: inline-flex; align-items: center; gap: 10px; background: var(--text); color: var(--bg); padding: 13px 20px; border-radius: 15px; font-weight: 700; opacity: .5; cursor: not-allowed; }
 .store-badge small { display: block; font-size: 11px; opacity: .8; }
 .store-badge b { font-size: 16px; }
+.store-badge.live { opacity: 1; cursor: pointer; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+.store-badge.live:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.22); }
 .store-ico { font-size: 20px; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
