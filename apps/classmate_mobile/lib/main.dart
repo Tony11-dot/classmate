@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,10 +14,17 @@ import 'core/realtime/realtime_listener.dart';
 import 'features/billing/data/revenuecat_service.dart';
 import 'ui/widgets/splash_screen.dart';
 
-// Sentry DSN is baked in at build time via --dart-define=SENTRY_DSN=...
-// When empty (no define), Sentry is skipped entirely and the app runs
-// exactly as before — so a plain `flutter run` / `flutter build` is a no-op.
-const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+// Sentry DSN for the "classmate-app" project. A Sentry DSN is a write-only
+// client ingestion key — it can only SEND error events, never read anything —
+// so it's safe to ship in the binary (it's already public in any deployed
+// build). Kept as a default here so every release build reports with no extra
+// build flags; a --dart-define=SENTRY_DSN can still override it. Reporting is
+// gated on release mode below, so local debug runs never spam Sentry.
+const _sentryDsn = String.fromEnvironment(
+  'SENTRY_DSN',
+  defaultValue:
+      'https://66f592c9b2752d72912c700c5b91deb9@o4511514135887872.ingest.de.sentry.io/4511514153975888',
+);
 const _sentryEnv =
     String.fromEnvironment('SENTRY_ENV', defaultValue: 'production');
 
@@ -62,7 +69,8 @@ Future<void> main() async {
 
   void runRoot() => runApp(const ProviderScope(child: _RootApp()));
 
-  if (_sentryDsn.isEmpty) {
+  // Release builds only — never report from local debug `flutter run`.
+  if (_sentryDsn.isEmpty || !kReleaseMode) {
     runRoot();
   } else {
     // SentryFlutter.init installs FlutterError + zone error handlers, so
