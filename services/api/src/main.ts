@@ -1,3 +1,7 @@
+// MUST be the first import — initialises Sentry before Nest and the modules
+// it instruments are loaded. No-op unless SENTRY_DSN is set.
+import './instrument';
+
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { json, urlencoded } from 'express';

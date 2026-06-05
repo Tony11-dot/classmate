@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app/app.dart';
 import 'core/auth/auth_session.dart';
@@ -13,7 +14,14 @@ import 'core/realtime/realtime_listener.dart';
 import 'features/billing/data/revenuecat_service.dart';
 import 'ui/widgets/splash_screen.dart';
 
-void main() {
+// Sentry DSN is baked in at build time via --dart-define=SENTRY_DSN=...
+// When empty (no define), Sentry is skipped entirely and the app runs
+// exactly as before — so a plain `flutter run` / `flutter build` is a no-op.
+const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+const _sentryEnv =
+    String.fromEnvironment('SENTRY_ENV', defaultValue: 'production');
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
   // TEMP web diagnostic: render build errors as readable text instead of a
@@ -51,7 +59,25 @@ void main() {
   // Hook AuthSession → push registration so every login/logout updates
   // the device's bound user on the backend.
   AuthSession.registerPushService(PushNotificationsService.instance);
-  runApp(const ProviderScope(child: _RootApp()));
+
+  void runRoot() => runApp(const ProviderScope(child: _RootApp()));
+
+  if (_sentryDsn.isEmpty) {
+    runRoot();
+  } else {
+    // SentryFlutter.init installs FlutterError + zone error handlers, so
+    // uncaught Dart/Flutter errors and crashes report automatically — with
+    // the screen, OS, and app version attached. Errors only (no perf
+    // tracing) to stay free and add no runtime overhead.
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = _sentryDsn;
+        options.environment = _sentryEnv;
+        options.tracesSampleRate = 0.0;
+      },
+      appRunner: runRoot,
+    );
+  }
 }
 
 class _RootApp extends ConsumerStatefulWidget {

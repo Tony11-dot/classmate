@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { Sentry } from '../instrument';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -25,6 +26,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
       typeof base === 'string'
         ? { message: base }
         : (base as Record<string, any>);
+
+    // Report real server-side faults (5xx) to Sentry — these are the actual
+    // bugs. Client errors (4xx: bad input, auth, 404, 402 out-of-tokens,
+    // 409 duplicate-book, etc.) are expected and would just be noise.
+    // No-ops when Sentry isn't initialised (no SENTRY_DSN).
+    if (status >= 500) {
+      Sentry.withScope((scope) => {
+        scope.setTag('path', req.originalUrl);
+        scope.setTag('method', req.method);
+        if (requestId) scope.setTag('request_id', String(requestId));
+        Sentry.captureException(exception);
+      });
+    }
 
     if (requestId) res.setHeader('x-request-id', requestId);
 
