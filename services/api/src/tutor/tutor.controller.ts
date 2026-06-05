@@ -52,7 +52,15 @@ function novaDiskStorage() {
 
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.SECRETARY, Role.PARENT)
+// Secretaries are NOT NOVA users — they manage a school, not a tutor
+// session. They were previously included here, which (via method-level
+// inheritance) left the reply / transcribe / followup endpoints open to
+// them even though session creation already blocked them — a half-open
+// door that could burn AI + Whisper budget. The three endpoints a
+// secretary legitimately needs (list materials / list characters / create
+// material) declare SECRETARY explicitly, and method-level @Roles fully
+// overrides this class default (RolesGuard uses getAllAndOverride).
+@Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT)
 @Controller('tutor')
 export class TutorController {
   constructor(private svc: TutorService) {}

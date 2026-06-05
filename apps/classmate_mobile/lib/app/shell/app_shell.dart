@@ -40,22 +40,28 @@ const _coreBottomNavPaths = <String>{
   '/tutor',
 };
 
+// NOVA used to sit at tab 3 here. It's demoted to the drawer for teachers
+// (they bring no NOVA revenue, so we don't give the AI tutor prime bottom-nav
+// real estate) and replaced with Announcements — a daily-use, zero-AI-cost
+// feature teachers post to constantly.
 const _teacherBottomNavPaths = <String>{
   '/teacher/schedule',
   '/teacher/classrooms',
-  '/tutor',
+  '/announcements',
   '/teacher/insights',
   '/messages',
 };
 
 /// Routes where the parent bottom nav stays visible. The 5 tabs are:
-/// Home | Schedule | Overview | Messages | NOVA.
+/// Home | Schedule | Overview | Messages | Announcements.
+/// NOVA was demoted to the drawer (parents are the biggest free-bucket cost
+/// and bring no subscription revenue); Announcements took its slot.
 const _parentBottomNavPaths = <String>{
   '/parent/home',
   '/parent/schedule',
   '/parent/overview',
   '/messages',
-  '/tutor',
+  '/announcements',
 };
 
 String _routePathOnly(String loc) {
@@ -106,7 +112,7 @@ class AppShell extends ConsumerWidget {
 
   int _teacherIndexFor(String loc) {
     if (loc.startsWith('/teacher/classrooms') || loc.startsWith('/teacher/classroom/')) return 1;
-    if (loc.startsWith('/tutor')) return 2;
+    if (loc.startsWith('/announcements')) return 2;
     if (loc.startsWith('/teacher/insights')) return 3;
     if (loc.startsWith('/messages')) return 4;
     return 0; // /teacher/schedule
@@ -115,7 +121,7 @@ class AppShell extends ConsumerWidget {
   String _teacherLocFor(int index) => switch (index) {
     0 => '/teacher/schedule',
     1 => '/teacher/classrooms',
-    2 => '/tutor',
+    2 => '/announcements',
     3 => '/teacher/insights',
     4 => '/messages',
     _ => '/teacher/schedule',
@@ -140,7 +146,7 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/parent/schedule')) return 1;
     if (loc.startsWith('/parent/overview')) return 2;
     if (loc.startsWith('/messages')) return 3;
-    if (loc.startsWith('/tutor')) return 4;
+    if (loc.startsWith('/announcements')) return 4;
     return 0; // /parent/home
   }
 
@@ -149,7 +155,7 @@ class AppShell extends ConsumerWidget {
     1 => '/parent/schedule',
     2 => '/parent/overview',
     3 => '/messages',
-    4 => '/tutor',
+    4 => '/announcements',
     _ => '/parent/home',
   };
 
@@ -809,20 +815,23 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       ];
     }
     if (widget.isParent) {
-      // Parent: Home | Schedule | Overview | Messages | NOVA
+      // Parent: Home | Schedule | Overview | Messages | Announcements
+      // (NOVA moved to the drawer — see _parentBottomNavPaths.)
       return <_NavItem>[
         _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, l.navHome),
         _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
         _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
         _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
-        _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+        _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
       ];
     }
     if (widget.isTeacherLike) {
+      // Schedule | Classrooms | Announcements | Insights | Messages
+      // (NOVA moved to the drawer — see _teacherBottomNavPaths.)
       return <_NavItem>[
         _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
         _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-        _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+        _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
         _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
         _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
       ];

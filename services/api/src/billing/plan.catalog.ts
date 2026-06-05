@@ -144,3 +144,19 @@ export function findTopupByProductId(productId: string): TopupPack | null {
 export function freeQuota(): number {
   return SUBSCRIPTION_PLANS.find((p) => p.tier === 'FREE')!.monthlyTokens;
 }
+
+/// Free-tier NOVA bucket for NON-student roles (teacher / parent /
+/// secretary / admin). Two reasons it's smaller than the student 150K:
+///   1. These roles use NOVA lightly — a teacher prepping a lesson or a
+///      parent checking a kid's homework, not daily study sessions.
+///   2. Unlike students, they bring NO subscription revenue (schools pay
+///      per student; staff + parents ride free). A full 150K free bucket
+///      for every parent is pure cost that scales with headcount.
+/// 40K ≈ 5-6 substantial conversations/month — roomy for real staff/parent
+/// use, but it roughly halves the worst-case AI spend at 1M-user scale.
+/// A user who ALSO holds the STUDENT role keeps the full student bucket.
+export const NON_STUDENT_FREE_TOKENS = 40_000;
+
+export function nonStudentFreeQuota(): number {
+  return NON_STUDENT_FREE_TOKENS;
+}

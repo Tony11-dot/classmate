@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { computeCost, extractAnthropicUsage } from './cost.model';
-import { findPlanByTier, freeQuota } from './plan.catalog';
+import { findPlanByTier, freeQuota, nonStudentFreeQuota } from './plan.catalog';
 
 /// Pulls our internal user id out of the JWT-decoded `req.user` blob.
 /// Centralised so every AI call site uses the same fallback order
@@ -46,6 +46,27 @@ export interface BalanceSnapshot {
 export class TokensService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /// Free-tier bucket sized by role. Students (the paying flagship) keep
+  /// the full 150K; teachers / parents / secretaries / admins get the
+  /// smaller non-student bucket. A user who holds the STUDENT role
+  /// anywhere counts as a student. Only called on the rare seed/reset
+  /// paths — never on the hot pre-flight read — so the extra lookup is
+  /// cheap. Defaults to the full bucket if roles can't be read, so a
+  /// lookup hiccup never shortchanges a real student.
+  private async freeQuotaFor(userId: string): Promise<number> {
+    try {
+      const roles = await this.prisma.userRole.findMany({
+        where: { userId },
+        select: { role: true },
+      });
+      if (roles.length === 0) return freeQuota();
+      const isStudent = roles.some((r) => r.role === 'STUDENT');
+      return isStudent ? freeQuota() : nonStudentFreeQuota();
+    } catch {
+      return freeQuota();
+    }
+  }
+
   /// Returns the user's current balance, lazily creating a row + seeding
   /// the FREE quota on first read. Idempotent — repeat calls on an
   /// already-seeded user just read the existing row.
@@ -59,11 +80,12 @@ export class TokensService {
     ]);
 
     if (!balance) {
+      const seedQuota = await this.freeQuotaFor(userId);
       const seeded = await this.prisma.tokenBalance.upsert({
         where: { userId },
         create: {
           userId,
-          planTokensRemaining: freeQuota(),
+          planTokensRemaining: seedQuota,
           topupTokensRemaining: 0,
           resetAt: this.nextMonthStart(),
         },
@@ -86,7 +108,7 @@ export class TokensService {
     if (balance.resetAt && balance.resetAt <= new Date()) {
       const quota = activeSub
         ? findPlanByTier(activeSub.planTier)?.monthlyTokens ?? freeQuota()
-        : freeQuota();
+        : await this.freeQuotaFor(userId);
       const next = await this.prisma.tokenBalance.update({
         where: { userId },
         data: {
