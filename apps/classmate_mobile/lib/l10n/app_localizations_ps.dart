@@ -8071,6 +8071,21 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
+  String get solutionsBookDuplicateHint =>
+      'د زياتولو دمخه، ډاد ترلاسه کړئ چې دا کتاب لا دمخه په ډيټابیس کې نشته.';
+
+  @override
+  String get solutionsBookDuplicateTitle => 'ممکن دوه ګونی کتاب';
+
+  @override
+  String solutionsBookDuplicateBody(String title) {
+    return 'د \"$title\" په نوم کتاب لا دمخه شتون لري. د زياتولو دمخه ډاد ترلاسه کړئ چې هماغه کتاب نه دی.';
+  }
+
+  @override
+  String get solutionsBookAddAnyway => 'بیا هم زيات کړئ';
+
+  @override
   String get solutionsBookNeedTitlePages => '‹‹Enter a title and page count.››';
 
   @override

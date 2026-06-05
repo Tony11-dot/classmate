@@ -3769,6 +3769,15 @@
       }
     }
   },
+  "solutionsBookDuplicateHint": "Before adding, make sure this book isn’t already in the database.",
+  "solutionsBookDuplicateTitle": "Possible duplicate book",
+  "solutionsBookDuplicateBody": "A book named \"{title}\" already exists. Make sure it isn’t the same one before adding it.",
+  "@solutionsBookDuplicateBody": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "solutionsBookAddAnyway": "Add anyway",
   "solutionsBookNeedTitlePages": "Enter a title and page count.",
   "solutionsEditBookTitle": "Edit book",
   "solutionsBookCoverLabel": "Cover",

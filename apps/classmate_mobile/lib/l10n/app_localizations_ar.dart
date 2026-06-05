@@ -7976,6 +7976,21 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get solutionsBookDuplicateHint =>
+      'قبل الإضافة، تأكد من أن هذا الكتاب غير موجود بالفعل في قاعدة البيانات.';
+
+  @override
+  String get solutionsBookDuplicateTitle => 'ربما يكون كتابًا مكررًا';
+
+  @override
+  String solutionsBookDuplicateBody(String title) {
+    return 'يوجد بالفعل كتاب باسم \"$title\". تأكد من أنه ليس نفس الكتاب قبل إضافته.';
+  }
+
+  @override
+  String get solutionsBookAddAnyway => 'أضف على أي حال';
+
+  @override
   String get solutionsBookNeedTitlePages => 'أدخل عنوانًا وعدد الصفحات.';
 
   @override

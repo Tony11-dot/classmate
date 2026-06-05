@@ -8137,6 +8137,21 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get solutionsBookDuplicateHint =>
+      'Avant d’ajouter, vérifiez que ce livre n’est pas déjà dans la base de données.';
+
+  @override
+  String get solutionsBookDuplicateTitle => 'Livre en double possible';
+
+  @override
+  String solutionsBookDuplicateBody(String title) {
+    return 'Un livre nommé « $title » existe déjà. Assurez-vous qu’il ne s’agit pas du même avant de l’ajouter.';
+  }
+
+  @override
+  String get solutionsBookAddAnyway => 'Ajouter quand même';
+
+  @override
   String get solutionsBookNeedTitlePages =>
       'Saisissez un titre et un nombre de pages.';
 

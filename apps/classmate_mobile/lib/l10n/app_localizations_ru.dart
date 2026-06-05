@@ -8004,6 +8004,21 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get solutionsBookDuplicateHint =>
+      'Перед добавлением убедитесь, что этой книги ещё нет в базе.';
+
+  @override
+  String get solutionsBookDuplicateTitle => 'Возможный дубликат книги';
+
+  @override
+  String solutionsBookDuplicateBody(String title) {
+    return 'Книга с названием «$title» уже существует. Убедитесь, что это не та же книга, прежде чем добавлять.';
+  }
+
+  @override
+  String get solutionsBookAddAnyway => 'Всё равно добавить';
+
+  @override
   String get solutionsBookNeedTitlePages => 'Укажите название и число страниц.';
 
   @override

@@ -7944,6 +7944,21 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get solutionsBookDuplicateHint =>
+      'לפני ההוספה, ודאו שהספר הזה לא קיים כבר במאגר.';
+
+  @override
+  String get solutionsBookDuplicateTitle => 'ייתכן שזהו ספר כפול';
+
+  @override
+  String solutionsBookDuplicateBody(String title) {
+    return 'כבר קיים ספר בשם \"$title\". ודאו שאין מדובר באותו ספר לפני ההוספה.';
+  }
+
+  @override
+  String get solutionsBookAddAnyway => 'הוסף בכל זאת';
+
+  @override
   String get solutionsBookNeedTitlePages => 'הזינו כותרת ומספר עמודים.';
 
   @override

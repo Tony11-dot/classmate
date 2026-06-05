@@ -14091,6 +14091,30 @@ abstract class AppLocalizations {
   /// **'Couldn\'t save: {error}'**
   String solutionsBookSaveFailed(String error);
 
+  /// No description provided for @solutionsBookDuplicateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Before adding, make sure this book isn’t already in the database.'**
+  String get solutionsBookDuplicateHint;
+
+  /// No description provided for @solutionsBookDuplicateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible duplicate book'**
+  String get solutionsBookDuplicateTitle;
+
+  /// No description provided for @solutionsBookDuplicateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A book named \"{title}\" already exists. Make sure it isn’t the same one before adding it.'**
+  String solutionsBookDuplicateBody(String title);
+
+  /// No description provided for @solutionsBookAddAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Add anyway'**
+  String get solutionsBookAddAnyway;
+
   /// No description provided for @solutionsBookNeedTitlePages.
   ///
   /// In en, this message translates to:

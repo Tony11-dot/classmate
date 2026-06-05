@@ -40,6 +40,9 @@ export type CreateBookBody = {
   title: string;
   pages: number;
   coverUrl?: string | null;
+  // When true, skip the fuzzy "similar book already exists" guard — the
+  // teacher confirmed it's a genuinely different book.
+  confirmDuplicate?: boolean;
 };
 
 export type UpdateBookBody = {

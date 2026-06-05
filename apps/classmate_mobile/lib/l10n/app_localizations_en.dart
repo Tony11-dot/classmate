@@ -8025,6 +8025,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get solutionsBookDuplicateHint =>
+      'Before adding, make sure this book isn’t already in the database.';
+
+  @override
+  String get solutionsBookDuplicateTitle => 'Possible duplicate book';
+
+  @override
+  String solutionsBookDuplicateBody(String title) {
+    return 'A book named \"$title\" already exists. Make sure it isn’t the same one before adding it.';
+  }
+
+  @override
+  String get solutionsBookAddAnyway => 'Add anyway';
+
+  @override
   String get solutionsBookNeedTitlePages => 'Enter a title and page count.';
 
   @override

@@ -164,6 +164,7 @@ class SolutionsApi {
     required String title,
     required int pages,
     String? coverUrl,
+    bool confirmDuplicate = false,
   }) async {
     final raw = await _api.postJson(
       '/solutions/books',
@@ -172,6 +173,7 @@ class SolutionsApi {
         'title': title,
         'pages': pages,
         if ((coverUrl ?? '').trim().isNotEmpty) 'coverUrl': coverUrl!.trim(),
+        if (confirmDuplicate) 'confirmDuplicate': true,
       },
     );
     return raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/config/env.dart';
+import '../../../../core/http/cm_api.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/solutions_api.dart';
 import '../../domain/solution_subjects.dart';
@@ -305,12 +307,14 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
         );
       } else {
         // Create (upsert by subject+title), passing the cover in one shot.
-        await api.createBook(
-          subject: widget.subjectKey,
-          title: title,
-          pages: pages,
-          coverUrl: coverUrl,
-        );
+        // The API flags a SIMILAR existing title (e.g. "archimidis" vs
+        // "Archimedes") with a 409 — we warn the teacher and only force it
+        // through if they confirm it's a different book.
+        final created = await _createGuarded(api, title: title, pages: pages, coverUrl: coverUrl);
+        if (!created) {
+          if (mounted) setState(() => _saving = false);
+          return;
+        }
       }
       if (!mounted) return;
       Navigator.pop(context, true);
@@ -321,6 +325,73 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
         SnackBar(content: Text(l.solutionsBookSaveFailed('$e'))),
       );
     }
+  }
+
+  /// Creates the book, but if the API replies 409 with a fuzzy-duplicate
+  /// warning, asks the teacher to confirm before forcing it through.
+  /// Returns false only when the teacher cancels at the warning.
+  Future<bool> _createGuarded(
+    SolutionsApi api, {
+    required String title,
+    required int pages,
+    String? coverUrl,
+  }) async {
+    try {
+      await api.createBook(
+        subject: widget.subjectKey,
+        title: title,
+        pages: pages,
+        coverUrl: coverUrl,
+      );
+      return true;
+    } on CMApiException catch (e) {
+      if (e.statusCode != 409) rethrow;
+      String existingTitle = '';
+      try {
+        final decoded = jsonDecode(e.body);
+        if (decoded is Map && decoded['duplicateWarning'] == true) {
+          existingTitle = '${decoded['existingTitle'] ?? ''}'.trim();
+        }
+      } catch (_) {}
+      if (existingTitle.isEmpty) rethrow; // not our duplicate signal
+      if (!mounted) return false;
+      final proceed = await _confirmDuplicate(existingTitle);
+      if (proceed != true) return false;
+      // Teacher confirmed it's a different book — force it through.
+      await api.createBook(
+        subject: widget.subjectKey,
+        title: title,
+        pages: pages,
+        coverUrl: coverUrl,
+        confirmDuplicate: true,
+      );
+      return true;
+    }
+  }
+
+  Future<bool?> _confirmDuplicate(String existingTitle) {
+    final l = AppLocalizations.of(context)!;
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return AlertDialog(
+          icon: Icon(Icons.warning_amber_rounded, color: cs.tertiary),
+          title: Text(l.solutionsBookDuplicateTitle),
+          content: Text(l.solutionsBookDuplicateBody(existingTitle)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.tutorCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.solutionsBookAddAnyway),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -400,6 +471,30 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
               ),
             ],
           ),
+          if (!isEdit) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: cs.outlineVariant),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 18, color: cs.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l.solutionsBookDuplicateHint,
+                      style: TextStyle(fontSize: 12.5, color: cs.onSurfaceVariant, height: 1.3),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,

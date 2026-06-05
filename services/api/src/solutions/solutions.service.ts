@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsHubService } from '../notifications/notifications-hub.service';
 import type {
@@ -209,6 +214,56 @@ export class SolutionsService {
     return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   }
 
+  // Strip case, accents and non-alphanumerics so "Archimedes" and "archimidis"
+  // compare on their bare letters only.
+  private normalizeTitle(s: string): string {
+    return String(s ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      // Keep letters & numbers of ANY script (Arabic/Hebrew/Cyrillic/Latin),
+      // drop spaces and punctuation only.
+      .replace(/[^\p{L}\p{N}]+/gu, '');
+  }
+
+  // Classic Levenshtein edit distance (row-rolling, O(n) memory).
+  private levenshtein(a: string, b: string): number {
+    const m = a.length;
+    const n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    const dp = new Array<number>(n + 1);
+    for (let j = 0; j <= n; j++) dp[j] = j;
+    for (let i = 1; i <= m; i++) {
+      let prev = dp[0];
+      dp[0] = i;
+      for (let j = 1; j <= n; j++) {
+        const tmp = dp[j];
+        dp[j] = Math.min(
+          dp[j] + 1,
+          dp[j - 1] + 1,
+          prev + (a[i - 1] === b[j - 1] ? 0 : 1),
+        );
+        prev = tmp;
+      }
+    }
+    return dp[n];
+  }
+
+  // Two book titles are "similar" if they're identical once normalized, one
+  // contains the other, or they're within ~25% edit distance of each other
+  // ("archimidis" vs "archimedes" = 2 edits over 10 chars → flagged).
+  private isSimilarTitle(a: string, b: string): boolean {
+    const na = this.normalizeTitle(a);
+    const nb = this.normalizeTitle(b);
+    if (!na || !nb) return false;
+    if (na === nb) return true;
+    if (na.length >= 4 && nb.length >= 4 && (na.includes(nb) || nb.includes(na))) return true;
+    const maxLen = Math.max(na.length, nb.length);
+    if (maxLen < 4) return false;
+    return this.levenshtein(na, nb) <= Math.ceil(maxLen * 0.25);
+  }
+
   async createBook(user: any, body: CreateBookBody) {
     if (!this.isBookManager(user)) throw new ForbiddenException('Only teachers and admins can manage books');
     const subject = String(body.subject ?? '').trim();
@@ -217,6 +272,28 @@ export class SolutionsService {
     if (!subject) throw new BadRequestException('subject required');
     if (!title) throw new BadRequestException('title required');
     if (!Number.isFinite(pages) || pages <= 0) throw new BadRequestException('pages must be positive');
+
+    // Fuzzy duplicate guard: warn when a SIMILAR (but not identical) book title
+    // already exists in this subject, so teachers don't create near-dupes from
+    // spelling differences. Identical titles fall through to the idempotent
+    // upsert below. The client re-submits with confirmDuplicate=true to proceed.
+    if (!body.confirmDuplicate) {
+      const norm = this.normalizeTitle(title);
+      const existingBooks = await this.prisma.solutionBook.findMany({
+        where: { subject },
+        select: { title: true },
+      });
+      const match = existingBooks.find(
+        (b) => this.normalizeTitle(b.title) !== norm && this.isSimilarTitle(title, b.title),
+      );
+      if (match) {
+        throw new ConflictException({
+          duplicateWarning: true,
+          existingTitle: match.title,
+          message: `A book named "${match.title}" already exists in this subject. Make sure it isn't the same book before adding it again.`,
+        });
+      }
+    }
 
     const coverUrl = body.coverUrl?.trim() || null;
     const book = await this.prisma.solutionBook.upsert({
