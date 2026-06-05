@@ -74,6 +74,11 @@ const serveStatic = [
           serveRoot: '/uploads',
           serveStaticOptions: {
             fallthrough: false,
+            // User-uploaded media gets a unique timestamped filename, so each
+            // URL is immutable — cache it for a year. Cuts repeat bandwidth +
+            // compute hugely at scale, and lets a CDN/edge serve it for free.
+            maxAge: 60 * 60 * 24 * 365 * 1000,
+            immutable: true,
           },
         }),
       ]
