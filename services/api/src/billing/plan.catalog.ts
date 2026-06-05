@@ -56,13 +56,16 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     blurb: 'Get a taste of NOVA. Resets every month.',
     priceAgorot: 0,
     priceUsd: 0,
-    // 150K tokens/student/month. Combined with the FREE-tier knobs in
-    // tutor.reply.provider.ts (Haiku 4.5, max_tokens 400, last-6
+    // 200K tokens/student/month. Bumped from 150K once NOVA became
+    // students-only: students are the sole NOVA users (and the paying
+    // value), so giving them more headroom is the right call. Crucially,
+    // the cap only *costs* on actual usage — the realistic bill barely
+    // moves because most students never reach it; the bump just stops
+    // heavy-study days from hitting a wall. Combined with the FREE-tier
+    // knobs in tutor.reply.provider.ts (Haiku 4.5, max_tokens 400, last-6
     // history window, cached system prompt), full-utilisation cost is
-    // ~$0.135/student/month — about ₪6K ILS per 1,000 students per
-    // year. Roomy enough that "convenient" usage feels normal; the
-    // cap only bites the heaviest power users.
-    monthlyTokens: 150_000,
+    // ~$0.18/student/month.
+    monthlyTokens: 200_000,
     storeProductId: null,
   },
   {
