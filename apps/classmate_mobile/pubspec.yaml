@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.7+119
+version: 1.0.7+120
 
 environment:
   sdk: ^3.10.4
@@ -84,6 +84,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.5
+  sentry_dart_plugin: ^3.4.0
 
 flutter_launcher_icons:
   android: true
@@ -156,3 +157,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Sentry symbol/source upload (sentry_dart_plugin). Auth token is read from
+# the SENTRY_AUTH_TOKEN env var at build time — never stored here.
+sentry:
+  upload_debug_symbols: true
+  upload_sources: false
+  upload_source_maps: false
+  project: flutter
+  org: classmate-02
+  log_level: info
