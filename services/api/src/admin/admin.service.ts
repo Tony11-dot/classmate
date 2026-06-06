@@ -1540,9 +1540,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const grade = dto?.grade ? Number(dto.grade) : undefined;
 
     if (!name) throw new BadRequestException('At least an English name is required');
-    // Username is mandatory across the board now — it's the universal login
-    // identifier. Email stays optional (some students don't have one yet).
-    if (!rawUsername) throw new BadRequestException('Username is required');
+    // Username is OPTIONAL: when blank (bulk grid / CSV import) we auto-generate
+    // a unique one from the name below. Email stays optional too.
     if (rawEmail && !rawEmail.includes('@')) throw new BadRequestException('Email must be a valid email address');
     if (explicitPassword && explicitPassword.length < 8) {
       throw new BadRequestException('Password must be at least 8 characters');
@@ -1555,10 +1554,25 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       throw new BadRequestException('Grade level is required for students');
     }
 
-    // Username is required (validated above) — verify global uniqueness.
-    const username = rawUsername!;
-    const existingUsername = await this.prisma.user.findFirst({ where: { username } });
-    if (existingUsername) throw new HttpException('Username already in use', HttpStatus.CONFLICT);
+    // Resolve the username: honor an explicit one (verifying uniqueness), or
+    // auto-generate a unique one from the name for bulk/CSV imports.
+    let username: string;
+    if (rawUsername) {
+      const existingUsername = await this.prisma.user.findFirst({ where: { username: rawUsername } });
+      if (existingUsername) throw new HttpException('Username already in use', HttpStatus.CONFLICT);
+      username = rawUsername;
+    } else {
+      const base =
+        (nameEn || name).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '').slice(0, 16) || 'user';
+      let candidate = '';
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const c = `${base}${randomDigits(attempt < 4 ? 3 : 5)}`;
+        const taken = await this.prisma.user.findFirst({ where: { username: c }, select: { id: true } });
+        if (!taken) { candidate = c; break; }
+      }
+      if (!candidate) throw new HttpException('Could not generate a unique username', HttpStatus.CONFLICT);
+      username = candidate;
+    }
 
     if (rawEmail) {
       const existingEmail = await this.prisma.user.findFirst({ where: { email: rawEmail } });

@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/config/env.dart';
 import '../../../../core/http/cm_api.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../data/solutions_api.dart';
 import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
@@ -138,18 +139,14 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
           // Subject selector.
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: DropdownButtonFormField<String>(
-              initialValue: _subjectKey,
-              decoration: InputDecoration(
-                labelText: l.assignmentsSubjectLabel,
-                border: const OutlineInputBorder(),
-              ),
+            child: LiquidGlassDropdown<String>(
+              label: l.assignmentsSubjectLabel,
+              value: _subjectKey,
               items: [
                 for (final k in kSolutionSubjectKeys)
-                  DropdownMenuItem(value: k, child: Text(solutionSubjectTitle(l, k))),
+                  LiquidGlassDropdownItem(value: k, label: solutionSubjectTitle(l, k)),
               ],
               onChanged: (v) {
-                if (v == null) return;
                 setState(() => _subjectKey = v);
                 _load();
               },
