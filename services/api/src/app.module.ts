@@ -52,6 +52,7 @@ import { MessagesModule } from './messages/messages.module';
 import { FormsModule } from './forms/forms.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { GradeBumpModule } from './grade-bump/grade-bump.module';
+import { SlotSharedMaterialsModule } from './slot-shared-materials/slot-shared-materials.module';
 
 const env = loadEnv();
 
@@ -145,6 +146,7 @@ const seedControllers = [
     NovaModule,
     PracticeModule,
     GradeBumpModule,
+    SlotSharedMaterialsModule,
     BillingModule,
     UsersModule,
   ],

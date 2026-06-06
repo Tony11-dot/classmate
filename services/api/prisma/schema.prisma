@@ -157,6 +157,7 @@ model User {
   teacherAssignmentSubmissions TeacherAssignmentSubmission[] @relation("AssignmentStudent")
   teacherExams                 TeacherExam[]                 @relation("TeacherExams")
   teacherMaterials             TeacherMaterial[]             @relation("TeacherMaterials")
+  sharedSlotMaterials          SlotSharedMaterial[]          @relation("SharedSlotMaterialUploader")
   teacherMeetings              TeacherMeeting[]              @relation("TeacherMeetings")
 
   /// Password-change requests this user has filed on themselves.
@@ -462,6 +463,7 @@ model ScheduleSlot {
   students  ScheduleSlotStudent[]
   cohorts   ScheduleSlotCohort[]
   materials ScheduleSlotMaterial[]
+  sharedMaterials SlotSharedMaterial[]
 
   @@index([schoolId])
   @@index([teacherId])
@@ -492,6 +494,29 @@ model ScheduleSlotMaterial {
   @@id([slotId, teacherMaterialId, date])
   @@index([teacherMaterialId])
   @@index([slotId, date])
+}
+
+/// Photos/files attached to a schedule period by ANY participant (students
+/// AND teachers) — a shared, class-wide "drop box" for a period, distinct
+/// from the teacher's curated TeacherMaterial library. The uploader's name is
+/// shown publicly. `date` is the occurrence (YYYY-MM-DD) the poster was
+/// viewing, used to label the item in the "Class Materials" tab.
+model SlotSharedMaterial {
+  id         String   @id @default(uuid())
+  slotId     String
+  uploaderId String
+  date       String   @default("")
+  caption    String   @default("")
+  fileUrl    String
+  fileName   String   @default("")
+  mimeType   String   @default("")
+  createdAt  DateTime @default(now())
+
+  slot     ScheduleSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  uploader User         @relation("SharedSlotMaterialUploader", fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@index([slotId])
+  @@index([uploaderId])
 }
 
 model ScheduleSlotStudent {
