@@ -6,30 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
-/// Bulk user import — two ways:
+/// Bulk user import — two ways that feed the SAME editable grid:
 ///  • Grid: fill rows in-app (all 5 roles, link students to a parent username).
-///  • CSV: upload a file whose headers may be in any of our five languages.
-class AdminImportUsersScreen extends StatelessWidget {
+///  • CSV: upload a file (headers in any language) → load the parsed rows INTO
+///    the grid → review & fix any mis-reads → create.
+class AdminImportUsersScreen extends ConsumerStatefulWidget {
   const AdminImportUsersScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Import users'),
-          bottom: const TabBar(tabs: [
-            Tab(icon: Icon(Icons.grid_on_rounded), text: 'Grid'),
-            Tab(icon: Icon(Icons.upload_file_rounded), text: 'CSV'),
-          ]),
-        ),
-        body: const TabBarView(children: [_GridTab(), _CsvTab()]),
-      ),
-    );
-  }
+  ConsumerState<AdminImportUsersScreen> createState() => _AdminImportUsersScreenState();
 }
 
+const _validRoles = {'STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'};
 const _roleItems = <LiquidGlassDropdownItem<String>>[
   LiquidGlassDropdownItem(value: 'STUDENT', label: 'Student'),
   LiquidGlassDropdownItem(value: 'TEACHER', label: 'Teacher'),
@@ -38,20 +26,35 @@ const _roleItems = <LiquidGlassDropdownItem<String>>[
   LiquidGlassDropdownItem(value: 'ADMIN', label: 'Admin'),
 ];
 
-// ── Grid tab ─────────────────────────────────────────────────────────────────
-
 class _GridRow {
   String role = 'STUDENT';
   final name = TextEditingController();
   final username = TextEditingController();
   final grade = TextEditingController();
   final parent = TextEditingController();
+  List<String>? childUsernames; // carried through from CSV (parent rows)
+
+  _GridRow();
+
+  factory _GridRow.fromPreview(Map<String, dynamic> m) {
+    final r = _GridRow();
+    final role = '${m['role'] ?? 'STUDENT'}'.toUpperCase();
+    r.role = _validRoles.contains(role) ? role : 'STUDENT';
+    r.name.text = '${m['name'] ?? m['nameEn'] ?? ''}';
+    r.username.text = '${m['username'] ?? ''}';
+    final g = m['grade'];
+    r.grade.text = g == null ? '' : '$g';
+    r.parent.text = '${m['parentUsername'] ?? ''}';
+    final cu = m['childUsernames'];
+    if (cu is List && cu.isNotEmpty) r.childUsernames = cu.map((e) => '$e').toList();
+    return r;
+  }
 
   void dispose() { name.dispose(); username.dispose(); grade.dispose(); parent.dispose(); }
 
   Map<String, dynamic>? toDto() {
     final n = name.text.trim();
-    if (n.isEmpty) return null; // blank row → skip
+    if (n.isEmpty) return null;
     final dto = <String, dynamic>{'role': role, 'name': n};
     final u = username.text.trim();
     if (u.isNotEmpty) dto['username'] = u;
@@ -61,29 +64,43 @@ class _GridRow {
       final p = parent.text.trim();
       if (p.isNotEmpty) dto['parentUsername'] = p;
     }
+    if (childUsernames != null && childUsernames!.isNotEmpty) dto['childUsernames'] = childUsernames;
     return dto;
   }
 }
 
-class _GridTab extends ConsumerStatefulWidget {
-  const _GridTab();
-  @override
-  ConsumerState<_GridTab> createState() => _GridTabState();
-}
-
-class _GridTabState extends ConsumerState<_GridTab> {
+class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabs = TabController(length: 2, vsync: this);
   final List<_GridRow> _rows = [for (var i = 0; i < 4; i++) _GridRow()];
   bool _saving = false;
   Map<String, dynamic>? _result;
 
   @override
   void dispose() {
+    _tabs.dispose();
     for (final r in _rows) { r.dispose(); }
     super.dispose();
   }
 
   void _addRow() => setState(() => _rows.add(_GridRow()));
   void _removeRow(int i) => setState(() => _rows.removeAt(i).dispose());
+
+  /// Replace the grid with parsed CSV rows and jump to the Grid tab for review.
+  void _loadFromPreview(List<dynamic> preview) {
+    for (final r in _rows) { r.dispose(); }
+    setState(() {
+      _rows
+        ..clear()
+        ..addAll(preview.map((e) => _GridRow.fromPreview(Map<String, dynamic>.from(e as Map))));
+      if (_rows.isEmpty) _rows.add(_GridRow());
+      _result = null;
+    });
+    _tabs.animateTo(0);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Loaded ${preview.length} rows — review & edit, then Create')),
+    );
+  }
 
   Future<void> _submit() async {
     final dtos = _rows.map((r) => r.toDto()).whereType<Map<String, dynamic>>().toList();
@@ -104,6 +121,22 @@ class _GridTabState extends ConsumerState<_GridTab> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Import users'),
+        bottom: TabBar(controller: _tabs, tabs: const [
+          Tab(icon: Icon(Icons.grid_on_rounded), text: 'Grid'),
+          Tab(icon: Icon(Icons.upload_file_rounded), text: 'CSV'),
+        ]),
+      ),
+      body: TabBarView(controller: _tabs, children: [
+        _grid(context),
+        _CsvTab(onLoadToGrid: _loadFromPreview),
+      ]),
+    );
+  }
+
+  Widget _grid(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     if (_result != null) {
       return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 100), children: [
@@ -116,8 +149,9 @@ class _GridTabState extends ConsumerState<_GridTab> {
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
         child: Text(
-          'Fill a row per person. Username is optional — we generate one if left blank. '
-          'For a student, set the grade and (optionally) a parent\'s username to link them.',
+          'Fill a row per person, or load a CSV from the CSV tab and fix anything here. '
+          'Username is optional — we generate one if blank. For students, set the grade '
+          'and (optionally) a parent\'s username to link them.',
           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
         ),
       ),
@@ -147,7 +181,7 @@ class _GridTabState extends ConsumerState<_GridTab> {
                 icon: _saving
                     ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.check_rounded),
-                label: const Text('Create users'),
+                label: Text('Create (${_rows.where((r) => r.name.text.trim().isNotEmpty).length})'),
               ),
             ),
           ]),
@@ -221,7 +255,8 @@ class _GridTabState extends ConsumerState<_GridTab> {
 // ── CSV tab ──────────────────────────────────────────────────────────────────
 
 class _CsvTab extends ConsumerStatefulWidget {
-  const _CsvTab();
+  const _CsvTab({required this.onLoadToGrid});
+  final void Function(List<dynamic> preview) onLoadToGrid;
   @override
   ConsumerState<_CsvTab> createState() => _CsvTabState();
 }
@@ -231,7 +266,6 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
   String? _filePath;
   bool _loading = false;
   Map<String, dynamic>? _preview;
-  Map<String, dynamic>? _result;
   String? _error;
 
   Future<void> _pick() async {
@@ -241,7 +275,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
     if (res == null || res.files.isEmpty) return;
     final f = res.files.first;
     if (f.path == null) { setState(() => _error = 'Could not read that file.'); return; }
-    setState(() { _fileName = f.name; _filePath = f.path; _preview = null; _result = null; _error = null; });
+    setState(() { _fileName = f.name; _filePath = f.path; _preview = null; _error = null; });
     await _runPreview();
   }
 
@@ -258,19 +292,6 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
     }
   }
 
-  Future<void> _commit() async {
-    if (_filePath == null) return;
-    setState(() { _loading = true; _error = null; });
-    try {
-      final r = await ref.read(adminRepositoryProvider).importCsv(_filePath!, dryRun: false);
-      setState(() => _result = r);
-    } catch (e) {
-      setState(() => _error = '$e');
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -279,7 +300,8 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
       children: [
         Text(
           'Upload a CSV of your users. Column headers can be in any language — '
-          'ClassMate detects what each column means automatically.',
+          'ClassMate detects what each column means, then loads the rows into the '
+          'grid so you can review and fix anything before creating.',
           style: TextStyle(color: cs.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
@@ -303,8 +325,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
             child: Text(_error!, style: TextStyle(color: cs.onErrorContainer)),
           ),
         ],
-        if (_preview != null && _result == null) _previewBlock(cs),
-        if (_result != null) _resultView(context, _result!),
+        if (_preview != null) _previewBlock(cs),
       ],
     );
   }
@@ -335,9 +356,10 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
     final fields = (p['detectedFields'] as List?)?.map((e) => '$e').toList() ?? const [];
     final rows = (p['preview'] as List?) ?? const [];
     final count = p['rowCount'] ?? rows.length;
+    final truncated = p['truncated'] == true;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: 22),
-      Text('Preview — $count rows', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+      Text('Detected — $count rows', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       const SizedBox(height: 8),
       Wrap(spacing: 6, runSpacing: 6, children: [
         for (final f in fields) Chip(label: Text(f), visualDensity: VisualDensity.compact),
@@ -347,35 +369,23 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
           padding: const EdgeInsets.only(top: 6),
           child: Text('No known columns detected — check your header row.', style: TextStyle(color: cs.error)),
         ),
-      const SizedBox(height: 12),
-      ...rows.take(15).map((r) {
-        final m = Map<String, dynamic>.from(r as Map);
-        final name = m['name'] ?? m['nameEn'] ?? '—';
-        final role = m['role'] ?? '?';
-        final uname = m['username'] ?? '(auto)';
-        final grade = m['grade'];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: BorderRadius.circular(10)),
-          child: Row(children: [
-            Expanded(child: Text('$name', style: const TextStyle(fontWeight: FontWeight.w600))),
-            Text('$role${grade != null ? ' · G$grade' : ''} · $uname',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-          ]),
-        );
-      }),
-      if (rows.length > 15)
-        Text('…and ${rows.length - 15} more', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+      if (truncated)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text('Showing the first 2000 rows for review.', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+        ),
       const SizedBox(height: 16),
       SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: (_loading || fields.isEmpty) ? null : _commit,
-          icon: const Icon(Icons.check_rounded),
-          label: Text('Import $count users'),
+          onPressed: (rows.isEmpty || fields.isEmpty) ? null : () => widget.onLoadToGrid(rows),
+          icon: const Icon(Icons.edit_note_rounded),
+          label: const Text('Review & edit in grid'),
         ),
       ),
+      const SizedBox(height: 6),
+      Text('Opens the Grid tab pre-filled with these rows so you can fix any mistakes before creating.',
+          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11.5)),
     ]);
   }
 }

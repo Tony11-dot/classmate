@@ -1997,7 +1997,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         dryRun: true,
         detectedFields: Array.from(new Set(Object.values(headerMap))),
         rowCount: mapped.length,
-        preview: mapped.slice(0, 50).map((m) => ({
+        // Return ALL parsed rows (capped) so the client can load them into the
+        // editable grid for review/correction before committing.
+        truncated: mapped.length > 2000,
+        preview: mapped.slice(0, 2000).map((m) => ({
           row: m.rowNumber, ...m.dto,
           parentUsername: m.parentUsername, childUsernames: m.childUsernames,
         })),
