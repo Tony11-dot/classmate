@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, normalizeSubjects, normalizeSubjectsI18n } from '../subjects/subjects.store';
 import { PasswordResetService } from '../auth/password-reset/password-reset.service';
 import { hasAnyRole } from '../auth/permissions';
+import { mapCsvToRows } from './csv-import.util';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
@@ -1501,7 +1502,14 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const schoolId = (user as any)?.schoolId;
     if (!schoolId) throw new BadRequestException('No school associated with this account');
+    return this._createUserInSchool(schoolId, dto);
+  }
 
+  /// Core user creation, shared by single-create and bulk/CSV import. Caller
+  /// is responsible for auth + resolving schoolId. Throws on validation /
+  /// uniqueness errors; bulk callers catch per-row so one bad row never
+  /// blocks the rest.
+  private async _createUserInSchool(schoolId: string, dto: any) {
     // Multi-lang names
     const nameEn = String(dto?.nameEn ?? dto?.name ?? '').trim();
     const nameAr = String(dto?.nameAr ?? '').trim() || undefined;
@@ -1925,6 +1933,213 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         email: l.student.user.email,
       })),
     };
+  }
+
+  // ── Bulk user import (spreadsheet grid + CSV) ─────────────────────────────────
+
+  /// Create many users at once from the in-app grid. Each row is created
+  /// independently — one bad row never blocks the rest — then parent↔child
+  /// links (by username, resolvable within the same batch or to existing
+  /// users in this school) are wired up. Returns a per-row summary with the
+  /// generated credentials for handoff.
+  async bulkCreateUsers(user: any, body: { rows: any[] }) {
+    this.requireAdminOrSecretary(user);
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (roles.includes('SECRETARY') && !roles.includes('ADMIN'))
+      throw new ForbiddenException('Secretaries cannot create user accounts');
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const rows = Array.isArray(body?.rows) ? body.rows : [];
+    if (!rows.length) throw new BadRequestException('rows[] is required');
+
+    return this._runBulk(schoolId, rows.map((dto: any, i: number) => ({
+      dto,
+      parentUsername: dto?.parentUsername ? String(dto.parentUsername).toLowerCase() : undefined,
+      childUsernames: Array.isArray(dto?.childUsernames)
+        ? dto.childUsernames.map((x: any) => String(x).toLowerCase())
+        : undefined,
+      rowNumber: i + 1,
+    })));
+  }
+
+  /// Parse an uploaded CSV whose headers may be in any of our five languages,
+  /// auto-detect what each column means, and create the users. `dryRun`
+  /// returns the parsed preview (detected fields + first rows) without
+  /// creating anything, so the UI can confirm before committing.
+  async importCsv(user: any, csvText: string, dryRun = false) {
+    this.requireAdminOrSecretary(user);
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (roles.includes('SECRETARY') && !roles.includes('ADMIN'))
+      throw new ForbiddenException('Secretaries cannot create user accounts');
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+    if (!csvText || !csvText.trim()) throw new BadRequestException('The CSV file is empty');
+
+    const { mapped, headerMap } = mapCsvToRows(csvText);
+    if (dryRun) {
+      return {
+        ok: true,
+        dryRun: true,
+        detectedFields: Array.from(new Set(Object.values(headerMap))),
+        rowCount: mapped.length,
+        preview: mapped.slice(0, 50).map((m) => ({
+          row: m.rowNumber, ...m.dto,
+          parentUsername: m.parentUsername, childUsernames: m.childUsernames,
+        })),
+      };
+    }
+    return this._runBulk(schoolId, mapped);
+  }
+
+  private async _runBulk(
+    schoolId: string,
+    items: Array<{ dto: any; parentUsername?: string; childUsernames?: string[]; rowNumber: number }>,
+  ) {
+    const created: any[] = [];
+    const errors: Array<{ row: number; reason: string }> = [];
+    const usernameToId = new Map<string, string>(); // lowercased username → userId
+
+    for (const item of items) {
+      try {
+        const res = await this._createUserInSchool(schoolId, item.dto);
+        created.push({
+          row: item.rowNumber, username: res.username, name: res.user.name,
+          tempPassword: res.tempPassword, role: res.user.roles?.[0],
+        });
+        usernameToId.set(String(res.username).toLowerCase(), res.user.id);
+      } catch (e: any) {
+        const reason = e?.response?.message || e?.message || 'failed';
+        errors.push({ row: item.rowNumber, reason: Array.isArray(reason) ? reason.join(', ') : String(reason) });
+      }
+    }
+
+    // Resolve a username to a user id — within the batch first, then to an
+    // existing user in this school.
+    const resolve = async (uname?: string): Promise<string | null> => {
+      if (!uname) return null;
+      const key = uname.toLowerCase();
+      if (usernameToId.has(key)) return usernameToId.get(key)!;
+      const u = await this.prisma.user.findFirst({ where: { username: key, schoolId }, select: { id: true } });
+      if (u) { usernameToId.set(key, u.id); return u.id; }
+      return null;
+    };
+
+    let linksCreated = 0;
+    const linkErrors: Array<{ row: number; reason: string }> = [];
+    const link = async (parentId: string, childId: string, row: number, label: string) => {
+      try { await this.prisma.parentChild.create({ data: { parentId, childId, status: 'APPROVED' } }); linksCreated++; }
+      catch (e: any) { if (e?.code !== 'P2002') linkErrors.push({ row, reason: `link to "${label}" failed` }); }
+    };
+
+    for (const item of items) {
+      const selfId = usernameToId.get(String(item.dto?.username ?? '').toLowerCase()) ?? null;
+      // a student row that names its parent
+      if (item.parentUsername && selfId) {
+        const parentId = await resolve(item.parentUsername);
+        if (parentId) await link(parentId, selfId, item.rowNumber, item.parentUsername);
+        else linkErrors.push({ row: item.rowNumber, reason: `parent "${item.parentUsername}" not found` });
+      }
+      // a parent row that names its children
+      if (item.childUsernames?.length && selfId) {
+        for (const cu of item.childUsernames) {
+          const cid = await resolve(cu);
+          if (cid) await link(selfId, cid, item.rowNumber, cu);
+          else linkErrors.push({ row: item.rowNumber, reason: `child "${cu}" not found` });
+        }
+      }
+    }
+
+    return {
+      ok: true,
+      createdCount: created.length,
+      failedCount: errors.length,
+      linksCreated,
+      created,        // includes generated credentials for handoff
+      errors,
+      linkErrors,
+    };
+  }
+
+  // ── Bulk reset actions (admin only, school-scoped) ────────────────────────────
+
+  /// Wipe the school's whole timetable: every ScheduleSlot for the school
+  /// (cascades its cohort/student/material links) plus any one-off overrides
+  /// on the school's cohorts. Period-default bell times are kept.
+  async resetSchedule(user: any) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can reset the schedule');
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const cohorts = await this.prisma.cohort.findMany({ where: { schoolId }, select: { id: true } });
+    const cohortIds = cohorts.map((c) => c.id);
+    const out = await this.prisma.$transaction(async (tx) => {
+      const slots = await tx.scheduleSlot.deleteMany({ where: { schoolId } });
+      let overrides = 0;
+      if (cohortIds.length) {
+        overrides = (await tx.scheduleOverride.deleteMany({ where: { cohortId: { in: cohortIds } } })).count;
+      }
+      return { slots: slots.count, overrides };
+    });
+    return { ok: true, ...out };
+  }
+
+  /// Delete all of THIS school's cohorts (never legacy/global ones with a null
+  /// schoolId). Detaches memberships and schedule-slot links first.
+  async resetCohorts(user: any) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can reset cohorts');
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const cohorts = await this.prisma.cohort.findMany({ where: { schoolId }, select: { id: true } });
+    const ids = cohorts.map((c) => c.id);
+    if (!ids.length) return { ok: true, deleted: 0 };
+    const deleted = await this.prisma.$transaction(async (tx) => {
+      await tx.studentCohort.deleteMany({ where: { cohortId: { in: ids } } });
+      await tx.scheduleSlotCohort.deleteMany({ where: { cohortId: { in: ids } } });
+      await tx.studentProfile.updateMany({ where: { cohortId: { in: ids } }, data: { cohortId: null } as any });
+      return (await tx.cohort.deleteMany({ where: { id: { in: ids } } })).count;
+    });
+    return { ok: true, deleted };
+  }
+
+  // ── Manual grade promotion (replaces the automatic Sept-1 firing) ─────────────
+
+  /// Promote every student in the school by one grade. Students already at the
+  /// school's max grade are reported as "graduating" and left untouched — we
+  /// NEVER auto-delete accounts on a button press; the admin handles graduates
+  /// deliberately. Records lastGradeBumpYear so the (optional) auto job won't
+  /// double-promote in the same year.
+  async promoteAllGrades(user: any) {
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can promote grades');
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const school = await this.prisma.school.findUnique({ where: { id: schoolId }, select: { maxGrade: true } as any });
+    const maxGrade: number = (school as any)?.maxGrade ?? 12;
+    const year = new Date().getFullYear();
+
+    const students = await this.prisma.studentProfile.findMany({
+      where: { user: { schoolId }, grade: { not: null } },
+      select: { userId: true, grade: true },
+    });
+
+    let promoted = 0;
+    let graduating = 0;
+    await this.prisma.$transaction(async (tx) => {
+      for (const s of students) {
+        const g = s.grade ?? null;
+        if (g == null) continue;
+        if (g + 1 > maxGrade) { graduating++; continue; }
+        await tx.studentProfile.update({ where: { userId: s.userId }, data: { grade: g + 1 } });
+        promoted++;
+      }
+      await tx.school.update({ where: { id: schoolId }, data: { lastGradeBumpYear: year } as any });
+    });
+    return { ok: true, promoted, graduating, maxGrade };
   }
 
   // ── School Settings (scoped to admin's own school) ────────────────────────────

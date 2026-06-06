@@ -96,6 +96,42 @@ export class TeacherController {
     return this.teacher.cohortStudents(req.user, cohortId);
   }
 
+  // ---- Teacher-managed cohorts (CRUD, school-scoped) ----
+  @Get('manage-cohorts')
+  manageCohorts(@Req() req: any) {
+    return this.teacher.teacherListCohorts(req.user);
+  }
+
+  @Post('cohorts')
+  createManagedCohort(@Req() req: any, @Body() body: any) {
+    return this.teacher.teacherCreateCohort(req.user, body);
+  }
+
+  @Patch('cohorts/:id')
+  updateManagedCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.teacherUpdateCohort(req.user, id, body);
+  }
+
+  @Delete('cohorts/:id')
+  deleteManagedCohort(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.teacherDeleteCohort(req.user, id);
+  }
+
+  @Get('cohorts/:id/roster')
+  managedCohortRoster(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.teacherCohortRoster(req.user, id);
+  }
+
+  @Post('cohorts/:id/students')
+  addManagedCohortStudents(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.teacherAddStudents(req.user, id, body);
+  }
+
+  @Delete('cohorts/:id/students/:studentId')
+  removeManagedCohortStudent(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
+    return this.teacher.teacherRemoveStudent(req.user, id, studentId);
+  }
+
   // ---- Grades ----
 
   @Post('grades/assessment')

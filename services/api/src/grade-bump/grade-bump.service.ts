@@ -21,6 +21,15 @@ export class GradeBumpService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   onApplicationBootstrap() {
+    // Grade promotion is MANUAL by default — admins press "Upgrade grades" in
+    // Users → Students (admin.promoteAllGrades), which is safer than a silent
+    // date trigger (schools start on different days; held-back students; no
+    // accidental account deletion). The automatic Sept-1 sweep stays available
+    // but OFF unless AUTO_GRADE_BUMP=true is set in the environment.
+    if ((process.env.AUTO_GRADE_BUMP ?? '').toLowerCase() !== 'true') {
+      this.logger.log('Auto grade-bump disabled (manual promotion only). Set AUTO_GRADE_BUMP=true to re-enable.');
+      return;
+    }
     // First check ~5s after boot so we don't block startup; then every 24h.
     setTimeout(() => this.checkAll().catch((e) => this.logger.error('initial check failed', e as any)), 5_000);
     this.timer = setInterval(() => {

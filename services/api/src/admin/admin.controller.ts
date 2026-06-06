@@ -12,7 +12,10 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
@@ -289,6 +292,42 @@ export class AdminController {
   @Post('users')
   createUser(@Req() req: any, @Body() body: any) {
     return this.admin.createUser(req.user, body);
+  }
+
+  // Bulk create from the in-app spreadsheet grid.
+  @Roles(Role.ADMIN)
+  @Post('users/bulk')
+  bulkCreateUsers(@Req() req: any, @Body() body: any) {
+    return this.admin.bulkCreateUsers(req.user, body);
+  }
+
+  // Upload a CSV (headers in any language). ?dryRun=true returns a preview
+  // (detected fields + first rows) without creating anything.
+  @Roles(Role.ADMIN)
+  @Post('users/import-csv')
+  @UseInterceptors(FileInterceptor('file'))
+  importCsv(@Req() req: any, @UploadedFile() file: any, @Query('dryRun') dryRun?: string) {
+    const text = file?.buffer ? Buffer.from(file.buffer).toString('utf8') : '';
+    return this.admin.importCsv(req.user, text, dryRun === 'true' || dryRun === '1');
+  }
+
+  // Danger-zone resets + manual grade promotion (admin only).
+  @Roles(Role.ADMIN)
+  @Post('schedule/reset')
+  resetSchedule(@Req() req: any) {
+    return this.admin.resetSchedule(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('cohorts/reset')
+  resetCohorts(@Req() req: any) {
+    return this.admin.resetCohorts(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('grades/promote-all')
+  promoteAllGrades(@Req() req: any) {
+    return this.admin.promoteAllGrades(req.user);
   }
 
   @Roles(Role.ADMIN, Role.SECRETARY)

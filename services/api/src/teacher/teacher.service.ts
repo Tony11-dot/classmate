@@ -921,6 +921,124 @@ export class TeacherService {
     return { ok: true, cohorts };
   }
 
+  // ── Teacher-managed cohorts (full CRUD, scoped to the teacher's school) ──────
+  // Teachers can now create and manage cohorts like admins — but only within
+  // their own school, and never touching legacy/global cohorts (schoolId null).
+
+  private teacherSchoolId(user: any): string {
+    const schoolId = (user as any)?.schoolId ?? null;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+    return schoolId;
+  }
+
+  private normGrades(grades: any, grade: any): number[] {
+    const raw = Array.isArray(grades) && grades.length ? grades : (grade != null ? [grade] : []);
+    const cleaned = raw.map((g: any) => Number(g)).filter((g: number) => Number.isInteger(g) && g > 0);
+    return Array.from(new Set<number>(cleaned)).sort((a, b) => a - b);
+  }
+
+  private async assertCohortInMySchool(user: any, cohortId: string) {
+    const schoolId = this.teacherSchoolId(user);
+    const c = await this.prisma.cohort.findFirst({ where: { id: cohortId, schoolId }, select: { id: true } });
+    if (!c) throw new ForbiddenException('That cohort is not in your school');
+  }
+
+  async teacherListCohorts(user: any) {
+    this.ensureTeacher(user);
+    const schoolId = this.teacherSchoolId(user);
+    const cohorts = await this.prisma.cohort.findMany({
+      where: { schoolId },
+      select: {
+        id: true, name: true, grade: true, grades: true,
+        studentLinks: { select: { studentId: true } },
+        students: { select: { userId: true } },
+      },
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+    });
+    return {
+      ok: true,
+      cohorts: cohorts.map((c: any) => {
+        const ids = new Set<string>([
+          ...(c.studentLinks ?? []).map((l: any) => l.studentId),
+          ...(c.students ?? []).map((s: any) => s.userId),
+        ]);
+        return { id: c.id, name: c.name, grade: c.grade, grades: c.grades?.length ? c.grades : [c.grade], studentCount: ids.size };
+      }),
+    };
+  }
+
+  async teacherCreateCohort(user: any, body: { name: string; grade?: number; grades?: number[] }) {
+    this.ensureTeacher(user);
+    const schoolId = this.teacherSchoolId(user);
+    if (!body?.name?.trim()) throw new BadRequestException('name is required');
+    const grades = this.normGrades(body?.grades, body?.grade);
+    if (!grades.length) throw new BadRequestException('grade or grades[] required');
+    try {
+      const out = await this.prisma.cohort.create({
+        data: { name: body.name.trim(), grade: grades[0], grades, schoolId } as any,
+      });
+      return { ok: true, cohort: out };
+    } catch (e: any) {
+      if (e?.code === 'P2002') throw new HttpException('Cohort name already exists', HttpStatus.CONFLICT);
+      throw e;
+    }
+  }
+
+  async teacherUpdateCohort(user: any, id: string, body: any) {
+    this.ensureTeacher(user);
+    await this.assertCohortInMySchool(user, id);
+    const data: any = {};
+    if (body?.name !== undefined) data.name = String(body.name).trim();
+    if (body?.grades !== undefined || body?.grade !== undefined) {
+      const grades = this.normGrades(body?.grades, body?.grade);
+      if (!grades.length) throw new BadRequestException('grade or grades[] required');
+      data.grade = grades[0];
+      data.grades = grades;
+    }
+    const row = await this.prisma.cohort.update({ where: { id }, data });
+    return { ok: true, cohort: row };
+  }
+
+  async teacherDeleteCohort(user: any, id: string) {
+    this.ensureTeacher(user);
+    await this.assertCohortInMySchool(user, id);
+    await this.prisma.studentCohort.deleteMany({ where: { cohortId: id } });
+    await this.prisma.scheduleSlotCohort.deleteMany({ where: { cohortId: id } });
+    await this.prisma.cohort.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async teacherCohortRoster(user: any, cohortId: string) {
+    this.ensureTeacher(user);
+    await this.assertCohortInMySchool(user, cohortId);
+    const links = await this.prisma.studentCohort.findMany({
+      where: { cohortId },
+      select: { student: { select: { user: { select: { id: true, name: true } } } } },
+      orderBy: { student: { user: { name: 'asc' } } },
+    });
+    return { ok: true, students: links.map((l: any) => ({ id: l.student.user.id, name: l.student.user.name })) };
+  }
+
+  async teacherAddStudents(user: any, cohortId: string, body: { studentIds: string[] }) {
+    this.ensureTeacher(user);
+    const schoolId = this.teacherSchoolId(user);
+    await this.assertCohortInMySchool(user, cohortId);
+    if (!Array.isArray(body?.studentIds) || !body.studentIds.length)
+      throw new BadRequestException('studentIds[] is required');
+    const valid = await this.prisma.user.findMany({ where: { id: { in: body.studentIds }, schoolId }, select: { id: true } });
+    const ids = valid.map((u) => u.id);
+    if (!ids.length) throw new ForbiddenException('None of the specified students belong to your school');
+    await this.prisma.studentCohort.createMany({ data: ids.map((sid) => ({ studentId: sid, cohortId })), skipDuplicates: true });
+    return { ok: true, added: ids.length };
+  }
+
+  async teacherRemoveStudent(user: any, cohortId: string, studentId: string) {
+    this.ensureTeacher(user);
+    await this.assertCohortInMySchool(user, cohortId);
+    await this.prisma.studentCohort.delete({ where: { studentId_cohortId: { studentId, cohortId } } });
+    return { ok: true };
+  }
+
   async cohortStudents(user: any, cohortId: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
