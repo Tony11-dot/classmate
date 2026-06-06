@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session.dart';
+import '../../../core/config/env.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../l10n/app_localizations.dart';
@@ -475,6 +476,26 @@ class AdminRepository {
     });
     return _m(raw)['code']?.toString() ?? '';
   }
+
+  // ── Bulk import + danger-zone resets + grade promotion ─────────────────────
+
+  /// Bulk-create users from the in-app grid. Returns the raw summary
+  /// (createdCount, failedCount, created[], errors[], linksCreated, linkErrors[]).
+  Future<Map<String, dynamic>> bulkCreateUsers(List<Map<String, dynamic>> rows) async {
+    return _m(await _api.postJson('/admin/users/bulk', body: {'rows': rows}));
+  }
+
+  /// Upload a CSV file. dryRun → preview (detectedFields, rowCount, preview[]);
+  /// otherwise commits and returns the create summary.
+  Future<Map<String, dynamic>> importCsv(String filePath, {bool dryRun = false}) async {
+    final base = Env.stripApiSuffix(Env.apiBaseUrl).replaceAll(RegExp(r'/+$'), '');
+    final uri = Uri.parse('$base/admin/users/import-csv${dryRun ? '?dryRun=true' : ''}');
+    return _api.multipartUpload(uri, filePath, mimeType: 'text/csv');
+  }
+
+  Future<Map<String, dynamic>> resetSchedule() async => _m(await _api.postJson('/admin/schedule/reset'));
+  Future<Map<String, dynamic>> resetCohorts() async => _m(await _api.postJson('/admin/cohorts/reset'));
+  Future<Map<String, dynamic>> promoteAllGrades() async => _m(await _api.postJson('/admin/grades/promote-all'));
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
 

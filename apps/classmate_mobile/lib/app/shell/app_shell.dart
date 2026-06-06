@@ -71,7 +71,9 @@ String _routePathOnly(String loc) {
 
 bool _hideTopBarForRoute(String loc) {
   final l = _routePathOnly(loc);
-  return l.startsWith('/messages/') ||
+  return l == '/admin/import-users' ||
+      l == '/teacher/cohorts' ||
+      l.startsWith('/messages/') ||
       l.startsWith('/messages/request/') ||
       l.startsWith('/tutor/chat/') ||
       l.startsWith('/nova/chat/') ||

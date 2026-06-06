@@ -207,6 +207,53 @@ class TeacherMobileRepository {
     }
   }
 
+  // ── Teacher-managed cohorts (full CRUD, school-scoped) ──────────────────────
+
+  /// Every cohort in the teacher's school, with name/grades/studentCount —
+  /// for the manage-cohorts screen.
+  Future<List<Map<String, dynamic>>> fetchManagedCohorts() async {
+    final raw = await _api.getJson('/teacher/manage-cohorts');
+    return _asList(_asMap(raw)['cohorts']).map(_asMap).toList();
+  }
+
+  Future<void> createManagedCohort({required String name, required List<int> grades}) async {
+    await _api.postJson('/teacher/cohorts', body: {
+      'name': name, 'grades': grades, 'grade': grades.first,
+    });
+  }
+
+  Future<void> updateManagedCohort(String id, {String? name, List<int>? grades}) async {
+    await _api.patchJson('/teacher/cohorts/$id', body: {
+      if (name != null) 'name': name,
+      if (grades != null) 'grades': grades,
+      if (grades != null) 'grade': grades.first,
+    });
+  }
+
+  Future<void> deleteManagedCohort(String id) async {
+    await _api.deleteJson('/teacher/cohorts/$id');
+  }
+
+  Future<List<Map<String, dynamic>>> fetchManagedCohortRoster(String id) async {
+    final raw = await _api.getJson('/teacher/cohorts/$id/roster');
+    return _asList(_asMap(raw)['students']).map(_asMap).toList();
+  }
+
+  Future<void> addStudentsToManagedCohort(String id, List<String> studentIds) async {
+    await _api.postJson('/teacher/cohorts/$id/students', body: {'studentIds': studentIds});
+  }
+
+  Future<void> removeStudentFromManagedCohort(String id, String studentId) async {
+    await _api.deleteJson('/teacher/cohorts/$id/students/$studentId');
+  }
+
+  /// All students in the teacher's school — for the add-to-cohort picker.
+  Future<List<Map<String, dynamic>>> fetchSchoolStudents() async {
+    final raw = await _api.getJson('/teacher/school-students');
+    final list = raw is List ? raw : (raw is Map ? (_asMap(raw)['students'] ?? _asMap(raw)['items'] ?? []) : []);
+    return _asList(list).map(_asMap).toList();
+  }
+
   Future<List<TeacherAssessmentGrade>> fetchAssessmentGrades(String assessmentId) async {
     final raw = await _api.getJson('/teacher/assessments/$assessmentId/grades');
     final map = _asMap(raw);

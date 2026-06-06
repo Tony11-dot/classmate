@@ -41,6 +41,8 @@ import '../features/teacher_mobile/ui/teacher_attendance_history_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_analytics_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_detail_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classrooms_screen.dart';
+import '../features/teacher_mobile/ui/teacher_cohorts_screen.dart';
+import '../features/admin/ui/admin_import_users_screen.dart';
 import '../features/teacher_mobile/ui/teacher_exams_screen.dart';
 import '../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
@@ -730,6 +732,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/admin/settings',
             builder: (context, state) => const AdminSettingsScreen(),
           ),
+          _slideRoute(
+            path: '/admin/import-users',
+            builder: (context, state) => const AdminImportUsersScreen(),
+          ),
           _fadeRoute(
             path: '/support',
             builder: (context, state) => const SupportScreen(),
@@ -840,6 +846,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/teacher/classrooms',
             builder: (context, state) => const TeacherClassroomsScreen(),
+          ),
+          _slideRoute(
+            path: '/teacher/cohorts',
+            builder: (context, state) => const TeacherCohortsScreen(),
           ),
           _fadeRoute(
             path: '/teacher/grades',

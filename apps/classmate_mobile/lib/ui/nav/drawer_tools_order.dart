@@ -40,6 +40,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
     case 'teacher':
       return [
         DrawerTool(route: '/teacher/home', icon: Icons.dashboard_rounded, label: l.navTeacherWorkspace),
+        DrawerTool(route: '/teacher/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/teacher/attendance', icon: Icons.fact_check_rounded, label: l.navAttendance),
         DrawerTool(route: '/teacher/grades', icon: Icons.grade_rounded, label: l.navGrades),
         DrawerTool(route: '/announcements', icon: Icons.campaign_rounded, label: l.navAnnouncements),
