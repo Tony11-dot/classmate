@@ -9,21 +9,41 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../../lifedoc/announcements_provider.dart';
 import '../data/teacher_mobile_repository.dart';
 
-// Role descriptor
+// Role descriptor. The CODE (id) is stable and used in the API payload;
+// the display label is resolved at build time via AppLocalizations so it
+// translates.
 class _Role {
-  const _Role(this.id, this.label, this.icon);
+  const _Role(this.id, this.icon);
   final String id;
-  final String label;
   final IconData icon;
 }
 
 const _kRoles = [
-  _Role('STUDENT', 'Students', Icons.school_rounded),
-  _Role('PARENT', 'Parents', Icons.family_restroom_rounded),
-  _Role('TEACHER', 'Teachers', Icons.person_rounded),
-  _Role('ADMIN', 'Admins', Icons.admin_panel_settings_rounded),
-  _Role('SECRETARY', 'Secretaries', Icons.support_agent_rounded),
+  _Role('STUDENT', Icons.school_rounded),
+  _Role('PARENT', Icons.family_restroom_rounded),
+  _Role('TEACHER', Icons.person_rounded),
+  _Role('ADMIN', Icons.admin_panel_settings_rounded),
+  _Role('SECRETARY', Icons.support_agent_rounded),
 ];
+
+/// Localized plural display label for a role CODE. Reuses the existing
+/// admin role keys. Falls back to the raw code for unknown roles.
+String _roleLabel(AppLocalizations l, String code) {
+  switch (code) {
+    case 'STUDENT':
+      return l.adminStudents;
+    case 'PARENT':
+      return l.adminParents;
+    case 'TEACHER':
+      return l.adminTeachers;
+    case 'ADMIN':
+      return l.adminAdmins;
+    case 'SECRETARY':
+      return l.adminSecretaries;
+    default:
+      return code;
+  }
+}
 
 enum _AudienceMode { roles, grades, cohorts, individuals }
 
@@ -573,7 +593,7 @@ class _TeacherNewAnnouncementScreenState
                     children: _kRoles.map((r) {
                       final selected = _selectedRoles.contains(r.id);
                       return _AudienceChip(
-                        label: r.label,
+                        label: _roleLabel(l, r.id),
                         icon: r.icon,
                         selected: selected,
                         onTap: () => setState(() {
@@ -686,10 +706,7 @@ class _TeacherNewAnnouncementScreenState
                           children: [
                             for (final r in _selectedRoles)
                               _MiniChip(
-                                label: _kRoles.firstWhere(
-                                  (kr) => kr.id == r,
-                                  orElse: () => _Role(r, r, Icons.person_rounded),
-                                ).label,
+                                label: _roleLabel(l, r),
                                 onRemove: () =>
                                     setState(() => _selectedRoles.remove(r)),
                               ),

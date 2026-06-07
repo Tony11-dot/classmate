@@ -52,17 +52,19 @@ class TeacherCohortsScreen extends ConsumerWidget {
     );
   }
 
-  static String gradeLabel(Map<String, dynamic> c) {
+  static String gradeLabel(AppLocalizations l, Map<String, dynamic> c) {
     final raw = c['grades'];
     final grades = raw is List ? raw.map((e) => (e as num).toInt()).toList() : <int>[];
     if (grades.isEmpty) {
       final g = (c['grade'] as num?)?.toInt();
-      return g == null ? '' : 'Grade $g';
+      return g == null ? '' : l.teacherCohortsScreenSingleGrade(g);
     }
     grades.sort();
-    if (grades.length == 1) return 'Grade ${grades.first}';
+    if (grades.length == 1) return l.teacherCohortsScreenSingleGrade(grades.first);
     final isRange = grades.last - grades.first == grades.length - 1;
-    return isRange ? 'Grade ${grades.first}-${grades.last}' : 'Grades ${grades.join(', ')}';
+    return isRange
+        ? l.teacherCohortsScreenGradeRange(grades.first, grades.last)
+        : l.teacherCohortsScreenMultiGrade(grades.join(', '));
   }
 
   Future<void> _createDialog(BuildContext context, WidgetRef ref) async {
@@ -134,7 +136,7 @@ class _CohortTile extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ExpansionTile(
         title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text('${TeacherCohortsScreen.gradeLabel(cohort)} · ${l.teacherCohortsScreenStudentsCount(count)}',
+        subtitle: Text('${TeacherCohortsScreen.gradeLabel(l, cohort)} · ${l.teacherCohortsScreenStudentsCount(count)}',
             style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
         trailing: Row(mainAxisSize: MainAxisSize.min, children: [
           PopupMenuButton<String>(

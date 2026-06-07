@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -64,12 +65,26 @@ final _periodsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   return ref.watch(_adminApiProvider).getPeriods();
 });
 
+// ── Locale-aware weekday names ──────────────────────────────────────────────────
+
+// dayOfWeek index: 0 = Sunday … 6 = Saturday.
+// 2024-01-07 is a Sunday; adding [dow] days yields the matching weekday.
+DateTime _refDateForDow(int dow) => DateTime(2024, 1, 7).add(Duration(days: dow));
+
+String _shortDayName(BuildContext context, int dow) {
+  final locale = Localizations.localeOf(context).toString();
+  return DateFormat.E(locale).format(_refDateForDow(dow));
+}
+
+String _longDayName(BuildContext context, int dow) {
+  final locale = Localizations.localeOf(context).toString();
+  return DateFormat.EEEE(locale).format(_refDateForDow(dow));
+}
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 class AdminPeriodsScreen extends ConsumerWidget {
   const AdminPeriodsScreen({super.key});
-
-  static const _dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,7 +141,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
                   child: Text(
-                    dow < _dayNames.length ? _dayNames[dow] : AppLocalizations.of(context)!.adminPeriodsScreenDayN(dow),
+                    (dow >= 0 && dow <= 6) ? _shortDayName(context, dow) : AppLocalizations.of(context)!.adminPeriodsScreenDayN(dow),
                     style: theme.textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: cs.primary,
@@ -238,7 +253,6 @@ class _CreatePeriodSheet extends StatefulWidget {
 }
 
 class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
-  static const _dayLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   static const _schoolDays = [0, 1, 2, 3, 4]; // Sun-Thu
 
   int _dayOfWeek = 0;
@@ -386,7 +400,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 Wrap(
                   spacing: 8,
                   children: _schoolDays.map((d) => ChoiceChip(
-                    label: Text(_dayLabels[d]),
+                    label: Text(_longDayName(context, d)),
                     selected: _dayOfWeek == d,
                     onSelected: (_) => setState(() => _dayOfWeek = d),
                   )).toList(),

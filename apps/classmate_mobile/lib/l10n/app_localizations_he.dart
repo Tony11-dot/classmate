@@ -9829,4 +9829,72 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get cmAiMessageDifficultyMedium => 'בינוני';
+
+  @override
+  String get teacherCreateFormScreenParagraphType => 'פסקה';
+
+  @override
+  String get teacherCreateFormScreenMultipleChoiceType => 'בחירה מרובה';
+
+  @override
+  String get teacherCreateFormScreenCheckboxesType => 'תיבות סימון';
+
+  @override
+  String get teacherCreateFormScreenRatingType => 'דירוג (1–5)';
+
+  @override
+  String get teacherCreateFormScreenLinearScaleType => 'סולם ליניארי';
+
+  @override
+  String get teacherCreateFormScreenDropdownType => 'תפריט נפתח';
+
+  @override
+  String get teacherCreateFormScreenDateType => 'תאריך';
+
+  @override
+  String teacherCohortsScreenSingleGrade(int grade) {
+    return 'כיתה $grade';
+  }
+
+  @override
+  String teacherCohortsScreenGradeRange(int from, int to) {
+    return 'כיתות $from-$to';
+  }
+
+  @override
+  String teacherCohortsScreenMultiGrade(String grades) {
+    return 'כיתות $grades';
+  }
+
+  @override
+  String get teacherAddGradeScreenNoCohortAnchor =>
+      'אין מחזור זמין לעגן אליו את הציון הזה. צור מחזור תחילה.';
+
+  @override
+  String get teacherAddGradeScreenFailedCreateRecord =>
+      'יצירת רשומת הציון נכשלה.';
+
+  @override
+  String get phoneFieldLabel => 'טלפון (אופציונלי)';
+
+  @override
+  String get phoneFieldHelper => 'משמש לאיפוס סיסמה באמצעות SMS';
+
+  @override
+  String get gradesScreenCouldNotLoad => 'לא ניתן לטעון את הציונים.';
+
+  @override
+  String get gradesScreenTimeout => 'הזמן הקצוב לבקשה תם. בדוק את החיבור שלך.';
+
+  @override
+  String get gradesScreenNoConnection => 'אין חיבור. משוך כדי לנסות שוב.';
+
+  @override
+  String get examDetailScreenCountdownPassed => 'המבחן הזה עבר';
+
+  @override
+  String get examDetailScreenCountdownToday => 'זה היום!';
+
+  @override
+  String get teacherCreateDiplomaScreenDefaultTitle => 'תעודת הצטיינות';
 }

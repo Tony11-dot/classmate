@@ -114,17 +114,18 @@ Future<void> _addToCalendar(
   }
 }
 
-String _countdownLabel(StudentExamItem exam) {
+String _countdownLabel(BuildContext context, StudentExamItem exam) {
+  final l = AppLocalizations.of(context)!;
   final date = _parseDate(exam.dateLabel);
   if (date == null) return '';
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final examDay = DateTime(date.year, date.month, date.day);
   final diff = examDay.difference(today).inDays;
-  if (diff < 0) return 'This exam has passed';
-  if (diff == 0) return "It's today!";
-  if (diff == 1) return 'Tomorrow';
-  return 'In $diff days';
+  if (diff < 0) return l.examDetailScreenCountdownPassed;
+  if (diff == 0) return l.examDetailScreenCountdownToday;
+  if (diff == 1) return l.examsCountdownTomorrow;
+  return l.examsCountdownInDays(diff);
 }
 
 IconData _materialIcon(String kind) {
@@ -205,7 +206,7 @@ class _ExamDetailBody extends StatelessWidget {
     }
     final cs = Theme.of(context).colorScheme;
     final status = _statusOf(exam);
-    final countdown = _countdownLabel(exam);
+    final countdown = _countdownLabel(context, exam);
 
     // ── countdown hero colors ──
     Color heroBg;

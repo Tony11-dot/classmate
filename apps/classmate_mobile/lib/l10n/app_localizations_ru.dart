@@ -9925,4 +9925,75 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cmAiMessageDifficultyMedium => 'Средний';
+
+  @override
+  String get teacherCreateFormScreenParagraphType => 'Абзац';
+
+  @override
+  String get teacherCreateFormScreenMultipleChoiceType => 'Один из вариантов';
+
+  @override
+  String get teacherCreateFormScreenCheckboxesType => 'Флажки';
+
+  @override
+  String get teacherCreateFormScreenRatingType => 'Оценка (1–5)';
+
+  @override
+  String get teacherCreateFormScreenLinearScaleType => 'Линейная шкала';
+
+  @override
+  String get teacherCreateFormScreenDropdownType => 'Раскрывающийся список';
+
+  @override
+  String get teacherCreateFormScreenDateType => 'Дата';
+
+  @override
+  String teacherCohortsScreenSingleGrade(int grade) {
+    return '$grade класс';
+  }
+
+  @override
+  String teacherCohortsScreenGradeRange(int from, int to) {
+    return '$from-$to классы';
+  }
+
+  @override
+  String teacherCohortsScreenMultiGrade(String grades) {
+    return 'Классы $grades';
+  }
+
+  @override
+  String get teacherAddGradeScreenNoCohortAnchor =>
+      'Нет группы для привязки этой оценки. Сначала создайте группу.';
+
+  @override
+  String get teacherAddGradeScreenFailedCreateRecord =>
+      'Не удалось создать запись об оценке.';
+
+  @override
+  String get phoneFieldLabel => 'Телефон (необязательно)';
+
+  @override
+  String get phoneFieldHelper => 'Используется для сброса пароля по SMS';
+
+  @override
+  String get gradesScreenCouldNotLoad => 'Не удалось загрузить оценки.';
+
+  @override
+  String get gradesScreenTimeout =>
+      'Истекло время ожидания. Проверьте подключение.';
+
+  @override
+  String get gradesScreenNoConnection =>
+      'Нет подключения. Потяните, чтобы повторить.';
+
+  @override
+  String get examDetailScreenCountdownPassed => 'Этот экзамен уже прошёл';
+
+  @override
+  String get examDetailScreenCountdownToday => 'Сегодня!';
+
+  @override
+  String get teacherCreateDiplomaScreenDefaultTitle =>
+      'Свидетельство о достижении';
 }

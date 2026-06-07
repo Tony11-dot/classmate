@@ -3627,5 +3627,49 @@
   "cmAiMessageDifficultyHard": "صعب",
   "cmAiMessageDifficultyOlympiad": "أولمبياد",
   "cmAiMessageDifficultyAdaptive": "تكيفي",
-  "cmAiMessageDifficultyMedium": "متوسط"
+  "cmAiMessageDifficultyMedium": "متوسط",
+  "teacherCreateFormScreenParagraphType": "فقرة",
+  "teacherCreateFormScreenMultipleChoiceType": "اختيار من متعدد",
+  "teacherCreateFormScreenCheckboxesType": "مربعات اختيار",
+  "teacherCreateFormScreenRatingType": "تقييم (1–5)",
+  "teacherCreateFormScreenLinearScaleType": "مقياس خطي",
+  "teacherCreateFormScreenDropdownType": "قائمة منسدلة",
+  "teacherCreateFormScreenDateType": "التاريخ",
+  "teacherCohortsScreenSingleGrade": "الصف {grade}",
+  "teacherCohortsScreenGradeRange": "الصفوف {from}-{to}",
+  "teacherCohortsScreenMultiGrade": "الصفوف {grades}",
+  "teacherAddGradeScreenNoCohortAnchor": "لا توجد مجموعة متاحة لربط هذا الصف بها. أنشئ مجموعة أولاً.",
+  "teacherAddGradeScreenFailedCreateRecord": "تعذّر إنشاء سجل الدرجة.",
+  "phoneFieldLabel": "الهاتف (اختياري)",
+  "phoneFieldHelper": "يُستخدم لإعادة تعيين كلمة المرور عبر الرسائل النصية",
+  "gradesScreenCouldNotLoad": "تعذّر تحميل الدرجات.",
+  "gradesScreenTimeout": "انتهت مهلة الطلب. تحقّق من اتصالك.",
+  "gradesScreenNoConnection": "لا يوجد اتصال. اسحب لإعادة المحاولة.",
+  "examDetailScreenCountdownPassed": "لقد انتهى هذا الامتحان",
+  "examDetailScreenCountdownToday": "إنه اليوم!",
+  "teacherCreateDiplomaScreenDefaultTitle": "شهادة تقدير",
+  "@teacherCohortsScreenSingleGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenGradeRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenMultiGrade": {
+    "placeholders": {
+      "grades": {
+        "type": "String"
+      }
+    }
+  }
 }

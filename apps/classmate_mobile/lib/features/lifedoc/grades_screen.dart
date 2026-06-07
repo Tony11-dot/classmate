@@ -51,12 +51,13 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
     return MaterialLocalizations.of(context).formatMediumDate(parsed);
   }
 
-  String _friendlyError(Object error) {
+  String _friendlyError(BuildContext context, Object error) {
+    final l = AppLocalizations.of(context)!;
     final raw = error.toString().replaceFirst('Exception: ', '').trim();
-    if (raw.isEmpty) return 'Could not load grades.';
-    if (raw.toLowerCase().contains('timeout')) return 'Request timed out. Check your connection.';
+    if (raw.isEmpty) return l.gradesScreenCouldNotLoad;
+    if (raw.toLowerCase().contains('timeout')) return l.gradesScreenTimeout;
     if (raw.toLowerCase().contains('socket') || raw.toLowerCase().contains('network')) {
-      return 'No connection. Pull to retry.';
+      return l.gradesScreenNoConnection;
     }
     return raw;
   }
@@ -128,7 +129,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             children: [_buildHero(context, null, null, null), const SizedBox(height: 20),
-              _ErrorCard(message: _friendlyError(err), onRetry: () => ref.invalidate(unifiedStudentInsightsProvider)),
+              _ErrorCard(message: _friendlyError(context, err), onRetry: () => ref.invalidate(unifiedStudentInsightsProvider)),
             ],
           ),
         ),

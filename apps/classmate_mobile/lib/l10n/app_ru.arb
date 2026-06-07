@@ -3834,5 +3834,49 @@
   "cmAiMessageDifficultyHard": "Сложный",
   "cmAiMessageDifficultyOlympiad": "Олимпиадный",
   "cmAiMessageDifficultyAdaptive": "Адаптивный",
-  "cmAiMessageDifficultyMedium": "Средний"
+  "cmAiMessageDifficultyMedium": "Средний",
+  "teacherCreateFormScreenParagraphType": "Абзац",
+  "teacherCreateFormScreenMultipleChoiceType": "Один из вариантов",
+  "teacherCreateFormScreenCheckboxesType": "Флажки",
+  "teacherCreateFormScreenRatingType": "Оценка (1–5)",
+  "teacherCreateFormScreenLinearScaleType": "Линейная шкала",
+  "teacherCreateFormScreenDropdownType": "Раскрывающийся список",
+  "teacherCreateFormScreenDateType": "Дата",
+  "teacherCohortsScreenSingleGrade": "{grade} класс",
+  "teacherCohortsScreenGradeRange": "{from}-{to} классы",
+  "teacherCohortsScreenMultiGrade": "Классы {grades}",
+  "teacherAddGradeScreenNoCohortAnchor": "Нет группы для привязки этой оценки. Сначала создайте группу.",
+  "teacherAddGradeScreenFailedCreateRecord": "Не удалось создать запись об оценке.",
+  "phoneFieldLabel": "Телефон (необязательно)",
+  "phoneFieldHelper": "Используется для сброса пароля по SMS",
+  "gradesScreenCouldNotLoad": "Не удалось загрузить оценки.",
+  "gradesScreenTimeout": "Истекло время ожидания. Проверьте подключение.",
+  "gradesScreenNoConnection": "Нет подключения. Потяните, чтобы повторить.",
+  "examDetailScreenCountdownPassed": "Этот экзамен уже прошёл",
+  "examDetailScreenCountdownToday": "Сегодня!",
+  "teacherCreateDiplomaScreenDefaultTitle": "Свидетельство о достижении",
+  "@teacherCohortsScreenSingleGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenGradeRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenMultiGrade": {
+    "placeholders": {
+      "grades": {
+        "type": "String"
+      }
+    }
+  }
 }

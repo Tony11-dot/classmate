@@ -25,7 +25,8 @@ class _TeacherCreateDiplomaScreenState
   String _query = '';
 
   // ── Certificate fields ────────────────────────────────────────────────────
-  final _titleCtrl = TextEditingController(text: 'Certificate of Achievement');
+  final _titleCtrl = TextEditingController();
+  bool _didInitTitle = false;
 
   // ── Attachments: each entry is {title, url, localPath} ───────────────────
   // localPath is the on-device path; url starts as the same but gets replaced
@@ -46,6 +47,16 @@ class _TeacherCreateDiplomaScreenState
   void initState() {
     super.initState();
     Future<void>.microtask(_loadStudents);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInitTitle) {
+      _didInitTitle = true;
+      _titleCtrl.text =
+          AppLocalizations.of(context)!.teacherCreateDiplomaScreenDefaultTitle;
+    }
   }
 
   Future<void> _loadStudents() async {
@@ -135,7 +146,7 @@ class _TeacherCreateDiplomaScreenState
       await ref.read(teacherMobileRepositoryProvider).createDiploma({
         'studentId': _selected!.studentId,
         'studentName': _selected!.name,
-        'title': _titleCtrl.text.trim().isEmpty ? 'Certificate of Achievement' : _titleCtrl.text.trim(),
+        'title': _titleCtrl.text.trim().isEmpty ? l.teacherCreateDiplomaScreenDefaultTitle : _titleCtrl.text.trim(),
         'attachments': readyAttachments,
       });
       if (!mounted) return;

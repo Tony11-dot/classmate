@@ -1297,15 +1297,15 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     return null;
   }
 
-  static String? _cohortGradeLabel(Map<String, dynamic> c) {
+  static String? _cohortGradeLabel(AppLocalizations l, Map<String, dynamic> c) {
     final gs = _cohortGradesOf(c);
     if (gs.isEmpty) return null;
-    if (gs.length == 1) return 'Grade ${gs.first}';
+    if (gs.length == 1) return l.gradeLevelLabel('${gs.first}');
     final sorted = [...gs]..sort();
     final isRange = sorted.last - sorted.first == sorted.length - 1;
     return isRange
-        ? 'Grade ${sorted.first}-${sorted.last}'
-        : 'Grades ${sorted.join(', ')}';
+        ? l.adminScheduleGradeRange('${sorted.first}', '${sorted.last}')
+        : l.adminScheduleGradesList(sorted.join(', '));
   }
 
   Future<void> _save() async {
@@ -1715,7 +1715,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 items: widget.cohorts,
                 selected: _cohortIds,
                 nameKey: 'name',
-                subtitleBuilder: (item) => _cohortGradeLabel(item),
+                subtitleBuilder: (item) => _cohortGradeLabel(l, item),
                 searchHint: l.adminScheduleSearchCohort,
                 onToggle: (id) => setState(() {
                   if (_cohortIds.contains(id)) {
@@ -1858,7 +1858,10 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 spacing: 8,
                 runSpacing: 6,
                 children: _nextMatchingDates(_slots.isNotEmpty ? _slots.first.dayOfWeek : 1, 6).map((d) {
-                  final label = '${_monthName(d.month)} ${d.day}';
+                  final monthShort = DateFormat.MMM(
+                          Localizations.localeOf(context).toString())
+                      .format(d);
+                  final label = '$monthShort ${d.day}';
                   final selected = _startDate != null && _startDate!.year == d.year && _startDate!.month == d.month && _startDate!.day == d.day;
                   return ChoiceChip(
                     label: Text(label),
@@ -1885,9 +1888,6 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     }
     return results;
   }
-
-  static const _months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  String _monthName(int m) => m >= 1 && m <= 12 ? _months[m] : '$m';
 
   /// Finds existing periods that overlap this draft at the same (day, slot)
   /// for an overlapping audience. Returns up to a handful of human-readable

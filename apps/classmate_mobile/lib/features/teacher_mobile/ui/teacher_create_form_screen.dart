@@ -139,16 +139,17 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
     }
   }
 
-  String _typeLabel(String t) {
+  String _typeLabel(BuildContext context, String t) {
+    final l = AppLocalizations.of(context)!;
     switch (t) {
-      case 'short': return 'Short answer';
-      case 'paragraph': return 'Paragraph';
-      case 'multipleChoice': return 'Multiple choice';
-      case 'checkboxes': return 'Checkboxes';
-      case 'rating': return 'Rating (1–5)';
-      case 'linearScale': return 'Linear scale';
-      case 'dropdown': return 'Dropdown';
-      case 'date': return 'Date';
+      case 'short': return l.teacherCreateFormScreenShortAnswerPreview;
+      case 'paragraph': return l.teacherCreateFormScreenParagraphType;
+      case 'multipleChoice': return l.teacherCreateFormScreenMultipleChoiceType;
+      case 'checkboxes': return l.teacherCreateFormScreenCheckboxesType;
+      case 'rating': return l.teacherCreateFormScreenRatingType;
+      case 'linearScale': return l.teacherCreateFormScreenLinearScaleType;
+      case 'dropdown': return l.teacherCreateFormScreenDropdownType;
+      case 'date': return l.teacherCreateFormScreenDateType;
       default: return t;
     }
   }
@@ -347,7 +348,7 @@ class _QuestionCard extends StatefulWidget {
   final _FormQuestion question;
   final VoidCallback onDelete;
   final VoidCallback onChanged;
-  final String Function(String) typeLabel;
+  final String Function(BuildContext, String) typeLabel;
   final IconData Function(String) typeIcon;
 
   @override
@@ -386,11 +387,11 @@ class _QuestionCardState extends State<_QuestionCard> {
           // Liquid searchable type DDL
           Expanded(
             child: LiquidGlassDropdown<String>(
-              label: widget.typeLabel(q.type),
+              label: widget.typeLabel(context, q.type),
               value: q.type,
               items: _types.map((t) => LiquidGlassDropdownItem(
                 value: t,
-                label: widget.typeLabel(t),
+                label: widget.typeLabel(context, t),
                 icon: widget.typeIcon(t),
               )).toList(),
               onChanged: (val) {

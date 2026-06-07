@@ -378,9 +378,7 @@ class _TeacherAddGradeScreenState
             ? e.student.cohortId
             : fallbackCohort;
         if (cohortId.isEmpty) {
-          throw Exception(
-            'No cohort available to anchor this grade. Create a cohort first.',
-          );
+          throw Exception(l.teacherAddGradeScreenNoCohortAnchor);
         }
         byCohort.putIfAbsent(cohortId, () => []).add(e);
       }
@@ -397,7 +395,7 @@ class _TeacherAddGradeScreenState
         );
         final assessmentId = _extractAssessmentId(created);
         if (assessmentId == null) {
-          throw Exception('Failed to create grade record.');
+          throw Exception(l.teacherAddGradeScreenFailedCreateRecord);
         }
         await repo.saveBulkGrades(
           assessmentId: assessmentId,

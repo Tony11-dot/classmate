@@ -9882,4 +9882,73 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cmAiMessageDifficultyMedium => 'متوسط';
+
+  @override
+  String get teacherCreateFormScreenParagraphType => 'فقرة';
+
+  @override
+  String get teacherCreateFormScreenMultipleChoiceType => 'اختيار من متعدد';
+
+  @override
+  String get teacherCreateFormScreenCheckboxesType => 'مربعات اختيار';
+
+  @override
+  String get teacherCreateFormScreenRatingType => 'تقييم (1–5)';
+
+  @override
+  String get teacherCreateFormScreenLinearScaleType => 'مقياس خطي';
+
+  @override
+  String get teacherCreateFormScreenDropdownType => 'قائمة منسدلة';
+
+  @override
+  String get teacherCreateFormScreenDateType => 'التاريخ';
+
+  @override
+  String teacherCohortsScreenSingleGrade(int grade) {
+    return 'الصف $grade';
+  }
+
+  @override
+  String teacherCohortsScreenGradeRange(int from, int to) {
+    return 'الصفوف $from-$to';
+  }
+
+  @override
+  String teacherCohortsScreenMultiGrade(String grades) {
+    return 'الصفوف $grades';
+  }
+
+  @override
+  String get teacherAddGradeScreenNoCohortAnchor =>
+      'لا توجد مجموعة متاحة لربط هذا الصف بها. أنشئ مجموعة أولاً.';
+
+  @override
+  String get teacherAddGradeScreenFailedCreateRecord =>
+      'تعذّر إنشاء سجل الدرجة.';
+
+  @override
+  String get phoneFieldLabel => 'الهاتف (اختياري)';
+
+  @override
+  String get phoneFieldHelper =>
+      'يُستخدم لإعادة تعيين كلمة المرور عبر الرسائل النصية';
+
+  @override
+  String get gradesScreenCouldNotLoad => 'تعذّر تحميل الدرجات.';
+
+  @override
+  String get gradesScreenTimeout => 'انتهت مهلة الطلب. تحقّق من اتصالك.';
+
+  @override
+  String get gradesScreenNoConnection => 'لا يوجد اتصال. اسحب لإعادة المحاولة.';
+
+  @override
+  String get examDetailScreenCountdownPassed => 'لقد انتهى هذا الامتحان';
+
+  @override
+  String get examDetailScreenCountdownToday => 'إنه اليوم!';
+
+  @override
+  String get teacherCreateDiplomaScreenDefaultTitle => 'شهادة تقدير';
 }

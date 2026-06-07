@@ -80,15 +80,15 @@ class PhoneField extends StatelessWidget {
     required this.controller,
     required this.dialCode,
     required this.onDialCodeChanged,
-    this.labelText = 'Phone (optional)',
-    this.helperText = 'Used for SMS password reset',
+    this.labelText,
+    this.helperText,
     this.autofocus = false,
   });
 
   final TextEditingController controller;
   final String dialCode;
   final ValueChanged<String> onDialCodeChanged;
-  final String labelText;
+  final String? labelText;
   final String? helperText;
   final bool autofocus;
 
@@ -183,6 +183,7 @@ class PhoneField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return TextField(
       controller: controller,
@@ -190,8 +191,8 @@ class PhoneField extends StatelessWidget {
       keyboardType: TextInputType.phone,
       autocorrect: false,
       decoration: InputDecoration(
-        labelText: labelText,
-        helperText: helperText,
+        labelText: labelText ?? l.phoneFieldLabel,
+        helperText: helperText ?? l.phoneFieldHelper,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         prefixIcon: InkWell(
           borderRadius: BorderRadius.circular(8),

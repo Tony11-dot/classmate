@@ -10004,4 +10004,75 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get cmAiMessageDifficultyMedium => '‹‹ Medium ››';
+
+  @override
+  String get teacherCreateFormScreenParagraphType => '‹‹ Paragraph ››';
+
+  @override
+  String get teacherCreateFormScreenMultipleChoiceType =>
+      '‹‹ Multiple choice ››';
+
+  @override
+  String get teacherCreateFormScreenCheckboxesType => '‹‹ Checkboxes ››';
+
+  @override
+  String get teacherCreateFormScreenRatingType => '‹‹ Rating (1–5) ››';
+
+  @override
+  String get teacherCreateFormScreenLinearScaleType => '‹‹ Linear scale ››';
+
+  @override
+  String get teacherCreateFormScreenDropdownType => '‹‹ Dropdown ››';
+
+  @override
+  String get teacherCreateFormScreenDateType => '‹‹ Date ››';
+
+  @override
+  String teacherCohortsScreenSingleGrade(int grade) {
+    return '‹‹ Grade $grade ››';
+  }
+
+  @override
+  String teacherCohortsScreenGradeRange(int from, int to) {
+    return '‹‹ Grade $from-$to ››';
+  }
+
+  @override
+  String teacherCohortsScreenMultiGrade(String grades) {
+    return '‹‹ Grades $grades ››';
+  }
+
+  @override
+  String get teacherAddGradeScreenNoCohortAnchor =>
+      '‹‹ No cohort available to anchor this grade. Create a cohort first. ››';
+
+  @override
+  String get teacherAddGradeScreenFailedCreateRecord =>
+      '‹‹ Failed to create grade record. ››';
+
+  @override
+  String get phoneFieldLabel => '‹‹ Phone (optional) ››';
+
+  @override
+  String get phoneFieldHelper => '‹‹ Used for SMS password reset ››';
+
+  @override
+  String get gradesScreenCouldNotLoad => '‹‹ Could not load grades. ››';
+
+  @override
+  String get gradesScreenTimeout =>
+      '‹‹ Request timed out. Check your connection. ››';
+
+  @override
+  String get gradesScreenNoConnection => '‹‹ No connection. Pull to retry. ››';
+
+  @override
+  String get examDetailScreenCountdownPassed => '‹‹ This exam has passed ››';
+
+  @override
+  String get examDetailScreenCountdownToday => '‹‹ It\'s today! ››';
+
+  @override
+  String get teacherCreateDiplomaScreenDefaultTitle =>
+      '‹‹ Certificate of Achievement ››';
 }

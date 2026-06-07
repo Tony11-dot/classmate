@@ -10077,4 +10077,75 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cmAiMessageDifficultyMedium => 'Moyen';
+
+  @override
+  String get teacherCreateFormScreenParagraphType => 'Paragraphe';
+
+  @override
+  String get teacherCreateFormScreenMultipleChoiceType => 'Choix multiple';
+
+  @override
+  String get teacherCreateFormScreenCheckboxesType => 'Cases à cocher';
+
+  @override
+  String get teacherCreateFormScreenRatingType => 'Évaluation (1–5)';
+
+  @override
+  String get teacherCreateFormScreenLinearScaleType => 'Échelle linéaire';
+
+  @override
+  String get teacherCreateFormScreenDropdownType => 'Liste déroulante';
+
+  @override
+  String get teacherCreateFormScreenDateType => 'Date';
+
+  @override
+  String teacherCohortsScreenSingleGrade(int grade) {
+    return 'Niveau $grade';
+  }
+
+  @override
+  String teacherCohortsScreenGradeRange(int from, int to) {
+    return 'Niveaux $from-$to';
+  }
+
+  @override
+  String teacherCohortsScreenMultiGrade(String grades) {
+    return 'Niveaux $grades';
+  }
+
+  @override
+  String get teacherAddGradeScreenNoCohortAnchor =>
+      'Aucune cohorte disponible pour rattacher ce niveau. Créez d\'abord une cohorte.';
+
+  @override
+  String get teacherAddGradeScreenFailedCreateRecord =>
+      'Échec de la création de la note.';
+
+  @override
+  String get phoneFieldLabel => 'Téléphone (facultatif)';
+
+  @override
+  String get phoneFieldHelper =>
+      'Utilisé pour la réinitialisation du mot de passe par SMS';
+
+  @override
+  String get gradesScreenCouldNotLoad => 'Impossible de charger les notes.';
+
+  @override
+  String get gradesScreenTimeout =>
+      'Délai d\'attente dépassé. Vérifiez votre connexion.';
+
+  @override
+  String get gradesScreenNoConnection =>
+      'Aucune connexion. Tirez pour réessayer.';
+
+  @override
+  String get examDetailScreenCountdownPassed => 'Cet examen est passé';
+
+  @override
+  String get examDetailScreenCountdownToday => 'C\'est aujourd\'hui !';
+
+  @override
+  String get teacherCreateDiplomaScreenDefaultTitle => 'Certificat de réussite';
 }

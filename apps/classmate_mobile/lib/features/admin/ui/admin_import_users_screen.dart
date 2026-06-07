@@ -19,12 +19,13 @@ class AdminImportUsersScreen extends ConsumerStatefulWidget {
 }
 
 const _validRoles = {'STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'};
-const _roleItems = <LiquidGlassDropdownItem<String>>[
-  LiquidGlassDropdownItem(value: 'STUDENT', label: 'Student'),
-  LiquidGlassDropdownItem(value: 'TEACHER', label: 'Teacher'),
-  LiquidGlassDropdownItem(value: 'PARENT', label: 'Parent'),
-  LiquidGlassDropdownItem(value: 'SECRETARY', label: 'Secretary'),
-  LiquidGlassDropdownItem(value: 'ADMIN', label: 'Admin'),
+
+List<LiquidGlassDropdownItem<String>> _roleItemsFor(AppLocalizations l) => [
+  LiquidGlassDropdownItem(value: 'STUDENT', label: l.roleStudent),
+  LiquidGlassDropdownItem(value: 'TEACHER', label: l.roleTeacher),
+  LiquidGlassDropdownItem(value: 'PARENT', label: l.roleParent),
+  LiquidGlassDropdownItem(value: 'SECRETARY', label: l.roleSecretary),
+  LiquidGlassDropdownItem(value: 'ADMIN', label: l.roleAdmin),
 ];
 
 class _GridRow {
@@ -207,7 +208,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
               child: LiquidGlassDropdown<String>(
                 label: l.adminImportUsersScreenRole,
                 value: row.role,
-                items: _roleItems,
+                items: _roleItemsFor(l),
                 onChanged: (v) => setState(() => row.role = v),
               ),
             ),

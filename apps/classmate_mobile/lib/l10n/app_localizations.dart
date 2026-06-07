@@ -17114,6 +17114,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Medium'**
   String get cmAiMessageDifficultyMedium;
+
+  /// No description provided for @teacherCreateFormScreenParagraphType.
+  ///
+  /// In en, this message translates to:
+  /// **'Paragraph'**
+  String get teacherCreateFormScreenParagraphType;
+
+  /// No description provided for @teacherCreateFormScreenMultipleChoiceType.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple choice'**
+  String get teacherCreateFormScreenMultipleChoiceType;
+
+  /// No description provided for @teacherCreateFormScreenCheckboxesType.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkboxes'**
+  String get teacherCreateFormScreenCheckboxesType;
+
+  /// No description provided for @teacherCreateFormScreenRatingType.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating (1–5)'**
+  String get teacherCreateFormScreenRatingType;
+
+  /// No description provided for @teacherCreateFormScreenLinearScaleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Linear scale'**
+  String get teacherCreateFormScreenLinearScaleType;
+
+  /// No description provided for @teacherCreateFormScreenDropdownType.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropdown'**
+  String get teacherCreateFormScreenDropdownType;
+
+  /// No description provided for @teacherCreateFormScreenDateType.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get teacherCreateFormScreenDateType;
+
+  /// No description provided for @teacherCohortsScreenSingleGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String teacherCohortsScreenSingleGrade(int grade);
+
+  /// No description provided for @teacherCohortsScreenGradeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {from}-{to}'**
+  String teacherCohortsScreenGradeRange(int from, int to);
+
+  /// No description provided for @teacherCohortsScreenMultiGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades {grades}'**
+  String teacherCohortsScreenMultiGrade(String grades);
+
+  /// No description provided for @teacherAddGradeScreenNoCohortAnchor.
+  ///
+  /// In en, this message translates to:
+  /// **'No cohort available to anchor this grade. Create a cohort first.'**
+  String get teacherAddGradeScreenNoCohortAnchor;
+
+  /// No description provided for @teacherAddGradeScreenFailedCreateRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create grade record.'**
+  String get teacherAddGradeScreenFailedCreateRecord;
+
+  /// No description provided for @phoneFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone (optional)'**
+  String get phoneFieldLabel;
+
+  /// No description provided for @phoneFieldHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for SMS password reset'**
+  String get phoneFieldHelper;
+
+  /// No description provided for @gradesScreenCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load grades.'**
+  String get gradesScreenCouldNotLoad;
+
+  /// No description provided for @gradesScreenTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Request timed out. Check your connection.'**
+  String get gradesScreenTimeout;
+
+  /// No description provided for @gradesScreenNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Pull to retry.'**
+  String get gradesScreenNoConnection;
+
+  /// No description provided for @examDetailScreenCountdownPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has passed'**
+  String get examDetailScreenCountdownPassed;
+
+  /// No description provided for @examDetailScreenCountdownToday.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s today!'**
+  String get examDetailScreenCountdownToday;
+
+  /// No description provided for @teacherCreateDiplomaScreenDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate of Achievement'**
+  String get teacherCreateDiplomaScreenDefaultTitle;
 }
 
 class _AppLocalizationsDelegate

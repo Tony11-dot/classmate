@@ -3627,5 +3627,49 @@
   "cmAiMessageDifficultyHard": "Difficile",
   "cmAiMessageDifficultyOlympiad": "Olympiade",
   "cmAiMessageDifficultyAdaptive": "Adaptatif",
-  "cmAiMessageDifficultyMedium": "Moyen"
+  "cmAiMessageDifficultyMedium": "Moyen",
+  "teacherCreateFormScreenParagraphType": "Paragraphe",
+  "teacherCreateFormScreenMultipleChoiceType": "Choix multiple",
+  "teacherCreateFormScreenCheckboxesType": "Cases à cocher",
+  "teacherCreateFormScreenRatingType": "Évaluation (1–5)",
+  "teacherCreateFormScreenLinearScaleType": "Échelle linéaire",
+  "teacherCreateFormScreenDropdownType": "Liste déroulante",
+  "teacherCreateFormScreenDateType": "Date",
+  "teacherCohortsScreenSingleGrade": "Niveau {grade}",
+  "teacherCohortsScreenGradeRange": "Niveaux {from}-{to}",
+  "teacherCohortsScreenMultiGrade": "Niveaux {grades}",
+  "teacherAddGradeScreenNoCohortAnchor": "Aucune cohorte disponible pour rattacher ce niveau. Créez d'abord une cohorte.",
+  "teacherAddGradeScreenFailedCreateRecord": "Échec de la création de la note.",
+  "phoneFieldLabel": "Téléphone (facultatif)",
+  "phoneFieldHelper": "Utilisé pour la réinitialisation du mot de passe par SMS",
+  "gradesScreenCouldNotLoad": "Impossible de charger les notes.",
+  "gradesScreenTimeout": "Délai d'attente dépassé. Vérifiez votre connexion.",
+  "gradesScreenNoConnection": "Aucune connexion. Tirez pour réessayer.",
+  "examDetailScreenCountdownPassed": "Cet examen est passé",
+  "examDetailScreenCountdownToday": "C'est aujourd'hui !",
+  "teacherCreateDiplomaScreenDefaultTitle": "Certificat de réussite",
+  "@teacherCohortsScreenSingleGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenGradeRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenMultiGrade": {
+    "placeholders": {
+      "grades": {
+        "type": "String"
+      }
+    }
+  }
 }

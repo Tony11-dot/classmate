@@ -3627,5 +3627,49 @@
   "cmAiMessageDifficultyHard": "קשה",
   "cmAiMessageDifficultyOlympiad": "אולימפיאדה",
   "cmAiMessageDifficultyAdaptive": "מסתגל",
-  "cmAiMessageDifficultyMedium": "בינוני"
+  "cmAiMessageDifficultyMedium": "בינוני",
+  "teacherCreateFormScreenParagraphType": "פסקה",
+  "teacherCreateFormScreenMultipleChoiceType": "בחירה מרובה",
+  "teacherCreateFormScreenCheckboxesType": "תיבות סימון",
+  "teacherCreateFormScreenRatingType": "דירוג (1–5)",
+  "teacherCreateFormScreenLinearScaleType": "סולם ליניארי",
+  "teacherCreateFormScreenDropdownType": "תפריט נפתח",
+  "teacherCreateFormScreenDateType": "תאריך",
+  "teacherCohortsScreenSingleGrade": "כיתה {grade}",
+  "teacherCohortsScreenGradeRange": "כיתות {from}-{to}",
+  "teacherCohortsScreenMultiGrade": "כיתות {grades}",
+  "teacherAddGradeScreenNoCohortAnchor": "אין מחזור זמין לעגן אליו את הציון הזה. צור מחזור תחילה.",
+  "teacherAddGradeScreenFailedCreateRecord": "יצירת רשומת הציון נכשלה.",
+  "phoneFieldLabel": "טלפון (אופציונלי)",
+  "phoneFieldHelper": "משמש לאיפוס סיסמה באמצעות SMS",
+  "gradesScreenCouldNotLoad": "לא ניתן לטעון את הציונים.",
+  "gradesScreenTimeout": "הזמן הקצוב לבקשה תם. בדוק את החיבור שלך.",
+  "gradesScreenNoConnection": "אין חיבור. משוך כדי לנסות שוב.",
+  "examDetailScreenCountdownPassed": "המבחן הזה עבר",
+  "examDetailScreenCountdownToday": "זה היום!",
+  "teacherCreateDiplomaScreenDefaultTitle": "תעודת הצטיינות",
+  "@teacherCohortsScreenSingleGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenGradeRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenMultiGrade": {
+    "placeholders": {
+      "grades": {
+        "type": "String"
+      }
+    }
+  }
 }

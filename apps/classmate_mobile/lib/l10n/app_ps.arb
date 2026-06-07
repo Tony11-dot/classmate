@@ -4251,5 +4251,49 @@
   "cmAiMessageDifficultyHard": "‹‹ Hard ››",
   "cmAiMessageDifficultyOlympiad": "‹‹ Olympiad ››",
   "cmAiMessageDifficultyAdaptive": "‹‹ Adaptive ››",
-  "cmAiMessageDifficultyMedium": "‹‹ Medium ››"
+  "cmAiMessageDifficultyMedium": "‹‹ Medium ››",
+  "teacherCreateFormScreenParagraphType": "‹‹ Paragraph ››",
+  "teacherCreateFormScreenMultipleChoiceType": "‹‹ Multiple choice ››",
+  "teacherCreateFormScreenCheckboxesType": "‹‹ Checkboxes ››",
+  "teacherCreateFormScreenRatingType": "‹‹ Rating (1–5) ››",
+  "teacherCreateFormScreenLinearScaleType": "‹‹ Linear scale ››",
+  "teacherCreateFormScreenDropdownType": "‹‹ Dropdown ››",
+  "teacherCreateFormScreenDateType": "‹‹ Date ››",
+  "teacherCohortsScreenSingleGrade": "‹‹ Grade {grade} ››",
+  "teacherCohortsScreenGradeRange": "‹‹ Grade {from}-{to} ››",
+  "teacherCohortsScreenMultiGrade": "‹‹ Grades {grades} ››",
+  "teacherAddGradeScreenNoCohortAnchor": "‹‹ No cohort available to anchor this grade. Create a cohort first. ››",
+  "teacherAddGradeScreenFailedCreateRecord": "‹‹ Failed to create grade record. ››",
+  "phoneFieldLabel": "‹‹ Phone (optional) ››",
+  "phoneFieldHelper": "‹‹ Used for SMS password reset ››",
+  "gradesScreenCouldNotLoad": "‹‹ Could not load grades. ››",
+  "gradesScreenTimeout": "‹‹ Request timed out. Check your connection. ››",
+  "gradesScreenNoConnection": "‹‹ No connection. Pull to retry. ››",
+  "examDetailScreenCountdownPassed": "‹‹ This exam has passed ››",
+  "examDetailScreenCountdownToday": "‹‹ It's today! ››",
+  "teacherCreateDiplomaScreenDefaultTitle": "‹‹ Certificate of Achievement ››",
+  "@teacherCohortsScreenSingleGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenGradeRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "@teacherCohortsScreenMultiGrade": {
+    "placeholders": {
+      "grades": {
+        "type": "String"
+      }
+    }
+  }
 }
