@@ -1,11 +1,11 @@
 {
-    "name": "ClassMate",
+    "name": "ClassMate — Your Smart School Companion",
     "short_name": "ClassMate",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "ClassMate mobile app for students, teachers, and parents.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#1A237E",
+    "description": "ClassMate — Your Smart School Companion.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
