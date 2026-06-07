@@ -4,84 +4,57 @@ import '../../../core/auth/auth_session.dart';
 import '../../../core/config/env.dart';
 import '../../../core/http/cm_api.dart';
 
-/// A single shared material attached to a schedule period by any participant
-/// (student or teacher). The collaborative "drop box" per period — distinct
-/// from the teacher's curated material library.
-class ClassMaterial {
-  ClassMaterial({
+/// A material attached to a schedule period. Students (and teachers) add these
+/// from the period detail sheet; they are ordinary `TeacherMaterial` records
+/// behind the scenes, so they also appear in the Materials tab. Subject +
+/// audience are inherited from the period — the author only gives a title and
+/// files.
+class SlotMaterial {
+  SlotMaterial({
     required this.id,
-    required this.caption,
-    required this.fileUrl,
-    required this.fileName,
-    required this.mimeType,
-    required this.date,
-    required this.uploaderId,
-    required this.uploaderName,
+    required this.title,
+    required this.url,
+    required this.mime,
+    required this.attachments,
     required this.canDelete,
-    // Only present on the drawer-tab ("mine") feed.
-    this.slotId = '',
-    this.subject = '',
-    this.period,
-    this.dayOfWeek,
-    this.teacherName = '',
+    this.uploaderName = '',
   });
 
   final String id;
-  final String caption;
-  final String fileUrl;
-  final String fileName;
-  final String mimeType;
-  final String date;
-  final String uploaderId;
-  final String uploaderName;
+  final String title;
+  final String url;
+  final String mime;
+  final List<Map<String, dynamic>> attachments;
   final bool canDelete;
+  final String uploaderName;
 
-  final String slotId;
-  final String subject;
-  final int? period;
-  final int? dayOfWeek;
-  final String teacherName;
-
-  /// The pill label: caption if the uploader gave one, else the file name,
-  /// else a generic fallback. Never truncated by the UI.
-  String get displayName {
-    final c = caption.trim();
-    if (c.isNotEmpty) return c;
-    final f = fileName.trim();
-    if (f.isNotEmpty) return f;
-    return 'Material';
-  }
-
-  /// 'pdf' | 'image' | 'file' — drives the icon + which viewer opens.
-  String get kind {
-    final m = mimeType.toLowerCase();
-    final u = fileUrl.toLowerCase();
+  /// Pill `type` understood by AttachmentPill ('pdf'|'image'|'file'|'link').
+  String get pillType {
+    final m = mime.toLowerCase();
+    final u = url.toLowerCase();
     if (m.contains('pdf') || u.endsWith('.pdf')) return 'pdf';
     if (m.contains('image') ||
-        u.endsWith('.jpg') ||
-        u.endsWith('.jpeg') ||
-        u.endsWith('.png') ||
-        u.endsWith('.webp')) {
+        u.endsWith('.jpg') || u.endsWith('.jpeg') ||
+        u.endsWith('.png') || u.endsWith('.webp')) {
       return 'image';
     }
+    if (u.startsWith('http') && !u.contains('/uploads/')) return 'link';
     return 'file';
   }
 
-  factory ClassMaterial.fromJson(Map<String, dynamic> m) => ClassMaterial(
+  factory SlotMaterial.fromJson(Map<String, dynamic> m) => SlotMaterial(
         id: (m['id'] ?? '').toString(),
-        caption: (m['caption'] ?? '').toString(),
-        fileUrl: (m['fileUrl'] ?? '').toString(),
-        fileName: (m['fileName'] ?? '').toString(),
-        mimeType: (m['mimeType'] ?? '').toString(),
-        date: (m['date'] ?? '').toString(),
-        uploaderId: (m['uploaderId'] ?? '').toString(),
-        uploaderName: (m['uploaderName'] ?? '').toString(),
+        title: (m['title'] ?? '').toString(),
+        url: (m['url'] ?? '').toString(),
+        mime: (m['mime'] ?? '').toString(),
+        attachments: (m['attachments'] is List)
+            ? (m['attachments'] as List)
+                .whereType<Map>()
+                .map((e) => Map<String, dynamic>.from(e))
+                .toList()
+            : <Map<String, dynamic>>[],
         canDelete: m['canDelete'] == true,
-        slotId: (m['slotId'] ?? '').toString(),
-        subject: (m['subject'] ?? '').toString(),
-        period: (m['period'] as num?)?.toInt(),
-        dayOfWeek: (m['dayOfWeek'] as num?)?.toInt(),
-        teacherName: (m['teacherName'] ?? '').toString(),
+        uploaderName: (m['uploaderName'] ?? '').toString(),
       );
 }
 
@@ -101,43 +74,40 @@ class ClassMaterialsRepository {
       v is Map ? Map<String, dynamic>.from(v) : <String, dynamic>{};
   List _l(dynamic v) => v is List ? v : const [];
 
-  /// Materials shared on a single period.
-  Future<List<ClassMaterial>> listForSlot(String slotId) async {
-    final raw = await _api.getJson('/shared-materials/slot/$slotId');
-    return _l(_m(raw)['materials'])
-        .map((e) => ClassMaterial.fromJson(_m(e)))
-        .toList();
+  /// Materials attached to a single period (for the given date occurrence).
+  Future<List<SlotMaterial>> listForSlot(String slotId, {String date = ''}) async {
+    final raw = await _api.getJson('/shared-materials/slot/$slotId',
+        query: date.isNotEmpty ? {'date': date} : null);
+    return _l(_m(raw)['materials']).map((e) => SlotMaterial.fromJson(_m(e))).toList();
   }
 
-  /// Every shared material across the periods I take part in (drawer tab).
-  Future<List<ClassMaterial>> mine() async {
-    final raw = await _api.getJson('/shared-materials/mine');
-    return _l(_m(raw)['materials'])
-        .map((e) => ClassMaterial.fromJson(_m(e)))
-        .toList();
-  }
-
-  /// Two-step add: upload the file bytes to /uploads/attachment, then attach
-  /// the returned URL (plus optional caption) to the period.
-  Future<ClassMaterial> add({
+  /// Upload one or more files, then attach them as a single titled material to
+  /// the period. Subject + audience are inherited server-side from the slot.
+  Future<SlotMaterial> add({
     required String slotId,
-    required String filePath,
-    String? mimeType,
-    String caption = '',
+    required String title,
+    required List<({String path, String? mime, String name})> files,
     String date = '',
   }) async {
     final base = Env.stripApiSuffix(Env.apiBaseUrl).replaceAll(RegExp(r'/+$'), '');
     final uploadUri = Uri.parse('$base/uploads/attachment');
-    final up = await _api.multipartUpload(uploadUri, filePath, mimeType: mimeType);
+
+    final attachments = <Map<String, dynamic>>[];
+    for (final f in files) {
+      final up = await _api.multipartUpload(uploadUri, f.path, mimeType: f.mime);
+      attachments.add({
+        'url': (up['fileUrl'] ?? up['url'] ?? '').toString(),
+        'name': (up['fileName'] ?? f.name).toString(),
+        'mime': (up['mimeType'] ?? f.mime ?? '').toString(),
+      });
+    }
 
     final raw = await _api.postJson('/shared-materials/slot/$slotId', body: {
-      'fileUrl': (up['fileUrl'] ?? '').toString(),
-      'fileName': (up['fileName'] ?? '').toString(),
-      'mimeType': (up['mimeType'] ?? mimeType ?? '').toString(),
-      'caption': caption.trim(),
+      'title': title.trim(),
+      'attachments': attachments,
       'date': date.trim(),
     });
-    return ClassMaterial.fromJson(_m(_m(raw)['material']));
+    return SlotMaterial.fromJson(_m(_m(raw)['material']));
   }
 
   Future<void> remove(String id) async {

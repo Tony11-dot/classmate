@@ -36,7 +36,6 @@ import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
 import '../features/schedule/schedule_screen.dart' as schedule_ui;
-import '../features/class_materials/ui/class_materials_screen.dart';
 import '../features/teacher_mobile/ui/teacher_attendance_screen.dart';
 import '../features/teacher_mobile/ui/teacher_attendance_history_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_analytics_screen.dart';
@@ -684,10 +683,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/schedule',
             builder: (context, state) => const schedule_ui.ScheduleScreen(),
-          ),
-          _fadeRoute(
-            path: '/class-materials',
-            builder: (context, state) => const ClassMaterialsScreen(),
           ),
           _fadeRoute(
             path: '/teacher/schedule',

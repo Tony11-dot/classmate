@@ -7,7 +7,6 @@ import 'schedule_empty_state_copy.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/cm_loading.dart';
-import '../../ui/widgets/attachment_pill.dart';
 import '../class_materials/ui/class_materials_section.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -737,50 +736,6 @@ class _ScheduleTile extends StatelessWidget {
                     ),
                 ],
               ),
-              // Attachments — tappable material pills. Wired to
-              // item['attachments'] (the server attaches the resolved
-              // material list per slot). Quietly empty when nothing's
-              // attached.
-              if (attachments.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Icon(Icons.attach_file_rounded, size: 16, color: cs.primary),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Attachments',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: cs.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                // Material pills — title is the pill text, tapping opens
-                // PDFs/images in-app via the shared AttachmentPill widget.
-                AttachmentPills(
-                  attachments: attachments.map((m) {
-                    final mTitle = (m['title'] ?? m['name'] ?? 'Material').toString();
-                    final mUrl = (m['url'] ?? '').toString();
-                    final mMime = (m['mime'] ?? '').toString().toLowerCase();
-                    final lowerUrl = mUrl.toLowerCase();
-                    String type = 'file';
-                    if (mMime.contains('pdf') || lowerUrl.endsWith('.pdf')) {
-                      type = 'pdf';
-                    } else if (mMime.contains('image') ||
-                        lowerUrl.endsWith('.jpg') ||
-                        lowerUrl.endsWith('.jpeg') ||
-                        lowerUrl.endsWith('.png') ||
-                        lowerUrl.endsWith('.webp')) {
-                      type = 'image';
-                    } else if (mUrl.startsWith('http')) {
-                      type = 'link';
-                    }
-                    return <String, dynamic>{'url': mUrl, 'name': mTitle, 'type': type};
-                  }).toList(),
-                ),
-              ],
               // Notes
               if (notes.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -818,13 +773,37 @@ class _ScheduleTile extends StatelessWidget {
               // periods now; the schedule grid is the source of truth for
               // what's happening when.)
 
-              // Collaborative class materials — students see what classmates
-              // shared for this period and can add their own photos/files.
+              // Materials — the period's materials (teacher- and student-added)
+              // shown as tappable pills, with a "+" to add your own. Subject +
+              // audience are inherited from the period; you only give a title +
+              // files. Same single Materials system as the drawer tab.
               if (slotId.isNotEmpty) ...[
                 const SizedBox(height: 18),
                 const Divider(height: 1),
                 const SizedBox(height: 14),
-                ClassMaterialsSection(slotId: slotId, date: dateStr),
+                ClassMaterialsSection(
+                  slotId: slotId,
+                  date: dateStr,
+                  initial: attachments.map((m) {
+                    final mTitle = (m['title'] ?? m['name'] ?? 'Material').toString();
+                    final mUrl = (m['url'] ?? '').toString();
+                    final mMime = (m['mime'] ?? '').toString().toLowerCase();
+                    final lowerUrl = mUrl.toLowerCase();
+                    String type = 'file';
+                    if (mMime.contains('pdf') || lowerUrl.endsWith('.pdf')) {
+                      type = 'pdf';
+                    } else if (mMime.contains('image') ||
+                        lowerUrl.endsWith('.jpg') ||
+                        lowerUrl.endsWith('.jpeg') ||
+                        lowerUrl.endsWith('.png') ||
+                        lowerUrl.endsWith('.webp')) {
+                      type = 'image';
+                    } else if (mUrl.startsWith('http')) {
+                      type = 'link';
+                    }
+                    return <String, dynamic>{'url': mUrl, 'name': mTitle, 'type': type};
+                  }).toList(),
+                ),
               ],
             ],
           ),

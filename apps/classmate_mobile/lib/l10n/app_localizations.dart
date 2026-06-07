@@ -12177,41 +12177,23 @@ abstract class AppLocalizations {
   /// **'Materials'**
   String get navMaterials;
 
-  /// No description provided for @classMaterialsTitle.
+  /// No description provided for @classMaterialsAddTitle.
   ///
   /// In en, this message translates to:
-  /// **'Class Materials'**
-  String get classMaterialsTitle;
+  /// **'Add material'**
+  String get classMaterialsAddTitle;
 
-  /// No description provided for @classMaterialsCaption.
+  /// No description provided for @classMaterialsTitleLabel.
   ///
   /// In en, this message translates to:
-  /// **'Add a caption'**
-  String get classMaterialsCaption;
+  /// **'Title'**
+  String get classMaterialsTitleLabel;
 
-  /// No description provided for @classMaterialsCaptionHint.
+  /// No description provided for @classMaterialsFilesCount.
   ///
   /// In en, this message translates to:
-  /// **'Caption (optional)'**
-  String get classMaterialsCaptionHint;
-
-  /// No description provided for @classMaterialsShare.
-  ///
-  /// In en, this message translates to:
-  /// **'Share'**
-  String get classMaterialsShare;
-
-  /// No description provided for @classMaterialsRemoveTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove material'**
-  String get classMaterialsRemoveTitle;
-
-  /// No description provided for @classMaterialsRemoveBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove this shared material? This can\'t be undone.'**
-  String get classMaterialsRemoveBody;
+  /// **'{count} files'**
+  String classMaterialsFilesCount(int count);
 
   /// No description provided for @classMaterialsLoadError.
   ///
@@ -12222,14 +12204,8 @@ abstract class AppLocalizations {
   /// No description provided for @classMaterialsEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No shared materials yet — be the first to add one.'**
+  /// **'No materials yet — tap Add to share one.'**
   String get classMaterialsEmpty;
-
-  /// No description provided for @classMaterialsTabEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Materials shared in your classes will show up here.'**
-  String get classMaterialsTabEmpty;
 
   /// No description provided for @navPlans.
   ///

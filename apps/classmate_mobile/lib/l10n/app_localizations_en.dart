@@ -6857,34 +6857,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navMaterials => 'Materials';
 
   @override
-  String get classMaterialsTitle => 'Class Materials';
+  String get classMaterialsAddTitle => 'Add material';
 
   @override
-  String get classMaterialsCaption => 'Add a caption';
+  String get classMaterialsTitleLabel => 'Title';
 
   @override
-  String get classMaterialsCaptionHint => 'Caption (optional)';
-
-  @override
-  String get classMaterialsShare => 'Share';
-
-  @override
-  String get classMaterialsRemoveTitle => 'Remove material';
-
-  @override
-  String get classMaterialsRemoveBody =>
-      'Remove this shared material? This can\'t be undone.';
+  String classMaterialsFilesCount(int count) {
+    return '$count files';
+  }
 
   @override
   String get classMaterialsLoadError => 'Couldn\'t load materials';
 
   @override
-  String get classMaterialsEmpty =>
-      'No shared materials yet — be the first to add one.';
-
-  @override
-  String get classMaterialsTabEmpty =>
-      'Materials shared in your classes will show up here.';
+  String get classMaterialsEmpty => 'No materials yet — tap Add to share one.';
 
   @override
   String get navPlans => 'NOVA Plans';

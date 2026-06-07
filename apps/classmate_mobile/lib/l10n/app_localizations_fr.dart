@@ -6954,23 +6954,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navMaterials => 'Supports de cours';
 
   @override
-  String get classMaterialsTitle => 'Supports de la séance';
+  String get classMaterialsAddTitle => 'Ajouter un support';
 
   @override
-  String get classMaterialsCaption => 'Ajouter une légende';
+  String get classMaterialsTitleLabel => 'Titre';
 
   @override
-  String get classMaterialsCaptionHint => 'Légende (facultatif)';
-
-  @override
-  String get classMaterialsShare => 'Partager';
-
-  @override
-  String get classMaterialsRemoveTitle => 'Supprimer le support';
-
-  @override
-  String get classMaterialsRemoveBody =>
-      'Supprimer ce support partagé ? Action irréversible.';
+  String classMaterialsFilesCount(int count) {
+    return '$count fichiers';
+  }
 
   @override
   String get classMaterialsLoadError => 'Impossible de charger les supports';
@@ -6978,10 +6970,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get classMaterialsEmpty =>
       'Aucun support partagé — soyez le premier à en ajouter.';
-
-  @override
-  String get classMaterialsTabEmpty =>
-      'Les supports partagés dans vos cours apparaîtront ici.';
 
   @override
   String get navPlans => 'Forfaits NOVA';
