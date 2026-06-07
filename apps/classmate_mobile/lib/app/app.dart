@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +33,13 @@ class ClassMateApp extends ConsumerWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      // Flutter web overwrites the browser <title> from this at runtime; with
+      // no title it blanks it and the tab falls back to showing the URL. Set
+      // the full marketing title on web so every tab/route reads
+      // "ClassMate — Your Smart School Companion" (matches the marketing site).
+      // On mobile keep the short name so the OS task switcher isn't cluttered.
+      onGenerateTitle: (_) =>
+          kIsWeb ? 'ClassMate — Your Smart School Companion' : 'ClassMate',
       scaffoldMessengerKey: appScaffoldMessengerKey,
       routerConfig: router,
       locale: locale,
@@ -41,10 +49,12 @@ class ClassMateApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // Only the locales we actually ship translations for (one .arb each).
+      // de/pt/tr were listed here without any .arb, so the app could resolve to
+      // a locale with zero translations (all-English UI) — removed.
       supportedLocales: const [
         Locale('en'), Locale('ar'), Locale('he'),
-        Locale('fr'), Locale('ru'), Locale('de'),
-        Locale('pt'), Locale('tr'),
+        Locale('fr'), Locale('ru'),
         // Pseudo-locale for translation-leak detection. Wraps every
         // translated string in ‹‹ ... ›› — switch to it in Settings to
         // visually flag any hardcoded English. Generated from app_en.arb

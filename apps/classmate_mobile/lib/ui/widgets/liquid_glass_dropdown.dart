@@ -114,7 +114,9 @@ class LiquidGlassDropdown<T> extends StatelessWidget {
     for (final it in items) {
       if (it.value == v) return it.label;
     }
-    return v.toString();
+    // No matching item (e.g. a null/unset value). Never render the literal
+    // "null" — fall back to the first item's label if there is one, else blank.
+    return items.isNotEmpty ? items.first.label : '';
   }
 
   Future<void> _open(BuildContext context) async {

@@ -70,9 +70,15 @@ class SettingsScreen extends ConsumerWidget {
     final lc = ref.read(localeControllerProvider.notifier);
     final cs = Theme.of(context).colorScheme;
 
-    final currentLang = locale == null
-        ? null
-        : _kLanguages.where((l) => l.code == locale.languageCode).firstOrNull;
+    // Always resolve to the language the app is ACTUALLY showing — the user's
+    // explicit choice if set, otherwise the active (system-resolved) locale.
+    // Never leave this null, or the selector would render "null" instead of the
+    // current language.
+    final activeCode = locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+    final currentLang = _kLanguages.firstWhere(
+      (l) => l.code == activeCode,
+      orElse: () => _kLanguages.first, // English
+    );
 
     final l = AppLocalizations.of(context)!;
 
@@ -155,10 +161,8 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   LiquidGlassDropdown<String?>(
-                    label: currentLang == null
-                        ? l.settingsLanguage
-                        : '${l.settingsLanguage} — ${currentLang.flag} ${currentLang.label}',
-                    value: currentLang?.code,
+                    label: '${l.settingsLanguage} — ${currentLang.flag} ${currentLang.label}',
+                    value: currentLang.code,
                     items: [
                       // Pseudo-locale (code 'ps') is dev-only — strip it in
                       // release builds so end users never see it as a real
