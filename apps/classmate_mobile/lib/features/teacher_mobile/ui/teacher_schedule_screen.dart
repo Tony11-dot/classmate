@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../class_materials/ui/class_materials_slot_screen.dart';
 
 // ── providers ──────────────────────────────────────────────────────────────
 
@@ -843,6 +844,23 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                           // added on May 24 don't bleed into May 17.
                           'date': dateYmd,
                         });
+                      },
+                    ),
+                  if (slotId.isNotEmpty)
+                    _SheetAction(
+                      icon: Icons.collections_bookmark_rounded,
+                      label: l.classMaterialsTitle,
+                      onTap: () {
+                        Navigator.of(ctx).pop();
+                        Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => ClassMaterialsSlotScreen(
+                              slotId: slotId,
+                              date: dateYmd,
+                              title: subject.isNotEmpty ? subject : l.teacherUnassignedSlot,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   const SizedBox(height: 8),

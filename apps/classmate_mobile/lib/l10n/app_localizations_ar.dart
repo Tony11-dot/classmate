@@ -6820,6 +6820,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navMaterials => 'المواد التعليمية';
 
   @override
+  String get classMaterialsTitle => 'مواد الحصة';
+
+  @override
+  String get classMaterialsCaption => 'أضف وصفًا';
+
+  @override
+  String get classMaterialsCaptionHint => 'وصف (اختياري)';
+
+  @override
+  String get classMaterialsShare => 'مشاركة';
+
+  @override
+  String get classMaterialsRemoveTitle => 'إزالة المادة';
+
+  @override
+  String get classMaterialsRemoveBody =>
+      'هل تريد إزالة هذه المادة المشتركة؟ لا يمكن التراجع.';
+
+  @override
+  String get classMaterialsLoadError => 'تعذّر تحميل المواد';
+
+  @override
+  String get classMaterialsEmpty => 'لا توجد مواد مشتركة بعد — كن أول من يضيف.';
+
+  @override
+  String get classMaterialsTabEmpty => 'ستظهر هنا المواد المشتركة في حصصك.';
+
+  @override
   String get navPlans => 'خطط NOVA';
 
   @override

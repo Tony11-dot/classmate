@@ -12177,6 +12177,60 @@ abstract class AppLocalizations {
   /// **'Materials'**
   String get navMaterials;
 
+  /// No description provided for @classMaterialsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Class Materials'**
+  String get classMaterialsTitle;
+
+  /// No description provided for @classMaterialsCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a caption'**
+  String get classMaterialsCaption;
+
+  /// No description provided for @classMaterialsCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption (optional)'**
+  String get classMaterialsCaptionHint;
+
+  /// No description provided for @classMaterialsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get classMaterialsShare;
+
+  /// No description provided for @classMaterialsRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove material'**
+  String get classMaterialsRemoveTitle;
+
+  /// No description provided for @classMaterialsRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this shared material? This can\'t be undone.'**
+  String get classMaterialsRemoveBody;
+
+  /// No description provided for @classMaterialsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load materials'**
+  String get classMaterialsLoadError;
+
+  /// No description provided for @classMaterialsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No shared materials yet — be the first to add one.'**
+  String get classMaterialsEmpty;
+
+  /// No description provided for @classMaterialsTabEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials shared in your classes will show up here.'**
+  String get classMaterialsTabEmpty;
+
   /// No description provided for @navPlans.
   ///
   /// In en, this message translates to:

@@ -6954,6 +6954,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navMaterials => 'Supports de cours';
 
   @override
+  String get classMaterialsTitle => 'Supports de la séance';
+
+  @override
+  String get classMaterialsCaption => 'Ajouter une légende';
+
+  @override
+  String get classMaterialsCaptionHint => 'Légende (facultatif)';
+
+  @override
+  String get classMaterialsShare => 'Partager';
+
+  @override
+  String get classMaterialsRemoveTitle => 'Supprimer le support';
+
+  @override
+  String get classMaterialsRemoveBody =>
+      'Supprimer ce support partagé ? Action irréversible.';
+
+  @override
+  String get classMaterialsLoadError => 'Impossible de charger les supports';
+
+  @override
+  String get classMaterialsEmpty =>
+      'Aucun support partagé — soyez le premier à en ajouter.';
+
+  @override
+  String get classMaterialsTabEmpty =>
+      'Les supports partagés dans vos cours apparaîtront ici.';
+
+  @override
   String get navPlans => 'Forfaits NOVA';
 
   @override

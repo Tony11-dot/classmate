@@ -8,6 +8,7 @@ import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/attachment_pill.dart';
+import '../class_materials/ui/class_materials_section.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Attendance helpers shared across the schedule tile and detail sheet
@@ -607,6 +608,7 @@ class _ScheduleTile extends StatelessWidget {
     final notes = (item['notes'] ?? item['note'] ?? item['classNote'] ??
         item['teacherNote'] ?? item['description'] ?? '').toString().trim();
     final period = (item['period'] as num?)?.toInt();
+    final slotId = (item['id'] ?? item['slotId'] ?? '').toString().trim();
     final hasStatus = attendanceStatus.isNotEmpty;
     // Date label — derived from item.date (server YMD) when present so
     // the sheet shows "Monday · May 24" even if the user is browsing a
@@ -637,6 +639,7 @@ class _ScheduleTile extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           child: Column(
@@ -814,8 +817,18 @@ class _ScheduleTile extends StatelessWidget {
               // (Go-to-classroom dropped — classrooms are independent of
               // periods now; the schedule grid is the source of truth for
               // what's happening when.)
+
+              // Collaborative class materials — students see what classmates
+              // shared for this period and can add their own photos/files.
+              if (slotId.isNotEmpty) ...[
+                const SizedBox(height: 18),
+                const Divider(height: 1),
+                const SizedBox(height: 14),
+                ClassMaterialsSection(slotId: slotId, date: dateStr),
+              ],
             ],
           ),
+        ),
         ),
       ),
     );

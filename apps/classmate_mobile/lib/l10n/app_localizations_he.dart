@@ -6794,6 +6794,34 @@ class AppLocalizationsHe extends AppLocalizations {
   String get navMaterials => 'חומרי לימוד';
 
   @override
+  String get classMaterialsTitle => 'חומרי השיעור';
+
+  @override
+  String get classMaterialsCaption => 'הוספת כיתוב';
+
+  @override
+  String get classMaterialsCaptionHint => 'כיתוב (לא חובה)';
+
+  @override
+  String get classMaterialsShare => 'שיתוף';
+
+  @override
+  String get classMaterialsRemoveTitle => 'הסרת חומר';
+
+  @override
+  String get classMaterialsRemoveBody => 'להסיר את החומר המשותף? לא ניתן לבטל.';
+
+  @override
+  String get classMaterialsLoadError => 'לא ניתן לטעון חומרים';
+
+  @override
+  String get classMaterialsEmpty =>
+      'עדיין אין חומרים משותפים — היה הראשון להוסיף.';
+
+  @override
+  String get classMaterialsTabEmpty => 'חומרים ששותפו בשיעורים שלך יופיעו כאן.';
+
+  @override
   String get navPlans => 'תוכניות NOVA';
 
   @override

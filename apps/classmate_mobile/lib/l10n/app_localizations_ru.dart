@@ -6809,6 +6809,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navMaterials => 'Материалы';
 
   @override
+  String get classMaterialsTitle => 'Материалы урока';
+
+  @override
+  String get classMaterialsCaption => 'Добавить подпись';
+
+  @override
+  String get classMaterialsCaptionHint => 'Подпись (необязательно)';
+
+  @override
+  String get classMaterialsShare => 'Поделиться';
+
+  @override
+  String get classMaterialsRemoveTitle => 'Удалить материал';
+
+  @override
+  String get classMaterialsRemoveBody =>
+      'Удалить этот общий материал? Действие необратимо.';
+
+  @override
+  String get classMaterialsLoadError => 'Не удалось загрузить материалы';
+
+  @override
+  String get classMaterialsEmpty =>
+      'Пока нет общих материалов — добавьте первым.';
+
+  @override
+  String get classMaterialsTabEmpty =>
+      'Здесь появятся материалы, которыми поделились на ваших уроках.';
+
+  @override
   String get navPlans => 'Планы NOVA';
 
   @override
