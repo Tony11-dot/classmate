@@ -22,12 +22,15 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="ClassMate">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=cm2">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=cm3">
 
-  <!-- Favicon (CM mark). ?v= cache-buster forces browsers to drop the old
-       cached Flutter favicon. -->
-  <link rel="icon" type="image/png" href="favicon.png?v=cm2">
-  <link rel="shortcut icon" type="image/png" href="favicon.png?v=cm2">
+  <!-- Favicon (CM mark). A real favicon.ico is shipped so the browser's
+       hard-coded /favicon.ico fallback (which Firebase's SPA rewrite would
+       otherwise answer with index.html) resolves to the CM mark, not a stale
+       cached Flutter icon. ?v= busts the path-keyed favicon cache. -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=cm3" sizes="any">
+  <link rel="icon" type="image/png" href="favicon.png?v=cm3">
+  <link rel="shortcut icon" href="favicon.ico?v=cm3">
 
   <title>ClassMate</title>
   <link rel="manifest" href="manifest.json">
