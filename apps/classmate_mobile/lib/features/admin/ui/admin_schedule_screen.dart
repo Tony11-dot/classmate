@@ -1333,8 +1333,8 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
     // one, because it renders on every matching weekday.
     if (freq != 1 && _startDate == null) {
       final msg = freq == 0
-          ? 'Pick a date for a one-off period.'
-          : 'Pick a start date for the every-$freq-weeks schedule.';
+          ? AppLocalizations.of(context)!.adminSchedulePickDateOnce
+          : AppLocalizations.of(context)!.adminSchedulePickStartDate(freq);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(msg),
@@ -1747,7 +1747,11 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 subtitleBuilder: (item) {
                   final g = item['grade'];
                   final cn = item['cohortName']?.toString() ?? '';
-                  if (g != null) return 'Grade $g${cn.isNotEmpty ? ' · $cn' : ''}';
+                  if (g != null) {
+                    return cn.isNotEmpty
+                        ? l.adminScheduleGradeWithCohort('$g', cn)
+                        : l.gradeLevelLabel('$g');
+                  }
                   return cn.isNotEmpty ? cn : null;
                 },
                 searchHint: l.adminSearchStudents,
@@ -1765,7 +1769,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      'No cohorts yet — create one first.',
+                      l.adminScheduleNoCohortsYet,
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );
@@ -1846,7 +1850,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
             if (_frequencyWeeks == 0 || _frequencyWeeks > 1 || _customFreq) ...[
               const SizedBox(height: 16),
               Text(
-                _frequencyWeeks == 0 ? 'On' : 'Starts on',
+                _frequencyWeeks == 0 ? l.adminScheduleDateOnLabel : l.adminScheduleDateStartsOnLabel,
                 style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 6),
@@ -2154,8 +2158,9 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
   }
 
   String _audienceLabelForSlot(Map<String, dynamic> slot) {
+    final l = AppLocalizations.of(context)!;
     final ag = (slot['audienceGrade'] as num?)?.toInt();
-    if (ag != null) return 'Grade $ag';
+    if (ag != null) return l.gradeLevelLabel(ag);
     final names = (slot['cohorts'] as List? ?? const [])
         .whereType<Map>()
         .map((c) => (c['cohort'] is Map ? c['cohort']['name'] : null)?.toString() ?? '')
@@ -2165,7 +2170,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
       return names.length == 1 ? names.first : '${names.first} +${names.length - 1}';
     }
     final n = (slot['students'] as List? ?? const []).length;
-    return n > 0 ? '$n student${n == 1 ? '' : 's'}' : '—';
+    return n > 0 ? l.adminScheduleStudentCount(n) : l.adminScheduleAudienceNone;
   }
 
   /// Builds the per-student conflict dialog. Always lists the affected
@@ -2211,15 +2216,16 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
                       draftTeacherName.isNotEmpty
-                          ? '$draftTeacherName would have two classes at the same time.'
-                          : 'This teacher would have two classes at the same time.',
+                          ? AppLocalizations.of(ctx)!.adminScheduleTeacherClashNamed(draftTeacherName)
+                          : AppLocalizations.of(ctx)!.adminScheduleTeacherClash,
                     ),
                   ),
                 if (affectedAll.isNotEmpty)
                   Text(
                     affectedAll.length == 1
-                        ? '${names.isNotEmpty ? names.first : 'A student'} would have two periods at the same time:'
-                        : '${affectedAll.length} students would have two periods at the same time:',
+                        ? AppLocalizations.of(ctx)!.adminScheduleStudentClashSingle(
+                            names.isNotEmpty ? names.first : AppLocalizations.of(ctx)!.adminScheduleAStudent)
+                        : AppLocalizations.of(ctx)!.adminScheduleStudentClashMany(affectedAll.length),
                   ),
                 const SizedBox(height: 8),
                 for (final h in hits)
@@ -2233,15 +2239,15 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 if (names.isNotEmpty) ...[
                   const SizedBox(height: 10),
                   Text(
-                    'Affected: $preview',
+                    AppLocalizations.of(ctx)!.adminScheduleAffected(preview),
                     style: const TextStyle(fontStyle: FontStyle.italic),
                   ),
                 ],
                 const SizedBox(height: 12),
                 Text(
                   affectedAll.isEmpty
-                      ? 'How should this be resolved?'
-                      : 'How should this be resolved for those students?',
+                      ? AppLocalizations.of(ctx)!.adminScheduleResolvePrompt
+                      : AppLocalizations.of(ctx)!.adminScheduleResolvePromptStudents,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ],
@@ -2690,7 +2696,7 @@ class _CohortStudentPreviewState extends ConsumerState<_CohortStudentPreview> {
       autoStudents: auto,
       allCandidates: allStudents,
       countLabelBuilder: (n) =>
-          '$n student${n == 1 ? '' : 's'} in selected cohort${selectedCohortIds.length == 1 ? '' : 's'}',
+          AppLocalizations.of(context)!.adminScheduleStudentsInCohorts(n, selectedCohortIds.length),
       loading: _loading,
       onChanged: widget.onEdited,
     );
@@ -2851,7 +2857,7 @@ class _GradeStudentPreviewState extends ConsumerState<_GradeStudentPreview> {
       autoStudents: auto,
       allCandidates: allStudents,
       countLabelBuilder: (n) =>
-          '$n ${n == 1 ? 'student' : 'students'} in Grade $grade',
+          AppLocalizations.of(context)!.adminScheduleStudentsInGrade(n, '$grade'),
       loading: _loading,
       onChanged: widget.onEdited,
     );
@@ -3028,7 +3034,7 @@ class _AudienceEditorState extends State<_AudienceEditor> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      'Customized — saved as individual students',
+                      AppLocalizations.of(context)!.adminScheduleCustomizedNote,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: cs.onTertiaryContainer,
                         fontWeight: FontWeight.w600,
@@ -3064,7 +3070,7 @@ class _AudienceEditorState extends State<_AudienceEditor> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
-                      '+${_effective.length - 40} more',
+                      AppLocalizations.of(context)!.adminScheduleMoreCount(_effective.length - 40),
                       style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   ),
@@ -3135,7 +3141,7 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Add students',
+                      AppLocalizations.of(context)!.adminScheduleAddStudentsTitle,
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -3176,7 +3182,7 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
                   ? Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        'No students match.',
+                        AppLocalizations.of(context)!.adminScheduleNoStudentsMatch,
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     )
@@ -3190,7 +3196,9 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
                         final grade = item['grade'];
                         final cn = item['cohortName']?.toString() ?? '';
                         final sub = grade != null
-                            ? 'Grade $grade${cn.isNotEmpty ? ' · $cn' : ''}'
+                            ? (cn.isNotEmpty
+                                ? AppLocalizations.of(context)!.adminScheduleGradeWithCohort('$grade', cn)
+                                : AppLocalizations.of(context)!.gradeLevelLabel('$grade'))
                             : (cn.isNotEmpty ? cn : null);
                         final sel = _picked.contains(id);
                         return CheckboxListTile(
@@ -3349,7 +3357,7 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
                   ? Padding(
                       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
                       child: Text(
-                        'No periods here yet.',
+                        AppLocalizations.of(context)!.adminScheduleNoPeriodsHere,
                         style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     )
@@ -3405,6 +3413,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
 
   /// Cohort name + optional grade label, formatted for the audience header.
   String _cohortDisplayLabel(Map cohortRow) {
+    final l = AppLocalizations.of(context)!;
     final cohort = cohortRow['cohort'];
     if (cohort is! Map) return '';
     final name = cohort['name']?.toString() ?? '';
@@ -3417,17 +3426,17 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
           .toList()
         ..sort();
       if (ints.length == 1) {
-        gradeLabel = 'Grade ${ints.first}';
+        gradeLabel = l.gradeLevelLabel(ints.first);
       } else {
         final contiguous = ints.last - ints.first == ints.length - 1;
         gradeLabel = contiguous
-            ? 'Grade ${ints.first}-${ints.last}'
-            : 'Grades ${ints.join(', ')}';
+            ? l.adminScheduleGradeRange('${ints.first}', '${ints.last}')
+            : l.adminScheduleGradesList(ints.join(', '));
       }
     } else {
       final g = cohort['grade'];
-      if (g is int) gradeLabel = 'Grade $g';
-      if (g is num) gradeLabel = 'Grade ${g.toInt()}';
+      if (g is int) gradeLabel = l.gradeLevelLabel(g);
+      if (g is num) gradeLabel = l.gradeLevelLabel(g.toInt());
     }
     if (name.isEmpty && gradeLabel == null) return '';
     if (name.isEmpty) return gradeLabel!;
@@ -3613,7 +3622,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                         const SizedBox(height: 4),
                         if (expandedNames.isEmpty)
                           Text(
-                            'No students in these cohorts yet.',
+                            l.adminScheduleNoStudentsInCohorts,
                             style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                           )
                         else
@@ -3660,7 +3669,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'Every $freq weeks',
+                          l.adminScheduleEveryNWeeks(freq),
                           style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                       ),
@@ -3760,7 +3769,7 @@ class _PeriodColorRowState extends State<_PeriodColorRow> {
         return Row(
           children: [
             Text(
-              'Color',
+              AppLocalizations.of(context)!.adminScheduleColorLabel,
               style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(width: 8),
@@ -3925,7 +3934,7 @@ class _SubjectPickerField extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                hasValue ? value! : 'Subject *',
+                hasValue ? value! : AppLocalizations.of(context)!.adminScheduleSubjectRequired,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: hasValue ? FontWeight.w700 : FontWeight.w500,
                   color: hasValue ? cs.onSurface : cs.onSurfaceVariant,
@@ -4097,8 +4106,8 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                         padding: const EdgeInsets.all(24),
                         child: Text(
                           all.isEmpty
-                              ? 'No school subjects yet. Tap "Add new" to define one.'
-                              : 'No subjects match your search.',
+                              ? AppLocalizations.of(context)!.adminScheduleNoSchoolSubjects
+                              : AppLocalizations.of(context)!.adminScheduleNoSubjectsMatch,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                         ),

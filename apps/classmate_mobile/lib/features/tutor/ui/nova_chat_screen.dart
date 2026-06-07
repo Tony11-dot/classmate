@@ -2084,31 +2084,26 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               const SizedBox(height: 16),
               _AboutRow(
                 icon: Icons.psychology_rounded,
-                title: 'AI-powered assistant',
-                body: 'NOVA is built on large language model technology to help '
-                    'you study, understand concepts, and explore ideas.',
+                title: l.novaChatScreenAboutAiPoweredTitle,
+                body: l.novaChatScreenAboutAiPoweredBody,
               ),
               const SizedBox(height: 12),
               _AboutRow(
                 icon: Icons.warning_amber_rounded,
                 title: AppLocalizations.of(context)!.novaDisclaimerCanMakeMistakes,
-                body: 'NOVA may produce inaccurate, incomplete, or outdated '
-                    'information. Always verify important answers with your '
-                    'teacher or a trusted source.',
+                body: l.novaChatScreenAboutMistakesBody,
               ),
               const SizedBox(height: 12),
               _AboutRow(
                 icon: Icons.school_rounded,
                 title: AppLocalizations.of(context)!.novaDisclaimerEducationalUseOnly,
-                body: 'NOVA is designed for learning support and is not a '
-                    'substitute for professional medical, legal, or financial advice.',
+                body: l.novaChatScreenAboutEducationalBody,
               ),
               const SizedBox(height: 12),
               _AboutRow(
                 icon: Icons.lock_outline_rounded,
                 title: AppLocalizations.of(context)!.novaDisclaimerYourPrivacy,
-                body: 'Conversations are used to generate responses. '
-                    'Do not share sensitive personal information.',
+                body: l.novaChatScreenAboutPrivacyBody,
               ),
             ],
           ),
@@ -2405,7 +2400,7 @@ class _PersistentDisclaimer extends StatelessWidget {
             Icon(Icons.info_outline_rounded, size: 11, color: cs.onSurfaceVariant.withValues(alpha: 0.55)),
             const SizedBox(width: 4),
             Text(
-              'NOVA can make mistakes. Tap to learn more.',
+              AppLocalizations.of(context)!.novaChatScreenDisclaimerTapToLearn,
               style: TextStyle(
                 fontSize: 11,
                 color: cs.onSurfaceVariant.withValues(alpha: 0.55),

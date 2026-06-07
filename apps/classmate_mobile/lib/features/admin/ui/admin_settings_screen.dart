@@ -51,67 +51,66 @@ class AdminSettingsScreen extends ConsumerWidget {
           if (isAdmin) ...[
             const SizedBox(height: 24),
             // ── Bulk tools ────────────────────────────────────────────────
-            _SectionHeader(label: 'Bulk tools'),
+            _SectionHeader(label: l.adminSettingsScreenBulkTools),
             const SizedBox(height: 10),
             _SettingsNavTile(
               icon: Icons.upload_file_rounded,
-              label: 'Import users',
-              subtitle: 'Add many at once — grid or CSV',
+              label: l.adminSettingsScreenImportUsers,
+              subtitle: l.adminSettingsScreenImportUsersSubtitle,
               onTap: () => context.push('/admin/import-users'),
             ),
             const SizedBox(height: 6),
             _SettingsNavTile(
               icon: Icons.upgrade_rounded,
-              label: 'Upgrade grades',
-              subtitle: 'Promote every student one grade',
+              label: l.adminSettingsScreenUpgradeGrades,
+              subtitle: l.adminSettingsScreenUpgradeGradesSubtitle,
               onTap: () => _confirmAndRun(
                 context, ref,
-                title: 'Upgrade all grades?',
-                body: 'Every student moves up one grade. Students already at the top '
-                    'grade are kept as graduating (never deleted) for you to handle. '
-                    'This is safe to run once at the start of the school year.',
-                confirmLabel: 'Upgrade',
+                title: l.adminSettingsScreenUpgradeGradesTitle,
+                body: l.adminSettingsScreenUpgradeGradesBody,
+                confirmLabel: l.adminSettingsScreenUpgradeConfirm,
                 destructive: false,
                 action: (repo) => repo.promoteAllGrades(),
-                success: (r) => 'Promoted ${r['promoted'] ?? 0} students · ${r['graduating'] ?? 0} graduating',
+                success: (r) => l.adminSettingsScreenUpgradeSuccess(
+                    (r['promoted'] ?? 0) as int, (r['graduating'] ?? 0) as int),
               ),
             ),
 
             const SizedBox(height: 24),
             // ── Danger zone ───────────────────────────────────────────────
-            _SectionHeader(label: 'Danger zone'),
+            _SectionHeader(label: l.adminSettingsScreenDangerZone),
             const SizedBox(height: 10),
             _SettingsNavTile(
               icon: Icons.event_busy_rounded,
               danger: true,
-              label: 'Reset schedule',
-              subtitle: 'Delete all periods & overrides',
+              label: l.adminSettingsScreenResetSchedule,
+              subtitle: l.adminSettingsScreenResetScheduleSubtitle,
               onTap: () => _confirmAndRun(
                 context, ref,
-                title: 'Reset the whole schedule?',
-                body: 'This permanently deletes every period and one-off override for '
-                    'your school. Bell-schedule times are kept. This cannot be undone.',
-                confirmLabel: 'Reset schedule',
+                title: l.adminSettingsScreenResetScheduleTitle,
+                body: l.adminSettingsScreenResetScheduleBody,
+                confirmLabel: l.adminSettingsScreenResetSchedule,
                 destructive: true,
                 action: (repo) => repo.resetSchedule(),
-                success: (r) => 'Schedule cleared — ${r['slots'] ?? 0} periods removed',
+                success: (r) => l.adminSettingsScreenResetScheduleSuccess(
+                    (r['slots'] ?? 0) as int),
               ),
             ),
             const SizedBox(height: 6),
             _SettingsNavTile(
               icon: Icons.groups_rounded,
               danger: true,
-              label: 'Reset cohorts',
-              subtitle: 'Delete all of your cohorts',
+              label: l.adminSettingsScreenResetCohorts,
+              subtitle: l.adminSettingsScreenResetCohortsSubtitle,
               onTap: () => _confirmAndRun(
                 context, ref,
-                title: 'Delete all cohorts?',
-                body: 'This permanently deletes every cohort in your school and removes '
-                    'students from them. Student accounts are NOT deleted. This cannot be undone.',
-                confirmLabel: 'Delete cohorts',
+                title: l.adminSettingsScreenResetCohortsTitle,
+                body: l.adminSettingsScreenResetCohortsBody,
+                confirmLabel: l.adminSettingsScreenDeleteCohortsConfirm,
                 destructive: true,
                 action: (repo) => repo.resetCohorts(),
-                success: (r) => 'Deleted ${r['deleted'] ?? 0} cohorts',
+                success: (r) => l.adminSettingsScreenResetCohortsSuccess(
+                    (r['deleted'] ?? 0) as int),
               ),
             ),
           ],
@@ -130,7 +129,7 @@ class AdminSettingsScreen extends ConsumerWidget {
           _SettingsNavTile(
             icon: Icons.palette_rounded,
             label: l.navSettings,
-            subtitle: 'Theme, colors, language',
+            subtitle: l.adminSettingsScreenAppearanceSubtitle,
             onTap: () => context.push('/settings'),
           ),
         ],
@@ -150,6 +149,7 @@ Future<void> _confirmAndRun(
   required Future<Map<String, dynamic>> Function(AdminRepository repo) action,
   required String Function(Map<String, dynamic> r) success,
 }) async {
+  final l = AppLocalizations.of(context)!;
   final cs = Theme.of(context).colorScheme;
   final ok = await showDialog<bool>(
     context: context,
@@ -157,7 +157,7 @@ Future<void> _confirmAndRun(
       title: Text(title),
       content: Text(body),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.adminSettingsScreenCancel)),
         FilledButton(
           style: destructive ? FilledButton.styleFrom(backgroundColor: cs.error) : null,
           onPressed: () => Navigator.pop(d, true),
@@ -168,14 +168,14 @@ Future<void> _confirmAndRun(
   );
   if (ok != true) return;
   final messenger = ScaffoldMessenger.of(context);
-  messenger.showSnackBar(const SnackBar(content: Text('Working…')));
+  messenger.showSnackBar(SnackBar(content: Text(l.adminSettingsScreenWorking)));
   try {
     final r = await action(ref.read(adminRepositoryProvider));
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(SnackBar(content: Text(success(r))));
   } catch (e) {
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(SnackBar(content: Text('Failed: $e')));
+    messenger.showSnackBar(SnackBar(content: Text(l.adminSettingsScreenFailed(e.toString()))));
   }
 }
 

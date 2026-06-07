@@ -165,7 +165,7 @@ class ExamDetailScreen extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'Could not load this exam right now.',
+              AppLocalizations.of(context)!.examDetailScreenCouldNotLoad,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),

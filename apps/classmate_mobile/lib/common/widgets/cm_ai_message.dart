@@ -10,6 +10,7 @@ import 'package:markdown/markdown.dart' as md;
 import '../../core/text/normalize_question.dart';
 import '../../features/practice/domain/practice_models.dart';
 import '../../features/practice/providers/practice_providers.dart';
+import '../../l10n/app_localizations.dart';
 import 'cm_code_block.dart';
 
 /// Full AI-response renderer.
@@ -600,6 +601,7 @@ class PracticeCtaButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final data = _parse();
@@ -622,8 +624,8 @@ class PracticeCtaButton extends ConsumerWidget {
     final summaryBits = <String>[
       if (subject.isNotEmpty) subject,
       if (topicPath.isNotEmpty) topicPath.join(' › '),
-      '$questionCount questions',
-      _difficultyLabel(difficulty),
+      l.cmAiMessageQuestionCount(questionCount),
+      _difficultyLabel(l, difficulty),
     ];
 
     return Padding(
@@ -664,7 +666,7 @@ class PracticeCtaButton extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Start practice session',
+                        l.cmAiMessageStartPracticeSession,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w900,
                           color: cs.onPrimaryContainer,
@@ -691,18 +693,18 @@ class PracticeCtaButton extends ConsumerWidget {
     );
   }
 
-  String _difficultyLabel(PracticeDifficulty d) {
+  String _difficultyLabel(AppLocalizations l, PracticeDifficulty d) {
     switch (d) {
       case PracticeDifficulty.easy:
-        return 'Easy';
+        return l.cmAiMessageDifficultyEasy;
       case PracticeDifficulty.hard:
-        return 'Hard';
+        return l.cmAiMessageDifficultyHard;
       case PracticeDifficulty.olympiad:
-        return 'Olympiad';
+        return l.cmAiMessageDifficultyOlympiad;
       case PracticeDifficulty.adaptive:
-        return 'Adaptive';
+        return l.cmAiMessageDifficultyAdaptive;
       case PracticeDifficulty.medium:
-        return 'Medium';
+        return l.cmAiMessageDifficultyMedium;
     }
   }
 }

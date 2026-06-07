@@ -172,7 +172,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         ? '${l.messagesThreadLeaveGroupTitle.replaceFirst('?', '').trim()}?'
         : l.messagesRequestBannerIncoming;
     final subtitle = detail.isGroup
-        ? 'You were invited to join this group.'
+        ? l.messageThreadScreenGroupInviteSubtitle
         : l.messagesRequestUnlockHint;
 
     return Padding(
@@ -280,8 +280,8 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     final text = detail.requestState == ChatRequestState.pendingOutgoing
         ? l.messagesThreadWaitingForApproval
         : (detail.requestState == ChatRequestState.blocked
-            ? 'You blocked this chat. Unblock from the blocked people list to chat again.'
-            : 'You cannot send messages in this chat right now.');
+            ? l.messageThreadScreenBlockedHint
+            : l.messageThreadScreenCannotSendHint);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
@@ -400,7 +400,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                         )
                                       else if (detail.isGroup)
                                         Text(
-                                          'Tap for group info',
+                                          AppLocalizations.of(context)!.messageThreadScreenTapForGroupInfo,
                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.primary,
                                               ),
@@ -1064,7 +1064,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Add participants',
+                        AppLocalizations.of(context)!.messageThreadScreenAddParticipantsTitle,
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),

@@ -189,6 +189,17 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     }
   }
 
+  String _roleLabel(AppLocalizations l, String role, int i) {
+    switch (role) {
+      case 'STUDENT':   return l.adminEditUserRoleStudent;
+      case 'TEACHER':   return l.adminEditUserRoleTeacher;
+      case 'SECRETARY': return l.adminEditUserRoleSecretary;
+      case 'PARENT':    return l.adminEditUserRoleParent;
+      case 'ADMIN':     return l.adminEditUserRoleAdmin;
+      default:          return _roleLabels[i];
+    }
+  }
+
   Widget _langField(TextEditingController ctrl, String label, {bool req = false}) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
@@ -317,7 +328,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   Wrap(
                     spacing: 8, runSpacing: 8,
                     children: List.generate(_roles.length, (i) => ChoiceChip(
-                      label: Text(_roleLabels[i]),
+                      label: Text(_roleLabel(l, _roles[i], i)),
                       selected: _role == _roles[i],
                       onSelected: (_) => setState(() { _role = _roles[i]; if (_role != 'STUDENT') _grade = null; }),
                     )),
@@ -344,7 +355,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     Text(
                       _cohorts.isEmpty
                           ? l.adminNotInAnyCohort
-                          : 'Member of ${_cohorts.length} cohort${_cohorts.length == 1 ? '' : 's'}.',
+                          : l.adminEditUserCohortMemberCount(_cohorts.length),
                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     if (_cohorts.isNotEmpty) ...[
@@ -424,7 +435,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                       LiquidGlassDropdown<String>(
                         label: l.adminSelectStudentToLink,
                         value: _linkStudentId ?? '',
-                        searchHint: 'Search students…',
+                        searchHint: l.adminEditUserSearchStudents,
                         items: [
                           LiquidGlassDropdownItem(value: '', label: l.adminChooseStudentDash),
                           ..._allStudents.map((s) {
@@ -433,7 +444,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                             // Grade is more useful than cohort here — admin
                             // is picking a child to link to a parent, and
                             // grade is the meaningful disambiguator.
-                            final suffix = grade != null ? ' (Grade $grade)' : '';
+                            final suffix = grade != null ? ' ${l.adminEditUserGradeSuffix(grade)}' : '';
                             return LiquidGlassDropdownItem(
                               value: s['id']?.toString() ?? '',
                               label: '$name$suffix',

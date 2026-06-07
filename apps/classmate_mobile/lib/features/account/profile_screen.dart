@@ -1194,6 +1194,7 @@ Future<void> _showCodeSheet(
   required String? newValue,
 }) async {
   final cs = Theme.of(context).colorScheme;
+  final l = AppLocalizations.of(context)!;
   final codeCtrl = TextEditingController();
   bool submitting = false;
   String? error;
@@ -1215,14 +1216,14 @@ Future<void> _showCodeSheet(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Enter the 6-digit code',
+                l.profileEnterCodeTitle,
                 style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               Text(
                 target.isNotEmpty
-                    ? 'Sent to $target. Expires in 15 minutes.'
-                    : 'Code sent. Expires in 15 minutes.',
+                    ? l.profileCodeSentTo(target)
+                    : l.profileCodeSent,
                 style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 18),
@@ -1367,6 +1368,7 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
         left: 20, right: 20, top: 20,
@@ -1377,14 +1379,14 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Change ${widget.label}',
+            l.profileChangeContact(widget.label),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text(
             widget.current.isEmpty
-                ? 'A verification code will be sent to the value you enter — confirming you own it.'
-                : 'A verification code will be sent to your CURRENT ${widget.label} so you can prove ownership before switching.',
+                ? l.profileVerifyNewContactInfo
+                : l.profileVerifyCurrentContactInfo(widget.label),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 16),

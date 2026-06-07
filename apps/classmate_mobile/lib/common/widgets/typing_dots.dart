@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Animated three-dot typing indicator (TikTok / iMessage style).
 ///
 /// Usage:
@@ -266,7 +268,7 @@ class _VoiceRecordingHudState extends State<VoiceRecordingHud>
             else
               Expanded(
                 child: Text(
-                  'Paused',
+                  AppLocalizations.of(context)!.typingDotsPaused,
                   style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 12,

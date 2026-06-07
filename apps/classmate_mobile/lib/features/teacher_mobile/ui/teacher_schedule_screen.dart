@@ -290,7 +290,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Next up',
+                          l.teacherScheduleScreenNextUp,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: cs.primary,
                             fontWeight: FontWeight.w700,
@@ -299,7 +299,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                         ),
                         Text(
                           [
-                            nextUp['subject']?.toString() ?? 'Period ${nextUp['period']}',
+                            nextUp['subject']?.toString() ?? l.teacherScheduleScreenPeriodLabel(nextUp['period'].toString()),
                             if ((nextUp['cohort'] as Map?)?['name'] != null)
                               (nextUp['cohort'] as Map)['name'].toString(),
                             if ((nextUp['startTime'] ?? '').toString().isNotEmpty)
@@ -453,7 +453,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         if (cohortName.isNotEmpty) {
           audienceLine = cohortName;
         } else if (audienceGrade != null && audienceGrade > 0) {
-          audienceLine = 'Grade $audienceGrade';
+          audienceLine = l.teacherScheduleScreenGradeLabel(audienceGrade);
         } else if (studentNames.isNotEmpty) {
           audienceLine = studentNames.length <= 3
               ? studentNames.join(', ')
@@ -571,9 +571,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                                     size: 12, color: cs.onSecondaryContainer),
                                 const SizedBox(width: 4),
                                 Text(
-                                  attachmentCount == 1
-                                      ? '1 material'
-                                      : '$attachmentCount materials',
+                                  l.teacherScheduleScreenMaterialsCount(attachmentCount),
                                   style: TextStyle(
                                     color: cs.onSecondaryContainer,
                                     fontSize: 11,

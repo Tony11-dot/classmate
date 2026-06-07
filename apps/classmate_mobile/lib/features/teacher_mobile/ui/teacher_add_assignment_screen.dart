@@ -233,7 +233,7 @@ class _TeacherAddAssignmentScreenState
         _attachments.removeWhere(
             (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
-          'name': (mat['title'] as String?) ?? 'Material',
+          'name': (mat['title'] as String?) ?? AppLocalizations.of(context)!.teacherAddAssignmentScreenMaterialFallback,
           'subject': mat['subject'],
           '_sourceMaterialId': picked,
           '_pendingMaterial': true,
@@ -246,7 +246,7 @@ class _TeacherAddAssignmentScreenState
         _attachments.removeWhere(
             (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
-          'name': 'Material',
+          'name': AppLocalizations.of(context)!.teacherAddAssignmentScreenMaterialFallback,
           '_sourceMaterialId': picked,
           '_pendingMaterial': true,
         });
@@ -540,7 +540,7 @@ class _TeacherAddAssignmentScreenState
                           summary: _selectedGrades.isEmpty
                               ? null
                               : (_selectedGrades.toList()..sort())
-                                  .map((g) => 'Grade $g')
+                                  .map((g) => AppLocalizations.of(context)!.teacherAddAssignmentScreenGradeLabel(g))
                                   .join(', '),
                           onTap: _openGradePicker,
                           cs: cs,
@@ -551,7 +551,7 @@ class _TeacherAddAssignmentScreenState
                       _AudiencePicker(
                         icon: Icons.person_rounded,
                         label: AppLocalizations.of(context)!.teacherMaterialAudienceStudents,
-                        summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}',
+                        summary: _selectedStudentIds.isEmpty ? null : AppLocalizations.of(context)!.teacherAddAssignmentScreenStudentCount(_selectedStudentIds.length),
                         onTap: _openStudentPicker,
                         cs: cs,
                         theme: theme,
@@ -570,7 +570,7 @@ class _TeacherAddAssignmentScreenState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${_previewMembers.length} member${_previewMembers.length == 1 ? '' : 's'} will receive this',
+                              Text(AppLocalizations.of(context)!.teacherAddAssignmentScreenMembersWillReceive(_previewMembers.length),
                                   style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
                               const SizedBox(height: 6),
                               Wrap(spacing: 6, runSpacing: 4,
@@ -681,7 +681,7 @@ class _TeacherAddAssignmentScreenState
                           child: Text(
                             _dueDate != null
                                 ? DateFormat.yMMMd(locale).format(_dueDate!)
-                                : 'No due date',
+                                : AppLocalizations.of(context)!.teacherAddAssignmentScreenNoDueDate,
                             style: TextStyle(
                               color: _dueDate != null ? cs.onSurface : cs.onSurfaceVariant,
                             ),
@@ -730,7 +730,7 @@ class _TeacherAddAssignmentScreenState
                                 (file['url'] is String
                                     ? (file['url'] as String).split('/').last
                                     : null) ??
-                                'Material')
+                                AppLocalizations.of(context)!.teacherAddAssignmentScreenMaterialFallback)
                             .toString();
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
@@ -904,7 +904,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)),
-                      child: Text('${_localSelected.length} selected', style: TextStyle(color: cs.onPrimaryContainer, fontSize: 12, fontWeight: FontWeight.w700)),
+                      child: Text(AppLocalizations.of(context)!.teacherAddAssignmentScreenSelectedCount(_localSelected.length), style: TextStyle(color: cs.onPrimaryContainer, fontSize: 12, fontWeight: FontWeight.w700)),
                     ),
                 ]),
               ),

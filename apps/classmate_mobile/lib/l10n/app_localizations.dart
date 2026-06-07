@@ -14876,6 +14876,2244 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select semester'**
   String get semesterSelectTitle;
+
+  /// No description provided for @adminImportUsersScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import users'**
+  String get adminImportUsersScreenTitle;
+
+  /// No description provided for @adminImportUsersScreenTabGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get adminImportUsersScreenTabGrid;
+
+  /// No description provided for @adminImportUsersScreenTabCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV'**
+  String get adminImportUsersScreenTabCsv;
+
+  /// No description provided for @adminImportUsersScreenLoadedRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {count} rows — review & edit, then Create'**
+  String adminImportUsersScreenLoadedRows(int count);
+
+  /// No description provided for @adminImportUsersScreenFillAtLeastOneName.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill at least one name'**
+  String get adminImportUsersScreenFillAtLeastOneName;
+
+  /// No description provided for @adminImportUsersScreenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {error}'**
+  String adminImportUsersScreenFailed(String error);
+
+  /// No description provided for @adminImportUsersScreenBackToGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to grid'**
+  String get adminImportUsersScreenBackToGrid;
+
+  /// No description provided for @adminImportUsersScreenGridIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent\'s username to link them.'**
+  String get adminImportUsersScreenGridIntro;
+
+  /// No description provided for @adminImportUsersScreenAddRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add row'**
+  String get adminImportUsersScreenAddRow;
+
+  /// No description provided for @adminImportUsersScreenCreateCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create ({count})'**
+  String adminImportUsersScreenCreateCount(int count);
+
+  /// No description provided for @adminImportUsersScreenRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get adminImportUsersScreenRole;
+
+  /// No description provided for @adminImportUsersScreenFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name *'**
+  String get adminImportUsersScreenFullName;
+
+  /// No description provided for @adminImportUsersScreenUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get adminImportUsersScreenUsername;
+
+  /// No description provided for @adminImportUsersScreenUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'(auto if blank)'**
+  String get adminImportUsersScreenUsernameHint;
+
+  /// No description provided for @adminImportUsersScreenGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get adminImportUsersScreenGrade;
+
+  /// No description provided for @adminImportUsersScreenParentUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent username'**
+  String get adminImportUsersScreenParentUsername;
+
+  /// No description provided for @adminImportUsersScreenParentUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'link (optional)'**
+  String get adminImportUsersScreenParentUsernameHint;
+
+  /// No description provided for @adminImportUsersScreenCouldNotReadFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read that file.'**
+  String get adminImportUsersScreenCouldNotReadFile;
+
+  /// No description provided for @adminImportUsersScreenCsvIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a CSV of your users. Column headers can be in any language — ClassMate detects what each column means, then loads the rows into the grid so you can review and fix anything before creating.'**
+  String get adminImportUsersScreenCsvIntro;
+
+  /// No description provided for @adminImportUsersScreenChooseCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose CSV file'**
+  String get adminImportUsersScreenChooseCsv;
+
+  /// No description provided for @adminImportUsersScreenChooseDifferentFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a different file'**
+  String get adminImportUsersScreenChooseDifferentFile;
+
+  /// No description provided for @adminImportUsersScreenSelectedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected: {fileName}'**
+  String adminImportUsersScreenSelectedFile(String fileName);
+
+  /// No description provided for @adminImportUsersScreenRecognisedColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognised columns'**
+  String get adminImportUsersScreenRecognisedColumns;
+
+  /// No description provided for @adminImportUsersScreenRecognisedColumnsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like \"student / طالب / תלמיד / élève / ученик\" all map correctly. Grade reads the number from \"Grade 10\", \"الصف 10\", \"כיתה 10\". Missing usernames or passwords are generated automatically.'**
+  String get adminImportUsersScreenRecognisedColumnsBody;
+
+  /// No description provided for @adminImportUsersScreenDetectedRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected — {count} rows'**
+  String adminImportUsersScreenDetectedRows(int count);
+
+  /// No description provided for @adminImportUsersScreenNoColumnsDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'No known columns detected — check your header row.'**
+  String get adminImportUsersScreenNoColumnsDetected;
+
+  /// No description provided for @adminImportUsersScreenTruncatedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the first 2000 rows for review.'**
+  String get adminImportUsersScreenTruncatedNotice;
+
+  /// No description provided for @adminImportUsersScreenReviewEditInGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & edit in grid'**
+  String get adminImportUsersScreenReviewEditInGrid;
+
+  /// No description provided for @adminImportUsersScreenReviewEditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the Grid tab pre-filled with these rows so you can fix any mistakes before creating.'**
+  String get adminImportUsersScreenReviewEditHint;
+
+  /// No description provided for @adminImportUsersScreenResultSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ Created {count} users · {links} links'**
+  String adminImportUsersScreenResultSummary(int count, int links);
+
+  /// No description provided for @adminImportUsersScreenResultFailedSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' · {failed} failed'**
+  String adminImportUsersScreenResultFailedSuffix(int failed);
+
+  /// No description provided for @adminImportUsersScreenFailedRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed rows'**
+  String get adminImportUsersScreenFailedRows;
+
+  /// No description provided for @adminImportUsersScreenFailedRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: {reason}'**
+  String adminImportUsersScreenFailedRow(String row, String reason);
+
+  /// No description provided for @adminImportUsersScreenCredentialsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Credentials (hand these to your users)'**
+  String get adminImportUsersScreenCredentialsTitle;
+
+  /// No description provided for @teacherCohortsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get teacherCohortsScreenTitle;
+
+  /// No description provided for @teacherCohortsScreenNewCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'New cohort'**
+  String get teacherCohortsScreenNewCohort;
+
+  /// No description provided for @teacherCohortsScreenLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load cohorts.'**
+  String get teacherCohortsScreenLoadError;
+
+  /// No description provided for @teacherCohortsScreenEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cohorts yet.\nTap \"New cohort\" to create one.'**
+  String get teacherCohortsScreenEmpty;
+
+  /// No description provided for @teacherCohortsScreenCohortNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort name'**
+  String get teacherCohortsScreenCohortNameLabel;
+
+  /// No description provided for @teacherCohortsScreenCohortNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 10-2'**
+  String get teacherCohortsScreenCohortNameHint;
+
+  /// No description provided for @teacherCohortsScreenGradesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade(s)'**
+  String get teacherCohortsScreenGradesLabel;
+
+  /// No description provided for @teacherCohortsScreenGradesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 10  or  7,8'**
+  String get teacherCohortsScreenGradesHint;
+
+  /// No description provided for @teacherCohortsScreenCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get teacherCohortsScreenCancel;
+
+  /// No description provided for @teacherCohortsScreenCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get teacherCohortsScreenCreate;
+
+  /// No description provided for @teacherCohortsScreenEnterNameAndGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name and at least one grade'**
+  String get teacherCohortsScreenEnterNameAndGrade;
+
+  /// No description provided for @teacherCohortsScreenCohortCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort created'**
+  String get teacherCohortsScreenCohortCreated;
+
+  /// No description provided for @teacherCohortsScreenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get teacherCohortsScreenFailed;
+
+  /// No description provided for @teacherCohortsScreenStudentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students'**
+  String teacherCohortsScreenStudentsCount(int count);
+
+  /// No description provided for @teacherCohortsScreenRenameGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename / grades'**
+  String get teacherCohortsScreenRenameGrades;
+
+  /// No description provided for @teacherCohortsScreenDeleteCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete cohort'**
+  String get teacherCohortsScreenDeleteCohort;
+
+  /// No description provided for @teacherCohortsScreenAddStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Add students'**
+  String get teacherCohortsScreenAddStudents;
+
+  /// No description provided for @teacherCohortsScreenEditCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit cohort'**
+  String get teacherCohortsScreenEditCohort;
+
+  /// No description provided for @teacherCohortsScreenSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get teacherCohortsScreenSave;
+
+  /// No description provided for @teacherCohortsScreenSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get teacherCohortsScreenSaved;
+
+  /// No description provided for @teacherCohortsScreenDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"?'**
+  String teacherCohortsScreenDeleteConfirmTitle(String name);
+
+  /// No description provided for @teacherCohortsScreenDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The cohort is removed and students are detached from it. Student accounts are not deleted.'**
+  String get teacherCohortsScreenDeleteConfirmBody;
+
+  /// No description provided for @teacherCohortsScreenDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get teacherCohortsScreenDelete;
+
+  /// No description provided for @teacherCohortsScreenDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get teacherCohortsScreenDeleted;
+
+  /// No description provided for @teacherCohortsScreenLoadStudentsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load students'**
+  String get teacherCohortsScreenLoadStudentsError;
+
+  /// No description provided for @teacherCohortsScreenAddNStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count} students'**
+  String teacherCohortsScreenAddNStudents(int count);
+
+  /// No description provided for @teacherCohortsScreenAddedNStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} students'**
+  String teacherCohortsScreenAddedNStudents(int count);
+
+  /// No description provided for @teacherCohortsScreenNoStudentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No students yet.'**
+  String get teacherCohortsScreenNoStudentsYet;
+
+  /// No description provided for @adminSettingsScreenBulkTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk tools'**
+  String get adminSettingsScreenBulkTools;
+
+  /// No description provided for @adminSettingsScreenImportUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Import users'**
+  String get adminSettingsScreenImportUsers;
+
+  /// No description provided for @adminSettingsScreenImportUsersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add many at once — grid or CSV'**
+  String get adminSettingsScreenImportUsersSubtitle;
+
+  /// No description provided for @adminSettingsScreenUpgradeGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade grades'**
+  String get adminSettingsScreenUpgradeGrades;
+
+  /// No description provided for @adminSettingsScreenUpgradeGradesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Promote every student one grade'**
+  String get adminSettingsScreenUpgradeGradesSubtitle;
+
+  /// No description provided for @adminSettingsScreenUpgradeGradesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade all grades?'**
+  String get adminSettingsScreenUpgradeGradesTitle;
+
+  /// No description provided for @adminSettingsScreenUpgradeGradesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every student moves up one grade. Students already at the top grade are kept as graduating (never deleted) for you to handle. This is safe to run once at the start of the school year.'**
+  String get adminSettingsScreenUpgradeGradesBody;
+
+  /// No description provided for @adminSettingsScreenUpgradeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get adminSettingsScreenUpgradeConfirm;
+
+  /// No description provided for @adminSettingsScreenUpgradeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Promoted {promoted} students · {graduating} graduating'**
+  String adminSettingsScreenUpgradeSuccess(int promoted, int graduating);
+
+  /// No description provided for @adminSettingsScreenDangerZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger zone'**
+  String get adminSettingsScreenDangerZone;
+
+  /// No description provided for @adminSettingsScreenResetSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset schedule'**
+  String get adminSettingsScreenResetSchedule;
+
+  /// No description provided for @adminSettingsScreenResetScheduleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all periods & overrides'**
+  String get adminSettingsScreenResetScheduleSubtitle;
+
+  /// No description provided for @adminSettingsScreenResetScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset the whole schedule?'**
+  String get adminSettingsScreenResetScheduleTitle;
+
+  /// No description provided for @adminSettingsScreenResetScheduleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes every period and one-off override for your school. Bell-schedule times are kept. This cannot be undone.'**
+  String get adminSettingsScreenResetScheduleBody;
+
+  /// No description provided for @adminSettingsScreenResetScheduleSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule cleared — {slots} periods removed'**
+  String adminSettingsScreenResetScheduleSuccess(int slots);
+
+  /// No description provided for @adminSettingsScreenResetCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset cohorts'**
+  String get adminSettingsScreenResetCohorts;
+
+  /// No description provided for @adminSettingsScreenResetCohortsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all of your cohorts'**
+  String get adminSettingsScreenResetCohortsSubtitle;
+
+  /// No description provided for @adminSettingsScreenResetCohortsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all cohorts?'**
+  String get adminSettingsScreenResetCohortsTitle;
+
+  /// No description provided for @adminSettingsScreenResetCohortsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes every cohort in your school and removes students from them. Student accounts are NOT deleted. This cannot be undone.'**
+  String get adminSettingsScreenResetCohortsBody;
+
+  /// No description provided for @adminSettingsScreenDeleteCohortsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete cohorts'**
+  String get adminSettingsScreenDeleteCohortsConfirm;
+
+  /// No description provided for @adminSettingsScreenResetCohortsSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {deleted} cohorts'**
+  String adminSettingsScreenResetCohortsSuccess(int deleted);
+
+  /// No description provided for @adminSettingsScreenAppearanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, colors, language'**
+  String get adminSettingsScreenAppearanceSubtitle;
+
+  /// No description provided for @adminSettingsScreenCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminSettingsScreenCancel;
+
+  /// No description provided for @adminSettingsScreenWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working…'**
+  String get adminSettingsScreenWorking;
+
+  /// No description provided for @adminSettingsScreenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {error}'**
+  String adminSettingsScreenFailed(String error);
+
+  /// No description provided for @adminSchedulePickStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a start date for the every-{freq}-weeks schedule.'**
+  String adminSchedulePickStartDate(int freq);
+
+  /// No description provided for @adminScheduleNoCohortsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No cohorts yet — create one first.'**
+  String get adminScheduleNoCohortsYet;
+
+  /// No description provided for @adminScheduleGradeWithCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade} · {cohort}'**
+  String adminScheduleGradeWithCohort(String grade, String cohort);
+
+  /// No description provided for @adminScheduleDateOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get adminScheduleDateOnLabel;
+
+  /// No description provided for @adminScheduleDateStartsOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts on'**
+  String get adminScheduleDateStartsOnLabel;
+
+  /// No description provided for @adminScheduleStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students'**
+  String adminScheduleStudentCount(int count);
+
+  /// No description provided for @adminScheduleAudienceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get adminScheduleAudienceNone;
+
+  /// No description provided for @adminScheduleTeacherClashNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} would have two classes at the same time.'**
+  String adminScheduleTeacherClashNamed(String name);
+
+  /// No description provided for @adminScheduleTeacherClash.
+  ///
+  /// In en, this message translates to:
+  /// **'This teacher would have two classes at the same time.'**
+  String get adminScheduleTeacherClash;
+
+  /// No description provided for @adminScheduleStudentClashSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} would have two periods at the same time:'**
+  String adminScheduleStudentClashSingle(String name);
+
+  /// No description provided for @adminScheduleStudentClashMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students would have two periods at the same time:'**
+  String adminScheduleStudentClashMany(int count);
+
+  /// No description provided for @adminScheduleAStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'A student'**
+  String get adminScheduleAStudent;
+
+  /// No description provided for @adminScheduleAffected.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected: {preview}'**
+  String adminScheduleAffected(String preview);
+
+  /// No description provided for @adminScheduleResolvePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'How should this be resolved?'**
+  String get adminScheduleResolvePrompt;
+
+  /// No description provided for @adminScheduleResolvePromptStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'How should this be resolved for those students?'**
+  String get adminScheduleResolvePromptStudents;
+
+  /// No description provided for @adminScheduleStudentsInCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students in selected cohorts'**
+  String adminScheduleStudentsInCohorts(int count, int cohortCount);
+
+  /// No description provided for @adminScheduleStudentsInGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students in Grade {grade}'**
+  String adminScheduleStudentsInGrade(int count, String grade);
+
+  /// No description provided for @adminScheduleCustomizedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Customized — saved as individual students'**
+  String get adminScheduleCustomizedNote;
+
+  /// No description provided for @adminScheduleMoreCount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String adminScheduleMoreCount(int count);
+
+  /// No description provided for @adminScheduleAddStudentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add students'**
+  String get adminScheduleAddStudentsTitle;
+
+  /// No description provided for @adminScheduleNoStudentsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No students match.'**
+  String get adminScheduleNoStudentsMatch;
+
+  /// No description provided for @adminScheduleNoPeriodsHere.
+  ///
+  /// In en, this message translates to:
+  /// **'No periods here yet.'**
+  String get adminScheduleNoPeriodsHere;
+
+  /// No description provided for @adminScheduleGradeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {from}-{to}'**
+  String adminScheduleGradeRange(String from, String to);
+
+  /// No description provided for @adminScheduleGradesList.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades {grades}'**
+  String adminScheduleGradesList(String grades);
+
+  /// No description provided for @adminScheduleNoStudentsInCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in these cohorts yet.'**
+  String get adminScheduleNoStudentsInCohorts;
+
+  /// No description provided for @adminScheduleEveryNWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {freq} weeks'**
+  String adminScheduleEveryNWeeks(int freq);
+
+  /// No description provided for @adminScheduleColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get adminScheduleColorLabel;
+
+  /// No description provided for @adminScheduleSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject *'**
+  String get adminScheduleSubjectRequired;
+
+  /// No description provided for @adminScheduleNoSchoolSubjects.
+  ///
+  /// In en, this message translates to:
+  /// **'No school subjects yet. Tap \"Add new\" to define one.'**
+  String get adminScheduleNoSchoolSubjects;
+
+  /// No description provided for @adminScheduleNoSubjectsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No subjects match your search.'**
+  String get adminScheduleNoSubjectsMatch;
+
+  /// No description provided for @teacherNewAnnouncementScreenBroadcastBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.'**
+  String get teacherNewAnnouncementScreenBroadcastBody;
+
+  /// No description provided for @teacherNewAnnouncementScreenGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String teacherNewAnnouncementScreenGradeLabel(int grade);
+
+  /// No description provided for @teacherNewAnnouncementScreenNoFilesAttached.
+  ///
+  /// In en, this message translates to:
+  /// **'No files attached.'**
+  String get teacherNewAnnouncementScreenNoFilesAttached;
+
+  /// No description provided for @teacherNewAnnouncementScreenSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String teacherNewAnnouncementScreenSelectedCount(int count);
+
+  /// No description provided for @teacherNewAnnouncementScreenAudienceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a category, then the specific roles, grades, cohorts, or people. Selections from every category add up.'**
+  String get teacherNewAnnouncementScreenAudienceHint;
+
+  /// No description provided for @teacherNewAnnouncementScreenLoadingStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading students…'**
+  String get teacherNewAnnouncementScreenLoadingStudents;
+
+  /// No description provided for @teacherNewAnnouncementScreenNoGradeLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade levels found yet.'**
+  String get teacherNewAnnouncementScreenNoGradeLevels;
+
+  /// No description provided for @teacherNewAnnouncementScreenTapSelectCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select cohorts…'**
+  String get teacherNewAnnouncementScreenTapSelectCohorts;
+
+  /// No description provided for @teacherNewAnnouncementScreenCohortsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cohorts selected'**
+  String teacherNewAnnouncementScreenCohortsSelected(int count);
+
+  /// No description provided for @teacherNewAnnouncementScreenTapSelectStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select students…'**
+  String get teacherNewAnnouncementScreenTapSelectStudents;
+
+  /// No description provided for @teacherNewAnnouncementScreenStudentsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students selected'**
+  String teacherNewAnnouncementScreenStudentsSelected(int count);
+
+  /// No description provided for @teacherNewAnnouncementScreenTapSelectParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select parents…'**
+  String get teacherNewAnnouncementScreenTapSelectParents;
+
+  /// No description provided for @teacherNewAnnouncementScreenParentsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} parents selected'**
+  String teacherNewAnnouncementScreenParentsSelected(int count);
+
+  /// No description provided for @teacherNewAnnouncementScreenSelectedAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected audience'**
+  String get teacherNewAnnouncementScreenSelectedAudience;
+
+  /// No description provided for @teacherNewAnnouncementScreenStudentsInCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students in selected cohorts'**
+  String teacherNewAnnouncementScreenStudentsInCohorts(int count);
+
+  /// No description provided for @teacherNewAnnouncementScreenSelectParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Select parents'**
+  String get teacherNewAnnouncementScreenSelectParents;
+
+  /// No description provided for @teacherNewAnnouncementScreenChildrenSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} children — {summary}'**
+  String teacherNewAnnouncementScreenChildrenSummary(int count, String summary);
+
+  /// No description provided for @teacherNewAnnouncementScreenNoLinkedChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked children'**
+  String get teacherNewAnnouncementScreenNoLinkedChildren;
+
+  /// No description provided for @adminPeriodsScreenDayN.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {dow}'**
+  String adminPeriodsScreenDayN(int dow);
+
+  /// No description provided for @adminPeriodsScreenPeriodN.
+  ///
+  /// In en, this message translates to:
+  /// **'Period {period}'**
+  String adminPeriodsScreenPeriodN(int period);
+
+  /// No description provided for @adminPeriodsScreenPeriodDropdownLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get adminPeriodsScreenPeriodDropdownLabel;
+
+  /// No description provided for @adminPeriodsScreenSelectTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Select teacher…'**
+  String get adminPeriodsScreenSelectTeacher;
+
+  /// No description provided for @adminPeriodsScreenNone.
+  ///
+  /// In en, this message translates to:
+  /// **'— None —'**
+  String get adminPeriodsScreenNone;
+
+  /// No description provided for @adminPeriodsScreenLinkClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Link to classroom…'**
+  String get adminPeriodsScreenLinkClassroom;
+
+  /// No description provided for @adminPeriodsScreenCohortGradeName.
+  ///
+  /// In en, this message translates to:
+  /// **'G{grade} — {name}'**
+  String adminPeriodsScreenCohortGradeName(String grade, String name);
+
+  /// No description provided for @adminPeriodsScreenGradeN.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String adminPeriodsScreenGradeN(String grade);
+
+  /// No description provided for @roleBadgeStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get roleBadgeStudent;
+
+  /// No description provided for @roleBadgeTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get roleBadgeTeacher;
+
+  /// No description provided for @roleBadgeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get roleBadgeAdmin;
+
+  /// No description provided for @roleBadgeSecretary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretary'**
+  String get roleBadgeSecretary;
+
+  /// No description provided for @roleBadgeParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get roleBadgeParent;
+
+  /// No description provided for @roleBadgeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get roleBadgeMember;
+
+  /// No description provided for @teacherSlotAttachmentsScreenEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No attachments yet'**
+  String get teacherSlotAttachmentsScreenEmptyTitle;
+
+  /// No description provided for @teacherSlotAttachmentsScreenEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach materials so your students see them on this period\'s card.'**
+  String get teacherSlotAttachmentsScreenEmptyBody;
+
+  /// No description provided for @teacherSlotAttachmentsScreenMaterialFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get teacherSlotAttachmentsScreenMaterialFallback;
+
+  /// No description provided for @teacherSlotAttachmentsScreenSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach material'**
+  String get teacherSlotAttachmentsScreenSheetTitle;
+
+  /// No description provided for @teacherSlotAttachmentsScreenCreateNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new material'**
+  String get teacherSlotAttachmentsScreenCreateNew;
+
+  /// No description provided for @teacherAddGradeScreenPickAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one student, cohort, or grade.'**
+  String get teacherAddGradeScreenPickAudience;
+
+  /// No description provided for @teacherAddGradeScreenEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a title for this grade.'**
+  String get teacherAddGradeScreenEnterTitle;
+
+  /// No description provided for @teacherAddGradeScreenPickExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an exam.'**
+  String get teacherAddGradeScreenPickExam;
+
+  /// No description provided for @teacherAddGradeScreenPickAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an assignment.'**
+  String get teacherAddGradeScreenPickAssignment;
+
+  /// No description provided for @teacherAddGradeScreenCouldNotResolveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not resolve grade title.'**
+  String get teacherAddGradeScreenCouldNotResolveTitle;
+
+  /// No description provided for @teacherAddGradeScreenEnterNumericGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a numeric grade for {name}.'**
+  String teacherAddGradeScreenEnterNumericGrade(String name);
+
+  /// No description provided for @teacherAddGradeScreenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String teacherAddGradeScreenError(String error);
+
+  /// No description provided for @teacherAddGradeScreenTapSelectStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select students…'**
+  String get teacherAddGradeScreenTapSelectStudents;
+
+  /// No description provided for @teacherAddGradeScreenStudentsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student(s) selected'**
+  String teacherAddGradeScreenStudentsSelected(int count);
+
+  /// No description provided for @teacherAddGradeScreenTapSelectCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select cohorts…'**
+  String get teacherAddGradeScreenTapSelectCohorts;
+
+  /// No description provided for @teacherAddGradeScreenCohortsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cohort(s) selected'**
+  String teacherAddGradeScreenCohortsSelected(int count);
+
+  /// No description provided for @teacherAddGradeScreenWillBeGraded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student(s) will be graded'**
+  String teacherAddGradeScreenWillBeGraded(int count);
+
+  /// No description provided for @teacherAddGradeScreenNoGradeLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade levels found on your students yet.'**
+  String get teacherAddGradeScreenNoGradeLevels;
+
+  /// No description provided for @teacherAddGradeScreenSelectAudienceExams.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an audience first to filter exams.'**
+  String get teacherAddGradeScreenSelectAudienceExams;
+
+  /// No description provided for @teacherAddGradeScreenNoExamsReach.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams reach all selected {audience}.'**
+  String teacherAddGradeScreenNoExamsReach(String audience);
+
+  /// No description provided for @teacherAddGradeScreenSelectAudienceAssignments.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an audience first to filter assignments.'**
+  String get teacherAddGradeScreenSelectAudienceAssignments;
+
+  /// No description provided for @teacherAddGradeScreenNoAssignmentsReach.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignments reach all selected {audience}.'**
+  String teacherAddGradeScreenNoAssignmentsReach(String audience);
+
+  /// No description provided for @teacherAddGradeScreenSelectAudienceAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an audience above to enter grades.'**
+  String get teacherAddGradeScreenSelectAudienceAbove;
+
+  /// No description provided for @teacherAddGradeScreenSelectStudentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select students'**
+  String get teacherAddGradeScreenSelectStudentsTitle;
+
+  /// No description provided for @teacherAddGradeScreenCountSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String teacherAddGradeScreenCountSelected(int count);
+
+  /// No description provided for @teacherAddGradeScreenSelectCohortsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cohorts'**
+  String get teacherAddGradeScreenSelectCohortsTitle;
+
+  /// No description provided for @teacherAddGradeScreenAudienceCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'cohorts'**
+  String get teacherAddGradeScreenAudienceCohorts;
+
+  /// No description provided for @teacherAddGradeScreenAudienceGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'grades'**
+  String get teacherAddGradeScreenAudienceGrades;
+
+  /// No description provided for @teacherAddGradeScreenAudienceStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'students'**
+  String get teacherAddGradeScreenAudienceStudents;
+
+  /// No description provided for @formDetailScreenCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this form right now.'**
+  String get formDetailScreenCouldNotLoad;
+
+  /// No description provided for @formDetailScreenSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Form submitted'**
+  String get formDetailScreenSubmitted;
+
+  /// No description provided for @formDetailScreenSubmissionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Submission failed'**
+  String get formDetailScreenSubmissionFailed;
+
+  /// No description provided for @formDetailScreenAlreadySubmittedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already submitted this form.'**
+  String get formDetailScreenAlreadySubmittedNote;
+
+  /// No description provided for @formDetailScreenSubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting…'**
+  String get formDetailScreenSubmitting;
+
+  /// No description provided for @formDetailScreenSubmitAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit again'**
+  String get formDetailScreenSubmitAgain;
+
+  /// No description provided for @formDetailScreenSubmitForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit form'**
+  String get formDetailScreenSubmitForm;
+
+  /// No description provided for @formDetailScreenQuestionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions'**
+  String formDetailScreenQuestionCount(int count);
+
+  /// No description provided for @formDetailScreenMultiSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-submit'**
+  String get formDetailScreenMultiSubmit;
+
+  /// No description provided for @formDetailScreenOnePerStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'1 per student'**
+  String get formDetailScreenOnePerStudent;
+
+  /// No description provided for @formDetailScreenRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get formDetailScreenRequired;
+
+  /// No description provided for @formDetailScreenYourAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer'**
+  String get formDetailScreenYourAnswer;
+
+  /// No description provided for @formDetailScreenLongAnswerText.
+  ///
+  /// In en, this message translates to:
+  /// **'Long answer text'**
+  String get formDetailScreenLongAnswerText;
+
+  /// No description provided for @formDetailScreenSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get formDetailScreenSelect;
+
+  /// No description provided for @novaChatScreenAboutAiPoweredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-powered assistant'**
+  String get novaChatScreenAboutAiPoweredTitle;
+
+  /// No description provided for @novaChatScreenAboutAiPoweredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA is built on large language model technology to help you study, understand concepts, and explore ideas.'**
+  String get novaChatScreenAboutAiPoweredBody;
+
+  /// No description provided for @novaChatScreenAboutMistakesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA may produce inaccurate, incomplete, or outdated information. Always verify important answers with your teacher or a trusted source.'**
+  String get novaChatScreenAboutMistakesBody;
+
+  /// No description provided for @novaChatScreenAboutEducationalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA is designed for learning support and is not a substitute for professional medical, legal, or financial advice.'**
+  String get novaChatScreenAboutEducationalBody;
+
+  /// No description provided for @novaChatScreenAboutPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations are used to generate responses. Do not share sensitive personal information.'**
+  String get novaChatScreenAboutPrivacyBody;
+
+  /// No description provided for @novaChatScreenDisclaimerTapToLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA can make mistakes. Tap to learn more.'**
+  String get novaChatScreenDisclaimerTapToLearn;
+
+  /// No description provided for @userProfileSheetSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get userProfileSheetSchool;
+
+  /// No description provided for @userProfileSheetClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get userProfileSheetClass;
+
+  /// No description provided for @userProfileSheetParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get userProfileSheetParents;
+
+  /// No description provided for @userProfileSheetChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get userProfileSheetChildren;
+
+  /// No description provided for @scheduleScreenNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get scheduleScreenNotes;
+
+  /// No description provided for @scheduleScreenMaterialFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get scheduleScreenMaterialFallback;
+
+  /// No description provided for @scheduleScreenNow.
+  ///
+  /// In en, this message translates to:
+  /// **'NOW'**
+  String get scheduleScreenNow;
+
+  /// No description provided for @scheduleScreenMaterialCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 material} other{{count} materials}}'**
+  String scheduleScreenMaterialCount(int count);
+
+  /// No description provided for @teacherFormResponsesScreenResponseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} response{count, plural, =1{} other{s}}'**
+  String teacherFormResponsesScreenResponseCount(int count);
+
+  /// No description provided for @teacherFormResponsesScreenEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No responses yet'**
+  String get teacherFormResponsesScreenEmptyTitle;
+
+  /// No description provided for @teacherFormResponsesScreenEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Responses will appear here once students submit.'**
+  String get teacherFormResponsesScreenEmptySubtitle;
+
+  /// No description provided for @teacherFormResponsesScreenStudentFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get teacherFormResponsesScreenStudentFallback;
+
+  /// No description provided for @teacherFormResponsesScreenSubmittedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted {date}'**
+  String teacherFormResponsesScreenSubmittedAt(String date);
+
+  /// No description provided for @teacherCreateFormScreenQuestionNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Q{number}'**
+  String teacherCreateFormScreenQuestionNumber(String number);
+
+  /// No description provided for @teacherCreateFormScreenShortAnswerPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Short answer'**
+  String get teacherCreateFormScreenShortAnswerPreview;
+
+  /// No description provided for @teacherCreateFormScreenLongAnswerPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Long answer'**
+  String get teacherCreateFormScreenLongAnswerPreview;
+
+  /// No description provided for @teacherCreateFormScreenDatePickerPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Date picker'**
+  String get teacherCreateFormScreenDatePickerPreview;
+
+  /// No description provided for @teacherCreateFormScreenScaleTo.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get teacherCreateFormScreenScaleTo;
+
+  /// No description provided for @teacherMeetingsScreenNoneOption.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get teacherMeetingsScreenNoneOption;
+
+  /// No description provided for @teacherMeetingsScreenGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String teacherMeetingsScreenGradeLabel(String grade);
+
+  /// No description provided for @teacherMeetingsScreenStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student{count, plural, =1{} other{s}}'**
+  String teacherMeetingsScreenStudentCount(int count);
+
+  /// No description provided for @teacherMeetingsScreenPickStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick start time'**
+  String get teacherMeetingsScreenPickStartTime;
+
+  /// No description provided for @teacherMeetingsScreenPickEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick end time'**
+  String get teacherMeetingsScreenPickEndTime;
+
+  /// No description provided for @teacherMeetingsScreenMembersWillReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} member{count, plural, =1{} other{s}} will receive this'**
+  String teacherMeetingsScreenMembersWillReceive(int count);
+
+  /// No description provided for @teacherAssignmentsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignments'**
+  String get teacherAssignmentsScreenTitle;
+
+  /// No description provided for @teacherAssignmentsScreenSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} total · {published} published'**
+  String teacherAssignmentsScreenSummary(int total, int published);
+
+  /// No description provided for @teacherAssignmentsScreenEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignments yet.\nTap + to create one.'**
+  String get teacherAssignmentsScreenEmpty;
+
+  /// No description provided for @teacherAssignmentsScreenSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} submitted'**
+  String teacherAssignmentsScreenSubmitted(int count);
+
+  /// No description provided for @audienceSectionCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohorts'**
+  String get audienceSectionCohorts;
+
+  /// No description provided for @audienceSectionGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get audienceSectionGrades;
+
+  /// No description provided for @audienceSectionGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String audienceSectionGradeLabel(int grade);
+
+  /// No description provided for @audienceSectionStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get audienceSectionStudents;
+
+  /// No description provided for @audienceSectionStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student{count, plural, =1{} other{s}}'**
+  String audienceSectionStudentCount(int count);
+
+  /// No description provided for @audienceSectionMemberCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} member{count, plural, =1{} other{s}} will receive this'**
+  String audienceSectionMemberCount(int count);
+
+  /// No description provided for @audienceSectionSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String audienceSectionSelectedCount(int count);
+
+  /// No description provided for @secretaryStudentsScreenStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student{count, plural, =1{} other{s}}'**
+  String secretaryStudentsScreenStudentCount(int count);
+
+  /// No description provided for @secretaryStudentsScreenAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg {grade}'**
+  String secretaryStudentsScreenAvg(String grade);
+
+  /// No description provided for @secretaryStudentsScreenIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get secretaryStudentsScreenIdentity;
+
+  /// No description provided for @secretaryStudentsScreenUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get secretaryStudentsScreenUsername;
+
+  /// No description provided for @secretaryStudentsScreenEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get secretaryStudentsScreenEmail;
+
+  /// No description provided for @secretaryStudentsScreenPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get secretaryStudentsScreenPhone;
+
+  /// No description provided for @secretaryStudentsScreenCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort'**
+  String get secretaryStudentsScreenCohort;
+
+  /// No description provided for @secretaryStudentsScreenGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get secretaryStudentsScreenGrade;
+
+  /// No description provided for @secretaryStudentsScreenPrimaryCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary cohort'**
+  String get secretaryStudentsScreenPrimaryCohort;
+
+  /// No description provided for @secretaryStudentsScreenTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher: {name}'**
+  String secretaryStudentsScreenTeacher(String name);
+
+  /// No description provided for @chatMessageBubbleEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get chatMessageBubbleEdited;
+
+  /// No description provided for @chatMessageBubbleForwarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Forwarded'**
+  String get chatMessageBubbleForwarded;
+
+  /// No description provided for @chatMessageBubblePinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get chatMessageBubblePinned;
+
+  /// No description provided for @chatMessageBubbleReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get chatMessageBubbleReply;
+
+  /// No description provided for @chatMessageBubbleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get chatMessageBubbleMessage;
+
+  /// No description provided for @chatMessageBubbleDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This message was deleted'**
+  String get chatMessageBubbleDeletedMessage;
+
+  /// No description provided for @chatMessageBubbleImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get chatMessageBubbleImage;
+
+  /// No description provided for @chatMessageBubbleVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get chatMessageBubbleVideo;
+
+  /// No description provided for @chatMessageBubbleFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get chatMessageBubbleFile;
+
+  /// No description provided for @chatMessageInfoPageReadSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get chatMessageInfoPageReadSection;
+
+  /// No description provided for @chatMessageInfoPageNoOneRead.
+  ///
+  /// In en, this message translates to:
+  /// **'No one has read this yet'**
+  String get chatMessageInfoPageNoOneRead;
+
+  /// No description provided for @chatMessageInfoPageDeliveredSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get chatMessageInfoPageDeliveredSection;
+
+  /// No description provided for @chatMessageInfoPagePendingSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get chatMessageInfoPagePendingSection;
+
+  /// No description provided for @chatMessageInfoPageUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get chatMessageInfoPageUnknown;
+
+  /// No description provided for @profileEnterCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code'**
+  String get profileEnterCodeTitle;
+
+  /// No description provided for @profileCodeSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to {target}. Expires in 15 minutes.'**
+  String profileCodeSentTo(String target);
+
+  /// No description provided for @profileCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Code sent. Expires in 15 minutes.'**
+  String get profileCodeSent;
+
+  /// No description provided for @profileChangeContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Change {label}'**
+  String profileChangeContact(String label);
+
+  /// No description provided for @profileVerifyNewContactInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'A verification code will be sent to the value you enter — confirming you own it.'**
+  String get profileVerifyNewContactInfo;
+
+  /// No description provided for @profileVerifyCurrentContactInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'A verification code will be sent to your CURRENT {label} so you can prove ownership before switching.'**
+  String profileVerifyCurrentContactInfo(String label);
+
+  /// No description provided for @appShellPasswordRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Requests'**
+  String get appShellPasswordRequests;
+
+  /// No description provided for @appShellReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get appShellReports;
+
+  /// No description provided for @appShellExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get appShellExportData;
+
+  /// No description provided for @appShellAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get appShellAdmin;
+
+  /// No description provided for @appShellViewingAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing as '**
+  String get appShellViewingAs;
+
+  /// No description provided for @appShellSwitchChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch child'**
+  String get appShellSwitchChild;
+
+  /// No description provided for @messageThreadScreenGroupInviteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You were invited to join this group.'**
+  String get messageThreadScreenGroupInviteSubtitle;
+
+  /// No description provided for @messageThreadScreenBlockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You blocked this chat. Unblock from the blocked people list to chat again.'**
+  String get messageThreadScreenBlockedHint;
+
+  /// No description provided for @messageThreadScreenCannotSendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot send messages in this chat right now.'**
+  String get messageThreadScreenCannotSendHint;
+
+  /// No description provided for @messageThreadScreenTapForGroupInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap for group info'**
+  String get messageThreadScreenTapForGroupInfo;
+
+  /// No description provided for @messageThreadScreenAddParticipantsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add participants'**
+  String get messageThreadScreenAddParticipantsTitle;
+
+  /// No description provided for @teacherExamsScreenGradedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} graded'**
+  String teacherExamsScreenGradedCount(int count);
+
+  /// No description provided for @teacherScheduleScreenNextUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Next up'**
+  String get teacherScheduleScreenNextUp;
+
+  /// No description provided for @teacherScheduleScreenPeriodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Period {period}'**
+  String teacherScheduleScreenPeriodLabel(String period);
+
+  /// No description provided for @teacherScheduleScreenGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String teacherScheduleScreenGradeLabel(int grade);
+
+  /// No description provided for @teacherScheduleScreenMaterialsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 material} other{{count} materials}}'**
+  String teacherScheduleScreenMaterialsCount(int count);
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Assignment'**
+  String get teacherClassroomAddAssignmentScreenTitle;
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment Details'**
+  String get teacherClassroomAddAssignmentScreenDetails;
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenDueDateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date (optional)'**
+  String get teacherClassroomAddAssignmentScreenDueDateOptional;
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenNotifyStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify students'**
+  String get teacherClassroomAddAssignmentScreenNotifyStudents;
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get teacherClassroomAddAssignmentScreenUploading;
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenAttachFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach files'**
+  String get teacherClassroomAddAssignmentScreenAttachFiles;
+
+  /// No description provided for @teacherClassroomAddAssignmentScreenAddMoreFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more files'**
+  String get teacherClassroomAddAssignmentScreenAddMoreFiles;
+
+  /// No description provided for @diplomasScreenCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate'**
+  String get diplomasScreenCertificate;
+
+  /// No description provided for @diplomasScreenIssuedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued {date}'**
+  String diplomasScreenIssuedDate(String date);
+
+  /// No description provided for @diplomasScreenNoCertificatesReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'No certificates received yet.'**
+  String get diplomasScreenNoCertificatesReceived;
+
+  /// No description provided for @diplomasScreenFileCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} file} other{{count} files}}'**
+  String diplomasScreenFileCount(int count);
+
+  /// No description provided for @gradesScreenOutOf100.
+  ///
+  /// In en, this message translates to:
+  /// **'/ 100'**
+  String get gradesScreenOutOf100;
+
+  /// No description provided for @gradesScreenShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show {count} more grade{count, plural, =1{} other{s}}'**
+  String gradesScreenShowMore(int count);
+
+  /// No description provided for @gradesScreenShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get gradesScreenShowLess;
+
+  /// No description provided for @gradesScreenScoreOutOf100.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} / 100'**
+  String gradesScreenScoreOutOf100(String score);
+
+  /// No description provided for @adminSchoolSettingsStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get adminSchoolSettingsStart;
+
+  /// No description provided for @adminSchoolSettingsEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get adminSchoolSettingsEnd;
+
+  /// No description provided for @adminExportScreenEachUserAlone.
+  ///
+  /// In en, this message translates to:
+  /// **'Each user alone'**
+  String get adminExportScreenEachUserAlone;
+
+  /// No description provided for @adminExportScreenEachUserAloneOn.
+  ///
+  /// In en, this message translates to:
+  /// **'One full page per user, big readable card layout.'**
+  String get adminExportScreenEachUserAloneOn;
+
+  /// No description provided for @adminExportScreenEachUserAloneOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact table — every user is a row.'**
+  String get adminExportScreenEachUserAloneOff;
+
+  /// No description provided for @adminExportScreenSeparateFilesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate PDF per user'**
+  String get adminExportScreenSeparateFilesOn;
+
+  /// No description provided for @adminExportScreenSeparateFilesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Single PDF, one page per user'**
+  String get adminExportScreenSeparateFilesOff;
+
+  /// No description provided for @adminExportScreenSeparateFilesOnDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll share {count} PDF file(s) at once — each user gets their own.'**
+  String adminExportScreenSeparateFilesOnDesc(int count);
+
+  /// No description provided for @adminExportScreenSeparateFilesOffDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in one PDF, each on their own page.'**
+  String get adminExportScreenSeparateFilesOffDesc;
+
+  /// No description provided for @adminSubjectDetailScreenSchoolSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'School Settings'**
+  String get adminSubjectDetailScreenSchoolSettings;
+
+  /// No description provided for @adminSubjectDetailScreenNewSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'New subject'**
+  String get adminSubjectDetailScreenNewSubject;
+
+  /// No description provided for @adminSubjectDetailScreenLangEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get adminSubjectDetailScreenLangEnglish;
+
+  /// No description provided for @adminSubjectDetailScreenLangArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic'**
+  String get adminSubjectDetailScreenLangArabic;
+
+  /// No description provided for @adminSubjectDetailScreenLangHebrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Hebrew'**
+  String get adminSubjectDetailScreenLangHebrew;
+
+  /// No description provided for @adminSubjectDetailScreenLangFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get adminSubjectDetailScreenLangFrench;
+
+  /// No description provided for @adminSubjectDetailScreenLangRussian.
+  ///
+  /// In en, this message translates to:
+  /// **'Russian'**
+  String get adminSubjectDetailScreenLangRussian;
+
+  /// No description provided for @adminSubjectDetailScreenColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get adminSubjectDetailScreenColor;
+
+  /// No description provided for @parentHomeScreenGreetingFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'there'**
+  String get parentHomeScreenGreetingFallback;
+
+  /// No description provided for @parentHomeScreenChildrenLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your children: {error}'**
+  String parentHomeScreenChildrenLoadError(String error);
+
+  /// No description provided for @parentHomeScreenMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get parentHomeScreenMaterials;
+
+  /// No description provided for @cmCodeBlockCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get cmCodeBlockCopied;
+
+  /// No description provided for @cmCodeBlockCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get cmCodeBlockCopy;
+
+  /// No description provided for @phoneFieldCountryCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Country code'**
+  String get phoneFieldCountryCode;
+
+  /// No description provided for @teacherClassroomAddMeetingScreenEndDateDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'End date defaults to start date'**
+  String get teacherClassroomAddMeetingScreenEndDateDefault;
+
+  /// No description provided for @teacherAddMaterialScreenLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://…'**
+  String get teacherAddMaterialScreenLinkHint;
+
+  /// No description provided for @teacherAddMaterialScreenLinkFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get teacherAddMaterialScreenLinkFallback;
+
+  /// No description provided for @teacherAddMaterialScreenFileFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get teacherAddMaterialScreenFileFallback;
+
+  /// No description provided for @teacherCreateDiplomaScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue Certificate'**
+  String get teacherCreateDiplomaScreenTitle;
+
+  /// No description provided for @teacherCreateDiplomaScreenGradePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get teacherCreateDiplomaScreenGradePrefix;
+
+  /// No description provided for @teacherCreateDiplomaScreenAttachFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach certificate file(s)'**
+  String get teacherCreateDiplomaScreenAttachFiles;
+
+  /// No description provided for @teacherCreateDiplomaScreenAddMoreFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more files'**
+  String get teacherCreateDiplomaScreenAddMoreFiles;
+
+  /// No description provided for @teacherAssignmentDetailScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get teacherAssignmentDetailScreenTitle;
+
+  /// No description provided for @teacherAssignmentDetailScreenNoSubmissions.
+  ///
+  /// In en, this message translates to:
+  /// **'No submissions yet'**
+  String get teacherAssignmentDetailScreenNoSubmissions;
+
+  /// No description provided for @teacherAssignmentDetailScreenSubmissionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} submission{count, plural, =1{} other{s}}'**
+  String teacherAssignmentDetailScreenSubmissionCount(int count);
+
+  /// No description provided for @teacherAssignmentDetailScreenGradedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} graded'**
+  String teacherAssignmentDetailScreenGradedCount(int count);
+
+  /// No description provided for @teacherAssignmentDetailScreenStudentFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get teacherAssignmentDetailScreenStudentFallback;
+
+  /// No description provided for @teacherAssignmentDetailScreenSubmittedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted {date}'**
+  String teacherAssignmentDetailScreenSubmittedOn(String date);
+
+  /// No description provided for @teacherAddAssignmentScreenGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {count}'**
+  String teacherAddAssignmentScreenGradeLabel(int count);
+
+  /// No description provided for @teacherAddAssignmentScreenStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student{count, plural, one {} other {s}}'**
+  String teacherAddAssignmentScreenStudentCount(int count);
+
+  /// No description provided for @teacherAddAssignmentScreenMembersWillReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} member{count, plural, one {} other {s}} will receive this'**
+  String teacherAddAssignmentScreenMembersWillReceive(int count);
+
+  /// No description provided for @teacherAddAssignmentScreenNoDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date'**
+  String get teacherAddAssignmentScreenNoDueDate;
+
+  /// No description provided for @teacherAddAssignmentScreenMaterialFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get teacherAddAssignmentScreenMaterialFallback;
+
+  /// No description provided for @teacherAddAssignmentScreenSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String teacherAddAssignmentScreenSelectedCount(int count);
+
+  /// No description provided for @teacherClassroomsScreenGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String teacherClassroomsScreenGradeLabel(int grade);
+
+  /// No description provided for @teacherClassroomsScreenNewClassroom.
+  ///
+  /// In en, this message translates to:
+  /// **'New Classroom'**
+  String get teacherClassroomsScreenNewClassroom;
+
+  /// No description provided for @assignmentsScreenAlreadyHandedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already handed in this assignment.'**
+  String get assignmentsScreenAlreadyHandedIn;
+
+  /// No description provided for @assignmentsScreenAddNoteOrFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note or attach files, then press Hand in.'**
+  String get assignmentsScreenAddNoteOrFiles;
+
+  /// No description provided for @assignmentsScreenGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade: {grade}'**
+  String assignmentsScreenGradeLabel(String grade);
+
+  /// No description provided for @assignmentsScreenFeedbackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback: {feedback}'**
+  String assignmentsScreenFeedbackLabel(String feedback);
+
+  /// No description provided for @assignmentsScreenReturnedForResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned for re-solution'**
+  String get assignmentsScreenReturnedForResolution;
+
+  /// No description provided for @assignmentsScreenAttachFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach file'**
+  String get assignmentsScreenAttachFile;
+
+  /// No description provided for @assignmentsScreenAddMoreFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more files'**
+  String get assignmentsScreenAddMoreFiles;
+
+  /// No description provided for @assignmentsScreenHandingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Handing in…'**
+  String get assignmentsScreenHandingIn;
+
+  /// No description provided for @assignmentsScreenHandIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand in'**
+  String get assignmentsScreenHandIn;
+
+  /// No description provided for @examDetailScreenCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this exam right now.'**
+  String get examDetailScreenCouldNotLoad;
+
+  /// No description provided for @adminEditUserRoleStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get adminEditUserRoleStudent;
+
+  /// No description provided for @adminEditUserRoleTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get adminEditUserRoleTeacher;
+
+  /// No description provided for @adminEditUserRoleSecretary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretary'**
+  String get adminEditUserRoleSecretary;
+
+  /// No description provided for @adminEditUserRoleParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get adminEditUserRoleParent;
+
+  /// No description provided for @adminEditUserRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get adminEditUserRoleAdmin;
+
+  /// No description provided for @adminEditUserCohortMemberCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Member of {count} cohort{count, plural, one{} other{s}}.'**
+  String adminEditUserCohortMemberCount(int count);
+
+  /// No description provided for @adminEditUserSearchStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students…'**
+  String get adminEditUserSearchStudents;
+
+  /// No description provided for @adminEditUserGradeSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'(Grade {grade})'**
+  String adminEditUserGradeSuffix(int grade);
+
+  /// No description provided for @adminPasswordRequestsScreenVerifyIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify this is really {name} before approving (call them or confirm in person).'**
+  String adminPasswordRequestsScreenVerifyIdentity(String name);
+
+  /// No description provided for @solutionAssetPreviewSheetPdfDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF document'**
+  String get solutionAssetPreviewSheetPdfDocument;
+
+  /// No description provided for @solutionAssetPreviewSheetUnableToPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to preview PDF.'**
+  String get solutionAssetPreviewSheetUnableToPreview;
+
+  /// No description provided for @classroomDetailSectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} ({count})'**
+  String classroomDetailSectionHeader(String title, int count);
+
+  /// No description provided for @classroomDetailTeacherSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get classroomDetailTeacherSection;
+
+  /// No description provided for @classroomDetailStudentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get classroomDetailStudentsSection;
+
+  /// No description provided for @classroomDetailClassroomFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Classroom'**
+  String get classroomDetailClassroomFallback;
+
+  /// No description provided for @classroomDetailUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled'**
+  String get classroomDetailUntitled;
+
+  /// No description provided for @typingDotsPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get typingDotsPaused;
+
+  /// No description provided for @cmAiMessageStartPracticeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Start practice session'**
+  String get cmAiMessageStartPracticeSession;
+
+  /// No description provided for @cmAiMessageQuestionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions'**
+  String cmAiMessageQuestionCount(int count);
+
+  /// No description provided for @cmAiMessageDifficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get cmAiMessageDifficultyEasy;
+
+  /// No description provided for @cmAiMessageDifficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get cmAiMessageDifficultyHard;
+
+  /// No description provided for @cmAiMessageDifficultyOlympiad.
+  ///
+  /// In en, this message translates to:
+  /// **'Olympiad'**
+  String get cmAiMessageDifficultyOlympiad;
+
+  /// No description provided for @cmAiMessageDifficultyAdaptive.
+  ///
+  /// In en, this message translates to:
+  /// **'Adaptive'**
+  String get cmAiMessageDifficultyAdaptive;
+
+  /// No description provided for @cmAiMessageDifficultyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get cmAiMessageDifficultyMedium;
 }
 
 class _AppLocalizationsDelegate

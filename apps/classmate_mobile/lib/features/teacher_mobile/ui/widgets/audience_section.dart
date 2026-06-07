@@ -148,6 +148,7 @@ class _AudienceSectionState extends State<AudienceSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final preview = _previewMembers;
@@ -160,7 +161,7 @@ class _AudienceSectionState extends State<AudienceSection> {
         // Cohorts row
         _AudienceRow(
           icon: Icons.groups_rounded,
-          label: 'Cohorts',
+          label: l.audienceSectionCohorts,
           summary: widget.selectedCohortIds.isEmpty
               ? null
               : widget.cohorts
@@ -176,10 +177,10 @@ class _AudienceSectionState extends State<AudienceSection> {
         if (widget.availableGrades.isNotEmpty) ...[
           _AudienceRow(
             icon: Icons.school_rounded,
-            label: 'Grades',
+            label: l.audienceSectionGrades,
             summary: sortedGrades.isEmpty
                 ? null
-                : sortedGrades.map((g) => 'Grade $g').join(', '),
+                : sortedGrades.map((g) => l.audienceSectionGradeLabel(g)).join(', '),
             onTap: _openGradePicker,
             cs: cs,
             theme: theme,
@@ -189,10 +190,10 @@ class _AudienceSectionState extends State<AudienceSection> {
         // Students row
         _AudienceRow(
           icon: Icons.person_rounded,
-          label: 'Students',
+          label: l.audienceSectionStudents,
           summary: widget.selectedStudentIds.isEmpty
               ? null
-              : '${widget.selectedStudentIds.length} student${widget.selectedStudentIds.length == 1 ? '' : 's'}',
+              : l.audienceSectionStudentCount(widget.selectedStudentIds.length),
           onTap: _openStudentPicker,
           cs: cs,
           theme: theme,
@@ -210,7 +211,7 @@ class _AudienceSectionState extends State<AudienceSection> {
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
-                '${preview.length} member${preview.length == 1 ? '' : 's'} will receive this',
+                l.audienceSectionMemberCount(preview.length),
                 style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
@@ -331,7 +332,7 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
             Text(widget.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             const Spacer(),
             if (_selected.isNotEmpty)
-              Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5), decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)), child: Text('${_selected.length} selected', style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12))),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5), decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)), child: Text(AppLocalizations.of(context)!.audienceSectionSelectedCount(_selected.length), style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12))),
           ]),
         ),
         Padding(

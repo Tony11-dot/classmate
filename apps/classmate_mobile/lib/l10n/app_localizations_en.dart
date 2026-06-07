@@ -8472,4 +8472,1467 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get semesterSelectTitle => 'Select semester';
+
+  @override
+  String get adminImportUsersScreenTitle => 'Import users';
+
+  @override
+  String get adminImportUsersScreenTabGrid => 'Grid';
+
+  @override
+  String get adminImportUsersScreenTabCsv => 'CSV';
+
+  @override
+  String adminImportUsersScreenLoadedRows(int count) {
+    return 'Loaded $count rows — review & edit, then Create';
+  }
+
+  @override
+  String get adminImportUsersScreenFillAtLeastOneName =>
+      'Fill at least one name';
+
+  @override
+  String adminImportUsersScreenFailed(String error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String get adminImportUsersScreenBackToGrid => 'Back to grid';
+
+  @override
+  String get adminImportUsersScreenGridIntro =>
+      'Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent\'s username to link them.';
+
+  @override
+  String get adminImportUsersScreenAddRow => 'Add row';
+
+  @override
+  String adminImportUsersScreenCreateCount(int count) {
+    return 'Create ($count)';
+  }
+
+  @override
+  String get adminImportUsersScreenRole => 'Role';
+
+  @override
+  String get adminImportUsersScreenFullName => 'Full name *';
+
+  @override
+  String get adminImportUsersScreenUsername => 'Username';
+
+  @override
+  String get adminImportUsersScreenUsernameHint => '(auto if blank)';
+
+  @override
+  String get adminImportUsersScreenGrade => 'Grade';
+
+  @override
+  String get adminImportUsersScreenParentUsername => 'Parent username';
+
+  @override
+  String get adminImportUsersScreenParentUsernameHint => 'link (optional)';
+
+  @override
+  String get adminImportUsersScreenCouldNotReadFile =>
+      'Could not read that file.';
+
+  @override
+  String get adminImportUsersScreenCsvIntro =>
+      'Upload a CSV of your users. Column headers can be in any language — ClassMate detects what each column means, then loads the rows into the grid so you can review and fix anything before creating.';
+
+  @override
+  String get adminImportUsersScreenChooseCsv => 'Choose CSV file';
+
+  @override
+  String get adminImportUsersScreenChooseDifferentFile =>
+      'Choose a different file';
+
+  @override
+  String adminImportUsersScreenSelectedFile(String fileName) {
+    return 'Selected: $fileName';
+  }
+
+  @override
+  String get adminImportUsersScreenRecognisedColumns => 'Recognised columns';
+
+  @override
+  String get adminImportUsersScreenRecognisedColumnsBody =>
+      'name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like \"student / طالب / תלמיד / élève / ученик\" all map correctly. Grade reads the number from \"Grade 10\", \"الصف 10\", \"כיתה 10\". Missing usernames or passwords are generated automatically.';
+
+  @override
+  String adminImportUsersScreenDetectedRows(int count) {
+    return 'Detected — $count rows';
+  }
+
+  @override
+  String get adminImportUsersScreenNoColumnsDetected =>
+      'No known columns detected — check your header row.';
+
+  @override
+  String get adminImportUsersScreenTruncatedNotice =>
+      'Showing the first 2000 rows for review.';
+
+  @override
+  String get adminImportUsersScreenReviewEditInGrid => 'Review & edit in grid';
+
+  @override
+  String get adminImportUsersScreenReviewEditHint =>
+      'Opens the Grid tab pre-filled with these rows so you can fix any mistakes before creating.';
+
+  @override
+  String adminImportUsersScreenResultSummary(int count, int links) {
+    return '✓ Created $count users · $links links';
+  }
+
+  @override
+  String adminImportUsersScreenResultFailedSuffix(int failed) {
+    return ' · $failed failed';
+  }
+
+  @override
+  String get adminImportUsersScreenFailedRows => 'Failed rows';
+
+  @override
+  String adminImportUsersScreenFailedRow(String row, String reason) {
+    return 'Row $row: $reason';
+  }
+
+  @override
+  String get adminImportUsersScreenCredentialsTitle =>
+      'Credentials (hand these to your users)';
+
+  @override
+  String get teacherCohortsScreenTitle => 'Cohorts';
+
+  @override
+  String get teacherCohortsScreenNewCohort => 'New cohort';
+
+  @override
+  String get teacherCohortsScreenLoadError => 'Could not load cohorts.';
+
+  @override
+  String get teacherCohortsScreenEmpty =>
+      'No cohorts yet.\nTap \"New cohort\" to create one.';
+
+  @override
+  String get teacherCohortsScreenCohortNameLabel => 'Cohort name';
+
+  @override
+  String get teacherCohortsScreenCohortNameHint => 'e.g. 10-2';
+
+  @override
+  String get teacherCohortsScreenGradesLabel => 'Grade(s)';
+
+  @override
+  String get teacherCohortsScreenGradesHint => 'e.g. 10  or  7,8';
+
+  @override
+  String get teacherCohortsScreenCancel => 'Cancel';
+
+  @override
+  String get teacherCohortsScreenCreate => 'Create';
+
+  @override
+  String get teacherCohortsScreenEnterNameAndGrade =>
+      'Enter a name and at least one grade';
+
+  @override
+  String get teacherCohortsScreenCohortCreated => 'Cohort created';
+
+  @override
+  String get teacherCohortsScreenFailed => 'Failed';
+
+  @override
+  String teacherCohortsScreenStudentsCount(int count) {
+    return '$count students';
+  }
+
+  @override
+  String get teacherCohortsScreenRenameGrades => 'Rename / grades';
+
+  @override
+  String get teacherCohortsScreenDeleteCohort => 'Delete cohort';
+
+  @override
+  String get teacherCohortsScreenAddStudents => 'Add students';
+
+  @override
+  String get teacherCohortsScreenEditCohort => 'Edit cohort';
+
+  @override
+  String get teacherCohortsScreenSave => 'Save';
+
+  @override
+  String get teacherCohortsScreenSaved => 'Saved';
+
+  @override
+  String teacherCohortsScreenDeleteConfirmTitle(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String get teacherCohortsScreenDeleteConfirmBody =>
+      'The cohort is removed and students are detached from it. Student accounts are not deleted.';
+
+  @override
+  String get teacherCohortsScreenDelete => 'Delete';
+
+  @override
+  String get teacherCohortsScreenDeleted => 'Deleted';
+
+  @override
+  String get teacherCohortsScreenLoadStudentsError => 'Could not load students';
+
+  @override
+  String teacherCohortsScreenAddNStudents(int count) {
+    return 'Add $count students';
+  }
+
+  @override
+  String teacherCohortsScreenAddedNStudents(int count) {
+    return 'Added $count students';
+  }
+
+  @override
+  String get teacherCohortsScreenNoStudentsYet => 'No students yet.';
+
+  @override
+  String get adminSettingsScreenBulkTools => 'Bulk tools';
+
+  @override
+  String get adminSettingsScreenImportUsers => 'Import users';
+
+  @override
+  String get adminSettingsScreenImportUsersSubtitle =>
+      'Add many at once — grid or CSV';
+
+  @override
+  String get adminSettingsScreenUpgradeGrades => 'Upgrade grades';
+
+  @override
+  String get adminSettingsScreenUpgradeGradesSubtitle =>
+      'Promote every student one grade';
+
+  @override
+  String get adminSettingsScreenUpgradeGradesTitle => 'Upgrade all grades?';
+
+  @override
+  String get adminSettingsScreenUpgradeGradesBody =>
+      'Every student moves up one grade. Students already at the top grade are kept as graduating (never deleted) for you to handle. This is safe to run once at the start of the school year.';
+
+  @override
+  String get adminSettingsScreenUpgradeConfirm => 'Upgrade';
+
+  @override
+  String adminSettingsScreenUpgradeSuccess(int promoted, int graduating) {
+    return 'Promoted $promoted students · $graduating graduating';
+  }
+
+  @override
+  String get adminSettingsScreenDangerZone => 'Danger zone';
+
+  @override
+  String get adminSettingsScreenResetSchedule => 'Reset schedule';
+
+  @override
+  String get adminSettingsScreenResetScheduleSubtitle =>
+      'Delete all periods & overrides';
+
+  @override
+  String get adminSettingsScreenResetScheduleTitle =>
+      'Reset the whole schedule?';
+
+  @override
+  String get adminSettingsScreenResetScheduleBody =>
+      'This permanently deletes every period and one-off override for your school. Bell-schedule times are kept. This cannot be undone.';
+
+  @override
+  String adminSettingsScreenResetScheduleSuccess(int slots) {
+    return 'Schedule cleared — $slots periods removed';
+  }
+
+  @override
+  String get adminSettingsScreenResetCohorts => 'Reset cohorts';
+
+  @override
+  String get adminSettingsScreenResetCohortsSubtitle =>
+      'Delete all of your cohorts';
+
+  @override
+  String get adminSettingsScreenResetCohortsTitle => 'Delete all cohorts?';
+
+  @override
+  String get adminSettingsScreenResetCohortsBody =>
+      'This permanently deletes every cohort in your school and removes students from them. Student accounts are NOT deleted. This cannot be undone.';
+
+  @override
+  String get adminSettingsScreenDeleteCohortsConfirm => 'Delete cohorts';
+
+  @override
+  String adminSettingsScreenResetCohortsSuccess(int deleted) {
+    return 'Deleted $deleted cohorts';
+  }
+
+  @override
+  String get adminSettingsScreenAppearanceSubtitle => 'Theme, colors, language';
+
+  @override
+  String get adminSettingsScreenCancel => 'Cancel';
+
+  @override
+  String get adminSettingsScreenWorking => 'Working…';
+
+  @override
+  String adminSettingsScreenFailed(String error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String adminSchedulePickStartDate(int freq) {
+    return 'Pick a start date for the every-$freq-weeks schedule.';
+  }
+
+  @override
+  String get adminScheduleNoCohortsYet => 'No cohorts yet — create one first.';
+
+  @override
+  String adminScheduleGradeWithCohort(String grade, String cohort) {
+    return 'Grade $grade · $cohort';
+  }
+
+  @override
+  String get adminScheduleDateOnLabel => 'On';
+
+  @override
+  String get adminScheduleDateStartsOnLabel => 'Starts on';
+
+  @override
+  String adminScheduleStudentCount(int count) {
+    return '$count students';
+  }
+
+  @override
+  String get adminScheduleAudienceNone => '—';
+
+  @override
+  String adminScheduleTeacherClashNamed(String name) {
+    return '$name would have two classes at the same time.';
+  }
+
+  @override
+  String get adminScheduleTeacherClash =>
+      'This teacher would have two classes at the same time.';
+
+  @override
+  String adminScheduleStudentClashSingle(String name) {
+    return '$name would have two periods at the same time:';
+  }
+
+  @override
+  String adminScheduleStudentClashMany(int count) {
+    return '$count students would have two periods at the same time:';
+  }
+
+  @override
+  String get adminScheduleAStudent => 'A student';
+
+  @override
+  String adminScheduleAffected(String preview) {
+    return 'Affected: $preview';
+  }
+
+  @override
+  String get adminScheduleResolvePrompt => 'How should this be resolved?';
+
+  @override
+  String get adminScheduleResolvePromptStudents =>
+      'How should this be resolved for those students?';
+
+  @override
+  String adminScheduleStudentsInCohorts(int count, int cohortCount) {
+    return '$count students in selected cohorts';
+  }
+
+  @override
+  String adminScheduleStudentsInGrade(int count, String grade) {
+    return '$count students in Grade $grade';
+  }
+
+  @override
+  String get adminScheduleCustomizedNote =>
+      'Customized — saved as individual students';
+
+  @override
+  String adminScheduleMoreCount(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get adminScheduleAddStudentsTitle => 'Add students';
+
+  @override
+  String get adminScheduleNoStudentsMatch => 'No students match.';
+
+  @override
+  String get adminScheduleNoPeriodsHere => 'No periods here yet.';
+
+  @override
+  String adminScheduleGradeRange(String from, String to) {
+    return 'Grade $from-$to';
+  }
+
+  @override
+  String adminScheduleGradesList(String grades) {
+    return 'Grades $grades';
+  }
+
+  @override
+  String get adminScheduleNoStudentsInCohorts =>
+      'No students in these cohorts yet.';
+
+  @override
+  String adminScheduleEveryNWeeks(int freq) {
+    return 'Every $freq weeks';
+  }
+
+  @override
+  String get adminScheduleColorLabel => 'Color';
+
+  @override
+  String get adminScheduleSubjectRequired => 'Subject *';
+
+  @override
+  String get adminScheduleNoSchoolSubjects =>
+      'No school subjects yet. Tap \"Add new\" to define one.';
+
+  @override
+  String get adminScheduleNoSubjectsMatch => 'No subjects match your search.';
+
+  @override
+  String get teacherNewAnnouncementScreenBroadcastBody =>
+      'No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.';
+
+  @override
+  String teacherNewAnnouncementScreenGradeLabel(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenNoFilesAttached =>
+      'No files attached.';
+
+  @override
+  String teacherNewAnnouncementScreenSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenAudienceHint =>
+      'Pick a category, then the specific roles, grades, cohorts, or people. Selections from every category add up.';
+
+  @override
+  String get teacherNewAnnouncementScreenLoadingStudents => 'Loading students…';
+
+  @override
+  String get teacherNewAnnouncementScreenNoGradeLevels =>
+      'No grade levels found yet.';
+
+  @override
+  String get teacherNewAnnouncementScreenTapSelectCohorts =>
+      'Tap to select cohorts…';
+
+  @override
+  String teacherNewAnnouncementScreenCohortsSelected(int count) {
+    return '$count cohorts selected';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenTapSelectStudents =>
+      'Tap to select students…';
+
+  @override
+  String teacherNewAnnouncementScreenStudentsSelected(int count) {
+    return '$count students selected';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenTapSelectParents =>
+      'Tap to select parents…';
+
+  @override
+  String teacherNewAnnouncementScreenParentsSelected(int count) {
+    return '$count parents selected';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenSelectedAudience =>
+      'Selected audience';
+
+  @override
+  String teacherNewAnnouncementScreenStudentsInCohorts(int count) {
+    return '$count students in selected cohorts';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenSelectParents => 'Select parents';
+
+  @override
+  String teacherNewAnnouncementScreenChildrenSummary(
+    int count,
+    String summary,
+  ) {
+    return '$count children — $summary';
+  }
+
+  @override
+  String get teacherNewAnnouncementScreenNoLinkedChildren =>
+      'No linked children';
+
+  @override
+  String adminPeriodsScreenDayN(int dow) {
+    return 'Day $dow';
+  }
+
+  @override
+  String adminPeriodsScreenPeriodN(int period) {
+    return 'Period $period';
+  }
+
+  @override
+  String get adminPeriodsScreenPeriodDropdownLabel => 'Period';
+
+  @override
+  String get adminPeriodsScreenSelectTeacher => 'Select teacher…';
+
+  @override
+  String get adminPeriodsScreenNone => '— None —';
+
+  @override
+  String get adminPeriodsScreenLinkClassroom => 'Link to classroom…';
+
+  @override
+  String adminPeriodsScreenCohortGradeName(String grade, String name) {
+    return 'G$grade — $name';
+  }
+
+  @override
+  String adminPeriodsScreenGradeN(String grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get roleBadgeStudent => 'Student';
+
+  @override
+  String get roleBadgeTeacher => 'Teacher';
+
+  @override
+  String get roleBadgeAdmin => 'Admin';
+
+  @override
+  String get roleBadgeSecretary => 'Secretary';
+
+  @override
+  String get roleBadgeParent => 'Parent';
+
+  @override
+  String get roleBadgeMember => 'Member';
+
+  @override
+  String get teacherSlotAttachmentsScreenEmptyTitle => 'No attachments yet';
+
+  @override
+  String get teacherSlotAttachmentsScreenEmptyBody =>
+      'Attach materials so your students see them on this period\'s card.';
+
+  @override
+  String get teacherSlotAttachmentsScreenMaterialFallback => 'Material';
+
+  @override
+  String get teacherSlotAttachmentsScreenSheetTitle => 'Attach material';
+
+  @override
+  String get teacherSlotAttachmentsScreenCreateNew => 'Create new material';
+
+  @override
+  String get teacherAddGradeScreenPickAudience =>
+      'Pick at least one student, cohort, or grade.';
+
+  @override
+  String get teacherAddGradeScreenEnterTitle => 'Enter a title for this grade.';
+
+  @override
+  String get teacherAddGradeScreenPickExam => 'Pick an exam.';
+
+  @override
+  String get teacherAddGradeScreenPickAssignment => 'Pick an assignment.';
+
+  @override
+  String get teacherAddGradeScreenCouldNotResolveTitle =>
+      'Could not resolve grade title.';
+
+  @override
+  String teacherAddGradeScreenEnterNumericGrade(String name) {
+    return 'Enter a numeric grade for $name.';
+  }
+
+  @override
+  String teacherAddGradeScreenError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get teacherAddGradeScreenTapSelectStudents =>
+      'Tap to select students…';
+
+  @override
+  String teacherAddGradeScreenStudentsSelected(int count) {
+    return '$count student(s) selected';
+  }
+
+  @override
+  String get teacherAddGradeScreenTapSelectCohorts => 'Tap to select cohorts…';
+
+  @override
+  String teacherAddGradeScreenCohortsSelected(int count) {
+    return '$count cohort(s) selected';
+  }
+
+  @override
+  String teacherAddGradeScreenWillBeGraded(int count) {
+    return '$count student(s) will be graded';
+  }
+
+  @override
+  String get teacherAddGradeScreenNoGradeLevels =>
+      'No grade levels found on your students yet.';
+
+  @override
+  String get teacherAddGradeScreenSelectAudienceExams =>
+      'Select an audience first to filter exams.';
+
+  @override
+  String teacherAddGradeScreenNoExamsReach(String audience) {
+    return 'No exams reach all selected $audience.';
+  }
+
+  @override
+  String get teacherAddGradeScreenSelectAudienceAssignments =>
+      'Select an audience first to filter assignments.';
+
+  @override
+  String teacherAddGradeScreenNoAssignmentsReach(String audience) {
+    return 'No assignments reach all selected $audience.';
+  }
+
+  @override
+  String get teacherAddGradeScreenSelectAudienceAbove =>
+      'Select an audience above to enter grades.';
+
+  @override
+  String get teacherAddGradeScreenSelectStudentsTitle => 'Select students';
+
+  @override
+  String teacherAddGradeScreenCountSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get teacherAddGradeScreenSelectCohortsTitle => 'Select cohorts';
+
+  @override
+  String get teacherAddGradeScreenAudienceCohorts => 'cohorts';
+
+  @override
+  String get teacherAddGradeScreenAudienceGrades => 'grades';
+
+  @override
+  String get teacherAddGradeScreenAudienceStudents => 'students';
+
+  @override
+  String get formDetailScreenCouldNotLoad =>
+      'Could not load this form right now.';
+
+  @override
+  String get formDetailScreenSubmitted => 'Form submitted';
+
+  @override
+  String get formDetailScreenSubmissionFailed => 'Submission failed';
+
+  @override
+  String get formDetailScreenAlreadySubmittedNote =>
+      'You have already submitted this form.';
+
+  @override
+  String get formDetailScreenSubmitting => 'Submitting…';
+
+  @override
+  String get formDetailScreenSubmitAgain => 'Submit again';
+
+  @override
+  String get formDetailScreenSubmitForm => 'Submit form';
+
+  @override
+  String formDetailScreenQuestionCount(int count) {
+    return '$count questions';
+  }
+
+  @override
+  String get formDetailScreenMultiSubmit => 'Multi-submit';
+
+  @override
+  String get formDetailScreenOnePerStudent => '1 per student';
+
+  @override
+  String get formDetailScreenRequired => 'Required';
+
+  @override
+  String get formDetailScreenYourAnswer => 'Your answer';
+
+  @override
+  String get formDetailScreenLongAnswerText => 'Long answer text';
+
+  @override
+  String get formDetailScreenSelect => 'Select';
+
+  @override
+  String get novaChatScreenAboutAiPoweredTitle => 'AI-powered assistant';
+
+  @override
+  String get novaChatScreenAboutAiPoweredBody =>
+      'NOVA is built on large language model technology to help you study, understand concepts, and explore ideas.';
+
+  @override
+  String get novaChatScreenAboutMistakesBody =>
+      'NOVA may produce inaccurate, incomplete, or outdated information. Always verify important answers with your teacher or a trusted source.';
+
+  @override
+  String get novaChatScreenAboutEducationalBody =>
+      'NOVA is designed for learning support and is not a substitute for professional medical, legal, or financial advice.';
+
+  @override
+  String get novaChatScreenAboutPrivacyBody =>
+      'Conversations are used to generate responses. Do not share sensitive personal information.';
+
+  @override
+  String get novaChatScreenDisclaimerTapToLearn =>
+      'NOVA can make mistakes. Tap to learn more.';
+
+  @override
+  String get userProfileSheetSchool => 'School';
+
+  @override
+  String get userProfileSheetClass => 'Class';
+
+  @override
+  String get userProfileSheetParents => 'Parents';
+
+  @override
+  String get userProfileSheetChildren => 'Children';
+
+  @override
+  String get scheduleScreenNotes => 'Notes';
+
+  @override
+  String get scheduleScreenMaterialFallback => 'Material';
+
+  @override
+  String get scheduleScreenNow => 'NOW';
+
+  @override
+  String scheduleScreenMaterialCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count materials',
+      one: '1 material',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teacherFormResponsesScreenResponseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count response$_temp0';
+  }
+
+  @override
+  String get teacherFormResponsesScreenEmptyTitle => 'No responses yet';
+
+  @override
+  String get teacherFormResponsesScreenEmptySubtitle =>
+      'Responses will appear here once students submit.';
+
+  @override
+  String get teacherFormResponsesScreenStudentFallback => 'Student';
+
+  @override
+  String teacherFormResponsesScreenSubmittedAt(String date) {
+    return 'Submitted $date';
+  }
+
+  @override
+  String teacherCreateFormScreenQuestionNumber(String number) {
+    return 'Q$number';
+  }
+
+  @override
+  String get teacherCreateFormScreenShortAnswerPreview => 'Short answer';
+
+  @override
+  String get teacherCreateFormScreenLongAnswerPreview => 'Long answer';
+
+  @override
+  String get teacherCreateFormScreenDatePickerPreview => 'Date picker';
+
+  @override
+  String get teacherCreateFormScreenScaleTo => 'to';
+
+  @override
+  String get teacherMeetingsScreenNoneOption => 'None';
+
+  @override
+  String teacherMeetingsScreenGradeLabel(String grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String teacherMeetingsScreenStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count student$_temp0';
+  }
+
+  @override
+  String get teacherMeetingsScreenPickStartTime => 'Pick start time';
+
+  @override
+  String get teacherMeetingsScreenPickEndTime => 'Pick end time';
+
+  @override
+  String teacherMeetingsScreenMembersWillReceive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count member$_temp0 will receive this';
+  }
+
+  @override
+  String get teacherAssignmentsScreenTitle => 'Assignments';
+
+  @override
+  String teacherAssignmentsScreenSummary(int total, int published) {
+    return '$total total · $published published';
+  }
+
+  @override
+  String get teacherAssignmentsScreenEmpty =>
+      'No assignments yet.\nTap + to create one.';
+
+  @override
+  String teacherAssignmentsScreenSubmitted(int count) {
+    return '$count submitted';
+  }
+
+  @override
+  String get audienceSectionCohorts => 'Cohorts';
+
+  @override
+  String get audienceSectionGrades => 'Grades';
+
+  @override
+  String audienceSectionGradeLabel(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get audienceSectionStudents => 'Students';
+
+  @override
+  String audienceSectionStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count student$_temp0';
+  }
+
+  @override
+  String audienceSectionMemberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count member$_temp0 will receive this';
+  }
+
+  @override
+  String audienceSectionSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String secretaryStudentsScreenStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count student$_temp0';
+  }
+
+  @override
+  String secretaryStudentsScreenAvg(String grade) {
+    return 'Avg $grade';
+  }
+
+  @override
+  String get secretaryStudentsScreenIdentity => 'Identity';
+
+  @override
+  String get secretaryStudentsScreenUsername => 'Username';
+
+  @override
+  String get secretaryStudentsScreenEmail => 'Email';
+
+  @override
+  String get secretaryStudentsScreenPhone => 'Phone';
+
+  @override
+  String get secretaryStudentsScreenCohort => 'Cohort';
+
+  @override
+  String get secretaryStudentsScreenGrade => 'Grade';
+
+  @override
+  String get secretaryStudentsScreenPrimaryCohort => 'Primary cohort';
+
+  @override
+  String secretaryStudentsScreenTeacher(String name) {
+    return 'Teacher: $name';
+  }
+
+  @override
+  String get chatMessageBubbleEdited => 'edited';
+
+  @override
+  String get chatMessageBubbleForwarded => 'Forwarded';
+
+  @override
+  String get chatMessageBubblePinned => 'Pinned';
+
+  @override
+  String get chatMessageBubbleReply => 'Reply';
+
+  @override
+  String get chatMessageBubbleMessage => 'Message';
+
+  @override
+  String get chatMessageBubbleDeletedMessage => 'This message was deleted';
+
+  @override
+  String get chatMessageBubbleImage => 'Image';
+
+  @override
+  String get chatMessageBubbleVideo => 'Video';
+
+  @override
+  String get chatMessageBubbleFile => 'File';
+
+  @override
+  String get chatMessageInfoPageReadSection => 'Read';
+
+  @override
+  String get chatMessageInfoPageNoOneRead => 'No one has read this yet';
+
+  @override
+  String get chatMessageInfoPageDeliveredSection => 'Delivered';
+
+  @override
+  String get chatMessageInfoPagePendingSection => 'Pending';
+
+  @override
+  String get chatMessageInfoPageUnknown => 'Unknown';
+
+  @override
+  String get profileEnterCodeTitle => 'Enter the 6-digit code';
+
+  @override
+  String profileCodeSentTo(String target) {
+    return 'Sent to $target. Expires in 15 minutes.';
+  }
+
+  @override
+  String get profileCodeSent => 'Code sent. Expires in 15 minutes.';
+
+  @override
+  String profileChangeContact(String label) {
+    return 'Change $label';
+  }
+
+  @override
+  String get profileVerifyNewContactInfo =>
+      'A verification code will be sent to the value you enter — confirming you own it.';
+
+  @override
+  String profileVerifyCurrentContactInfo(String label) {
+    return 'A verification code will be sent to your CURRENT $label so you can prove ownership before switching.';
+  }
+
+  @override
+  String get appShellPasswordRequests => 'Password Requests';
+
+  @override
+  String get appShellReports => 'Reports';
+
+  @override
+  String get appShellExportData => 'Export Data';
+
+  @override
+  String get appShellAdmin => 'Admin';
+
+  @override
+  String get appShellViewingAs => 'Viewing as ';
+
+  @override
+  String get appShellSwitchChild => 'Switch child';
+
+  @override
+  String get messageThreadScreenGroupInviteSubtitle =>
+      'You were invited to join this group.';
+
+  @override
+  String get messageThreadScreenBlockedHint =>
+      'You blocked this chat. Unblock from the blocked people list to chat again.';
+
+  @override
+  String get messageThreadScreenCannotSendHint =>
+      'You cannot send messages in this chat right now.';
+
+  @override
+  String get messageThreadScreenTapForGroupInfo => 'Tap for group info';
+
+  @override
+  String get messageThreadScreenAddParticipantsTitle => 'Add participants';
+
+  @override
+  String teacherExamsScreenGradedCount(int count) {
+    return '$count graded';
+  }
+
+  @override
+  String get teacherScheduleScreenNextUp => 'Next up';
+
+  @override
+  String teacherScheduleScreenPeriodLabel(String period) {
+    return 'Period $period';
+  }
+
+  @override
+  String teacherScheduleScreenGradeLabel(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String teacherScheduleScreenMaterialsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count materials',
+      one: '1 material',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get teacherClassroomAddAssignmentScreenTitle => 'Add Assignment';
+
+  @override
+  String get teacherClassroomAddAssignmentScreenDetails => 'Assignment Details';
+
+  @override
+  String get teacherClassroomAddAssignmentScreenDueDateOptional =>
+      'Due date (optional)';
+
+  @override
+  String get teacherClassroomAddAssignmentScreenNotifyStudents =>
+      'Notify students';
+
+  @override
+  String get teacherClassroomAddAssignmentScreenUploading => 'Uploading…';
+
+  @override
+  String get teacherClassroomAddAssignmentScreenAttachFiles => 'Attach files';
+
+  @override
+  String get teacherClassroomAddAssignmentScreenAddMoreFiles =>
+      'Add more files';
+
+  @override
+  String get diplomasScreenCertificate => 'Certificate';
+
+  @override
+  String diplomasScreenIssuedDate(String date) {
+    return 'Issued $date';
+  }
+
+  @override
+  String get diplomasScreenNoCertificatesReceived =>
+      'No certificates received yet.';
+
+  @override
+  String diplomasScreenFileCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '$count file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesScreenOutOf100 => '/ 100';
+
+  @override
+  String gradesScreenShowMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return 'Show $count more grade$_temp0';
+  }
+
+  @override
+  String get gradesScreenShowLess => 'Show less';
+
+  @override
+  String gradesScreenScoreOutOf100(String score) {
+    return '$score / 100';
+  }
+
+  @override
+  String get adminSchoolSettingsStart => 'Start';
+
+  @override
+  String get adminSchoolSettingsEnd => 'End';
+
+  @override
+  String get adminExportScreenEachUserAlone => 'Each user alone';
+
+  @override
+  String get adminExportScreenEachUserAloneOn =>
+      'One full page per user, big readable card layout.';
+
+  @override
+  String get adminExportScreenEachUserAloneOff =>
+      'Compact table — every user is a row.';
+
+  @override
+  String get adminExportScreenSeparateFilesOn => 'Separate PDF per user';
+
+  @override
+  String get adminExportScreenSeparateFilesOff =>
+      'Single PDF, one page per user';
+
+  @override
+  String adminExportScreenSeparateFilesOnDesc(int count) {
+    return 'You\'ll share $count PDF file(s) at once — each user gets their own.';
+  }
+
+  @override
+  String get adminExportScreenSeparateFilesOffDesc =>
+      'Everyone in one PDF, each on their own page.';
+
+  @override
+  String get adminSubjectDetailScreenSchoolSettings => 'School Settings';
+
+  @override
+  String get adminSubjectDetailScreenNewSubject => 'New subject';
+
+  @override
+  String get adminSubjectDetailScreenLangEnglish => 'English';
+
+  @override
+  String get adminSubjectDetailScreenLangArabic => 'Arabic';
+
+  @override
+  String get adminSubjectDetailScreenLangHebrew => 'Hebrew';
+
+  @override
+  String get adminSubjectDetailScreenLangFrench => 'French';
+
+  @override
+  String get adminSubjectDetailScreenLangRussian => 'Russian';
+
+  @override
+  String get adminSubjectDetailScreenColor => 'Color';
+
+  @override
+  String get parentHomeScreenGreetingFallback => 'there';
+
+  @override
+  String parentHomeScreenChildrenLoadError(String error) {
+    return 'Could not load your children: $error';
+  }
+
+  @override
+  String get parentHomeScreenMaterials => 'Materials';
+
+  @override
+  String get cmCodeBlockCopied => 'Copied';
+
+  @override
+  String get cmCodeBlockCopy => 'Copy';
+
+  @override
+  String get phoneFieldCountryCode => 'Country code';
+
+  @override
+  String get teacherClassroomAddMeetingScreenEndDateDefault =>
+      'End date defaults to start date';
+
+  @override
+  String get teacherAddMaterialScreenLinkHint => 'https://…';
+
+  @override
+  String get teacherAddMaterialScreenLinkFallback => 'Link';
+
+  @override
+  String get teacherAddMaterialScreenFileFallback => 'File';
+
+  @override
+  String get teacherCreateDiplomaScreenTitle => 'Issue Certificate';
+
+  @override
+  String get teacherCreateDiplomaScreenGradePrefix => 'Grade';
+
+  @override
+  String get teacherCreateDiplomaScreenAttachFiles =>
+      'Attach certificate file(s)';
+
+  @override
+  String get teacherCreateDiplomaScreenAddMoreFiles => 'Add more files';
+
+  @override
+  String get teacherAssignmentDetailScreenTitle => 'Assignment';
+
+  @override
+  String get teacherAssignmentDetailScreenNoSubmissions => 'No submissions yet';
+
+  @override
+  String teacherAssignmentDetailScreenSubmissionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count submission$_temp0';
+  }
+
+  @override
+  String teacherAssignmentDetailScreenGradedCount(int count) {
+    return '$count graded';
+  }
+
+  @override
+  String get teacherAssignmentDetailScreenStudentFallback => 'Student';
+
+  @override
+  String teacherAssignmentDetailScreenSubmittedOn(String date) {
+    return 'Submitted $date';
+  }
+
+  @override
+  String teacherAddAssignmentScreenGradeLabel(int count) {
+    return 'Grade $count';
+  }
+
+  @override
+  String teacherAddAssignmentScreenStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count student$_temp0';
+  }
+
+  @override
+  String teacherAddAssignmentScreenMembersWillReceive(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count member$_temp0 will receive this';
+  }
+
+  @override
+  String get teacherAddAssignmentScreenNoDueDate => 'No due date';
+
+  @override
+  String get teacherAddAssignmentScreenMaterialFallback => 'Material';
+
+  @override
+  String teacherAddAssignmentScreenSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String teacherClassroomsScreenGradeLabel(int grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get teacherClassroomsScreenNewClassroom => 'New Classroom';
+
+  @override
+  String get assignmentsScreenAlreadyHandedIn =>
+      'You have already handed in this assignment.';
+
+  @override
+  String get assignmentsScreenAddNoteOrFiles =>
+      'Add a note or attach files, then press Hand in.';
+
+  @override
+  String assignmentsScreenGradeLabel(String grade) {
+    return 'Grade: $grade';
+  }
+
+  @override
+  String assignmentsScreenFeedbackLabel(String feedback) {
+    return 'Feedback: $feedback';
+  }
+
+  @override
+  String get assignmentsScreenReturnedForResolution =>
+      'Returned for re-solution';
+
+  @override
+  String get assignmentsScreenAttachFile => 'Attach file';
+
+  @override
+  String get assignmentsScreenAddMoreFiles => 'Add more files';
+
+  @override
+  String get assignmentsScreenHandingIn => 'Handing in…';
+
+  @override
+  String get assignmentsScreenHandIn => 'Hand in';
+
+  @override
+  String get examDetailScreenCouldNotLoad =>
+      'Could not load this exam right now.';
+
+  @override
+  String get adminEditUserRoleStudent => 'Student';
+
+  @override
+  String get adminEditUserRoleTeacher => 'Teacher';
+
+  @override
+  String get adminEditUserRoleSecretary => 'Secretary';
+
+  @override
+  String get adminEditUserRoleParent => 'Parent';
+
+  @override
+  String get adminEditUserRoleAdmin => 'Admin';
+
+  @override
+  String adminEditUserCohortMemberCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return 'Member of $count cohort$_temp0.';
+  }
+
+  @override
+  String get adminEditUserSearchStudents => 'Search students…';
+
+  @override
+  String adminEditUserGradeSuffix(int grade) {
+    return '(Grade $grade)';
+  }
+
+  @override
+  String adminPasswordRequestsScreenVerifyIdentity(String name) {
+    return 'Verify this is really $name before approving (call them or confirm in person).';
+  }
+
+  @override
+  String get solutionAssetPreviewSheetPdfDocument => 'PDF document';
+
+  @override
+  String get solutionAssetPreviewSheetUnableToPreview =>
+      'Unable to preview PDF.';
+
+  @override
+  String classroomDetailSectionHeader(String title, int count) {
+    return '$title ($count)';
+  }
+
+  @override
+  String get classroomDetailTeacherSection => 'Teacher';
+
+  @override
+  String get classroomDetailStudentsSection => 'Students';
+
+  @override
+  String get classroomDetailClassroomFallback => 'Classroom';
+
+  @override
+  String get classroomDetailUntitled => 'Untitled';
+
+  @override
+  String get typingDotsPaused => 'Paused';
+
+  @override
+  String get cmAiMessageStartPracticeSession => 'Start practice session';
+
+  @override
+  String cmAiMessageQuestionCount(int count) {
+    return '$count questions';
+  }
+
+  @override
+  String get cmAiMessageDifficultyEasy => 'Easy';
+
+  @override
+  String get cmAiMessageDifficultyHard => 'Hard';
+
+  @override
+  String get cmAiMessageDifficultyOlympiad => 'Olympiad';
+
+  @override
+  String get cmAiMessageDifficultyAdaptive => 'Adaptive';
+
+  @override
+  String get cmAiMessageDifficultyMedium => 'Medium';
 }

@@ -83,11 +83,13 @@ class _TeacherClassroomAddAssignmentScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
-    final title =
-        widget.courseName.isNotEmpty ? widget.courseName : 'Add Assignment';
+    final title = widget.courseName.isNotEmpty
+        ? widget.courseName
+        : l.teacherClassroomAddAssignmentScreenTitle;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -147,7 +149,7 @@ class _TeacherClassroomAddAssignmentScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Assignment Details',
+                    l.teacherClassroomAddAssignmentScreenDetails,
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
@@ -211,7 +213,7 @@ class _TeacherClassroomAddAssignmentScreenState
                       child: Text(
                         _dueDate != null
                             ? DateFormat.yMMMd(locale).format(_dueDate!)
-                            : 'Due date (optional)',
+                            : l.teacherClassroomAddAssignmentScreenDueDateOptional,
                         style: TextStyle(
                           color: _dueDate != null
                               ? cs.onSurface
@@ -226,9 +228,9 @@ class _TeacherClassroomAddAssignmentScreenState
                   SwitchListTile(
                     value: _notify,
                     onChanged: (v) => setState(() => _notify = v),
-                    title: const Text(
-                      'Notify students',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    title: Text(
+                      l.teacherClassroomAddAssignmentScreenNotifyStudents,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -247,10 +249,10 @@ class _TeacherClassroomAddAssignmentScreenState
                             child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.attach_file_rounded, size: 18),
                     label: Text(_uploading
-                        ? 'Uploading…'
+                        ? l.teacherClassroomAddAssignmentScreenUploading
                         : _attachments.isEmpty
-                            ? 'Attach files'
-                            : 'Add more files'),
+                            ? l.teacherClassroomAddAssignmentScreenAttachFiles
+                            : l.teacherClassroomAddAssignmentScreenAddMoreFiles),
                   ),
                 ],
               ),

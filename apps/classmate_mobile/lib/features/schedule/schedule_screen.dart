@@ -755,7 +755,7 @@ class _ScheduleTile extends StatelessWidget {
                           Icon(Icons.notes_rounded, size: 16, color: cs.primary),
                           const SizedBox(width: 6),
                           Text(
-                            'Notes',
+                            l.scheduleScreenNotes,
                             style: theme.textTheme.labelMedium
                                 ?.copyWith(fontWeight: FontWeight.w800, color: cs.primary),
                           ),
@@ -785,7 +785,7 @@ class _ScheduleTile extends StatelessWidget {
                   slotId: slotId,
                   date: dateStr,
                   initial: attachments.map((m) {
-                    final mTitle = (m['title'] ?? m['name'] ?? 'Material').toString();
+                    final mTitle = (m['title'] ?? m['name'] ?? l.scheduleScreenMaterialFallback).toString();
                     final mUrl = (m['url'] ?? '').toString();
                     final mMime = (m['mime'] ?? '').toString().toLowerCase();
                     final lowerUrl = mUrl.toLowerCase();
@@ -906,7 +906,7 @@ class _ScheduleTile extends StatelessWidget {
                           border: Border.all(color: cs.surface, width: 1.5),
                         ),
                         child: Text(
-                          'NOW',
+                          l.scheduleScreenNow,
                           style: TextStyle(
                             color: cs.onPrimary,
                             fontSize: 8,
@@ -1002,9 +1002,7 @@ class _ScheduleTile extends StatelessWidget {
                                   size: 12, color: cs.onSecondaryContainer),
                               const SizedBox(width: 4),
                               Text(
-                                attachmentCount == 1
-                                    ? '1 material'
-                                    : '$attachmentCount materials',
+                                l.scheduleScreenMaterialCount(attachmentCount),
                                 style: TextStyle(
                                   color: cs.onSecondaryContainer,
                                   fontSize: 11,

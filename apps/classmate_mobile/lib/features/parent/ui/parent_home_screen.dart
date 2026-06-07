@@ -24,7 +24,7 @@ class ParentHomeScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
     final children = ref.watch(parentChildrenProvider);
-    final greetingName = session.displayName.isNotEmpty ? session.displayName : 'there';
+    final greetingName = session.displayName.isNotEmpty ? session.displayName : l.parentHomeScreenGreetingFallback;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -59,7 +59,7 @@ class ParentHomeScreen extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => _ErrorTile(
-                message: 'Could not load your children: $e',
+                message: l.parentHomeScreenChildrenLoadError(e.toString()),
                 onRetry: () => ref.invalidate(parentChildrenProvider),
               ),
               data: (list) => _ChildrenSection(children: list),
@@ -163,7 +163,7 @@ class _ToolsGrid extends ConsumerWidget {
       ),
       _ToolDef(
         icon: Icons.folder_outlined,
-        label: 'Materials',
+        label: l.parentHomeScreenMaterials,
         route: '/parent/materials',
       ),
       _ToolDef(

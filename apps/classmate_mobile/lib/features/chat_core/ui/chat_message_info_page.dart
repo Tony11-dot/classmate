@@ -235,16 +235,16 @@ class ChatMessageInfoPage extends StatelessWidget {
                     _ParticipantSection(
                       icon: Icons.done_all_rounded,
                       iconColor: const Color(0xFF22C55E),
-                      title: 'Read',
+                      title: l.chatMessageInfoPageReadSection,
                       participants: effectiveSeen,
-                      emptyMessage: 'No one has read this yet',
+                      emptyMessage: l.chatMessageInfoPageNoOneRead,
                     ),
                     if (effectiveDelivered.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       _ParticipantSection(
                         icon: Icons.done_rounded,
                         iconColor: const Color(0xFF60A5FA),
-                        title: 'Delivered',
+                        title: l.chatMessageInfoPageDeliveredSection,
                         participants: effectiveDelivered,
                       ),
                     ],
@@ -253,7 +253,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                       _ParticipantSection(
                         icon: Icons.schedule_rounded,
                         iconColor: const Color(0xFFF59E0B),
-                        title: 'Pending',
+                        title: l.chatMessageInfoPagePendingSection,
                         participants: effectivePending,
                       ),
                     ],
@@ -388,6 +388,7 @@ class _ParticipantRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final fg = ThemeData.estimateBrightnessForColor(_bg) == Brightness.dark
@@ -417,7 +418,7 @@ class _ParticipantRow extends StatelessWidget {
           // Name
           Expanded(
             child: Text(
-              participant.name.isEmpty ? 'Unknown' : participant.name,
+              participant.name.isEmpty ? l.chatMessageInfoPageUnknown : participant.name,
               style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

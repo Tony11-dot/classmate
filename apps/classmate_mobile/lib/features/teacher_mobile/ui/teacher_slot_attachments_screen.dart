@@ -174,12 +174,12 @@ class _TeacherSlotAttachmentsScreenState
                             Icon(Icons.attach_file_rounded, size: 44, color: cs.onSurfaceVariant),
                             const SizedBox(height: 12),
                             Text(
-                              'No attachments yet',
+                              AppLocalizations.of(context)!.teacherSlotAttachmentsScreenEmptyTitle,
                               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Attach materials so your students see them on this period\'s card.',
+                              AppLocalizations.of(context)!.teacherSlotAttachmentsScreenEmptyBody,
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                             ),
@@ -234,7 +234,7 @@ class _AttachedMaterialTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final title = (material['title'] ?? 'Material').toString();
+    final title = (material['title'] ?? AppLocalizations.of(context)!.teacherSlotAttachmentsScreenMaterialFallback).toString();
     final desc = (material['description'] ?? '').toString().trim();
     final mime = (material['mime'] ?? '').toString();
     return InkWell(
@@ -388,7 +388,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                'Attach material',
+                AppLocalizations.of(context)!.teacherSlotAttachmentsScreenSheetTitle,
                 style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
             ),
@@ -437,7 +437,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                                       Icon(Icons.add_rounded, color: cs.onPrimaryContainer),
                                       const SizedBox(width: 10),
                                       Text(
-                                        'Create new material',
+                                        AppLocalizations.of(context)!.teacherSlotAttachmentsScreenCreateNew,
                                         style: theme.textTheme.bodyLarge?.copyWith(
                                           fontWeight: FontWeight.w800,
                                           color: cs.onPrimaryContainer,
@@ -450,7 +450,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                             }
                             final m = filtered[i - 1];
                             final id = (m['id'] ?? '').toString();
-                            final title = (m['title'] ?? 'Material').toString();
+                            final title = (m['title'] ?? AppLocalizations.of(context)!.teacherSlotAttachmentsScreenMaterialFallback).toString();
                             final subj = (m['subject'] ?? '').toString();
                             final attached = widget.alreadyAttachedIds.contains(id);
                             return InkWell(

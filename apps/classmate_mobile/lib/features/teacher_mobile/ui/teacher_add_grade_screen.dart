@@ -261,6 +261,20 @@ class _TeacherAddGradeScreenState
     }
   }
 
+  /// Localized plural noun for the current audience mode, used inside
+  /// "No exams reach all selected …" style messages.
+  String _audienceLabel(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    switch (_audienceMode) {
+      case _AudienceMode.cohorts:
+        return l.teacherAddGradeScreenAudienceCohorts;
+      case _AudienceMode.grades:
+        return l.teacherAddGradeScreenAudienceGrades;
+      case _AudienceMode.students:
+        return l.teacherAddGradeScreenAudienceStudents;
+    }
+  }
+
   // ── Selection mutations ─────────────────────────────────────────────────
 
   void _toggleStudent(String id) {
@@ -308,24 +322,25 @@ class _TeacherAddGradeScreenState
   // ── Save ────────────────────────────────────────────────────────────────
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     final effective = _effectiveStudents;
     if (effective.isEmpty) {
-      _snack('Pick at least one student, cohort, or grade.');
+      _snack(l.teacherAddGradeScreenPickAudience);
       return;
     }
     if (!_hasSource) {
       _snack(_gradeType == _GradeType.other
-          ? 'Enter a title for this grade.'
+          ? l.teacherAddGradeScreenEnterTitle
           : _gradeType == _GradeType.exam
-              ? 'Pick an exam.'
-              : 'Pick an assignment.');
+              ? l.teacherAddGradeScreenPickExam
+              : l.teacherAddGradeScreenPickAssignment);
       return;
     }
 
     final inherited = _inheritedSource;
     final title = inherited.title;
     if (title == null || title.isEmpty) {
-      _snack('Could not resolve grade title.');
+      _snack(l.teacherAddGradeScreenCouldNotResolveTitle);
       return;
     }
 
@@ -335,7 +350,7 @@ class _TeacherAddGradeScreenState
       final raw = _gradeCtrlMap[s.studentId]?.text.trim() ?? '';
       final grade = int.tryParse(raw);
       if (grade == null) {
-        _snack('Enter a numeric grade for ${s.name}.');
+        _snack(l.teacherAddGradeScreenEnterNumericGrade(s.name));
         return;
       }
       entries.add(_PendingEntry(
@@ -401,7 +416,7 @@ class _TeacherAddGradeScreenState
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      _snack('Error: $e', isError: true);
+      _snack(l.teacherAddGradeScreenError('$e'), isError: true);
     }
   }
 
@@ -603,8 +618,8 @@ class _TeacherAddGradeScreenState
                       if (_audienceMode == _AudienceMode.students) ...[
                         _PickerTrigger(
                           label: _selectedStudentIds.isEmpty
-                              ? 'Tap to select students…'
-                              : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'} selected',
+                              ? AppLocalizations.of(context)!.teacherAddGradeScreenTapSelectStudents
+                              : AppLocalizations.of(context)!.teacherAddGradeScreenStudentsSelected(_selectedStudentIds.length),
                           onTap: _openStudentPicker,
                           icon: Icons.person_outline_rounded,
                         ),
@@ -627,8 +642,8 @@ class _TeacherAddGradeScreenState
                       ] else if (_audienceMode == _AudienceMode.cohorts) ...[
                         _PickerTrigger(
                           label: _selectedCohortIds.isEmpty
-                              ? 'Tap to select cohorts…'
-                              : '${_selectedCohortIds.length} cohort${_selectedCohortIds.length == 1 ? '' : 's'} selected',
+                              ? AppLocalizations.of(context)!.teacherAddGradeScreenTapSelectCohorts
+                              : AppLocalizations.of(context)!.teacherAddGradeScreenCohortsSelected(_selectedCohortIds.length),
                           onTap: _openCohortPicker,
                           icon: Icons.group_work_outlined,
                         ),
@@ -650,7 +665,7 @@ class _TeacherAddGradeScreenState
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            '${effective.length} student${effective.length == 1 ? '' : 's'} will be graded',
+                            AppLocalizations.of(context)!.teacherAddGradeScreenWillBeGraded(effective.length),
                             style: theme.textTheme.labelSmall
                                 ?.copyWith(color: cs.onSurfaceVariant),
                           ),
@@ -659,7 +674,7 @@ class _TeacherAddGradeScreenState
                         // ── Grades: small inline chip row of all school grades ──
                         if (_availableGrades.isEmpty)
                           Text(
-                            'No grade levels found on your students yet.',
+                            AppLocalizations.of(context)!.teacherAddGradeScreenNoGradeLevels,
                             style: theme.textTheme.labelSmall
                                 ?.copyWith(color: cs.onSurfaceVariant),
                           )
@@ -680,7 +695,7 @@ class _TeacherAddGradeScreenState
                         if (_selectedGrades.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           Text(
-                            '${effective.length} student${effective.length == 1 ? '' : 's'} will be graded',
+                            AppLocalizations.of(context)!.teacherAddGradeScreenWillBeGraded(effective.length),
                             style: theme.textTheme.labelSmall
                                 ?.copyWith(color: cs.onSurfaceVariant),
                           ),
@@ -817,8 +832,8 @@ class _TeacherAddGradeScreenState
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(
                               effective.isEmpty
-                                  ? 'Select an audience first to filter exams.'
-                                  : 'No exams reach all selected ${_audienceMode == _AudienceMode.cohorts ? "cohorts" : _audienceMode == _AudienceMode.grades ? "grades" : "students"}.',
+                                  ? AppLocalizations.of(context)!.teacherAddGradeScreenSelectAudienceExams
+                                  : AppLocalizations.of(context)!.teacherAddGradeScreenNoExamsReach(_audienceLabel(context)),
                               style: theme.textTheme.labelSmall
                                   ?.copyWith(color: cs.onSurfaceVariant),
                             ),
@@ -879,8 +894,8 @@ class _TeacherAddGradeScreenState
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(
                               effective.isEmpty
-                                  ? 'Select an audience first to filter assignments.'
-                                  : 'No assignments reach all selected ${_audienceMode == _AudienceMode.cohorts ? "cohorts" : _audienceMode == _AudienceMode.grades ? "grades" : "students"}.',
+                                  ? AppLocalizations.of(context)!.teacherAddGradeScreenSelectAudienceAssignments
+                                  : AppLocalizations.of(context)!.teacherAddGradeScreenNoAssignmentsReach(_audienceLabel(context)),
                               style: theme.textTheme.labelSmall
                                   ?.copyWith(color: cs.onSurfaceVariant),
                             ),
@@ -962,7 +977,7 @@ class _TeacherAddGradeScreenState
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Text(
-                            'Select an audience above to enter grades.',
+                            AppLocalizations.of(context)!.teacherAddGradeScreenSelectAudienceAbove,
                             style: theme.textTheme.labelMedium
                                 ?.copyWith(color: cs.onSurfaceVariant),
                           ),
@@ -1098,7 +1113,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
             child: Row(
               children: [
                 Text(
-                  'Select students',
+                  AppLocalizations.of(context)!.teacherAddGradeScreenSelectStudentsTitle,
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
@@ -1112,7 +1127,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${_localSelected.length} selected',
+                      AppLocalizations.of(context)!.teacherAddGradeScreenCountSelected(_localSelected.length),
                       style: TextStyle(
                         color: cs.onPrimaryContainer,
                         fontWeight: FontWeight.w700,
@@ -1200,7 +1215,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                                   Text(
                                     [
                                       if (s.gradeLevel != null)
-                                        'Grade ${s.gradeLevel}',
+                                        AppLocalizations.of(context)!.teacherAddGradeLabel(s.gradeLevel!),
                                       if (s.cohortName.isNotEmpty)
                                         s.cohortName,
                                     ].join(' · '),
@@ -1317,7 +1332,7 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: Text(
-              'Select cohorts',
+              AppLocalizations.of(context)!.teacherAddGradeScreenSelectCohortsTitle,
               style: theme.textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.w800),
             ),

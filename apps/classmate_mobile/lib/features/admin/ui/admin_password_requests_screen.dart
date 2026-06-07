@@ -256,7 +256,7 @@ class _RequestCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Verify this is really ${request.requesterName} before approving (call them or confirm in person).',
+                    l.adminPasswordRequestsScreenVerifyIdentity(request.requesterName),
                     style: TextStyle(fontSize: 11, color: cs.error, height: 1.4, fontWeight: FontWeight.w600),
                   ),
                 ),

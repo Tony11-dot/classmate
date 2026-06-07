@@ -562,7 +562,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           final cs = Theme.of(context).colorScheme;
           return Padding(
             padding: const EdgeInsets.only(top: 12, bottom: 4, left: 4),
-            child: Text('$title ($count)',
+            child: Text(l.classroomDetailSectionHeader(title, count),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: cs.onSurfaceVariant,
@@ -599,11 +599,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               ]),
             ),
             if (teachers.isNotEmpty) ...[
-              sectionHeader('Teacher', teachers.length),
+              sectionHeader(l.classroomDetailTeacherSection, teachers.length),
               ...teachers.map(personTile),
             ],
             if (students.isNotEmpty) ...[
-              sectionHeader('Students', students.length),
+              sectionHeader(l.classroomDetailStudentsSection, students.length),
               ...students.map(personTile),
             ],
           ],
@@ -696,7 +696,9 @@ class _TopHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    subject.trim().isEmpty ? 'Classroom' : subject.trim(),
+                    subject.trim().isEmpty
+                        ? AppLocalizations.of(context)!.classroomDetailClassroomFallback
+                        : subject.trim(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -887,7 +889,9 @@ class _SimpleCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  title.trim().isEmpty ? 'Untitled' : title,
+                  title.trim().isEmpty
+                      ? AppLocalizations.of(context)!.classroomDetailUntitled
+                      : title,
                   style: const TextStyle(fontWeight: FontWeight.w800),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

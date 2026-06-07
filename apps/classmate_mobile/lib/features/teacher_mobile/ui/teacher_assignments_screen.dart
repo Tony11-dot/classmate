@@ -130,12 +130,15 @@ class _TeacherAssignmentsScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Assignments',
+                        AppLocalizations.of(context)!.teacherAssignmentsScreenTitle,
                         style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${_assignments.length} total · ${_assignments.where((a) => a['published'] == true).length} published',
+                        AppLocalizations.of(context)!.teacherAssignmentsScreenSummary(
+                          _assignments.length,
+                          _assignments.where((a) => a['published'] == true).length,
+                        ),
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
@@ -190,7 +193,7 @@ class _TeacherAssignmentsScreenState
                     Icon(Icons.assignment_outlined, size: 48, color: cs.onSurfaceVariant),
                     const SizedBox(height: 16),
                     Text(
-                      'No assignments yet.\nTap + to create one.',
+                      AppLocalizations.of(context)!.teacherAssignmentsScreenEmpty,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -284,7 +287,7 @@ class _TeacherAssignmentsScreenState
                                       ),
                                     if (submissionsCount > 0)
                                       _Chip(
-                                        label: '$submissionsCount submitted',
+                                        label: AppLocalizations.of(context)!.teacherAssignmentsScreenSubmitted(submissionsCount),
                                         color: cs.tertiaryContainer,
                                         textColor: cs.onTertiaryContainer,
                                       ),

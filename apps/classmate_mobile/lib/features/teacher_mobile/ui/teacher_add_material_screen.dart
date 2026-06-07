@@ -607,7 +607,7 @@ class _TeacherAddMaterialScreenState
                               keyboardType: TextInputType.url,
                               onSubmitted: (_) => _addLink(),
                               decoration: InputDecoration(
-                                hintText: 'https://…',
+                                hintText: AppLocalizations.of(context)!.teacherAddMaterialScreenLinkHint,
                                 prefixIcon: const Icon(Icons.link_rounded, size: 18),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -926,7 +926,7 @@ class _TeacherMaterialsStandaloneScreenState
               final atts = <Map<String, dynamic>>[];
               final primaryUrl = (m['url'] ?? '').toString().trim();
               if (primaryUrl.isNotEmpty) {
-                atts.add({'title': title.isEmpty ? 'Link' : title, 'url': primaryUrl});
+                atts.add({'title': title.isEmpty ? l.teacherAddMaterialScreenLinkFallback : title, 'url': primaryUrl});
               }
               final rawA = m['attachments'];
               if (rawA is List) {
@@ -985,7 +985,7 @@ class _TeacherMaterialsStandaloneScreenState
                           spacing: 6,
                           runSpacing: 6,
                           children: atts.map((a) {
-                            final aTitle = (a['title'] ?? a['name'] ?? 'File').toString();
+                            final aTitle = (a['title'] ?? a['name'] ?? l.teacherAddMaterialScreenFileFallback).toString();
                             final url = (a['url'] ?? a['fileUrl'] ?? '').toString().trim();
                             final lower = url.toLowerCase();
                             IconData icon = Icons.attach_file_rounded;

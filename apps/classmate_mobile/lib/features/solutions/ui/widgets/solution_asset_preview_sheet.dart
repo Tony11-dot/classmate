@@ -352,6 +352,7 @@ class _PdfThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Container(
       color: cs.surfaceContainerHigh,
@@ -366,7 +367,7 @@ class _PdfThumb extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            asset.name.trim().isEmpty ? 'PDF document' : asset.name,
+            asset.name.trim().isEmpty ? l.solutionAssetPreviewSheetPdfDocument : asset.name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -448,6 +449,7 @@ class _InlinePdfViewState extends State<_InlinePdfView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     if (_loading) {
       return const Center(child: CircularProgressIndicator(color: Colors.white));
@@ -475,7 +477,7 @@ class _InlinePdfViewState extends State<_InlinePdfView> {
             const Icon(Icons.picture_as_pdf_rounded, color: Colors.white54, size: 64),
             const SizedBox(height: 12),
             Text(
-              widget.asset.name.trim().isEmpty ? 'PDF document' : widget.asset.name,
+              widget.asset.name.trim().isEmpty ? l.solutionAssetPreviewSheetPdfDocument : widget.asset.name,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
@@ -484,7 +486,7 @@ class _InlinePdfViewState extends State<_InlinePdfView> {
             ),
             const SizedBox(height: 8),
             Text(
-              _error ?? 'Unable to preview PDF.',
+              _error ?? l.solutionAssetPreviewSheetUnableToPreview,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white70,

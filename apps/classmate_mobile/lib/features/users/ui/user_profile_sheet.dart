@@ -77,6 +77,7 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     return ListView(
       controller: scroll,
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -133,21 +134,21 @@ class _Body extends StatelessWidget {
         if (profile.schoolName != null) ...[
           _LineItem(
             icon: Icons.school_rounded,
-            label: 'School',
+            label: l.userProfileSheetSchool,
             value: profile.schoolName!,
           ),
         ],
         if (profile.cohortName != null) ...[
           _LineItem(
             icon: Icons.groups_rounded,
-            label: 'Class',
+            label: l.userProfileSheetClass,
             value: profile.cohortName!,
           ),
         ],
         if (profile.parents.isNotEmpty) ...[
           const SizedBox(height: 14),
           Text(
-            'Parents',
+            l.userProfileSheetParents,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -161,7 +162,7 @@ class _Body extends StatelessWidget {
         if (profile.children.isNotEmpty) ...[
           const SizedBox(height: 14),
           Text(
-            'Children',
+            l.userProfileSheetChildren,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),

@@ -394,7 +394,8 @@ class _TeacherClassroomAddMeetingScreenState
                     Padding(
                       padding: const EdgeInsets.only(left: 4),
                       child: Text(
-                        'End date defaults to start date',
+                        AppLocalizations.of(context)!
+                            .teacherClassroomAddMeetingScreenEndDateDefault,
                         style: theme.textTheme.bodySmall
                             ?.copyWith(color: cs.onSurfaceVariant),
                       ),

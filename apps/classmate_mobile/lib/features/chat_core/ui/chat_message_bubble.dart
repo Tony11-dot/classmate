@@ -367,6 +367,7 @@ class ChatMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final deleteMode = deleteState.trim().toUpperCase();
     final isDeletedForEveryone = deleteMode == 'DELETED_FOR_EVERYONE';
     final isDeletedForMe = deleteMode == 'DELETED_FOR_ME';
@@ -485,7 +486,7 @@ class ChatMessageBubble extends StatelessWidget {
         children: [
           if (edited)
             Text(
-              'edited',
+              l.chatMessageBubbleEdited,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 11,
@@ -579,7 +580,7 @@ class ChatMessageBubble extends StatelessWidget {
               onTap: () => _openAttachment(
                 contextForNavigation,
                 resolvedMediaUrl,
-                body.isEmpty ? 'Image' : body,
+                body.isEmpty ? l.chatMessageBubbleImage : body,
                 kind: messageKind,
                 mime: resolvedMime,
               ),
@@ -629,7 +630,7 @@ class ChatMessageBubble extends StatelessWidget {
               onTap: () => _openAttachment(
                 contextForNavigation,
                 resolvedMediaUrl,
-                body.isEmpty ? 'Video' : body,
+                body.isEmpty ? l.chatMessageBubbleVideo : body,
                 kind: messageKind,
                 mime: resolvedMime,
               ),
@@ -730,7 +731,7 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Forwarded',
+                          l.chatMessageBubbleForwarded,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10.5,
@@ -754,7 +755,7 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Pinned',
+                          l.chatMessageBubblePinned,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10.5,
@@ -802,7 +803,7 @@ class ChatMessageBubble extends StatelessWidget {
                                   children: [
                                     Text(
                                       resolvedReplySender.isEmpty
-                                          ? 'Reply'
+                                          ? l.chatMessageBubbleReply
                                           : resolvedReplySender,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -815,7 +816,7 @@ class ChatMessageBubble extends StatelessWidget {
                                     const SizedBox(height: 1),
                                     Text(
                                       resolvedReplySnippet.isEmpty
-                                          ? 'Message'
+                                          ? l.chatMessageBubbleMessage
                                           : resolvedReplySnippet,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -845,7 +846,7 @@ class ChatMessageBubble extends StatelessWidget {
                       ),
                       const SizedBox(width: 7),
                       Text(
-                        'This message was deleted',
+                        l.chatMessageBubbleDeletedMessage,
                         style: TextStyle(
                           color: Colors.white,
                           fontStyle: FontStyle.italic,
@@ -858,7 +859,7 @@ class ChatMessageBubble extends StatelessWidget {
                     onTap: () => _openAttachment(
                       contextForNavigation,
                       resolvedMediaUrl,
-                      body.isEmpty ? 'Image' : body,
+                      body.isEmpty ? l.chatMessageBubbleImage : body,
                       kind: messageKind,
                       mime: resolvedMime,
                     ),
@@ -910,7 +911,7 @@ class ChatMessageBubble extends StatelessWidget {
                     onTap: () => _openAttachment(
                       contextForNavigation,
                       resolvedMediaUrl,
-                      body.isEmpty ? 'Video' : body,
+                      body.isEmpty ? l.chatMessageBubbleVideo : body,
                       kind: messageKind,
                       mime: resolvedMime,
                     ),
@@ -927,7 +928,7 @@ class ChatMessageBubble extends StatelessWidget {
                     onTap: () => _openAttachment(
                       contextForNavigation,
                       resolvedMediaUrl,
-                      body.isEmpty ? 'File' : body,
+                      body.isEmpty ? l.chatMessageBubbleFile : body,
                       kind: messageKind,
                       mime: resolvedMime,
                     ),
@@ -980,7 +981,7 @@ class ChatMessageBubble extends StatelessWidget {
                   children: [
                     if (edited)
                       Text(
-                        'edited',
+                        l.chatMessageBubbleEdited,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 11,

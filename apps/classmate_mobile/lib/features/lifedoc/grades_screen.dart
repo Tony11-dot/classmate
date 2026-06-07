@@ -255,7 +255,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
-                    '/ 100',
+                    l.gradesScreenOutOf100,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: cs.onPrimaryContainer,
                       fontWeight: FontWeight.w600,
@@ -444,7 +444,7 @@ class _SubjectCard extends StatelessWidget {
                         Icon(Icons.expand_more_rounded, size: 16, color: cs.primary),
                         const SizedBox(width: 4),
                         Text(
-                          'Show $remainingCount more grade${remainingCount == 1 ? '' : 's'}',
+                          l.gradesScreenShowMore(remainingCount),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: cs.primary,
                             fontWeight: FontWeight.w700,
@@ -463,7 +463,7 @@ class _SubjectCard extends StatelessWidget {
                         Icon(Icons.expand_less_rounded, size: 16, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
-                          'Show less',
+                          l.gradesScreenShowLess,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w700,
@@ -559,7 +559,7 @@ class _GradeRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '$gradeText / 100',
+              AppLocalizations.of(context)!.gradesScreenScoreOutOf100(gradeText),
               style: TextStyle(
                 color: chipFg,
                 fontWeight: FontWeight.w800,

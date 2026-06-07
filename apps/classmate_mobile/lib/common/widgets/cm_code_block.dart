@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class CMCodeBlock extends StatelessWidget {
   final String code;
 
@@ -165,20 +167,22 @@ class _CopyButtonState extends State<_CopyButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: _copied ? null : _copy,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: _copied
-            ? const Row(
-                key: ValueKey('copied'),
+            ? Row(
+                key: const ValueKey('copied'),
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_rounded, size: 13, color: Color(0xFF98C379)),
-                  SizedBox(width: 4),
+                  const Icon(Icons.check_rounded,
+                      size: 13, color: Color(0xFF98C379)),
+                  const SizedBox(width: 4),
                   Text(
-                    'Copied',
-                    style: TextStyle(
+                    l.cmCodeBlockCopied,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF98C379),
                       fontFamily: 'monospace',
@@ -186,16 +190,16 @@ class _CopyButtonState extends State<_CopyButton> {
                   ),
                 ],
               )
-            : const Row(
-                key: ValueKey('copy'),
+            : Row(
+                key: const ValueKey('copy'),
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.content_copy_rounded,
+                  const Icon(Icons.content_copy_rounded,
                       size: 13, color: Color(0xFFABB2BF)),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
-                    'Copy',
-                    style: TextStyle(
+                    l.cmCodeBlockCopy,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFFABB2BF),
                       fontFamily: 'monospace',

@@ -303,9 +303,9 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule' => l.adminSettingsBellSchedule,
     '/admin/settings' => l.adminSettingsTitle,
     '/admin/periods' => l.adminSettingsPeriodDefaults,
-    '/admin/password-requests' => 'Password Requests',
-    '/admin/reports' => 'Reports',
-    '/admin/export' => 'Export Data',
+    '/admin/password-requests' => l.appShellPasswordRequests,
+    '/admin/reports' => l.appShellReports,
+    '/admin/export' => l.appShellExportData,
     '/admin/' => l.roleAdmin,
     '/secretary/home' => l.navHome,
     '/secretary/students' => l.adminStudents,
@@ -413,7 +413,7 @@ class AppShell extends ConsumerWidget {
       for (final p in _adminPrefixes) {
         if (loc.startsWith(p)) return _adminTitle(l, p);
       }
-      return 'Admin';
+      return l.appShellAdmin;
     }
     if (isParent) {
       for (final p in _parentPrefixes) {
@@ -1680,7 +1680,7 @@ class _ParentChildSwitcherBar extends ConsumerWidget {
               Icon(Icons.visibility_rounded, size: 16, color: cs.onSurfaceVariant),
               const SizedBox(width: 8),
               Text(
-                'Viewing as ',
+                AppLocalizations.of(context)!.appShellViewingAs,
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
               ),
               Expanded(
@@ -1734,11 +1734,11 @@ class _ParentChildSwitcherBar extends ConsumerWidget {
           child: ListView(
             shrinkWrap: true,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
                 child: Text(
-                  'Switch child',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  AppLocalizations.of(ctx)!.appShellSwitchChild,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
               ),
               for (final c in children)

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 
 /// Teacher-facing cohort management — create cohorts, expand to see the
@@ -18,26 +19,27 @@ class TeacherCohortsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final async = ref.watch(_cohortsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Cohorts')),
+      appBar: AppBar(title: Text(l.teacherCohortsScreenTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createDialog(context, ref),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('New cohort'),
+        label: Text(l.teacherCohortsScreenNewCohort),
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('Could not load cohorts.\n$e', textAlign: TextAlign.center, style: TextStyle(color: cs.error)),
+          child: Text('${l.teacherCohortsScreenLoadError}\n$e', textAlign: TextAlign.center, style: TextStyle(color: cs.error)),
         )),
         data: (cohorts) {
           if (cohorts.isEmpty) {
             return Center(child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Text('No cohorts yet.\nTap "New cohort" to create one.',
+              child: Text(l.teacherCohortsScreenEmpty,
                   textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
             ));
           }
@@ -64,37 +66,38 @@ class TeacherCohortsScreen extends ConsumerWidget {
   }
 
   Future<void> _createDialog(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController();
     final gradeCtrl = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('New cohort'),
+        title: Text(l.teacherCohortsScreenNewCohort),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(controller: nameCtrl, autofocus: true,
-              decoration: const InputDecoration(labelText: 'Cohort name', hintText: 'e.g. 10-2')),
+              decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel, hintText: l.teacherCohortsScreenCohortNameHint)),
           const SizedBox(height: 8),
           TextField(controller: gradeCtrl, keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Grade(s)', hintText: 'e.g. 10  or  7,8')),
+              decoration: InputDecoration(labelText: l.teacherCohortsScreenGradesLabel, hintText: l.teacherCohortsScreenGradesHint)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('Create')),
+          TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
+          FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenCreate)),
         ],
       ),
     );
     if (ok != true) return;
     final grades = _parseGrades(gradeCtrl.text);
     if (nameCtrl.text.trim().isEmpty || grades.isEmpty) {
-      _toast(context, 'Enter a name and at least one grade');
+      _toast(context, l.teacherCohortsScreenEnterNameAndGrade);
       return;
     }
     try {
       await _repo(ref).createManagedCohort(name: nameCtrl.text.trim(), grades: grades);
       ref.invalidate(_cohortsProvider);
-      _toast(context, 'Cohort created');
+      _toast(context, l.teacherCohortsScreenCohortCreated);
     } catch (e) {
-      _toast(context, 'Failed: $e');
+      _toast(context, '${l.teacherCohortsScreenFailed}: $e');
     }
   }
 
@@ -120,6 +123,7 @@ class _CohortTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final id = '${cohort['id']}';
     final name = '${cohort['name'] ?? ''}';
@@ -130,7 +134,7 @@ class _CohortTile extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ExpansionTile(
         title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text('${TeacherCohortsScreen.gradeLabel(cohort)} · $count students',
+        subtitle: Text('${TeacherCohortsScreen.gradeLabel(cohort)} · ${l.teacherCohortsScreenStudentsCount(count)}',
             style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
         trailing: Row(mainAxisSize: MainAxisSize.min, children: [
           PopupMenuButton<String>(
@@ -138,9 +142,9 @@ class _CohortTile extends ConsumerWidget {
               if (v == 'rename') await _renameDialog(context, ref, id, name, cohort);
               if (v == 'delete') await _deleteDialog(context, ref, id, name);
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'rename', child: Text('Rename / grades')),
-              PopupMenuItem(value: 'delete', child: Text('Delete cohort')),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'rename', child: Text(l.teacherCohortsScreenRenameGrades)),
+              PopupMenuItem(value: 'delete', child: Text(l.teacherCohortsScreenDeleteCohort)),
             ],
           ),
           const Icon(Icons.expand_more_rounded),
@@ -154,7 +158,7 @@ class _CohortTile extends ConsumerWidget {
             child: OutlinedButton.icon(
               onPressed: () => _addStudents(context, ref, id, repo),
               icon: const Icon(Icons.person_add_alt_1_rounded),
-              label: const Text('Add students'),
+              label: Text(l.teacherCohortsScreenAddStudents),
             ),
           ),
         ],
@@ -163,22 +167,23 @@ class _CohortTile extends ConsumerWidget {
   }
 
   Future<void> _renameDialog(BuildContext context, WidgetRef ref, String id, String name, Map<String, dynamic> c) async {
+    final l = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController(text: name);
     final gradeCtrl = TextEditingController(
         text: (c['grades'] is List ? (c['grades'] as List).join(',') : '${c['grade'] ?? ''}'));
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Edit cohort'),
+        title: Text(l.teacherCohortsScreenEditCohort),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Cohort name')),
+          TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel)),
           const SizedBox(height: 8),
           TextField(controller: gradeCtrl, keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Grade(s)')),
+              decoration: InputDecoration(labelText: l.teacherCohortsScreenGradesLabel)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('Save')),
+          TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
+          FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenSave)),
         ],
       ),
     );
@@ -188,25 +193,25 @@ class _CohortTile extends ConsumerWidget {
       await ref.read(teacherMobileRepositoryProvider).updateManagedCohort(
             id, name: nameCtrl.text.trim(), grades: grades.isEmpty ? null : grades);
       ref.invalidate(_cohortsProvider);
-      TeacherCohortsScreen._toast(context, 'Saved');
+      TeacherCohortsScreen._toast(context, l.teacherCohortsScreenSaved);
     } catch (e) {
-      TeacherCohortsScreen._toast(context, 'Failed: $e');
+      TeacherCohortsScreen._toast(context, '${l.teacherCohortsScreenFailed}: $e');
     }
   }
 
   Future<void> _deleteDialog(BuildContext context, WidgetRef ref, String id, String name) async {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: Text('Delete "$name"?'),
-        content: const Text('The cohort is removed and students are detached from it. '
-            'Student accounts are not deleted.'),
+        title: Text(l.teacherCohortsScreenDeleteConfirmTitle(name)),
+        content: Text(l.teacherCohortsScreenDeleteConfirmBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: cs.error),
-            onPressed: () => Navigator.pop(d, true), child: const Text('Delete')),
+            onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenDelete)),
         ],
       ),
     );
@@ -214,18 +219,19 @@ class _CohortTile extends ConsumerWidget {
     try {
       await ref.read(teacherMobileRepositoryProvider).deleteManagedCohort(id);
       ref.invalidate(_cohortsProvider);
-      TeacherCohortsScreen._toast(context, 'Deleted');
+      TeacherCohortsScreen._toast(context, l.teacherCohortsScreenDeleted);
     } catch (e) {
-      TeacherCohortsScreen._toast(context, 'Failed: $e');
+      TeacherCohortsScreen._toast(context, '${l.teacherCohortsScreenFailed}: $e');
     }
   }
 
   Future<void> _addStudents(BuildContext context, WidgetRef ref, String id, TeacherMobileRepository repo) async {
+    final l = AppLocalizations.of(context)!;
     List<Map<String, dynamic>> students;
     try {
       students = await repo.fetchSchoolStudents();
     } catch (e) {
-      TeacherCohortsScreen._toast(context, 'Could not load students: $e');
+      TeacherCohortsScreen._toast(context, '${l.teacherCohortsScreenLoadStudentsError}: $e');
       return;
     }
     final selected = <String>{};
@@ -236,8 +242,8 @@ class _CohortTile extends ConsumerWidget {
         return DraggableScrollableSheet(
           expand: false, initialChildSize: 0.7, maxChildSize: 0.95,
           builder: (ctx, scroll) => Column(children: [
-            const Padding(padding: EdgeInsets.all(16),
-                child: Text('Add students', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+            Padding(padding: const EdgeInsets.all(16),
+                child: Text(l.teacherCohortsScreenAddStudents, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
             Expanded(child: ListView(controller: scroll, children: [
               for (final s in students)
                 CheckboxListTile(
@@ -253,7 +259,7 @@ class _CohortTile extends ConsumerWidget {
               padding: const EdgeInsets.all(12),
               child: SizedBox(width: double.infinity, child: FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text('Add ${selected.length} students'),
+                child: Text(l.teacherCohortsScreenAddNStudents(selected.length)),
               )),
             ),
           ]),
@@ -264,9 +270,9 @@ class _CohortTile extends ConsumerWidget {
     try {
       await repo.addStudentsToManagedCohort(id, selected.toList());
       ref.invalidate(_cohortsProvider);
-      TeacherCohortsScreen._toast(context, 'Added ${selected.length} students');
+      TeacherCohortsScreen._toast(context, l.teacherCohortsScreenAddedNStudents(selected.length));
     } catch (e) {
-      TeacherCohortsScreen._toast(context, 'Failed: $e');
+      TeacherCohortsScreen._toast(context, '${l.teacherCohortsScreenFailed}: $e');
     }
   }
 }
@@ -296,6 +302,7 @@ class _RosterState extends ConsumerState<_Roster> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _future,
@@ -306,7 +313,7 @@ class _RosterState extends ConsumerState<_Roster> {
         final students = snap.data ?? const [];
         if (students.isEmpty) {
           return Padding(padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text('No students yet.', style: TextStyle(color: cs.onSurfaceVariant)));
+              child: Text(l.teacherCohortsScreenNoStudentsYet, style: TextStyle(color: cs.onSurfaceVariant)));
         }
         return Column(children: [
           for (final s in students)
@@ -324,7 +331,7 @@ class _RosterState extends ConsumerState<_Roster> {
                     ref.invalidate(_cohortsProvider);
                   } catch (e) {
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l.teacherCohortsScreenFailed}: $e')));
                     }
                   }
                 },

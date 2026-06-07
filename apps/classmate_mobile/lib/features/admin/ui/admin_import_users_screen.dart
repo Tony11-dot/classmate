@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
@@ -97,15 +98,17 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
       _result = null;
     });
     _tabs.animateTo(0);
+    final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Loaded ${preview.length} rows — review & edit, then Create')),
+      SnackBar(content: Text(l.adminImportUsersScreenLoadedRows(preview.length))),
     );
   }
 
   Future<void> _submit() async {
+    final l = AppLocalizations.of(context)!;
     final dtos = _rows.map((r) => r.toDto()).whereType<Map<String, dynamic>>().toList();
     if (dtos.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill at least one name')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminImportUsersScreenFillAtLeastOneName)));
       return;
     }
     setState(() { _saving = true; _result = null; });
@@ -113,7 +116,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
       final r = await ref.read(adminRepositoryProvider).bulkCreateUsers(dtos);
       setState(() => _result = r);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminImportUsersScreenFailed('$e'))));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -121,12 +124,13 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Import users'),
-        bottom: TabBar(controller: _tabs, tabs: const [
-          Tab(icon: Icon(Icons.grid_on_rounded), text: 'Grid'),
-          Tab(icon: Icon(Icons.upload_file_rounded), text: 'CSV'),
+        title: Text(l.adminImportUsersScreenTitle),
+        bottom: TabBar(controller: _tabs, tabs: [
+          Tab(icon: const Icon(Icons.grid_on_rounded), text: l.adminImportUsersScreenTabGrid),
+          Tab(icon: const Icon(Icons.upload_file_rounded), text: l.adminImportUsersScreenTabCsv),
         ]),
       ),
       body: TabBarView(controller: _tabs, children: [
@@ -137,21 +141,20 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
   }
 
   Widget _grid(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     if (_result != null) {
       return ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 100), children: [
         _resultView(context, _result!),
         const SizedBox(height: 16),
-        OutlinedButton(onPressed: () => setState(() => _result = null), child: const Text('Back to grid')),
+        OutlinedButton(onPressed: () => setState(() => _result = null), child: Text(l.adminImportUsersScreenBackToGrid)),
       ]);
     }
     return Column(children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
         child: Text(
-          'Fill a row per person, or load a CSV from the CSV tab and fix anything here. '
-          'Username is optional — we generate one if blank. For students, set the grade '
-          'and (optionally) a parent\'s username to link them.',
+          l.adminImportUsersScreenGridIntro,
           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
         ),
       ),
@@ -171,7 +174,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
               child: OutlinedButton.icon(
                 onPressed: _saving ? null : _addRow,
                 icon: const Icon(Icons.add_rounded),
-                label: const Text('Add row'),
+                label: Text(l.adminImportUsersScreenAddRow),
               ),
             ),
             const SizedBox(width: 10),
@@ -181,7 +184,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
                 icon: _saving
                     ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.check_rounded),
-                label: Text('Create (${_rows.where((r) => r.name.text.trim().isNotEmpty).length})'),
+                label: Text(l.adminImportUsersScreenCreateCount(_rows.where((r) => r.name.text.trim().isNotEmpty).length)),
               ),
             ),
           ]),
@@ -191,6 +194,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
   }
 
   Widget _rowCard(int i, ColorScheme cs) {
+    final l = AppLocalizations.of(context)!;
     final row = _rows[i];
     final isStudent = row.role == 'STUDENT';
     return Card(
@@ -201,7 +205,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
           Row(children: [
             Expanded(
               child: LiquidGlassDropdown<String>(
-                label: 'Role',
+                label: l.adminImportUsersScreenRole,
                 value: row.role,
                 items: _roleItems,
                 onChanged: (v) => setState(() => row.role = v),
@@ -216,14 +220,14 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
           TextField(
             controller: row.name,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Full name *', isDense: true, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: l.adminImportUsersScreenFullName, isDense: true, border: const OutlineInputBorder()),
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: row.username,
-            decoration: const InputDecoration(
-                labelText: 'Username', hintText: '(auto if blank)', isDense: true, border: OutlineInputBorder()),
+            decoration: InputDecoration(
+                labelText: l.adminImportUsersScreenUsername, hintText: l.adminImportUsersScreenUsernameHint, isDense: true, border: const OutlineInputBorder()),
           ),
           if (isStudent) ...[
             const SizedBox(height: 8),
@@ -233,15 +237,15 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
                 child: TextField(
                   controller: row.grade,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Grade', isDense: true, border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l.adminImportUsersScreenGrade, isDense: true, border: const OutlineInputBorder()),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   controller: row.parent,
-                  decoration: const InputDecoration(
-                      labelText: 'Parent username', hintText: 'link (optional)', isDense: true, border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                      labelText: l.adminImportUsersScreenParentUsername, hintText: l.adminImportUsersScreenParentUsernameHint, isDense: true, border: const OutlineInputBorder()),
                 ),
               ),
             ]),
@@ -274,7 +278,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
     );
     if (res == null || res.files.isEmpty) return;
     final f = res.files.first;
-    if (f.path == null) { setState(() => _error = 'Could not read that file.'); return; }
+    if (f.path == null) { setState(() => _error = AppLocalizations.of(context)!.adminImportUsersScreenCouldNotReadFile); return; }
     setState(() { _fileName = f.name; _filePath = f.path; _preview = null; _error = null; });
     await _runPreview();
   }
@@ -294,14 +298,13 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
       children: [
         Text(
-          'Upload a CSV of your users. Column headers can be in any language — '
-          'ClassMate detects what each column means, then loads the rows into the '
-          'grid so you can review and fix anything before creating.',
+          l.adminImportUsersScreenCsvIntro,
           style: TextStyle(color: cs.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
@@ -310,11 +313,11 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
         FilledButton.icon(
           onPressed: _loading ? null : _pick,
           icon: const Icon(Icons.upload_file_rounded),
-          label: Text(_fileName == null ? 'Choose CSV file' : 'Choose a different file'),
+          label: Text(_fileName == null ? l.adminImportUsersScreenChooseCsv : l.adminImportUsersScreenChooseDifferentFile),
         ),
         if (_fileName != null) ...[
           const SizedBox(height: 8),
-          Text('Selected: $_fileName', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          Text(l.adminImportUsersScreenSelectedFile(_fileName!), style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
         ],
         if (_loading) ...[const SizedBox(height: 28), const Center(child: CircularProgressIndicator())],
         if (_error != null) ...[
@@ -330,28 +333,28 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
     );
   }
 
-  Widget _hintCard(ColorScheme cs) => Container(
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: cs.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-    ),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Recognised columns', style: TextStyle(fontWeight: FontWeight.w700)),
-      const SizedBox(height: 6),
-      Text(
-        'name · username · password · email · phone · role · grade · '
-        'parent (a username) · children (usernames)\n\n'
-        'Role words like "student / طالب / תלמיד / élève / ученик" all map correctly. '
-        'Grade reads the number from "Grade 10", "الصف 10", "כיתה 10". '
-        'Missing usernames or passwords are generated automatically.',
-        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, height: 1.45),
+  Widget _hintCard(ColorScheme cs) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
-    ]),
-  );
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(l.adminImportUsersScreenRecognisedColumns, style: const TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 6),
+        Text(
+          l.adminImportUsersScreenRecognisedColumnsBody,
+          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, height: 1.45),
+        ),
+      ]),
+    );
+  }
 
   Widget _previewBlock(ColorScheme cs) {
+    final l = AppLocalizations.of(context)!;
     final p = _preview!;
     final fields = (p['detectedFields'] as List?)?.map((e) => '$e').toList() ?? const [];
     final rows = (p['preview'] as List?) ?? const [];
@@ -359,7 +362,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
     final truncated = p['truncated'] == true;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SizedBox(height: 22),
-      Text('Detected — $count rows', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+      Text(l.adminImportUsersScreenDetectedRows(count is int ? count : int.tryParse('$count') ?? rows.length), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       const SizedBox(height: 8),
       Wrap(spacing: 6, runSpacing: 6, children: [
         for (final f in fields) Chip(label: Text(f), visualDensity: VisualDensity.compact),
@@ -367,12 +370,12 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
       if (fields.isEmpty)
         Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Text('No known columns detected — check your header row.', style: TextStyle(color: cs.error)),
+          child: Text(l.adminImportUsersScreenNoColumnsDetected, style: TextStyle(color: cs.error)),
         ),
       if (truncated)
         Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Text('Showing the first 2000 rows for review.', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          child: Text(l.adminImportUsersScreenTruncatedNotice, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
         ),
       const SizedBox(height: 16),
       SizedBox(
@@ -380,11 +383,11 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
         child: FilledButton.icon(
           onPressed: (rows.isEmpty || fields.isEmpty) ? null : () => widget.onLoadToGrid(rows),
           icon: const Icon(Icons.edit_note_rounded),
-          label: const Text('Review & edit in grid'),
+          label: Text(l.adminImportUsersScreenReviewEditInGrid),
         ),
       ),
       const SizedBox(height: 6),
-      Text('Opens the Grid tab pre-filled with these rows so you can fix any mistakes before creating.',
+      Text(l.adminImportUsersScreenReviewEditHint,
           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11.5)),
     ]);
   }
@@ -393,6 +396,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
 // ── Shared result view ───────────────────────────────────────────────────────
 
 Widget _resultView(BuildContext context, Map<String, dynamic> r) {
+  final l = AppLocalizations.of(context)!;
   final cs = Theme.of(context).colorScheme;
   final created = (r['created'] as List?) ?? const [];
   final createdCount = r['createdCount'] ?? created.length;
@@ -405,22 +409,25 @@ Widget _resultView(BuildContext context, Map<String, dynamic> r) {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
       child: Text(
-        '✓ Created $createdCount users · $links links${failed != 0 ? ' · $failed failed' : ''}',
+        l.adminImportUsersScreenResultSummary(
+          createdCount is int ? createdCount : int.tryParse('$createdCount') ?? 0,
+          links is int ? links : int.tryParse('$links') ?? 0,
+        ) + (failed != 0 ? l.adminImportUsersScreenResultFailedSuffix(failed is int ? failed : int.tryParse('$failed') ?? 0) : ''),
         style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer),
       ),
     ),
     if (errors.isNotEmpty) ...[
       const SizedBox(height: 12),
-      Text('Failed rows', style: TextStyle(fontWeight: FontWeight.w700, color: cs.error)),
+      Text(l.adminImportUsersScreenFailedRows, style: TextStyle(fontWeight: FontWeight.w700, color: cs.error)),
       const SizedBox(height: 4),
       ...errors.take(25).map((e) {
         final m = Map<String, dynamic>.from(e as Map);
-        return Text('Row ${m['row']}: ${m['reason']}', style: TextStyle(color: cs.error, fontSize: 12));
+        return Text(l.adminImportUsersScreenFailedRow('${m['row']}', '${m['reason']}'), style: TextStyle(color: cs.error, fontSize: 12));
       }),
     ],
     if (created.isNotEmpty) ...[
       const SizedBox(height: 16),
-      const Text('Credentials (hand these to your users)', style: TextStyle(fontWeight: FontWeight.w800)),
+      Text(l.adminImportUsersScreenCredentialsTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
       const SizedBox(height: 6),
       ...created.map((c) {
         final m = Map<String, dynamic>.from(c as Map);

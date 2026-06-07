@@ -30,8 +30,6 @@ class AdminExportScreen extends ConsumerStatefulWidget {
   ConsumerState<AdminExportScreen> createState() => _AdminExportScreenState();
 }
 
-const _kRoles = <String>['STUDENT', 'TEACHER', 'PARENT', 'SECRETARY', 'ADMIN'];
-
 class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   // ── Pills ──────────────────────────────────────────────────────────────────
   // Role-wide filtering was removed in favour of per-user picking inside
@@ -1856,14 +1854,14 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               dense: true,
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
               title: Text(
-                'Each user alone',
+                l.adminExportScreenEachUserAlone,
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
                 _eachUserAlone
-                    ? 'One full page per user, big readable card layout.'
-                    : 'Compact table — every user is a row.',
+                    ? l.adminExportScreenEachUserAloneOn
+                    : l.adminExportScreenEachUserAloneOff,
                 style: theme.textTheme.labelSmall
                     ?.copyWith(color: cs.onSurfaceVariant, height: 1.3),
               ),
@@ -1888,15 +1886,15 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
                 title: Text(
                   _separateFiles
-                      ? 'Separate PDF per user'
-                      : 'Single PDF, one page per user',
+                      ? l.adminExportScreenSeparateFilesOn
+                      : l.adminExportScreenSeparateFilesOff,
                   style: theme.textTheme.bodyMedium
                       ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
                   _separateFiles
-                      ? 'You\'ll share ${widget.userCount} PDF file${widget.userCount == 1 ? "" : "s"} at once — each user gets their own.'
-                      : 'Everyone in one PDF, each on their own page.',
+                      ? l.adminExportScreenSeparateFilesOnDesc(widget.userCount)
+                      : l.adminExportScreenSeparateFilesOffDesc,
                   style: theme.textTheme.labelSmall
                       ?.copyWith(color: cs.onSurfaceVariant, height: 1.3),
                 ),

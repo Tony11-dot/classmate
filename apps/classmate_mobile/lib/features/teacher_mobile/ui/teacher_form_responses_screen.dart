@@ -56,6 +56,7 @@ class _TeacherFormResponsesScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -77,7 +78,7 @@ class _TeacherFormResponsesScreenState
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              '${_responses.length} response${_responses.length == 1 ? '' : 's'}',
+              l.teacherFormResponsesScreenResponseCount(_responses.length),
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ],
@@ -117,12 +118,12 @@ class _TeacherFormResponsesScreenState
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'No responses yet',
+                            l.teacherFormResponsesScreenEmptyTitle,
                             style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Responses will appear here once students submit.',
+                            l.teacherFormResponsesScreenEmptySubtitle,
                             style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                             textAlign: TextAlign.center,
                           ),
@@ -136,7 +137,8 @@ class _TeacherFormResponsesScreenState
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, i) {
                         final r = _responses[i];
-                        final name = r['studentName'] as String? ?? 'Student';
+                        final name = r['studentName'] as String? ??
+                            l.teacherFormResponsesScreenStudentFallback;
                         final submittedAt = r['submittedAt'] as String? ?? '';
                         final answers = r['answers'];
 
@@ -178,7 +180,7 @@ class _TeacherFormResponsesScreenState
                                         ),
                                         if (dateStr.isNotEmpty)
                                           Text(
-                                            'Submitted $dateStr',
+                                            l.teacherFormResponsesScreenSubmittedAt(dateStr),
                                             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                           ),
                                       ],

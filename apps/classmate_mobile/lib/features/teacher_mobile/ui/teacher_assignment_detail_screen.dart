@@ -156,7 +156,7 @@ class _TeacherAssignmentDetailScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          widget.assignmentTitle ?? 'Assignment',
+          widget.assignmentTitle ?? AppLocalizations.of(context)!.teacherAssignmentDetailScreenTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           overflow: TextOverflow.ellipsis,
         ),
@@ -202,7 +202,7 @@ class _TeacherAssignmentDetailScreenState
                             Icon(Icons.inbox_rounded, size: 56, color: cs.onSurfaceVariant),
                             const SizedBox(height: 16),
                             Text(
-                              'No submissions yet',
+                              AppLocalizations.of(context)!.teacherAssignmentDetailScreenNoSubmissions,
                               style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant),
                             ),
                           ],
@@ -239,12 +239,12 @@ class _TeacherAssignmentDetailScreenState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${_submissions.length} submission${_submissions.length == 1 ? '' : 's'}',
+                                      AppLocalizations.of(context)!.teacherAssignmentDetailScreenSubmissionCount(_submissions.length),
                                       style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '${_submissions.where((s) => s['grade'] != null).length} graded',
+                                      AppLocalizations.of(context)!.teacherAssignmentDetailScreenGradedCount(_submissions.where((s) => s['grade'] != null).length),
                                       style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                     ),
                                   ],
@@ -267,7 +267,7 @@ class _TeacherAssignmentDetailScreenState
                         // Submissions
                         ..._submissions.map((sub) {
                           final sid = sub['studentId'] as String? ?? '';
-                          final name = sub['studentName'] as String? ?? 'Student';
+                          final name = sub['studentName'] as String? ?? AppLocalizations.of(context)!.teacherAssignmentDetailScreenStudentFallback;
                           final submittedAt = sub['submittedAt'] as String? ?? '';
                           final note = sub['note'] as String? ?? '';
                           final gradedAt = sub['gradedAt'] as String? ?? '';
@@ -304,7 +304,7 @@ class _TeacherAssignmentDetailScreenState
                                             Text(name, style: const TextStyle(fontWeight: FontWeight.w800)),
                                             if (submittedDate != null)
                                               Text(
-                                                'Submitted ${DateFormat.yMMMd(locale).format(submittedDate)}',
+                                                AppLocalizations.of(context)!.teacherAssignmentDetailScreenSubmittedOn(DateFormat.yMMMd(locale).format(submittedDate)),
                                                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                               ),
                                           ],

@@ -337,7 +337,7 @@ class _ExamCard extends StatelessWidget {
                         if (maxGrade != null)
                           _Chip(label: '/ $maxGrade', color: cs.tertiary),
                         if (gradedCount > 0)
-                          _GradedChip(label: '$gradedCount graded', cs: cs),
+                          _GradedChip(label: AppLocalizations.of(context)!.teacherExamsScreenGradedCount(gradedCount), cs: cs),
                       ],
                     ),
                   ],

@@ -229,7 +229,7 @@ class _TeacherClassroomsScreenState
               }).map((course) {
                 final grade = course.cohort?.grade;
                 final cohortName = course.cohort?.name ?? '';
-                final label = grade != null ? 'Grade $grade' : cohortName;
+                final label = grade != null ? l.teacherClassroomsScreenGradeLabel(grade) : cohortName;
                 final subtitle = [
                   if (course.subject.isNotEmpty) course.subject,
                   if (cohortName.isNotEmpty && cohortName != label) cohortName,
@@ -432,7 +432,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'New Classroom',
+              AppLocalizations.of(context)!.teacherClassroomsScreenNewClassroom,
               style: theme.textTheme.titleLarge
                   ?.copyWith(fontWeight: FontWeight.w800),
             ),

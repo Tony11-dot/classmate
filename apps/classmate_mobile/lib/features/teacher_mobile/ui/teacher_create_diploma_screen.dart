@@ -163,7 +163,7 @@ class _TeacherCreateDiplomaScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Issue Certificate',
+          AppLocalizations.of(context)!.teacherCreateDiplomaScreenTitle,
           style: theme.textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.w800),
         ),
@@ -240,7 +240,7 @@ class _TeacherCreateDiplomaScreenState
                           final isSelected =
                               _selected?.studentId == s.studentId;
                           final gradeLabel = s.gradeLevel != null
-                              ? 'Grade ${s.gradeLevel}${s.cohortName.isNotEmpty ? " · ${s.cohortName}" : ""}'
+                              ? '${AppLocalizations.of(context)!.teacherCreateDiplomaScreenGradePrefix} ${s.gradeLevel}${s.cohortName.isNotEmpty ? " · ${s.cohortName}" : ""}'
                               : s.cohortName;
                           return Material(
                             color: Colors.transparent,
@@ -393,8 +393,8 @@ class _TeacherCreateDiplomaScreenState
                   onPressed: _uploading ? null : _pickFiles,
                   icon: const Icon(Icons.attach_file_rounded, size: 16),
                   label: Text(_attachments.isEmpty
-                      ? 'Attach certificate file(s)'
-                      : 'Add more files'),
+                      ? AppLocalizations.of(context)!.teacherCreateDiplomaScreenAttachFiles
+                      : AppLocalizations.of(context)!.teacherCreateDiplomaScreenAddMoreFiles),
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),

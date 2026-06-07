@@ -99,7 +99,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'Could not load this form right now.',
+              AppLocalizations.of(context)!.formDetailScreenCouldNotLoad,
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
@@ -256,12 +256,12 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (result['message'] ?? 'Form submitted').toString(),
+              (result['message'] ?? AppLocalizations.of(context)!.formDetailScreenSubmitted).toString(),
             ),
           ),
         );
       } else {
-        final error = (result['error'] ?? 'Submission failed').toString();
+        final error = (result['error'] ?? AppLocalizations.of(context)!.formDetailScreenSubmissionFailed).toString();
         if (error.toLowerCase().contains('already')) {
           setState(() { _submitted = true; _savedAnswers = serialized; });
           if (!form.allowMultipleResponses) {
@@ -331,7 +331,7 @@ class _SubmitSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'You have already submitted this form.',
+            AppLocalizations.of(context)!.formDetailScreenAlreadySubmittedNote,
             textAlign: TextAlign.center,
             style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
           ),
@@ -350,10 +350,10 @@ class _SubmitSection extends StatelessWidget {
           : const Icon(Icons.send_rounded),
       label: Text(
         submitting
-            ? 'Submitting…'
+            ? AppLocalizations.of(context)!.formDetailScreenSubmitting
             : submitted
-                ? 'Submit again'
-                : 'Submit form',
+                ? AppLocalizations.of(context)!.formDetailScreenSubmitAgain
+                : AppLocalizations.of(context)!.formDetailScreenSubmitForm,
       ),
     );
   }
@@ -427,15 +427,15 @@ class _FormHero extends StatelessWidget {
                   icon: Icons.groups_rounded, label: form.audienceLabel),
               _MetaChip(
                   icon: Icons.quiz_outlined,
-                  label: '${form.questionCount} questions'),
+                  label: AppLocalizations.of(context)!.formDetailScreenQuestionCount(form.questionCount)),
               _MetaChip(
                   icon: Icons.publish_rounded,
                   label: form.summary.publishedLabel),
               _MetaChip(
                 icon: Icons.repeat_rounded,
                 label: form.allowMultipleResponses
-                    ? 'Multi-submit'
-                    : '1 per student',
+                    ? AppLocalizations.of(context)!.formDetailScreenMultiSubmit
+                    : AppLocalizations.of(context)!.formDetailScreenOnePerStudent,
               ),
             ],
           ),
@@ -514,7 +514,7 @@ class _QuestionCard extends StatelessWidget {
               ),
               if (question.required)
                 Text(
-                  'Required',
+                  AppLocalizations.of(context)!.formDetailScreenRequired,
                   style: TextStyle(
                     color: cs.error,
                     fontWeight: FontWeight.w800,
@@ -545,7 +545,7 @@ class _QuestionCard extends StatelessWidget {
           initialValue: answer?.toString() ?? '',
           onChanged: readOnly ? null : onChanged,
           readOnly: readOnly,
-          decoration: InputDecoration(hintText: readOnly ? null : 'Your answer'),
+          decoration: InputDecoration(hintText: readOnly ? null : AppLocalizations.of(context)!.formDetailScreenYourAnswer),
         );
       case StudentFormQuestionType.paragraph:
         return TextFormField(
@@ -554,7 +554,7 @@ class _QuestionCard extends StatelessWidget {
           readOnly: readOnly,
           minLines: 4,
           maxLines: 7,
-          decoration: InputDecoration(hintText: readOnly ? null : 'Long answer text'),
+          decoration: InputDecoration(hintText: readOnly ? null : AppLocalizations.of(context)!.formDetailScreenLongAnswerText),
         );
       case StudentFormQuestionType.multipleChoice:
         return RadioGroup<String>(
@@ -599,7 +599,7 @@ class _QuestionCard extends StatelessWidget {
         );
       case StudentFormQuestionType.dropdown:
         return LiquidGlassDropdown<String>(
-          label: question.title.trim().isNotEmpty ? question.title : 'Select',
+          label: question.title.trim().isNotEmpty ? question.title : AppLocalizations.of(context)!.formDetailScreenSelect,
           value: (answer?.toString().isEmpty ?? true) ? '' : answer.toString(),
           items: question.options
               .map((option) => LiquidGlassDropdownItem(value: option, label: option))

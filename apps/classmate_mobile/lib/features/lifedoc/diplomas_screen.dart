@@ -120,13 +120,13 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
       if (isImage) {
         await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute<void>(
-            builder: (_) => ImageViewerScreen(url: url, title: 'Certificate'),
+            builder: (_) => ImageViewerScreen(url: url, title: AppLocalizations.of(context)!.diplomasScreenCertificate),
           ),
         );
       } else if (isPdf) {
         await Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute<void>(
-            builder: (_) => PdfViewerScreen(url: url, title: 'Certificate'),
+            builder: (_) => PdfViewerScreen(url: url, title: AppLocalizations.of(context)!.diplomasScreenCertificate),
           ),
         );
       } else {
@@ -186,7 +186,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                     },
                     icon: const Icon(Icons.event_rounded, size: 18),
                     label: Text(
-                      'Issued ${DateFormat.yMMMd().format(issuedAt)}',
+                      AppLocalizations.of(ctx)!.diplomasScreenIssuedDate(DateFormat.yMMMd().format(issuedAt)),
                     ),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
@@ -338,7 +338,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                     Icon(Icons.workspace_premium_outlined, size: 56, color: cs.primary),
                     const SizedBox(height: 16),
                     Text(
-                      _isTeacher ? l.diplomasEmpty : 'No certificates received yet.',
+                      _isTeacher ? l.diplomasEmpty : l.diplomasScreenNoCertificatesReceived,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -386,7 +386,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                   ),
                   if (hasFiles)
                     _DiplomaChip(
-                      label: '${attachList.length} file${attachList.length == 1 ? '' : 's'}',
+                      label: l.diplomasScreenFileCount(attachList.length),
                       color: cs.surfaceContainerHighest,
                       onColor: cs.onSurfaceVariant,
                     ),

@@ -126,7 +126,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
                   child: Text(
-                    dow < _dayNames.length ? _dayNames[dow] : 'Day $dow',
+                    dow < _dayNames.length ? _dayNames[dow] : AppLocalizations.of(context)!.adminPeriodsScreenDayN(dow),
                     style: theme.textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: cs.primary,
@@ -209,7 +209,7 @@ class _PeriodTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          classroom.isNotEmpty ? classroom : (subject.isNotEmpty ? subject : 'Period $period'),
+          classroom.isNotEmpty ? classroom : (subject.isNotEmpty ? subject : AppLocalizations.of(context)!.adminPeriodsScreenPeriodN(period)),
           style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         subtitle: Text(
@@ -404,7 +404,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                           Text(AppLocalizations.of(context)!.adminPeriodsPeriodLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                           const SizedBox(height: 8),
                           LiquidGlassDropdown<int>(
-                            label: 'Period',
+                            label: AppLocalizations.of(context)!.adminPeriodsScreenPeriodDropdownLabel,
                             value: _period,
                             items: List.generate(10, (i) => i + 1).map((p) {
                               final def = _defaults.firstWhere((d) => (d['period'] as num?)?.toInt() == p, orElse: () => const {});
@@ -442,10 +442,10 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 Text(AppLocalizations.of(context)!.adminPeriodsTeacherLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                 const SizedBox(height: 8),
                 LiquidGlassDropdown<String>(
-                  label: 'Select teacher…',
+                  label: AppLocalizations.of(context)!.adminPeriodsScreenSelectTeacher,
                   value: _teacherId ?? '',
                   items: [
-                    const LiquidGlassDropdownItem(value: '', label: '— None —'),
+                    LiquidGlassDropdownItem(value: '', label: AppLocalizations.of(context)!.adminPeriodsScreenNone),
                     ..._teachers.map((t) => LiquidGlassDropdownItem(value: t['id']?.toString() ?? '', label: t['name']?.toString() ?? '')),
                   ],
                   onChanged: (v) => _onTeacherChanged(v.isEmpty ? null : v),
@@ -457,10 +457,10 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                   Text(AppLocalizations.of(context)!.adminPeriodsClassroomOptional, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
                   const SizedBox(height: 8),
                   LiquidGlassDropdown<String>(
-                    label: 'Link to classroom…',
+                    label: AppLocalizations.of(context)!.adminPeriodsScreenLinkClassroom,
                     value: _classroomId ?? '',
                     items: [
-                      const LiquidGlassDropdownItem(value: '', label: '— None —'),
+                      LiquidGlassDropdownItem(value: '', label: AppLocalizations.of(context)!.adminPeriodsScreenNone),
                       ..._classrooms.map((c) => LiquidGlassDropdownItem(value: c['id']?.toString() ?? '', label: '${c['name']} (${c['subject']})')),
                     ],
                     onChanged: (v) => setState(() => _classroomId = v.isEmpty ? null : v),
@@ -480,7 +480,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                       final name = c['name']?.toString() ?? '';
                       final grade = c['grade'];
                       return FilterChip(
-                        label: Text(grade != null ? 'G$grade — $name' : name, style: const TextStyle(fontSize: 12)),
+                        label: Text(grade != null ? AppLocalizations.of(context)!.adminPeriodsScreenCohortGradeName(grade.toString(), name) : name, style: const TextStyle(fontSize: 12)),
                         selected: _cohortIds.contains(id),
                         onSelected: (_) => setState(() => _cohortIds.contains(id) ? _cohortIds.remove(id) : _cohortIds.add(id)),
                       );
@@ -516,7 +516,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                   final id = s['id']?.toString() ?? '';
                   final name = s['name']?.toString() ?? '';
                   final grade = s['grade'];
-                  final sub = grade != null ? 'Grade $grade' : '';
+                  final sub = grade != null ? AppLocalizations.of(context)!.adminPeriodsScreenGradeN(grade.toString()) : '';
                   final selected = _studentIds.contains(id);
                   return CheckboxListTile(
                     dense: true,

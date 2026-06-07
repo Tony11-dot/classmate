@@ -970,8 +970,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                             _SectionCard(
                               title: AppLocalizations.of(context)!.studentYourSubmission,
                               subtitle: _submitted
-                                  ? 'You have already handed in this assignment.'
-                                  : 'Add a note or attach files, then press Hand in.',
+                                  ? l.assignmentsScreenAlreadyHandedIn
+                                  : l.assignmentsScreenAddNoteOrFiles,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1027,14 +1027,14 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                         const Icon(Icons.grade_rounded,
                                             size: 18, color: Color(0xFF6366F1)),
                                         const SizedBox(width: 8),
-                                        Text('Grade: ${_grade! % 1 == 0 ? _grade!.toInt() : _grade!}',
+                                        Text(l.assignmentsScreenGradeLabel('${_grade! % 1 == 0 ? _grade!.toInt() : _grade!}'),
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.w800)),
                                       ]),
                                     ],
                                     if (_feedback.trim().isNotEmpty) ...[
                                       const SizedBox(height: 8),
-                                      Text('Feedback: ${_feedback.trim()}',
+                                      Text(l.assignmentsScreenFeedbackLabel(_feedback.trim()),
                                           style: TextStyle(
                                               color: Theme.of(context)
                                                   .colorScheme
@@ -1068,9 +1068,9 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  const Text(
-                                                      'Returned for re-solution',
-                                                      style: TextStyle(
+                                                  Text(
+                                                      l.assignmentsScreenReturnedForResolution,
+                                                      style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.w800,
                                                           color: Color(
@@ -1111,8 +1111,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                       icon: const Icon(Icons.attach_file_rounded,
                                           size: 18),
                                       label: Text(_draftAttachments.isEmpty
-                                          ? 'Attach file'
-                                          : 'Add more files'),
+                                          ? l.assignmentsScreenAttachFile
+                                          : l.assignmentsScreenAddMoreFiles),
                                     ),
                                     if (_draftAttachments.isNotEmpty) ...[
                                       const SizedBox(height: 12),
@@ -1146,8 +1146,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                             : const Icon(Icons.send_rounded,
                                                 size: 18),
                                         label: Text(_submitting
-                                            ? 'Handing in…'
-                                            : 'Hand in'),
+                                            ? l.assignmentsScreenHandingIn
+                                            : l.assignmentsScreenHandIn),
                                       ),
                                     ),
                                   ],

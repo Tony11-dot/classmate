@@ -429,7 +429,8 @@ class _CohortCard extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                   Text(
-                    '${cohort.studentCount} student${cohort.studentCount == 1 ? '' : 's'}',
+                    AppLocalizations.of(context)!
+                        .secretaryStudentsScreenStudentCount(cohort.studentCount),
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: cs.onSurfaceVariant),
                   ),
@@ -538,7 +539,8 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
                         color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   child: Text(
-                    'Avg $cohortAvgGrade',
+                    AppLocalizations.of(context)!
+                        .secretaryStudentsScreenAvg(cohortAvgGrade.toString()),
                     style: theme.textTheme.labelSmall?.copyWith(
                         fontWeight: FontWeight.w800, letterSpacing: 0.2),
                   ),
@@ -734,6 +736,7 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
   }
 
   Widget _buildBody(ScrollController scrollCtrl, ThemeData theme, ColorScheme cs) {
+    final l = AppLocalizations.of(context)!;
     final u = _user ?? const <String, dynamic>{};
     final name = (u['name'] ?? widget.fallbackName).toString();
     final username = (u['username'] ?? '').toString();
@@ -760,17 +763,17 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
         ],
         const SizedBox(height: 18),
 
-        _DetailGroup(title: 'Identity', items: [
-          if (username.isNotEmpty) ('Username', username),
-          if (email.isNotEmpty) ('Email', email),
-          if (phone.isNotEmpty) ('Phone', phone),
+        _DetailGroup(title: l.secretaryStudentsScreenIdentity, items: [
+          if (username.isNotEmpty) (l.secretaryStudentsScreenUsername, username),
+          if (email.isNotEmpty) (l.secretaryStudentsScreenEmail, email),
+          if (phone.isNotEmpty) (l.secretaryStudentsScreenPhone, phone),
         ]),
 
         if (cohort != null || grade != null) ...[
           const SizedBox(height: 16),
-          _DetailGroup(title: 'Cohort', items: [
-            if (grade != null) ('Grade', grade.toString()),
-            if (cohort?['name'] != null) ('Primary cohort', cohort!['name'].toString()),
+          _DetailGroup(title: l.secretaryStudentsScreenCohort, items: [
+            if (grade != null) (l.secretaryStudentsScreenGrade, grade.toString()),
+            if (cohort?['name'] != null) (l.secretaryStudentsScreenPrimaryCohort, cohort!['name'].toString()),
           ]),
         ],
 
@@ -816,7 +819,7 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
                             [
                               if ((c['subject'] ?? '').toString().isNotEmpty) c['subject'].toString(),
                               if ((c['teacherName'] ?? '').toString().isNotEmpty)
-                                'Teacher: ${c['teacherName']}',
+                                l.secretaryStudentsScreenTeacher(c['teacherName'].toString()),
                             ].join(' · '),
                             style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                           ),

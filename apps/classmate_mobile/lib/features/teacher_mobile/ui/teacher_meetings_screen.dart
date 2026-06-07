@@ -425,7 +425,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _MtgSingleSheet(
         title: AppLocalizations.of(context)!.pickerSelectClassroom,
-        items: [_MtgItem(id: '', label: 'None', subtitle: ''), ..._courses.map((c) => _MtgItem(id: c.id, label: c.name, subtitle: c.subject))],
+        items: [_MtgItem(id: '', label: AppLocalizations.of(context)!.teacherMeetingsScreenNoneOption, subtitle: ''), ..._courses.map((c) => _MtgItem(id: c.id, label: c.name, subtitle: c.subject))],
         selected: _selectedCourseId ?? '',
         onSelect: (id) => setState(() => _selectedCourseId = id.isEmpty ? null : id),
       ),
@@ -517,7 +517,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
         title: AppLocalizations.of(context)!.pickerSelectStudents,
         items: _allStudents.map((s) => _PickerItem(
           id: s.studentId, label: s.name,
-          subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : s.cohortName)).toList(),
+          subtitle: s.gradeLevel != null ? AppLocalizations.of(context)!.teacherMeetingsScreenGradeLabel(s.gradeLevel.toString()) : s.cohortName)).toList(),
         selected: Set.from(_selectedStudentIds),
         onToggle: (id) => setState(() {
           if (_selectedStudentIds.contains(id)) { _selectedStudentIds.remove(id); }
@@ -536,7 +536,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       builder: (ctx) => _PersonPickerSheet(
         title: AppLocalizations.of(context)!.pickerSelectGrades,
         items: _availableGrades
-            .map((g) => _PickerItem(id: g.toString(), label: 'Grade $g'))
+            .map((g) => _PickerItem(id: g.toString(), label: AppLocalizations.of(context)!.teacherMeetingsScreenGradeLabel(g.toString())))
             .toList(),
         selected: _selectedGrades.map((g) => g.toString()).toSet(),
         onToggle: (id) => setState(() {
@@ -594,7 +594,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                       summary: _selectedGrades.isEmpty
                           ? null
                           : (_selectedGrades.toList()..sort())
-                              .map((g) => 'Grade $g')
+                              .map((g) => AppLocalizations.of(context)!.teacherMeetingsScreenGradeLabel(g.toString()))
                               .join(', '),
                       onTap: _openGradePicker,
                       cs: cs,
@@ -602,7 +602,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     ),
                     const SizedBox(height: 8),
                   ],
-                  _MtgAudiencePicker(icon: Icons.person_rounded, label: AppLocalizations.of(context)!.teacherMaterialAudienceStudents, summary: _selectedStudentIds.isEmpty ? null : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? '' : 's'}', onTap: _openStudentPicker, cs: cs, theme: theme),
+                  _MtgAudiencePicker(icon: Icons.person_rounded, label: AppLocalizations.of(context)!.teacherMaterialAudienceStudents, summary: _selectedStudentIds.isEmpty ? null : AppLocalizations.of(context)!.teacherMeetingsScreenStudentCount(_selectedStudentIds.length), onTap: _openStudentPicker, cs: cs, theme: theme),
                   if (_previewMembers.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     _MembersPreview(members: _previewMembers, cs: cs, theme: theme),
@@ -655,7 +655,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                         labelText: AppLocalizations.of(context)!.teacherMeetingStartTime, border: const OutlineInputBorder(),
                         suffixIcon: _startsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
-                        _startsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_startsAt!) : 'Pick start time',
+                        _startsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_startsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickStartTime,
                         style: TextStyle(color: _startsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
                   const SizedBox(height: 12),
                   InkWell(
@@ -666,7 +666,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                         labelText: AppLocalizations.of(context)!.teacherMeetingEndTime, border: const OutlineInputBorder(),
                         suffixIcon: _endsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
-                        _endsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_endsAt!) : 'Pick end time',
+                        _endsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_endsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickEndTime,
                         style: TextStyle(color: _endsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
                 ])),
                 const SizedBox(height: 12),
@@ -762,7 +762,7 @@ class _MembersPreview extends StatelessWidget {
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('${members.length} member${members.length == 1 ? '' : 's'} will receive this',
+        Text(AppLocalizations.of(context)!.teacherMeetingsScreenMembersWillReceive(members.length),
             style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         Wrap(spacing: 6, runSpacing: 4, children: members.map((name) => Chip(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Common dial codes — Israel first (default), then the rest of the
 /// Middle East + a few high-traffic westerners. List trimmed on purpose so
 /// the bottom-sheet picker stays short and scannable; users with unusual
@@ -91,6 +93,7 @@ class PhoneField extends StatelessWidget {
   final bool autofocus;
 
   Future<void> _pickDialCode(BuildContext context) async {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final picked = await showModalBottomSheet<String>(
@@ -117,7 +120,7 @@ class PhoneField extends StatelessWidget {
               const SizedBox(height: 12),
               Center(
                 child: Text(
-                  'Country code',
+                  l.phoneFieldCountryCode,
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ),

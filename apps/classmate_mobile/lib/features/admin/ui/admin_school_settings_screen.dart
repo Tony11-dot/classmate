@@ -1041,12 +1041,12 @@ class _BellPeriodRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 14),
-          Expanded(child: _BellTimePicker(label: 'Start', time: times.start, onTap: onPickStart)),
+          Expanded(child: _BellTimePicker(label: l.adminSchoolSettingsStart, time: times.start, onTap: onPickStart)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text('→', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
           ),
-          Expanded(child: _BellTimePicker(label: 'End', time: times.end, onTap: onPickEnd)),
+          Expanded(child: _BellTimePicker(label: l.adminSchoolSettingsEnd, time: times.end, onTap: onPickEnd)),
           if (hasTime) ...[
             const SizedBox(width: 8),
             Text(_duration(times.start, times.end),

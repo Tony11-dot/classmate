@@ -380,7 +380,7 @@ class _QuestionCardState extends State<_QuestionCard> {
       border: Border.all(color: cs.outlineVariant),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Text('Q${widget.index + 1}',
+          Text(AppLocalizations.of(context)!.teacherCreateFormScreenQuestionNumber((widget.index + 1).toString()),
             style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
           const SizedBox(width: 8),
           // Liquid searchable type DDL
@@ -433,11 +433,11 @@ class _QuestionCardState extends State<_QuestionCard> {
   Widget _buildTypeUI(BuildContext context, ColorScheme cs, ThemeData theme, _FormQuestion q) {
     switch (q.type) {
       case 'short':
-        return _PreviewLabel(icon: Icons.short_text_rounded, label: 'Short answer', cs: cs, theme: theme);
+        return _PreviewLabel(icon: Icons.short_text_rounded, label: AppLocalizations.of(context)!.teacherCreateFormScreenShortAnswerPreview, cs: cs, theme: theme);
       case 'paragraph':
-        return _PreviewLabel(icon: Icons.notes_rounded, label: 'Long answer', cs: cs, theme: theme);
+        return _PreviewLabel(icon: Icons.notes_rounded, label: AppLocalizations.of(context)!.teacherCreateFormScreenLongAnswerPreview, cs: cs, theme: theme);
       case 'date':
-        return _PreviewLabel(icon: Icons.calendar_today_rounded, label: 'Date picker', cs: cs, theme: theme);
+        return _PreviewLabel(icon: Icons.calendar_today_rounded, label: AppLocalizations.of(context)!.teacherCreateFormScreenDatePickerPreview, cs: cs, theme: theme);
       case 'rating':
         return Row(children: List.generate(5, (i) => Padding(
           padding: const EdgeInsets.only(right: 4),
@@ -481,7 +481,7 @@ class _QuestionCardState extends State<_QuestionCard> {
             decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherFormMinLabel, isDense: true, border: const OutlineInputBorder()),
             keyboardType: TextInputType.number,
             onChanged: (v) => q.scaleMin = int.tryParse(v) ?? q.scaleMin)),
-          const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('to')),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text(AppLocalizations.of(context)!.teacherCreateFormScreenScaleTo)),
           SizedBox(width: 56, child: TextField(controller: maxCtrl,
             decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherFormMaxLabel, isDense: true, border: const OutlineInputBorder()),
             keyboardType: TextInputType.number,

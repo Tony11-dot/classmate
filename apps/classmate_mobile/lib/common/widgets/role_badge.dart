@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Tiny role chip shown next to a user's name in chat threads, member
 /// lists, profile sheets, and @mentions. Single source of truth for
 /// role colour + display label so a role rename is a one-file change.
@@ -20,32 +22,51 @@ class RoleBadge extends StatelessWidget {
   /// Compact = smaller font, tighter padding. Use inside dense lists.
   final bool compact;
 
-  static const Map<String, _RoleStyle> _styles = {
-    'STUDENT': _RoleStyle(label: 'Student', color: Color(0xFF1976D2)),
-    'TEACHER': _RoleStyle(label: 'Teacher', color: Color(0xFF2E7D32)),
-    'ADMIN': _RoleStyle(label: 'Admin', color: Color(0xFFD32F2F)),
-    'SECRETARY': _RoleStyle(label: 'Secretary', color: Color(0xFF7B1FA2)),
-    'PARENT': _RoleStyle(label: 'Parent', color: Color(0xFFE65100)),
+  static const Map<String, Color> _colors = {
+    'STUDENT': Color(0xFF1976D2),
+    'TEACHER': Color(0xFF2E7D32),
+    'ADMIN': Color(0xFFD32F2F),
+    'SECRETARY': Color(0xFF7B1FA2),
+    'PARENT': Color(0xFFE65100),
   };
+
+  String _label(AppLocalizations l, String key) {
+    switch (key) {
+      case 'STUDENT':
+        return l.roleBadgeStudent;
+      case 'TEACHER':
+        return l.roleBadgeTeacher;
+      case 'ADMIN':
+        return l.roleBadgeAdmin;
+      case 'SECRETARY':
+        return l.roleBadgeSecretary;
+      case 'PARENT':
+        return l.roleBadgeParent;
+      default:
+        return l.roleBadgeMember;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final key = role.trim().toUpperCase();
-    final style = _styles[key] ?? const _RoleStyle(label: 'Member', color: Color(0xFF607D8B));
+    final color = _colors[key] ?? const Color(0xFF607D8B);
+    final label = _label(l, key);
     final fontSize = compact ? 10.0 : 11.0;
     final hPad = compact ? 6.0 : 8.0;
     final vPad = compact ? 2.0 : 3.0;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       decoration: BoxDecoration(
-        color: style.color.withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: style.color.withValues(alpha: 0.35), width: 0.8),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 0.8),
       ),
       child: Text(
-        style.label,
+        label,
         style: TextStyle(
-          color: style.color,
+          color: color,
           fontSize: fontSize,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.1,
@@ -54,10 +75,4 @@ class RoleBadge extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RoleStyle {
-  const _RoleStyle({required this.label, required this.color});
-  final String label;
-  final Color color;
 }

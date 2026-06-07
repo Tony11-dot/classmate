@@ -195,8 +195,8 @@ class _TeacherNewAnnouncementScreenState
           final dl = AppLocalizations.of(dCtx)!;
           return AlertDialog(
             title: Text(dl.teacherAnnounceBroadcastTitle),
-            content: const Text(
-              'No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.',
+            content: Text(
+              dl.teacherNewAnnouncementScreenBroadcastBody,
             ),
             actions: [
               TextButton(onPressed: () => Navigator.pop(dCtx, false), child: Text(dl.commonCancel)),
@@ -262,7 +262,7 @@ class _TeacherNewAnnouncementScreenState
             .map((s) => _PickerItem(
                   id: s.studentId,
                   label: s.name,
-                  subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : '',
+                  subtitle: s.gradeLevel != null ? AppLocalizations.of(context)!.teacherNewAnnouncementScreenGradeLabel(s.gradeLevel!) : '',
                 ))
             .toList(),
         selected: Set.from(_selectedStudentIds),
@@ -331,7 +331,7 @@ class _TeacherNewAnnouncementScreenState
             .map((c) => _PickerItem(
                   id: c.id,
                   label: c.name,
-                  subtitle: c.grade > 0 ? 'Grade ${c.grade}' : '',
+                  subtitle: c.grade > 0 ? AppLocalizations.of(context)!.teacherNewAnnouncementScreenGradeLabel(c.grade) : '',
                 ))
             .toList(),
         selected: Set.from(_selectedCohortIds),
@@ -465,7 +465,7 @@ class _TeacherNewAnnouncementScreenState
                 ),
                 if (_pendingFiles.isEmpty)
                   Text(
-                    'No files attached.',
+                    l.teacherNewAnnouncementScreenNoFilesAttached,
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else
@@ -514,7 +514,7 @@ class _TeacherNewAnnouncementScreenState
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          '${_selectedRoles.length + _selectedGrades.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length} selected',
+                          l.teacherNewAnnouncementScreenSelectedCount(_selectedRoles.length + _selectedGrades.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length),
                           style: TextStyle(
                               color: cs.onPrimaryContainer,
                               fontSize: 11,
@@ -525,7 +525,7 @@ class _TeacherNewAnnouncementScreenState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pick a category, then the specific roles, grades, cohorts, or people. Selections from every category add up.',
+                  l.teacherNewAnnouncementScreenAudienceHint,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: cs.onSurfaceVariant),
                 ),
@@ -590,8 +590,8 @@ class _TeacherNewAnnouncementScreenState
                   _availableGrades.isEmpty
                       ? Text(
                           _loadingPeople
-                              ? 'Loading students…'
-                              : 'No grade levels found yet.',
+                              ? l.teacherNewAnnouncementScreenLoadingStudents
+                              : l.teacherNewAnnouncementScreenNoGradeLevels,
                           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
                         )
                       : Wrap(
@@ -600,7 +600,7 @@ class _TeacherNewAnnouncementScreenState
                           children: _availableGrades.map((g) {
                             final selected = _selectedGrades.contains(g);
                             return _AudienceChip(
-                              label: 'Grade $g',
+                              label: l.teacherNewAnnouncementScreenGradeLabel(g),
                               icon: Icons.school_outlined,
                               selected: selected,
                               onTap: () => setState(() {
@@ -620,8 +620,8 @@ class _TeacherNewAnnouncementScreenState
                       : _PickerTrigger(
                           icon: Icons.groups_rounded,
                           label: _selectedCohortIds.isEmpty
-                              ? 'Tap to select cohorts…'
-                              : '${_selectedCohortIds.length} cohort${_selectedCohortIds.length == 1 ? "" : "s"} selected',
+                              ? l.teacherNewAnnouncementScreenTapSelectCohorts
+                              : l.teacherNewAnnouncementScreenCohortsSelected(_selectedCohortIds.length),
                           hasSelection: _selectedCohortIds.isNotEmpty,
                           onTap: _openCohortPicker,
                         )
@@ -640,8 +640,8 @@ class _TeacherNewAnnouncementScreenState
                           _PickerTrigger(
                             icon: Icons.person_search_rounded,
                             label: _selectedStudentIds.isEmpty
-                                ? 'Tap to select students…'
-                                : '${_selectedStudentIds.length} student${_selectedStudentIds.length == 1 ? "" : "s"} selected',
+                                ? l.teacherNewAnnouncementScreenTapSelectStudents
+                                : l.teacherNewAnnouncementScreenStudentsSelected(_selectedStudentIds.length),
                             hasSelection: _selectedStudentIds.isNotEmpty,
                             onTap: _openStudentPicker,
                           ),
@@ -649,8 +649,8 @@ class _TeacherNewAnnouncementScreenState
                           _PickerTrigger(
                             icon: Icons.family_restroom_rounded,
                             label: _selectedParentIds.isEmpty
-                                ? 'Tap to select parents…'
-                                : '${_selectedParentIds.length} parent${_selectedParentIds.length == 1 ? "" : "s"} selected',
+                                ? l.teacherNewAnnouncementScreenTapSelectParents
+                                : l.teacherNewAnnouncementScreenParentsSelected(_selectedParentIds.length),
                             hasSelection: _selectedParentIds.isNotEmpty,
                             onTap: _openParentPicker,
                           ),
@@ -672,7 +672,7 @@ class _TeacherNewAnnouncementScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Selected audience',
+                          l.teacherNewAnnouncementScreenSelectedAudience,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w700,
@@ -695,7 +695,7 @@ class _TeacherNewAnnouncementScreenState
                               ),
                             for (final g in _selectedGrades)
                               _MiniChip(
-                                label: 'Grade $g',
+                                label: l.teacherNewAnnouncementScreenGradeLabel(g),
                                 onRemove: () =>
                                     setState(() => _selectedGrades.remove(g)),
                               ),
@@ -732,7 +732,7 @@ class _TeacherNewAnnouncementScreenState
                             _previewCohortMembers.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           Text(
-                            '${_previewCohortMembers.length} student${_previewCohortMembers.length == 1 ? '' : 's'} in selected cohorts',
+                            l.teacherNewAnnouncementScreenStudentsInCohorts(_previewCohortMembers.length),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w600,
@@ -1056,9 +1056,9 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Text(
-                  'Select parents',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                Text(
+                  AppLocalizations.of(context)!.teacherNewAnnouncementScreenSelectParents,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 const Spacer(),
                 TextButton(
@@ -1153,11 +1153,12 @@ class _ParentTileState extends State<_ParentTile> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final hasChildren = widget.parent.children.isNotEmpty;
     final childCount = widget.parent.children.length;
     final summary = hasChildren
-        ? '$childCount ${childCount == 1 ? "child" : "children"} — ${widget.parent.childrenSummary}'
-        : 'No linked children';
+        ? l.teacherNewAnnouncementScreenChildrenSummary(childCount, widget.parent.childrenSummary)
+        : l.teacherNewAnnouncementScreenNoLinkedChildren;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
