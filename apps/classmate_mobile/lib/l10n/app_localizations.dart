@@ -17234,6 +17234,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Certificate of Achievement'**
   String get teacherCreateDiplomaScreenDefaultTitle;
+
+  /// No description provided for @teacherMaterialAddedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by {name}'**
+  String teacherMaterialAddedBy(String name);
+
+  /// No description provided for @teacherMaterialAttachedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached to {period}'**
+  String teacherMaterialAttachedTo(String period);
 }
 
 class _AppLocalizationsDelegate

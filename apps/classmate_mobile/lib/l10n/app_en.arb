@@ -5316,5 +5316,21 @@
         "type": "String"
       }
     }
+  },
+  "teacherMaterialAddedBy": "Added by {name}",
+  "@teacherMaterialAddedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherMaterialAttachedTo": "Attached to {period}",
+  "@teacherMaterialAttachedTo": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
   }
 }

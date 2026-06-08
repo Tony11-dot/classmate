@@ -9897,4 +9897,14 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherCreateDiplomaScreenDefaultTitle => 'תעודת הצטיינות';
+
+  @override
+  String teacherMaterialAddedBy(String name) {
+    return 'נוסף על ידי $name';
+  }
+
+  @override
+  String teacherMaterialAttachedTo(String period) {
+    return 'מצורף ל$period';
+  }
 }

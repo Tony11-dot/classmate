@@ -3878,5 +3878,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "teacherMaterialAddedBy": "Добавил(а): {name}",
+  "teacherMaterialAttachedTo": "Прикреплено к {period}"
 }

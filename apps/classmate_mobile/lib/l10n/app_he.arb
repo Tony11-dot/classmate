@@ -3671,5 +3671,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "teacherMaterialAddedBy": "נוסף על ידי {name}",
+  "teacherMaterialAttachedTo": "מצורף ל{period}"
 }

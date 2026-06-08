@@ -4295,5 +4295,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "teacherMaterialAddedBy": "‹‹ Added by {name} ››",
+  "teacherMaterialAttachedTo": "‹‹ Attached to {period} ››"
 }

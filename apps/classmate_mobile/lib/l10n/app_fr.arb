@@ -3671,5 +3671,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "teacherMaterialAddedBy": "Ajouté par {name}",
+  "teacherMaterialAttachedTo": "Joint à {period}"
 }

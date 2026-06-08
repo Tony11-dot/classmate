@@ -9996,4 +9996,14 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get teacherCreateDiplomaScreenDefaultTitle =>
       'Свидетельство о достижении';
+
+  @override
+  String teacherMaterialAddedBy(String name) {
+    return 'Добавил(а): $name';
+  }
+
+  @override
+  String teacherMaterialAttachedTo(String period) {
+    return 'Прикреплено к $period';
+  }
 }

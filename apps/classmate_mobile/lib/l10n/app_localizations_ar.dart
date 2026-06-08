@@ -9951,4 +9951,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherCreateDiplomaScreenDefaultTitle => 'شهادة تقدير';
+
+  @override
+  String teacherMaterialAddedBy(String name) {
+    return 'أضافها $name';
+  }
+
+  @override
+  String teacherMaterialAttachedTo(String period) {
+    return 'مرفقة بـ $period';
+  }
 }

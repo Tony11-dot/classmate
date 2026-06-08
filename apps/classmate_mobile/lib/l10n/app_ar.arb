@@ -3671,5 +3671,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "teacherMaterialAddedBy": "أضافها {name}",
+  "teacherMaterialAttachedTo": "مرفقة بـ {period}"
 }

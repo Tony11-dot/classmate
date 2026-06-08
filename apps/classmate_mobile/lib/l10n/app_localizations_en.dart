@@ -10004,4 +10004,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get teacherCreateDiplomaScreenDefaultTitle =>
       'Certificate of Achievement';
+
+  @override
+  String teacherMaterialAddedBy(String name) {
+    return 'Added by $name';
+  }
+
+  @override
+  String teacherMaterialAttachedTo(String period) {
+    return 'Attached to $period';
+  }
 }

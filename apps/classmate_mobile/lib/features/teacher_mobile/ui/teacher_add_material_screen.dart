@@ -3,11 +3,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/attachment_pill.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -522,7 +522,7 @@ class _TeacherAddMaterialScreenState
                       TextField(
                         controller: _titleCtrl,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMeetingTitleField, border: const OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMaterialTitleLabel, border: const OutlineInputBorder()),
                       ),
                       const SizedBox(height: 12),
                       TextField(
@@ -923,15 +923,25 @@ class _TeacherMaterialsStandaloneScreenState
               // Extract attachments + primary url so each material renders
               // its files/links inline as pills (so teachers can tap a
               // PDF straight from the list).
+              // One pill per distinct file/link. The material's primary url is
+              // usually just attachments[0]'s url, so dedupe by url — otherwise
+              // every material showed a duplicate pair (titled pill + raw-link
+              // pill of the same file).
               final atts = <Map<String, dynamic>>[];
+              final seenUrls = <String>{};
               final primaryUrl = (m['url'] ?? '').toString().trim();
               if (primaryUrl.isNotEmpty) {
                 atts.add({'title': title.isEmpty ? l.teacherAddMaterialScreenLinkFallback : title, 'url': primaryUrl});
+                seenUrls.add(primaryUrl);
               }
               final rawA = m['attachments'];
               if (rawA is List) {
                 for (final a in rawA) {
-                  if (a is Map) atts.add(Map<String, dynamic>.from(a));
+                  if (a is! Map) continue;
+                  final u = (a['url'] ?? a['fileUrl'] ?? '').toString().trim();
+                  if (u.isEmpty || seenUrls.contains(u)) continue; // skip dup of primary
+                  seenUrls.add(u);
+                  atts.add(Map<String, dynamic>.from(a));
                 }
               }
               return Padding(
@@ -952,6 +962,42 @@ class _TeacherMaterialsStandaloneScreenState
                             const SizedBox(height: 2),
                             Text([subject, courseName].where((s) => s.isNotEmpty).join(' · '),
                               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                          // Publisher (who added it — surfaces student contributions).
+                          if (((m['uploaderName'] ?? '').toString().trim()).isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Row(children: [
+                              Icon(Icons.person_outline_rounded, size: 12, color: cs.onSurfaceVariant),
+                              const SizedBox(width: 3),
+                              Flexible(child: Text(
+                                l.teacherMaterialAddedBy((m['uploaderName'] ?? '').toString().trim()),
+                                style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                              )),
+                            ]),
+                          ],
+                          // Which period(s) it's attached to.
+                          if (m['attachedPeriods'] is List && (m['attachedPeriods'] as List).isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Builder(builder: (_) {
+                              final p = Map<String, dynamic>.from((m['attachedPeriods'] as List).first as Map);
+                              final ps = (p['subject'] ?? '').toString().trim();
+                              final per = (p['period'] as num?)?.toInt();
+                              final label = [
+                                if (ps.isNotEmpty) ps,
+                                if (per != null) l.teacherPeriod(per),
+                              ].join(' · ');
+                              if (label.isEmpty) return const SizedBox.shrink();
+                              return Row(children: [
+                                Icon(Icons.schedule_rounded, size: 12, color: cs.onSurfaceVariant),
+                                const SizedBox(width: 3),
+                                Flexible(child: Text(
+                                  l.teacherMaterialAttachedTo(label),
+                                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                                )),
+                              ]);
+                            }),
                           ],
                           const SizedBox(height: 4),
                           Container(
@@ -981,58 +1027,24 @@ class _TeacherMaterialsStandaloneScreenState
                       ]),
                       if (atts.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: atts.map((a) {
+                        // Shared AttachmentPills: resolves relative /uploads
+                        // URLs and opens PDFs/images in-app (so student-attached
+                        // files open correctly for the teacher too).
+                        AttachmentPills(
+                          attachments: atts.map((a) {
                             final aTitle = (a['title'] ?? a['name'] ?? l.teacherAddMaterialScreenFileFallback).toString();
                             final url = (a['url'] ?? a['fileUrl'] ?? '').toString().trim();
                             final lower = url.toLowerCase();
-                            IconData icon = Icons.attach_file_rounded;
+                            String type = 'file';
                             if (lower.endsWith('.pdf')) {
-                              icon = Icons.picture_as_pdf_rounded;
+                              type = 'pdf';
                             } else if (lower.endsWith('.png') || lower.endsWith('.jpg') ||
                                 lower.endsWith('.jpeg') || lower.endsWith('.webp')) {
-                              icon = Icons.image_rounded;
-                            } else if (url.startsWith('http')) {
-                              icon = Icons.link_rounded;
+                              type = 'image';
+                            } else if (url.startsWith('http') && !url.contains('/uploads/')) {
+                              type = 'link';
                             }
-                            return InkWell(
-                              borderRadius: BorderRadius.circular(999),
-                              onTap: url.isEmpty
-                                  ? null
-                                  : () async {
-                                      final uri = Uri.tryParse(url);
-                                      if (uri != null && await canLaunchUrl(uri)) {
-                                        await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                      }
-                                    },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: cs.secondaryContainer,
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(color: cs.outlineVariant),
-                                ),
-                                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                  Icon(icon, size: 13, color: cs.onSecondaryContainer),
-                                  const SizedBox(width: 5),
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 160),
-                                    child: Text(
-                                      aTitle,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: cs.onSecondaryContainer,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                              ),
-                            );
+                            return <String, dynamic>{'url': url, 'name': aTitle, 'type': type};
                           }).toList(),
                         ),
                       ],

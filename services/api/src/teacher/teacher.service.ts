@@ -2866,10 +2866,51 @@ export class TeacherService {
         include: { classroom: { select: { name: true, subject: true } } },
       }),
     ]);
+
+    // Enrich each standalone material with WHO uploaded it (so a student's
+    // contribution shows "added by …") and WHICH period(s) it's attached to.
+    const matIds = standalone.map((m) => m.id);
+    const uploaderIds = Array.from(
+      new Set(standalone.map((m) => (m as any).uploaderId).filter((v): v is string => !!v && v !== teacherId)),
+    );
+    const [uploaders, slotLinks] = await Promise.all([
+      uploaderIds.length
+        ? this.prisma.user.findMany({ where: { id: { in: uploaderIds } }, select: { id: true, name: true } })
+        : Promise.resolve([] as { id: string; name: string }[]),
+      matIds.length
+        ? this.prisma.scheduleSlotMaterial.findMany({
+            where: { teacherMaterialId: { in: matIds } },
+            orderBy: { createdAt: 'desc' },
+            select: {
+              teacherMaterialId: true,
+              date: true,
+              slot: { select: { subject: true, period: true, dayOfWeek: true } },
+            },
+          })
+        : Promise.resolve([] as any[]),
+    ]);
+    const nameById = new Map(uploaders.map((u) => [u.id, u.name]));
+    const periodsByMat = new Map<string, any[]>();
+    for (const sl of slotLinks as any[]) {
+      const arr = periodsByMat.get(sl.teacherMaterialId) ?? [];
+      arr.push({
+        subject: sl.slot?.subject ?? '',
+        period: sl.slot?.period ?? null,
+        dayOfWeek: sl.slot?.dayOfWeek ?? null,
+        date: sl.date ?? '',
+      });
+      periodsByMat.set(sl.teacherMaterialId, arr);
+    }
+    const enrichedStandalone = standalone.map((m) => ({
+      ...m,
+      uploaderName: (m as any).uploaderId ? (nameById.get((m as any).uploaderId) ?? null) : null,
+      attachedPeriods: periodsByMat.get(m.id) ?? [],
+    }));
+
     // Deduplicate by teacherMaterialId so mirrored records don't appear twice
     const filteredClassroomMat = classroom.filter(c => !c.teacherMaterialId);
     const merged = [
-      ...standalone,
+      ...enrichedStandalone,
       ...filteredClassroomMat.map(c => ({ ...c, _type: 'classroom', _classroomName: c.classroom?.name ?? null })),
     ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return { materials: merged };
