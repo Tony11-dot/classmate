@@ -50,7 +50,7 @@ function defaultOwnerPhone(): string {
 }
 
 function defaultOwnerEmail(): string {
-  return process.env.PLATFORM_OWNER_EMAIL?.trim() || 'aboudtony22@gmail.com';
+  return process.env.PLATFORM_OWNER_EMAIL?.trim() || 'support@classmateapp.org';
 }
 
 function maskPhone(p: string): string {

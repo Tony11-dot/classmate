@@ -102,3 +102,25 @@ function onScroll() {
 }
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
+
+// ── Mobile menu (hamburger) ──
+const navEl = document.getElementById('nav');
+const navToggle = document.getElementById('navToggle');
+const navScrim = document.getElementById('navScrim');
+const navMenu = document.getElementById('navMenu');
+if (navToggle && navEl) {
+  const setMenu = (open) => {
+    navEl.classList.toggle('open', open);
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if (navScrim) navScrim.hidden = !open;
+    document.body.style.overflow = open ? 'hidden' : '';
+  };
+  navToggle.addEventListener('click', () => setMenu(!navEl.classList.contains('open')));
+  if (navScrim) navScrim.addEventListener('click', () => setMenu(false));
+  // Close after tapping any in-menu link.
+  if (navMenu) navMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+  // Esc closes; leaving mobile width resets state.
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+  window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
+}

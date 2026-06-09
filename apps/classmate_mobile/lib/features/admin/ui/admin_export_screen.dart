@@ -1294,7 +1294,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final cmWordmark = pw.MemoryImage(
       (await rootBundle.load('assets/images/logo_light.png')).buffer.asUint8List(),
     );
-    const supportEmail = 'tony@classmateapp.org';
+    const supportEmail = 'support@classmateapp.org';
 
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(

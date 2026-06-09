@@ -82,3 +82,4 @@ apps/classmate_mobile/fastlane/play-service-account.json
 **/*-service-account.json
 **/AuthKey_*.p8
 apps/classmate_mobile/fastlane/.env*
+.DS_Store

@@ -25,7 +25,7 @@ export class EmailService {
   }
 
   private get replyTo(): string {
-    return process.env.RESEND_REPLY_TO?.trim() || 'aboudtony22@gmail.com';
+    return process.env.RESEND_REPLY_TO?.trim() || 'support@classmateapp.org';
   }
 
   /** True if Resend is configured. */

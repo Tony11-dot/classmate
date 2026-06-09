@@ -16,7 +16,7 @@ TOP FEATURES (name + 1 line):
 
 SOCIAL PROOF (optional): # schools = ___ ; # students = ___ ; testimonial = "____" — Name, Role
 LANGUAGES: English, Hebrew, Arabic, Russian, French
-SUPPORT EMAIL: aboudtony22@gmail.com
+SUPPORT EMAIL: support@classmateapp.org
 SOCIAL LINKS (optional): instagram=___ x=___ tiktok=___ linkedin=___
 
 # Decisions

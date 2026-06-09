@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
 
-const _supportEmail = 'tony@classmateapp.org';
+const _supportEmail = 'support@classmateapp.org';
 const _supportPhone = '+972525488441';
 
 class SupportScreen extends StatelessWidget {

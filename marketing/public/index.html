@@ -27,20 +27,26 @@
   <div class="scroll-progress" id="scrollProgress"></div>
   <!-- NAV -->
   <header class="nav" id="nav">
+    <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
     <a class="brand" href="#top" aria-label="ClassMate home">
       <img src="assets/logo-light.png" alt="ClassMate" class="brand-logo light-only" />
       <img src="assets/logo-dark.png" alt="ClassMate" class="brand-logo dark-only" />
     </a>
-    <nav class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#roles">For everyone</a>
-      <a href="#screens">Screens</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-    <div class="nav-cta">
-      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
-      <a class="btn btn-primary btn-sm" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener">Open the app</a>
+    <div class="nav-menu" id="navMenu">
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#roles">For everyone</a>
+        <a href="#screens">Screens</a>
+        <a href="#support">Support</a>
+      </nav>
+      <div class="nav-cta">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a class="btn btn-primary btn-sm" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener">Open the app</a>
+      </div>
     </div>
+    <div class="nav-scrim" id="navScrim" hidden></div>
   </header>
 
   <!-- HERO -->
@@ -197,14 +203,74 @@
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section class="section" id="faq">
-    <div class="section-head reveal"><h2>Frequently asked</h2></div>
-    <div class="faq reveal">
-      <details><summary>Which languages does ClassMate support?</summary><p>English, Hebrew, Arabic, Russian and French — fully translated, including right-to-left layouts.</p></details>
-      <details><summary>Who is ClassMate for?</summary><p>Students, teachers, parents, secretaries and admins — each gets a tailored experience in the same app.</p></details>
-      <details><summary>Can I use it without installing?</summary><p>Yes — open the web app in any browser. For the full experience (notifications, payments) install the mobile app.</p></details>
-      <details><summary>Is it free?</summary><p>Core school features are included; NOVA tutor offers a generous free tier with optional plans.</p></details>
+  <!-- SUPPORT / FAQ -->
+  <section class="section" id="support">
+    <div class="section-head reveal"><h2>Support &amp; FAQ</h2><p>Answers to the most common questions — the same help you get inside the app.</p></div>
+    <div class="support-contact reveal">
+      <span class="support-contact-ico">✉️</span>
+      <div><b>Need a hand?</b><p>Email us and we'll get back fast.</p></div>
+      <a class="btn btn-primary btn-sm" href="mailto:support@classmateapp.org">support@classmateapp.org</a>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>🚀</span>Getting started</h3>
+      <div class="faq">
+        <details><summary>How do I log in?</summary><p>Tap "Sign in" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You'll be asked to set a new password the first time.</p></details>
+        <details><summary>I don't have a login yet.</summary><p>Your school administrator creates accounts. Ask them to add you in their admin app, or to share a join code if your school uses self-enrolment.</p></details>
+        <details><summary>Can I use the app in my language?</summary><p>Yes — ClassMate supports English, Arabic, Hebrew, French, and Russian. Open Settings to switch language. You can also set a preferred name language in Profile.</p></details>
+        <details><summary>How do I switch between dark and light mode?</summary><p>Open Settings from the drawer and toggle the appearance switch. The app respects your system preference by default.</p></details>
+      </div>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>🔐</span>Account &amp; password</h3>
+      <div class="faq">
+        <details><summary>I forgot my password.</summary><p>Tap "Forgot password?" on the login screen. You'll get a reset link by email or a code by SMS. If neither channel is verified yet, ask your school administrator to issue you a new temporary password.</p></details>
+        <details><summary>How do I change my password?</summary><p>Open Profile from the drawer, scroll to Security, and tap the password row. You'll need your current password to set a new one.</p></details>
+        <details><summary>How do I change my email or phone number?</summary><p>Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it's really you, then you can set the new value.</p></details>
+        <details><summary>My school administrator can change my password — how does that work?</summary><p>When an administrator resets your password, you'll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.</p></details>
+      </div>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>🎓</span>For students</h3>
+      <div class="faq">
+        <details><summary>Where do I see my schedule?</summary><p>Schedule is the first item in the drawer. You'll see this week's periods, who teaches each one, and any changes the admin has posted.</p></details>
+        <details><summary>How do I join a classroom?</summary><p>A teacher will add you directly, or share a join code. To use a join code, open Classrooms from the drawer and tap "Join with code".</p></details>
+        <details><summary>How do attendance and grades work?</summary><p>Teachers mark attendance during the lesson. Open Attendance or Grades from the drawer to see your records. Parents linked to your account see the same data.</p></details>
+        <details><summary>What is Nova?</summary><p>Nova is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open Nova from the drawer to start a session.</p></details>
+      </div>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>🧑‍🏫</span>For teachers</h3>
+      <div class="faq">
+        <details><summary>How do I create a classroom?</summary><p>Open Classrooms from the drawer and tap the + button. Give it a name and subject; students can be added by hand or via a join code.</p></details>
+        <details><summary>How do I mark attendance?</summary><p>Open Attendance from the drawer, pick the date and period, then tap each student to set their status. Changes save automatically.</p></details>
+        <details><summary>How do I assign homework?</summary><p>Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it instantly in their drawer.</p></details>
+        <details><summary>Can I issue a diploma or certificate?</summary><p>Yes — open Diplomas from the drawer, tap +, pick the student, fill in the title and details, and save. The student sees it in their own Diplomas section.</p></details>
+      </div>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>🛠️</span>For administrators</h3>
+      <div class="faq">
+        <details><summary>Where do I start setting up a school?</summary><p>Open the Admin Dashboard. The School Setup widget at the top shows a 7-step checklist (logo, name, subjects, bell schedule, cohorts, students, teachers). Each step deep-links to where you complete it.</p></details>
+        <details><summary>How do cohorts work?</summary><p>A cohort is a group of students that share a schedule. Open Cohorts from the drawer to create them, assign students, and generate join codes. A single cohort can span multiple grades.</p></details>
+        <details><summary>Can a cohort cover more than one grade?</summary><p>Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades' filters and views, and announcements/templates targeted at any of those grades reach it.</p></details>
+        <details><summary>How do I build the weekly schedule?</summary><p>Open Schedule from the drawer. Tap any cell to add a period — pick the day/period, teacher, subject, and audience (cohort/student/grade). Bell-schedule times come from School Settings.</p></details>
+        <details><summary>How do I bulk-export students?</summary><p>Open Export Data from the drawer. Choose whether to select by student or by cohort, pick the rows, and tap Export. Optionally include current passwords during export.</p></details>
+        <details><summary>A user asked me to reset their password. What do I do?</summary><p>You can either set their password directly (Profile of the user → Security) or wait for them to file a request via "Forgot password" and approve it from Password Requests in the drawer.</p></details>
+      </div>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>👪</span>For parents</h3>
+      <div class="faq">
+        <details><summary>How do I link my account to my child?</summary><p>Ask your child's school administrator to either add the link from their admin app, or share a one-time parent link code. Open Profile and enter the code under Family.</p></details>
+        <details><summary>What can I see about my child?</summary><p>Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won't see private chats or Nova sessions.</p></details>
+      </div>
+    </div>
+    <div class="faq-group reveal">
+      <h3 class="faq-group-title"><span>🔒</span>Privacy &amp; data</h3>
+      <div class="faq">
+        <details><summary>Who can see my data?</summary><p>Only people in your school. Teachers see their classrooms' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.</p></details>
+        <details><summary>How do I delete my account?</summary><p>Ask your school administrator to delete it. They can remove the account from their admin app, which wipes your profile, schedule, and chats.</p></details>
+      </div>
     </div>
   </section>
 
@@ -220,7 +286,7 @@
         <a href="#download">Get the app</a>
         <a href="https://tony11-dot.github.io/classmate-legal/privacy.html" target="_blank" rel="noopener">Privacy</a>
         <a href="https://tony11-dot.github.io/classmate-legal/terms.html" target="_blank" rel="noopener">Terms</a>
-        <a href="mailto:tony@classmateapp.org">Contact</a>
+        <a href="mailto:support@classmateapp.org">Contact</a>
       </nav>
       <p class="footer-copy">© <span id="year"></span> ClassMate. All rights reserved.</p>
     </div>
