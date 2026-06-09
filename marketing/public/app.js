@@ -117,6 +117,8 @@ if (navToggle && navEl) {
     document.body.style.overflow = open ? 'hidden' : '';
   };
   navToggle.addEventListener('click', () => setMenu(!navEl.classList.contains('open')));
+  const navClose = document.getElementById('navClose');
+  if (navClose) navClose.addEventListener('click', () => setMenu(false));
   if (navScrim) navScrim.addEventListener('click', () => setMenu(false));
   // Close after tapping any in-menu link.
   if (navMenu) navMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));

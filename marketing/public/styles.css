@@ -63,6 +63,7 @@ img { display: block; max-width: 100%; }
 /* Hamburger — hidden on desktop, shown on mobile via the media query below. */
 .nav-toggle { display: none; align-items: center; justify-content: center; flex-direction: column; gap: 5px; width: 42px; height: 42px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-soft); cursor: pointer; padding: 0; }
 .nav-toggle span { display: block; width: 20px; height: 2px; border-radius: 2px; background: var(--text); transition: transform .28s, opacity .2s; }
+.nav-close { display: none; }
 .nav-scrim { display: none; }
 .nav-links a { position: relative; }
 .nav-links a::after { content: ""; position: absolute; left: 0; bottom: -5px; width: 0; height: 2px; background: linear-gradient(90deg, var(--primary), var(--primary-2)); transition: width .25s; }
@@ -247,19 +248,25 @@ img { display: block; max-width: 100%; }
 .step-kicker { display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 6px 12px; border-radius: 999px; margin-bottom: 16px; }
 .showcase-step h3 { font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -0.03em; font-weight: 900; line-height: 1.08; }
 .showcase-step p { color: var(--muted); margin-top: 12px; font-size: clamp(16px, 1.6vw, 19px); max-width: 32ch; }
+.step-shot { display: none; }  /* desktop uses the sticky phone; mobile shows these */
 
 @media (max-width: 900px) {
-  .showcase-inner { grid-template-columns: 1fr; gap: 8px; }
-  .showcase-sticky { top: 9vh; }
-  .phone-showcase { width: 230px; }
-  .showcase-step { min-height: 58vh; align-items: center; text-align: center; opacity: .55; }
+  /* Phones: the sticky single-phone + scroll-crossfade overlapped the text
+     and cropped the shots. Drop it entirely and stack each step with its own
+     full screenshot — no overlap, no zoom-crop, no scroll-timing glitches. */
+  .showcase-inner { grid-template-columns: 1fr; gap: 0; }
+  .showcase-sticky { display: none; }
+  .showcase-steps { display: flex; flex-direction: column; gap: 8px; }
+  .showcase-step { min-height: 0; opacity: 1 !important; transform: none !important; align-items: center; text-align: center; padding: 28px 0 8px; }
   .step-kicker { align-self: center; }
-  .showcase-step p { margin-left: auto; margin-right: auto; }
-  /* Smoother on phones: pure crossfade (no scale repaint) + keep inactive
-     text legible so it never looks half-rendered mid-scroll. */
-  .showcase-shot { transform: none !important; transition: opacity .4s ease; }
-  .showcase-step.is-active { opacity: 1; }
-  .showcase-step p { color: var(--text); }
+  .showcase-step p { margin: 12px auto 0; color: var(--text); }
+  .step-shot {
+    display: block; width: min(248px, 74vw); aspect-ratio: 9 / 19.5;
+    object-fit: cover; object-position: top center;
+    border-radius: 30px; margin: 0 auto 18px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    background: var(--surface);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .showcase-shot { transition: none; }
@@ -293,6 +300,7 @@ img { display: block; max-width: 100%; }
     transition: transform .32s cubic-bezier(.4,0,.2,1), opacity .25s;
     z-index: 49;
   }
+  .nav-close { display: flex; align-items: center; justify-content: center; position: absolute; top: 18px; right: clamp(14px, 6vw, 40px); width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-soft); color: var(--text); font-size: 18px; line-height: 1; cursor: pointer; }
   .nav-links { flex-direction: column; gap: 4px; }
   .nav-links a { padding: 14px 6px; font-size: 18px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
   .nav-links a::after { display: none; }
