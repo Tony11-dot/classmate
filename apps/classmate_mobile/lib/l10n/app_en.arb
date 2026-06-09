@@ -2498,7 +2498,7 @@
   "aboutPrivacyTitle": "Privacy first",
   "aboutPrivacyDescription": "School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.",
   "aboutContactTitle": "Contact",
-  "aboutContactDescription": "Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org",
+  "aboutContactDescription": "Built by Tony Aboud and the ClassMate team.\nQuestions: support@classmateapp.org",
   "aboutVersionLabel": "ClassMate · v{version}",
   "@aboutVersionLabel": {
     "placeholders": {

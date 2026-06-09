@@ -170,7 +170,7 @@ export default function MarketingHome() {
             Start free →
           </Link>
           <a
-            href="mailto:hello@classmateapp.org"
+            href="mailto:support@classmateapp.org"
             className="rounded-full border border-(--surface-border) bg-white/60 px-6 py-3 text-base font-medium hover:bg-white/90"
           >
             Talk to the team
@@ -183,7 +183,7 @@ export default function MarketingHome() {
           <div>© {new Date().getFullYear()} ClassMate.</div>
           <div className="flex gap-6">
             <Link href="/app" className="hover:text-foreground">Open the app</Link>
-            <a href="mailto:hello@classmateapp.org" className="hover:text-foreground">Contact</a>
+            <a href="mailto:support@classmateapp.org" className="hover:text-foreground">Contact</a>
           </div>
         </div>
       </footer>

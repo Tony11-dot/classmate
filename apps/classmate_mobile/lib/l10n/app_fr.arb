@@ -2286,7 +2286,7 @@
   "aboutPrivacyTitle": "Confidentialité d'abord",
   "aboutPrivacyDescription": "Les données de l'école restent dans l'école. Les rôles correspondent à ce que chacun peut voir — les enseignants voient leurs classes, les administrateurs voient leur école, les parents voient leurs enfants. Aucun traqueur tiers, aucun réseau publicitaire.",
   "aboutContactTitle": "Contact",
-  "aboutContactDescription": "Conçu par Tony Aboud et l'équipe ClassMate.\nQuestions : tony@classmateapp.org",
+  "aboutContactDescription": "Conçu par Tony Aboud et l'équipe ClassMate.\nQuestions : support@classmateapp.org",
   "aboutVersionLabel": "ClassMate · v{version}",
   "@aboutVersionLabel": {
     "placeholders": {

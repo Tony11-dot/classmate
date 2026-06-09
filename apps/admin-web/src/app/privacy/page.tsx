@@ -71,7 +71,7 @@ const sections: Array<{ heading: string; body: string[] }> = [
     heading: 'Your rights',
     body: [
       'You can review, export, or delete your account data at any time by emailing ' +
-        'hello@classmateapp.org. Schools can also delete or export data on your behalf. ' +
+        'support@classmateapp.org. Schools can also delete or export data on your behalf. ' +
         'Deletion is permanent and propagates to all subprocessors within 30 days.',
     ],
   },
@@ -86,7 +86,7 @@ const sections: Array<{ heading: string; body: string[] }> = [
   {
     heading: 'Contact',
     body: [
-      'Privacy questions, data subject requests, or breach reports: hello@classmateapp.org. ' +
+      'Privacy questions, data subject requests, or breach reports: support@classmateapp.org. ' +
         'We respond within one working day.',
     ],
   },

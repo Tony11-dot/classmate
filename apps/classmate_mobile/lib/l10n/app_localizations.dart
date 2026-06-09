@@ -10170,7 +10170,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutContactDescription.
   ///
   /// In en, this message translates to:
-  /// **'Built by Tony Aboud and the ClassMate team.\nQuestions: tony@classmateapp.org'**
+  /// **'Built by Tony Aboud and the ClassMate team.\nQuestions: support@classmateapp.org'**
   String get aboutContactDescription;
 
   /// No description provided for @aboutVersionLabel.

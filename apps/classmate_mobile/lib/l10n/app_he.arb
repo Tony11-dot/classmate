@@ -2286,7 +2286,7 @@
   "aboutPrivacyTitle": "פרטיות תחילה",
   "aboutPrivacyDescription": "נתוני בית הספר נשארים בתוך בית הספר. תפקידים תואמים את מה שכל אחד יכול לראות — מורים רואים את הכיתות שלהם, מנהלים רואים את בית ספרם, הורים רואים את ילדיהם. ללא מעקב צד שלישי וללא רשתות פרסום.",
   "aboutContactTitle": "צור קשר",
-  "aboutContactDescription": "נבנה על ידי Tony Aboud וצוות ClassMate.\nשאלות: tony@classmateapp.org",
+  "aboutContactDescription": "נבנה על ידי Tony Aboud וצוות ClassMate.\nשאלות: support@classmateapp.org",
   "aboutVersionLabel": "ClassMate · גרסה {version}",
   "@aboutVersionLabel": {
     "placeholders": {

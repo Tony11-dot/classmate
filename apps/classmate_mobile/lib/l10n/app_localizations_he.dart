@@ -5640,7 +5640,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get aboutContactDescription =>
-      'נבנה על ידי Tony Aboud וצוות ClassMate.\nשאלות: tony@classmateapp.org';
+      'נבנה על ידי Tony Aboud וצוות ClassMate.\nשאלות: support@classmateapp.org';
 
   @override
   String aboutVersionLabel(Object version) {

@@ -5626,7 +5626,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutContactDescription =>
-      'Создано Tony Aboud и командой ClassMate.\nВопросы: tony@classmateapp.org';
+      'Создано Tony Aboud и командой ClassMate.\nВопросы: support@classmateapp.org';
 
   @override
   String aboutVersionLabel(Object version) {
