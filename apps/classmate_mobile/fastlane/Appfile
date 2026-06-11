@@ -2,3 +2,8 @@ app_identifier("com.tonyaboud.classmate")
 apple_id("aboudtony22@gmail.com")
 itc_team_id("NNFD7CKGLG")
 team_id("NNFD7CKGLG")
+
+# Google Play package name — required by `supply` (upload_to_play_store).
+# Without this the android internal/production lanes fail with
+# "No value found for 'package_name'".
+package_name("com.tonyaboud.classmate")
