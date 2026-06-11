@@ -3235,6 +3235,18 @@ class AppLocalizationsHe extends AppLocalizations {
   String get practiceModeActionNovaHint => 'רמז NOVA';
 
   @override
+  String get practiceModeActionSaveQuestion => 'שמירת שאלה';
+
+  @override
+  String get practiceModeActionSavedQuestion => 'נשמר';
+
+  @override
+  String get practiceModeQuestionSavedToast => 'נשמר בשאלות שלך';
+
+  @override
+  String get practiceModeQuestionRemovedToast => 'הוסר מהשאלות השמורות';
+
+  @override
   String get practiceModeActionReveal => 'חשוף';
 
   @override
@@ -7910,6 +7922,46 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get solSubjectGeography => 'גאוגרפיה';
+
+  @override
+  String get solSubjectPsychology => 'פסיכולוגיה';
+
+  @override
+  String get insightsSemesterTitle => 'הסמסטר הזה';
+
+  @override
+  String get insightsOnTimeSubmissions => 'הגשות בזמן';
+
+  @override
+  String get insightsSubmissionsTitle => 'הגשות';
+
+  @override
+  String get insightsOnTime => 'בזמן';
+
+  @override
+  String get insightsLate => 'באיחור';
+
+  @override
+  String get insightsMissing => 'חסר';
+
+  @override
+  String get insightsPending => 'ממתין';
+
+  @override
+  String get insightsHandedInLabel => 'הוגשו';
+
+  @override
+  String get insightsLatestGrades => 'ציונים אחרונים';
+
+  @override
+  String get insightsReviewWithNova => 'סקירה עם Nova';
+
+  @override
+  String get insightsReviewWithNovaPrompt =>
+      'תן לי סקירה קצרה וכנה על הביצועים שלי הסמסטר — ציונים, נוכחות והגשות — ועל הדבר האחד שכדאי לי להתמקד בו.';
+
+  @override
+  String get insightsPracticeTitle => 'דיוק בתרגול';
 
   @override
   String get commonUnknown => 'לא ידוע';

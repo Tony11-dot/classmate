@@ -73,7 +73,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/admin/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/admin/schedule', icon: Icons.manage_history_rounded, label: l.adminScheduleTitle),
         DrawerTool(route: '/admin/school', icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle),
-        DrawerTool(route: '/admin/solution-reports', icon: Icons.report_gmailerrorred_rounded, label: l.solutionsReportsTitle),
         DrawerTool(route: '/admin/password-requests', icon: Icons.shield_outlined, label: l.navPasswordRequests),
         DrawerTool(route: '/admin/reports', icon: Icons.flag_outlined, label: l.navReports),
         DrawerTool(route: '/admin/export', icon: Icons.download_rounded, label: l.navExportData),

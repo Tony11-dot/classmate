@@ -1,6 +1,8 @@
 import '../domain/practice_models.dart';
+import '../domain/practice_subjects.dart';
 
 String buildStrictPracticeFilterSection(PracticeFilter filter) {
+  final subjectName = practiceSubjectAiName(filter.subject);
   final topic = filter.topicPath.isEmpty
       ? filter.topicLabel
       : filter.topicPath.join(' > ');
@@ -8,6 +10,20 @@ String buildStrictPracticeFilterSection(PracticeFilter filter) {
       ? 'AI timing'
       : '${filter.timePreferenceSeconds ?? 15}s per question';
   final sessionSeed = DateTime.now().millisecondsSinceEpoch;
+  final grade = filter.grade;
+  final gradeLine = grade == null
+      ? 'Student grade: not specified'
+      : 'Student grade: grade $grade (school year $grade)';
+  final gradeRule = grade == null
+      ? ''
+      : '''
+1.7  The student is in GRADE $grade. Calibrate EVERYTHING to a grade-$grade
+     student: vocabulary, sentence length, numeric magnitude, and which
+     methods are assumed taught. Never use a technique a grade-$grade student
+     would not have learned yet (e.g. no calculus, trigonometry, or algebraic
+     manipulation below the grade it is introduced). When the topic could be
+     taught at several levels, pick the depth appropriate for grade $grade.
+''';
   final cognitiveSkills = _cognitiveSkillsFor(filter);
   final varietyGuidance = _varietyGuidanceFor(filter);
   final modeGuidance = _modeGuidanceFor(filter);
@@ -18,8 +34,9 @@ CLASSMATE PRACTICE GENERATION CONTRACT — READ EVERY LINE
 ════════════════════════════════════════════════════════════
 
 Session seed: $sessionSeed
-Subject: ${filter.subject}
+Subject: $subjectName
 Topic: $topic
+$gradeLine
 Mode: ${filter.mode.name}
 Difficulty: ${filter.difficulty.name}
 Questions: ${filter.questionCount}
@@ -30,7 +47,7 @@ Lives: ${filter.hasInfiniteLives ? "infinite" : filter.maxLives.toString()}
 SECTION 1 — TOPIC CONSTRAINTS (ABSOLUTE)
 ════════════════════════════════════════════════════════════
 
-1.1  Every question MUST be strictly about: ${filter.subject} → $topic
+1.1  Every question MUST be strictly about: $subjectName → $topic
 1.2  Do NOT drift to adjacent topics, related subjects, or broader concepts.
 1.3  All explanations must stay within the same subject/topic.
 1.4  Difficulty is "${filter.difficulty.name}" — apply it rigorously:
@@ -41,6 +58,7 @@ SECTION 1 — TOPIC CONSTRAINTS (ABSOLUTE)
 1.5  Return exactly ${filter.questionCount} question(s).
      Exception: bagrut mode ALWAYS returns exactly 1.
 1.6  Each question must have exactly 4 choices and one zero-based correctIndex.
+$gradeRule
 
 ════════════════════════════════════════════════════════════
 SECTION 2 — MATH FORMATTING (NON-NEGOTIABLE)
@@ -109,7 +127,7 @@ SECTION 6 — SELF-CHECK (run before output)
 ════════════════════════════════════════════════════════════
 
 Before generating each question verify:
-□  Is this strictly on-topic for "${filter.subject} → $topic"?
+□  Is this strictly on-topic for "$subjectName → $topic"?
 □  Is the difficulty exactly "${filter.difficulty.name}"?
 □  Is the correct answer actually correct (check the arithmetic/logic)?
 □  Are all \\(math\\) delimiters balanced?
@@ -338,7 +356,8 @@ String buildPracticePromptSummary(PracticeFilter filter) {
       : '${filter.timePreferenceSeconds ?? 15}s';
 
   return [
-    'Subject: ${filter.subject}',
+    'Subject: ${practiceSubjectAiName(filter.subject)}',
+    if (filter.grade != null) 'Grade: ${filter.grade}',
     'Topic: ${filter.topicLabel}',
     'Mode: ${filter.mode.name}',
     'Difficulty: ${filter.difficulty.name}',

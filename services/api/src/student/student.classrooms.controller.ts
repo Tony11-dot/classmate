@@ -155,7 +155,10 @@ export class StudentClassroomsController {
         where: {
           published: { not: false },
           OR: [
-            { targetType: 'EVERYONE' },
+            // Gate the broadcast clause to records with NO narrower targeting, so a
+            // grade-only item (stored as EVERYONE + targetGrades) no longer leaks
+            // school-wide — it is matched by the targetGrades clause instead.
+            { targetType: 'EVERYONE', targetCohortIds: { isEmpty: true }, targetStudentIds: { isEmpty: true }, targetGrades: { isEmpty: true } },
             { targetStudentIds: { has: uid } },
             ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
             ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
@@ -260,7 +263,10 @@ export class StudentClassroomsController {
       this.prisma.teacherMeeting.findMany({
         where: {
           OR: [
-            { targetType: 'EVERYONE' },
+            // Gate the broadcast clause to records with NO narrower targeting, so a
+            // grade-only item (stored as EVERYONE + targetGrades) no longer leaks
+            // school-wide — it is matched by the targetGrades clause instead.
+            { targetType: 'EVERYONE', targetCohortIds: { isEmpty: true }, targetStudentIds: { isEmpty: true }, targetGrades: { isEmpty: true } },
             { targetStudentIds: { has: uid } },
             ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
             ...(grade != null ? [{ targetGrades: { has: grade } }] : []),

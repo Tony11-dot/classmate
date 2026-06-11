@@ -3229,6 +3229,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get practiceModeActionNovaHint => 'Подсказка NOVA';
 
   @override
+  String get practiceModeActionSaveQuestion => 'Сохранить вопрос';
+
+  @override
+  String get practiceModeActionSavedQuestion => 'Сохранено';
+
+  @override
+  String get practiceModeQuestionSavedToast => 'Сохранено в ваших вопросах';
+
+  @override
+  String get practiceModeQuestionRemovedToast =>
+      'Удалено из сохранённых вопросов';
+
+  @override
   String get practiceModeActionReveal => 'Открыть';
 
   @override
@@ -7968,6 +7981,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get solSubjectGeography => 'География';
+
+  @override
+  String get solSubjectPsychology => 'Психология';
+
+  @override
+  String get insightsSemesterTitle => 'Этот семестр';
+
+  @override
+  String get insightsOnTimeSubmissions => 'Сдано вовремя';
+
+  @override
+  String get insightsSubmissionsTitle => 'Сдачи';
+
+  @override
+  String get insightsOnTime => 'Вовремя';
+
+  @override
+  String get insightsLate => 'С опозданием';
+
+  @override
+  String get insightsMissing => 'Пропущено';
+
+  @override
+  String get insightsPending => 'Ожидает';
+
+  @override
+  String get insightsHandedInLabel => 'сдано';
+
+  @override
+  String get insightsLatestGrades => 'Последние оценки';
+
+  @override
+  String get insightsReviewWithNova => 'Разбор с Nova';
+
+  @override
+  String get insightsReviewWithNovaPrompt =>
+      'Дай краткий и честный разбор моей успеваемости в этом семестре — оценки, посещаемость и сдачи — и главное, на чём мне сосредоточиться.';
+
+  @override
+  String get insightsPracticeTitle => 'Точность практики';
 
   @override
   String get commonUnknown => 'Неизвестно';

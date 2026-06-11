@@ -70,7 +70,7 @@ class FlashcardsModeView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      questionPromptPanel(d),
+                      questionPromptPanel(d, withSave: false),
                     ],
                   ),
           ),

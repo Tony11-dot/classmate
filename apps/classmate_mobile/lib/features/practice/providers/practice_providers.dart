@@ -12,7 +12,7 @@ import '../domain/practice_analytics_models.dart';
 
 PracticeFilter _defaultFilter() {
   return const PracticeFilter(
-    subject: 'Math',
+    subject: 'mathematics',
     mode: PracticeMode.practice,
     difficulty: PracticeDifficulty.medium,
     topicPath: ['Algebra'],
@@ -61,6 +61,7 @@ class PracticeFilterController extends Notifier<PracticeFilter> {
     bool? useAiTiming,
     int? maxLives,
     bool? hasInfiniteLives,
+    int? grade,
   }) {
     state = state.copyWith(
       subject: subject ?? state.subject,
@@ -73,6 +74,7 @@ class PracticeFilterController extends Notifier<PracticeFilter> {
       useAiTiming: useAiTiming ?? state.useAiTiming,
       maxLives: maxLives ?? state.maxLives,
       hasInfiniteLives: hasInfiniteLives ?? state.hasInfiniteLives,
+      grade: grade ?? state.grade,
     );
   }
 
@@ -135,7 +137,11 @@ class PracticeSessionController extends Notifier<PracticeSessionState> {
   Future<void> start([PracticeFilter? override]) async {
     final requestEpoch = ++_generationEpoch;
 
-    final PracticeFilter base = override ?? ref.read(practiceFilterProvider);
+    // Always stamp the signed-in student's grade onto the filter so the AI
+    // generates grade-appropriate questions. Null for staff / unknown.
+    final int? studentGrade = ref.read(authSessionProvider).grade;
+    final PracticeFilter source = override ?? ref.read(practiceFilterProvider);
+    final PracticeFilter base = source.copyWith(grade: studentGrade);
     final PracticeFilter filter = base.mode == PracticeMode.bagrut
         ? base.copyWith(
             questionCount: 1,

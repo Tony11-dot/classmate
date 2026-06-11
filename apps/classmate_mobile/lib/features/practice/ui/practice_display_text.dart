@@ -1,34 +1,78 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../solutions/domain/solution_subjects.dart';
 
 const practiceGeneralKnowledgeSubject = 'General Knowledge';
 const practiceGeneralTopicPath = <String>['General'];
 
+/// Resolve any subject string (canonical key, English name, or legacy practice
+/// display name) to the canonical Books/practice subject key — or null when it
+/// is a free-text custom subject.
+String? practiceSubjectKeyOf(String subject) {
+  final raw = subject.trim();
+  if (raw.isEmpty) return null;
+  if (kSolutionSubjectEnglish.containsKey(raw) || raw == 'psychology') {
+    return raw;
+  }
+  switch (raw.toLowerCase()) {
+    case 'math':
+    case 'maths':
+    case 'mathematics':
+      return 'mathematics';
+    case 'physics':
+      return 'physics';
+    case 'computer science':
+    case 'computerscience':
+      return 'computerScience';
+    case 'chemistry':
+      return 'chemistry';
+    case 'biology':
+      return 'biology';
+    case 'hebrew':
+      return 'hebrew';
+    case 'arabic':
+      return 'arabic';
+    case 'history':
+      return 'history';
+    case 'geography':
+      return 'geography';
+    case 'electronics':
+      return 'electronics';
+    case 'mechanics':
+      return 'mechanics';
+    case 'french':
+      return 'french';
+    case 'citizenship':
+      return 'citizenship';
+    case 'sociology':
+      return 'sociology';
+    case 'religion':
+      return 'religion';
+    case 'psychology':
+      return 'psychology';
+    case 'environmental science':
+    case 'environmentalscience':
+      return 'environmentalScience';
+    case 'communication and cinema':
+    case 'communicationcinema':
+      return 'communicationCinema';
+    default:
+      return null;
+  }
+}
+
+/// Practice subjects now mirror the Books subjects exactly, so display uses the
+/// shared [solutionSubjectTitle]. Free-text custom subjects pass through.
 String localizedPracticeSubject(BuildContext context, String subject) {
   final l = AppLocalizations.of(context)!;
-  switch (subject.trim().toLowerCase()) {
-    case 'math':
-      return l.practiceSubjectMath;
-    case 'physics':
-      return l.practiceSubjectPhysics;
-    case 'computer science':
-      return l.practiceSubjectComputerScience;
-    case 'chemistry':
-      return l.practiceSubjectChemistry;
-    case 'biology':
-      return l.practiceSubjectBiology;
-    case 'english':
-      return l.practiceSubjectEnglish;
-    case 'arabic':
-      return l.practiceSubjectArabic;
-    case 'hebrew':
-      return l.practiceSubjectHebrew;
-    case 'general knowledge':
-      return l.practiceSubjectGeneralKnowledge;
-    default:
-      return subject;
+  final raw = subject.trim();
+  if (raw.toLowerCase() == 'general knowledge') {
+    return l.practiceSubjectGeneralKnowledge;
   }
+  final key = practiceSubjectKeyOf(raw);
+  if (key != null) return solutionSubjectTitle(l, key);
+  return subject;
 }
 
 String localizedPracticeTopicSegment(BuildContext context, String segment) {

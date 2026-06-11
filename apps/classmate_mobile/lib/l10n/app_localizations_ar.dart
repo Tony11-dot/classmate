@@ -3249,6 +3249,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceModeActionNovaHint => 'تلميح NOVA';
 
   @override
+  String get practiceModeActionSaveQuestion => 'حفظ السؤال';
+
+  @override
+  String get practiceModeActionSavedQuestion => 'محفوظ';
+
+  @override
+  String get practiceModeQuestionSavedToast => 'تم الحفظ في أسئلتك';
+
+  @override
+  String get practiceModeQuestionRemovedToast =>
+      'تمت الإزالة من الأسئلة المحفوظة';
+
+  @override
   String get practiceModeActionReveal => 'إظهار';
 
   @override
@@ -7940,6 +7953,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get solSubjectGeography => 'الجغرافيا';
+
+  @override
+  String get solSubjectPsychology => 'علم النفس';
+
+  @override
+  String get insightsSemesterTitle => 'هذا الفصل';
+
+  @override
+  String get insightsOnTimeSubmissions => 'تسليم في الوقت';
+
+  @override
+  String get insightsSubmissionsTitle => 'التسليمات';
+
+  @override
+  String get insightsOnTime => 'في الوقت';
+
+  @override
+  String get insightsLate => 'متأخر';
+
+  @override
+  String get insightsMissing => 'ناقص';
+
+  @override
+  String get insightsPending => 'قيد الانتظار';
+
+  @override
+  String get insightsHandedInLabel => 'تم تسليمها';
+
+  @override
+  String get insightsLatestGrades => 'أحدث العلامات';
+
+  @override
+  String get insightsReviewWithNova => 'مراجعة مع Nova';
+
+  @override
+  String get insightsReviewWithNovaPrompt =>
+      'أعطني مراجعة قصيرة وصادقة عن أدائي هذا الفصل — العلامات والحضور والتسليمات — والشيء الوحيد الذي ينبغي أن أركّز عليه.';
+
+  @override
+  String get insightsPracticeTitle => 'دقة التمارين';
 
   @override
   String get commonUnknown => 'غير معروف';

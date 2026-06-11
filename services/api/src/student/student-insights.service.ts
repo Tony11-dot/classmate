@@ -32,7 +32,10 @@ export class StudentInsightsService {
   }
 
   private summarizeGrades(rows: any[]): StudentInsightsGradesSummary {
-    const latest: StudentInsightsGradeItem[] = rows.slice(0, 6).map((r) => ({
+    // Full history (ordered newest-first): the Grades tab paginates this with
+    // its own show-more/less UI, so return the whole list rather than a small
+    // preview. The Insights dashboard independently takes only the top few.
+    const latest: StudentInsightsGradeItem[] = rows.slice(0, 400).map((r) => ({
       id: String(r.id),
       subject: String(r.assessment?.subject ?? ''),
       assessmentTitle: String(r.assessment?.title ?? ''),
@@ -127,7 +130,10 @@ export class StudentInsightsService {
   }
 
   private summarizeAttendance(rows: any[]): StudentInsightsAttendanceSummary {
-    const latest: StudentInsightsAttendanceItem[] = rows.slice(0, 8).map((r) => ({
+    // Full history (newest-first): the Attendance tab's range filters
+    // (7d/30d/90d/all) and per-day grouping operate on this list, so it must
+    // carry the full record set, not just a small preview.
+    const latest: StudentInsightsAttendanceItem[] = rows.slice(0, 1000).map((r) => ({
       date: this.ymd(r.session?.date) ?? '',
       period: Number(r.session?.period ?? 0),
       status: String(r.status ?? ''),

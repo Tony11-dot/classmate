@@ -119,6 +119,19 @@ export class StudentService {
       },
     });
 
+    // Also create the StudentCohort join row. Every audience read path
+    // (exams / assignments / materials / meetings) resolves a student's
+    // cohorts from this join table, NOT the scalar `studentProfile.cohortId`.
+    // Without this, a join-code onboarded student would miss all
+    // cohort-targeted content. Idempotent on the composite [studentId,cohortId].
+    await this.prisma.studentCohort.upsert({
+      where: {
+        studentId_cohortId: { studentId, cohortId: body.cohortId },
+      },
+      update: {},
+      create: { studentId, cohortId: body.cohortId },
+    });
+
     return { ok: true };
   }
 
@@ -531,7 +544,10 @@ export class StudentService {
         published: true,
         teacher: { ...(schoolId ? { schoolId } : {}) },
         OR: [
-          { targetType: 'EVERYONE' },
+          // Gate the broadcast clause to records with NO narrower targeting, so a
+          // grade-only item (stored as EVERYONE + targetGrades) no longer leaks
+          // school-wide — it is matched by the targetGrades clause instead.
+          { targetType: 'EVERYONE', targetCohortIds: { isEmpty: true }, targetStudentIds: { isEmpty: true }, targetGrades: { isEmpty: true } },
           { targetStudentIds: { has: studentId } },
           ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
           ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
@@ -591,7 +607,10 @@ export class StudentService {
         published: { not: false },
         teacher: { ...(schoolId ? { schoolId } : {}) },
         OR: [
-          { targetType: 'EVERYONE' },
+          // Gate the broadcast clause to records with NO narrower targeting, so a
+          // grade-only item (stored as EVERYONE + targetGrades) no longer leaks
+          // school-wide — it is matched by the targetGrades clause instead.
+          { targetType: 'EVERYONE', targetCohortIds: { isEmpty: true }, targetStudentIds: { isEmpty: true }, targetGrades: { isEmpty: true } },
           { targetStudentIds: { has: studentId } },
           ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
           ...(grade != null ? [{ targetGrades: { has: grade } }] : []),

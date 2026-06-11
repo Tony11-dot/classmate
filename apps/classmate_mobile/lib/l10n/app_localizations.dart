@@ -5772,6 +5772,30 @@ abstract class AppLocalizations {
   /// **'NOVA hint'**
   String get practiceModeActionNovaHint;
 
+  /// No description provided for @practiceModeActionSaveQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Save question'**
+  String get practiceModeActionSaveQuestion;
+
+  /// No description provided for @practiceModeActionSavedQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get practiceModeActionSavedQuestion;
+
+  /// No description provided for @practiceModeQuestionSavedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your questions'**
+  String get practiceModeQuestionSavedToast;
+
+  /// No description provided for @practiceModeQuestionRemovedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from saved questions'**
+  String get practiceModeQuestionRemovedToast;
+
   /// No description provided for @practiceModeActionReveal.
   ///
   /// In en, this message translates to:
@@ -14036,6 +14060,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Geography'**
   String get solSubjectGeography;
+
+  /// No description provided for @solSubjectPsychology.
+  ///
+  /// In en, this message translates to:
+  /// **'Psychology'**
+  String get solSubjectPsychology;
+
+  /// No description provided for @insightsSemesterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This semester'**
+  String get insightsSemesterTitle;
+
+  /// No description provided for @insightsOnTimeSubmissions.
+  ///
+  /// In en, this message translates to:
+  /// **'On-time work'**
+  String get insightsOnTimeSubmissions;
+
+  /// No description provided for @insightsSubmissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submissions'**
+  String get insightsSubmissionsTitle;
+
+  /// No description provided for @insightsOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get insightsOnTime;
+
+  /// No description provided for @insightsLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get insightsLate;
+
+  /// No description provided for @insightsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get insightsMissing;
+
+  /// No description provided for @insightsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get insightsPending;
+
+  /// No description provided for @insightsHandedInLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'handed in'**
+  String get insightsHandedInLabel;
+
+  /// No description provided for @insightsLatestGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest grades'**
+  String get insightsLatestGrades;
+
+  /// No description provided for @insightsReviewWithNova.
+  ///
+  /// In en, this message translates to:
+  /// **'Review with Nova'**
+  String get insightsReviewWithNova;
+
+  /// No description provided for @insightsReviewWithNovaPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Give me a short, honest review of my performance this semester — grades, attendance, and submissions — and the one thing I should focus on next.'**
+  String get insightsReviewWithNovaPrompt;
+
+  /// No description provided for @insightsPracticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice accuracy'**
+  String get insightsPracticeTitle;
 
   /// No description provided for @commonUnknown.
   ///

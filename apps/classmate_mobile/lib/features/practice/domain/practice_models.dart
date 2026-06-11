@@ -33,6 +33,7 @@ class PracticeFilter {
     required this.useAiTiming,
     required this.maxLives,
     required this.hasInfiniteLives,
+    this.grade,
   });
 
   final String subject;
@@ -44,6 +45,10 @@ class PracticeFilter {
   final bool useAiTiming;
   final int maxLives;
   final bool hasInfiniteLives;
+
+  /// The student's school grade (1–12), used to calibrate AI question
+  /// difficulty and which topics make sense. Null for staff or when unknown.
+  final int? grade;
 
   String get topicLabel =>
       topicPath.isEmpty ? 'All topics' : topicPath.join(' · ');
@@ -58,6 +63,7 @@ class PracticeFilter {
     bool? useAiTiming,
     int? maxLives,
     bool? hasInfiniteLives,
+    int? grade,
   }) {
     return PracticeFilter(
       subject: subject ?? this.subject,
@@ -70,11 +76,12 @@ class PracticeFilter {
       useAiTiming: useAiTiming ?? this.useAiTiming,
       maxLives: maxLives ?? this.maxLives,
       hasInfiniteLives: hasInfiniteLives ?? this.hasInfiniteLives,
+      grade: grade ?? this.grade,
     );
   }
 
   static const PracticeFilter defaults = PracticeFilter(
-    subject: 'Math',
+    subject: 'mathematics',
     mode: PracticeMode.practice,
     difficulty: PracticeDifficulty.medium,
     topicPath: <String>['Algebra'],
@@ -215,77 +222,3 @@ class PracticeSessionState {
       );
 }
 
-const practiceSubjectCatalog = <String, List<List<String>>>{
-  'Math': [
-    ['Algebra'],
-    ['Functions'],
-    ['Linear Equations'],
-    ['Quadratic Equations'],
-    ['Inequalities'],
-    ['Geometry'],
-    ['Trigonometry'],
-    ['Probability'],
-    ['Statistics'],
-    ['Sequences'],
-  ],
-  'Physics': [
-    ['Mechanics'],
-    ['Mechanics', 'Speed and Velocity'],
-    ['Mechanics', 'Acceleration'],
-    ['Mechanics', 'Newton Laws'],
-    ['Mechanics', 'Forces'],
-    ['Energy'],
-    ['Momentum'],
-    ['Electricity'],
-    ['Electrostatics'],
-    ['Waves'],
-  ],
-  'Computer Science': [
-    ['Conditions'],
-    ['Conditions', 'If / Else'],
-    ['Conditions', 'Nested Conditions'],
-    ['Conditions', 'Boolean Logic'],
-    ['Loops'],
-    ['Functions'],
-    ['Arrays'],
-    ['Strings'],
-    ['Variables'],
-    ['Algorithms'],
-  ],
-  'Chemistry': [
-    ['Atoms and Elements'],
-    ['Periodic Table'],
-    ['Chemical Bonds'],
-    ['Reactions'],
-    ['Stoichiometry'],
-    ['Acids and Bases'],
-  ],
-  'Biology': [
-    ['Cells'],
-    ['Genetics'],
-    ['Ecology'],
-    ['Human Body'],
-    ['Photosynthesis'],
-  ],
-  'English': [
-    ['Grammar'],
-    ['Tenses'],
-    ['Vocabulary'],
-    ['Reading Comprehension'],
-    ['Conditionals'],
-  ],
-  'Arabic': [
-    ['Grammar'],
-    ['Reading'],
-    ['Vocabulary'],
-    ['Comprehension'],
-    ['Writing'],
-  ],
-  'Hebrew': [
-    ['Grammar'],
-    ['Reading'],
-    ['Vocabulary'],
-    ['Comprehension'],
-    ['Writing'],
-  ],
-};

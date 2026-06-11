@@ -4,36 +4,20 @@ import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
-import '../lifedoc/announcements_provider.dart';
-import 'domain/insights_models.dart';
-import 'providers/insights_providers.dart';
 import '../../ui/widgets/cm_loading.dart';
+import 'providers/insights_providers.dart';
+import 'providers/submissions_provider.dart';
 
+/// The student performance dashboard: grades, attendance and on-time work for
+/// the semester at a glance. Designed for the least reading and the most
+/// signal — big colour-coded numbers, tight supporting detail, one action.
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
 
-  void _openTutorFromInsights(
-    BuildContext context, {
-    required String prompt,
-    String? title,
-    String? subject,
-  }) {
-    context.go(
-      Uri(
-        path: '/tutor',
-        queryParameters: {
-          if (prompt.trim().isNotEmpty) 'prompt': prompt.trim(),
-          if ((title ?? '').trim().isNotEmpty) 'title': title!.trim(),
-          if ((subject ?? '').trim().isNotEmpty) 'subject': subject!.trim(),
-        },
-      ).toString(),
-    );
-  }
+  // ── number/format helpers ──────────────────────────────────────────────────
 
-  String _fmtPercent(double? value) {
-    if (value == null) return '—';
-    return '${value.toStringAsFixed(1)}%';
-  }
+  String _fmtPercent(double? value) =>
+      value == null ? '—' : '${value.round()}%';
 
   String _fmtNum(num? value) {
     if (value == null) return '—';
@@ -41,530 +25,383 @@ class InsightsScreen extends ConsumerWidget {
     return value.toStringAsFixed(1);
   }
 
-  String _trendLabel(AppLocalizations l, UnifiedPracticeTrend? trend) {
-    final delta = trend?.deltaAccuracy;
-    if (delta == null) return l.insightsTrendBaseline;
-    if (delta >= 6) return l.insightsTrendImproving;
-    if (delta <= -6) return l.insightsTrendDropping;
-    return l.insightsTrendStable;
+  /// Green / amber / red for a 0–100 metric against good/ok thresholds.
+  Color _tone(BuildContext context, double? value, double good, double ok) {
+    final cs = Theme.of(context).colorScheme;
+    if (value == null) return cs.onSurfaceVariant;
+    if (value >= good) return const Color(0xFF2E7D32);
+    if (value >= ok) return const Color(0xFFE08600);
+    return cs.error;
   }
 
-  IconData _trendIcon(UnifiedPracticeTrend? trend) {
-    final delta = trend?.deltaAccuracy;
-    if (delta == null) return Icons.timeline_rounded;
-    if (delta >= 6) return Icons.trending_up_rounded;
-    if (delta <= -6) return Icons.trending_down_rounded;
-    return Icons.show_chart_rounded;
-  }
-
-  String _predictiveHeadline(
-    AppLocalizations l,
-    UnifiedStudentInsights unified,
-    List<dynamic> announcements,
-  ) {
-    final avg = unified.grades.average ?? 100;
-    final rate = unified.attendance.attendanceRate ?? 100;
-    final delta = unified.practice.trend?.deltaAccuracy ?? 0;
-
-    if (avg < 70 || rate < 85 || delta <= -6) {
-      return l.insightsHeadlineIntervention;
-    }
-    if (announcements.length >= 3) {
-      return l.insightsHeadlineSignals;
-    }
-    return l.insightsHeadlineMomentum;
-  }
-
-  String _predictiveBody(AppLocalizations l, UnifiedStudentInsights unified) {
-    final weak = (unified.grades.weakestSubject ?? '').trim();
-    final best = (unified.grades.bestSubject ?? '').trim();
-    final rate = unified.attendance.attendanceRate ?? 100;
-    final delta = unified.practice.trend?.deltaAccuracy ?? 0;
-
-    if (rate < 85) {
-      return l.insightsBodyAttendance;
-    }
-    if (weak.isNotEmpty && delta <= -6) {
-      return l.insightsBodyWeakTrend(weak);
-    }
-    if (best.isNotEmpty) {
-      return l.insightsBodyLeverage(best);
-    }
-    return l.insightsBodyConsistency;
-  }
-
-  List<_PredictiveCardVm> _predictiveCards(
-    AppLocalizations l,
-    UnifiedStudentInsights unified,
-    List<dynamic> announcements,
-  ) {
-    final weakTopic = unified.practice.weakTopics.isNotEmpty
-        ? unified.practice.weakTopics.first
-        : null;
-
-    return <_PredictiveCardVm>[
-      _PredictiveCardVm(
-        title: l.insightsInterventionScoreTitle,
-        body: l.insightsInterventionScoreBody(announcements.length),
-        icon: Icons.crisis_alert_rounded,
-      ),
-      _PredictiveCardVm(
-        title: l.insightsRecoveryPathTitle,
-        body: weakTopic == null
-            ? l.insightsRecoveryPathDefault
-            : l.insightsRecoveryPathTopic(
-                weakTopic.topicLabel,
-                weakTopic.subject,
-              ),
-        icon: Icons.route_rounded,
-      ),
-      _PredictiveCardVm(
-        title: l.insightsProjectedDirectionTitle,
-        body:
-            l.insightsProjectedDirectionBody(
-              _trendLabel(l, unified.practice.trend),
-            ),
-        icon: _trendIcon(unified.practice.trend),
-      ),
-    ];
+  void _ask(BuildContext context, String prompt, {String? title}) {
+    context.go(
+      Uri(
+        path: '/tutor',
+        queryParameters: {
+          if (prompt.trim().isNotEmpty) 'prompt': prompt.trim(),
+          if ((title ?? '').trim().isNotEmpty) 'title': title!.trim(),
+        },
+      ).toString(),
+    );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unifiedAsync = ref.watch(unifiedStudentInsightsProvider);
-    final aiAsync = ref.watch(aiInsightsSummaryProvider);
-    final announcements = ref.watch(announcementsProvider);
+    final submissionsAsync = ref.watch(submissionStatsProvider);
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
-    final l = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(unifiedStudentInsightsProvider);
-        ref.invalidate(aiInsightsSummaryProvider);
-        ref.invalidate(serverInsightsProvider);
-        await Future.wait([
-          ref.read(unifiedStudentInsightsProvider.future),
-          ref.read(aiInsightsSummaryProvider.future),
-          ref.read(serverInsightsProvider.future),
-        ]);
+        ref.invalidate(submissionStatsProvider);
+        await ref.read(unifiedStudentInsightsProvider.future);
       },
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 160),
-        children: [
-          unifiedAsync.when(
-            loading: () => _StateCard(
-              title: l.insightsLoadingTitle,
-              subtitle: l.insightsLoadingSubtitle,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: const Center(child: CmLoading()),
+      child: unifiedAsync.when(
+        loading: () => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
+          children: const [
+            SizedBox(height: 120, child: Center(child: CmLoading())),
+          ],
+        ),
+        error: (error, _) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
+          children: [
+            _Card(
+              title: l.insightsNotReadyTitle,
+              child: Text(
+                error.toString(),
+                style: TextStyle(color: cs.onSurfaceVariant),
               ),
             ),
-            error: (error, _) => _StateCard(
-              title: l.insightsNotReadyTitle,
-              subtitle: error.toString(),
-              child: const SizedBox.shrink(),
-            ),
-            data: (unified) {
-              if (unified == null) {
-                return _StateCard(
-                  title: l.insightsEmptyTitle,
-                  subtitle: l.insightsEmptySubtitle,
-                  child: const SizedBox.shrink(),
-                );
-              }
-
-              final predictive = _predictiveCards(l, unified, announcements);
-
-              return Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(28),
-                      border: Border.all(
-                        color: cs.outlineVariant,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l.titleInsights,
-                          style: text.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _predictiveHeadline(l, unified, announcements),
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _predictiveBody(l, unified),
-                          style: text.bodyMedium?.copyWith(
-                            color: cs.onPrimaryContainer.withValues(alpha: 0.75),
-                            height: 1.35,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _HeroMetric(
-                                label: l.insightsGradeAverage,
-                                value: _fmtNum(unified.grades.average),
-                                icon: Icons.grade_rounded,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _HeroMetric(
-                                label: l.navAttendance,
-                                value: _fmtPercent(
-                                  unified.attendance.attendanceRate,
-                                ),
-                                icon: Icons.how_to_reg_rounded,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _HeroMetric(
-                                label: l.insightsAccuracy,
-                                value: _fmtPercent(
-                                  unified.practice.overallAccuracy * 100,
-                                ),
-                                icon: Icons.check_circle_rounded,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            _ActionChip(
-                              icon: Icons.psychology_alt_rounded,
-                              label: l.insightsOpenNova,
-                              onTap: () => _openTutorFromInsights(
-                                context,
-                                prompt: l.insightsOpenNovaPrompt,
-                                title: l.insightsPredictiveRecoveryPlanTitle,
-                              ),
-                            ),
-                            _ActionChip(
-                              icon: Icons.play_circle_fill_rounded,
-                              label: l.insightsPracticeNow,
-                              onTap: () => context.go('/practice'),
-                            ),
-                            _ActionChip(
-                              icon: Icons.campaign_rounded,
-                              label: l.navAnnouncements,
-                              onTap: () => context.go('/announcements'),
-                            ),
-                            _ActionChip(
-                              icon: Icons.notifications_active_rounded,
-                              label: l.navNotifications,
-                              onTap: () => context.go('/notifications'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _StateCard(
-                    title: l.insightsPredictiveModulesTitle,
-                    subtitle: l.insightsPredictiveModulesSubtitle,
-                    child: Column(
-                      children: predictive
-                          .map(
-                            (item) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: _PredictiveCard(item: item),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _StateCard(
-                    title: l.insightsAnnouncementsPressureTitle,
-                    subtitle: l.insightsAnnouncementsPressureSubtitle,
-                    child: Column(
-                      children: announcements
-                          .take(3)
-                          .map(
-                            (item) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: _MiniLine(
-                                label: item.source.toUpperCase(),
-                                value: item.title,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  aiAsync.when(
-                    loading: () => _StateCard(
-                      title: l.insightsAiCoachTitle,
-                      subtitle: l.insightsAiCoachLoadingSubtitle,
-                      child: const SizedBox(
-                        height: 60,
-                        child: Center(child: CmLoading()),
-                      ),
-                    ),
-                    error: (error, _) => _StateCard(
-                      title: l.insightsAiCoachTitle,
-                      subtitle: error.toString(),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: FilledButton.icon(
-                          onPressed: () {
-                            ref.invalidate(aiInsightsSummaryProvider);
-                            ref.invalidate(serverInsightsProvider);
-                          },
-                          icon: const Icon(Icons.auto_awesome_rounded),
-                          label: Text(l.insightsGenerateAction),
-                        ),
-                      ),
-                    ),
-                    data: (ai) {
-                      if (ai == null) {
-                        return _StateCard(
-                          title: l.insightsAiCoachTitle,
-                          subtitle: l.insightsAiCoachUnavailableSubtitle,
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: FilledButton.icon(
-                              onPressed: () {
-                                ref.invalidate(aiInsightsSummaryProvider);
-                                ref.invalidate(serverInsightsProvider);
-                              },
-                              icon: const Icon(Icons.auto_awesome_rounded),
-                              label: Text(l.insightsGenerateAction),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return _StateCard(
-                        title: ai.headline.isEmpty
-                            ? l.insightsAiCoachTitle
-                            : ai.headline,
-                        subtitle: ai.summary,
-                        child: Column(
-                          children: [
-                            ...ai.cards
-                                .take(3)
-                                .map(
-                                  (card) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: _MiniLine(
-                                      label: card.title,
-                                      value: card.body,
-                                    ),
-                                  ),
-                                ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                FilledButton.icon(
-                                  onPressed: () => _openTutorFromInsights(
-                                    context,
-                                    prompt: ai.suggestedPrompt.isEmpty
-                                        ? l.insightsAskNovaPrompt
-                                        : ai.suggestedPrompt,
-                                    title: l.insightsAiStudyCoachTitle,
-                                  ),
-                                  icon: const Icon(Icons.psychology_alt_rounded),
-                                  label: Text(l.insightsAskNova),
-                                ),
-                                const SizedBox(width: 10),
-                                FilledButton.tonalIcon(
-                                  onPressed: () {
-                                    ref.invalidate(aiInsightsSummaryProvider);
-                                    ref.invalidate(serverInsightsProvider);
-                                  },
-                                  icon: const Icon(Icons.refresh_rounded, size: 18),
-                                  label: Text(l.insightsRefreshAction),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _StateCard(
-                    title: l.insightsSchoolToolsTitle,
-                    subtitle: l.insightsSchoolToolsSubtitle,
-                    child: Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        _ActionChip(
-                          icon: Icons.grade_rounded,
-                          label: l.navGrades,
-                          onTap: () => context.go('/grades'),
-                        ),
-                        _ActionChip(
-                          icon: Icons.how_to_reg_rounded,
-                          label: l.navAttendance,
-                          onTap: () => context.go('/attendance'),
-                        ),
-                        _ActionChip(
-                          icon: Icons.notifications_rounded,
-                          label: l.navNotifications,
-                          onTap: () => context.go('/notifications'),
-                        ),
-                        _ActionChip(
-                          icon: Icons.campaign_rounded,
-                          label: l.navAnnouncements,
-                          onTap: () => context.go('/announcements'),
-                        ),
-                        _ActionChip(
-                          icon: Icons.lightbulb_rounded,
-                          label: l.navSolutions,
-                          onTap: () => context.go('/solutions'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PredictiveCardVm {
-  final String title;
-  final String body;
-  final IconData icon;
-
-  const _PredictiveCardVm({
-    required this.title,
-    required this.body,
-    required this.icon,
-  });
-}
-
-class _PredictiveCard extends StatelessWidget {
-  const _PredictiveCard({required this.item});
-
-  final _PredictiveCardVm item;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(14),
-      borderRadius: BorderRadius.circular(20),
-      color: cs.surfaceContainerLow,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: cs.surface,
-            child: Icon(item.icon),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        ),
+        data: (unified) {
+          if (unified == null) {
+            return ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
               children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(fontWeight: FontWeight.w900),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item.body,
-                  style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 4,
+                _Card(
+                  title: l.insightsEmptyTitle,
+                  child: Text(
+                    l.insightsEmptySubtitle,
+                    style: TextStyle(color: cs.onSurfaceVariant),
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
+            );
+          }
+
+          final gradeAvg = unified.grades.average;
+          final attendance = unified.attendance.attendanceRate;
+          final submissions = submissionsAsync.asData?.value;
+          final onTimeRate = submissions?.onTimeRate;
+          final accuracy = unified.practice.overallAccuracy * 100;
+
+          return ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 160),
+            children: [
+              // ── Hero: three headline numbers ─────────────────────────────
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: cs.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.titleInsights,
+                      style: text.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                        color: cs.onPrimaryContainer,
+                      ),
+                    ),
+                    Text(
+                      l.insightsSemesterTitle,
+                      style: text.titleSmall?.copyWith(
+                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _Metric(
+                            label: l.insightsGradeAverage,
+                            value: _fmtNum(gradeAvg),
+                            icon: Icons.grade_rounded,
+                            color: _tone(context, gradeAvg, 85, 70),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _Metric(
+                            label: l.navAttendance,
+                            value: _fmtPercent(attendance),
+                            icon: Icons.how_to_reg_rounded,
+                            color: _tone(context, attendance, 90, 80),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _Metric(
+                            label: l.insightsOnTimeSubmissions,
+                            value: _fmtPercent(onTimeRate),
+                            icon: Icons.task_alt_rounded,
+                            color: _tone(context, onTimeRate, 85, 70),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // ── Submissions ──────────────────────────────────────────────
+              if (submissions != null && submissions.total > 0) ...[
+                _Card(
+                  title: l.insightsSubmissionsTitle,
+                  trailing: Text(
+                    '${submissions.submitted}/${submissions.total} ${l.insightsHandedInLabel}',
+                    style: text.labelLarge?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _Pill(
+                        label: l.insightsOnTime,
+                        count: submissions.onTime,
+                        color: const Color(0xFF2E7D32),
+                      ),
+                      _Pill(
+                        label: l.insightsLate,
+                        count: submissions.late,
+                        color: const Color(0xFFE08600),
+                      ),
+                      _Pill(
+                        label: l.insightsMissing,
+                        count: submissions.missed,
+                        color: cs.error,
+                      ),
+                      _Pill(
+                        label: l.insightsPending,
+                        count: submissions.pending,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // ── Grades ───────────────────────────────────────────────────
+              _Card(
+                title: l.navGrades,
+                onTap: () => context.go('/grades'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _MiniStat(
+                            label: l.gradesMetricBestSubject,
+                            value: (unified.grades.bestSubject ?? '').trim().isEmpty
+                                ? '—'
+                                : unified.grades.bestSubject!.trim(),
+                            color: const Color(0xFF2E7D32),
+                            icon: Icons.trending_up_rounded,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _MiniStat(
+                            label: l.gradesMetricNeedsWork,
+                            value: (unified.grades.weakestSubject ?? '').trim().isEmpty
+                                ? '—'
+                                : unified.grades.weakestSubject!.trim(),
+                            color: const Color(0xFFE08600),
+                            icon: Icons.trending_down_rounded,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (unified.grades.latest.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      Text(
+                        l.insightsLatestGrades,
+                        style: text.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...unified.grades.latest.take(4).map(
+                            (g) => _GradeRow(
+                              subject: g.subject.trim().isEmpty
+                                  ? g.assessmentTitle
+                                  : g.subject,
+                              detail: g.assessmentTitle,
+                              grade: g.grade,
+                              color: _tone(context, g.grade, 85, 70),
+                            ),
+                          ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // ── Attendance ───────────────────────────────────────────────
+              _Card(
+                title: l.navAttendance,
+                onTap: () => context.go('/attendance'),
+                trailing: Text(
+                  _fmtPercent(attendance),
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: _tone(context, attendance, 90, 80),
+                  ),
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _Pill(
+                      label: l.attendanceMetricPresent,
+                      count: unified.attendance.present,
+                      color: const Color(0xFF2E7D32),
+                    ),
+                    _Pill(
+                      label: l.attendanceMetricLate,
+                      count: unified.attendance.late,
+                      color: const Color(0xFFE08600),
+                    ),
+                    _Pill(
+                      label: l.attendanceMetricAbsent,
+                      count: unified.attendance.absent,
+                      color: cs.error,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // ── Practice ─────────────────────────────────────────────────
+              _Card(
+                title: l.insightsPracticeTitle,
+                onTap: () => context.go('/practice'),
+                trailing: Text(
+                  _fmtPercent(
+                    unified.practice.totalAttempts == 0 ? null : accuracy,
+                  ),
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: _tone(
+                      context,
+                      unified.practice.totalAttempts == 0 ? null : accuracy,
+                      75,
+                      50,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        unified.practice.weakTopics.isNotEmpty
+                            ? '${l.gradesMetricNeedsWork}: ${unified.practice.weakTopics.first.topicLabel}'
+                            : l.insightsPracticeNow,
+                        style: TextStyle(color: cs.onSurfaceVariant),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    FilledButton.tonal(
+                      onPressed: () => context.go('/practice'),
+                      child: Text(l.insightsPracticeNow),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // ── One action ───────────────────────────────────────────────
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => _ask(
+                    context,
+                    l.insightsReviewWithNovaPrompt,
+                    title: l.insightsReviewWithNova,
+                  ),
+                  icon: const Icon(Icons.psychology_alt_rounded),
+                  label: Text(l.insightsReviewWithNova),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _ActionChip extends StatelessWidget {
-  const _ActionChip({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+// ── building blocks ───────────────────────────────────────────────────────────
 
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return ActionChip(
-      avatar: Icon(icon, size: 18, color: cs.primary),
-      label: Text(label),
-      onPressed: onTap,
-      backgroundColor: cs.surface,
-      side: BorderSide(color: cs.outlineVariant),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-    );
-  }
-}
-
-class _HeroMetric extends StatelessWidget {
-  const _HeroMetric({
+class _Metric extends StatelessWidget {
+  const _Metric({
     required this.label,
     required this.value,
     required this.icon,
+    required this.color,
   });
 
   final String label;
   final String value;
   final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(14),
-      borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18),
-          const SizedBox(height: 10),
+          Icon(icon, size: 18, color: color),
+          const SizedBox(height: 8),
           Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                  letterSpacing: -0.5,
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
           Text(
@@ -579,67 +416,208 @@ class _HeroMetric extends StatelessWidget {
   }
 }
 
-class _StateCard extends StatelessWidget {
-  const _StateCard({
+class _Card extends StatelessWidget {
+  const _Card({
     required this.title,
-    required this.subtitle,
     required this.child,
+    this.trailing,
+    this.onTap,
   });
 
   final String title;
-  final String subtitle;
   final Widget child;
+  final Widget? trailing;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(22),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  ?trailing,
+                  if (onTap != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              child,
+            ],
           ),
-          const SizedBox(height: 14),
-          child,
+        ),
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({required this.label, required this.count, required this.color});
+
+  final String label;
+  final int count;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$count',
+            style: TextStyle(fontWeight: FontWeight.w900, color: color),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _MiniLine extends StatelessWidget {
-  const _MiniLine({required this.label, required this.value});
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
 
   final String label;
   final String value;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w800),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GradeRow extends StatelessWidget {
+  const _GradeRow({
+    required this.subject,
+    required this.detail,
+    required this.grade,
+    required this.color,
+  });
+
+  final String subject;
+  final String detail;
+  final double grade;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: RichText(
-        text: TextSpan(
-          style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-          children: [
-            TextSpan(
-              text: '$label: ',
-              style: TextStyle(
-                color: cs.onSurface,
-                fontWeight: FontWeight.w800,
-              ),
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subject,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (detail.trim().isNotEmpty)
+                  Text(
+                    detail,
+                    style: TextStyle(
+                      color: cs.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
             ),
-            TextSpan(text: value),
-          ],
-        ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            grade % 1 == 0 ? grade.toInt().toString() : grade.toStringAsFixed(1),
+            style: TextStyle(fontWeight: FontWeight.w900, color: color),
+          ),
+        ],
       ),
     );
   }

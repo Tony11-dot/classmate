@@ -7,6 +7,7 @@ import '../../../core/config/env.dart';
 
 
 import '../domain/practice_models.dart';
+import '../domain/practice_subjects.dart';
 import 'practice_prompt_builder.dart';
 import 'bagrut_repository.dart';
 
@@ -21,7 +22,7 @@ bool _matchesTopicPath(List<String> left, List<String> right) {
 }
 
 bool shouldTopUpRemotePracticeResults(PracticeFilter filter) {
-  final catalogTopics = practiceSubjectCatalog[filter.subject] ?? const <List<String>>[];
+  final catalogTopics = practiceTopicsFor(filter.subject, filter.grade);
   return catalogTopics.any((topicPath) => _matchesTopicPath(topicPath, filter.topicPath));
 }
 
@@ -479,7 +480,8 @@ class PracticeGenerator {
 
       final recent = _getRecent(filter);
       final payload = <String, Object?>{
-        'subject': filter.subject,
+        'subject': practiceSubjectAiName(filter.subject),
+        if (filter.grade != null) 'grade': filter.grade,
         'topicLabel': filter.topicLabel,
         'topicPath': filter.topicPath,
         'topicPathText': filter.topicPath.isEmpty

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
@@ -685,11 +686,38 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
 }
 
 class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
+  // Instagram-style auto-hide: the floating pill nav shrinks + fades while the
+  // page underneath is being scrolled, then springs back to full size a beat
+  // after scrolling settles (or the moment the user taps the pill itself).
+  final ValueNotifier<bool> _navCompact = ValueNotifier<bool>(false);
+  Timer? _expandTimer;
+
   @override
   void initState() {
     super.initState();
     // Kick off a notification sync once the shell is live so banners can fire.
     WidgetsBinding.instance.addPostFrameCallback((_) => _syncNotifications());
+  }
+
+  @override
+  void dispose() {
+    _expandTimer?.cancel();
+    _navCompact.dispose();
+    super.dispose();
+  }
+
+  // Shrink the nav while the body scrolls; re-expand shortly after it stops.
+  bool _onBodyScroll(ScrollNotification n) {
+    final scrolling = n is ScrollUpdateNotification ||
+        (n is UserScrollNotification && n.direction != ScrollDirection.idle);
+    if (scrolling) {
+      if (!_navCompact.value) _navCompact.value = true;
+      _expandTimer?.cancel();
+      _expandTimer = Timer(const Duration(milliseconds: 650), () {
+        if (mounted) _navCompact.value = false;
+      });
+    }
+    return false;
   }
 
   Future<void> _syncNotifications() async {
@@ -786,7 +814,12 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       drawerEnableOpenDragGesture: !widget.hideTopBar,
       drawer: widget.hideTopBar ? null : const MainDrawer(),
       appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
-      body: body,
+      body: widget.hideBottomNav
+          ? body
+          : NotificationListener<ScrollNotification>(
+              onNotification: _onBodyScroll,
+              child: body,
+            ),
       floatingActionButton: widget.buildFab(context),
       bottomNavigationBar: widget.hideBottomNav
           ? null
@@ -794,6 +827,7 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
               items: navItems,
               index: widget.idx,
               onTap: widget.onTap,
+              compact: _navCompact,
             ),
     );
   }
@@ -858,11 +892,21 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PlatformCoreBottomNav extends StatefulWidget {
-  const _PlatformCoreBottomNav({required this.items, required this.index, required this.onTap});
+  const _PlatformCoreBottomNav({
+    required this.items,
+    required this.index,
+    required this.onTap,
+    required this.compact,
+  });
 
   final List<_NavItem> items;
   final int index;
   final ValueChanged<int> onTap;
+
+  /// True while the page underneath is scrolling — drives the shrink/fade.
+  /// It's a [ValueNotifier] (not just a listenable) so a tap on the pill can
+  /// flip it back to expanded instantly.
+  final ValueNotifier<bool> compact;
 
   @override
   State<_PlatformCoreBottomNav> createState() => _PlatformCoreBottomNavState();
@@ -870,12 +914,13 @@ class _PlatformCoreBottomNav extends StatefulWidget {
 
 class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     with TickerProviderStateMixin {
-  // Raw drag offset (drives stretch transform)
+  // Raw drag offset (drives the vertical liquid stretch)
   double _dragDx = 0;
   double _dragDy = 0;
 
   bool _pressing = false;
   Offset? _pressOrigin;
+  double? _pointerX; // raw finger x within the bar — capsule follows it 1:1
   int? _hoveredIndex; // index currently under finger during drag
   int? _lastHapticIndex;
 
@@ -922,8 +967,12 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
 
   void _onPointerDown(PointerDownEvent e, double width) {
     _snapCtrl.stop();
+    // A touch on the pill always means "I want the full bar" — pop it back
+    // to expanded immediately, even mid-scroll.
+    widget.compact.value = false;
     _pressing = true;
     _pressOrigin = e.localPosition;
+    _pointerX = e.localPosition.dx;
     _dragDx = 0;
     _dragDy = 0;
     _hoveredIndex = _indexForLocalDx(e.localPosition.dx, width);
@@ -941,6 +990,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     setState(() {
       _dragDx = _rubberBand(dx);
       _dragDy = _rubberBand(dy);
+      _pointerX = e.localPosition.dx;
       _hoveredIndex = newHovered;
     });
 
@@ -966,6 +1016,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
 
     setState(() {
       _dragDy = 0;
+      _pointerX = null;
       _hoveredIndex = null;
       _pressOrigin = null;
     });
@@ -975,7 +1026,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     _pressing = false;
     const spring = SpringDescription(mass: 1, stiffness: 500, damping: 30);
     _snapCtrl.animateWith(SpringSimulation(spring, _dragDx, 0, 0));
-    setState(() { _dragDy = 0; _hoveredIndex = null; _pressOrigin = null; });
+    setState(() { _dragDy = 0; _pointerX = null; _hoveredIndex = null; _pressOrigin = null; });
   }
 
   @override
@@ -984,16 +1035,19 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     final brightness = Theme.of(context).brightness;
     final cs = Theme.of(context).colorScheme;
     final isDark = brightness == Brightness.dark;
-    final pillTint = cs.surface;
+    // Translucent tint so the native blur reads through as real glass — a
+    // fully-opaque surface here would make the pill look like a solid chip.
+    final pillTint = cs.surface.withValues(alpha: isDark ? 0.38 : 0.52);
 
     // ── Android Material-3 fallback ──────────────────────────────────────
     // The iOS 26 liquid-glass aesthetic is platform-specific; on Android
     // it'd feel out of place against the rest of the M3 system chrome.
     // Render Flutter's NavigationBar instead — themed automatically, gets
-    // ripple + indicator for free.
+    // ripple + indicator for free. Icon-only to match the iOS pill.
     if (kIsWeb || (!Platform.isIOS && !Platform.isMacOS)) {
       return NavigationBar(
         selectedIndex: widget.index,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         onDestinationSelected: (i) {
           HapticFeedback.lightImpact();
           widget.onTap(i);
@@ -1024,27 +1078,43 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
             onPointerMove: (e) => _onPointerMove(e, width),
             onPointerUp: (e) => _onPointerUp(e, width),
             onPointerCancel: _onPointerCancel,
-            // Soft outer shadow for depth — the glass already has a subtle
-            // highlight on the top edge via the native UIVisualEffectView.
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(34),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.12),
-                    blurRadius: 22,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+            // Auto-hide: shrink + fade the whole pill while the page scrolls.
+            // The Listener keeps its full footprint (scale only repaints), so
+            // the shrunken pill is still easy to tap to bring it back.
+            child: ValueListenableBuilder<bool>(
+              valueListenable: widget.compact,
+              builder: (context, compact, child) => AnimatedScale(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.bottomCenter,
+                scale: compact ? 0.86 : 1.0,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 240),
+                  opacity: compact ? 0.5 : 1.0,
+                  child: child,
+                ),
               ),
-              child: NativeGlassView(
+              // Soft outer shadow for depth — the glass already has a subtle
+              // highlight on the top edge via the native UIVisualEffectView.
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(34),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.12),
+                      blurRadius: 22,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: NativeGlassView(
                   // Pill-style — half the bar height for a true capsule.
                   borderRadius: 34,
                   style: NativeGlassStyle.regular,
                   fallbackColor: pillTint,
                   child: SizedBox(
-                    height: 58,
+                    height: 56,
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -1053,8 +1123,8 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                           selectedIndex: _hoveredIndex ?? widget.index,
                           isDark: isDark,
                           totalWidth: width,
-                          dragDx: _dragDx,
                           dragDy: _dragDy,
+                          pointerX: _pressing ? _pointerX : null,
                           isRtl: _isRtl,
                         ),
                         Row(
@@ -1074,6 +1144,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                     ),
                   ),
                 ),
+              ),
             ),
           );
         }),
@@ -1130,49 +1201,61 @@ class _SelectionCapsule extends StatelessWidget {
     required this.selectedIndex,
     required this.isDark,
     required this.totalWidth,
-    required this.dragDx,
     required this.dragDy,
+    required this.pointerX,
     required this.isRtl,
   });
   final int itemCount;
   final int selectedIndex;
   final bool isDark;
   final double totalWidth;
-  final double dragDx;
   final double dragDy;
+  // Raw finger x while pressing — when non-null the capsule tracks it 1:1
+  // (drag the pill anywhere); when null it rests under [selectedIndex].
+  final double? pointerX;
   final bool isRtl;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final reduce = MediaQuery.of(context).disableAnimations;
-    final slideDur =
-        reduce ? Duration.zero : const Duration(milliseconds: 200);
     final slotW = totalWidth / itemCount;
-    final baseW = slotW - 8;
-    // More dramatic stretch — up to 55% wider (matches parent sx)
-    final stretch = (dragDx.abs() / 120).clamp(0.0, 0.55);
-    final capsuleW = baseW * (1 + stretch);
-    final offset = (capsuleW - baseW) / 2;
-    final edge = slotW * selectedIndex + 4 - offset;
+    final capsuleW = slotW - 8;
 
     // Vertical grow when dragged up/down (pill can exceed bar height)
     final sy = 1.0 + (dragDy.abs() / 120).clamp(0.0, 0.40);
 
-    // Pill scales with both dx and dy for the dramatic iOS 26 feel
     final child = Transform(
       alignment: Alignment.center,
-      transform: Matrix4.diagonal3Values(1.0 + stretch * 0.2, sy, 1.0),
+      transform: Matrix4.diagonal3Values(1.0, sy, 1.0),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: isDark
               ? Colors.white.withValues(alpha: 0.22)
               : cs.onSurface.withValues(alpha: 0.13),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
     );
 
+    // While the finger is down the capsule follows it with zero animation so
+    // it glides smoothly between (and past) tab centres. On release it springs
+    // to the resting slot via the 200ms ease.
+    if (pointerX != null) {
+      final maxLeft = (totalWidth - capsuleW - 4).clamp(4.0, double.infinity);
+      final left = (pointerX! - capsuleW / 2).clamp(4.0, maxLeft);
+      return AnimatedPositioned(
+        duration: Duration.zero,
+        left: left,
+        top: 5,
+        bottom: 5,
+        width: capsuleW,
+        child: child,
+      );
+    }
+
+    final slideDur = reduce ? Duration.zero : const Duration(milliseconds: 200);
+    final edge = slotW * selectedIndex + 4;
     return isRtl
         ? AnimatedPositioned(
             duration: slideDur,
@@ -1261,55 +1344,41 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
         ? Duration.zero
         : const Duration(milliseconds: 140);
 
+    // Icon-only (Instagram-style) — no text label.
     return SizedBox.expand(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              AnimatedBuilder(
-                animation: _pulse,
-                builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
-                child: AnimatedSwitcher(
-                  duration: swapDur,
-                  child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
-                ),
+      child: Center(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            AnimatedBuilder(
+              animation: _pulse,
+              builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
+              child: AnimatedSwitcher(
+                duration: swapDur,
+                child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 25, color: color),
               ),
-              if (hasBadge)
-                Positioned(
-                  right: -6,
-                  top: -4,
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                    child: Text(
-                      widget.item.badge > 99 ? '99+' : '${widget.item.badge}',
-                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, height: 1.4),
-                      textAlign: TextAlign.center,
-                    ),
+            ),
+            if (hasBadge)
+              Positioned(
+                right: -6,
+                top: -4,
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  child: Text(
+                    widget.item.badge > 99 ? '99+' : '${widget.item.badge}',
+                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, height: 1.4),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          AnimatedDefaultTextStyle(
-            duration: swapDur,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w400,
-              color: color,
-              height: 1.0,
-              letterSpacing: -0.1,
-            ),
-            child: Text(widget.item.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
-        ],
+              ),
+          ],
+        ),
       ),
     );
   }

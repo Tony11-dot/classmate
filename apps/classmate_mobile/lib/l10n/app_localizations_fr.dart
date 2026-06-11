@@ -3319,6 +3319,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get practiceModeActionNovaHint => 'Indice NOVA';
 
   @override
+  String get practiceModeActionSaveQuestion => 'Enregistrer la question';
+
+  @override
+  String get practiceModeActionSavedQuestion => 'Enregistrée';
+
+  @override
+  String get practiceModeQuestionSavedToast => 'Enregistrée dans vos questions';
+
+  @override
+  String get practiceModeQuestionRemovedToast =>
+      'Retirée des questions enregistrées';
+
+  @override
   String get practiceModeActionReveal => 'Révéler';
 
   @override
@@ -8096,6 +8109,46 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get solSubjectGeography => 'Géographie';
+
+  @override
+  String get solSubjectPsychology => 'Psychologie';
+
+  @override
+  String get insightsSemesterTitle => 'Ce semestre';
+
+  @override
+  String get insightsOnTimeSubmissions => 'Travaux à temps';
+
+  @override
+  String get insightsSubmissionsTitle => 'Devoirs rendus';
+
+  @override
+  String get insightsOnTime => 'À temps';
+
+  @override
+  String get insightsLate => 'En retard';
+
+  @override
+  String get insightsMissing => 'Manquant';
+
+  @override
+  String get insightsPending => 'En attente';
+
+  @override
+  String get insightsHandedInLabel => 'rendus';
+
+  @override
+  String get insightsLatestGrades => 'Dernières notes';
+
+  @override
+  String get insightsReviewWithNova => 'Bilan avec Nova';
+
+  @override
+  String get insightsReviewWithNovaPrompt =>
+      'Donne-moi un bilan court et honnête de mes résultats ce semestre — notes, présence et devoirs rendus — et la chose principale sur laquelle me concentrer.';
+
+  @override
+  String get insightsPracticeTitle => 'Précision en entraînement';
 
   @override
   String get commonUnknown => 'Inconnu';

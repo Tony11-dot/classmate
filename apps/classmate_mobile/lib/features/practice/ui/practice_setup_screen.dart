@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../domain/practice_models.dart';
+import '../domain/practice_subjects.dart';
 import '../domain/practice_mode_behavior.dart';
 import 'practice_mode_specs.dart';
 import 'practice_display_text.dart';
@@ -11,133 +13,6 @@ import '../domain/timing_mode.dart';
 import 'practice_session_screen.dart';
 import 'practice_history_screen.dart';
 import 'practice_analytics_debug_screen.dart';
-
-const Map<String, List<List<String>>> practiceSubjectCatalog = {
-  'Math': [
-    ['Algebra'],
-    ['Algebra', 'Linear equations'],
-    ['Algebra', 'Quadratic equations'],
-    ['Algebra', 'Functions'],
-    ['Geometry'],
-    ['Geometry', 'Triangles'],
-    ['Geometry', 'Circles'],
-    ['Geometry', 'Analytic geometry'],
-    ['Trigonometry'],
-    ['Probability'],
-    ['Statistics'],
-    ['Sequences'],
-    ['Calculus', 'Limits'],
-    ['Calculus', 'Derivatives'],
-  ],
-  'Physics': [
-    ['Mechanics'],
-    ['Mechanics', 'Kinematics'],
-    ['Mechanics', 'Newton laws'],
-    ['Mechanics', 'Forces'],
-    ['Mechanics', 'Energy'],
-    ['Mechanics', 'Momentum'],
-    ['Electricity'],
-    ['Electricity', 'Electric field'],
-    ['Electricity', 'Circuits'],
-    ['Waves'],
-    ['Optics'],
-    ['Thermodynamics'],
-  ],
-  'Computer Science': [
-    ['Conditions'],
-    ['Conditions', 'Boolean logic'],
-    ['Conditions', 'if / else'],
-    ['Conditions', 'Nested conditions'],
-    ['Loops'],
-    ['Functions'],
-    ['Variables'],
-    ['Arrays'],
-    ['Strings'],
-    ['Algorithms'],
-    ['Complexity'],
-    ['Recursion'],
-  ],
-  'Chemistry': [
-    ['Atoms'],
-    ['Periodic table'],
-    ['Chemical bonds'],
-    ['Reactions'],
-    ['Stoichiometry'],
-    ['Acids and bases'],
-    ['Organic chemistry'],
-  ],
-  'Biology': [
-    ['Cells'],
-    ['Genetics'],
-    ['Human body'],
-    ['Ecology'],
-    ['Evolution'],
-    ['Systems'],
-  ],
-  'English': [
-    ['Grammar'],
-    ['Reading comprehension'],
-    ['Vocabulary'],
-    ['Tenses'],
-    ['Writing'],
-  ],
-  'Arabic': [
-    ['Grammar'],
-    ['Reading comprehension'],
-    ['بلاغة'],
-    ['Vocabulary'],
-    ['Writing'],
-  ],
-  'Hebrew': [
-    ['Grammar'],
-    ['Reading comprehension'],
-    ['Vocabulary'],
-    ['Writing'],
-  ],
-};
-
-const Map<String, List<String>> practiceCustomTopicExamples = {
-  'Math': [
-    'quadratics word problems',
-    'limits with graphs',
-    'function transformations',
-  ],
-  'Physics': [
-    'laws of thermodynamics and heat transfer',
-    'electrostatics basics',
-    'optics with lenses',
-  ],
-  'Computer Science': [
-    'if else branching practice',
-    'arrays and loops basics',
-    'boolean logic questions',
-  ],
-  'Chemistry': [
-    'periodic table trends',
-    'acids and bases in water',
-    'chemical bonding basics',
-  ],
-  'Biology': [
-    'dna and genetics basics',
-    'cell organelles review',
-    'photosynthesis steps',
-  ],
-  'English': [
-    'reading comprehension passages about climate',
-    'first conditional sentences',
-    'grammar with verbs',
-  ],
-  'Arabic': [
-    'فهم المقروء',
-    'النحو في الجملة الفعلية',
-    'مفردات المدرسة',
-  ],
-  'Hebrew': [
-    'הבנת הנקרא',
-    'דקדוק בזמנים',
-    'אוצר מילים לבית הספר',
-  ],
-};
 
 String practiceDifficultyLabel(
   BuildContext context,
@@ -265,13 +140,34 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
   void initState() {
     super.initState();
     _topicInputMode = _resolveTopicInputMode(ref.read(practiceFilterProvider));
+    // Snap the selected topic to one that actually exists for this student's
+    // grade — otherwise a default like "Algebra" would be sent to the AI for a
+    // 3rd grader. Runs once after first frame so we can touch the provider.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final filter = ref.read(practiceFilterProvider);
+      final key = practiceSubjectKeyOf(filter.subject);
+      if (key == null) return;
+      final topics = practiceTopicsFor(key, _grade);
+      final matches = topics.any((t) => _samePath(t, filter.topicPath));
+      if (!matches && topics.isNotEmpty) {
+        ref
+            .read(practiceFilterProvider.notifier)
+            .patch(subject: key, topicPath: topics.first);
+      }
+    });
   }
 
+  /// The signed-in student's grade (1–12); null for staff / unknown. Drives
+  /// which topics the catalog exposes.
+  int? get _grade => ref.read(authSessionProvider).grade;
+
   _PracticeTopicInputMode _resolveTopicInputMode(PracticeFilter filter) {
-    final topicOptions = practiceSubjectCatalog[filter.subject];
-    if (topicOptions == null) {
+    final key = practiceSubjectKeyOf(filter.subject);
+    if (key == null) {
       return _PracticeTopicInputMode.custom;
     }
+    final topicOptions = practiceTopicsFor(key, _grade);
     return topicOptions.any((item) => _samePath(item, filter.topicPath))
         ? _PracticeTopicInputMode.catalog
         : _PracticeTopicInputMode.custom;
@@ -290,11 +186,9 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       return;
     }
 
-    final nextSubject = practiceSubjectCatalog.containsKey(filter.subject)
-        ? filter.subject
-        : practiceSubjectCatalog.keys.first;
-    final nextTopics =
-        practiceSubjectCatalog[nextSubject] ?? const <List<String>>[practiceGeneralTopicPath];
+    final nextSubject =
+        practiceSubjectKeyOf(filter.subject) ?? kPracticeSubjectKeys.first;
+    final nextTopics = practiceTopicsFor(nextSubject, _grade);
     final nextTopic = nextTopics.any((item) => _samePath(item, filter.topicPath))
         ? filter.topicPath
         : nextTopics.first;
@@ -449,18 +343,18 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    final subjectOptions = practiceSubjectCatalog.keys.toList(growable: true);
-    if (!subjectOptions.contains(practiceGeneralKnowledgeSubject)) {
-      subjectOptions.add(practiceGeneralKnowledgeSubject);
-    }
+    final grade = _grade;
+    final subjectOptions = <String>[
+      ...kPracticeSubjectKeys,
+      practiceGeneralKnowledgeSubject,
+    ];
     final inputMode = _resolveTopicInputMode(filter) == _PracticeTopicInputMode.custom
         ? _PracticeTopicInputMode.custom
         : _topicInputMode;
-    final topicOptions =
-        practiceSubjectCatalog[filter.subject] ??
-        const <List<String>>[
-          practiceGeneralTopicPath,
-        ];
+    final subjectKey = practiceSubjectKeyOf(filter.subject);
+    final topicOptions = subjectKey == null
+        ? const <List<String>>[practiceGeneralTopicPath]
+        : practiceTopicsFor(subjectKey, grade);
 
     final selectedTopicPath =
         topicOptions.any((x) => _samePath(x, filter.topicPath))
@@ -587,11 +481,10 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             localizedPracticeSubject(context, item),
                         );
                         if (picked == null) return;
-                        final nextTopics =
-                            practiceSubjectCatalog[picked] ??
-                            const <List<String>>[
-                              practiceGeneralTopicPath,
-                            ];
+                        final pickedKey = practiceSubjectKeyOf(picked);
+                        final nextTopics = pickedKey == null
+                            ? const <List<String>>[practiceGeneralTopicPath]
+                            : practiceTopicsFor(pickedKey, grade);
                         filterCtl.patch(
                           subject: picked,
                           topicPath: nextTopics.first,
@@ -674,9 +567,9 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             context,
                             filter.topicPath,
                           ),
-                          suggestions:
-                              practiceCustomTopicExamples[filter.subject] ??
-                              const <String>[],
+                          suggestions: subjectKey == null
+                              ? const <String>[]
+                              : practiceCustomTopicExamplesFor(subjectKey, grade),
                         );
                         final next = result?.trim();
                         if (next == null || next.isEmpty) return;

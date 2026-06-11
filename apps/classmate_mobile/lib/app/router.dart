@@ -74,7 +74,6 @@ import '../features/solutions/ui/filter/solutions_pages_screen.dart';
 import '../features/solutions/ui/filter/solutions_questions_screen.dart';
 import '../features/solutions/ui/filter/solutions_subject_screen.dart';
 import '../features/solutions/ui/admin/solutions_books_admin_screen.dart';
-import '../features/solutions/ui/admin/solutions_reports_admin_screen.dart';
 import '../features/admin/ui/admin_bell_schedule_screen.dart';
 import '../features/admin/ui/admin_dashboard_screen.dart';
 import '../features/admin/ui/admin_people_screen.dart';
@@ -403,10 +402,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       _slideRoute(
         path: '/solutions/manage-books',
         builder: (context, state) => const SolutionsBooksAdminScreen(),
-      ),
-      _slideRoute(
-        path: '/admin/solution-reports',
-        builder: (context, state) => const SolutionsReportsAdminScreen(),
       ),
       _slideRoute(
         path: '/settings/reorder-tools',

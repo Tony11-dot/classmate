@@ -5,6 +5,7 @@ import '../../../../l10n/app_localizations.dart';
 
 import '../../domain/practice_models.dart';
 import '../../providers/practice_providers.dart';
+import '../../providers/saved_questions_provider.dart';
 import '../practice_mode_specs.dart';
 import '../practice_display_text.dart';
 import '../../../tutor/ui/nova_chat_screen.dart';
@@ -366,24 +367,79 @@ Widget defaultQuestionHeader(ModeContextData d) {
   );
 }
 
-Widget questionPromptPanel(ModeContextData d) {
+Widget questionPromptPanel(ModeContextData d, {bool withSave = true}) {
   final cs = d.theme.colorScheme;
 
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+    padding: withSave
+        ? const EdgeInsets.fromLTRB(18, 10, 10, 18)
+        : const EdgeInsets.fromLTRB(18, 18, 18, 18),
     decoration: BoxDecoration(
       color: _sessionPanelBg(cs, d.accent),
       borderRadius: BorderRadius.circular(24),
       border: Border.all(color: _sessionPanelBorder(cs)),
     ),
-    child: CMAiMessage(
-      d.promptOf(),
-      compact: true,
-      textStyle: d.theme.textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.w900,
-        height: 1.22,
-      ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (withSave)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: saveQuestionButton(d),
+          ),
+        Padding(
+          padding: EdgeInsetsDirectional.only(end: withSave ? 8 : 0),
+          child: CMAiMessage(
+            d.promptOf(),
+            compact: true,
+            textStyle: d.theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+              height: 1.22,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Bookmark toggle that stores/removes the current question in the
+/// Saved Questions tab. Reactive to [savedQuestionsProvider] so the icon
+/// reflects saved state immediately. Renders nothing when there's no question.
+Widget saveQuestionButton(ModeContextData d) {
+  final q = d.q;
+  if (q == null) return const SizedBox.shrink();
+  final l = AppLocalizations.of(d.context)!;
+  final saved = d.ref
+      .watch(savedQuestionsProvider)
+      .any((x) => x.id == q.id);
+
+  return IconButton(
+    visualDensity: VisualDensity.compact,
+    tooltip: saved
+        ? l.practiceModeActionSavedQuestion
+        : l.practiceModeActionSaveQuestion,
+    onPressed: () {
+      d.ref.read(savedQuestionsProvider.notifier).toggle(q);
+      HapticFeedback.selectionClick();
+      final messenger = ScaffoldMessenger.of(d.context);
+      messenger.clearSnackBars();
+      messenger.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          content: Text(
+            saved
+                ? l.practiceModeQuestionRemovedToast
+                : l.practiceModeQuestionSavedToast,
+          ),
+        ),
+      );
+    },
+    icon: Icon(
+      saved ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
+      color: saved ? d.accent : d.cs.onSurfaceVariant,
     ),
   );
 }

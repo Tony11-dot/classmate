@@ -25,6 +25,7 @@ const List<String> kSolutionSubjectKeys = <String>[
   'sociology',
   'religion',
   'geography',
+  'psychology',
 ];
 
 /// English fallback names — used only when no [AppLocalizations] is in scope
@@ -47,6 +48,7 @@ const Map<String, String> kSolutionSubjectEnglish = <String, String>{
   'sociology': 'Sociology',
   'religion': 'Religion',
   'geography': 'Geography',
+  'psychology': 'Psychology',
 };
 
 /// Localized display title for a subject key.
@@ -86,6 +88,8 @@ String solutionSubjectTitle(AppLocalizations l, String key) {
       return l.solSubjectReligion;
     case 'geography':
       return l.solSubjectGeography;
+    case 'psychology':
+      return l.solSubjectPsychology;
     default:
       return kSolutionSubjectEnglish[key] ?? key;
   }
@@ -128,6 +132,8 @@ IconData solutionSubjectIcon(String key) {
       return Icons.auto_stories_rounded;
     case 'geography':
       return Icons.map_rounded;
+    case 'psychology':
+      return Icons.psychology_rounded;
     default:
       return Icons.menu_book_rounded;
   }

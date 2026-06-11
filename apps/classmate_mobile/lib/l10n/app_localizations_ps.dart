@@ -3282,6 +3282,19 @@ class AppLocalizationsPs extends AppLocalizations {
   String get practiceModeActionNovaHint => '‹‹NOVA hint››';
 
   @override
+  String get practiceModeActionSaveQuestion => '‹‹Save question››';
+
+  @override
+  String get practiceModeActionSavedQuestion => '‹‹Saved››';
+
+  @override
+  String get practiceModeQuestionSavedToast => '‹‹Saved to your questions››';
+
+  @override
+  String get practiceModeQuestionRemovedToast =>
+      '‹‹Removed from saved questions››';
+
+  @override
   String get practiceModeActionReveal => '‹‹Reveal››';
 
   @override
@@ -8030,6 +8043,46 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get solSubjectGeography => '‹‹Geography››';
+
+  @override
+  String get solSubjectPsychology => '‹‹Psychology››';
+
+  @override
+  String get insightsSemesterTitle => '‹‹This semester››';
+
+  @override
+  String get insightsOnTimeSubmissions => '‹‹On-time work››';
+
+  @override
+  String get insightsSubmissionsTitle => '‹‹Submissions››';
+
+  @override
+  String get insightsOnTime => '‹‹On time››';
+
+  @override
+  String get insightsLate => '‹‹Late››';
+
+  @override
+  String get insightsMissing => '‹‹Missing››';
+
+  @override
+  String get insightsPending => '‹‹Pending››';
+
+  @override
+  String get insightsHandedInLabel => '‹‹handed in››';
+
+  @override
+  String get insightsLatestGrades => '‹‹Latest grades››';
+
+  @override
+  String get insightsReviewWithNova => '‹‹Review with Nova››';
+
+  @override
+  String get insightsReviewWithNovaPrompt =>
+      '‹‹Give me a short, honest review of my performance this semester — grades, attendance, and submissions — and the one thing I should focus on next.››';
+
+  @override
+  String get insightsPracticeTitle => '‹‹Practice accuracy››';
 
   @override
   String get commonUnknown => '‹‹Unknown››';
