@@ -11,7 +11,26 @@
 // It never deletes or reassigns. Run: `node scripts/backfill-student-cohort-rows.mjs`
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// When run locally via `railway run`, the injected DATABASE_URL points at
+// `postgres.railway.internal` which only resolves INSIDE Railway's network.
+// Prefer the public proxy URL (DATABASE_PUBLIC_URL) or an explicit override so
+// the backfill can connect from a developer machine.
+const url =
+  process.env.BACKFILL_DATABASE_URL ||
+  process.env.DATABASE_PUBLIC_URL ||
+  process.env.DATABASE_URL;
+
+if (url && /railway\.internal/.test(url) && !process.env.DATABASE_PUBLIC_URL) {
+  console.warn(
+    '⚠ DATABASE_URL points at postgres.railway.internal (only reachable inside\n' +
+      '  Railway). Set DATABASE_PUBLIC_URL or BACKFILL_DATABASE_URL to the public\n' +
+      '  proxy URL (Railway → Postgres service → Variables → DATABASE_PUBLIC_URL).',
+  );
+}
+
+const prisma = new PrismaClient(
+  url ? { datasources: { db: { url } } } : undefined,
+);
 
 async function main() {
   const profiles = await prisma.studentProfile.findMany({
