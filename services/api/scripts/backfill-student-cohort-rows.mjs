@@ -11,22 +11,24 @@
 // It never deletes or reassigns. Run: `node scripts/backfill-student-cohort-rows.mjs`
 import { PrismaClient } from '@prisma/client';
 
-// When run locally via `railway run`, the injected DATABASE_URL points at
-// `postgres.railway.internal` which only resolves INSIDE Railway's network.
-// Prefer the public proxy URL (DATABASE_PUBLIC_URL) or an explicit override so
-// the backfill can connect from a developer machine.
-const url =
-  process.env.BACKFILL_DATABASE_URL ||
-  process.env.DATABASE_PUBLIC_URL ||
-  process.env.DATABASE_URL;
-
-if (url && /railway\.internal/.test(url) && !process.env.DATABASE_PUBLIC_URL) {
-  console.warn(
-    '⚠ DATABASE_URL points at postgres.railway.internal (only reachable inside\n' +
-      '  Railway). Set DATABASE_PUBLIC_URL or BACKFILL_DATABASE_URL to the public\n' +
-      '  proxy URL (Railway → Postgres service → Variables → DATABASE_PUBLIC_URL).',
-  );
+// Pick the first connection string that actually has a host. Inside Railway
+// the internal DATABASE_URL works; from a dev machine you must pass a reachable
+// URL via BACKFILL_DATABASE_URL (e.g. an enabled TCP-proxy public URL), because
+// `postgres.railway.internal` only resolves inside Railway's network and
+// DATABASE_PUBLIC_URL is empty unless the Postgres TCP proxy is enabled.
+function hasHost(u) {
+  try {
+    return !!new URL(u).hostname;
+  } catch {
+    return false;
+  }
 }
+const url =
+  [
+    process.env.BACKFILL_DATABASE_URL,
+    process.env.DATABASE_PUBLIC_URL,
+    process.env.DATABASE_URL,
+  ].find((u) => u && hasHost(u)) || process.env.DATABASE_URL;
 
 const prisma = new PrismaClient(
   url ? { datasources: { db: { url } } } : undefined,
