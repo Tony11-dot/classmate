@@ -189,7 +189,7 @@ class SolutionsApi {
       '/solutions/books/$id',
       body: <String, dynamic>{
         if ((title ?? '').trim().isNotEmpty) 'title': title!.trim(),
-        if (pages != null) 'pages': pages,
+        'pages': ?pages,
         if ((coverUrl ?? '').trim().isNotEmpty) 'coverUrl': coverUrl!.trim(),
       },
     );

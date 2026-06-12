@@ -186,7 +186,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         'identifier': identifier,
         'adminId': adminId,
         'desiredPassword': pw1,
-        if (phoneE164 != null) 'phone': phoneE164,
+        'phone': ?phoneE164,
       });
       if (!mounted) return;
       setState(() {
@@ -283,8 +283,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onSubmitted: (_) {
-                if (_mode == _ResetMode.admin) _lookupAdmins();
-                else _submitChannelReset();
+                if (_mode == _ResetMode.admin) {
+                  _lookupAdmins();
+                } else {
+                  _submitChannelReset();
+                }
               },
             ),
             const SizedBox(height: 20),

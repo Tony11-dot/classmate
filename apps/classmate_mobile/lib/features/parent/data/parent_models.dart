@@ -1,6 +1,7 @@
 /// Mirrors the server `/parent/*` shapes. Kept deliberately permissive
 /// (`String? cohortName` not required, all numeric fields default-zero)
 /// so a server change can't crash the screen — fields just render empty.
+library;
 
 import '../../../l10n/app_localizations.dart';
 
