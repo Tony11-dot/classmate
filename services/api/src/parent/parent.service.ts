@@ -992,17 +992,86 @@ export class ParentService {
       });
 
     const items = [
-      ...classroomMaterials.map((m) => ({
-        ...m,
-        _source: 'classroom',
-        _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
-        _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
-      })),
+      // Drop classroom mirrors of a TeacherMaterial already shown from the
+      // teacher-direct path (same dedup as the student all-materials feed).
+      ...classroomMaterials
+        .filter(
+          (m: any) => !(m.teacherMaterialId && seenTeacherMaterialIds.has(m.teacherMaterialId)),
+        )
+        .map((m: any) => ({
+          ...m,
+          _source: 'classroom',
+          _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
+          _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
+        })),
       ...teacherFromDirect,
       ...teacherFromSlots,
     ].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return { ok: true, items };
+  }
+
+  /// Mirror of FormsService.live() (student branch), pivoted to a child, so a
+  /// parent can see the forms targeted at their child. Shape matches the
+  /// student /forms/live response so the same Flutter parser is reused.
+  async formsForChild(user: any, studentId: string) {
+    const parentId = user?.sub ?? user?.id;
+    await requireParentChild(this.prisma, parentId, studentId);
+
+    const [cohortLinks, profile, childRow] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true, cohortId: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: studentId },
+        select: { schoolId: true },
+      }),
+    ]);
+    const cohortIds = cohortLinks.map((c) => c.cohortId);
+    if (profile?.cohortId && !cohortIds.includes(profile.cohortId)) {
+      cohortIds.push(profile.cohortId);
+    }
+    const grade = profile?.grade ?? null;
+    const schoolId = childRow?.schoolId ?? null;
+
+    const forms = await this.prisma.schoolForm.findMany({
+      where: {
+        published: true,
+        acceptingResponses: true,
+        ...(schoolId ? { schoolId } : {}),
+        OR: [
+          { targetType: 'EVERYONE', targetCohortIds: { isEmpty: true }, targetStudentIds: { isEmpty: true }, targetGrades: { isEmpty: true } },
+          { targetStudentIds: { has: studentId } },
+          ...(cohortIds.length ? [{ targetCohortIds: { hasSome: cohortIds } }] : []),
+          ...(grade != null ? [{ targetGrades: { has: grade } }] : []),
+        ],
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: 50,
+    });
+
+    return {
+      ok: true,
+      items: forms.map((f) => ({
+        id: f.id,
+        subject: f.subject ?? '',
+        title: f.title,
+        description: f.description ?? '',
+        teacher: 'Teacher',
+        audienceLabel: f.audienceLabel ?? 'Class',
+        acceptingResponses: f.acceptingResponses,
+        allowMultipleResponses: f.allowMultipleResponses,
+        published: f.published,
+        publishedAt: f.publishedAt?.toISOString() ?? null,
+        questions: Array.isArray(f.questions) ? f.questions : [],
+        summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null },
+      })),
+    };
   }
 
   async lookup(user: any) {

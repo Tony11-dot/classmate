@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/http/cm_api.dart';
+import '../../parent/data/parent_repository.dart';
+import '../../parent/data/viewed_student_context.dart';
 import '../domain/form_models.dart';
 
 const _formsCacheTtl = Duration(minutes: 2);
@@ -18,6 +20,23 @@ final formsRepositoryProvider = Provider<StudentFormsRepository>((ref) {
 final formsLiveProvider = FutureProvider<List<StudentFormItem>>((
   ref,
 ) async {
+  // Parent view: bypass the module-level cache (not keyed by student) and
+  // pivot to /parent/forms?studentId=X so a parent sees the forms targeted
+  // at the selected child.
+  final viewedStudentId = ref.watch(viewedStudentIdProvider);
+  if (viewedStudentId != null) {
+    final raw = await ref
+        .read(parentRepositoryProvider)
+        .getChildFeed('/parent/forms', viewedStudentId);
+    final list = raw is Map && raw['items'] is List
+        ? raw['items'] as List
+        : const <dynamic>[];
+    return list
+        .whereType<Map>()
+        .map((item) => _mapToFormItem(item.map((k, v) => MapEntry(k.toString(), v))))
+        .toList(growable: false);
+  }
+
   final now = DateTime.now();
   final cachedAt = _formsCachedAt;
   final cachedItems = _formsCachedItems;

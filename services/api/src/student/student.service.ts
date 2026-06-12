@@ -682,9 +682,54 @@ export class StudentService {
 
     const assignment = await this.prisma.teacherAssignment.findUnique({
       where: { id: assignmentId },
-      select: { id: true, teacherId: true },
+      select: {
+        id: true,
+        teacherId: true,
+        published: true,
+        targetType: true,
+        targetStudentIds: true,
+        targetCohortIds: true,
+        targetGrades: true,
+        teacher: { select: { schoolId: true } },
+      },
     });
     if (!assignment) throw new NotFoundException('Assignment not found');
+
+    // Audience check: a student may only submit to an assignment that targets
+    // them (was previously unchecked — any assignment id was submittable).
+    const schoolId = user.schoolId ?? null;
+    if (
+      schoolId &&
+      assignment.teacher?.schoolId &&
+      assignment.teacher.schoolId !== schoolId
+    ) {
+      throw new NotFoundException('Assignment not found');
+    }
+    if (assignment.published === false) throw new NotFoundException('Assignment not found');
+    const [cohortLinks, profile] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { studentId },
+        select: { cohortId: true },
+      }),
+      this.prisma.studentProfile.findUnique({
+        where: { userId: studentId },
+        select: { grade: true, cohortId: true },
+      }),
+    ]);
+    const cohortIds = cohortLinks.map((c) => c.cohortId);
+    if (profile?.cohortId && !cohortIds.includes(profile.cohortId)) {
+      cohortIds.push(profile.cohortId);
+    }
+    const noNarrowTargeting =
+      (assignment.targetCohortIds?.length ?? 0) === 0 &&
+      (assignment.targetStudentIds?.length ?? 0) === 0 &&
+      (assignment.targetGrades?.length ?? 0) === 0;
+    const targeted =
+      (assignment.targetType === 'EVERYONE' && noNarrowTargeting) ||
+      assignment.targetStudentIds?.includes(studentId) ||
+      cohortIds.some((c) => assignment.targetCohortIds?.includes(c)) ||
+      (profile?.grade != null && assignment.targetGrades?.includes(profile.grade));
+    if (!targeted) throw new NotFoundException('Assignment not found');
 
     const note = body?.note != null ? String(body.note) : null;
     const files = Array.isArray(body?.files) ? body.files : [];

@@ -122,8 +122,19 @@ export class FormsService {
     // Check real DB first
     try {
       const dbForm = await this.prisma.schoolForm.findUnique({ where: { id } });
-      if (dbForm) return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: 'Teacher', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: Array.isArray(dbForm.questions) ? dbForm.questions : [], summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
-    } catch (_) {}
+      if (dbForm) {
+        // Audience check: without this, any authenticated user could read any
+        // form (and its questions) by id. Staff/creator may always view; a
+        // student may only view a published form that targets them.
+        const scope = await this.resolveViewerScope(user);
+        if (!this.canViewForm(dbForm, scope)) {
+          throw new NotFoundException('Form not found');
+        }
+        return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: 'Teacher', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: Array.isArray(dbForm.questions) ? dbForm.questions : [], summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
+      }
+    } catch (e: any) {
+      if (e?.status === 404) throw e; // surface the audience denial
+    }
     const form = this.visibleForms(user).find((item) => item.id === id);
     if (!form) throw new NotFoundException('Form not found');
     return { ok: true, form };
@@ -137,6 +148,12 @@ export class FormsService {
     try {
       const dbForm = await this.prisma.schoolForm.findUnique({ where: { id } });
       if (dbForm) {
+        // Audience check: a student must be targeted by the form before they
+        // can submit to it (was previously unchecked — any id was submittable).
+        const scope = await this.resolveViewerScope(user);
+        if (!this.canViewForm(dbForm, scope)) {
+          throw new NotFoundException('Form not found');
+        }
         if (!dbForm.acceptingResponses) return { ok: false, error: 'This form is closed.' };
         // Validate required questions
         const questions = Array.isArray(dbForm.questions) ? dbForm.questions as any[] : [];
@@ -159,7 +176,7 @@ export class FormsService {
         return { ok: true, message: 'Response recorded. Thank you!' };
       }
     } catch (e: any) {
-      if (e?.status === 409) throw e; // Re-throw conflict
+      if (e?.status === 409 || e?.status === 404) throw e; // conflict / audience denial
     }
 
     // Fall back to legacy in-memory forms
@@ -173,6 +190,66 @@ export class FormsService {
       if (empty) return { ok: false, error: `Required: ${question.title}` };
     }
     return { ok: true, message: 'Response recorded. Thank you!' };
+  }
+
+  /** Resolve the viewer's role + (for students) cohort/grade scope. */
+  private async resolveViewerScope(user: any): Promise<{
+    isStudent: boolean;
+    isStaff: boolean;
+    schoolId: string | null;
+    uid: string;
+    cohortIds: string[];
+    grade: number | null;
+  }> {
+    const schoolId = (user as any)?.schoolId ?? null;
+    const uid = String((user as any)?.sub ?? (user as any)?.id ?? '');
+    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
+    const isStaff =
+      roles.includes('TEACHER') || roles.includes('ADMIN') || roles.includes('SECRETARY');
+    const isStudent = roles.includes('STUDENT') && !isStaff;
+    let cohortIds: string[] = [];
+    let grade: number | null = null;
+    if (isStudent && uid) {
+      const [links, profile] = await Promise.all([
+        this.prisma.studentCohort.findMany({
+          where: { studentId: uid },
+          select: { cohortId: true },
+        }),
+        this.prisma.studentProfile.findUnique({
+          where: { userId: uid },
+          select: { grade: true },
+        }),
+      ]);
+      cohortIds = links.map((c) => c.cohortId);
+      grade = profile?.grade ?? null;
+    }
+    return { isStudent, isStaff, schoolId, uid, cohortIds, grade };
+  }
+
+  /** Mirrors the live() audience filter for a single already-fetched form. */
+  private canViewForm(
+    form: any,
+    scope: { isStaff: boolean; schoolId: string | null; uid: string; cohortIds: string[]; grade: number | null },
+  ): boolean {
+    // Same-school staff (and the creator) may always view.
+    if (scope.isStaff && (!scope.schoolId || !form.schoolId || form.schoolId === scope.schoolId)) {
+      return true;
+    }
+    if (form.createdBy && form.createdBy === scope.uid) return true;
+    // Students: school must match, form must be published, and audience must hit.
+    if (scope.schoolId && form.schoolId && form.schoolId !== scope.schoolId) return false;
+    if (!form.published) return false;
+    const noNarrowTargeting =
+      (form.targetCohortIds?.length ?? 0) === 0 &&
+      (form.targetStudentIds?.length ?? 0) === 0 &&
+      (form.targetGrades?.length ?? 0) === 0;
+    if (form.targetType === 'EVERYONE' && noNarrowTargeting) return true;
+    if (Array.isArray(form.targetStudentIds) && form.targetStudentIds.includes(scope.uid)) return true;
+    if (scope.cohortIds.some((c) => form.targetCohortIds?.includes(c))) return true;
+    if (scope.grade != null && Array.isArray(form.targetGrades) && form.targetGrades.includes(scope.grade)) {
+      return true;
+    }
+    return false;
   }
 
   private visibleForms(_user: any): PublishedForm[] {

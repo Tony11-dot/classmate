@@ -201,12 +201,21 @@ export class StudentClassroomsController {
       });
 
     const items = [
-      ...classroomMaterials.map((m) => ({
-        ...m,
-        _source: 'classroom',
-        _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
-        _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
-      })),
+      // Drop classroom mirrors of a TeacherMaterial we're already showing from
+      // the teacher-direct path. `createTeacherMaterial` writes both a
+      // TeacherMaterial and a ClassroomMaterial mirror (back-ref
+      // `teacherMaterialId`); without this filter the same material renders as
+      // two identical cards.
+      ...classroomMaterials
+        .filter(
+          (m: any) => !(m.teacherMaterialId && seenTeacherMaterialIds.has(m.teacherMaterialId)),
+        )
+        .map((m: any) => ({
+          ...m,
+          _source: 'classroom',
+          _classroomName: classroomNameMap.get(m.classroomId)?.name ?? null,
+          _subject: classroomNameMap.get(m.classroomId)?.subject ?? null,
+        })),
       ...teacherFromDirect,
       ...teacherFromSlots,
     ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

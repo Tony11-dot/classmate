@@ -229,9 +229,17 @@ export class NotificationsHubService {
     targetGrades?: number[];
   }): Promise<string[]> {
     const targetType = String(opts.targetType ?? '').toUpperCase();
+    const hasNarrowTargets =
+      (opts.targetStudentIds?.length ?? 0) > 0 ||
+      (opts.targetCohortIds?.length ?? 0) > 0 ||
+      (opts.targetGrades?.length ?? 0) > 0;
 
-    // EVERYONE → every student in the school.
-    if (targetType === 'EVERYONE' || targetType === 'ALL') {
+    // EVERYONE → every student in the school, BUT only when there is no
+    // narrower targeting. A grade/cohort/student-scoped item that the create
+    // screen stored as EVERYONE (because it never sends a precise type for a
+    // grade-only selection) must NOT blast the whole school — fall through to
+    // the narrower resolution below. Mirrors the in-app read-path gating.
+    if ((targetType === 'EVERYONE' || targetType === 'ALL') && !hasNarrowTargets) {
       if (!opts.schoolId) return [];
       const rows = await this.prisma.user.findMany({
         where: {

@@ -158,6 +158,12 @@ export class ParentController {
     return this.parent.materialsForChild(req.user, studentId.trim());
   }
 
+  @Get('forms')
+  forms(@Req() req: any, @Query('studentId') studentId: string) {
+    if (!studentId?.trim()) throw new BadRequestException('studentId is required');
+    return this.parent.formsForChild(req.user, studentId.trim());
+  }
+
   @Get('insights')
   insights(@Req() req: any, @Query('studentId') studentId: string) {
     if (!studentId?.trim()) throw new BadRequestException('studentId is required');
