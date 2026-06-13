@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Remotion build cache & bundles
+.remotion/
+
+# Rendered output (the deployed copies live in ../public/assets/)
+out/
+
+# Optional local music drop (see README — royalty-free, not committed)
+public/music/
+
+# Logs / OS
+*.log
+.DS_Store
