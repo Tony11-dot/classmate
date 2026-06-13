@@ -61,7 +61,6 @@ class ProfileScreen extends ConsumerWidget {
       _ => l.student,
     };
     final schoolInfo = session.schoolName.isNotEmpty ? session.schoolName : (session.schoolId.isNotEmpty ? session.schoolId : l.profileNotAvailable);
-    final cohortInfo = session.cohortName.isNotEmpty ? session.cohortName : (session.cohortId.isNotEmpty ? session.cohortId : l.profileNotAvailable);
     final displayName = session.displayName.isNotEmpty
         ? session.displayName
         : roleLabel;
@@ -141,9 +140,7 @@ class ProfileScreen extends ConsumerWidget {
                             if (session.schoolName.isNotEmpty)
                               _Badge(label: session.schoolName, icon: Icons.location_city_rounded),
                             if (session.cohortName.isNotEmpty)
-                              _Badge(label: session.cohortName, icon: Icons.groups_rounded)
-                            else if (session.cohortId.isNotEmpty)
-                              _Badge(label: session.cohortId, icon: Icons.groups_rounded),
+                              _Badge(label: session.cohortName, icon: Icons.groups_rounded),
                           ],
                         ),
                       ],
@@ -182,13 +179,6 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.location_city_rounded,
                     label: l.profileSchoolId,
                     value: schoolInfo,
-                    locked: true,
-                  ),
-                  const _Divider(),
-                  _InfoRow(
-                    icon: Icons.groups_rounded,
-                    label: l.profileCohortId,
-                    value: cohortInfo,
                     locked: true,
                   ),
                 ],

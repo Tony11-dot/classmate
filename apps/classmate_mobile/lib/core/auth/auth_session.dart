@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/env.dart';
 import '../contracts/auth_contracts.dart';
 import '../http/cm_api.dart';
-import 'name_lang.dart';
 
 class AuthSession extends ChangeNotifier {
   static const _kToken = 'auth_token_v2';
@@ -84,42 +83,25 @@ class AuthSession extends ChangeNotifier {
     }
   }
 
-  /// Name to display in drawer/profile headers. Resolves in this order:
-  ///   1. The localized name for the user's chosen language (if non-empty)
-  ///   2. The explicit `displayName` admin set ("Tony" vs full "Tony Aboud")
-  ///   3. ANY other localized name that's non-empty (so switching lang to one
-  ///      with no translation falls forward instead of showing nothing)
-  ///   4. The legal/full name as a last resort
-  /// Email prefix is NEVER used as a fallback — admins must set displayName
-  /// or a localized name explicitly.
+  /// Name to display everywhere (drawer/profile headers, avatars, greetings).
+  /// The FULL name always wins — the old per-language localized names and the
+  /// admin "short name" override are no longer used for display (the product
+  /// decision is: one full name, everywhere, in every language). The localized
+  /// names + override remain only as a last-resort so accounts that somehow
+  /// lack a full name never render blank.
   String get displayName {
-    final lang = (_displayNameLang ?? '').trim().toLowerCase();
-    final langEnum = NameLang.fromCode(lang);
-    final localizedName = switch (langEnum) {
-      NameLang.ar => (_nameAr ?? '').trim(),
-      NameLang.he => (_nameHe ?? '').trim(),
-      NameLang.fr => (_nameFr ?? '').trim(),
-      NameLang.ru => (_nameRu ?? '').trim(),
-      NameLang.en => (_nameEn ?? '').trim(),
-      null => '',
-    };
-    if (localizedName.isNotEmpty) return localizedName;
+    final full = (_fullName ?? '').trim();
+    if (full.isNotEmpty) return full;
 
-    // Explicit display-name override (e.g. "Tony" instead of the full
-    // localized name "Tony Aboud") — only when the picked language has no
-    // translation. Always takes precedence over arbitrary other-lang
-    // fallbacks because admins set it on purpose.
     final dn = (_displayName ?? '').trim();
     if (dn.isNotEmpty) return dn;
 
-    // Fall forward to any other non-empty localized name so the user sees
-    // SOMETHING when they pick a language they haven't filled in yet.
     for (final candidate in [_nameEn, _nameAr, _nameHe, _nameFr, _nameRu]) {
       final v = (candidate ?? '').trim();
       if (v.isNotEmpty) return v;
     }
 
-    return (_fullName ?? '').trim();
+    return '';
   }
 
   /// Always returns the primary (server) full name regardless of display preference.
