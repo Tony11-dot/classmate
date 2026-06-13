@@ -20,12 +20,12 @@ export const CameraRig: React.FC<{
   const { fps, durationInFrames: compDur } = useVideoConfig();
   const dur = durationInFrames ?? compDur;
 
-  const enter = spring({ frame, fps, config: { damping: 16, mass: 0.9 } });
+  const enter = spring({ frame, fps, config: { damping: 13, mass: 0.8, stiffness: 130 } });
   const scale = interpolate(frame, [0, dur], push, { extrapolateRight: "clamp" }) *
-    interpolate(enter, [0, 1], [0.94, 1]);
-  const yaw = Math.sin(frame / 70) * tilt + interpolate(enter, [0, 1], [whip * 14, 0]);
-  const pitch = Math.cos(frame / 90) * (tilt * 0.5);
-  const blur = interpolate(enter, [0, 1], [whip * 6, 0]);
+    interpolate(enter, [0, 1], [0.9, 1]);
+  const yaw = Math.sin(frame / 45) * tilt + interpolate(enter, [0, 1], [whip * 20, 0]);
+  const pitch = Math.cos(frame / 60) * (tilt * 0.55);
+  const blur = interpolate(enter, [0, 1], [whip * 9, 0]);
 
   return (
     <div style={{ perspective: 1600, transformStyle: "preserve-3d" }}>

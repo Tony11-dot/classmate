@@ -24,15 +24,15 @@ export const ColdOpen: React.FC = () => {
   const scale = interpolate(frame, [0, durationInFrames], [1.05, 1.14], {
     extrapolateRight: "clamp",
   });
-  const sweep = interpolate(frame, [10, 120], [-30, 130], {
+  const sweep = interpolate(frame, [4, 60], [-30, 130], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   const desks = Array.from({ length: 18 });
 
-  const titleIn = spring({ frame: frame - 70, fps, config: { damping: 16 } });
-  const stampIn = spring({ frame: frame - 95, fps, config: { damping: 18 } });
+  const titleIn = spring({ frame: frame - 34, fps, config: { damping: 16 } });
+  const stampIn = spring({ frame: frame - 54, fps, config: { damping: 18 } });
 
   return (
     <AbsoluteFill style={{ background: "#05080f" }}>
@@ -73,7 +73,7 @@ export const ColdOpen: React.FC = () => {
             const col = i % 6;
             const lit = interpolate(
               frame,
-              [25 + col * 8, 45 + col * 8],
+              [8 + col * 4, 22 + col * 4],
               [0, 1],
               { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
             );

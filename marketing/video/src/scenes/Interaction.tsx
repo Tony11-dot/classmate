@@ -56,32 +56,38 @@ export const Interaction: React.FC<InteractionProps> = ({
   const tapX = screenWidth * tapXFrac;
   const tapY = screenH * tapYFrac;
 
-  const afterOpacity = interpolate(frame, [tapFrame, tapFrame + 12], [0, 1], {
+  // Snappy crossfade on tap.
+  const afterOpacity = interpolate(frame, [tapFrame, tapFrame + 7], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  // Pan the after-screen open a touch once it has settled (reveals long content).
+  // Quick reveal pan once the after-screen lands.
   const settleScroll = interpolate(
     frame,
-    [tapFrame + 18, durationInFrames - 6],
+    [tapFrame + 10, durationInFrames - 4],
     [0, afterScroll],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
+  // Impact: phone kicks on tap.
+  const kick =
+    frame > tapFrame && frame < tapFrame + 12
+      ? Math.sin((frame - tapFrame) * 1.7) * interpolate(frame, [tapFrame, tapFrame + 12], [7, 0])
+      : 0;
 
   const phone = (
-    <CameraRig push={[1.0, 1.07]} tilt={side === "right" ? 4 : -4} whip={1} durationInFrames={durationInFrames}>
-      <div style={{ position: "relative", filter: "drop-shadow(0 50px 100px rgba(0,0,0,0.55))" }}>
+    <CameraRig push={[1.02, 1.14]} tilt={side === "right" ? 5 : -5} whip={1.4} durationInFrames={durationInFrames}>
+      <div style={{ position: "relative", transform: `translateX(${kick}px)`, filter: "drop-shadow(0 50px 100px rgba(0,0,0,0.55))" }}>
         <PhoneLight screenWidth={screenWidth}>
           <Shot src={beforeSrc} />
           <AbsoluteFill style={{ opacity: afterOpacity }}>
             <Shot src={afterSrc} scroll={settleScroll} />
           </AbsoluteFill>
           <Finger
-            fromX={tapX + 70}
-            fromY={tapY + 130}
+            fromX={tapX + 56}
+            fromY={tapY + 100}
             toX={tapX}
             toY={tapY}
-            start={tapFrame - 46}
+            start={tapFrame - 26}
             tapAt={tapFrame}
           />
         </PhoneLight>

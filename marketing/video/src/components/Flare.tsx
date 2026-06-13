@@ -12,7 +12,7 @@ export const Flare: React.FC<{
   y?: number; // 0..100 vh
   hue?: string;
   life?: number;
-}> = ({ at, x = 50, y = 50, hue = COLORS.gold, life = 26 }) => {
+}> = ({ at, x = 50, y = 50, hue = COLORS.gold, life = 20 }) => {
   const frame = useCurrentFrame();
   const t = interpolate(frame, [at, at + life], [0, 1], {
     extrapolateLeft: "clamp",
@@ -20,7 +20,7 @@ export const Flare: React.FC<{
   });
   if (frame < at - 1 || t >= 1) return null;
   const intensity = Math.sin(t * Math.PI);
-  const width = interpolate(t, [0, 1], [30, 120]);
+  const width = interpolate(t, [0, 1], [40, 150]);
 
   return (
     <AbsoluteFill style={{ pointerEvents: "none", mixBlendMode: "screen", opacity: intensity }}>

@@ -13,7 +13,7 @@ import { SceneBG } from "../components/SceneBG";
 import { LightLeak } from "../components/LightLeak";
 import { COLORS, FONTS, SCREENS, SHOT } from "../theme";
 
-const CUT = 95;
+const CUT = 66;
 
 const Cut: React.FC<{
   kicker: string;
@@ -89,9 +89,6 @@ export const Montage: React.FC = () => {
       </Sequence>
       <Sequence from={CUT * 2} durationInFrames={CUT}>
         <Cut kicker="One app" title="Every role" src={SCREENS.menu} dir={1} tint={COLORS.emerald} variant="warm" />
-      </Sequence>
-      <Sequence from={CUT * 3} durationInFrames={CUT}>
-        <Cut kicker="Built for school" title="5 languages · every device" dir={-1} tint={COLORS.gold} variant="indigo" />
       </Sequence>
     </AbsoluteFill>
   );

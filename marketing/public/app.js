@@ -61,10 +61,24 @@ document.querySelectorAll('.ph[data-shot]').forEach((el) => {
 // ── Sticky showcase: crossfade the phone's screenshot as steps scroll in ──
 const shots = Array.from(document.querySelectorAll('.showcase-shot'));
 const steps = Array.from(document.querySelectorAll('.showcase-step'));
+const screensEl = document.querySelector('.showcase-screens');
+const rmShowcase = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (shots.length && steps.length) {
-  function setStep(n) {
-    shots.forEach((s) => s.classList.toggle('is-active', s.dataset.step === String(n)));
-    steps.forEach((s) => s.classList.toggle('is-active', s.dataset.step === String(n)));
+  let currentStep = '0';
+  const swapShots = (n) => shots.forEach((s) => s.classList.toggle('is-active', s.dataset.step === n));
+  function setStep(nRaw) {
+    const n = String(nRaw);
+    if (n === currentStep) return;
+    currentStep = n;
+    // Text panel updates immediately…
+    steps.forEach((s) => s.classList.toggle('is-active', s.dataset.step === n));
+    // …the phone does a quick 3D flip and swaps the screen at the edge.
+    if (screensEl && !rmShowcase) {
+      screensEl.classList.add('flipping');
+      setTimeout(() => { swapShots(n); screensEl.classList.remove('flipping'); }, 220);
+    } else {
+      swapShots(n);
+    }
   }
   const stepIO = new IntersectionObserver(
     (entries) => {
@@ -88,6 +102,7 @@ const progress = document.getElementById('scrollProgress');
 const nav = document.getElementById('nav');
 const heroPhone = document.querySelector('.phone-hero');
 const heroGlow = document.querySelector('.hero-glow');
+const showcasePhone = document.querySelector('.phone-showcase');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Generic parallax layers (section background glows). Each drifts relative to
 // its own distance from the viewport centre, so the effect runs the whole page.
@@ -106,6 +121,13 @@ function onScroll() {
     if (!reduceMotion) {
       if (heroPhone) heroPhone.style.transform = `translateY(${y * -0.08}px) rotate(-3deg)`;
       if (heroGlow) heroGlow.style.transform = `translateY(${y * 0.12}px)`;
+      // Sticky showcase phone: tilt in 3D + float as it travels the viewport.
+      if (showcasePhone) {
+        const pr = showcasePhone.getBoundingClientRect();
+        const off = (pr.top + pr.height / 2 - vh / 2) / vh; // ~ -0.5..0.5
+        showcasePhone.style.transform =
+          `rotateY(${(-off * 16).toFixed(2)}deg) rotateX(${(off * 9).toFixed(2)}deg) translateY(${(off * -14).toFixed(1)}px)`;
+      }
       for (const el of parallaxEls) {
         const r = el.getBoundingClientRect();
         const offset = (r.top + r.height / 2) - vh / 2;

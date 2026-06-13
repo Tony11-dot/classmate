@@ -82,21 +82,21 @@ export const SCREENS = {
  * scenes overlap by TRANSITION frames inside the TransitionSeries, so the
  * composition's true length is sum(scenes) - (n-1) * TRANSITION.
  */
-export const TRANSITION = 18;
+export const TRANSITION = 11;
 
 export const SCENES = {
-  coldOpen: 200,
-  title: 160,
-  attendance: 260,
-  nova: 280,
-  classroom: 240,
-  practice: 270,
-  gradesInsights: 260,
-  montage: 360,
-  cta: 250,
+  coldOpen: 100,
+  title: 80,
+  attendance: 150,
+  nova: 165,
+  classroom: 150,
+  practice: 170,
+  gradesInsights: 150,
+  montage: 200,
+  cta: 150,
 } as const;
 
 const sceneList = Object.values(SCENES);
 export const TOTAL_FRAMES =
   sceneList.reduce((a, b) => a + b, 0) - (sceneList.length - 1) * TRANSITION;
-// 2280 - 8*18 = 2136 frames = 71.2s @ 30fps
+// 1315 - 8*11 = 1227 frames = 40.9s @ 30fps

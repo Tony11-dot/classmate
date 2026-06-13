@@ -58,7 +58,7 @@ export const ClassMateDemo: React.FC = () => {
             side="right"
             tapXFrac={0.5}
             tapYFrac={0.85}
-            tapFrame={95}
+            tapFrame={60}
             tint={COLORS.indigoSoft}
             leakHue={COLORS.gold}
             variant="indigo"
@@ -77,7 +77,7 @@ export const ClassMateDemo: React.FC = () => {
             side="left"
             tapXFrac={0.9}
             tapYFrac={0.57}
-            tapFrame={95}
+            tapFrame={62}
             afterScroll={-90}
             tint={COLORS.sky}
             leakHue={COLORS.emerald}
@@ -97,7 +97,7 @@ export const ClassMateDemo: React.FC = () => {
             side="right"
             tapXFrac={0.36}
             tapYFrac={0.2}
-            tapFrame={90}
+            tapFrame={58}
             tint={COLORS.emerald}
             leakHue={COLORS.gold}
             variant="indigo"
@@ -116,7 +116,7 @@ export const ClassMateDemo: React.FC = () => {
             side="left"
             tapXFrac={0.5}
             tapYFrac={0.8}
-            tapFrame={110}
+            tapFrame={68}
             tint={COLORS.gold}
             leakHue={COLORS.emerald}
             variant="warm"
@@ -149,8 +149,8 @@ export const ClassMateDemo: React.FC = () => {
           volume={(f) =>
             interpolate(
               f,
-              [0, 24, TOTAL_FRAMES - 45, TOTAL_FRAMES - 1],
-              [0, 0.5, 0.5, 0],
+              [0, 14, TOTAL_FRAMES - 30, TOTAL_FRAMES - 1],
+              [0, 0.78, 0.78, 0],
               { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
             )
           }
