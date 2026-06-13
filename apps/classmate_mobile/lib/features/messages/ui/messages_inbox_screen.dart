@@ -44,7 +44,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   }
 
   void _openBlockedPeople() {
-    Navigator.of(context).push(
+    // rootNavigator: true pushes ABOVE the app shell so the screen covers the
+    // global top bar (logo + hamburger + tab pill) — a true full-screen page.
+    // Pushing on the nearest (shell) navigator left that chrome visible.
+    Navigator.of(context, rootNavigator: true).push(
       CupertinoPageRoute(builder: (_) => const BlockedPeopleScreen()),
     );
   }
