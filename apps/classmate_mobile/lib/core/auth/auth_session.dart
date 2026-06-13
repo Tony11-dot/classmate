@@ -10,7 +10,6 @@ import '../http/cm_api.dart';
 
 class AuthSession extends ChangeNotifier {
   static const _kToken = 'auth_token_v2';
-  static const _kDisplayName = 'auth_display_name_v1';
   static const _kFullName = 'auth_full_name_v1';
   static const _kRoles = 'auth_roles_v1';
   static const _kEmail = 'auth_email_v1';
@@ -20,12 +19,6 @@ class AuthSession extends ChangeNotifier {
   static const _kCohortName = 'auth_cohort_name_v1';
   static const _kSchoolName = 'auth_school_name_v1';
   static const _kSchoolLogoUrl = 'auth_school_logo_url_v1';
-  static const _kNameEn = 'auth_name_en_v1';
-  static const _kNameAr = 'auth_name_ar_v1';
-  static const _kNameHe = 'auth_name_he_v1';
-  static const _kNameFr = 'auth_name_fr_v1';
-  static const _kNameRu = 'auth_name_ru_v1';
-  static const _kDisplayNameLang = 'auth_display_name_lang_v1';
 
   AuthSession() {
     _init();
@@ -35,8 +28,7 @@ class AuthSession extends ChangeNotifier {
   bool get ready => _ready;
 
   String? _token;
-  String? _displayName;
-  String? _fullName; // first + last name from backend
+  String? _fullName; // the user's single full name from backend
   String? _email;
   String? _username;
   String? _schoolId;
@@ -49,12 +41,6 @@ class AuthSession extends ChangeNotifier {
   String? _schoolGradeRanges;
   String? _schoolSemesters;
   int? _grade; // the user's own current grade (students); null for staff
-  String? _nameEn;
-  String? _nameAr;
-  String? _nameHe;
-  String? _nameFr;
-  String? _nameRu;
-  String? _displayNameLang; // 'en'|'ar'|'he'|'fr'|'ru'|null
   List<String> _roles = const <String>[];
 
   String? get token {
@@ -84,35 +70,12 @@ class AuthSession extends ChangeNotifier {
   }
 
   /// Name to display everywhere (drawer/profile headers, avatars, greetings).
-  /// The FULL name always wins — the old per-language localized names and the
-  /// admin "short name" override are no longer used for display (the product
-  /// decision is: one full name, everywhere, in every language). The localized
-  /// names + override remain only as a last-resort so accounts that somehow
-  /// lack a full name never render blank.
-  String get displayName {
-    final full = (_fullName ?? '').trim();
-    if (full.isNotEmpty) return full;
+  /// One full name, everywhere, in every language — the old per-language
+  /// localized names and the admin "short name" override were removed.
+  String get displayName => (_fullName ?? '').trim();
 
-    final dn = (_displayName ?? '').trim();
-    if (dn.isNotEmpty) return dn;
-
-    for (final candidate in [_nameEn, _nameAr, _nameHe, _nameFr, _nameRu]) {
-      final v = (candidate ?? '').trim();
-      if (v.isNotEmpty) return v;
-    }
-
-    return '';
-  }
-
-  /// Always returns the primary (server) full name regardless of display preference.
-  String get fullName => (_fullName ?? (_displayName ?? '')).trim();
-
-  String get nameEn => (_nameEn ?? '').trim();
-  String get nameAr => (_nameAr ?? '').trim();
-  String get nameHe => (_nameHe ?? '').trim();
-  String get nameFr => (_nameFr ?? '').trim();
-  String get nameRu => (_nameRu ?? '').trim();
-  String get displayNameLang => (_displayNameLang ?? '').trim();
+  /// The user's full name (alias of [displayName] now).
+  String get fullName => (_fullName ?? '').trim();
 
   String get email => (_email ?? '').trim();
   String get username => (_username ?? '').trim();
@@ -193,7 +156,6 @@ class AuthSession extends ChangeNotifier {
       }
     }
 
-    _displayName = (prefs.getString(_kDisplayName) ?? '').trim();
     _fullName = (prefs.getString(_kFullName) ?? '').trim();
     _email = (prefs.getString(_kEmail) ?? '').trim();
     _username = (prefs.getString(_kUsername) ?? '').trim();
@@ -202,12 +164,6 @@ class AuthSession extends ChangeNotifier {
     _cohortName = (prefs.getString(_kCohortName) ?? '').trim();
     _schoolName = (prefs.getString(_kSchoolName) ?? '').trim();
     _schoolLogoUrl = (prefs.getString(_kSchoolLogoUrl) ?? '').trim();
-    _nameEn = (prefs.getString(_kNameEn) ?? '').trim();
-    _nameAr = (prefs.getString(_kNameAr) ?? '').trim();
-    _nameHe = (prefs.getString(_kNameHe) ?? '').trim();
-    _nameFr = (prefs.getString(_kNameFr) ?? '').trim();
-    _nameRu = (prefs.getString(_kNameRu) ?? '').trim();
-    _displayNameLang = (prefs.getString(_kDisplayNameLang) ?? '').trim();
     _roles = (prefs.getStringList(_kRoles) ?? const <String>[])
         .map((role) => role.trim().toUpperCase())
         .where((role) => role.isNotEmpty)
@@ -355,14 +311,16 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sets the user's full name (the single name source of truth). Kept under
+  /// the old name for call-site compatibility.
   Future<void> setDisplayName(String? name) async {
     final prefs = await SharedPreferences.getInstance();
     final v = (name ?? '').trim();
-    _displayName = v;
+    _fullName = v;
     if (v.isEmpty) {
-      await prefs.remove(_kDisplayName);
+      await prefs.remove(_kFullName);
     } else {
-      await prefs.setString(_kDisplayName, v);
+      await prefs.setString(_kFullName, v);
     }
     notifyListeners();
   }
@@ -460,18 +418,15 @@ class AuthSession extends ChangeNotifier {
     await setSchoolName(null);
     await setSchoolLogoUrl(null);
     await setRoles(const <String>[]);
-    // Clear name fields
+    // Clear the full name
     await _setFullName(null);
     final prefs = await SharedPreferences.getInstance();
-    for (final k in [_kNameEn, _kNameAr, _kNameHe, _kNameFr, _kNameRu, _kDisplayNameLang]) {
-      await prefs.remove(k);
-    }
     // Per-user device caches that would otherwise leak across logins on the
     // same phone. The classroom "hide-after-leave" set is the obvious one —
     // without this, user A leaving a classroom would suppress it for user B
     // who logs in afterwards on the same device.
     await prefs.remove('hidden_classrooms_v1');
-    _nameEn = _nameAr = _nameHe = _nameFr = _nameRu = _displayNameLang = _fullName = null;
+    _fullName = null;
     notifyListeners();
   }
 
@@ -563,29 +518,14 @@ class AuthSession extends ChangeNotifier {
         await prefs.setString(_kCohortName, cn);
         _cohortName = cn;
       }
-      // Store full name (first + last) from backend
-      final serverFullName = (raw['fullName'] ?? '').toString().trim();
-      if (serverFullName.isNotEmpty) await _setFullName(serverFullName);
-      // Store multi-language names
-      await _setNameField(_kNameEn, raw['nameEn']);
-      await _setNameField(_kNameAr, raw['nameAr']);
-      await _setNameField(_kNameHe, raw['nameHe']);
-      await _setNameField(_kNameFr, raw['nameFr']);
-      await _setNameField(_kNameRu, raw['nameRu']);
-      await _setNameField(_kDisplayNameLang, raw['displayNameLang']);
-      // Update in-memory cache
-      _nameEn = (raw['nameEn'] ?? '').toString().trim();
-      _nameAr = (raw['nameAr'] ?? '').toString().trim();
-      _nameHe = (raw['nameHe'] ?? '').toString().trim();
-      _nameFr = (raw['nameFr'] ?? '').toString().trim();
-      _nameRu = (raw['nameRu'] ?? '').toString().trim();
-      _displayNameLang = (raw['displayNameLang'] ?? '').toString().trim();
-      // Use server display name if set; otherwise fall back to email-derived
-      final serverDisplayName = (raw['displayName'] ?? '').toString().trim();
-      if (serverDisplayName.isNotEmpty) {
-        await setDisplayName(serverDisplayName);
-      } else if ((_displayName ?? '').trim().isEmpty && (me.email ?? '').trim().isNotEmpty) {
-        await setDisplayName(_displayNameFromEmail(me.email!));
+      // Store the user's full name (the single name source of truth). Falls
+      // back to a name derived from the email only when the server has none.
+      final serverFullName =
+          (raw['fullName'] ?? raw['displayName'] ?? '').toString().trim();
+      if (serverFullName.isNotEmpty) {
+        await _setFullName(serverFullName);
+      } else if ((_fullName ?? '').trim().isEmpty && (me.email ?? '').trim().isNotEmpty) {
+        await _setFullName(_displayNameFromEmail(me.email!));
       }
     } on CMApiException catch (error) {
       if (clearUnauthorizedToken && error.statusCode == 401) {
@@ -615,50 +555,15 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _setNameField(String key, dynamic value) async {
-    final prefs = await SharedPreferences.getInstance();
-    final v = (value ?? '').toString().trim();
-    if (v.isEmpty) { await prefs.remove(key); } else { await prefs.setString(key, v); }
-  }
-
-  /// Update multi-language name fields + display preference on the server and locally.
-  Future<void> updateNameFields({
-    String? nameEn,
-    String? nameAr,
-    String? nameHe,
-    String? nameFr,
-    String? nameRu,
-    String? displayNameLang,
-    String? displayName,
-  }) async {
+  /// Update the user's full name on the server and locally.
+  Future<void> updateFullName(String name) async {
     final currentToken = (_token ?? '').trim();
     if (currentToken.isEmpty) return;
     final api = CMApi(token: currentToken);
     try {
-      await api.patchJson('/auth/profile/name', body: <String, dynamic>{
-        'nameEn': ?nameEn,
-        'nameAr': ?nameAr,
-        'nameHe': ?nameHe,
-        'nameFr': ?nameFr,
-        'nameRu': ?nameRu,
-        'displayNameLang': ?displayNameLang,
-        'displayName': ?displayName,
-      });
-      // Persist locally
-      final prefs = await SharedPreferences.getInstance();
-      void save(String k, String? v) {
-        if (v == null) return;
-        if (v.trim().isEmpty) { prefs.remove(k); } else { prefs.setString(k, v.trim()); }
-      }
-      save(_kNameEn, nameEn); if (nameEn != null) _nameEn = nameEn.trim();
-      save(_kNameAr, nameAr); if (nameAr != null) _nameAr = nameAr.trim();
-      save(_kNameHe, nameHe); if (nameHe != null) _nameHe = nameHe.trim();
-      save(_kNameFr, nameFr); if (nameFr != null) _nameFr = nameFr.trim();
-      save(_kNameRu, nameRu); if (nameRu != null) _nameRu = nameRu.trim();
-      save(_kDisplayNameLang, displayNameLang);
-      if (displayNameLang != null) _displayNameLang = displayNameLang.trim();
-      if (displayName != null) { save(_kDisplayName, displayName); _displayName = displayName.trim(); }
-      notifyListeners();
+      final v = name.trim();
+      await api.patchJson('/auth/profile/name', body: <String, dynamic>{'name': v});
+      await _setFullName(v);
     } finally {
       api.dispose();
     }

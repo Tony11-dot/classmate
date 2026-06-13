@@ -435,10 +435,6 @@ class AdminAddUserScreen extends ConsumerStatefulWidget {
 
 class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   final _nameEnCtrl    = TextEditingController();
-  final _nameArCtrl    = TextEditingController();
-  final _nameHeCtrl    = TextEditingController();
-  final _nameFrCtrl    = TextEditingController();
-  final _nameRuCtrl    = TextEditingController();
   final _emailCtrl     = TextEditingController();
   final _usernameCtrl  = TextEditingController();
   final _phoneCtrl     = TextEditingController();
@@ -471,7 +467,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
+    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -511,11 +507,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
       // digits, or already-prefixed `+972...`) into a clean E.164.
       final phoneE164 = joinE164(_dialCode, _phoneCtrl.text);
       final result = await widget.repo.createUser(
-        nameEn: nameEn,
-        nameAr: _nameArCtrl.text.trim().isEmpty ? null : _nameArCtrl.text.trim(),
-        nameHe: _nameHeCtrl.text.trim().isEmpty ? null : _nameHeCtrl.text.trim(),
-        nameFr: _nameFrCtrl.text.trim().isEmpty ? null : _nameFrCtrl.text.trim(),
-        nameRu: _nameRuCtrl.text.trim().isEmpty ? null : _nameRuCtrl.text.trim(),
+        name: nameEn,
         email: email.isEmpty ? null : email,
         username: username,
         phone: phoneE164,
@@ -695,12 +687,8 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // ── Name fields ────────────────────────────────────────────
+                  // ── Name ───────────────────────────────────────────────────
                   _langField(_nameEnCtrl, 'Full name *', required: true, autofocus: true),
-                  _langField(_nameArCtrl, 'Arabic'),
-                  _langField(_nameHeCtrl, 'Hebrew'),
-                  _langField(_nameFrCtrl, 'French'),
-                  _langField(_nameRuCtrl, 'Russian'),
                   const SizedBox(height: 16),
                   // ── Role ───────────────────────────────────────────────────
                   Text(l.adminRoleLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),

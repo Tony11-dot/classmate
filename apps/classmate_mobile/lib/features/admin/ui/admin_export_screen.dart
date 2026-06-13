@@ -1059,11 +1059,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   }
 
   String _nameForLang(Map<String, dynamic> u, String lang) {
-    final key = 'name${lang[0].toUpperCase()}${lang.substring(1)}';
-    final v = (u[key] ?? '').toString();
-    if (v.isNotEmpty) return v;
-    // Fall back to nameEn, then the raw `name` legacy field.
-    return (u['nameEn'] ?? u['name'] ?? '').toString();
+    // One full name everywhere — `lang` is ignored now (kept for the
+    // existing call sites / RTL detection).
+    return (u['name'] ?? u['nameEn'] ?? '').toString();
   }
 
   /// Source rect for the iOS share popover. iPad + newer iPhone share sheets
@@ -1128,11 +1126,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       if (!mounted) return;
       final l = AppLocalizations.of(context)!;
       final headers = [
-        l.adminExportColumnNameEn,
-        l.adminExportColumnNameAr,
-        l.adminExportColumnNameHe,
-        l.adminExportColumnNameFr,
-        l.adminExportColumnNameRu,
+        l.profileFullName,
         l.adminExportColumnRole,
         l.adminExportColumnEmail,
         l.adminExportColumnUsername,
@@ -1151,11 +1145,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         final role = (u['role'] ?? '').toString();
         final isStudent = role == 'STUDENT';
         final row = [
-          _esc(u['nameEn']?.toString() ?? ''),
-          _esc(u['nameAr']?.toString() ?? ''),
-          _esc(u['nameHe']?.toString() ?? ''),
-          _esc(u['nameFr']?.toString() ?? ''),
-          _esc(u['nameRu']?.toString() ?? ''),
+          _esc(u['name']?.toString() ?? ''),
           _esc(_localizedRoleName(l, role)),
           _esc(u['email']?.toString() ?? ''),
           _esc(u['username']?.toString() ?? ''),

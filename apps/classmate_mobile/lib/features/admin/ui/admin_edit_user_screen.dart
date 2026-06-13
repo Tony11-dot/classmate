@@ -18,12 +18,8 @@ class AdminEditUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
-  // Name fields
+  // Full name
   final _nameEnCtrl   = TextEditingController();
-  final _nameArCtrl   = TextEditingController();
-  final _nameHeCtrl   = TextEditingController();
-  final _nameFrCtrl   = TextEditingController();
-  final _nameRuCtrl   = TextEditingController();
   final _emailCtrl    = TextEditingController();
   final _usernameCtrl = TextEditingController();
   final _phoneCtrl    = TextEditingController();
@@ -56,7 +52,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _nameArCtrl, _nameHeCtrl, _nameFrCtrl, _nameRuCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl]) {
+    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -65,11 +61,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   Future<void> _loadUser() async {
     try {
       final m = await widget.repo.getUserDetailRaw(widget.userId);
-      _nameEnCtrl.text   = m['nameEn']?.toString() ?? m['name']?.toString() ?? '';
-      _nameArCtrl.text   = m['nameAr']?.toString() ?? '';
-      _nameHeCtrl.text   = m['nameHe']?.toString() ?? '';
-      _nameFrCtrl.text   = m['nameFr']?.toString() ?? '';
-      _nameRuCtrl.text   = m['nameRu']?.toString() ?? '';
+      _nameEnCtrl.text   = m['name']?.toString() ?? m['nameEn']?.toString() ?? '';
       _emailCtrl.text    = m['email']?.toString() ?? '';
       _usernameCtrl.text = m['username']?.toString() ?? '';
       // Split the stored E.164 phone into dial-code + local digits so the
@@ -121,11 +113,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     try {
       await widget.repo.updateUser(
         widget.userId,
-        nameEn: nameEn,
-        nameAr: _nameArCtrl.text.trim().isEmpty ? '' : _nameArCtrl.text.trim(),
-        nameHe: _nameHeCtrl.text.trim().isEmpty ? '' : _nameHeCtrl.text.trim(),
-        nameFr: _nameFrCtrl.text.trim().isEmpty ? '' : _nameFrCtrl.text.trim(),
-        nameRu: _nameRuCtrl.text.trim().isEmpty ? '' : _nameRuCtrl.text.trim(),
+        name: nameEn,
         email: _emailCtrl.text.trim().isEmpty ? '' : _emailCtrl.text.trim(),
         username: _usernameCtrl.text.trim().isEmpty ? '' : _usernameCtrl.text.trim(),
         phone: joinE164(_dialCode, _phoneCtrl.text) ?? '',
@@ -310,16 +298,10 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // ── Name fields ────────────────────────────────────────────
+                  // ── Name ───────────────────────────────────────────────────
                   Text(l.adminEditUserNameSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 4),
-                  Text(l.adminEditUserAtLeastEnglish, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 12),
-                  _langField(_nameEnCtrl, l.nameInEnglish, req: true),
-                  _langField(_nameArCtrl, l.nameInArabic),
-                  _langField(_nameHeCtrl, l.nameInHebrew),
-                  _langField(_nameFrCtrl, l.nameInFrench),
-                  _langField(_nameRuCtrl, l.nameInRussian),
+                  _langField(_nameEnCtrl, l.profileFullName, req: true),
                   const SizedBox(height: 20),
 
                   // ── Role ───────────────────────────────────────────────────

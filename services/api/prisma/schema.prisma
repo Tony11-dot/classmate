@@ -85,22 +85,13 @@ model User {
   schoolId String?
   school   School? @relation(fields: [schoolId], references: [id], onDelete: SetNull)
 
-  // Identity / profile
-  displayName String?
+  // Identity / profile. `name` is the single full-name source of truth —
+  // the old per-user `displayName` override and the per-language name columns
+  // (nameEn/Ar/He/Fr/Ru + displayNameLang) were removed: one full name,
+  // everywhere, in every language.
   legalName   String?
   phone       String?
   status      AccountStatus @default(AUTH_ONLY)
-
-  // Multi-language name support — any combination can be filled
-  nameEn String? // Full name in English (first + last)
-  nameAr String? // Full name in Arabic (اسم بالعربي)
-  nameHe String? // Full name in Hebrew (שם בעברית)
-  nameFr String? // Full name in French
-  nameRu String? // Full name in Russian
-
-  // Which language name to show in the app ('en'|'ar'|'he'|'fr'|'ru')
-  // Defaults to null → falls back to displayName / name
-  displayNameLang String?
 
   // optional future tzfonet fields
   tzfonetEmail      String?

@@ -86,7 +86,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       schoolId: user.schoolId ?? null,
       cohortId: user.studentProfile?.cohortId ?? null,
     }));
-    const displayName = user.displayName ?? user.nameEn ?? user.name ?? user.email?.split('@')[0] ?? '';
+    const displayName = user.name ?? user.email?.split('@')[0] ?? '';
     const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
     const resolvedSchoolId = user.schoolId ?? schoolId ?? null;
 
@@ -172,15 +172,12 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
           where: isEmail
             ? { email: identifier }
             : { OR: [{ username: identifier }, { email: identifier }] },
-          select: { id: true, email: true, username: true, name: true, displayName: true, schoolId: true, roles: { select: { role: true } } },
+          select: { id: true, email: true, username: true, name: true, schoolId: true, roles: { select: { role: true } } },
         }) as any;
 
         let userId = existing?.id;
         let userEmail = existing?.email ?? (isEmail ? identifier : null);
-        let userName =
-          existing?.displayName ??
-          existing?.name ??
-          identifier.split('@')[0];
+        let userName = existing?.name ?? identifier.split('@')[0];
         let cohortId: string | undefined;
 
         if (!userId) {
@@ -199,11 +196,11 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
               name: identifier.split('@')[0],
               password: passwordHash,
             },
-            select: { id: true, email: true, username: true, name: true, displayName: true },
+            select: { id: true, email: true, username: true, name: true },
           });
           userId = created.id;
           userEmail = created.email;
-          userName = created.displayName ?? created.name ?? identifier.split('@')[0];
+          userName = created.name ?? identifier.split('@')[0];
         }
 
         // Use DB roles if the user already exists, otherwise fall back to email inference

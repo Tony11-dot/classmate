@@ -1058,7 +1058,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: {
         id: true,
         name: true,
-        nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
         email: true,
         username: true,
         phone: true,
@@ -1106,7 +1105,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     // (which is the only path that can backfill plaintext safely).
     const includePasswords = query?.generatePasswords === 'true';
     const result: Array<{
-      id: string; nameEn: string; nameAr: string; nameHe: string; nameFr: string; nameRu: string;
+      id: string; name: string;
       email: string | null; username?: string | null; phone: string | null;
       grade: number | null;
       cohortName: string;
@@ -1132,11 +1131,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
       const entry = {
         id: r.id,
-        nameEn: r.nameEn ?? r.name,
-        nameAr: r.nameAr ?? '',
-        nameHe: r.nameHe ?? '',
-        nameFr: r.nameFr ?? '',
-        nameRu: r.nameRu ?? '',
+        name: r.name ?? '',
         email: r.email ?? null,
         username: (r as any).username ?? null,
         phone: (r as any).phone ?? null,
@@ -1271,11 +1266,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: {
         id: true,
         name: true,
-        nameEn: true,
-        nameAr: true,
-        nameHe: true,
-        nameFr: true,
-        nameRu: true,
         email: true,
         username: true,
         phone: true,
@@ -1346,11 +1336,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
       return {
         id: r.id,
-        nameEn: r.nameEn ?? r.name,
-        nameAr: r.nameAr ?? '',
-        nameHe: r.nameHe ?? '',
-        nameFr: r.nameFr ?? '',
-        nameRu: r.nameRu ?? '',
+        name: r.name ?? '',
         email: r.email ?? null,
         username: r.username ?? null,
         phone: r.phone ?? null,
@@ -1400,9 +1386,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: {
         id: true,
         name: true,
-        displayName: true,
         legalName: true,
-        nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true,
         email: true,
         username: true,
         phone: true,
@@ -1472,12 +1456,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       user: {
         id: row.id,
         name: row.name,
-        nameEn: (row as any).nameEn ?? row.name,
-        nameAr: (row as any).nameAr ?? '',
-        nameHe: (row as any).nameHe ?? '',
-        nameFr: (row as any).nameFr ?? '',
-        nameRu: (row as any).nameRu ?? '',
-        displayName: (row as any).displayName ?? null,
         legalName: (row as any).legalName ?? null,
         email: row.email,
         username: (row as any).username ?? null,
@@ -1510,19 +1488,11 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   /// uniqueness errors; bulk callers catch per-row so one bad row never
   /// blocks the rest.
   private async _createUserInSchool(schoolId: string, dto: any) {
-    // Multi-lang names
-    const nameEn = String(dto?.nameEn ?? dto?.name ?? '').trim();
-    const nameAr = String(dto?.nameAr ?? '').trim() || undefined;
-    const nameHe = String(dto?.nameHe ?? '').trim() || undefined;
-    const nameFr = String(dto?.nameFr ?? '').trim() || undefined;
-    const nameRu = String(dto?.nameRu ?? '').trim() || undefined;
-    const name = nameEn || String(dto?.name ?? '').trim();
-    // Optional friendly name shown in drawer/profile headers. When blank,
-    // clients fall back to the localized name for the user's preferred
-    // language — NEVER the email prefix.
-    const displayName = String(dto?.displayName ?? '').trim() || undefined;
-    // Legal/full name — separate from display name so admins can keep a
-    // formal record alongside what's shown to other students.
+    // `name` is the single full-name source of truth. `nameEn` is still
+    // accepted as a legacy alias (old CSV templates / clients) but only to
+    // populate `name` — the per-language name columns no longer exist.
+    const name = String(dto?.name ?? dto?.nameEn ?? '').trim();
+    // Legal/full name — a separate formal record kept alongside `name`.
     const legalName = String(dto?.legalName ?? '').trim() || undefined;
     const rawEmail = String(dto?.email ?? '').trim().toLowerCase() || undefined;
     const rawUsername = String(dto?.username ?? '').trim().toLowerCase() || undefined;
@@ -1539,7 +1509,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const role = String(dto?.role ?? 'STUDENT').toUpperCase();
     const grade = dto?.grade ? Number(dto.grade) : undefined;
 
-    if (!name) throw new BadRequestException('At least an English name is required');
+    if (!name) throw new BadRequestException('A name is required');
     // Username is OPTIONAL: when blank (bulk grid / CSV import) we auto-generate
     // a unique one from the name below. Email stays optional too.
     if (rawEmail && !rawEmail.includes('@')) throw new BadRequestException('Email must be a valid email address');
@@ -1563,7 +1533,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       username = rawUsername;
     } else {
       const base =
-        (nameEn || name).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '').slice(0, 16) || 'user';
+        name.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '').slice(0, 16) || 'user';
       let candidate = '';
       for (let attempt = 0; attempt < 12; attempt++) {
         const c = `${base}${randomDigits(attempt < 4 ? 3 : 5)}`;
@@ -1588,12 +1558,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const newUser = await this.prisma.user.create({
       data: {
         name,
-        nameEn: nameEn || undefined,
-        ...(nameAr ? { nameAr } : {}),
-        ...(nameHe ? { nameHe } : {}),
-        ...(nameFr ? { nameFr } : {}),
-        ...(nameRu ? { nameRu } : {}),
-        ...(displayName ? { displayName } : {}),
         ...(legalName ? { legalName } : {}),
         ...(rawEmail ? { email: rawEmail } : {}),
         ...(rawPhone ? { phone: rawPhone } : {}),
@@ -1638,14 +1602,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const data: any = {};
     if (dto?.name !== undefined || dto?.nameEn !== undefined) {
-      const n = String(dto?.nameEn ?? dto?.name ?? '').trim();
-      if (n) { data.name = n; data.nameEn = n; }
+      // `nameEn` accepted as a legacy alias for `name` only.
+      const n = String(dto?.name ?? dto?.nameEn ?? '').trim();
+      if (n) data.name = n;
     }
-    if (dto?.nameAr !== undefined) data.nameAr = String(dto.nameAr).trim() || null;
-    if (dto?.nameHe !== undefined) data.nameHe = String(dto.nameHe).trim() || null;
-    if (dto?.nameFr !== undefined) data.nameFr = String(dto.nameFr).trim() || null;
-    if (dto?.nameRu !== undefined) data.nameRu = String(dto.nameRu).trim() || null;
-    if (dto?.displayName !== undefined) data.displayName = String(dto.displayName).trim() || null;
     if (dto?.legalName !== undefined) data.legalName = String(dto.legalName).trim() || null;
     if (dto?.email !== undefined) {
       const em = String(dto.email).trim().toLowerCase() || null;
@@ -1691,7 +1651,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const updated = await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, name: true, nameEn: true, nameAr: true, nameHe: true, nameFr: true, nameRu: true, email: true, username: true, status: true, roles: { select: { role: true } } },
+      select: { id: true, name: true, email: true, username: true, status: true, roles: { select: { role: true } } },
     }) as any;
     return { ok: true, user: { ...updated, roles: updated.roles.map((r: any) => r.role) } };
   }
@@ -1701,7 +1661,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const links = await this.prisma.parentChild.findMany({
       where: { parentId: userId },
       include: {
-        child: { select: { id: true, name: true, nameEn: true, email: true, username: true } },
+        child: { select: { id: true, name: true, email: true, username: true } },
       },
     });
     return { ok: true, children: links.map((l) => ({ linkId: `${l.parentId}_${l.childId}`, child: l.child })) };
@@ -1796,9 +1756,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     try {
       const row = await this.prisma.user.findUnique({
         where: { id: adminId },
-        select: { nameEn: true, name: true, email: true } as any,
+        select: { name: true, email: true } as any,
       }) as any;
-      return (row?.nameEn || row?.name || row?.email || 'an administrator').toString();
+      return (row?.name || row?.email || 'an administrator').toString();
     } catch {
       return 'an administrator';
     }

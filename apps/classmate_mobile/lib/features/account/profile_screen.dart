@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_session.dart';
-import '../../core/auth/name_lang.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
@@ -255,63 +254,6 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
 
-        // ── Name in languages ─────────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-            child: _Section(
-              title: l.profileNamesTitle,
-              icon: Icons.translate_rounded,
-              child: Column(
-                children: [
-                  _InfoRow(
-                    icon: Icons.text_fields_rounded,
-                    label: 'English',
-                    value: session.nameEn.isEmpty ? l.profileEmptyValue : session.nameEn,
-                    onEdit: () => _editNameLang(context, session, 'en', 'English', session.nameEn),
-                  ),
-                  const _Divider(),
-                  _InfoRow(
-                    icon: Icons.text_fields_rounded,
-                    label: 'عربي',
-                    value: session.nameAr.isEmpty ? l.profileEmptyValue : session.nameAr,
-                    onEdit: () => _editNameLang(context, session, 'ar', 'عربي', session.nameAr),
-                  ),
-                  const _Divider(),
-                  _InfoRow(
-                    icon: Icons.text_fields_rounded,
-                    label: 'עברית',
-                    value: session.nameHe.isEmpty ? l.profileEmptyValue : session.nameHe,
-                    onEdit: () => _editNameLang(context, session, 'he', 'עברית', session.nameHe),
-                  ),
-                  const _Divider(),
-                  _InfoRow(
-                    icon: Icons.text_fields_rounded,
-                    label: 'Français',
-                    value: session.nameFr.isEmpty ? l.profileEmptyValue : session.nameFr,
-                    onEdit: () => _editNameLang(context, session, 'fr', 'Français', session.nameFr),
-                  ),
-                  const _Divider(),
-                  _InfoRow(
-                    icon: Icons.text_fields_rounded,
-                    label: 'Русский',
-                    value: session.nameRu.isEmpty ? l.profileEmptyValue : session.nameRu,
-                    onEdit: () => _editNameLang(context, session, 'ru', 'Русский', session.nameRu),
-                  ),
-                  const _Divider(),
-                  // Display language preference
-                  _InfoRow(
-                    icon: Icons.language_rounded,
-                    label: l.profileDisplayNameLang,
-                    value: _langLabel(session.displayNameLang, l),
-                    onEdit: () => _pickDisplayLang(context, session),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
         // ── Editable info ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
@@ -363,113 +305,6 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   // ── Edit helpers ───────────────────────────────────────────────────────────
-
-  // Static helper — no instance context needed
-  static String _langLabel(String lang, AppLocalizations l) {
-    return NameLang.fromCode(lang)?.nativeName ?? l.profileEmptyValue;
-  }
-
-  static Future<void> _editNameLang(BuildContext context, AuthSession session, String lang, String label, String current) async {
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => _EditSheet(
-        title: AppLocalizations.of(context)!.profileNameInLanguage(label),
-        icon: Icons.translate_rounded,
-        hint: AppLocalizations.of(context)!.profileNameInLanguage(label),
-        initial: current,
-      ),
-    );
-    if (result == null) return;
-    switch (lang) {
-      case 'en': await session.updateNameFields(nameEn: result);
-      case 'ar': await session.updateNameFields(nameAr: result);
-      case 'he': await session.updateNameFields(nameHe: result);
-      case 'fr': await session.updateNameFields(nameFr: result);
-      case 'ru': await session.updateNameFields(nameRu: result);
-    }
-  }
-
-  static Future<void> _pickDisplayLang(BuildContext context, AuthSession session) async {
-    final l = AppLocalizations.of(context)!;
-    final langs = [
-      (code: '', label: l.profileEmptyValue, icon: Icons.translate_rounded),
-      ...NameLang.values.map((lang) => (code: lang.code, label: lang.nativeName, icon: Icons.language_rounded)),
-    ];
-    final cs = Theme.of(context).colorScheme;
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 12),
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    l.profileDisplayNameLang,
-                    style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                ...langs.map((lang) {
-                  final isSelected = session.displayNameLang == lang.code
-                      || (lang.code.isEmpty && session.displayNameLang.isEmpty);
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
-                    child: Material(
-                      color: isSelected ? cs.primaryContainer : Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: () => Navigator.of(ctx).pop(lang.code),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          child: Row(
-                            children: [
-                              Icon(lang.icon, size: 20, color: isSelected ? cs.primary : cs.onSurfaceVariant),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(
-                                  lang.label,
-                                  style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(
-                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                                    color: isSelected ? cs.primary : cs.onSurface,
-                                  ),
-                                ),
-                              ),
-                              if (isSelected)
-                                Icon(Icons.check_circle_rounded, size: 20, color: cs.primary),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    if (picked == null) return;
-    await session.updateNameFields(displayNameLang: picked);
-  }
 
   Future<void> _editField({
     required BuildContext context,

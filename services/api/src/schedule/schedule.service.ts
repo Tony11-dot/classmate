@@ -198,7 +198,7 @@ export class ScheduleService {
       ? await this.prisma.scheduleTemplateSlot.findMany({
           where: { templateId: { in: orderedTemplateIds } },
           include: {
-            teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+            teacher: { select: { id: true, name: true } },
           } as any,
         })
       : [];
@@ -286,12 +286,12 @@ export class ScheduleService {
             skipDates: true,
             studentDateSkips: true,
             caption: true,
-            teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+            teacher: { select: { id: true, name: true } },
             classroom: {
               select: {
                 id: true,
                 name: true,
-                teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+                teacher: { select: { id: true, name: true } },
               },
             },
             materials: {
@@ -336,12 +336,12 @@ export class ScheduleService {
               audienceGrade: true,
               skipDates: true,
               caption: true,
-              teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+              teacher: { select: { id: true, name: true } },
               classroom: {
                 select: {
                   id: true,
                   name: true,
-                  teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+                  teacher: { select: { id: true, name: true } },
                 },
               },
               materials: {
@@ -413,7 +413,7 @@ export class ScheduleService {
         teacherIds.size
           ? this.prisma.user.findMany({
               where: { id: { in: Array.from(teacherIds) } },
-              select: { id: true, name: true, displayName: true, nameEn: true } as any,
+              select: { id: true, name: true } as any,
             }).catch(() => [])
           : Promise.resolve([] as any[]),
         classroomIds.size
@@ -458,7 +458,7 @@ export class ScheduleService {
           try {
             const extra = await this.prisma.user.findMany({
               where: { id: { in: missingIds } },
-              select: { id: true, name: true, displayName: true, nameEn: true } as any,
+              select: { id: true, name: true } as any,
             });
             for (const u of extra as any[]) userById.set(u.id, u);
           } catch {
@@ -673,24 +673,18 @@ export class ScheduleService {
       where: { cohortId, date: { gte: from, lt: toExclusive } },
       orderBy: [{ date: 'asc' }, { period: 'asc' }],
       include: {
-        teacher: { select: { id: true, name: true, displayName: true, nameEn: true } },
+        teacher: { select: { id: true, name: true } },
       } as any,
     });
   }
 
-  /// Picks the best display name for a User-shaped relation. Prefers the
-  /// curated displayName, falls back through nameEn → name, returns null
-  /// when every field is empty. Used for the schedule tile's subtitle so
-  /// students see a real teacher name even when the User row was created
-  /// with just a username as `name`.
+  /// Picks the display name for a User-shaped relation from `name` (the
+  /// single full-name source of truth). Returns null when empty. Used for
+  /// the schedule tile's subtitle.
   private _pickDisplayName(u: any): string | null {
     if (!u || typeof u !== 'object') return null;
-    const fields = ['displayName', 'nameEn', 'name'];
-    for (const f of fields) {
-      const v = typeof u[f] === 'string' ? u[f].trim() : '';
-      if (v.length > 0) return v;
-    }
-    return null;
+    const v = typeof u.name === 'string' ? u.name.trim() : '';
+    return v.length > 0 ? v : null;
   }
 
   /// Filters out template rows whose `studentDateSkips` matches the

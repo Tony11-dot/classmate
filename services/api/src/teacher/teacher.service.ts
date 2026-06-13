@@ -339,13 +339,13 @@ export class TeacherService {
     const cohortLinks = cohortIdsForRoster.length > 0
       ? await this.prisma.studentCohort.findMany({
           where: { cohortId: { in: cohortIdsForRoster } },
-          select: { studentId: true, student: { select: { userId: true, user: { select: { name: true, displayName: true } } } } },
+          select: { studentId: true, student: { select: { userId: true, user: { select: { name: true } } } } },
         })
       : [];
 
     // By-grade resolution — every student whose profile.cohort grade
     // matches OR direct User.grade matches, scoped to the slot's school.
-    let gradeLinks: Array<{ studentId: string; student: { userId: string; user: { name: string; displayName: string | null } } }> = [];
+    let gradeLinks: Array<{ studentId: string; student: { userId: string; user: { name: string } } }> = [];
     if (typeof audienceGrade === 'number' && (slotForTeacher as any)?.schoolId) {
       const gradeRows = await this.prisma.studentProfile.findMany({
         where: {
@@ -355,7 +355,7 @@ export class TeacherService {
             { user: { grade: audienceGrade } as any },
           ],
         },
-        select: { userId: true, user: { select: { name: true, displayName: true } } },
+        select: { userId: true, user: { select: { name: true } } },
       });
       gradeLinks = gradeRows.map((p) => ({
         studentId: p.userId,
@@ -367,20 +367,20 @@ export class TeacherService {
     const directLinks = directStudentIds.length > 0
       ? await this.prisma.user.findMany({
           where: { id: { in: directStudentIds } },
-          select: { id: true, name: true, displayName: true },
+          select: { id: true, name: true },
         })
       : [];
 
     // Union — dedupe by userId.
-    const byUserId = new Map<string, { userId: string; name: string; displayName: string | null }>();
+    const byUserId = new Map<string, { userId: string; name: string }>();
     for (const l of cohortLinks) {
-      byUserId.set(l.studentId, { userId: l.studentId, name: l.student.user.name, displayName: l.student.user.displayName });
+      byUserId.set(l.studentId, { userId: l.studentId, name: l.student.user.name });
     }
     for (const l of gradeLinks) {
-      byUserId.set(l.studentId, { userId: l.studentId, name: l.student.user.name, displayName: l.student.user.displayName });
+      byUserId.set(l.studentId, { userId: l.studentId, name: l.student.user.name });
     }
     for (const u of directLinks) {
-      byUserId.set(u.id, { userId: u.id, name: u.name, displayName: u.displayName });
+      byUserId.set(u.id, { userId: u.id, name: u.name });
     }
 
     const students = [...byUserId.values()].sort((a, b) =>
@@ -766,7 +766,6 @@ export class TeacherService {
       select: {
         id: true,
         name: true,
-        displayName: true,
         email: true,
         studentProfile: {
           select: {
@@ -781,7 +780,7 @@ export class TeacherService {
       ok: true,
       students: students.map((s) => ({
         studentId: s.id,
-        name: s.displayName ?? s.name,
+        name: s.name,
         email: s.email,
         cohortId: s.studentProfile?.cohortId ?? null,
         cohortName: '',
@@ -806,7 +805,6 @@ export class TeacherService {
       select: {
         id: true,
         name: true,
-        displayName: true,
         email: true,
         parentLinks: {
           where: { status: 'APPROVED' as any },
@@ -815,7 +813,6 @@ export class TeacherService {
               select: {
                 id: true,
                 name: true,
-                displayName: true,
                 studentProfile: {
                   select: { cohort: { select: { name: true, grade: true } } },
                 },
@@ -830,11 +827,11 @@ export class TeacherService {
       ok: true,
       parents: parents.map((p) => ({
         parentId: p.id,
-        name: p.displayName ?? p.name ?? p.email,
+        name: p.name ?? p.email,
         email: p.email,
         children: p.parentLinks.map((l) => ({
           studentId: l.child.id,
-          name: l.child.displayName ?? l.child.name,
+          name: l.child.name,
           grade: l.child.studentProfile?.cohort?.grade ?? null,
           cohortName: l.child.studentProfile?.cohort?.name ?? '',
         })),
@@ -1066,7 +1063,7 @@ export class TeacherService {
         studentId: true,
         student: {
           select: {
-            user: { select: { name: true, displayName: true, legalName: true, email: true } },
+            user: { select: { name: true, legalName: true, email: true } },
           },
         },
       },
@@ -1080,9 +1077,8 @@ export class TeacherService {
       students: rows.map((r) => ({
         studentId: r.userId,
         name:
-          r.user.displayName ||
-          r.user.legalName ||
           r.user.name ||
+          r.user.legalName ||
           r.user.email ||
           r.userId,
       })),
@@ -1684,7 +1680,7 @@ export class TeacherService {
       }),
       this.prisma.user.findUnique({
         where: { id: teacherId },
-        select: { id: true, name: true, displayName: true },
+        select: { id: true, name: true },
       }),
     ]);
 
@@ -1692,7 +1688,7 @@ export class TeacherService {
       ok: true,
       teacher: {
         userId: teacherId,
-        name: teacher?.displayName ?? teacher?.name ?? '',
+        name: teacher?.name ?? '',
         role: 'TEACHER',
       },
       members: members.map((m) => ({
@@ -1715,21 +1711,20 @@ export class TeacherService {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
     });
-    // Resolve sender names from User.name (with displayName / nameEn
-    // preferred when present). The client used to look these up via
-    // classroom roster, which fell through to "Unknown" for any sender
+    // Resolve sender names from User.name. The client used to look these up
+    // via classroom roster, which fell through to "Unknown" for any sender
     // who had since left the classroom — see student.classrooms.chatList
     // for the same enrichment.
     const senderIds = Array.from(new Set(rows.map((r: any) => r.senderUserId).filter(Boolean)));
     const users = senderIds.length
       ? await this.prisma.user.findMany({
           where: { id: { in: senderIds } },
-          select: { id: true, name: true, displayName: true, nameEn: true } as any,
+          select: { id: true, name: true } as any,
         })
       : [];
     const nameById = new Map<string, string>();
     for (const u of users as any[]) {
-      const v = String(u.displayName ?? u.nameEn ?? u.name ?? '').trim();
+      const v = String(u.name ?? '').trim();
       if (v) nameById.set(u.id, v);
     }
     const items = rows.reverse().map((r: any) => ({
@@ -2499,12 +2494,12 @@ export class TeacherService {
     const responses = await this.prisma.formResponse.findMany({
       where: { formId: id },
       orderBy: { submittedAt: 'desc' },
-      include: { student: { select: { user: { select: { displayName: true, name: true } } } } },
+      include: { student: { select: { user: { select: { name: true } } } } },
     });
     return {
       responses: responses.map((r) => ({
         id: r.id,
-        studentName: r.student?.user?.displayName ?? r.student?.user?.name ?? 'Student',
+        studentName: r.student?.user?.name ?? 'Student',
         answers: r.answers,
         submittedAt: r.submittedAt.toISOString(),
       })),
@@ -2758,7 +2753,7 @@ export class TeacherService {
     if (teacherAssignment) {
       const submissions = await this.prisma.teacherAssignmentSubmission.findMany({
         where: { assignmentId },
-        include: { student: { select: { name: true, displayName: true, email: true } } },
+        include: { student: { select: { name: true, email: true } } },
         orderBy: { submittedAt: 'desc' },
       });
       return {
@@ -2767,7 +2762,7 @@ export class TeacherService {
           id: s.id,
           assignmentId: s.assignmentId,
           studentId: s.studentId,
-          studentName: (s as any).student?.displayName || (s as any).student?.name || 'Student',
+          studentName: (s as any).student?.name || 'Student',
           note: s.note ?? null,
           files: s.files ?? [],
           grade: s.grade ?? null,

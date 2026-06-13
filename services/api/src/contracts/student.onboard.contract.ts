@@ -3,7 +3,6 @@ import { z } from 'zod';
 export const StudentOnboardBodySchema = z.object({
   cohortId: z.string().min(1),
   joinCode: z.string().min(1),
-  displayName: z.string().min(1).optional(),
   phone: z.string().min(3).optional(),
   englishLevel: z.coerce.number().int().min(1).max(6),
   mathLevel: z.coerce.number().int().min(1).max(6),

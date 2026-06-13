@@ -55,7 +55,6 @@ export class StudentService {
     body: {
       cohortId: string;
       joinCode: string;
-      displayName?: string;
       phone?: string;
       englishLevel: number;
       mathLevel: number;

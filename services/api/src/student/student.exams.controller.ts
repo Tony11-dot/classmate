@@ -61,7 +61,7 @@ export class StudentExamsController {
         date: true,
         maxGrade: true,
         attachments: true,
-        teacher: { select: { name: true, displayName: true } },
+        teacher: { select: { name: true } },
         assessments: {
           where: { grades: { some: { studentId: uid } } },
           select: {
@@ -105,7 +105,7 @@ export class StudentExamsController {
         date: true,
         maxGrade: true,
         attachments: true,
-        teacher: { select: { name: true, displayName: true } },
+        teacher: { select: { name: true } },
         assessments: {
           where: { grades: { some: { studentId: uid } } },
           select: {
@@ -131,7 +131,7 @@ export class StudentExamsController {
       date: e.date?.toISOString() ?? null,
       maxGrade: e.maxGrade ?? 100,
       attachments: Array.isArray(e.attachments) ? e.attachments : [],
-      teacherName: e.teacher?.displayName ?? e.teacher?.name ?? null,
+      teacherName: e.teacher?.name ?? null,
       assessmentId: assessment?.id ?? null,
       grade: gr?.grade ?? null,
       gradeComment: gr?.comment ?? null,

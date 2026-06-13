@@ -52,14 +52,14 @@ export class PasswordResetService {
     const lower = id.toLowerCase();
     const byEmail = await this.prisma.user.findFirst({
       where: { email: lower },
-      select: { id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
+      select: { id: true, email: true, phone: true, name: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
     });
     if (byEmail) return byEmail as any;
 
     // Fallback to username (also lower-cased to match how it's stored).
     const byUsername = await this.prisma.user.findFirst({
       where: { username: lower } as any,
-      select: { id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
+      select: { id: true, email: true, phone: true, name: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
     });
     return (byUsername ?? null) as any;
   }
@@ -128,7 +128,7 @@ export class PasswordResetService {
 
     const resetUrl = `${this.baseUrl}/reset-password?token=${rawToken}`;
     const schoolName = await this.lookupSchoolName(user.schoolId);
-    const recipientName = (user.nameEn || user.name || '').trim() || null;
+    const recipientName = (user.name || '').trim() || null;
 
     if (args.channel === 'email') {
       await this.email.sendPasswordReset({
@@ -180,7 +180,7 @@ export class PasswordResetService {
       target = await this.prisma.user.findUnique({
         where: { id: args.targetUserId },
         select: {
-          id: true, email: true, phone: true, name: true, nameEn: true, schoolId: true,
+          id: true, email: true, phone: true, name: true, schoolId: true,
         } as any,
       });
     } catch (err) {
@@ -212,7 +212,7 @@ export class PasswordResetService {
 
     const resetUrl = `${this.baseUrl}/reset-password?token=${rawToken}`;
     const schoolName = await this.lookupSchoolName(target.schoolId);
-    const recipientName = (target.nameEn || target.name || '').trim() || null;
+    const recipientName = (target.name || '').trim() || null;
 
     // Send via every available channel — email first (richer), SMS as a
     // belt-and-suspenders fallback when both are on file.
@@ -278,7 +278,7 @@ export class PasswordResetService {
         schoolId: user.schoolId,
         roles: { some: { role: 'ADMIN' as any } },
       } as any,
-      select: { id: true, name: true, nameEn: true, email: true } as any,
+      select: { id: true, name: true, email: true } as any,
       orderBy: { name: 'asc' },
     }) as any[];
 
@@ -287,7 +287,7 @@ export class PasswordResetService {
       currentPhone: user.phone ?? null,
       admins: admins.map((a: any) => ({
         id: a.id,
-        name: (a.nameEn || a.name || a.email || 'Admin').toString(),
+        name: (a.name || a.email || 'Admin').toString(),
         email: a.email,
       })),
     };
@@ -322,7 +322,7 @@ export class PasswordResetService {
         schoolId: user.schoolId,
         roles: { some: { role: 'ADMIN' as any } },
       } as any,
-      select: { id: true, name: true, nameEn: true, email: true, phone: true } as any,
+      select: { id: true, name: true, email: true, phone: true } as any,
     }) as any;
     if (!admin) {
       this.logger.warn(`submitPasswordChangeRequest: admin ${args.adminId} not valid for user ${user.id}`);
@@ -355,12 +355,12 @@ export class PasswordResetService {
 
     // Best-effort notification (don't block the user's submit on send failure).
     const schoolName = await this.lookupSchoolName(user.schoolId);
-    const requesterName = (user.nameEn || user.name || 'A user').toString();
+    const requesterName = (user.name || 'A user').toString();
     if (admin.email) {
       try {
         await this.email.sendPasswordChangeRequestToAdmin({
           to: admin.email,
-          adminName: (admin.nameEn || admin.name || 'Admin').toString(),
+          adminName: (admin.name || 'Admin').toString(),
           requesterName,
           requesterIdentifier: user.email || (user as any).username || '',
           schoolName,
@@ -394,7 +394,7 @@ export class PasswordResetService {
           recipientName: requesterName,
           schoolName,
           rejectUrl,
-          adminName: (admin.nameEn || admin.name || 'an admin').toString(),
+          adminName: (admin.name || 'an admin').toString(),
         });
       } catch (err) {
         this.logger.warn(`submitPasswordChangeRequest: target email notify failed: ${(err as Error).message}`);
@@ -513,12 +513,12 @@ export class PasswordResetService {
       where: { toAdminId: adminId, status: 'PENDING', expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { id: true, name: true, nameEn: true, email: true, username: true, phone: true } as any } as any,
+        user: { select: { id: true, name: true, email: true, username: true, phone: true } as any } as any,
       } as any,
     }) as any[];
     return rows.map((r: any) => ({
       id: r.id,
-      requesterName: (r.user?.nameEn || r.user?.name || 'A user').toString(),
+      requesterName: (r.user?.name || 'A user').toString(),
       requesterEmail: r.user?.email,
       requesterUsername: r.user?.username,
       // Prefer the phone the requester typed at submit time (their proof of

@@ -120,7 +120,6 @@ export class SolutionsService {
       select: {
         id: true,
         name: true,
-        displayName: true,
         school: { select: { name: true } },
         studentProfile: { select: { grade: true } },
       },
@@ -128,7 +127,7 @@ export class SolutionsService {
     const map = new Map<string, { name: string; grade: number | null; schoolName: string | null }>();
     for (const u of users) {
       map.set(u.id, {
-        name: (u.displayName?.trim() || u.name || '').trim(),
+        name: (u.name || '').trim(),
         grade: u.studentProfile?.grade ?? null,
         schoolName: u.school?.name ?? null,
       });
@@ -412,7 +411,6 @@ export class SolutionsService {
       select: {
         id: true,
         name: true,
-        displayName: true,
         schoolId: true,
         school: { select: { name: true } },
         studentProfile: { select: { grade: true } },
@@ -437,14 +435,14 @@ export class SolutionsService {
         upload: r.upload,
         reporter: reporter
           ? {
-              name: (reporter.displayName?.trim() || reporter.name || '').trim(),
+              name: (reporter.name || '').trim(),
               grade: reporter.studentProfile?.grade ?? null,
               schoolName: reporter.school?.name ?? null,
             }
           : null,
         poster: poster
           ? {
-              name: (poster.displayName?.trim() || poster.name || '').trim(),
+              name: (poster.name || '').trim(),
               grade: poster.studentProfile?.grade ?? null,
               schoolName: poster.school?.name ?? null,
             }

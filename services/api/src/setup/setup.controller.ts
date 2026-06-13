@@ -295,7 +295,7 @@ export class SetupController {
       const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
       adminUser = await this.prisma.user.create({
         data: {
-          name: adminName, nameEn: adminName,
+          name: adminName,
           ...(adminEmail ? { email: adminEmail } : {}),
           username,
           password: hash,
@@ -308,7 +308,7 @@ export class SetupController {
     } else {
       await this.prisma.user.update({
         where: { id: adminUser.id },
-        data: { schoolId: school.id, name: adminName, nameEn: adminName, password: hash, plainPassword: adminPassword } as any,
+        data: { schoolId: school.id, name: adminName, password: hash, plainPassword: adminPassword } as any,
       });
       await this.prisma.userRole.upsert({
         where: { userId_role: { userId: adminUser.id, role: 'ADMIN' as any } },
@@ -350,7 +350,7 @@ export class SetupController {
         }) as any,
         this.prisma.user.findMany({
           where: { schoolId: s.id, roles: { some: { role: 'ADMIN' as any } } } as any,
-          select: { id: true, email: true, username: true, name: true, nameEn: true } as any,
+          select: { id: true, email: true, username: true, name: true } as any,
           take: 20,
         }) as any,
         this.prisma.cohort.count({ where: { schoolId: s.id } } as any),
@@ -382,7 +382,7 @@ export class SetupController {
         subjectCount,
         admins: (admins as any[]).map((a: any) => ({
           id: a.id,
-          name: a.nameEn || a.name,
+          name: a.name,
           email: a.email,
           username: a.username,
         })),
@@ -410,7 +410,7 @@ export class SetupController {
       }) as any,
       this.prisma.user.findMany({
         where: { schoolId: id, roles: { some: { role: 'ADMIN' as any } } } as any,
-        select: { id: true, email: true, username: true, name: true, nameEn: true } as any,
+        select: { id: true, email: true, username: true, name: true } as any,
       }) as any,
       this.prisma.cohort.count({ where: { schoolId: id } } as any),
       this.prisma.classroom.count({ where: { schoolId: id } } as any),

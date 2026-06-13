@@ -76,12 +76,7 @@ class AdminRepository {
   }
 
   Future<AdminCreateResult> createUser({
-    required String nameEn,
-    String? nameAr,
-    String? nameHe,
-    String? nameFr,
-    String? nameRu,
-    String? displayName,
+    required String name,
     String? email,
     String? username,
     String? phone,
@@ -90,13 +85,7 @@ class AdminRepository {
     int? grade,
   }) async {
     final raw = await _api.postJson('/admin/users', body: {
-      'name': nameEn,
-      'nameEn': nameEn,
-      if (nameAr != null && nameAr.isNotEmpty) 'nameAr': nameAr,
-      if (nameHe != null && nameHe.isNotEmpty) 'nameHe': nameHe,
-      if (nameFr != null && nameFr.isNotEmpty) 'nameFr': nameFr,
-      if (nameRu != null && nameRu.isNotEmpty) 'nameRu': nameRu,
-      if (displayName != null && displayName.isNotEmpty) 'displayName': displayName,
+      'name': name,
       if (email != null && email.isNotEmpty) 'email': email,
       if (username != null && username.isNotEmpty) 'username': username,
       if (phone != null && phone.isNotEmpty) 'phone': phone,
@@ -113,11 +102,7 @@ class AdminRepository {
   }
 
   Future<void> updateUser(String id, {
-    String? nameEn,
-    String? nameAr,
-    String? nameHe,
-    String? nameFr,
-    String? nameRu,
+    String? name,
     String? email,
     String? username,
     String? phone,
@@ -125,11 +110,7 @@ class AdminRepository {
     int? grade,
   }) async {
     await _api.patchJson('/admin/users/$id', body: {
-      'nameEn': ?nameEn,
-      'nameAr': ?nameAr,
-      'nameHe': ?nameHe,
-      'nameFr': ?nameFr,
-      'nameRu': ?nameRu,
+      'name': ?name,
       'email': ?email,
       'username': ?username,
       'phone': ?phone,

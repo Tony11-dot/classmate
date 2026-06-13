@@ -395,18 +395,18 @@ export class StudentClassroomsController {
     return { ok: true, items, nextCursor: hasMore ? (rows[take - 1]?.id ?? null) : null };
   }
 
-  /// Batch lookup of display-friendly names for a set of user ids. Prefers
-  /// the user's curated displayName, falls back through nameEn → name.
+  /// Batch lookup of display-friendly names for a set of user ids, from
+  /// `name` (the single full-name source of truth).
   private async resolveSenderNames(ids: string[]): Promise<Map<string, string>> {
     const uniq = Array.from(new Set(ids.filter((v) => typeof v === 'string' && v.length > 0)));
     if (uniq.length === 0) return new Map();
     const users = await this.prisma.user.findMany({
       where: { id: { in: uniq } },
-      select: { id: true, name: true, displayName: true, nameEn: true } as any,
+      select: { id: true, name: true } as any,
     });
     const out = new Map<string, string>();
     for (const u of users as any[]) {
-      const v = String(u.displayName ?? u.nameEn ?? u.name ?? '').trim();
+      const v = String(u.name ?? '').trim();
       if (v) out.set(u.id, v);
     }
     return out;

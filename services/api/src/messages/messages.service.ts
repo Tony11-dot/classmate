@@ -54,7 +54,7 @@ export class MessagesService {
   private async requireUser(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, displayName: true, nameEn: true } as any,
+      select: { id: true, name: true } as any,
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -63,23 +63,11 @@ export class MessagesService {
   }
 
   private displayNameOf(
-    user:
-      | { name?: string | null; displayName?: string | null; nameEn?: string | null }
-      | null
-      | undefined,
+    user: { name?: string | null } | null | undefined,
   ) {
-    // Fallback order: explicit displayName → English full name → legacy
-    // `name` → generic. nameEn comes before name so a misconfigured
-    // displayName (e.g. admin typed the example placeholder instead of a
-    // real value) doesn't lose us the canonical name entirely. We still
-    // honor a meaningful displayName when one is set.
-    const dn = String(user?.displayName ?? '').trim();
-    if (dn.length > 0) return dn;
-    const en = String(user?.nameEn ?? '').trim();
-    if (en.length > 0) return en;
+    // `name` is the single full-name source of truth now.
     const n = String(user?.name ?? '').trim();
-    if (n.length > 0) return n;
-    return 'Unknown';
+    return n.length > 0 ? n : 'Unknown';
   }
 
   private initialsOf(name: string) {
@@ -253,15 +241,12 @@ export class MessagesService {
       new Set(userIds.map((v) => String(v).trim()).filter((v) => v.length > 0)),
     );
     if (!ids.length)
-      return new Map<
-        string,
-        { id: string; name: string; displayName: string | null; nameEn: string | null }
-      >();
+      return new Map<string, { id: string; name: string }>();
 
     const rows = (await this.prisma.user.findMany({
       where: { id: { in: ids } },
-      select: { id: true, name: true, displayName: true, nameEn: true } as any,
-    })) as unknown as Array<{ id: string; name: string; displayName: string | null; nameEn: string | null }>;
+      select: { id: true, name: true } as any,
+    })) as unknown as Array<{ id: string; name: string }>;
 
     return new Map(rows.map((row) => [row.id, row]));
   }
@@ -368,7 +353,6 @@ export class MessagesService {
       select: {
         id: true,
         name: true,
-        displayName: true,
         roles: { select: { role: true }, take: 1 },
         studentProfile: {
           select: {
@@ -770,7 +754,6 @@ export class MessagesService {
           select: {
             id: true,
             name: true,
-            displayName: true,
           },
         })
       : [];
@@ -794,9 +777,7 @@ export class MessagesService {
             thread.participants.find((p) => p.userId !== userId)?.userId ?? '';
           if (!otherId) return null;
           const other = userById.get(otherId);
-          const displayName = String(
-            other?.displayName ?? other?.name ?? 'Unknown user',
-          ).trim();
+          const displayName = String(other?.name ?? 'Unknown user').trim();
           return {
             threadId: thread.id,
             userId: otherId,
@@ -1838,8 +1819,6 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       select: {
         id: true,
         name: true,
-        displayName: true,
-        nameEn: true,
         email: true,
         roles: { select: { role: true } },
       } as any,
@@ -1873,7 +1852,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
           const u: any = userMap.get(p.userId);
           return {
             userId: p.userId,
-            name: u?.displayName ?? u?.name ?? u?.email ?? '',
+            name: u?.name ?? u?.email ?? '',
             role: p.role,
             userRole: u?._primaryRole ?? 'STUDENT',
             joinedAt: p.createdAt,

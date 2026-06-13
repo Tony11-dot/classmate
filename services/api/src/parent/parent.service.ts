@@ -1088,7 +1088,6 @@ export class ParentService {
       include: {
         child: {
           select: {
-            displayName: true,
             legalName: true,
             name: true,
             email: true,
@@ -1100,9 +1099,8 @@ export class ParentService {
     const students = links.map((l) => ({
       id: l.childId,
       name:
-        l.child?.displayName ||
-        l.child?.legalName ||
         l.child?.name ||
+        l.child?.legalName ||
         l.child?.email ||
         l.childId,
     }));

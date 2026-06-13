@@ -105,14 +105,14 @@ export class AuthController {
   async updateProfileName(@Req() req: any, @Body() body: any) {
     const userId = req.user?.sub ?? req.user?.id;
     if (!userId) return { ok: false };
+    // `name` is the single full-name source of truth. `nameEn` is accepted
+    // as a legacy alias only.
     const data: any = {};
-    if (body?.nameEn !== undefined) data.nameEn = body.nameEn ? String(body.nameEn).trim() : null;
-    if (body?.nameAr !== undefined) data.nameAr = body.nameAr ? String(body.nameAr).trim() : null;
-    if (body?.nameHe !== undefined) data.nameHe = body.nameHe ? String(body.nameHe).trim() : null;
-    if (body?.nameFr !== undefined) data.nameFr = body.nameFr ? String(body.nameFr).trim() : null;
-    if (body?.nameRu !== undefined) data.nameRu = body.nameRu ? String(body.nameRu).trim() : null;
-    if (body?.displayNameLang !== undefined) data.displayNameLang = body.displayNameLang ? String(body.displayNameLang).trim() : null;
-    if (body?.displayName !== undefined) data.displayName = body.displayName ? String(body.displayName).trim() : null;
+    const newName = body?.name ?? body?.nameEn;
+    if (newName !== undefined) {
+      const n = String(newName ?? '').trim();
+      if (n) data.name = n;
+    }
     if (Object.keys(data).length === 0) return { ok: true };
     await this.prisma.user.update({ where: { id: userId }, data });
     return { ok: true };
@@ -130,12 +130,6 @@ export class AuthController {
     let schoolLogoUrl: string | null = null;
     let cohortName: string | null = null;
     let fullName: string | null = null;
-    let nameEn: string | null = null;
-    let nameAr: string | null = null;
-    let nameHe: string | null = null;
-    let nameFr: string | null = null;
-    let nameRu: string | null = null;
-    let displayNameLang: string | null = null;
     let displayName: string | null = null;
     let username: string | null = null;
     let phone: string | null = null;
@@ -149,30 +143,19 @@ export class AuthController {
           where: { id: userId },
           select: {
             name: true,
-            displayName: true,
             legalName: true,
             username: true,
-            nameEn: true,
-            nameAr: true,
-            nameHe: true,
-            nameFr: true,
-            nameRu: true,
-            displayNameLang: true,
             phone: true,
             emailVerifiedAt: true,
             phoneVerifiedAt: true,
           } as any,
         }) as any;
         if (dbUser) {
-          fullName = dbUser.legalName ?? dbUser.displayName ?? dbUser.name ?? null;
-          displayName = dbUser.displayName ?? null;
+          // One full name everywhere. `fullName` and `displayName` both
+          // resolve from `name` (legalName preferred for the formal record).
+          fullName = dbUser.legalName ?? dbUser.name ?? null;
+          displayName = dbUser.name ?? null;
           username = dbUser.username ?? null;
-          nameEn = dbUser.nameEn ?? null;
-          nameAr = dbUser.nameAr ?? null;
-          nameHe = dbUser.nameHe ?? null;
-          nameFr = dbUser.nameFr ?? null;
-          nameRu = dbUser.nameRu ?? null;
-          displayNameLang = dbUser.displayNameLang ?? null;
           phone = dbUser.phone ?? null;
           emailVerifiedAt = dbUser.emailVerifiedAt
             ? new Date(dbUser.emailVerifiedAt).toISOString()
@@ -246,12 +229,6 @@ export class AuthController {
       schoolSemesters,
       fullName,
       displayName,
-      nameEn,
-      nameAr,
-      nameHe,
-      nameFr,
-      nameRu,
-      displayNameLang,
       phone,
       emailVerifiedAt,
       phoneVerifiedAt,

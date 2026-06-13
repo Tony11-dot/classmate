@@ -32,8 +32,6 @@ export class UsersService {
       select: {
         id: true,
         name: true,
-        displayName: true,
-        nameEn: true,
         schoolId: true,
         school: { select: { name: true } },
         roles: { select: { role: true } },
@@ -67,11 +65,7 @@ export class UsersService {
       roles[0] ??
       'STUDENT';
 
-    const displayName =
-      String(target.displayName ?? '').trim() ||
-      String(target.nameEn ?? '').trim() ||
-      String(target.name ?? '').trim() ||
-      'Member';
+    const displayName = String(target.name ?? '').trim() || 'Member';
     const initials = this.initialsOf(displayName);
 
     const grade = target.studentProfile?.cohort?.grade
@@ -88,8 +82,6 @@ export class UsersService {
             select: {
               id: true,
               name: true,
-              displayName: true,
-              nameEn: true,
               studentProfile: {
                 select: { cohort: { select: { grade: true } } },
               },
@@ -99,10 +91,7 @@ export class UsersService {
       });
       children = links.map((l) => ({
         id: l.child.id,
-        name:
-          String(l.child.displayName ?? '').trim() ||
-          String(l.child.nameEn ?? '').trim() ||
-          String(l.child.name ?? '').trim(),
+        name: String(l.child.name ?? '').trim(),
         grade: l.child.studentProfile?.cohort?.grade
           ? `Grade ${l.child.studentProfile.cohort.grade}`
           : null,
@@ -115,16 +104,13 @@ export class UsersService {
         where: { childId: targetId, status: 'APPROVED' as any },
         include: {
           parent: {
-            select: { id: true, name: true, displayName: true, nameEn: true },
+            select: { id: true, name: true },
           },
         },
       });
       parents = links.map((l) => ({
         id: l.parent.id,
-        name:
-          String(l.parent.displayName ?? '').trim() ||
-          String(l.parent.nameEn ?? '').trim() ||
-          String(l.parent.name ?? '').trim(),
+        name: String(l.parent.name ?? '').trim(),
       }));
     }
 
