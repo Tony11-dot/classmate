@@ -65,8 +65,8 @@ img { display: block; max-width: 100%; }
 /* Centered nav: [tabs] · CM monogram · [tabs], controls floated right.
    Grid 1fr·auto·1fr keeps the CM dead-centre even when the two tab
    groups have different widths. */
-.nav-menu { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: clamp(14px, 2.5vw, 32px); width: 100%; margin: 0; }
-.nav-links { display: flex; gap: clamp(16px, 2vw, 28px); font-weight: 600; color: var(--muted); }
+.nav-menu { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: clamp(12px, 2vw, 26px); width: 100%; margin: 0; }
+.nav-links { display: flex; gap: clamp(14px, 1.6vw, 24px); font-weight: 600; color: var(--muted); }
 .nav-left { justify-content: flex-end; }
 .nav-right { justify-content: flex-start; }
 .brand-bar { display: none; }
@@ -350,7 +350,9 @@ section[id] { scroll-margin-top: 88px; }
 .faq-group-title span { font-size: 18px; }
 
 /* ── Mobile nav: centered logo + hamburger menu ── */
-@media (max-width: 900px) {
+/* Nav collapses to the hamburger at <=1024px — below that the centered
+   tabs + floated controls get cramped and overlap. */
+@media (max-width: 1024px) {
   .nav { justify-content: center; position: sticky; }
   .nav-toggle { display: flex; position: absolute; left: clamp(14px, 5vw, 40px); top: 50%; transform: translateY(-50%); }
   .brand-bar { display: flex; margin: 0; }   /* CM centered in the bar */

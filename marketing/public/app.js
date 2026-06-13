@@ -163,7 +163,7 @@ if (navToggle && navEl) {
   if (navMenu) navMenu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
   // Esc closes; leaving mobile width resets state.
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
-  window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
+  window.matchMedia('(min-width: 1025px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
 }
 
 // ── Analytics ──────────────────────────────────────────────────────────────
