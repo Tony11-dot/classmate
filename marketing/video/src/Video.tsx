@@ -190,6 +190,9 @@ export const ClassMateDemo: React.FC = () => {
       {MUSIC_ENABLED ? (
         <Audio
           src={staticFile(MUSIC_SRC)}
+          // Trim the dead intro so a downbeat lands on the title card and full
+          // energy rides from NOVA through the montage + CTA.
+          trimBefore={150}
           volume={(f) =>
             interpolate(
               f,
