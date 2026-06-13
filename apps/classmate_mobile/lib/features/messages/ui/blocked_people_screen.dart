@@ -74,8 +74,16 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
     return Scaffold(
       // Full-screen — no AppBar. A small floating back chevron + heading sits
       // inside SafeArea; the screen is pushed as a CupertinoPage so the
-      // left-edge swipe-back works too.
-      body: SafeArea(
+      // left-edge swipe-back works too. The GestureDetector adds a
+      // swipe-from-anywhere "swipe to leave": a rightward fling pops the
+      // page (the list only scrolls vertically, so there's no conflict).
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragEnd: (details) {
+          final v = details.primaryVelocity ?? 0;
+          if (v > 250) Navigator.of(context).maybePop();
+        },
+        child: SafeArea(
         bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,6 +161,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

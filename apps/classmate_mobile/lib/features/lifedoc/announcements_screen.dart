@@ -767,52 +767,15 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            _SectionCard(
-                              title: AppLocalizations.of(context)!
-                                  .announcementsDetailsTitle,
-                              subtitle: '',
-                              child: Column(
-                                children: [
-                                  _DetailRow(
-                                    label: AppLocalizations.of(context)!.source,
-                                    value: _sourceLabel(context, announcement.source),
-                                  ),
-                                  _DetailRow(
-                                    label: AppLocalizations.of(context)!
-                                        .announcementsSeverityLabel,
-                                    value: _severityLabelLocalized(
-                                      context,
-                                      announcement.severity,
-                                    ),
-                                  ),
-                                  _DetailRow(
-                                    label: AppLocalizations.of(context)!.state,
-                                    value: _readStateLabel(context, isRead),
-                                  ),
-                                  _DetailRow(
-                                    label: AppLocalizations.of(context)!
-                                        .announcementsCreatedLabel,
-                                    value: _friendlyDateTime(
-                                      context,
-                                      announcement.createdAt,
-                                    ),
-                                  ),
-                                  _DetailRow(
-                                    label: AppLocalizations.of(context)!
-                                        .announcementsIdLabel,
-                                    value: announcement.id,
-                                    isLast: true,
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Detail metadata rows (source / severity / state /
+                            // created / id) were removed — they duplicated the
+                            // header chips + date banner and made the sheet
+                            // feel cluttered. The body speaks for itself.
                             const SizedBox(height: 16),
                             _SectionCard(
                               title: AppLocalizations.of(context)!
                                   .announcementsFullContentTitle,
-                              subtitle: AppLocalizations.of(context)!
-                                  .announcementsFullContentSubtitle,
+                              subtitle: '',
                               child: Text(
                                 _announcementBodyLocalized(context, announcement),
                                 style: TextStyle(
@@ -1318,55 +1281,3 @@ class _DetailTopBar extends StatelessWidget {
   }
 }
 
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  final String label;
-  final String value;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 108,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  value.isEmpty ? AppLocalizations.of(context)!.profileNotAvailable : value,
-                  style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4),
-                ),
-              ),
-            ],
-          ),
-          if (!isLast) ...[
-            const SizedBox(height: 12),
-            Divider(
-              height: 1,
-              color: cs.outlineVariant,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}

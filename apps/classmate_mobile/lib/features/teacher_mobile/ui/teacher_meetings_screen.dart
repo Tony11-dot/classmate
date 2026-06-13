@@ -471,6 +471,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
     setState(() => _saving = true);
     final effectiveTargetType = _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE';
     try {
+      Map<String, dynamic>? created;
       if (_isEditing) {
         await ref.read(teacherMobileRepositoryProvider).updateTeacherMeeting(
           widget.initialMeeting!['id'] as String,
@@ -483,7 +484,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
           },
         );
       } else {
-        await ref.read(teacherMobileRepositoryProvider).createTeacherMeeting(
+        created = await ref.read(teacherMobileRepositoryProvider).createTeacherMeeting(
           title: title,
           description: _descCtrl.text.trim().isNotEmpty ? _descCtrl.text.trim() : null,
           link: link,
@@ -498,7 +499,15 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
         );
       }
       if (!mounted) return;
-      if (context.canPop()) context.pop(true);
+      // Return the new meeting's id when created from the classroom library
+      // picker so it auto-attaches (idempotent — server already mirrored it
+      // via courseId). Editing keeps the legacy `true`.
+      final newId =
+          (created?['meeting'] is Map ? (created!['meeting'] as Map)['id'] : created?['id'])
+              ?.toString();
+      if (context.canPop()) {
+        context.pop(_isEditing ? true : ((newId != null && newId.isNotEmpty) ? newId : true));
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

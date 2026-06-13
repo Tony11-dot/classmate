@@ -623,6 +623,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
       context: context,
       kind: ClassroomLibraryKind.assignment,
       alreadyAttachedTeacherIds: attached,
+      prefillCourseId: widget.courseId,
       prefillSubject: widget.subject,
     );
     if (picked == null || !mounted) return;
@@ -817,6 +818,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
       context: context,
       kind: ClassroomLibraryKind.material,
       alreadyAttachedTeacherIds: attached,
+      prefillCourseId: widget.courseId,
       prefillSubject: widget.subject,
     );
     if (picked == null || !mounted) return;
@@ -991,6 +993,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
       context: context,
       kind: ClassroomLibraryKind.meeting,
       alreadyAttachedTeacherIds: attached,
+      prefillCourseId: widget.courseId,
       prefillSubject: widget.subject,
     );
     if (picked == null || !mounted) return;

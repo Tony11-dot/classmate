@@ -19,6 +19,33 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
   /// (announcements targeting them, DMs, …).
   bool _showingMine = false;
 
+  // ── Date grouping (mirrors the student notifications screen) ──────────────
+  String _groupLabel(BuildContext context, DateTime date) {
+    final l = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    final d = DateTime(date.year, date.month, date.day);
+    final t = DateTime(now.year, now.month, now.day);
+    final diff = t.difference(d).inDays;
+    if (diff <= 0) return l.today;
+    if (diff == 1) return l.yesterday;
+    if (diff <= 7) return l.thisWeek;
+    return l.earlier;
+  }
+
+  /// Bucket notifications into Today / Yesterday / This week / Earlier,
+  /// preserving the (newest-first) order the server returned.
+  Map<String, List<ParentNotification>> _grouped(
+      BuildContext context, List<ParentNotification> items) {
+    final l = AppLocalizations.of(context)!;
+    final out = <String, List<ParentNotification>>{};
+    for (final n in items) {
+      final dt = DateTime.tryParse(n.createdAt ?? '')?.toLocal();
+      final key = dt != null ? _groupLabel(context, dt) : l.earlier;
+      (out[key] ??= <ParentNotification>[]).add(n);
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -54,6 +81,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
             final mineItems = items.where((n) => n.studentId == null).toList(growable: false);
             final visible = _showingMine ? mineItems : childItems;
             final unread = items.where((n) => !n.seen).length;
+            final grouped = _grouped(context, visible);
 
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -111,7 +139,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
                 if (visible.isEmpty)
                   Padding(
@@ -120,10 +148,26 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
                         style: TextStyle(color: cs.onSurfaceVariant))),
                   )
                 else
-                  ...visible.map((item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: _NotificationTile(item: item),
-                      )),
+                  ...grouped.entries.map(
+                    (entry) => Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w900)),
+                          ),
+                          ...entry.value.map(
+                            (item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _NotificationTile(item: item),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             );
           },
@@ -204,6 +248,57 @@ class _MetricTile extends StatelessWidget {
   }
 }
 
+// ── Per-type visual mapping (mirrors the student notifications screen) ───────
+
+IconData _iconForType(String? type) {
+  switch ((type ?? '').toUpperCase()) {
+    case 'GRADE_POSTED':
+      return Icons.grade_rounded;
+    case 'ATTENDANCE_RECORDED':
+    case 'ATTENDANCE_ALERT':
+      return Icons.how_to_reg_rounded;
+    case 'NEW_ASSIGNMENT':
+      return Icons.assignment_rounded;
+    case 'NEW_MATERIAL':
+      return Icons.description_rounded;
+    case 'NEW_MEETING':
+      return Icons.video_call_rounded;
+    case 'NEW_EXAM':
+      return Icons.fact_check_rounded;
+    case 'NEW_FORM':
+      return Icons.dynamic_form_rounded;
+    case 'NEW_DIPLOMA':
+      return Icons.workspace_premium_rounded;
+    case 'NEW_MESSAGE':
+      return Icons.chat_bubble_rounded;
+    case 'ANNOUNCEMENT':
+      return Icons.campaign_rounded;
+    default:
+      return Icons.notifications_active_rounded;
+  }
+}
+
+/// Subtle background tint matching the student screen's severity tones:
+/// attendance reads as a soft warning; everything else stays neutral.
+Color _toneForType(BuildContext context, String? type) {
+  final cs = Theme.of(context).colorScheme;
+  switch ((type ?? '').toUpperCase()) {
+    case 'ATTENDANCE_RECORDED':
+    case 'ATTENDANCE_ALERT':
+      return cs.tertiaryContainer;
+    default:
+      return cs.surfaceContainerHighest;
+  }
+}
+
+String? _timeLabel(String? iso) {
+  final dt = DateTime.tryParse(iso ?? '')?.toLocal();
+  if (dt == null) return null;
+  final hh = dt.hour.toString().padLeft(2, '0');
+  final mm = dt.minute.toString().padLeft(2, '0');
+  return '$hh:$mm';
+}
+
 class _NotificationTile extends StatelessWidget {
   const _NotificationTile({required this.item});
   final ParentNotification item;
@@ -211,50 +306,102 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+    final time = _timeLabel(item.createdAt);
+
     return LiquidGlassCard(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      borderRadius: BorderRadius.circular(18),
+      padding: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(20),
+      color: _toneForType(context, item.type),
+      border: Border.all(color: cs.outlineVariant),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerLow,
+                shape: BoxShape.circle,
+                border: Border.all(color: cs.outlineVariant),
+              ),
+              child: Center(child: Icon(_iconForType(item.type), size: 20)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.title.isEmpty ? l.notificationFallbackTitle : item.title,
+                          style: const TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                      if (!item.seen)
+                        Container(
+                          width: 10,
+                          height: 10,
+                          margin: const EdgeInsets.only(left: 8, top: 6),
+                          decoration: BoxDecoration(
+                            color: cs.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (item.body.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      item.body,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if ((item.studentName ?? '').isNotEmpty)
+                        _MetaPill(label: item.studentName!.toUpperCase()),
+                      if (time != null) _MetaPill(label: time),
+                      if (!item.seen) _MetaPill(label: l.notificationsNewBadge.toUpperCase()),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetaPill extends StatelessWidget {
+  const _MetaPill({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return LiquidGlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      borderRadius: BorderRadius.circular(999),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 5,
-            backgroundColor: item.seen ? cs.surfaceContainerHighest : cs.primary,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title.isEmpty ? AppLocalizations.of(context)!.notificationFallbackTitle : item.title,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: item.seen ? FontWeight.w500 : FontWeight.w800,
-                  ),
-                ),
-                if (item.body.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(item.body, style: theme.textTheme.bodyMedium),
-                  ),
-                if ((item.studentName ?? '').isNotEmpty || (item.createdAt ?? '').isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      [
-                        if ((item.studentName ?? '').isNotEmpty) item.studentName!,
-                        if ((item.createdAt ?? '').isNotEmpty) item.createdAt!,
-                      ].join(' · '),
-                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

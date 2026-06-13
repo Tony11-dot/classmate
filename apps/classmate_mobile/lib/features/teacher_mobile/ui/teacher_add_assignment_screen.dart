@@ -347,7 +347,13 @@ class _TeacherAddAssignmentScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(published ? AppLocalizations.of(context)!.teacherAssignmentPublished : AppLocalizations.of(context)!.teacherAssignmentDraftSaved)),
       );
-      if (context.canPop()) context.pop(true);
+      // When created from the classroom library picker, return the new id so
+      // the picker auto-attaches it to the classroom (the server already
+      // mirrored it via courseId, so the attach is an idempotent no-op that
+      // just triggers the tab refresh). Editing keeps the legacy `true`.
+      if (context.canPop()) {
+        context.pop(_isEditing ? true : (savedAsnId.isNotEmpty ? savedAsnId : true));
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

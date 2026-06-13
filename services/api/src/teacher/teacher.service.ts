@@ -3241,11 +3241,14 @@ export class TeacherService {
       data: {
         classroomId,
         title: src.title,
-        description: src.description ?? null,
+        // ClassroomAssignment stores the instructions in `body` (it has no
+        // `description`/`maxGrade`/`published` columns). Writing those keys
+        // made Prisma throw PrismaClientValidationError at runtime — the
+        // `as any` only silenced TypeScript — so attaching an assignment to
+        // a classroom 500'd ("errors, doesn't add").
+        body: src.description ?? null,
         dueAt: src.dueAt,
-        maxGrade: src.maxGrade ?? null,
         attachments: src.attachments as any,
-        published: src.published,
         createdBy: teacherId,
         teacherAssignmentId: src.id,
       } as any,

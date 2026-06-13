@@ -27,12 +27,19 @@ class ClassroomLibraryPickerSheet extends ConsumerStatefulWidget {
     super.key,
     required this.kind,
     required this.alreadyAttachedTeacherIds,
+    this.prefillCourseId,
     this.prefillSubject,
     this.prefillCohortIds,
     this.prefillStudentIds,
   });
 
   final ClassroomLibraryKind kind;
+
+  /// Classroom this picker was opened from. Forwarded to the "Create new"
+  /// flow so the new library item defaults its audience to this classroom
+  /// (subject + roster) and the server mirrors it straight into the
+  /// classroom — no second tap needed to attach.
+  final String? prefillCourseId;
 
   /// Teacher-library ids that already have a mirror in this classroom.
   /// Rendered greyed-out + non-tappable so the teacher can see what's
@@ -130,6 +137,8 @@ class _ClassroomLibraryPickerSheetState
     final result = await context.push(
       _createNewRoute,
       extra: <String, dynamic>{
+        if ((widget.prefillCourseId ?? '').isNotEmpty)
+          'courseId': widget.prefillCourseId,
         if ((widget.prefillSubject ?? '').isNotEmpty)
           'subject': widget.prefillSubject,
         if ((widget.prefillCohortIds ?? const []).isNotEmpty)
@@ -331,6 +340,7 @@ Future<String?> showClassroomLibraryPicker({
   required BuildContext context,
   required ClassroomLibraryKind kind,
   required Set<String> alreadyAttachedTeacherIds,
+  String? prefillCourseId,
   String? prefillSubject,
   List<String>? prefillCohortIds,
   List<String>? prefillStudentIds,
@@ -348,6 +358,7 @@ Future<String?> showClassroomLibraryPicker({
     builder: (_) => ClassroomLibraryPickerSheet(
       kind: kind,
       alreadyAttachedTeacherIds: alreadyAttachedTeacherIds,
+      prefillCourseId: prefillCourseId,
       prefillSubject: prefillSubject,
       prefillCohortIds: prefillCohortIds,
       prefillStudentIds: prefillStudentIds,
