@@ -100,8 +100,7 @@ if (shots.length && steps.length) {
 // ── Scroll-driven effects: progress bar, nav state, hero parallax ──
 const progress = document.getElementById('scrollProgress');
 const nav = document.getElementById('nav');
-const heroPhone = document.querySelector('.phone-hero');
-const heroGlow = document.querySelector('.hero-glow');
+// (The hero phone + glow are now driven by the GSAP ScrollTrigger timeline below.)
 const showcasePhone = document.querySelector('.phone-showcase');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Generic parallax layers (section background glows). Each drifts relative to
@@ -119,8 +118,6 @@ function onScroll() {
     if (progress) progress.style.transform = `scaleX(${docH > 0 ? y / docH : 0})`;
     if (nav) nav.classList.toggle('scrolled', y > 8);
     if (!reduceMotion) {
-      if (heroPhone) heroPhone.style.transform = `translateY(${y * -0.08}px) rotate(-3deg)`;
-      if (heroGlow) heroGlow.style.transform = `translateY(${y * 0.12}px)`;
       // Sticky showcase phone: tilt in 3D + float as it travels the viewport.
       if (showcasePhone) {
         const pr = showcasePhone.getBoundingClientRect();
@@ -212,4 +209,75 @@ if (demoVideo) {
     const d = demoVideo.duration;
     return d ? Math.round((demoVideo.currentTime / d) * 100) : 0;
   }
+}
+
+// ── Hero scroll animation (GSAP ScrollTrigger) ──────────────────────────────
+// Pinned cinematic stage: phone flies in from the left → centres → straightens
+// → 3D Y-flip to the schedule → settles to the right as the copy reveals, over
+// 3 parallax layers. Desktop does the 3D; mobile slides in + parallax only.
+if (window.gsap && window.ScrollTrigger && document.querySelector('.hero-stage')) {
+  gsap.registerPlugin(ScrollTrigger);
+  const copyEls = '.hero-stage .hero-copy > *';
+  const mm = gsap.matchMedia();
+
+  // Desktop — full 3D pinned timeline.
+  mm.add('(min-width: 769px) and (prefers-reduced-motion: no-preference)', () => {
+    gsap.set('.hero-phone-pos', { xPercent: -50, yPercent: -50, opacity: 1, transformOrigin: '50% 50%' });
+    gsap.set(copyEls, { opacity: 0, y: 30 });
+
+    const settleX = () => Math.min(window.innerWidth * 0.2, 260);
+
+    const tl = gsap.timeline({
+      defaults: { ease: 'power2.inOut' },
+      scrollTrigger: {
+        trigger: '.hero-stage', start: 'top top', end: 'bottom bottom',
+        scrub: 0.6, pin: '.hero-pin', anticipatePin: 1, invalidateOnRefresh: true,
+      },
+    });
+
+    // 0–25%: fly LEFT → CENTRE, scale 0.8→0.95, straighten rotateZ −15→0.
+    tl.fromTo('.hero-phone-pos',
+      { x: -600, scale: 0.8, rotationZ: -15 },
+      { x: 0, scale: 0.95, rotationZ: 0, duration: 25 }, 0);
+    // 25–40%: confident — scale 0.95→1.0 (centred).
+    tl.to('.hero-phone-pos', { scale: 1.0, duration: 15 }, 25);
+    // 40–65%: 3D flip on Y (fixed size), back face = schedule screenshot.
+    tl.to('.hero-phone-flip', { rotationY: 180, duration: 25 }, 40);
+    // 65–100%: settle to the right + slight upward drift.
+    tl.to('.hero-phone-pos', { x: settleX, y: '-=22', duration: 35 }, 65);
+    // Text reveals as the phone settles (stagger 0.1).
+    tl.to('.hero-stage .pill', { opacity: 1, y: 0, duration: 10 }, 64)
+      .to('.hero-stage h1', { opacity: 1, y: 0, duration: 10 }, 66)
+      .to('.hero-stage .lead', { opacity: 1, y: 0, duration: 10 }, 69)
+      .to('.hero-stage .hero-actions', { opacity: 1, y: 0, duration: 10 }, 72)
+      .to('.hero-stage .hero-badges', { opacity: 1, y: 0, duration: 10 }, 75);
+
+    // 3 parallax layers at different speeds (translateY only).
+    tl.fromTo('.hero-bg-1', { yPercent: 0 }, { yPercent: 8, duration: 100, ease: 'none' }, 0);
+    tl.fromTo('.hero-bg-2', { yPercent: 0 }, { yPercent: 20, duration: 100, ease: 'none' }, 0);
+    tl.fromTo('.hero-bg-3', { yPercent: 0 }, { yPercent: 34, duration: 100, ease: 'none' }, 0);
+
+    return () => { gsap.set('.hero-phone-pos', { clearProps: 'all' }); gsap.set(copyEls, { clearProps: 'all' }); };
+  });
+
+  // Mobile — slide-in + parallax, NO 3D, no pin.
+  mm.add('(max-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
+    gsap.set('.hero-phone-pos', { opacity: 1 });
+    gsap.from('.hero-phone-flip', {
+      x: -70, opacity: 0, duration: 0.8, ease: 'power2.out',
+      scrollTrigger: { trigger: '.hero-stage', start: 'top 80%' },
+    });
+    gsap.fromTo(copyEls, { opacity: 0, y: 24 }, {
+      opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power2.out',
+      scrollTrigger: { trigger: '.hero-stage', start: 'top 78%' },
+    });
+    [['.hero-bg-1', 6], ['.hero-bg-2', 14], ['.hero-bg-3', 22]].forEach(([sel, amt]) => {
+      gsap.to(sel, { yPercent: amt, ease: 'none',
+        scrollTrigger: { trigger: '.hero-stage', start: 'top top', end: 'bottom top', scrub: true } });
+    });
+    return () => {};
+  });
+
+  // Debounced resize → recompute pin/positions.
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 200); });
 }
