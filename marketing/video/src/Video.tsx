@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, staticFile } from "remotion";
+import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
@@ -7,7 +7,7 @@ import { wipe } from "@remotion/transitions/wipe";
 
 import { loadFonts } from "./fonts";
 import { Grade } from "./components/Grade";
-import { MUSIC_ENABLED, MUSIC_SRC, SCENES, TRANSITION } from "./theme";
+import { MUSIC_ENABLED, MUSIC_SRC, SCENES, TOTAL_FRAMES, TRANSITION } from "./theme";
 
 import { ColdOpen } from "./scenes/ColdOpen";
 import { Promise as PromiseScene } from "./scenes/Promise";
@@ -80,8 +80,20 @@ export const ClassMateDemo: React.FC = () => {
       {/* Cinematic color grade on top of everything. */}
       <Grade />
 
-      {/* Royalty-free music hook — off by default (see README "Music"). */}
-      {MUSIC_ENABLED ? <Audio src={staticFile(MUSIC_SRC)} volume={0.5} /> : null}
+      {/* Royalty-free music hook — fades in at the open, out under the CTA. */}
+      {MUSIC_ENABLED ? (
+        <Audio
+          src={staticFile(MUSIC_SRC)}
+          volume={(f) =>
+            interpolate(
+              f,
+              [0, 24, TOTAL_FRAMES - 45, TOTAL_FRAMES - 1],
+              [0, 0.5, 0.5, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+            )
+          }
+        />
+      ) : null}
     </AbsoluteFill>
   );
 };

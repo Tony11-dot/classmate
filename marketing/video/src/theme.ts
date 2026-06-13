@@ -11,7 +11,7 @@ export const HEIGHT = 1080;
 export const SHOT = { w: 1206, h: 2622 } as const;
 
 /** Master switch for the background music hook (see README "Music"). */
-export const MUSIC_ENABLED = false;
+export const MUSIC_ENABLED = true;
 /** Path under public/ for the royalty-free track when MUSIC_ENABLED is true. */
 export const MUSIC_SRC = "music/hook.mp3";
 
