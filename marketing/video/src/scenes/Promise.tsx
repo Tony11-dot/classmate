@@ -12,7 +12,7 @@ import { BRAND_GRADIENT, COLORS, FONTS } from "../theme";
  * Scene 2 — Kinetic-type promise.
  * Words punch in one after another, last word swapped to a gradient.
  */
-const WORDS = ["Attendance,", "finally,", "effortless."];
+const WORDS = ["Your whole", "school,", "one app."];
 
 export const Promise: React.FC = () => {
   const frame = useCurrentFrame();

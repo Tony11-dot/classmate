@@ -3,9 +3,9 @@ import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { COLORS } from "../theme";
 
 /**
- * Cinematic color grade applied on top of every scene:
- *  - a warm gold→green wash (soft-light) for the "golden hour" feel,
- *  - a vignette to focus the eye,
+ * Cinematic color grade applied on top of every scene (v2 — intensified):
+ *  - a warm gold→emerald wash (soft-light) for the "golden hour" feel,
+ *  - a stronger vignette to focus the eye,
  *  - animated film grain for texture.
  */
 export const Grade: React.FC = () => {
@@ -15,23 +15,30 @@ export const Grade: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
-      {/* Warm wash */}
+      {/* Warm wash — gold from top-left, emerald from bottom-right */}
       <AbsoluteFill
         style={{
-          background: `radial-gradient(120% 90% at 12% 8%, ${COLORS.gold}33 0%, transparent 55%),
-                       radial-gradient(120% 100% at 90% 95%, ${COLORS.green}2E 0%, transparent 60%)`,
+          background: `radial-gradient(120% 90% at 10% 6%, ${COLORS.gold}3D 0%, transparent 52%),
+                       radial-gradient(120% 100% at 92% 96%, ${COLORS.emerald}3A 0%, transparent 58%)`,
           mixBlendMode: "soft-light",
+        }}
+      />
+      {/* Subtle cool counter-tone so highlights don't go muddy */}
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(90% 70% at 50% 40%, ${COLORS.sky}1A 0%, transparent 60%)`,
+          mixBlendMode: "screen",
         }}
       />
       {/* Vignette */}
       <AbsoluteFill
         style={{
           background:
-            "radial-gradient(75% 75% at 50% 48%, transparent 55%, rgba(6,9,22,0.55) 100%)",
+            "radial-gradient(72% 72% at 50% 46%, transparent 52%, rgba(6,9,22,0.62) 100%)",
         }}
       />
       {/* Film grain */}
-      <AbsoluteFill style={{ mixBlendMode: "overlay", opacity: 0.16 }}>
+      <AbsoluteFill style={{ mixBlendMode: "overlay", opacity: 0.18 }}>
         <svg width="100%" height="100%">
           <filter id="grain">
             <feTurbulence

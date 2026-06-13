@@ -24,7 +24,8 @@ export const CTA: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
-        background: `radial-gradient(130% 130% at 50% 18%, ${COLORS.indigoSoft}, ${COLORS.indigoDeep} 55%, ${COLORS.ink})`,
+        background: `radial-gradient(90% 80% at 50% 110%, ${COLORS.gold}33, transparent 60%),
+                     radial-gradient(130% 130% at 50% 18%, ${COLORS.indigoSoft}, ${COLORS.indigoDeep} 55%, ${COLORS.ink})`,
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",

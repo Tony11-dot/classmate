@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "remotion studio",
     "studio": "remotion studio",
-    "render": "remotion render src/index.ts ClassMateDemo out/classmate-demo.mp4 --codec=h264",
-    "render:poster": "remotion still src/index.ts ClassMateDemo out/poster.png --frame=1040",
+    "render": "remotion render src/index.ts ClassMateDemo out/classmate-demo-v2.mp4 --codec=h264",
+    "render:poster": "remotion still src/index.ts ClassMateDemo out/classmate-demo-v2-poster.png --frame=840",
     "upgrade": "remotion upgrade"
   },
   "dependencies": {
