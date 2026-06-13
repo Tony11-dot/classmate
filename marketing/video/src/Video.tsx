@@ -7,14 +7,19 @@ import { wipe } from "@remotion/transitions/wipe";
 
 import { loadFonts } from "./fonts";
 import { Grade } from "./components/Grade";
-import { MUSIC_ENABLED, MUSIC_SRC, SCENES, TOTAL_FRAMES, TRANSITION } from "./theme";
+import { TitleCard } from "./components/TitleCard";
+import {
+  COLORS,
+  MUSIC_ENABLED,
+  MUSIC_SRC,
+  SCENES,
+  SCREENS,
+  TOTAL_FRAMES,
+  TRANSITION,
+} from "./theme";
 
 import { ColdOpen } from "./scenes/ColdOpen";
-import { Promise as PromiseScene } from "./scenes/Promise";
-import { AttendanceNotify } from "./scenes/AttendanceNotify";
-import { Nova } from "./scenes/Nova";
-import { Classroom } from "./scenes/Classroom";
-import { Practice } from "./scenes/Practice";
+import { Interaction } from "./scenes/Interaction";
 import { GradesInsights } from "./scenes/GradesInsights";
 import { Montage } from "./scenes/Montage";
 import { CTA } from "./scenes/CTA";
@@ -24,9 +29,9 @@ loadFonts();
 const t = () => linearTiming({ durationInFrames: TRANSITION });
 
 /**
- * ClassMate product demo v2 — 90s, 9 scenes, real app UI animated inside a
- * light iPhone frame. Cold open → promise → attendance/notify → NOVA →
- * classroom → practice → grades/insights → feature montage → CTA.
+ * ClassMate product demo v3 — cinematic "trailer" cut. Real app UI animated
+ * with finger taps (before → after), 3D camera, lens flares, beat-synced
+ * pacing. ~71s.
  */
 export const ClassMateDemo: React.FC = () => {
   return (
@@ -37,28 +42,85 @@ export const ClassMateDemo: React.FC = () => {
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={t()} />
 
-        <TransitionSeries.Sequence durationInFrames={SCENES.promise}>
-          <PromiseScene />
+        <TransitionSeries.Sequence durationInFrames={SCENES.title}>
+          <TitleCard line="Your whole school." gradient />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({ direction: "from-bottom" })} timing={t()} />
 
-        <TransitionSeries.Sequence durationInFrames={SCENES.attnotify}>
-          <AttendanceNotify />
+        {/* Attendance — mark the room, 75% → 100% */}
+        <TransitionSeries.Sequence durationInFrames={SCENES.attendance}>
+          <Interaction
+            beforeSrc={SCREENS.attendanceBefore}
+            afterSrc={SCREENS.attendanceAfter}
+            kicker="Attendance"
+            title="Mark the room in seconds"
+            sub="Tap down the roster — present, absent, late. Saved instantly."
+            side="right"
+            tapXFrac={0.5}
+            tapYFrac={0.85}
+            tapFrame={95}
+            tint={COLORS.indigoSoft}
+            leakHue={COLORS.gold}
+            variant="indigo"
+          />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={t()} />
 
+        {/* NOVA — ask → answer */}
         <TransitionSeries.Sequence durationInFrames={SCENES.nova}>
-          <Nova />
+          <Interaction
+            beforeSrc={SCREENS.novaBefore}
+            afterSrc={SCREENS.novaAfter}
+            kicker="AI tutor"
+            title="Ask NOVA anything"
+            sub="Type a question — get a step-by-step answer, with real math."
+            side="left"
+            tapXFrac={0.9}
+            tapYFrac={0.57}
+            tapFrame={95}
+            afterScroll={-90}
+            tint={COLORS.sky}
+            leakHue={COLORS.emerald}
+            variant="night"
+          />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({ direction: "from-left" })} timing={t()} />
 
+        {/* Classrooms — tab switch */}
         <TransitionSeries.Sequence durationInFrames={SCENES.classroom}>
-          <Classroom />
+          <Interaction
+            beforeSrc={SCREENS.classroomBefore}
+            afterSrc={SCREENS.classroomAssignments}
+            kicker="Classrooms"
+            title="Your class, organized"
+            sub="Chat, assignments, materials and meetings — one tap apart."
+            side="right"
+            tapXFrac={0.36}
+            tapYFrac={0.2}
+            tapFrame={90}
+            tint={COLORS.emerald}
+            leakHue={COLORS.gold}
+            variant="indigo"
+          />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={fade()} timing={t()} />
 
+        {/* Practice — tap the answer (the money shot) */}
         <TransitionSeries.Sequence durationInFrames={SCENES.practice}>
-          <Practice />
+          <Interaction
+            beforeSrc={SCREENS.practiceBefore}
+            afterSrc={SCREENS.practiceAfter}
+            kicker="Practice"
+            title="Learn by doing"
+            sub="Tap an answer — instant feedback, streaks and a worked explanation."
+            side="left"
+            tapXFrac={0.5}
+            tapYFrac={0.8}
+            tapFrame={110}
+            tint={COLORS.gold}
+            leakHue={COLORS.emerald}
+            variant="warm"
+          />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({ direction: "from-right" })} timing={t()} />
 

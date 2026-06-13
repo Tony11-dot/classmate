@@ -48,8 +48,13 @@ export const FONTS = {
   mono: "'JetBrains Mono', ui-monospace, monospace",
 } as const;
 
-/** App screenshots, addressed via staticFile('screens/<file>'). */
+/**
+ * App screenshots, addressed via staticFile('screens/<file>').
+ * The *-before/-after pairs are real captures used for "someone using it"
+ * morphs (tap → state change). The bare names are the original hi-res shots.
+ */
 export const SCREENS = {
+  // hi-res originals
   nova: "screens/nova.png",
   schedule: "screens/schedule.png",
   classroom: "screens/classroom.png",
@@ -57,6 +62,19 @@ export const SCREENS = {
   practice: "screens/practice.png",
   solutions: "screens/solutions.png",
   menu: "screens/menu.png",
+  // real before/after interaction pairs
+  attendanceBefore: "screens/attendance-before.png",
+  attendanceAfter: "screens/attendance-after.png",
+  novaBefore: "screens/nova-before.png",
+  novaAfter: "screens/nova-after.png",
+  practiceBefore: "screens/practice-before.png",
+  practiceAfter: "screens/practice-after.png",
+  classroomBefore: "screens/classroom-before.png",
+  classroomAssignments: "screens/classroom-assignments.png",
+  scheduleBefore: "screens/schedule-before.png",
+  scheduleDetail: "screens/schedule-detail.png",
+  gradesScrolled: "screens/grades-scrolled.png",
+  solutionsBooks: "screens/solutions-books.png",
 } as const;
 
 /**
@@ -67,18 +85,18 @@ export const SCREENS = {
 export const TRANSITION = 18;
 
 export const SCENES = {
-  coldOpen: 210,
-  promise: 160,
-  nova: 360,
-  classroom: 340,
-  practice: 350,
-  attnotify: 400,
-  gradesInsights: 380,
-  montage: 380,
-  cta: 264,
+  coldOpen: 200,
+  title: 160,
+  attendance: 260,
+  nova: 280,
+  classroom: 240,
+  practice: 270,
+  gradesInsights: 260,
+  montage: 360,
+  cta: 250,
 } as const;
 
 const sceneList = Object.values(SCENES);
 export const TOTAL_FRAMES =
   sceneList.reduce((a, b) => a + b, 0) - (sceneList.length - 1) * TRANSITION;
-// 2844 - 8*18 = 2700 frames = 90.0s @ 30fps
+// 2280 - 8*18 = 2136 frames = 71.2s @ 30fps
