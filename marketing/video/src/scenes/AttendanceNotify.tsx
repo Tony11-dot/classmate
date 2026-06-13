@@ -10,13 +10,14 @@ import { Avatar } from "../components/Avatar";
 import { PhoneLight } from "../components/PhoneLight";
 import { SceneBG } from "../components/SceneBG";
 import { LightLeak } from "../components/LightLeak";
+import { BrandMark } from "../components/BrandMark";
 import { COLORS, FONTS } from "../theme";
 
 const ROSTER: { name: string; initials: string; colors: [string, string] }[] = [
-  { name: "Maya Cohen", initials: "MC", colors: [COLORS.indigo, COLORS.sky] },
-  { name: "Liam Okafor", initials: "LO", colors: [COLORS.emerald, COLORS.gold] },
-  { name: "Sara Haddad", initials: "SH", colors: [COLORS.sky, COLORS.indigoSoft] },
-  { name: "Noa Levi", initials: "NL", colors: [COLORS.goldDeep, COLORS.gold] },
+  { name: "Student 1", initials: "S1", colors: [COLORS.indigo, COLORS.sky] },
+  { name: "Student 2", initials: "S2", colors: [COLORS.emerald, COLORS.gold] },
+  { name: "Student 3", initials: "S3", colors: [COLORS.sky, COLORS.indigoSoft] },
+  { name: "Student 4", initials: "S4", colors: [COLORS.goldDeep, COLORS.gold] },
 ];
 
 /**
@@ -197,31 +198,14 @@ export const AttendanceNotify: React.FC = () => {
                 boxShadow: "0 18px 44px rgba(0,0,0,0.4)",
               }}
             >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 11,
-                  background: `linear-gradient(140deg, ${COLORS.indigo}, ${COLORS.sky})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontFamily: FONTS.display,
-                  fontWeight: 800,
-                  fontSize: 24,
-                  flexShrink: 0,
-                }}
-              >
-                C
-              </div>
+              <BrandMark size={44} style={{ borderRadius: 11, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONTS.mono, fontSize: 13, color: COLORS.muted }}>
                   <span style={{ fontWeight: 700, color: COLORS.indigo }}>CLASSMATE</span>
                   <span>now</span>
                 </div>
                 <div style={{ fontFamily: FONTS.body, fontWeight: 700, fontSize: 18, color: COLORS.ink, marginTop: 3 }}>
-                  Maya is present ✓
+                  Student 1 is present ✓
                 </div>
                 <div style={{ fontFamily: FONTS.body, fontSize: 15, color: "#3a4763", marginTop: 1 }}>
                   Room 204 · 08:15

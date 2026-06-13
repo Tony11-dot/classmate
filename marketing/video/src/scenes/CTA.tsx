@@ -7,6 +7,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { BRAND_GRADIENT, COLORS, FONTS } from "../theme";
+import { BrandMark } from "../components/BrandMark";
 
 /**
  * Scene 7 — "Join ClassMate Today" call to action.
@@ -31,27 +32,16 @@ export const CTA: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      {/* Logo mark */}
-      <div
+      {/* Logo mark — CM monogram (app icon) */}
+      <BrandMark
+        size={150}
         style={{
-          width: 150,
-          height: 150,
           borderRadius: 38,
-          background: BRAND_GRADIENT,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#fff",
-          fontFamily: FONTS.display,
-          fontWeight: 800,
-          fontSize: 96,
           transform: `scale(${interpolate(logoIn, [0, 1], [0.5, 1])})`,
           opacity: logoIn,
           boxShadow: `0 30px 80px ${COLORS.indigo}88`,
         }}
-      >
-        C
-      </div>
+      />
 
       <div
         style={{
