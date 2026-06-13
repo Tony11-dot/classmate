@@ -143,3 +143,51 @@ if (navToggle && navEl) {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => { if (e.matches) setMenu(false); });
 }
+
+// ── Analytics ──────────────────────────────────────────────────────────────
+// Provider-agnostic. Fires to whichever tag is loaded (Plausible or GA4); a
+// no-op until you enable one in index.html's <head>. Set
+// window.__cmAnalyticsDebug = true in the console to log events locally.
+function track(name, props) {
+  try { if (typeof window.plausible === 'function') window.plausible(name, props ? { props } : undefined); } catch (e) { /* ignore */ }
+  try { if (typeof window.gtag === 'function') window.gtag('event', name, props || {}); } catch (e) { /* ignore */ }
+  if (window.__cmAnalyticsDebug) console.log('[track]', name, props || {});
+}
+window.cmTrack = track; // exposed for ad-hoc/manual events
+
+// CTA clicks — delegated, so it covers every [data-cta] now and in future.
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-cta]');
+  if (!el) return;
+  track('cta_click', { id: el.dataset.cta, location: el.dataset.ctaLoc || 'unknown' });
+});
+
+// Video engagement — play, quartile depth, completion, pause, seek.
+const demoVideo = document.querySelector('.demo-video');
+if (demoVideo) {
+  const fired = new Set();
+  const once = (key, name, props) => { if (!fired.has(key)) { fired.add(key); track(name, props); } };
+
+  demoVideo.addEventListener('play', () => once('play', 'play_demo'));
+  demoVideo.addEventListener('ended', () => track('demo_complete'));
+  // Pause that isn't the natural end-of-video.
+  demoVideo.addEventListener('pause', () => {
+    if (demoVideo.currentTime < (demoVideo.duration || Infinity) - 0.3) {
+      track('demo_pause', { at_pct: pct() });
+    }
+  });
+  // Manual seek (user dragged the scrubber).
+  demoVideo.addEventListener('seeked', () => track('demo_seek', { to_pct: pct() }));
+  // Quartile milestones, each fired once.
+  demoVideo.addEventListener('timeupdate', () => {
+    const p = pct();
+    if (p >= 25) once('25', 'demo_25');
+    if (p >= 50) once('50', 'demo_50');
+    if (p >= 75) once('75', 'demo_75');
+  });
+
+  function pct() {
+    const d = demoVideo.duration;
+    return d ? Math.round((demoVideo.currentTime / d) * 100) : 0;
+  }
+}

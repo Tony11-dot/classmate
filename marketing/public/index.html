@@ -22,6 +22,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <!--
+    ANALYTICS — privacy-first, cookieless. Off until you enable a provider.
+    The track() shim in app.js fires to whichever of these is present, so just
+    uncomment ONE block below (and create the matching account/site):
+
+    Plausible (recommended — ~1KB, no cookie banner, EU-friendly):
+      Create a site for "classmateapp.org" at https://plausible.io, then:
+    <script defer data-domain="classmateapp.org" src="https://plausible.io/js/script.tagged-events.js"></script>
+
+    — or Google Analytics 4 (replace G-XXXXXXX):
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXX')</script>
+  -->
 </head>
 <body>
   <div class="scroll-progress" id="scrollProgress"></div>
@@ -45,7 +58,7 @@
       </nav>
       <div class="nav-cta">
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
-        <a class="btn btn-primary btn-sm" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener">Open the app</a>
+        <a class="btn btn-primary btn-sm" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener" data-cta="open_app" data-cta-loc="nav">Open the app</a>
       </div>
     </div>
     <div class="nav-scrim" id="navScrim" hidden></div>
@@ -64,10 +77,10 @@
           In English, Hebrew, Arabic, Russian &amp; French.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener">
+          <a class="btn btn-primary" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener" data-cta="open_app" data-cta-loc="hero">
             Open the web app →
           </a>
-          <a class="btn btn-ghost" href="#download">Get the app</a>
+          <a class="btn btn-ghost" href="#download" data-cta="get_app" data-cta-loc="hero">Get the app</a>
         </div>
         <div class="hero-badges">
           <span>✦ NOVA AI tutor</span>
@@ -212,7 +225,7 @@
       </video>
     </div>
     <div class="demo-actions reveal">
-      <a class="btn btn-ghost btn-sm" href="downloads/classmate-demo-v2.mp4" download>
+      <a class="btn btn-ghost btn-sm" href="downloads/classmate-demo-v2.mp4" download data-cta="download_video" data-cta-loc="demo">
         ⬇ Download the video
       </a>
     </div>
@@ -224,8 +237,8 @@
       <h2>Get ClassMate</h2>
       <p>Use it instantly in your browser, or install it on your phone.</p>
       <div class="store-row reveal-stagger">
-        <a class="btn btn-primary btn-lg" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener">Open the web app</a>
-        <a class="store-badge live" href="https://apps.apple.com/us/app/classmate-my-smart-companion/id6771313687" target="_blank" rel="noopener" title="Download on the App Store"><span class="store-ico"></span><span><small>Download on the</small><b>App Store</b></span></a>
+        <a class="btn btn-primary btn-lg" href="https://classmate-f17d6.web.app" target="_blank" rel="noopener" data-cta="open_app" data-cta-loc="download">Open the web app</a>
+        <a class="store-badge live" href="https://apps.apple.com/us/app/classmate-my-smart-companion/id6771313687" target="_blank" rel="noopener" title="Download on the App Store" data-cta="app_store" data-cta-loc="download"><span class="store-ico"></span><span><small>Download on the</small><b>App Store</b></span></a>
         <a class="store-badge soon" title="Coming soon"><span class="store-ico">▶</span><span><small>Coming soon to</small><b>Google Play</b></span></a>
       </div>
       <p class="muted small">Works on PC, laptop, iPad and phone. Some features (payments, push) are app-only.</p>
