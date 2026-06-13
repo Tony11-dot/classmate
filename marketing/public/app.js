@@ -21,12 +21,18 @@ toggle.addEventListener('click', () => {
   syncToggleIcon();
 });
 
-// ── Reveal on scroll ──
+// ── Reveal on scroll (fade-in + staggered children) ──
 const io = new IntersectionObserver(
   (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
   { threshold: 0.12 }
 );
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// Staggered groups: index each child so CSS can cascade the delay.
+document.querySelectorAll('.reveal-stagger').forEach((group) => {
+  Array.from(group.children).forEach((child, i) => child.style.setProperty('--i', i));
+  io.observe(group);
+});
 
 // ── Role tabs ──
 const tabs = document.querySelectorAll('.role-tab');
@@ -83,6 +89,9 @@ const nav = document.getElementById('nav');
 const heroPhone = document.querySelector('.phone-hero');
 const heroGlow = document.querySelector('.hero-glow');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Generic parallax layers (section background glows). Each drifts relative to
+// its own distance from the viewport centre, so the effect runs the whole page.
+const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
 
 let ticking = false;
 function onScroll() {
@@ -90,12 +99,20 @@ function onScroll() {
   ticking = true;
   requestAnimationFrame(() => {
     const y = window.scrollY || window.pageYOffset;
+    const vh = window.innerHeight;
     const docH = document.documentElement.scrollHeight - window.innerHeight;
     if (progress) progress.style.transform = `scaleX(${docH > 0 ? y / docH : 0})`;
     if (nav) nav.classList.toggle('scrolled', y > 8);
     if (!reduceMotion) {
       if (heroPhone) heroPhone.style.transform = `translateY(${y * -0.08}px) rotate(-3deg)`;
       if (heroGlow) heroGlow.style.transform = `translateY(${y * 0.12}px)`;
+      for (const el of parallaxEls) {
+        const r = el.getBoundingClientRect();
+        const offset = (r.top + r.height / 2) - vh / 2;
+        const speed = parseFloat(el.dataset.speed || '0.1');
+        // Layers are horizontally centred, so keep the -50% X and drift on Y.
+        el.style.transform = `translateX(-50%) translateY(${(-offset * speed).toFixed(1)}px)`;
+      }
     }
     ticking = false;
   });

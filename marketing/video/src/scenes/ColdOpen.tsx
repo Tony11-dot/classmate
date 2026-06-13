@@ -11,14 +11,17 @@ import { COLORS, FONTS } from "../theme";
 /**
  * Scene 1 — Classroom cold open.
  * A dark room slowly pushes in; desks light up one by one as a soft light
- * sweep crosses the frame, ending on a quiet timestamp.
+ * sweep crosses the frame, ending on a quiet title + timestamp.
+ *
+ * Layout is split into three vertical bands that never overlap:
+ *   board (top) · title + timestamp (middle) · desk grid (bottom, top-faded).
  */
 export const ColdOpen: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
   // Slow cinematic push-in.
-  const scale = interpolate(frame, [0, durationInFrames], [1.06, 1.16], {
+  const scale = interpolate(frame, [0, durationInFrames], [1.05, 1.14], {
     extrapolateRight: "clamp",
   });
   const sweep = interpolate(frame, [10, 120], [-30, 130], {
@@ -34,32 +37,36 @@ export const ColdOpen: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#05080f" }}>
       <AbsoluteFill style={{ transform: `scale(${scale})` }}>
-        {/* Board glow */}
+        {/* Board glow — top band */}
         <div
           style={{
             position: "absolute",
-            top: "12%",
+            top: "7%",
             left: "50%",
             transform: "translateX(-50%)",
-            width: "44%",
-            height: "26%",
-            borderRadius: 24,
+            width: "42%",
+            height: "16%",
+            borderRadius: 22,
             background: `linear-gradient(160deg, ${COLORS.indigoDeep}, #0a0f24)`,
             boxShadow: `0 0 120px ${COLORS.indigo}55`,
             border: "1px solid rgba(255,255,255,0.06)",
           }}
         />
-        {/* Desks */}
+
+        {/* Desks — bottom band, faded at the top so they recede behind the title */}
         <div
           style={{
             position: "absolute",
-            bottom: "9%",
+            bottom: "5%",
             left: "50%",
             transform: "translateX(-50%)",
             display: "grid",
             gridTemplateColumns: "repeat(6, 1fr)",
-            gap: 46,
-            width: "70%",
+            gap: 42,
+            width: "68%",
+            WebkitMaskImage:
+              "linear-gradient(to top, #000 70%, transparent 100%)",
+            maskImage: "linear-gradient(to top, #000 70%, transparent 100%)",
           }}
         >
           {desks.map((_, i) => {
@@ -74,11 +81,11 @@ export const ColdOpen: React.FC = () => {
               <div
                 key={i}
                 style={{
-                  height: 86,
+                  height: 76,
                   borderRadius: 14,
                   background: `linear-gradient(160deg, #131a2c, #0b1020)`,
                   border: "1px solid rgba(255,255,255,0.05)",
-                  boxShadow: `0 0 ${30 * lit}px ${COLORS.sky}${Math.round(
+                  boxShadow: `0 0 ${28 * lit}px ${COLORS.sky}${Math.round(
                     lit * 120,
                   )
                     .toString(16)
@@ -92,8 +99,8 @@ export const ColdOpen: React.FC = () => {
                     top: 12,
                     left: "50%",
                     transform: "translateX(-50%)",
-                    width: 22,
-                    height: 22,
+                    width: 20,
+                    height: 20,
                     borderRadius: "50%",
                     background: COLORS.sky,
                     opacity: lit * 0.9,
@@ -113,24 +120,25 @@ export const ColdOpen: React.FC = () => {
         />
       </AbsoluteFill>
 
-      {/* Title */}
+      {/* Title band — sits in the clear gap between board and desks */}
       <AbsoluteFill
         style={{
           alignItems: "center",
           justifyContent: "center",
           flexDirection: "column",
+          paddingBottom: "16%",
         }}
       >
         <div
           style={{
             fontFamily: FONTS.display,
             fontWeight: 800,
-            fontSize: 96,
+            fontSize: 92,
             color: COLORS.white,
             letterSpacing: "-0.04em",
             opacity: titleIn,
             transform: `translateY(${interpolate(titleIn, [0, 1], [24, 0])}px)`,
-            textShadow: "0 8px 40px rgba(0,0,0,0.5)",
+            textShadow: "0 8px 40px rgba(0,0,0,0.55)",
           }}
         >
           Every morning,
@@ -138,10 +146,10 @@ export const ColdOpen: React.FC = () => {
         <div
           style={{
             fontFamily: FONTS.mono,
-            fontSize: 26,
+            fontSize: 24,
             color: COLORS.skyLight,
             letterSpacing: "0.28em",
-            marginTop: 28,
+            marginTop: 26,
             opacity: stampIn,
             textTransform: "uppercase",
           }}
