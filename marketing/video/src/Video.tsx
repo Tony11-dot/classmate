@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
+import { AbsoluteFill, Audio, interpolate, Sequence, staticFile } from "remotion";
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
@@ -27,6 +27,23 @@ import { CTA } from "./scenes/CTA";
 loadFonts();
 
 const t = () => linearTiming({ durationInFrames: TRANSITION });
+
+// Scene start frames (accounting for the transition overlap), used to time SFX.
+const _durs = [
+  SCENES.coldOpen, SCENES.title, SCENES.attendance, SCENES.nova,
+  SCENES.classroom, SCENES.practice, SCENES.gradesInsights, SCENES.montage, SCENES.cta,
+];
+const _starts: number[] = [];
+_durs.reduce((acc, d, i) => { _starts[i] = acc; return acc + d - TRANSITION; }, 0);
+const CTA_FRAME = _starts[8];
+const _MONTAGE = _starts[7];
+// Whooshes ride every cut, plus the two internal montage cuts (CUT = 66).
+const CUT_FRAMES = [
+  _starts[1], _starts[2], _starts[3], _starts[4], _starts[5], _starts[6],
+  _starts[7], _MONTAGE + 66, _MONTAGE + 132, _starts[8],
+];
+// Tap impacts land on each interaction's tapFrame.
+const TAP_FRAMES = [_starts[2] + 60, _starts[3] + 62, _starts[4] + 58, _starts[5] + 68];
 
 /**
  * ClassMate product demo v3 — cinematic "trailer" cut. Real app UI animated
@@ -142,6 +159,33 @@ export const ClassMateDemo: React.FC = () => {
       {/* Cinematic color grade on top of everything. */}
       <Grade />
 
+      {/* ── Sound design ─────────────────────────────────────────────────
+          Procedurally-synthesized SFX (see public/sfx). Whooshes ride the
+          scene cuts, taps/booms hit the UI interactions, a riser builds the
+          CTA. These play regardless of MUSIC_ENABLED. */}
+      {CUT_FRAMES.map((f, i) => (
+        <Sequence key={`w${i}`} from={Math.max(0, f - 4)} durationInFrames={16} name={`whoosh-${i}`}>
+          <Audio src={staticFile("sfx/whoosh.wav")} volume={0.5} />
+        </Sequence>
+      ))}
+      {TAP_FRAMES.map((f, i) => (
+        <React.Fragment key={`tap${i}`}>
+          <Sequence from={f} durationInFrames={4} name={`tap-${i}`}>
+            <Audio src={staticFile("sfx/tap.wav")} volume={0.7} />
+          </Sequence>
+          <Sequence from={f} durationInFrames={18} name={`thud-${i}`}>
+            <Audio src={staticFile("sfx/boom.wav")} volume={0.38} />
+          </Sequence>
+        </React.Fragment>
+      ))}
+      {/* Riser + boom landing the CTA */}
+      <Sequence from={CTA_FRAME - 36} durationInFrames={40} name="riser">
+        <Audio src={staticFile("sfx/riser.wav")} volume={0.5} />
+      </Sequence>
+      <Sequence from={CTA_FRAME} durationInFrames={22} name="cta-impact">
+        <Audio src={staticFile("sfx/boom.wav")} volume={0.85} />
+      </Sequence>
+
       {/* Royalty-free music hook — fades in at the open, out under the CTA. */}
       {MUSIC_ENABLED ? (
         <Audio
@@ -150,7 +194,7 @@ export const ClassMateDemo: React.FC = () => {
             interpolate(
               f,
               [0, 14, TOTAL_FRAMES - 30, TOTAL_FRAMES - 1],
-              [0, 0.78, 0.78, 0],
+              [0, 0.62, 0.62, 0],
               { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
             )
           }
