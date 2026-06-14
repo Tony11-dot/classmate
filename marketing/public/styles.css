@@ -297,14 +297,33 @@ section[id] { scroll-margin-top: 88px; }
 .phone-hero { animation: none; will-change: transform; }
 
 /* ── Sticky morphing showcase ── */
-.showcase-inner { max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 40px; align-items: start; }
-.showcase-sticky { position: sticky; top: 14vh; display: flex; justify-content: center; perspective: 1500px; }
+.showcase { position: relative; overflow: hidden; }
+/* Parallax depth behind the showcase (moved by GSAP as you scroll the section). */
+.showcase-bg { position: absolute; left: -10%; right: -10%; top: -40vh; height: calc(100% + 140vh); z-index: 0; pointer-events: none; will-change: transform; }
+.showcase-bg-1 {
+  background:
+    radial-gradient(34% 14% at 14% 16%, color-mix(in srgb, var(--primary) 26%, transparent), transparent 66%),
+    radial-gradient(38% 16% at 88% 44%, color-mix(in srgb, var(--primary-2) 24%, transparent), transparent 66%),
+    radial-gradient(40% 16% at 30% 78%, color-mix(in srgb, var(--accent-green, #37c26b) 20%, transparent), transparent 70%);
+  filter: blur(20px);
+}
+.showcase-bg-2 {
+  opacity: .55;
+  background-image: radial-gradient(color-mix(in srgb, var(--primary-2) 30%, transparent) 1.6px, transparent 2px);
+  background-size: 34px 34px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+.showcase-inner { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 40px; align-items: start; }
+.showcase-sticky { position: sticky; top: 14vh; display: flex; justify-content: center; perspective: 1600px; }
 /* aspect-ratio tuned so the INNER screen window (after the 11px bezel) matches
    the 1206×2622 screenshots exactly — so `cover` fills edge-to-edge with no crop. */
-.phone-showcase { width: 320px; aspect-ratio: 320 / 670; box-shadow: var(--shadow), var(--shadow-glow); transform-style: preserve-3d; transition: transform .12s ease-out; will-change: transform; }
-/* The screen stack flips on its Y axis when the active screen changes. */
-.showcase-screens { position: relative; width: 100%; height: 100%; border-radius: 32px; overflow: hidden; isolation: isolate; background: #f3f5fa; transform-style: preserve-3d; transition: transform .28s cubic-bezier(.5,0,.5,1); }
-.showcase-screens.flipping { transform: rotateY(90deg); }
+/* The WHOLE phone turns in 3D (perspective on .showcase-sticky) when the screen
+   changes — to edge, swap, back. */
+.phone-showcase { width: 320px; aspect-ratio: 320 / 670; box-shadow: var(--shadow), var(--shadow-glow); transform-style: preserve-3d; transform: perspective(1600px) rotateY(0deg); transition: transform .34s cubic-bezier(.45,0,.55,1); will-change: transform; }
+/* perspective() baked into the transform → genuine 3D turn (near edge forward). */
+.phone-showcase.flipping { transform: perspective(1600px) rotateY(-90deg); }
+.showcase-screens { position: relative; width: 100%; height: 100%; border-radius: 32px; overflow: hidden; isolation: isolate; background: #f3f5fa; }
 .showcase-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; opacity: 0; transform: scale(1.03); transition: opacity .18s ease, transform .5s cubic-bezier(.22,1,.36,1); will-change: opacity, transform; z-index: 1; backface-visibility: hidden; }
 /* active shot sits on top and is fully opaque — the incoming shot covers the
    outgoing one as it fades in (no muddy mid-crossfade dip to the bg). */
@@ -312,9 +331,9 @@ section[id] { scroll-margin-top: 88px; }
 .showcase-steps { display: flex; flex-direction: column; }
 .showcase-step { min-height: 74vh; display: flex; flex-direction: column; justify-content: center; opacity: .28; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
 .showcase-step.is-active { opacity: 1; transform: none; }
-.step-kicker { display: inline-block; align-self: flex-start; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 6px 12px; border-radius: 999px; margin-bottom: 16px; }
-.showcase-step h3 { font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -0.03em; font-weight: 900; line-height: 1.08; }
-.showcase-step p { color: var(--muted); margin-top: 12px; font-size: clamp(16px, 1.6vw, 19px); max-width: 32ch; }
+.step-kicker { display: inline-block; align-self: flex-start; font-size: 13px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 7px 14px; border-radius: 999px; margin-bottom: 20px; }
+.showcase-step h3 { font-size: clamp(32px, 4.4vw, 54px); letter-spacing: -0.035em; font-weight: 900; line-height: 1.04; }
+.showcase-step p { color: var(--muted); margin-top: 16px; font-size: clamp(17px, 1.9vw, 22px); line-height: 1.5; max-width: 34ch; }
 .step-shot { display: none; }  /* desktop uses the sticky phone; mobile shows these */
 
 @media (max-width: 900px) {

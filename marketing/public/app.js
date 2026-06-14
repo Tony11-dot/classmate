@@ -61,7 +61,7 @@ document.querySelectorAll('.ph[data-shot]').forEach((el) => {
 // ── Sticky showcase: crossfade the phone's screenshot as steps scroll in ──
 const shots = Array.from(document.querySelectorAll('.showcase-shot'));
 const steps = Array.from(document.querySelectorAll('.showcase-step'));
-const screensEl = document.querySelector('.showcase-screens');
+const flipEl = document.querySelector('.phone-showcase');
 const rmShowcase = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (shots.length && steps.length) {
   let currentStep = '0';
@@ -73,9 +73,10 @@ if (shots.length && steps.length) {
     // Text panel updates immediately…
     steps.forEach((s) => s.classList.toggle('is-active', s.dataset.step === n));
     // …the phone does a quick 3D flip and swaps the screen at the edge.
-    if (screensEl && !rmShowcase) {
-      screensEl.classList.add('flipping');
-      setTimeout(() => { swapShots(n); screensEl.classList.remove('flipping'); }, 220);
+    if (flipEl && !rmShowcase) {
+      // Turn the whole phone to its edge (3D), swap the screen, turn back.
+      flipEl.classList.add('flipping');
+      setTimeout(() => { swapShots(n); flipEl.classList.remove('flipping'); }, 330);
     } else {
       swapShots(n);
     }
@@ -100,8 +101,8 @@ if (shots.length && steps.length) {
 // ── Scroll-driven effects: progress bar, nav state, hero parallax ──
 const progress = document.getElementById('scrollProgress');
 const nav = document.getElementById('nav');
-// (The hero phone + glow are now driven by the GSAP ScrollTrigger timeline below.)
-const showcasePhone = document.querySelector('.phone-showcase');
+// (The hero phone is driven by the GSAP timeline; the showcase phone's transform
+// is owned by the flip, so we don't tilt it here anymore.)
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Generic parallax layers (section background glows). Each drifts relative to
 // its own distance from the viewport centre, so the effect runs the whole page.
@@ -118,13 +119,6 @@ function onScroll() {
     if (progress) progress.style.transform = `scaleX(${docH > 0 ? y / docH : 0})`;
     if (nav) nav.classList.toggle('scrolled', y > 8);
     if (!reduceMotion) {
-      // Sticky showcase phone: tilt in 3D + float as it travels the viewport.
-      if (showcasePhone) {
-        const pr = showcasePhone.getBoundingClientRect();
-        const off = (pr.top + pr.height / 2 - vh / 2) / vh; // ~ -0.5..0.5
-        showcasePhone.style.transform =
-          `rotateY(${(-off * 16).toFixed(2)}deg) rotateX(${(off * 9).toFixed(2)}deg) translateY(${(off * -14).toFixed(1)}px)`;
-      }
       for (const el of parallaxEls) {
         const r = el.getBoundingClientRect();
         const offset = (r.top + r.height / 2) - vh / 2;
@@ -283,6 +277,16 @@ if (window.gsap && window.ScrollTrigger && document.querySelector('.hero-stage')
     });
     return () => {};
   });
+
+  // Showcase parallax — depth layers drift behind the sticky phone as you
+  // scroll the #screens section (far layer slow, dot layer faster).
+  if (document.querySelector('.showcase-bg-1')) {
+    const svH = () => window.innerHeight;
+    gsap.fromTo('.showcase-bg-1', { y: 0 }, { y: () => -0.30 * svH(), ease: 'none',
+      scrollTrigger: { trigger: '#screens', start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.fromTo('.showcase-bg-2', { y: 0 }, { y: () => -0.70 * svH(), ease: 'none',
+      scrollTrigger: { trigger: '#screens', start: 'top bottom', end: 'bottom top', scrub: true } });
+  }
 
   // Debounced resize → recompute pin/positions.
   let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 200); });
