@@ -83,3 +83,51 @@
   .hero-phone-flip { animation: none; }
   .site-bg-layer { transform: none !important; }
 }
+
+/* ── Showcase choreography (#screens) — pinned phone that zooms to centre,
+   does a 180° flip (screen swaps while back-facing), and lands on the
+   alternating side; copy changes per screen on the opposite side. ── */
+.sc-stage { position: relative; }
+@media (min-width: 769px) { .sc-stage { height: 460vh; } }
+.sc-pin {
+  position: relative; height: 100vh; overflow: hidden;
+  perspective: 1700px; display: block;
+}
+.sc-phone {
+  position: absolute; left: 50%; top: 50%;
+  width: clamp(240px, 23vw, 300px); aspect-ratio: 9 / 19.3;
+  transform: translate(-50%, -50%);   /* base centring; GSAP re-applies via xPercent/yPercent */
+  will-change: transform; z-index: 2;
+}
+.sc-phone-3d { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; will-change: transform; }
+.sc-face {
+  position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: 40px; overflow: hidden; background: #0b0f1a;
+  border: 9px solid #0b0f1a; box-shadow: var(--shadow), var(--shadow-glow);
+}
+.sc-back { transform: rotateY(180deg); }
+.sc-shot { width: 100%; height: 100%; object-fit: cover; object-position: top center; border-radius: 31px; display: block; }
+
+.sc-copy {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: min(420px, 34vw); opacity: 0; pointer-events: none; z-index: 3;
+  transition: opacity .45s ease, transform .45s ease;
+}
+.sc-copy[data-side="right"] { right: clamp(28px, 8vw, 130px); }
+.sc-copy[data-side="left"]  { left:  clamp(28px, 8vw, 130px); text-align: right; }
+.sc-copy[data-side="left"] .step-kicker { align-self: flex-end; }
+.sc-copy.is-active { opacity: 1; pointer-events: auto; }
+.sc-copy h3 { font-size: clamp(32px, 4.4vw, 54px); letter-spacing: -0.035em; font-weight: 900; line-height: 1.04; }
+.sc-copy p { color: var(--muted); margin-top: 16px; font-size: clamp(17px, 1.9vw, 22px); line-height: 1.5; }
+.sc-copy .step-kicker { display: inline-block; font-size: 13px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 7px 14px; border-radius: 999px; margin-bottom: 18px; }
+
+/* Mobile — no pin: phone on top, all copies stacked & visible. */
+@media (max-width: 768px) {
+  .sc-stage { height: auto; }
+  .sc-pin { height: auto; overflow: visible; padding: 8px 0 12px; perspective: none; }
+  .sc-phone { position: relative; left: auto; top: auto; margin: 0 auto 8px; transform: none !important; width: min(240px, 62vw); }
+  .sc-phone-3d { transform: none !important; }
+  .sc-back { display: none; }
+  .sc-copy { position: relative; top: auto; right: auto !important; left: auto !important; transform: none; width: auto; opacity: 1; text-align: center !important; margin: 0 auto 14px; padding: 0 clamp(16px,6vw,28px); }
+  .sc-copy[data-side="left"] .step-kicker, .sc-copy .step-kicker { align-self: center; }
+}
