@@ -228,22 +228,24 @@ if (window.gsap && document.querySelector('.hero-stage')) {
     return () => {};
   });
 
-  // ── Showcase: pinned phone — zoom to centre → 180° flip (screen swaps while
-  // back-facing, unseen) → land on the alternating side; copy changes per screen.
+  // ── Showcase: sticky 3D phone that spins continuously (one smooth sail, never
+  // freezing) and dribbles side to side between the texts; screens swap while
+  // the phone is edge-on/back-facing (unseen).
   if (window.ScrollTrigger) mm.add('(min-width: 769px) and (prefers-reduced-motion: no-preference)', () => {
-    const stage = document.querySelector('.sc-stage');
-    const front = document.querySelector('.sc-front img');
-    const back = document.querySelector('.sc-back img');
+    const wrap = document.querySelector('.sc-wrap');
+    const box = document.querySelector('.sc-phone-3d');
+    const front = document.querySelector('.sc-shot-f');
+    const back = document.querySelector('.sc-shot-b');
     const copies = Array.from(document.querySelectorAll('.sc-copy'));
-    if (!stage || !front || !back || !copies.length) return;
+    if (!wrap || !box || !front || !back || !copies.length) return;
 
     const SRC = ['nova', 'schedule', 'classroom', 'solutions', 'grades', 'practice']
       .map((n) => `assets/shot-${n}-light.png`);
-    const N = SRC.length;
-    const SIDE = (i) => (i % 2 === 0 ? -1 : 1) * Math.min(window.innerWidth * 0.17, 280);
+    const N = SRC.length, seg = N - 1;
+    const ampX = () => Math.min(window.innerWidth * 0.20, 360);
 
-    // front face holds even screens, back face holds odd → the right screen is
-    // always upright at each multiple of 180°. Swap only the hidden face.
+    // front face = even screens, back = odd → the right screen is upright at each
+    // multiple of 180°. Only the hidden face is ever swapped.
     const setFaces = (from) => {
       const a = Math.max(0, Math.min(N - 1, from));
       const b = Math.max(0, Math.min(N - 1, from + 1));
@@ -252,31 +254,23 @@ if (window.gsap && document.querySelector('.hero-stage')) {
       if (front.dataset.s != evenS) { front.src = SRC[evenS]; front.dataset.s = evenS; }
       if (back.dataset.s != oddS) { back.src = SRC[oddS]; back.dataset.s = oddS; }
     };
-
-    gsap.set('.sc-phone-3d', { transformPerspective: 1700, transformOrigin: '50% 50%' });
-    gsap.set('.sc-phone', { xPercent: -50, yPercent: -50, x: SIDE(0) });
     setFaces(0);
     copies.forEach((c, i) => c.classList.toggle('is-active', i === 0));
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'power2.inOut' },
-      scrollTrigger: {
-        trigger: stage, start: 'top top', end: 'bottom bottom',
-        scrub: 0.5, pin: '.sc-pin', invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const pos = self.progress * (N - 1);
-          setFaces(Math.floor(pos + 1e-4));
-          const cur = Math.round(pos);
-          copies.forEach((c, i) => c.classList.toggle('is-active', i === cur));
-        },
+    ScrollTrigger.create({
+      trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: 0.7, invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        const p = self.progress;
+        const rotY = p * seg * 180;                          // continuous spin
+        const x = -ampX() * Math.cos(p * seg * Math.PI);     // zig-zag dribble
+        const tiltX = Math.sin(p * seg * Math.PI * 2) * 5;   // subtle tumble
+        gsap.set(box, { rotationY: rotY, x, rotationX: tiltX });
+        setFaces(Math.floor(p * seg + 1e-4));
+        const cur = Math.round(p * seg);
+        copies.forEach((c, i) => c.classList.toggle('is-active', i === cur));
       },
     });
-    for (let i = 0; i < N - 1; i++) {
-      tl.to('.sc-phone', { x: 0, scale: 1.15, duration: 0.42, ease: 'power1.in' })
-        .to('.sc-phone-3d', { rotationY: (i + 1) * 180, duration: 1, ease: 'power2.inOut' }, '<')
-        .to('.sc-phone', { x: () => SIDE(i + 1), scale: 1.0, duration: 0.42, ease: 'power1.out' }, '>-0.08');
-    }
-    return () => { gsap.set('.sc-phone, .sc-phone-3d', { clearProps: 'all' }); };
+    return () => { gsap.set(box, { clearProps: 'all' }); };
   });
 
   if (window.ScrollTrigger) {

@@ -186,14 +186,25 @@
       <h2>Beautiful on every screen</h2>
       <p>Scroll — watch the phone flip through the app.</p>
     </div>
-    <div class="sc-stage">
-      <div class="sc-pin">
-        <div class="sc-phone">
-          <div class="sc-phone-3d">
-            <div class="sc-face sc-front"><img class="sc-shot" src="assets/shot-nova-light.png" alt="ClassMate screen" /></div>
-            <div class="sc-face sc-back"><img class="sc-shot" src="assets/shot-schedule-light.png" alt="ClassMate screen" /></div>
+    <div class="sc-wrap">
+      <!-- Sticky 3D phone (real thickness + dynamic island), spins + dribbles. -->
+      <div class="sc-phone-wrap">
+        <div class="sc-phone-3d">
+          <div class="sc-face sc-front">
+            <img class="sc-shot sc-shot-f" src="assets/shot-nova-light.png" alt="ClassMate screen" />
+            <span class="sc-island"></span>
           </div>
+          <div class="sc-face sc-back">
+            <img class="sc-shot sc-shot-b" src="assets/shot-schedule-light.png" alt="ClassMate screen" />
+          </div>
+          <div class="sc-edge sc-edge-r"></div>
+          <div class="sc-edge sc-edge-l"></div>
+          <div class="sc-edge sc-edge-t"></div>
+          <div class="sc-edge sc-edge-b"></div>
         </div>
+      </div>
+      <!-- All texts pre-rendered, alternating sides, far out; active emphasized. -->
+      <div class="sc-texts">
         <div class="sc-copy" data-i="0" data-side="right"><span class="step-kicker">AI tutor</span><h3>Ask NOVA anything</h3><p>Step-by-step help with real math &amp; code rendering, in your language.</p></div>
         <div class="sc-copy" data-i="1" data-side="left"><span class="step-kicker">Schedule</span><h3>Your whole day, at a glance</h3><p>Every period, time and teacher — tap a class for students &amp; materials.</p></div>
         <div class="sc-copy" data-i="2" data-side="right"><span class="step-kicker">Classrooms</span><h3>Everything in one place</h3><p>Announcements, assignments, materials and real-time chat per class.</p></div>
