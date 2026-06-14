@@ -107,6 +107,12 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 // Generic parallax layers (section background glows). Each drifts relative to
 // its own distance from the viewport centre, so the effect runs the whole page.
 const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
+// Global background layers — drift at different rates the whole page long → depth.
+const siteBgLayers = [
+  ['.site-bg-glow', 0.12],
+  ['.site-bg-dots', 0.05],
+  ['.site-bg-near', 0.20],
+].map(([sel, f]) => [document.querySelector(sel), f]).filter(([el]) => el);
 
 let ticking = false;
 function onScroll() {
@@ -119,6 +125,8 @@ function onScroll() {
     if (progress) progress.style.transform = `scaleX(${docH > 0 ? y / docH : 0})`;
     if (nav) nav.classList.toggle('scrolled', y > 8);
     if (!reduceMotion) {
+      // Whole-site parallax: each bg layer drifts at its own rate.
+      for (const [el, f] of siteBgLayers) el.style.transform = `translateY(${(y * f).toFixed(1)}px)`;
       for (const el of parallaxEls) {
         const r = el.getBoundingClientRect();
         const offset = (r.top + r.height / 2) - vh / 2;
@@ -209,85 +217,17 @@ if (demoVideo) {
 // Pinned cinematic stage: phone flies in from the left → centres → straightens
 // → 3D Y-flip to the schedule → settles to the right as the copy reveals, over
 // 3 parallax layers. Desktop does the 3D; mobile slides in + parallax only.
-if (window.gsap && window.ScrollTrigger && document.querySelector('.hero-stage')) {
-  gsap.registerPlugin(ScrollTrigger);
-  const copyEls = '.hero-stage .hero-copy > *';
+if (window.gsap && document.querySelector('.hero-stage')) {
+  if (window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
   const mm = gsap.matchMedia();
-
-  // Desktop — full 3D pinned timeline.
-  mm.add('(min-width: 769px) and (prefers-reduced-motion: no-preference)', () => {
-    gsap.set('.hero-phone-pos', { xPercent: -50, yPercent: -50, opacity: 1, transformOrigin: '50% 50%' });
-    // transformPerspective puts the flip in true 3D (whole phone turns, near edge
-    // forward) instead of a flat "book page" squish.
-    gsap.set('.hero-phone-flip', { transformPerspective: 1200, transformOrigin: '50% 50%' });
-    gsap.set(copyEls, { opacity: 0, y: 30 });
-
-    const settleX = () => Math.min(window.innerWidth * 0.2, 260);
-
-    const tl = gsap.timeline({
-      defaults: { ease: 'power2.inOut' },
-      scrollTrigger: {
-        trigger: '.hero-stage', start: 'top top', end: 'bottom bottom',
-        scrub: 0.6, pin: '.hero-pin', anticipatePin: 1, invalidateOnRefresh: true,
-      },
-    });
-
-    // 0–25%: fly LEFT → CENTRE, scale 0.8→0.95, straighten rotateZ −15→0.
-    tl.fromTo('.hero-phone-pos',
-      { x: -600, scale: 0.8, rotationZ: -15 },
-      { x: 0, scale: 0.95, rotationZ: 0, duration: 25 }, 0);
-    // 25–40%: confident — scale 0.95→1.0 (centred).
-    tl.to('.hero-phone-pos', { scale: 1.0, duration: 15 }, 25);
-    // 40–65%: 3D flip on Y (fixed size), back face = schedule screenshot.
-    tl.to('.hero-phone-flip', { rotationY: 180, duration: 25 }, 40);
-    // 65–100%: settle to the right + slight upward drift.
-    tl.to('.hero-phone-pos', { x: settleX, y: '-=22', duration: 35 }, 65);
-    // Text reveals as the phone settles (stagger 0.1).
-    tl.to('.hero-stage .pill', { opacity: 1, y: 0, duration: 10 }, 64)
-      .to('.hero-stage h1', { opacity: 1, y: 0, duration: 10 }, 66)
-      .to('.hero-stage .lead', { opacity: 1, y: 0, duration: 10 }, 69)
-      .to('.hero-stage .hero-actions', { opacity: 1, y: 0, duration: 10 }, 72)
-      .to('.hero-stage .hero-badges', { opacity: 1, y: 0, duration: 10 }, 75);
-
-    // 3 parallax layers — translateY at 20% / 50% / 80% of a viewport height as
-    // you scroll the pin. Far layer drifts slowly, close layer rushes → depth.
-    const vH = () => window.innerHeight;
-    tl.fromTo('.hero-bg-1', { y: 0 }, { y: () => -0.20 * vH(), duration: 100, ease: 'none' }, 0);
-    tl.fromTo('.hero-bg-2', { y: 0 }, { y: () => -0.50 * vH(), duration: 100, ease: 'none' }, 0);
-    tl.fromTo('.hero-bg-3', { y: 0 }, { y: () => -0.80 * vH(), duration: 100, ease: 'none' }, 0);
-
-    return () => { gsap.set('.hero-phone-pos', { clearProps: 'all' }); gsap.set(copyEls, { clearProps: 'all' }); };
-  });
-
-  // Mobile — slide-in + parallax, NO 3D, no pin.
-  mm.add('(max-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
-    gsap.set('.hero-phone-pos', { opacity: 1 });
-    gsap.from('.hero-phone-flip', {
-      x: -70, opacity: 0, duration: 0.8, ease: 'power2.out',
-      scrollTrigger: { trigger: '.hero-stage', start: 'top 80%' },
-    });
-    gsap.fromTo(copyEls, { opacity: 0, y: 24 }, {
-      opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power2.out',
-      scrollTrigger: { trigger: '.hero-stage', start: 'top 78%' },
-    });
-    const vHm = () => window.innerHeight;
-    [['.hero-bg-1', 0.20], ['.hero-bg-2', 0.50], ['.hero-bg-3', 0.80]].forEach(([sel, f]) => {
-      gsap.fromTo(sel, { y: 0 }, { y: () => -f * vHm(), ease: 'none',
-        scrollTrigger: { trigger: '.hero-stage', start: 'top top', end: 'bottom top', scrub: true } });
-    });
+  // Hero entrance — copy + phone are visible by default; this just eases them in
+  // on load (no scroll-gating, so the welcome text is never hidden).
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+    gsap.from('.hero-stage .hero-copy > *', { opacity: 0, y: 26, stagger: 0.08, duration: 0.7, ease: 'power3.out', delay: 0.08 });
+    gsap.from('.hero-phone-pos', { opacity: 0, y: 36, scale: 0.9, duration: 0.95, ease: 'power3.out', delay: 0.14 });
     return () => {};
   });
-
-  // Showcase parallax — depth layers drift behind the sticky phone as you
-  // scroll the #screens section (far layer slow, dot layer faster).
-  if (document.querySelector('.showcase-bg-1')) {
-    const svH = () => window.innerHeight;
-    gsap.fromTo('.showcase-bg-1', { y: 0 }, { y: () => -0.30 * svH(), ease: 'none',
-      scrollTrigger: { trigger: '#screens', start: 'top bottom', end: 'bottom top', scrub: true } });
-    gsap.fromTo('.showcase-bg-2', { y: 0 }, { y: () => -0.70 * svH(), ease: 'none',
-      scrollTrigger: { trigger: '#screens', start: 'top bottom', end: 'bottom top', scrub: true } });
+  if (window.ScrollTrigger) {
+    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 200); });
   }
-
-  // Debounced resize → recompute pin/positions.
-  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 200); });
 }

@@ -53,7 +53,7 @@ img { display: block; max-width: 100%; }
 .nav {
   position: sticky; top: 0; z-index: 50;
   display: flex; align-items: center; gap: 20px;
-  padding: 8px clamp(16px, 5vw, 40px);
+  padding: 13px clamp(16px, 5vw, 40px);
   background: color-mix(in srgb, var(--bg) 72%, transparent);
   -webkit-backdrop-filter: saturate(180%) blur(22px);
   backdrop-filter: saturate(180%) blur(22px);
@@ -66,13 +66,13 @@ img { display: block; max-width: 100%; }
    Grid 1fr·auto·1fr keeps the CM dead-centre even when the two tab
    groups have different widths. */
 /* Empty 52px middle track is where the absolutely-centred CM floats. */
-.nav-menu { display: grid; grid-template-columns: 1fr 52px 1fr; align-items: center; column-gap: clamp(10px, 1.6vw, 22px); width: 100%; margin: 0; }
-.nav-links { display: flex; gap: clamp(14px, 1.6vw, 24px); font-weight: 600; color: var(--muted); }
+.nav-menu { display: grid; grid-template-columns: 1fr 64px 1fr; align-items: center; column-gap: clamp(10px, 1.6vw, 22px); width: 100%; margin: 0; }
+.nav-links { display: flex; gap: clamp(14px, 1.7vw, 26px); font-weight: 600; font-size: 16px; color: var(--muted); }
 .nav-left { grid-column: 1; justify-content: flex-end; }
 .nav-right { grid-column: 3; justify-content: flex-start; }
 /* The one and only CM monogram — absolutely centred in the bar. */
 .brand-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; display: flex; }
-.brand-cm { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: #fff; box-shadow: 0 3px 12px rgba(8,12,30,0.14), inset 0 0 0 1px rgba(8,12,30,0.06); transition: transform .2s; }
+.brand-cm { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 13px; background: #fff; box-shadow: 0 4px 14px rgba(8,12,30,0.15), inset 0 0 0 1px rgba(8,12,30,0.06); transition: transform .2s; }
 .brand-cm img { width: 74%; height: 74%; object-fit: contain; display: block; }
 .brand-center:hover .brand-cm { transform: translate(0,-1px) scale(1.06); }
 /* Hamburger — hidden on desktop, shown on mobile via the media query below. */
@@ -297,23 +297,7 @@ section[id] { scroll-margin-top: 88px; }
 .phone-hero { animation: none; will-change: transform; }
 
 /* ── Sticky morphing showcase ── */
-.showcase { position: relative; overflow: hidden; }
-/* Parallax depth behind the showcase (moved by GSAP as you scroll the section). */
-.showcase-bg { position: absolute; left: -10%; right: -10%; top: -40vh; height: calc(100% + 140vh); z-index: 0; pointer-events: none; will-change: transform; }
-.showcase-bg-1 {
-  background:
-    radial-gradient(34% 14% at 14% 16%, color-mix(in srgb, var(--primary) 26%, transparent), transparent 66%),
-    radial-gradient(38% 16% at 88% 44%, color-mix(in srgb, var(--primary-2) 24%, transparent), transparent 66%),
-    radial-gradient(40% 16% at 30% 78%, color-mix(in srgb, var(--accent-green, #37c26b) 20%, transparent), transparent 70%);
-  filter: blur(20px);
-}
-.showcase-bg-2 {
-  opacity: .55;
-  background-image: radial-gradient(color-mix(in srgb, var(--primary-2) 30%, transparent) 1.6px, transparent 2px);
-  background-size: 34px 34px;
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
-}
+.showcase { position: relative; }
 .showcase-inner { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 40px; align-items: start; }
 .showcase-sticky { position: sticky; top: 14vh; display: flex; justify-content: center; perspective: 1600px; }
 /* aspect-ratio tuned so the INNER screen window (after the 11px bezel) matches
@@ -374,7 +358,7 @@ section[id] { scroll-margin-top: 88px; }
    tabs + floated controls get cramped and overlap. */
 @media (max-width: 1024px) {
   /* Bar content (hamburger + CM) is absolutely positioned, so give the bar height. */
-  .nav { justify-content: center; position: sticky; min-height: 56px; }
+  .nav { justify-content: center; position: sticky; min-height: 66px; }
   .nav-toggle { display: flex; position: absolute; left: clamp(14px, 5vw, 40px); top: 50%; transform: translateY(-50%); }
   /* The single CM stays absolutely centred in the bar (see base rule). */
   .nav-menu {

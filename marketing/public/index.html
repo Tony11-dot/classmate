@@ -31,6 +31,12 @@
   </script>
 </head>
 <body>
+  <!-- Global parallax background behind the whole page (welcome → support). -->
+  <div class="site-bg" aria-hidden="true">
+    <div class="site-bg-layer site-bg-glow"></div>
+    <div class="site-bg-layer site-bg-dots"></div>
+    <div class="site-bg-layer site-bg-near"></div>
+  </div>
   <div class="scroll-progress" id="scrollProgress"></div>
   <!-- NAV -->
   <header class="nav" id="nav">
@@ -61,12 +67,9 @@
     <div class="nav-scrim" id="navScrim" hidden></div>
   </header>
 
-  <!-- HERO (scroll-animated stage) -->
+  <!-- HERO (welcome) -->
   <section class="hero-stage" id="top">
     <div class="hero-pin">
-      <div class="hero-bg hero-bg-1"></div>
-      <div class="hero-bg hero-bg-2"></div>
-      <div class="hero-bg hero-bg-3"></div>
       <div class="hero-stage-inner">
         <div class="hero-copy">
           <div class="pill">📚 Built for the whole school</div>
@@ -88,22 +91,14 @@
             <span>✦ Works on every device</span>
           </div>
         </div>
-      </div>
-      <div class="hero-phone-pos">
-        <div class="hero-phone-flip">
-          <div class="hero-face hero-face-front">
-            <div class="phone phone-hero">
-              <div class="phone-notch"></div>
-              <div class="phone-screen ph">
-                <span class="ph-label"><img src="assets/favicon.png" alt="ClassMate" class="ph-logo" /></span>
-              </div>
-            </div>
-          </div>
-          <div class="hero-face hero-face-back">
-            <div class="phone phone-hero">
-              <div class="phone-notch"></div>
-              <div class="phone-screen">
-                <img class="hero-back-shot" src="assets/shot-schedule-light.png" alt="ClassMate schedule" />
+        <div class="hero-phone-pos">
+          <div class="hero-phone-flip">
+            <div class="hero-face hero-face-front">
+              <div class="phone phone-hero">
+                <div class="phone-notch"></div>
+                <div class="phone-screen ph">
+                  <span class="ph-label"><img src="assets/favicon.png" alt="ClassMate" class="ph-logo" /></span>
+                </div>
               </div>
             </div>
           </div>
@@ -187,8 +182,6 @@
 
   <!-- SHOWCASE — sticky phone that morphs its screen as you scroll -->
   <section class="section showcase" id="screens">
-    <div class="showcase-bg showcase-bg-1" aria-hidden="true"></div>
-    <div class="showcase-bg showcase-bg-2" aria-hidden="true"></div>
     <div class="section-head reveal">
       <h2>Beautiful on every screen</h2>
       <p>Scroll — watch the phone flip through the app.</p>
