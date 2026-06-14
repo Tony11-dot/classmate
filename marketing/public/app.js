@@ -242,7 +242,7 @@ if (window.gsap && document.querySelector('.hero-stage')) {
     const SRC = ['nova', 'schedule', 'classroom', 'solutions', 'grades', 'practice']
       .map((n) => `assets/shot-${n}-light.png`);
     const N = SRC.length, seg = N - 1;
-    const ampX = () => Math.min(window.innerWidth * 0.20, 360);
+    const ampX = () => Math.min(window.innerWidth * 0.26, 460);
 
     // front face = even screens, back = odd → the right screen is upright at each
     // multiple of 180°. Only the hidden face is ever swapped.
@@ -261,8 +261,12 @@ if (window.gsap && document.querySelector('.hero-stage')) {
       trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: 0.7, invalidateOnRefresh: true,
       onUpdate: (self) => {
         const p = self.progress;
-        const rotY = p * seg * 180;                          // continuous spin
-        const x = -ampX() * Math.cos(p * seg * Math.PI);     // zig-zag dribble
+        const a = ampX();
+        const x = -a * Math.cos(p * seg * Math.PI);          // zig-zag dribble
+        // Continuous spin + a lean toward the centre at the land points (phone on
+        // the left faces centre-right and vice-versa).
+        const tiltY = (x / a) * -15;
+        const rotY = p * seg * 180 + tiltY;
         const tiltX = Math.sin(p * seg * Math.PI * 2) * 5;   // subtle tumble
         gsap.set(box, { rotationY: rotY, x, rotationX: tiltX });
         setFaces(Math.floor(p * seg + 1e-4));

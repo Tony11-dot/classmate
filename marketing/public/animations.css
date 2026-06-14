@@ -96,42 +96,48 @@
 }
 .sc-texts { position: relative; margin-top: -100vh; z-index: 1; }
 .sc-copy {
-  min-height: 96vh; display: flex; flex-direction: column; justify-content: center;
-  opacity: .14; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease;
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  opacity: .08; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease;
 }
 .sc-copy.is-active { opacity: 1; transform: none; }
-.sc-copy[data-side="right"] { align-items: flex-end; text-align: right; padding-right: clamp(20px, 8vw, 180px); }
-.sc-copy[data-side="left"]  { align-items: flex-start; text-align: left;  padding-left:  clamp(20px, 8vw, 180px); }
-.sc-copy h3 { font-size: clamp(32px, 4.6vw, 56px); letter-spacing: -0.035em; font-weight: 900; line-height: 1.04; max-width: 13ch; }
-.sc-copy p { color: var(--muted); margin-top: 16px; font-size: clamp(17px, 1.9vw, 22px); line-height: 1.5; max-width: 30ch; }
-.sc-copy .step-kicker { display: inline-block; font-size: 13px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 7px 14px; border-radius: 999px; margin-bottom: 18px; }
+.sc-copy[data-side="right"] { align-items: flex-end; text-align: right; padding-right: clamp(24px, 11vw, 300px); }
+.sc-copy[data-side="left"]  { align-items: flex-start; text-align: left;  padding-left:  clamp(24px, 11vw, 300px); }
+.sc-copy h3 { font-size: clamp(32px, 4.4vw, 54px); letter-spacing: -0.035em; font-weight: 900; line-height: 1.04; max-width: 11ch; }
+.sc-copy p { color: var(--muted); margin-top: 16px; font-size: clamp(17px, 1.8vw, 21px); line-height: 1.5; max-width: 26ch; }
+/* Kicker pill follows its text to the active side. */
+.sc-copy .step-kicker { align-self: inherit; font-size: 13px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 7px 14px; border-radius: 999px; margin-bottom: 18px; }
+.sc-copy[data-side="right"] .step-kicker { align-self: flex-end; }
+.sc-copy[data-side="left"]  .step-kicker { align-self: flex-start; }
 
-/* The 3D phone box — real thickness via four edge faces. */
+/* ── The 3D phone box — rounded, real thickness via four inset edge faces. ── */
 .sc-phone-3d {
   --w: clamp(224px, 21vw, 284px);
   --h: calc(var(--w) * 19.3 / 9);
-  --depth: 24px;
+  --depth: 22px;
+  --r: 40px;
   position: relative; width: var(--w); height: var(--h);
   transform-style: preserve-3d; will-change: transform;
 }
 .sc-face {
-  position: absolute; inset: 0; border-radius: 40px; overflow: hidden;
-  background: #0a0e16; border: 8px solid #0b1018;
+  position: absolute; inset: 0; border-radius: var(--r); overflow: hidden;
+  background: #0a0e16; border: 7px solid #0c121c;
   -webkit-backface-visibility: hidden; backface-visibility: hidden;
-  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.06);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.07);
 }
 .sc-front { transform: translateZ(calc(var(--depth) / 2)); }
-.sc-back  { transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg); }
-.sc-shot { width: 100%; height: 100%; object-fit: cover; object-position: top center; border-radius: 32px; display: block; }
-.sc-island { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 34%; height: 22px; background: #04060b; border-radius: 999px; z-index: 4; }
-/* Four edges = the phone's sides (thickness). */
-.sc-edge { position: absolute; }
-.sc-edge-l, .sc-edge-r { top: 0; height: 100%; width: var(--depth); left: 50%; margin-left: calc(var(--depth) / -2); background: linear-gradient(180deg, #2a3346, #0a0e16 70%); }
-.sc-edge-r { transform: rotateY(90deg)  translateZ(calc(var(--w) / 2)); }
-.sc-edge-l { transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
-.sc-edge-t, .sc-edge-b { left: 0; width: 100%; height: var(--depth); top: 50%; margin-top: calc(var(--depth) / -2); background: linear-gradient(90deg, #2a3346, #0a0e16 70%); }
-.sc-edge-t { transform: rotateX(90deg)  translateZ(calc(var(--h) / 2)); }
-.sc-edge-b { transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
+.sc-back  { transform: rotateY(180deg) translateZ(calc(var(--depth) / 2)); }
+.sc-shot { width: 100%; height: 100%; object-fit: cover; object-position: top center; border-radius: calc(var(--r) - 7px); display: block; }
+/* Dynamic island — sits over the status bar, on both faces. */
+.sc-island { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); width: 30%; height: 20px; background: #000; border-radius: 999px; z-index: 6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+/* Edges = the four sides (thickness), inset from the rounded corners so they
+   never poke past them. */
+.sc-edge { position: absolute; left: 50%; top: 50%; border-radius: 5px; }
+.sc-edge-l, .sc-edge-r { width: var(--depth); height: calc(var(--h) - var(--r) * 2); background: linear-gradient(180deg, #313b50, #0a0e16 78%); }
+.sc-edge-r { transform: translate(-50%, -50%) rotateY(90deg)  translateZ(calc(var(--w) / 2 - 1px)); }
+.sc-edge-l { transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2 - 1px)); }
+.sc-edge-t, .sc-edge-b { width: calc(var(--w) - var(--r) * 2); height: var(--depth); background: linear-gradient(90deg, #313b50, #0a0e16 78%); }
+.sc-edge-t { transform: translate(-50%, -50%) rotateX(90deg)  translateZ(calc(var(--h) / 2 - 1px)); }
+.sc-edge-b { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2 - 1px)); }
 
 /* Mobile — static phone on top, all texts stacked & visible. */
 @media (max-width: 768px) {
