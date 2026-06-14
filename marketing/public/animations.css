@@ -7,32 +7,44 @@
    3) Showcase phone choreography styles live in styles.css.
    ────────────────────────────────────────────────────────────────────────── */
 
-/* ── Global background ── */
+/* ── Global background — multi-layer parallax with real detail so you FEEL the
+   scroll. The glow drifts slowly (transform); the grid/dots/near layers are
+   infinite-tiling patterns moved fast via background-position. ── */
 .site-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.site-bg-layer { position: absolute; inset: -25% -10%; will-change: transform; }
+.site-bg-layer { position: absolute; inset: 0; will-change: transform, background-position; }
 /* Far soft colour washes (slowest). */
 .site-bg-glow {
+  inset: -35% -12%;
   background:
-    radial-gradient(26% 18% at 12% 14%, color-mix(in srgb, var(--primary) 30%, transparent), transparent 66%),
-    radial-gradient(28% 20% at 88% 26%, color-mix(in srgb, var(--primary-2) 26%, transparent), transparent 66%),
-    radial-gradient(30% 20% at 30% 64%, color-mix(in srgb, var(--accent-green, #37c26b) 20%, transparent), transparent 70%),
-    radial-gradient(26% 18% at 78% 84%, color-mix(in srgb, var(--gold, #f4b23e) 22%, transparent), transparent 68%);
-  filter: blur(30px); opacity: .75;
+    radial-gradient(26% 18% at 12% 14%, color-mix(in srgb, var(--primary) 34%, transparent), transparent 66%),
+    radial-gradient(28% 20% at 88% 26%, color-mix(in srgb, var(--primary-2) 30%, transparent), transparent 66%),
+    radial-gradient(30% 20% at 30% 64%, color-mix(in srgb, var(--accent-green, #37c26b) 24%, transparent), transparent 70%),
+    radial-gradient(26% 18% at 78% 84%, color-mix(in srgb, var(--gold, #f4b23e) 26%, transparent), transparent 68%);
+  filter: blur(34px); opacity: .8;
 }
-/* The dot grid (medium) — the texture that makes the parallax read. */
+/* Graph-paper grid lines (medium speed) — adds structure/detail. */
+.site-bg-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--primary-2) 16%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--primary-2) 16%, transparent) 1px, transparent 1px);
+  background-size: 70px 70px; opacity: .55;
+}
+/* Dot grid (faster). */
 .site-bg-dots {
-  background-image: radial-gradient(color-mix(in srgb, var(--primary-2) 34%, transparent) 1.6px, transparent 2px);
-  background-size: 34px 34px; opacity: .5;
+  background-image: radial-gradient(color-mix(in srgb, var(--primary) 46%, transparent) 2.1px, transparent 2.6px);
+  background-size: 40px 40px; opacity: .6;
 }
-/* Sharper, brighter blobs (fastest → closest). */
+/* Big bold dots (closest, fastest → they rush past as you scroll). */
 .site-bg-near {
-  background:
-    radial-gradient(12% 8% at 72% 16%, color-mix(in srgb, var(--gold, #f4b23e) 40%, transparent), transparent 70%),
-    radial-gradient(11% 7% at 16% 42%, color-mix(in srgb, var(--primary) 44%, transparent), transparent 70%),
-    radial-gradient(13% 8% at 60% 78%, color-mix(in srgb, var(--accent-green, #37c26b) 38%, transparent), transparent 70%);
-  filter: blur(6px); opacity: .5;
+  background-image:
+    radial-gradient(color-mix(in srgb, var(--primary-2) 42%, transparent) 4.5px, transparent 6px),
+    radial-gradient(color-mix(in srgb, var(--accent-green, #37c26b) 34%, transparent) 3px, transparent 5px);
+  background-size: 150px 150px, 150px 150px;
+  background-position: 0 0, 75px 75px;
+  opacity: .5;
 }
-[data-theme="dark"] .site-bg-dots { opacity: .35; }
+[data-theme="dark"] .site-bg-grid { opacity: .32; }
+[data-theme="dark"] .site-bg-dots { opacity: .4; }
 [data-theme="dark"] .site-bg-glow, [data-theme="dark"] .site-bg-near { opacity: .55; }
 
 /* Sections sit above the global bg and stay transparent so it shows through. */

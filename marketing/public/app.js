@@ -108,11 +108,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 // its own distance from the viewport centre, so the effect runs the whole page.
 const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
 // Global background layers — drift at different rates the whole page long → depth.
-const siteBgLayers = [
-  ['.site-bg-glow', 0.12],
-  ['.site-bg-dots', 0.05],
-  ['.site-bg-near', 0.20],
-].map(([sel, f]) => [document.querySelector(sel), f]).filter(([el]) => el);
+const bgGlow = document.querySelector('.site-bg-glow');
+const bgGrid = document.querySelector('.site-bg-grid');
+const bgDots = document.querySelector('.site-bg-dots');
+const bgNear = document.querySelector('.site-bg-near');
 
 let ticking = false;
 function onScroll() {
@@ -126,7 +125,12 @@ function onScroll() {
     if (nav) nav.classList.toggle('scrolled', y > 8);
     if (!reduceMotion) {
       // Whole-site parallax: each bg layer drifts at its own rate.
-      for (const [el, f] of siteBgLayers) el.style.transform = `translateY(${(y * f).toFixed(1)}px)`;
+      // Whole-site parallax: far washes drift slowly; grid/dots/big-dots scroll
+      // FAST via background-position (infinite tiling) so the depth really reads.
+      if (bgGlow) bgGlow.style.transform = `translateY(${(y * 0.06).toFixed(1)}px)`;
+      if (bgGrid) bgGrid.style.backgroundPositionY = `${(-y * 0.16).toFixed(1)}px`;
+      if (bgDots) bgDots.style.backgroundPositionY = `${(-y * 0.32).toFixed(1)}px`;
+      if (bgNear) { const n = -y * 0.55; bgNear.style.backgroundPosition = `0 ${n.toFixed(1)}px, 75px ${(n + 75).toFixed(1)}px`; }
       for (const el of parallaxEls) {
         const r = el.getBoundingClientRect();
         const offset = (r.top + r.height / 2) - vh / 2;
