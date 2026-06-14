@@ -256,6 +256,9 @@ if (window.gsap && document.querySelector('.hero-stage')) {
     };
     setFaces(0);
     copies.forEach((c, i) => c.classList.toggle('is-active', i === 0));
+    // Park the phone at the screen-0 pose (far LEFT, front-facing, leaning to
+    // centre) before the trigger engages, so it never starts centred/edge-on.
+    gsap.set(box, { x: -ampX(), rotationY: 24, rotationX: 0 });
 
     ScrollTrigger.create({
       trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: 0.7, invalidateOnRefresh: true,

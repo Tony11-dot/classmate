@@ -113,7 +113,7 @@
 .sc-phone-3d {
   --w: clamp(224px, 21vw, 284px);
   --h: calc(var(--w) * 19.3 / 9);
-  --depth: 22px;
+  --depth: 16px;
   --r: 40px;
   position: relative; width: var(--w); height: var(--h);
   transform-style: preserve-3d; will-change: transform;
@@ -129,20 +129,28 @@
 .sc-shot { width: 100%; height: 100%; object-fit: cover; object-position: top center; border-radius: calc(var(--r) - 7px); display: block; }
 /* Dynamic island — sits over the status bar, on both faces. */
 .sc-island { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); width: 30%; height: 20px; background: #000; border-radius: 999px; z-index: 6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
-/* Body = rounded-rect slices stacked through the depth → a solid rounded
-   thickness with NO corner gaps (replaces flat edge faces). */
+/* Body = rounded-rect slices stacked tightly (1px apart) through the depth → a
+   SOLID rounded thickness: no corner gaps AND no edge-on combing/white flash. */
 .sc-body {
   position: absolute; inset: 0; border-radius: var(--r);
   background: linear-gradient(110deg, #2b3548, #0c1019 60%);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
 }
-.sc-body-1 { transform: translateZ(9px); }
-.sc-body-2 { transform: translateZ(6px); }
-.sc-body-3 { transform: translateZ(3px); }
-.sc-body-4 { transform: translateZ(0); }
-.sc-body-5 { transform: translateZ(-3px); }
-.sc-body-6 { transform: translateZ(-6px); }
-.sc-body-7 { transform: translateZ(-9px); }
+.sc-body-1  { transform: translateZ(7.5px); }
+.sc-body-2  { transform: translateZ(6.5px); }
+.sc-body-3  { transform: translateZ(5.5px); }
+.sc-body-4  { transform: translateZ(4.5px); }
+.sc-body-5  { transform: translateZ(3.5px); }
+.sc-body-6  { transform: translateZ(2.5px); }
+.sc-body-7  { transform: translateZ(1.5px); }
+.sc-body-8  { transform: translateZ(0.5px); }
+.sc-body-9  { transform: translateZ(-0.5px); }
+.sc-body-10 { transform: translateZ(-1.5px); }
+.sc-body-11 { transform: translateZ(-2.5px); }
+.sc-body-12 { transform: translateZ(-3.5px); }
+.sc-body-13 { transform: translateZ(-4.5px); }
+.sc-body-14 { transform: translateZ(-5.5px); }
+.sc-body-15 { transform: translateZ(-6.5px); }
+.sc-body-16 { transform: translateZ(-7.5px); }
 
 /* Mobile — static phone on top, all texts stacked & visible. */
 @media (max-width: 768px) {
