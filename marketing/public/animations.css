@@ -100,8 +100,8 @@
   opacity: .08; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease;
 }
 .sc-copy.is-active { opacity: 1; transform: none; }
-.sc-copy[data-side="right"] { align-items: flex-end; text-align: right; padding-right: clamp(24px, 11vw, 300px); }
-.sc-copy[data-side="left"]  { align-items: flex-start; text-align: left;  padding-left:  clamp(24px, 11vw, 300px); }
+.sc-copy[data-side="right"] { align-items: flex-end; text-align: right; padding-right: clamp(24px, 14vw, 400px); }
+.sc-copy[data-side="left"]  { align-items: flex-start; text-align: left;  padding-left:  clamp(24px, 14vw, 400px); }
 .sc-copy h3 { font-size: clamp(32px, 4.4vw, 54px); letter-spacing: -0.035em; font-weight: 900; line-height: 1.04; max-width: 11ch; }
 .sc-copy p { color: var(--muted); margin-top: 16px; font-size: clamp(17px, 1.8vw, 21px); line-height: 1.5; max-width: 26ch; }
 /* Kicker pill follows its text to the active side. */
@@ -129,15 +129,20 @@
 .sc-shot { width: 100%; height: 100%; object-fit: cover; object-position: top center; border-radius: calc(var(--r) - 7px); display: block; }
 /* Dynamic island — sits over the status bar, on both faces. */
 .sc-island { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); width: 30%; height: 20px; background: #000; border-radius: 999px; z-index: 6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
-/* Edges = the four sides (thickness), inset from the rounded corners so they
-   never poke past them. */
-.sc-edge { position: absolute; left: 50%; top: 50%; border-radius: 5px; }
-.sc-edge-l, .sc-edge-r { width: var(--depth); height: calc(var(--h) - var(--r) * 2); background: linear-gradient(180deg, #313b50, #0a0e16 78%); }
-.sc-edge-r { transform: translate(-50%, -50%) rotateY(90deg)  translateZ(calc(var(--w) / 2 - 1px)); }
-.sc-edge-l { transform: translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2 - 1px)); }
-.sc-edge-t, .sc-edge-b { width: calc(var(--w) - var(--r) * 2); height: var(--depth); background: linear-gradient(90deg, #313b50, #0a0e16 78%); }
-.sc-edge-t { transform: translate(-50%, -50%) rotateX(90deg)  translateZ(calc(var(--h) / 2 - 1px)); }
-.sc-edge-b { transform: translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2 - 1px)); }
+/* Body = rounded-rect slices stacked through the depth → a solid rounded
+   thickness with NO corner gaps (replaces flat edge faces). */
+.sc-body {
+  position: absolute; inset: 0; border-radius: var(--r);
+  background: linear-gradient(110deg, #2b3548, #0c1019 60%);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
+}
+.sc-body-1 { transform: translateZ(9px); }
+.sc-body-2 { transform: translateZ(6px); }
+.sc-body-3 { transform: translateZ(3px); }
+.sc-body-4 { transform: translateZ(0); }
+.sc-body-5 { transform: translateZ(-3px); }
+.sc-body-6 { transform: translateZ(-6px); }
+.sc-body-7 { transform: translateZ(-9px); }
 
 /* Mobile — static phone on top, all texts stacked & visible. */
 @media (max-width: 768px) {

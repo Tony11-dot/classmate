@@ -265,7 +265,7 @@ if (window.gsap && document.querySelector('.hero-stage')) {
         const x = -a * Math.cos(p * seg * Math.PI);          // zig-zag dribble
         // Continuous spin + a lean toward the centre at the land points (phone on
         // the left faces centre-right and vice-versa).
-        const tiltY = (x / a) * -15;
+        const tiltY = (x / a) * -24;
         const rotY = p * seg * 180 + tiltY;
         const tiltX = Math.sin(p * seg * Math.PI * 2) * 5;   // subtle tumble
         gsap.set(box, { rotationY: rotY, x, rotationX: tiltX });
