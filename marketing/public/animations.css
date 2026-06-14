@@ -19,29 +19,36 @@
   align-items: center;
 }
 
-/* ── Parallax layers (move on Y at different speeds → depth) ── */
-.hero-bg { position: absolute; inset: -12% -8%; pointer-events: none; will-change: transform; }
+/* ── Parallax layers (move on Y at different speeds → depth) ──
+   Tall (260vh) so they stay covering the pin while drifting up to 80vh.
+   Blobs are distributed top-to-bottom so something is always on screen. */
+.hero-bg { position: absolute; left: -8%; right: -8%; top: -40vh; height: 260vh; pointer-events: none; will-change: transform; }
+/* Layer 1 — furthest: big soft colour washes (slowest, 20%). */
 .hero-bg-1 {
   z-index: 0;
   background:
-    radial-gradient(48% 46% at 18% 22%, color-mix(in srgb, var(--primary) 30%, transparent), transparent 60%),
-    radial-gradient(50% 50% at 84% 30%, color-mix(in srgb, var(--primary-2) 26%, transparent), transparent 62%),
-    radial-gradient(60% 55% at 60% 96%, color-mix(in srgb, var(--accent-green, #37c26b) 18%, transparent), transparent 70%);
-  filter: blur(14px);
+    radial-gradient(38% 16% at 16% 10%, color-mix(in srgb, var(--primary) 34%, transparent), transparent 65%),
+    radial-gradient(42% 18% at 86% 30%, color-mix(in srgb, var(--primary-2) 30%, transparent), transparent 66%),
+    radial-gradient(46% 18% at 40% 58%, color-mix(in srgb, var(--accent-green, #37c26b) 24%, transparent), transparent 70%),
+    radial-gradient(40% 16% at 78% 82%, color-mix(in srgb, var(--gold, #f4b23e) 26%, transparent), transparent 68%);
+  filter: blur(18px);
 }
+/* Layer 2 — middle: a clear dot grid so the motion is unmistakable (50%). */
 .hero-bg-2 {
-  z-index: 0; opacity: .5;
-  background-image: radial-gradient(rgba(124,58,237,.16) 1.4px, transparent 1.6px);
-  background-size: 34px 34px;
-  -webkit-mask-image: radial-gradient(80% 70% at 50% 40%, #000 30%, transparent 80%);
-  mask-image: radial-gradient(80% 70% at 50% 40%, #000 30%, transparent 80%);
+  z-index: 0; opacity: .7;
+  background-image: radial-gradient(color-mix(in srgb, var(--primary-2) 38%, transparent) 1.7px, transparent 2px);
+  background-size: 32px 32px;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
 }
+/* Layer 3 — closest: sharper, brighter blobs (fastest, 80%). */
 .hero-bg-3 {
-  z-index: 1; opacity: .5;
+  z-index: 1; opacity: .6;
   background:
-    radial-gradient(26% 30% at 78% 18%, color-mix(in srgb, var(--gold, #f4b23e) 30%, transparent), transparent 70%),
-    radial-gradient(24% 28% at 14% 74%, color-mix(in srgb, var(--primary) 34%, transparent), transparent 70%);
-  filter: blur(6px);
+    radial-gradient(16% 9% at 74% 14%, color-mix(in srgb, var(--gold, #f4b23e) 42%, transparent), transparent 70%),
+    radial-gradient(15% 8% at 18% 40%, color-mix(in srgb, var(--primary) 46%, transparent), transparent 70%),
+    radial-gradient(17% 9% at 60% 70%, color-mix(in srgb, var(--accent-green, #37c26b) 40%, transparent), transparent 70%);
+  filter: blur(5px);
 }
 
 .hero-stage-inner {

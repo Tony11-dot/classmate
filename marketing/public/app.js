@@ -223,6 +223,9 @@ if (window.gsap && window.ScrollTrigger && document.querySelector('.hero-stage')
   // Desktop — full 3D pinned timeline.
   mm.add('(min-width: 769px) and (prefers-reduced-motion: no-preference)', () => {
     gsap.set('.hero-phone-pos', { xPercent: -50, yPercent: -50, opacity: 1, transformOrigin: '50% 50%' });
+    // transformPerspective puts the flip in true 3D (whole phone turns, near edge
+    // forward) instead of a flat "book page" squish.
+    gsap.set('.hero-phone-flip', { transformPerspective: 1200, transformOrigin: '50% 50%' });
     gsap.set(copyEls, { opacity: 0, y: 30 });
 
     const settleX = () => Math.min(window.innerWidth * 0.2, 260);
@@ -252,10 +255,12 @@ if (window.gsap && window.ScrollTrigger && document.querySelector('.hero-stage')
       .to('.hero-stage .hero-actions', { opacity: 1, y: 0, duration: 10 }, 72)
       .to('.hero-stage .hero-badges', { opacity: 1, y: 0, duration: 10 }, 75);
 
-    // 3 parallax layers at different speeds (translateY only).
-    tl.fromTo('.hero-bg-1', { yPercent: 0 }, { yPercent: 8, duration: 100, ease: 'none' }, 0);
-    tl.fromTo('.hero-bg-2', { yPercent: 0 }, { yPercent: 20, duration: 100, ease: 'none' }, 0);
-    tl.fromTo('.hero-bg-3', { yPercent: 0 }, { yPercent: 34, duration: 100, ease: 'none' }, 0);
+    // 3 parallax layers — translateY at 20% / 50% / 80% of a viewport height as
+    // you scroll the pin. Far layer drifts slowly, close layer rushes → depth.
+    const vH = () => window.innerHeight;
+    tl.fromTo('.hero-bg-1', { y: 0 }, { y: () => -0.20 * vH(), duration: 100, ease: 'none' }, 0);
+    tl.fromTo('.hero-bg-2', { y: 0 }, { y: () => -0.50 * vH(), duration: 100, ease: 'none' }, 0);
+    tl.fromTo('.hero-bg-3', { y: 0 }, { y: () => -0.80 * vH(), duration: 100, ease: 'none' }, 0);
 
     return () => { gsap.set('.hero-phone-pos', { clearProps: 'all' }); gsap.set(copyEls, { clearProps: 'all' }); };
   });
@@ -271,8 +276,9 @@ if (window.gsap && window.ScrollTrigger && document.querySelector('.hero-stage')
       opacity: 1, y: 0, stagger: 0.1, duration: 0.6, ease: 'power2.out',
       scrollTrigger: { trigger: '.hero-stage', start: 'top 78%' },
     });
-    [['.hero-bg-1', 6], ['.hero-bg-2', 14], ['.hero-bg-3', 22]].forEach(([sel, amt]) => {
-      gsap.to(sel, { yPercent: amt, ease: 'none',
+    const vHm = () => window.innerHeight;
+    [['.hero-bg-1', 0.20], ['.hero-bg-2', 0.50], ['.hero-bg-3', 0.80]].forEach(([sel, f]) => {
+      gsap.fromTo(sel, { y: 0 }, { y: () => -f * vHm(), ease: 'none',
         scrollTrigger: { trigger: '.hero-stage', start: 'top top', end: 'bottom top', scrub: true } });
     });
     return () => {};
