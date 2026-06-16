@@ -182,8 +182,8 @@ function buildResetEmailText(args: { recipientName?: string | null; schoolName?:
     '',
     "If you didn't request this, you can ignore this email — your password won't change.",
     '',
-    'Tony Aboud',
-    'Founder, ClassMate',
+    'The ClassMate Team',
+    'support@classmateapp.org',
   ].join('\n');
 }
 
@@ -247,8 +247,8 @@ function buildResetEmailHtml(args: { recipientName?: string | null; schoolName?:
 
         <!-- Signature footer -->
         <tr><td style="padding:22px 32px 28px; border-top:1px solid #eee;">
-          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">Tony Aboud</p>
-          <p style="margin:0; font-size:12px; color:#888;">Founder, ClassMate</p>
+          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">The ClassMate Team</p>
+          <p style="margin:0; font-size:12px; color:#888;">support@classmateapp.org</p>
         </td></tr>
       </table>
     </td></tr>
@@ -328,8 +328,8 @@ function buildPlatformResetCodeText(args: { code: string; expiresInMinutes: numb
     '',
     "If you didn't request this, change your SETUP_SECRET in Railway immediately — someone has access to your /cms page.",
     '',
-    'Tony Aboud',
-    'Founder, ClassMate',
+    'The ClassMate Team',
+    'support@classmateapp.org',
   ].join('\n');
 }
 
@@ -377,8 +377,8 @@ function buildPlatformResetCodeHtml(args: { code: string; expiresInMinutes: numb
         </td></tr>
 
         <tr><td style="padding:22px 32px 28px; border-top:1px solid #eee;">
-          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">Tony Aboud</p>
-          <p style="margin:0; font-size:12px; color:#888;">Founder, ClassMate</p>
+          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">The ClassMate Team</p>
+          <p style="margin:0; font-size:12px; color:#888;">support@classmateapp.org</p>
         </td></tr>
       </table>
     </td></tr>
@@ -405,8 +405,8 @@ function buildPasswordChangedText(args: {
     '',
     args.resetUrl,
     '',
-    'Tony Aboud',
-    'Founder, ClassMate',
+    'The ClassMate Team',
+    'support@classmateapp.org',
   ].join('\n');
 }
 
@@ -468,8 +468,8 @@ function buildPasswordChangedHtml(args: {
         </td></tr>
 
         <tr><td style="padding:22px 32px 28px; border-top:1px solid #eee;">
-          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">Tony Aboud</p>
-          <p style="margin:0; font-size:12px; color:#888;">Founder, ClassMate</p>
+          <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1a1a2e;">The ClassMate Team</p>
+          <p style="margin:0; font-size:12px; color:#888;">support@classmateapp.org</p>
         </td></tr>
       </table>
     </td></tr>

@@ -2254,7 +2254,7 @@
   "aboutPrivacyTitle": "الخصوصية أولًا",
   "aboutPrivacyDescription": "تبقى بيانات المدرسة داخل المدرسة. تتوافق الأدوار مع ما يستطيع كل شخص رؤيته — المعلمون يرون صفوفهم، الإداريون يرون مدرستهم، أولياء الأمور يرون أبناءهم. لا متتبّعون من جهات خارجية، ولا شبكات إعلانات.",
   "aboutContactTitle": "تواصل",
-  "aboutContactDescription": "صنعه Tony Aboud وفريق ClassMate.\nاستفسارات: support@classmateapp.org",
+  "aboutContactDescription": "صنعه فريق ClassMate.\nاستفسارات: support@classmateapp.org",
   "aboutVersionLabel": "ClassMate · إصدار {version}",
   "@aboutVersionLabel": {
     "placeholders": {

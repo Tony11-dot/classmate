@@ -5618,7 +5618,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutContactDescription =>
-      'صنعه Tony Aboud وفريق ClassMate.\nاستفسارات: support@classmateapp.org';
+      'صنعه فريق ClassMate.\nاستفسارات: support@classmateapp.org';
 
   @override
   String aboutVersionLabel(Object version) {

@@ -2461,7 +2461,7 @@
   "aboutPrivacyTitle": "Сначала конфиденциальность",
   "aboutPrivacyDescription": "Данные школы остаются в школе. Роли чётко соответствуют тому, что каждый видит — учителя видят свои классы, администраторы — свою школу, родители — своих детей. Без сторонних трекеров и рекламных сетей.",
   "aboutContactTitle": "Контакты",
-  "aboutContactDescription": "Создано Tony Aboud и командой ClassMate.\nВопросы: support@classmateapp.org",
+  "aboutContactDescription": "Создано командой ClassMate.\nВопросы: support@classmateapp.org",
   "aboutVersionLabel": "ClassMate · в. {version}",
   "@aboutVersionLabel": {
     "placeholders": {

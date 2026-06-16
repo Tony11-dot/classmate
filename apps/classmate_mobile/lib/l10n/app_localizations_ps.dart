@@ -5682,7 +5682,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get aboutContactDescription =>
-      '‹‹Built by Tony Aboud and the ClassMate team.\nQuestions: support@classmateapp.org››';
+      '‹‹Built by the ClassMate team.\nQuestions: support@classmateapp.org››';
 
   @override
   String aboutVersionLabel(Object version) {

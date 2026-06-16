@@ -5732,7 +5732,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aboutContactDescription =>
-      'Conçu par Tony Aboud et l\'équipe ClassMate.\nQuestions : support@classmateapp.org';
+      'Conçu par l\'équipe ClassMate.\nQuestions : support@classmateapp.org';
 
   @override
   String aboutVersionLabel(Object version) {
