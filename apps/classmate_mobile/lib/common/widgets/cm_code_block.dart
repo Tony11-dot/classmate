@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:highlight/languages/all.dart' show allLanguages;
 
 import '../../l10n/app_localizations.dart';
 
@@ -13,62 +14,89 @@ class CMCodeBlock extends StatelessWidget {
 
   const CMCodeBlock(this.code, {super.key, this.language = ''});
 
-  // Normalize common aliases to names highlight.js recognises.
+  // Map fence language strings to the grammar names the `highlight` package
+  // actually registers. Most fence names pass through unchanged (validated
+  // against allLanguages below); these are the ones that differ or are common
+  // aliases. IMPORTANT: highlight.js has NO `html` grammar — HTML/SVG/XHTML are
+  // all the `xml` grammar, which is why HTML used to render unhighlighted.
   static const _aliases = <String, String>{
     'py': 'python',
     'js': 'javascript',
-    'ts': 'typescript',
     'jsx': 'javascript',
+    'ts': 'typescript',
     'tsx': 'typescript',
     'c++': 'cpp',
+    'cc': 'cpp',
+    'h': 'cpp',
+    'hpp': 'cpp',
     'c#': 'cs',
     'csharp': 'cs',
     'sh': 'bash',
     'zsh': 'bash',
     'shell': 'bash',
+    'console': 'bash',
     'rb': 'ruby',
     'rs': 'rust',
     'yml': 'yaml',
     'kt': 'kotlin',
+    'golang': 'go',
+    'objc': 'objectivec',
+    'objective-c': 'objectivec',
+    'jsonc': 'json',
+    'json5': 'json',
+    // HTML and its relatives are the `xml` grammar in highlight.js.
+    'html': 'xml',
+    'htm': 'xml',
+    'xhtml': 'xml',
+    'svg': 'xml',
+    'rss': 'xml',
+    'plist': 'xml',
+    'vue': 'xml',
+    'ps1': 'powershell',
+    'bat': 'dos',
+    'cmd': 'dos',
+    'make': 'makefile',
+    'docker': 'dockerfile',
   };
 
-  // Languages actually bundled in the highlight package.
-  static const _supported = {
-    'python', 'javascript', 'typescript', 'dart', 'cpp', 'java', 'bash',
-    'swift', 'kotlin', 'go', 'rust', 'sql', 'css', 'html', 'ruby', 'php',
-    'c', 'cs', 'yaml', 'json', 'xml', 'markdown',
-  };
-
+  /// Resolve the fence language to a grammar the highlight package knows.
+  /// Returns '' only when there's genuinely no matching grammar (then we render
+  /// plain text). The package registers all ~190 highlight.js languages, so any
+  /// fence whose name matches a grammar (python, rust, go, sql, css, swift, …)
+  /// highlights automatically — no per-language whitelist to maintain.
   String get _normLang {
     final raw = language.trim().toLowerCase();
+    if (raw.isEmpty) return '';
     final resolved = _aliases[raw] ?? raw;
-    return _supported.contains(resolved) ? resolved : '';
+    return allLanguages.containsKey(resolved) ? resolved : '';
   }
 
+  /// Pretty header label, derived from the original fence so HTML shows "HTML"
+  /// (not "xml") and JS shows "JavaScript".
   String get _displayLang {
-    final n = language.trim().toLowerCase();
-    if (n.isEmpty) return 'code';
-    final resolved = _aliases[n] ?? n;
-    switch (resolved) {
-      case 'cs':
-        return 'C#';
-      case 'javascript':
-        return 'JavaScript';
-      case 'typescript':
-        return 'TypeScript';
-      case 'json':
-        return 'JSON';
-      case 'yaml':
-        return 'YAML';
-      case 'html':
-        return 'HTML';
-      case 'css':
-        return 'CSS';
-      case 'sql':
-        return 'SQL';
-      default:
-        return resolved;
-    }
+    final raw = language.trim().toLowerCase();
+    if (raw.isEmpty) return 'code';
+    const labels = <String, String>{
+      'py': 'Python', 'python': 'Python',
+      'js': 'JavaScript', 'javascript': 'JavaScript',
+      'ts': 'TypeScript', 'typescript': 'TypeScript',
+      'jsx': 'JSX', 'tsx': 'TSX',
+      'html': 'HTML', 'htm': 'HTML', 'xhtml': 'HTML', 'xml': 'XML', 'svg': 'SVG',
+      'css': 'CSS', 'scss': 'SCSS', 'sql': 'SQL',
+      'json': 'JSON', 'jsonc': 'JSON', 'yaml': 'YAML', 'yml': 'YAML',
+      'cpp': 'C++', 'c++': 'C++', 'c': 'C',
+      'cs': 'C#', 'csharp': 'C#', 'c#': 'C#',
+      'php': 'PHP', 'go': 'Go', 'golang': 'Go',
+      'objectivec': 'Objective-C', 'objc': 'Objective-C',
+      'bash': 'Bash', 'sh': 'Bash', 'shell': 'Bash', 'zsh': 'Bash',
+      'dart': 'Dart', 'java': 'Java', 'kotlin': 'Kotlin', 'kt': 'Kotlin',
+      'swift': 'Swift', 'rust': 'Rust', 'rs': 'Rust',
+      'ruby': 'Ruby', 'rb': 'Ruby', 'powershell': 'PowerShell',
+    };
+    final mapped = labels[raw];
+    if (mapped != null) return mapped;
+    // Fallback: capitalize the raw fence (e.g. "scala" -> "Scala").
+    return raw[0].toUpperCase() + raw.substring(1);
   }
 
   @override
