@@ -10,6 +10,15 @@ DateTime? _examsCachedAt;
 List<StudentExamItem>? _examsCachedItems;
 Future<List<StudentExamItem>>? _examsInflight;
 
+/// Wipe the module-level exams cache. MUST be called on logout — the cache is
+/// keyed only by time (2-min TTL), so without this the next user logging in on
+/// the same device would be served the previous user's exams.
+void resetStudentExamsCache() {
+  _examsCachedAt = null;
+  _examsCachedItems = null;
+  _examsInflight = null;
+}
+
 final examsRepositoryProvider = Provider<StudentExamsRepository>((ref) {
   return const StudentExamsRepository();
 });

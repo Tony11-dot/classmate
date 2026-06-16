@@ -107,11 +107,53 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 // Generic parallax layers (section background glows). Each drifts relative to
 // its own distance from the viewport centre, so the effect runs the whole page.
 const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
-// Global background layers — drift at different rates the whole page long → depth.
+// Global background layers — two clean layers driven by transform: translate3d
+// (GPU-composited) and eased toward a scroll-derived target each frame, so the
+// parallax is buttery instead of ticking per-frame.
 const bgGlow = document.querySelector('.site-bg-glow');
 const bgGrid = document.querySelector('.site-bg-grid');
-const bgDots = document.querySelector('.site-bg-dots');
-const bgNear = document.querySelector('.site-bg-near');
+
+// Heavy scroll FX (compositing two full-screen fixed layers, one a blurred
+// glow) can cost on phones, so run the bg parallax only on larger screens;
+// phones keep a static, smooth background. Re-evaluated on resize/rotate so it
+// switches cleanly without a reload.
+const heavyMq = window.matchMedia('(min-width: 900px)');
+let heavyFX = !reduceMotion && heavyMq.matches;
+
+// Lerped parallax state: each frame we ease the rendered position toward the
+// target derived from scrollY. linear interpolation = smooth, no stutter.
+const GLOW_SPEED = 0.06, GRID_SPEED = 0.14, LERP = 0.12;
+let glowTarget = 0, gridTarget = 0, glowCur = 0, gridCur = 0;
+let rafId = 0;
+
+function resetBgParallax() {
+  glowTarget = gridTarget = glowCur = gridCur = 0;
+  if (bgGlow) bgGlow.style.transform = '';
+  if (bgGrid) bgGrid.style.transform = '';
+  for (const el of parallaxEls) el.style.transform = 'translateX(-50%)';
+}
+
+// Continuous rAF loop that eases the bg layers toward their targets. It parks
+// itself (cancels the loop) once it's settled, and is re-kicked on scroll.
+function bgLoop() {
+  rafId = 0;
+  if (!heavyFX) return;
+  glowCur += (glowTarget - glowCur) * LERP;
+  gridCur += (gridTarget - gridCur) * LERP;
+  if (bgGlow) bgGlow.style.transform = `translate3d(0, ${glowCur.toFixed(2)}px, 0)`;
+  if (bgGrid) bgGrid.style.transform = `translate3d(0, ${gridCur.toFixed(2)}px, 0)`;
+  // Keep looping until both layers are within half a pixel of their targets.
+  if (Math.abs(glowTarget - glowCur) > 0.5 || Math.abs(gridTarget - gridCur) > 0.5) {
+    rafId = requestAnimationFrame(bgLoop);
+  }
+}
+function kickBgLoop() { if (heavyFX && !rafId) rafId = requestAnimationFrame(bgLoop); }
+
+heavyMq.addEventListener('change', (e) => {
+  heavyFX = !reduceMotion && e.matches;
+  if (!heavyFX) { if (rafId) cancelAnimationFrame(rafId); rafId = 0; resetBgParallax(); }
+  else onScroll();
+});
 
 let ticking = false;
 function onScroll() {
@@ -123,19 +165,17 @@ function onScroll() {
     const docH = document.documentElement.scrollHeight - window.innerHeight;
     if (progress) progress.style.transform = `scaleX(${docH > 0 ? y / docH : 0})`;
     if (nav) nav.classList.toggle('scrolled', y > 8);
-    if (!reduceMotion) {
-      // Whole-site parallax: each bg layer drifts at its own rate.
-      // Whole-site parallax: far washes drift slowly; grid/dots/big-dots scroll
-      // FAST via background-position (infinite tiling) so the depth really reads.
-      if (bgGlow) bgGlow.style.transform = `translateY(${(y * 0.06).toFixed(1)}px)`;
-      if (bgGrid) bgGrid.style.backgroundPositionY = `${(-y * 0.16).toFixed(1)}px`;
-      if (bgDots) bgDots.style.backgroundPositionY = `${(-y * 0.32).toFixed(1)}px`;
-      if (bgNear) { const n = -y * 0.55; bgNear.style.backgroundPosition = `0 ${n.toFixed(1)}px, 75px ${(n + 75).toFixed(1)}px`; }
+    if (heavyFX) {
+      // Far washes drift slowly down; the subtle grid drifts up a touch faster
+      // → gentle depth. Targets only; the rAF loop eases the rendered position.
+      glowTarget = y * GLOW_SPEED;
+      gridTarget = -y * GRID_SPEED;
+      kickBgLoop();
+      // The centred section glows track their own distance from viewport centre.
       for (const el of parallaxEls) {
         const r = el.getBoundingClientRect();
         const offset = (r.top + r.height / 2) - vh / 2;
         const speed = parseFloat(el.dataset.speed || '0.1');
-        // Layers are horizontally centred, so keep the -50% X and drift on Y.
         el.style.transform = `translateX(-50%) translateY(${(-offset * speed).toFixed(1)}px)`;
       }
     }
@@ -217,6 +257,30 @@ if (demoVideo) {
   }
 }
 
+// ── Showcase: never-gray guarantee (independent of GSAP) ────────────────────
+// Runs on load BEFORE any ScrollTrigger so the showcase text is never all-gray,
+// even if GSAP fails to load, the animation branch doesn't run, or the browser
+// restores a mid-page scroll position on refresh.
+(function ensureShowcaseReadable() {
+  const scWrap = document.querySelector('.sc-wrap');
+  const scCopies = Array.from(document.querySelectorAll('.sc-copy'));
+  if (!scWrap || !scCopies.length) return;
+  const animates =
+    window.gsap && window.ScrollTrigger &&
+    window.matchMedia('(min-width: 769px) and (prefers-reduced-motion: no-preference)').matches;
+  if (animates) {
+    // The scroll animation will own active state; just guarantee a sane default
+    // (panel 0 active) for first paint — the ScrollTrigger setup re-syncs it to
+    // the real scroll position immediately after.
+    if (!scCopies.some((c) => c.classList.contains('is-active'))) {
+      scCopies[0].classList.add('is-active');
+    }
+  } else {
+    // No animation here → mark the section so CSS makes every panel readable.
+    scWrap.classList.add('no-anim');
+  }
+})();
+
 // ── Hero scroll animation (GSAP ScrollTrigger) ──────────────────────────────
 // Pinned cinematic stage: phone flies in from the left → centres → straightens
 // → 3D Y-flip to the schedule → settles to the right as the copy reveals, over
@@ -264,23 +328,35 @@ if (window.gsap && document.querySelector('.hero-stage')) {
     // centre) before the trigger engages, so it never starts centred/edge-on.
     gsap.set(box, { x: -ampX(), rotationY: 24, rotationX: 0 });
 
-    ScrollTrigger.create({
+    // Single source of truth for "what should the scene look like at progress p".
+    // Used both by ScrollTrigger.onUpdate and by the forced initial sync below,
+    // so on refresh (browser restores scroll mid-page) the active panel + phone
+    // rotation always match the real position on first paint — no stuck phone,
+    // no all-gray text.
+    const applyProgress = (p) => {
+      const a = ampX();
+      const x = -a * Math.cos(p * seg * Math.PI);          // zig-zag dribble
+      // Continuous spin + a lean toward the centre at the land points (phone on
+      // the left faces centre-right and vice-versa).
+      const tiltY = (x / a) * -24;
+      const rotY = p * seg * 180 + tiltY;
+      const tiltX = Math.sin(p * seg * Math.PI * 2) * 5;   // subtle tumble
+      gsap.set(box, { rotationY: rotY, x, rotationX: tiltX });
+      setFaces(Math.floor(p * seg + 1e-4));
+      const cur = Math.round(p * seg);
+      copies.forEach((c, i) => c.classList.toggle('is-active', i === cur));
+    };
+
+    const st = ScrollTrigger.create({
       trigger: wrap, start: 'top top', end: 'bottom bottom', scrub: 0.7, invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        const p = self.progress;
-        const a = ampX();
-        const x = -a * Math.cos(p * seg * Math.PI);          // zig-zag dribble
-        // Continuous spin + a lean toward the centre at the land points (phone on
-        // the left faces centre-right and vice-versa).
-        const tiltY = (x / a) * -24;
-        const rotY = p * seg * 180 + tiltY;
-        const tiltX = Math.sin(p * seg * Math.PI * 2) * 5;   // subtle tumble
-        gsap.set(box, { rotationY: rotY, x, rotationX: tiltX });
-        setFaces(Math.floor(p * seg + 1e-4));
-        const cur = Math.round(p * seg);
-        copies.forEach((c, i) => c.classList.toggle('is-active', i === cur));
-      },
+      onUpdate: (self) => applyProgress(self.progress),
     });
+
+    // Recompute trigger geometry, then force an immediate evaluation at the
+    // ACTUAL scroll position (handles the browser restoring scroll on refresh).
+    ScrollTrigger.refresh();
+    applyProgress(st.progress);
+
     return () => { gsap.set(box, { clearProps: 'all' }); };
   });
 

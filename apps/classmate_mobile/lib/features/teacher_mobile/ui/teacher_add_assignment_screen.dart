@@ -10,6 +10,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
+import 'widgets/audience_students_summary.dart';
 
 class TeacherAddAssignmentScreen extends ConsumerStatefulWidget {
   const TeacherAddAssignmentScreen({
@@ -58,6 +59,7 @@ class _TeacherAddAssignmentScreenState
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
   final Set<int> _selectedGrades = {};
+  AudienceResolution? _audienceResolution;
   // member preview: id → list of student names
   final Map<String, List<String>> _memberCache = {};
 
@@ -276,11 +278,22 @@ class _TeacherAddAssignmentScreenState
           : null;
 
       // Derive targetType from additive selections
-      final effectiveTargetType = _selectedCohortIds.isNotEmpty
+      var effectiveTargetType = _selectedCohortIds.isNotEmpty
           ? 'COHORT'
           : _selectedStudentIds.isNotEmpty
               ? 'STUDENTS'
               : 'EVERYONE';
+      var outCohortIds = _selectedCohortIds.toList();
+      var outStudentIds = _selectedStudentIds.toList();
+      var outGrades = _selectedGrades.toList();
+      // Materialize the audience to an explicit student list when the teacher
+      // has removed individual students, so removals are actually honored.
+      if (_audienceResolution?.hasExclusions == true) {
+        effectiveTargetType = 'STUDENTS';
+        outStudentIds = _audienceResolution!.effective.map((s) => s.studentId).toList();
+        outCohortIds = [];
+        outGrades = [];
+      }
 
       // Strip pending-material rows before sending; they're attached
       // via the dedicated /attach-material endpoint after save.
@@ -297,9 +310,9 @@ class _TeacherAddAssignmentScreenState
           'dueAt': dueAtStr,
           'maxGrade': int.tryParse(_maxGradeCtrl.text.trim()),
           'targetType': effectiveTargetType,
-          'targetCohortIds': _selectedCohortIds.toList(),
-          'targetStudentIds': _selectedStudentIds.toList(),
-          'targetGrades': _selectedGrades.toList(),
+          'targetCohortIds': outCohortIds,
+          'targetStudentIds': outStudentIds,
+          'targetGrades': outGrades,
           'attachments': attsForSave,
           'published': published,
         });
@@ -313,9 +326,9 @@ class _TeacherAddAssignmentScreenState
           dueAt: dueAtStr,
           maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
           targetType: effectiveTargetType,
-          targetCohortIds: _selectedCohortIds.toList(),
-          targetStudentIds: _selectedStudentIds.toList(),
-          targetGrades: _selectedGrades.toList(),
+          targetCohortIds: outCohortIds,
+          targetStudentIds: outStudentIds,
+          targetGrades: outGrades,
           attachments: attsForSave,
           published: published,
         );
@@ -598,6 +611,17 @@ class _TeacherAddAssignmentScreenState
                         const SizedBox(height: 8),
                         Text(AppLocalizations.of(context)!.teacherMeetingVisibleToEveryone, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
+                      AudienceStudentsSummary(
+                        targetType: _selectedCohortIds.isNotEmpty
+                            ? 'COHORT'
+                            : _selectedStudentIds.isNotEmpty
+                                ? 'STUDENTS'
+                                : null,
+                        cohortIds: _selectedCohortIds.toList(),
+                        studentIds: _selectedStudentIds.toList(),
+                        grades: _selectedGrades.toList(),
+                        onResolutionChanged: (r) => _audienceResolution = r,
+                      ),
                     ],
                   ),
                 ),

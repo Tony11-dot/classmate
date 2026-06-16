@@ -5247,9 +5247,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get forgotPasswordModeSms => 'SMS';
 
   @override
-  String get forgotPasswordModeAdmin => 'מנהל';
-
-  @override
   String get forgotPasswordEmailSent =>
       'קישור איפוס נשלח (אם נמצא חשבון תואם).';
 
@@ -5501,61 +5498,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String chatSelectedCount(Object count) {
     return '$count נבחרו';
   }
-
-  @override
-  String get adminPasswordReqEmpty => 'אין בקשות ממתינות';
-
-  @override
-  String get adminPasswordReqExplainer =>
-      'משתמשים שאישרת או דחית לא יופיעו כאן. בקשות ממתינות פגות לאחר 24 שעות.';
-
-  @override
-  String get adminPasswordReqApproveTitle => 'לאשר שינוי סיסמה?';
-
-  @override
-  String adminPasswordReqApproveExplain(Object name) {
-    return 'פעולה זו תגדיר את הסיסמה של $name לזו שהוא הקליד (אתה לא רואה אותה).';
-  }
-
-  @override
-  String adminPasswordReqVerifyWarning(Object name) {
-    return 'אשר רק לאחר שאימתת שמגיש הבקשה הוא באמת $name — התקשר אליו או אמת אישית. כל מי שיודע שם משתמש יכול להגיש בקשה כזו.';
-  }
-
-  @override
-  String get adminPasswordReqConfirmApprove => 'אימתתי — אשר';
-
-  @override
-  String adminPasswordReqApproveSnackbar(Object name) {
-    return 'אושר — $name יכול להתחבר עכשיו.';
-  }
-
-  @override
-  String get adminPasswordReqRejectTitle => 'לדחות שינוי סיסמה?';
-
-  @override
-  String adminPasswordReqRejectExplain(Object name) {
-    return 'הסיסמה של $name לא תשתנה. הוא יכול להגיש בקשה חדשה במידת הצורך.';
-  }
-
-  @override
-  String get adminPasswordReqRejectSnackbar => 'נדחה.';
-
-  @override
-  String get adminPasswordReqRejectButton => 'דחה';
-
-  @override
-  String get adminPasswordReqApproveButton => 'אשר';
-
-  @override
-  String get adminPasswordReqCardCopy =>
-      'מעוניין בשינוי סיסמה. הסיסמה החדשה מוסתרת.';
-
-  @override
-  String get adminPasswordReqCallTooltip => 'התקשר';
-
-  @override
-  String get adminPasswordReqSmsTooltip => 'SMS';
 
   @override
   String get adminSetupSchoolSetup => 'הגדרת בית הספר';
@@ -6761,34 +6703,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get secretaryClassrooms => 'כיתות';
 
   @override
-  String get adminPasswordReqTitle => 'בקשות סיסמה';
-
-  @override
-  String get adminPasswordReqBlurb =>
-      'משתמשים מבית הספר שלך שביקשו את אישורך לשינוי סיסמה.';
-
-  @override
-  String adminPasswordReqWaiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count משתמשים ממתינים לאישור שלך.',
-      one: 'משתמש אחד ממתין לאישור שלך.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get adminPasswordReqWantsChange =>
-      'רוצה לשנות את הסיסמה. הסיסמה החדשה מוסתרת.';
-
-  @override
-  String get adminPasswordReqReject => 'דחה';
-
-  @override
-  String get adminPasswordReqApprove => 'אשר';
-
-  @override
   String get adminPeopleGrade => 'כיתה';
 
   @override
@@ -6831,9 +6745,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get navExportData => 'יצוא נתונים';
-
-  @override
-  String get navPasswordRequests => 'בקשות סיסמה';
 
   @override
   String get sectionSecretaryTools => 'כלי מזכירות';
@@ -7113,17 +7024,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get forwardNoChats => 'אין צ\'אטים';
 
   @override
-  String get forgotPasswordFindAdmins => 'מצא את מנהלי בית הספר שלי';
-
-  @override
-  String forgotPasswordChooseAdmin(String school) {
-    return 'בחר מנהל מתוך $school:';
-  }
-
-  @override
-  String get forgotPasswordSendRequest => 'שלח בקשת סיסמה';
-
-  @override
   String get commonTitle => 'כותרת';
 
   @override
@@ -7179,18 +7079,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get profileNewEmail => 'דוא\"ל חדש';
-
-  @override
-  String get forgotPasswordYourPhone =>
-      'הטלפון שלך (כדי שהמנהל יוכל לאמת שזה באמת אתה)';
-
-  @override
-  String get forgotPasswordPhoneHelper =>
-      'המנהל יתקשר או ישלח הודעה למספר זה לפני האישור.';
-
-  @override
-  String get forgotPasswordNewPasswordHelper =>
-      'לפחות 8 תווים. נשמר מוצפן — המנהל לא יראה אותה.';
 
   @override
   String adminExportPasswordsWarning(int count) {
@@ -8313,12 +8201,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminWelcomeHeading => 'ברוך הבא ל-ClassMate';
 
   @override
-  String get forgotPasswordSendRequestTo => 'שליחת בקשה אל';
-
-  @override
-  String get forgotPasswordChooseAdminDash => '— בחירת מנהל —';
-
-  @override
   String get diplomasNoFilesAttached => 'אין קבצים מצורפים לתעודה זו.';
 
   @override
@@ -8365,11 +8247,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String adminPeriodOption(Object period) {
     return 'שיעור $period';
-  }
-
-  @override
-  String adminPasswordRequestHoursLeft(Object hours) {
-    return 'נותרו $hours ש\'';
   }
 
   @override
@@ -9455,9 +9332,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get appShellPasswordRequests => 'בקשות סיסמה';
-
-  @override
   String get appShellReports => 'דיווחים';
 
   @override
@@ -9828,11 +9702,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String adminPasswordRequestsScreenVerifyIdentity(String name) {
-    return 'ודאו שזה באמת $name לפני האישור (התקשרו אליהם או אשרו פנים אל פנים).';
-  }
-
-  @override
   String get solutionAssetPreviewSheetPdfDocument => 'מסמך PDF';
 
   @override
@@ -9919,10 +9788,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get teacherAddGradeScreenNoCohortAnchor =>
-      'אין מחזור זמין לעגן אליו את הציון הזה. צור מחזור תחילה.';
-
-  @override
   String get teacherAddGradeScreenFailedCreateRecord =>
       'יצירת רשומת הציון נכשלה.';
 
@@ -9959,4 +9824,77 @@ class AppLocalizationsHe extends AppLocalizations {
   String teacherMaterialAttachedTo(String period) {
     return 'מצורף ל$period';
   }
+
+  @override
+  String get adminPeopleAddMany => 'Add many';
+
+  @override
+  String get adminAddManyPasteNames => 'Paste names';
+
+  @override
+  String get adminAddManyApplyRole => 'Set role for all';
+
+  @override
+  String get adminAddManyApplyGrade => 'Set grade for all';
+
+  @override
+  String get adminAddManyParentLabel => 'Parent';
+
+  @override
+  String get adminAddManyParentNone => 'No parent';
+
+  @override
+  String get adminAddManyParentInBatch => 'New parents in this list';
+
+  @override
+  String get adminAddManyParentExisting => 'Existing parents';
+
+  @override
+  String get adminAddManySearchParents => 'Search parents…';
+
+  @override
+  String get adminAddManyNoParentsYet =>
+      'No matching parents — type a name above to create one';
+
+  @override
+  String get adminAddManyUsernameTaken => 'Username already taken';
+
+  @override
+  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+
+  @override
+  String adminAddManyCreateParent(String name) {
+    return 'Create new parent \"$name\"';
+  }
+
+  @override
+  String adminAddManyPastedRows(int count) {
+    return 'Added $count rows';
+  }
+
+  @override
+  String get teacherCreateClassroomNoStudentsInCohort =>
+      'אין עדיין תלמידים בקבוצה שנבחרה.';
+
+  @override
+  String get audienceSummaryResolving => 'מחפש תלמידים…';
+
+  @override
+  String audienceSummaryCount(int count) {
+    return '$count יראו זאת';
+  }
+
+  @override
+  String get audienceSummaryEmpty => 'אין תלמידים התואמים לקהל זה.';
+
+  @override
+  String audienceSummaryRestore(int count) {
+    return 'שחזר $count שהוסרו';
+  }
+
+  @override
+  String get scheduleUpcomingExam => 'מבחן קרוב';
+
+  @override
+  String get scheduleNoUpcomingExams => 'אין מבחנים קרובים';
 }

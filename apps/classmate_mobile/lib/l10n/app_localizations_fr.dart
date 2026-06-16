@@ -5375,9 +5375,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forgotPasswordModeSms => 'SMS';
 
   @override
-  String get forgotPasswordModeAdmin => 'Administrateur';
-
-  @override
   String get forgotPasswordEmailSent =>
       'Lien de réinitialisation envoyé (si un compte correspond).';
 
@@ -5633,63 +5630,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String chatSelectedCount(Object count) {
     return '$count sélectionné(s)';
   }
-
-  @override
-  String get adminPasswordReqEmpty => 'Aucune demande en attente';
-
-  @override
-  String get adminPasswordReqExplainer =>
-      'Les utilisateurs que vous avez approuvés ou rejetés n\'apparaîtront pas ici. Les demandes en attente expirent après 24 heures.';
-
-  @override
-  String get adminPasswordReqApproveTitle =>
-      'Approuver le changement de mot de passe ?';
-
-  @override
-  String adminPasswordReqApproveExplain(Object name) {
-    return 'Cela définit le mot de passe de $name sur celui qu\'il a saisi (vous ne le voyez pas).';
-  }
-
-  @override
-  String adminPasswordReqVerifyWarning(Object name) {
-    return 'N\'approuvez que si vous avez vérifié que le demandeur est bien $name — appelez-le ou confirmez en personne. Toute personne connaissant un nom d\'utilisateur peut soumettre cette demande.';
-  }
-
-  @override
-  String get adminPasswordReqConfirmApprove => 'J\'ai vérifié — approuver';
-
-  @override
-  String adminPasswordReqApproveSnackbar(Object name) {
-    return 'Approuvé — $name peut se connecter maintenant.';
-  }
-
-  @override
-  String get adminPasswordReqRejectTitle =>
-      'Rejeter le changement de mot de passe ?';
-
-  @override
-  String adminPasswordReqRejectExplain(Object name) {
-    return 'Le mot de passe de $name ne changera pas. Il pourra soumettre une nouvelle demande si nécessaire.';
-  }
-
-  @override
-  String get adminPasswordReqRejectSnackbar => 'Rejeté.';
-
-  @override
-  String get adminPasswordReqRejectButton => 'Rejeter';
-
-  @override
-  String get adminPasswordReqApproveButton => 'Approuver';
-
-  @override
-  String get adminPasswordReqCardCopy =>
-      'Souhaite changer son mot de passe. Le nouveau mot de passe est masqué.';
-
-  @override
-  String get adminPasswordReqCallTooltip => 'Appeler';
-
-  @override
-  String get adminPasswordReqSmsTooltip => 'SMS';
 
   @override
   String get adminSetupSchoolSetup => 'Configuration de l\'école';
@@ -6921,34 +6861,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get secretaryClassrooms => 'Classes';
 
   @override
-  String get adminPasswordReqTitle => 'Demandes de mot de passe';
-
-  @override
-  String get adminPasswordReqBlurb =>
-      'Utilisateurs de votre établissement qui demandent votre approbation pour changer leur mot de passe.';
-
-  @override
-  String adminPasswordReqWaiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count utilisateurs en attente de votre approbation.',
-      one: '1 utilisateur en attente de votre approbation.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get adminPasswordReqWantsChange =>
-      'Souhaite changer son mot de passe. Le nouveau mot de passe est caché.';
-
-  @override
-  String get adminPasswordReqReject => 'Refuser';
-
-  @override
-  String get adminPasswordReqApprove => 'Approuver';
-
-  @override
   String get adminPeopleGrade => 'Niveau';
 
   @override
@@ -6992,9 +6904,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get navExportData => 'Exporter les données';
-
-  @override
-  String get navPasswordRequests => 'Demandes de mot de passe';
 
   @override
   String get sectionSecretaryTools => 'Outils du secrétariat';
@@ -7282,18 +7191,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forwardNoChats => 'Aucune discussion';
 
   @override
-  String get forgotPasswordFindAdmins =>
-      'Trouver les administrateurs de mon école';
-
-  @override
-  String forgotPasswordChooseAdmin(String school) {
-    return 'Choisissez un administrateur dans $school :';
-  }
-
-  @override
-  String get forgotPasswordSendRequest => 'Envoyer la demande de mot de passe';
-
-  @override
   String get commonTitle => 'Titre';
 
   @override
@@ -7351,18 +7248,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileNewEmail => 'Nouvel e-mail';
-
-  @override
-  String get forgotPasswordYourPhone =>
-      'Votre téléphone (pour que l\'administrateur puisse vérifier votre identité)';
-
-  @override
-  String get forgotPasswordPhoneHelper =>
-      'L\'administrateur appellera ou enverra un SMS à ce numéro avant d\'approuver.';
-
-  @override
-  String get forgotPasswordNewPasswordHelper =>
-      'Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas.';
 
   @override
   String adminExportPasswordsWarning(int count) {
@@ -8513,12 +8398,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminWelcomeHeading => 'Bienvenue sur ClassMate';
 
   @override
-  String get forgotPasswordSendRequestTo => 'Envoyer la demande à';
-
-  @override
-  String get forgotPasswordChooseAdminDash => '— Choisir un admin —';
-
-  @override
   String get diplomasNoFilesAttached => 'Aucun fichier joint à ce certificat.';
 
   @override
@@ -8568,11 +8447,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String adminPeriodOption(Object period) {
     return 'Période $period';
-  }
-
-  @override
-  String adminPasswordRequestHoursLeft(Object hours) {
-    return '${hours}h restant';
   }
 
   @override
@@ -9685,9 +9559,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get appShellPasswordRequests => 'Demandes de mot de passe';
-
-  @override
   String get appShellReports => 'Signalements';
 
   @override
@@ -10076,11 +9947,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String adminPasswordRequestsScreenVerifyIdentity(String name) {
-    return 'Vérifiez qu\'il s\'agit bien de $name avant d\'approuver (appelez-le ou confirmez en personne).';
-  }
-
-  @override
   String get solutionAssetPreviewSheetPdfDocument => 'Document PDF';
 
   @override
@@ -10168,10 +10034,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get teacherAddGradeScreenNoCohortAnchor =>
-      'Aucune cohorte disponible pour rattacher ce niveau. Créez d\'abord une cohorte.';
-
-  @override
   String get teacherAddGradeScreenFailedCreateRecord =>
       'Échec de la création de la note.';
 
@@ -10211,4 +10073,77 @@ class AppLocalizationsFr extends AppLocalizations {
   String teacherMaterialAttachedTo(String period) {
     return 'Joint à $period';
   }
+
+  @override
+  String get adminPeopleAddMany => 'Add many';
+
+  @override
+  String get adminAddManyPasteNames => 'Paste names';
+
+  @override
+  String get adminAddManyApplyRole => 'Set role for all';
+
+  @override
+  String get adminAddManyApplyGrade => 'Set grade for all';
+
+  @override
+  String get adminAddManyParentLabel => 'Parent';
+
+  @override
+  String get adminAddManyParentNone => 'No parent';
+
+  @override
+  String get adminAddManyParentInBatch => 'New parents in this list';
+
+  @override
+  String get adminAddManyParentExisting => 'Existing parents';
+
+  @override
+  String get adminAddManySearchParents => 'Search parents…';
+
+  @override
+  String get adminAddManyNoParentsYet =>
+      'No matching parents — type a name above to create one';
+
+  @override
+  String get adminAddManyUsernameTaken => 'Username already taken';
+
+  @override
+  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+
+  @override
+  String adminAddManyCreateParent(String name) {
+    return 'Create new parent \"$name\"';
+  }
+
+  @override
+  String adminAddManyPastedRows(int count) {
+    return 'Added $count rows';
+  }
+
+  @override
+  String get teacherCreateClassroomNoStudentsInCohort =>
+      'Aucun élève dans la cohorte sélectionnée pour l\'instant.';
+
+  @override
+  String get audienceSummaryResolving => 'Recherche des élèves…';
+
+  @override
+  String audienceSummaryCount(int count) {
+    return '$count verront ceci';
+  }
+
+  @override
+  String get audienceSummaryEmpty => 'Aucun élève ne correspond à ce public.';
+
+  @override
+  String audienceSummaryRestore(int count) {
+    return 'Restaurer $count supprimé(s)';
+  }
+
+  @override
+  String get scheduleUpcomingExam => 'Examen à venir';
+
+  @override
+  String get scheduleNoUpcomingExams => 'Aucun examen à venir';
 }

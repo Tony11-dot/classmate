@@ -2314,7 +2314,6 @@
   "forgotPasswordTitle": "‹‹Reset your password››",
   "forgotPasswordModeEmail": "‹‹Email››",
   "forgotPasswordModeSms": "‹‹SMS››",
-  "forgotPasswordModeAdmin": "‹‹Admin››",
   "forgotPasswordEmailSent": "‹‹Reset link sent (if an account matches).››",
   "forgotPasswordEmptyError": "‹‹Enter your email or username to continue.››",
   "forgotPasswordEmailButton": "‹‹Email me a reset link››",
@@ -2433,41 +2432,6 @@
       "count": {}
     }
   },
-  "adminPasswordReqEmpty": "‹‹No pending requests››",
-  "adminPasswordReqExplainer": "‹‹Users you have approved or rejected won't appear here. Pending requests expire after 24 hours.››",
-  "adminPasswordReqApproveTitle": "‹‹Approve password change?››",
-  "adminPasswordReqApproveExplain": "‹‹This sets {name}'s password to the one they typed (you don't see it).››",
-  "@adminPasswordReqApproveExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqVerifyWarning": "‹‹Only approve if you have verified the requester is really {name} — call them, or confirm in person. Anyone who knows a username can file this request.››",
-  "@adminPasswordReqVerifyWarning": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqConfirmApprove": "‹‹I verified — approve››",
-  "adminPasswordReqApproveSnackbar": "‹‹Approved — {name} can sign in now.››",
-  "@adminPasswordReqApproveSnackbar": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectTitle": "‹‹Reject password change?››",
-  "adminPasswordReqRejectExplain": "‹‹{name}'s password won't change. They can submit a new request if needed.››",
-  "@adminPasswordReqRejectExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectSnackbar": "‹‹Rejected.››",
-  "adminPasswordReqRejectButton": "‹‹Reject››",
-  "adminPasswordReqApproveButton": "‹‹Approve››",
-  "adminPasswordReqCardCopy": "‹‹Wants their password changed. The new password is hidden.››",
-  "adminPasswordReqCallTooltip": "‹‹Call››",
-  "adminPasswordReqSmsTooltip": "‹‹SMS››",
   "adminSetupSchoolSetup": "‹‹School Setup››",
   "adminSetupComplete": "‹‹You're all set. Tap any item to revisit or refine it.››",
   "adminSetupInstructions": "‹‹Complete these steps to fully set up your school.››",
@@ -3132,19 +3096,6 @@
   },
   "secretaryAllCohorts": "‹‹All cohorts››",
   "secretaryClassrooms": "‹‹Classrooms››",
-  "adminPasswordReqTitle": "‹‹Password requests››",
-  "adminPasswordReqBlurb": "‹‹Users from your school who've asked you to approve a password change.››",
-  "adminPasswordReqWaiting": "‹‹{count, plural, =1{1 user waiting for your approval.} other{{count} users waiting for your approval.}}››",
-  "@adminPasswordReqWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adminPasswordReqWantsChange": "‹‹Wants their password changed. The new password is hidden.››",
-  "adminPasswordReqReject": "‹‹Reject››",
-  "adminPasswordReqApprove": "‹‹Approve››",
   "adminPeopleGrade": "‹‹Grade››",
   "adminSchoolSettingsTapToAddTranslations": "‹‹Tap to add translations››",
   "adminSchoolSettingsAddPeriodNum": "‹‹Add Period (P{num})››",
@@ -3165,7 +3116,6 @@
   "navPlans": "‹‹NOVA Plans››",
   "navReports": "‹‹Reports››",
   "navExportData": "‹‹Export Data››",
-  "navPasswordRequests": "‹‹Password Requests››",
   "sectionSecretaryTools": "‹‹Secretary Tools››",
   "sectionSchoolToolsLabel": "‹‹School Tools››",
   "sectionAdminTools": "‹‹Admin Tools››",
@@ -3335,16 +3285,6 @@
     }
   },
   "forwardNoChats": "‹‹No chats››",
-  "forgotPasswordFindAdmins": "‹‹Find my school's admins››",
-  "forgotPasswordChooseAdmin": "‹‹Choose an admin from {school}:››",
-  "@forgotPasswordChooseAdmin": {
-    "placeholders": {
-      "school": {
-        "type": "String"
-      }
-    }
-  },
-  "forgotPasswordSendRequest": "‹‹Send password request››",
   "commonTitle": "‹‹Title››",
   "commonNotes": "‹‹Notes››",
   "commonEmail": "‹‹Email››",
@@ -3364,9 +3304,6 @@
   "forwardSearchChatsAndClassrooms": "‹‹Search chats and classrooms…››",
   "profileNewPhone": "‹‹New phone››",
   "profileNewEmail": "‹‹New email››",
-  "forgotPasswordYourPhone": "‹‹Your phone (so the admin can verify it's really you)››",
-  "forgotPasswordPhoneHelper": "‹‹The admin will call or text this number before approving.››",
-  "forgotPasswordNewPasswordHelper": "‹‹At least 8 characters. Stored hashed — your admin will not see it.››",
   "adminExportPasswordsWarning": "‹‹{count, plural, one{The file will contain {count} student's login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}››",
   "@adminExportPasswordsWarning": {
     "placeholders": {
@@ -3862,8 +3799,6 @@
   "passwordMinChars": "‹‹At least 8 characters.››",
   "passwordsDoNotMatch": "‹‹Passwords don't match.››",
   "adminWelcomeHeading": "‹‹Welcome to ClassMate››",
-  "forgotPasswordSendRequestTo": "‹‹Send request to››",
-  "forgotPasswordChooseAdminDash": "‹‹— Choose admin —››",
   "diplomasNoFilesAttached": "‹‹No files attached to this certificate.››",
   "diplomasFilesProcessing": "‹‹Files could not be opened — they may still be processing.››",
   "novaOutOfTokens": "‹‹You've used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.››",
@@ -3877,7 +3812,6 @@
   "adminScheduleFrequencyWeeks": "‹‹×{freq} wks››",
   "gradeLevelLabel": "‹‹Grade {grade}››",
   "adminPeriodOption": "‹‹Period {period}››",
-  "adminPasswordRequestHoursLeft": "‹‹{hours}h left››",
   "cohortStudentsCount": "‹‹{count} students››",
   "diplomasIssuedCount": "‹‹{count} certificates issued››",
   "adminExportImportantHeading": "‹‹Important››",
@@ -4159,7 +4093,6 @@
   "profileChangeContact": "‹‹ Change {label} ››",
   "profileVerifyNewContactInfo": "‹‹ A verification code will be sent to the value you enter — confirming you own it. ››",
   "profileVerifyCurrentContactInfo": "‹‹ A verification code will be sent to your CURRENT {label} so you can prove ownership before switching. ››",
-  "appShellPasswordRequests": "‹‹ Password Requests ››",
   "appShellReports": "‹‹ Reports ››",
   "appShellExportData": "‹‹ Export Data ››",
   "appShellAdmin": "‹‹ Admin ››",
@@ -4253,7 +4186,6 @@
   "adminEditUserCohortMemberCount": "‹‹ Member of {count} cohort{count, plural, one{} other{s}}. ››",
   "adminEditUserSearchStudents": "‹‹ Search students… ››",
   "adminEditUserGradeSuffix": "‹‹ (Grade {grade}) ››",
-  "adminPasswordRequestsScreenVerifyIdentity": "‹‹ Verify this is really {name} before approving (call them or confirm in person). ››",
   "solutionAssetPreviewSheetPdfDocument": "‹‹ PDF document ››",
   "solutionAssetPreviewSheetUnableToPreview": "‹‹ Unable to preview PDF. ››",
   "classroomDetailSectionHeader": "‹‹ {title} ({count}) ››",
@@ -4279,7 +4211,6 @@
   "teacherCohortsScreenSingleGrade": "‹‹ Grade {grade} ››",
   "teacherCohortsScreenGradeRange": "‹‹ Grade {from}-{to} ››",
   "teacherCohortsScreenMultiGrade": "‹‹ Grades {grades} ››",
-  "teacherAddGradeScreenNoCohortAnchor": "‹‹ No cohort available to anchor this grade. Create a cohort first. ››",
   "teacherAddGradeScreenFailedCreateRecord": "‹‹ Failed to create grade record. ››",
   "phoneFieldLabel": "‹‹ Phone (optional) ››",
   "phoneFieldHelper": "‹‹ Used for SMS password reset ››",
@@ -4314,5 +4245,12 @@
     }
   },
   "teacherMaterialAddedBy": "‹‹ Added by {name} ››",
-  "teacherMaterialAttachedTo": "‹‹ Attached to {period} ››"
+  "teacherMaterialAttachedTo": "‹‹ Attached to {period} ››",
+  "teacherCreateClassroomNoStudentsInCohort": "په ټاکل شوي کوهورت کې لا تر اوسه زده کوونکي نشته.",
+  "audienceSummaryResolving": "د زده کوونکو موندل…",
+  "audienceSummaryCount": "{count} به دا وویني",
+  "audienceSummaryEmpty": "هیڅ زده کوونکی د دې لیدونکو سره سمون نه خوري.",
+  "audienceSummaryRestore": "{count} ړنګ شوي بیرته راوله",
+  "scheduleUpcomingExam": "راتلونکې ازموینه",
+  "scheduleNoUpcomingExams": "هیڅ راتلونکې ازموینه نشته"
 }

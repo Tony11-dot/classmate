@@ -2107,7 +2107,6 @@
   "forgotPasswordTitle": "Réinitialiser votre mot de passe",
   "forgotPasswordModeEmail": "E-mail",
   "forgotPasswordModeSms": "SMS",
-  "forgotPasswordModeAdmin": "Administrateur",
   "forgotPasswordEmailSent": "Lien de réinitialisation envoyé (si un compte correspond).",
   "forgotPasswordEmptyError": "Saisissez votre e-mail ou nom d'utilisateur pour continuer.",
   "forgotPasswordEmailButton": "M'envoyer un lien par e-mail",
@@ -2226,41 +2225,6 @@
       "count": {}
     }
   },
-  "adminPasswordReqEmpty": "Aucune demande en attente",
-  "adminPasswordReqExplainer": "Les utilisateurs que vous avez approuvés ou rejetés n'apparaîtront pas ici. Les demandes en attente expirent après 24 heures.",
-  "adminPasswordReqApproveTitle": "Approuver le changement de mot de passe ?",
-  "adminPasswordReqApproveExplain": "Cela définit le mot de passe de {name} sur celui qu'il a saisi (vous ne le voyez pas).",
-  "@adminPasswordReqApproveExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqVerifyWarning": "N'approuvez que si vous avez vérifié que le demandeur est bien {name} — appelez-le ou confirmez en personne. Toute personne connaissant un nom d'utilisateur peut soumettre cette demande.",
-  "@adminPasswordReqVerifyWarning": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqConfirmApprove": "J'ai vérifié — approuver",
-  "adminPasswordReqApproveSnackbar": "Approuvé — {name} peut se connecter maintenant.",
-  "@adminPasswordReqApproveSnackbar": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectTitle": "Rejeter le changement de mot de passe ?",
-  "adminPasswordReqRejectExplain": "Le mot de passe de {name} ne changera pas. Il pourra soumettre une nouvelle demande si nécessaire.",
-  "@adminPasswordReqRejectExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectSnackbar": "Rejeté.",
-  "adminPasswordReqRejectButton": "Rejeter",
-  "adminPasswordReqApproveButton": "Approuver",
-  "adminPasswordReqCardCopy": "Souhaite changer son mot de passe. Le nouveau mot de passe est masqué.",
-  "adminPasswordReqCallTooltip": "Appeler",
-  "adminPasswordReqSmsTooltip": "SMS",
   "adminSetupSchoolSetup": "Configuration de l'école",
   "adminSetupComplete": "Tout est prêt. Appuyez sur n'importe quel élément pour le revoir ou l'affiner.",
   "adminSetupInstructions": "Complétez ces étapes pour configurer entièrement votre école.",
@@ -2755,19 +2719,6 @@
   "teacherDoneSelected": "Terminé ({count} sélectionné(s))",
   "secretaryAllCohorts": "Tous les groupes",
   "secretaryClassrooms": "Classes",
-  "adminPasswordReqTitle": "Demandes de mot de passe",
-  "adminPasswordReqBlurb": "Utilisateurs de votre établissement qui demandent votre approbation pour changer leur mot de passe.",
-  "adminPasswordReqWaiting": "{count, plural, =1{1 utilisateur en attente de votre approbation.} other{{count} utilisateurs en attente de votre approbation.}}",
-  "@adminPasswordReqWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adminPasswordReqWantsChange": "Souhaite changer son mot de passe. Le nouveau mot de passe est caché.",
-  "adminPasswordReqReject": "Refuser",
-  "adminPasswordReqApprove": "Approuver",
   "adminPeopleGrade": "Niveau",
   "adminSchoolSettingsTapToAddTranslations": "Toucher pour ajouter des traductions",
   "adminSchoolSettingsAddPeriodNum": "Ajouter une période (P{num})",
@@ -2781,7 +2732,6 @@
   "navPlans": "Forfaits NOVA",
   "navReports": "Signalements",
   "navExportData": "Exporter les données",
-  "navPasswordRequests": "Demandes de mot de passe",
   "sectionSecretaryTools": "Outils du secrétariat",
   "sectionSchoolToolsLabel": "Outils de l'école",
   "sectionAdminTools": "Outils d'administration",
@@ -2874,9 +2824,6 @@
   "parentNoNotificationsYet": "Aucune notification pour l'instant.",
   "forwardCouldNotLoadChats": "Impossible de charger les discussions : {error}",
   "forwardNoChats": "Aucune discussion",
-  "forgotPasswordFindAdmins": "Trouver les administrateurs de mon école",
-  "forgotPasswordChooseAdmin": "Choisissez un administrateur dans {school} :",
-  "forgotPasswordSendRequest": "Envoyer la demande de mot de passe",
   "commonTitle": "Titre",
   "commonNotes": "Notes",
   "commonEmail": "E-mail",
@@ -2896,9 +2843,6 @@
   "forwardSearchChatsAndClassrooms": "Rechercher discussions et classes…",
   "profileNewPhone": "Nouveau téléphone",
   "profileNewEmail": "Nouvel e-mail",
-  "forgotPasswordYourPhone": "Votre téléphone (pour que l'administrateur puisse vérifier votre identité)",
-  "forgotPasswordPhoneHelper": "L'administrateur appellera ou enverra un SMS à ce numéro avant d'approuver.",
-  "forgotPasswordNewPasswordHelper": "Au moins 8 caractères. Stocké chiffré — votre administrateur ne le verra pas.",
   "adminExportPasswordsWarning": "{count, plural, one{Le fichier contiendra les identifiants de connexion d'{count} élève, y compris le mot de passe actuel. Toute personne ayant le fichier peut se connecter en tant que cet élève — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de l'utilisateur.} other{Le fichier contiendra les identifiants de connexion de {count} élèves, y compris les mots de passe actuels. Toute personne ayant le fichier peut se connecter en tant que l'un de ces élèves — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu'à la prochaine connexion ou réinitialisation de chaque utilisateur.}}",
   "pickerSelectStudents": "Sélectionner les élèves",
   "pickerSelectCohorts": "Sélectionner les groupes",
@@ -3238,8 +3182,6 @@
   "passwordMinChars": "Au moins 8 caractères.",
   "passwordsDoNotMatch": "Les mots de passe ne correspondent pas.",
   "adminWelcomeHeading": "Bienvenue sur ClassMate",
-  "forgotPasswordSendRequestTo": "Envoyer la demande à",
-  "forgotPasswordChooseAdminDash": "— Choisir un admin —",
   "diplomasNoFilesAttached": "Aucun fichier joint à ce certificat.",
   "diplomasFilesProcessing": "Impossible d'ouvrir les fichiers — ils sont peut-être encore en traitement.",
   "novaOutOfTokens": "Vous avez utilisé tous vos jetons pour cette période. Améliorez votre offre ou rechargez pour continuer avec NOVA.",
@@ -3253,7 +3195,6 @@
   "adminScheduleFrequencyWeeks": "×{freq} sem",
   "gradeLevelLabel": "Niveau {grade}",
   "adminPeriodOption": "Période {period}",
-  "adminPasswordRequestHoursLeft": "{hours}h restant",
   "cohortStudentsCount": "{count} élèves",
   "diplomasIssuedCount": "{count} certificats délivrés",
   "adminExportImportantHeading": "Important",
@@ -3535,7 +3476,6 @@
   "profileChangeContact": "Modifier {label}",
   "profileVerifyNewContactInfo": "Un code de vérification sera envoyé à la valeur que vous saisissez — pour confirmer qu'elle vous appartient.",
   "profileVerifyCurrentContactInfo": "Un code de vérification sera envoyé à votre {label} ACTUEL afin que vous puissiez prouver qu'il vous appartient avant le changement.",
-  "appShellPasswordRequests": "Demandes de mot de passe",
   "appShellReports": "Signalements",
   "appShellExportData": "Exporter les données",
   "appShellAdmin": "Administration",
@@ -3629,7 +3569,6 @@
   "adminEditUserCohortMemberCount": "Membre de {count} groupe{count, plural, one{} other{s}}.",
   "adminEditUserSearchStudents": "Rechercher des élèves…",
   "adminEditUserGradeSuffix": "(Classe {grade})",
-  "adminPasswordRequestsScreenVerifyIdentity": "Vérifiez qu'il s'agit bien de {name} avant d'approuver (appelez-le ou confirmez en personne).",
   "solutionAssetPreviewSheetPdfDocument": "Document PDF",
   "solutionAssetPreviewSheetUnableToPreview": "Impossible d'afficher l'aperçu du PDF.",
   "classroomDetailSectionHeader": "{title} ({count})",
@@ -3655,7 +3594,6 @@
   "teacherCohortsScreenSingleGrade": "Niveau {grade}",
   "teacherCohortsScreenGradeRange": "Niveaux {from}-{to}",
   "teacherCohortsScreenMultiGrade": "Niveaux {grades}",
-  "teacherAddGradeScreenNoCohortAnchor": "Aucune cohorte disponible pour rattacher ce niveau. Créez d'abord une cohorte.",
   "teacherAddGradeScreenFailedCreateRecord": "Échec de la création de la note.",
   "phoneFieldLabel": "Téléphone (facultatif)",
   "phoneFieldHelper": "Utilisé pour la réinitialisation du mot de passe par SMS",
@@ -3690,5 +3628,12 @@
     }
   },
   "teacherMaterialAddedBy": "Ajouté par {name}",
-  "teacherMaterialAttachedTo": "Joint à {period}"
+  "teacherMaterialAttachedTo": "Joint à {period}",
+  "teacherCreateClassroomNoStudentsInCohort": "Aucun élève dans la cohorte sélectionnée pour l'instant.",
+  "audienceSummaryResolving": "Recherche des élèves…",
+  "audienceSummaryCount": "{count} verront ceci",
+  "audienceSummaryEmpty": "Aucun élève ne correspond à ce public.",
+  "audienceSummaryRestore": "Restaurer {count} supprimé(s)",
+  "scheduleUpcomingExam": "Examen à venir",
+  "scheduleNoUpcomingExams": "Aucun examen à venir"
 }

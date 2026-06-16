@@ -5226,9 +5226,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get forgotPasswordModeSms => 'SMS';
 
   @override
-  String get forgotPasswordModeAdmin => 'Администратор';
-
-  @override
   String get forgotPasswordEmailSent =>
       'Ссылка для сброса отправлена (если аккаунт найден).';
 
@@ -5484,61 +5481,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String chatSelectedCount(Object count) {
     return 'Выбрано: $count';
   }
-
-  @override
-  String get adminPasswordReqEmpty => 'Нет ожидающих запросов';
-
-  @override
-  String get adminPasswordReqExplainer =>
-      'Пользователи, которых вы одобрили или отклонили, здесь не появятся. Ожидающие запросы истекают через 24 часа.';
-
-  @override
-  String get adminPasswordReqApproveTitle => 'Одобрить смену пароля?';
-
-  @override
-  String adminPasswordReqApproveExplain(Object name) {
-    return 'Это установит пароль $name тот, который он ввёл (вы его не видите).';
-  }
-
-  @override
-  String adminPasswordReqVerifyWarning(Object name) {
-    return 'Одобряйте только если вы убедились, что заявитель действительно $name — позвоните ему или подтвердите лично. Любой, кто знает имя пользователя, может подать такой запрос.';
-  }
-
-  @override
-  String get adminPasswordReqConfirmApprove => 'Подтвердил — одобрить';
-
-  @override
-  String adminPasswordReqApproveSnackbar(Object name) {
-    return 'Одобрено — $name теперь может войти.';
-  }
-
-  @override
-  String get adminPasswordReqRejectTitle => 'Отклонить смену пароля?';
-
-  @override
-  String adminPasswordReqRejectExplain(Object name) {
-    return 'Пароль $name не изменится. При необходимости он может подать новый запрос.';
-  }
-
-  @override
-  String get adminPasswordReqRejectSnackbar => 'Отклонено.';
-
-  @override
-  String get adminPasswordReqRejectButton => 'Отклонить';
-
-  @override
-  String get adminPasswordReqApproveButton => 'Одобрить';
-
-  @override
-  String get adminPasswordReqCardCopy =>
-      'Хочет сменить пароль. Новый пароль скрыт.';
-
-  @override
-  String get adminPasswordReqCallTooltip => 'Позвонить';
-
-  @override
-  String get adminPasswordReqSmsTooltip => 'SMS';
 
   @override
   String get adminSetupSchoolSetup => 'Настройка школы';
@@ -6774,36 +6716,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get secretaryClassrooms => 'Классы';
 
   @override
-  String get adminPasswordReqTitle => 'Запросы пароля';
-
-  @override
-  String get adminPasswordReqBlurb =>
-      'Пользователи вашей школы, которые попросили вас одобрить смену пароля.';
-
-  @override
-  String adminPasswordReqWaiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count пользователя ожидают вашего одобрения.',
-      many: '$count пользователей ожидают вашего одобрения.',
-      few: '$count пользователя ожидают вашего одобрения.',
-      one: '$count пользователь ожидает вашего одобрения.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get adminPasswordReqWantsChange =>
-      'Хочет изменить пароль. Новый пароль скрыт.';
-
-  @override
-  String get adminPasswordReqReject => 'Отклонить';
-
-  @override
-  String get adminPasswordReqApprove => 'Одобрить';
-
-  @override
   String get adminPeopleGrade => 'Класс';
 
   @override
@@ -6847,9 +6759,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get navExportData => 'Экспорт данных';
-
-  @override
-  String get navPasswordRequests => 'Запросы пароля';
 
   @override
   String get sectionSecretaryTools => 'Инструменты секретаря';
@@ -7139,17 +7048,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get forwardNoChats => 'Нет чатов';
 
   @override
-  String get forgotPasswordFindAdmins => 'Найти администраторов моей школы';
-
-  @override
-  String forgotPasswordChooseAdmin(String school) {
-    return 'Выберите администратора из $school:';
-  }
-
-  @override
-  String get forgotPasswordSendRequest => 'Отправить запрос пароля';
-
-  @override
   String get commonTitle => 'Заголовок';
 
   @override
@@ -7206,18 +7104,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profileNewEmail => 'Новая эл. почта';
-
-  @override
-  String get forgotPasswordYourPhone =>
-      'Ваш телефон (чтобы администратор мог подтвердить вашу личность)';
-
-  @override
-  String get forgotPasswordPhoneHelper =>
-      'Администратор позвонит или отправит SMS на этот номер перед одобрением.';
-
-  @override
-  String get forgotPasswordNewPasswordHelper =>
-      'Не менее 8 символов. Хранится зашифрованным — администратор её не увидит.';
 
   @override
   String adminExportPasswordsWarning(int count) {
@@ -8377,12 +8263,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminWelcomeHeading => 'Добро пожаловать в ClassMate';
 
   @override
-  String get forgotPasswordSendRequestTo => 'Отправить запрос';
-
-  @override
-  String get forgotPasswordChooseAdminDash => '— Выберите администратора —';
-
-  @override
   String get diplomasNoFilesAttached =>
       'К этому сертификату не прикреплены файлы.';
 
@@ -8433,11 +8313,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String adminPeriodOption(Object period) {
     return 'Период $period';
-  }
-
-  @override
-  String adminPasswordRequestHoursLeft(Object hours) {
-    return 'осталось $hours ч';
   }
 
   @override
@@ -9538,9 +9413,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get appShellPasswordRequests => 'Запросы на пароль';
-
-  @override
   String get appShellReports => 'Жалобы';
 
   @override
@@ -9925,11 +9797,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String adminPasswordRequestsScreenVerifyIdentity(String name) {
-    return 'Убедитесь, что это действительно $name, перед одобрением (позвоните или подтвердите лично).';
-  }
-
-  @override
   String get solutionAssetPreviewSheetPdfDocument => 'Документ PDF';
 
   @override
@@ -10016,10 +9883,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get teacherAddGradeScreenNoCohortAnchor =>
-      'Нет группы для привязки этой оценки. Сначала создайте группу.';
-
-  @override
   String get teacherAddGradeScreenFailedCreateRecord =>
       'Не удалось создать запись об оценке.';
 
@@ -10059,4 +9922,78 @@ class AppLocalizationsRu extends AppLocalizations {
   String teacherMaterialAttachedTo(String period) {
     return 'Прикреплено к $period';
   }
+
+  @override
+  String get adminPeopleAddMany => 'Add many';
+
+  @override
+  String get adminAddManyPasteNames => 'Paste names';
+
+  @override
+  String get adminAddManyApplyRole => 'Set role for all';
+
+  @override
+  String get adminAddManyApplyGrade => 'Set grade for all';
+
+  @override
+  String get adminAddManyParentLabel => 'Parent';
+
+  @override
+  String get adminAddManyParentNone => 'No parent';
+
+  @override
+  String get adminAddManyParentInBatch => 'New parents in this list';
+
+  @override
+  String get adminAddManyParentExisting => 'Existing parents';
+
+  @override
+  String get adminAddManySearchParents => 'Search parents…';
+
+  @override
+  String get adminAddManyNoParentsYet =>
+      'No matching parents — type a name above to create one';
+
+  @override
+  String get adminAddManyUsernameTaken => 'Username already taken';
+
+  @override
+  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+
+  @override
+  String adminAddManyCreateParent(String name) {
+    return 'Create new parent \"$name\"';
+  }
+
+  @override
+  String adminAddManyPastedRows(int count) {
+    return 'Added $count rows';
+  }
+
+  @override
+  String get teacherCreateClassroomNoStudentsInCohort =>
+      'В выбранной когорте пока нет учеников.';
+
+  @override
+  String get audienceSummaryResolving => 'Поиск учеников…';
+
+  @override
+  String audienceSummaryCount(int count) {
+    return '$count увидят это';
+  }
+
+  @override
+  String get audienceSummaryEmpty =>
+      'Нет учеников, соответствующих этой аудитории.';
+
+  @override
+  String audienceSummaryRestore(int count) {
+    return 'Восстановить $count';
+  }
+
+  @override
+  String get scheduleUpcomingExam => 'Ближайший экзамен';
+
+  @override
+  String get scheduleNoUpcomingExams => 'Нет предстоящих экзаменов';
 }

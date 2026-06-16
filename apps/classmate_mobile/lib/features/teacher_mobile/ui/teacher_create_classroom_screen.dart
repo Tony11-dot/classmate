@@ -28,6 +28,8 @@ class _TeacherCreateClassroomScreenState
   final Set<String> _selectedCohortIds = {};
   // Students fetched from selected cohorts (preview)
   final Map<String, List<TeacherStudent>> _cohortStudentsCache = {};
+  // Cohorts whose student list is currently being fetched.
+  final Set<String> _loadingCohorts = {};
   bool _loading = true;
   bool _saving = false;
 
@@ -74,12 +76,24 @@ class _TeacherCreateClassroomScreenState
     });
     // Fetch students for newly selected cohort
     if (_selectedCohortIds.contains(cohortId) && !_cohortStudentsCache.containsKey(cohortId)) {
+      if (mounted) setState(() => _loadingCohorts.add(cohortId));
       try {
         final students = await ref.read(teacherMobileRepositoryProvider).fetchCohortStudents(cohortId);
+        // Always record the result (even an empty list) so the preview stops
+        // showing a spinner once the fetch completes.
         if (mounted) setState(() => _cohortStudentsCache[cohortId] = students);
-      } catch (_) {}
+      } catch (_) {
+        // On failure, record an empty list so we don't spin forever.
+        if (mounted) setState(() => _cohortStudentsCache[cohortId] = const []);
+      } finally {
+        if (mounted) setState(() => _loadingCohorts.remove(cohortId));
+      }
     }
   }
+
+  // True only while at least one selected cohort is still being fetched.
+  bool get _cohortsLoading =>
+      _selectedCohortIds.any((id) => _loadingCohorts.contains(id));
 
   List<TeacherStudent> get _studentsFromSelectedCohorts {
     final seen = <String>{};
@@ -271,11 +285,17 @@ class _TeacherCreateClassroomScreenState
                       border: Border.all(color: cs.outlineVariant),
                     ),
                     padding: const EdgeInsets.all(12),
-                    child: cohortStudents.isEmpty
+                    child: _cohortsLoading
                         ? Row(children: [
                             SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary)),
                             const SizedBox(width: 10),
                             Text(AppLocalizations.of(context)!.teacherCreateClassroomLoadingStudents, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ])
+                        : cohortStudents.isEmpty
+                        ? Row(children: [
+                            Icon(Icons.info_outline_rounded, size: 16, color: cs.onSurfaceVariant),
+                            const SizedBox(width: 10),
+                            Expanded(child: Text(AppLocalizations.of(context)!.teacherCreateClassroomNoStudentsInCohort, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))),
                           ])
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

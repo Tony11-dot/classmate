@@ -2107,7 +2107,6 @@
   "forgotPasswordTitle": "إعادة تعيين كلمة المرور",
   "forgotPasswordModeEmail": "البريد",
   "forgotPasswordModeSms": "رسالة نصية",
-  "forgotPasswordModeAdmin": "المسؤول",
   "forgotPasswordEmailSent": "تم إرسال رابط إعادة التعيين (إن وُجد حساب مطابق).",
   "forgotPasswordEmptyError": "أدخل بريدك الإلكتروني أو اسم المستخدم للمتابعة.",
   "forgotPasswordEmailButton": "أرسل لي رابط إعادة التعيين عبر البريد",
@@ -2226,41 +2225,6 @@
       "count": {}
     }
   },
-  "adminPasswordReqEmpty": "لا توجد طلبات معلّقة",
-  "adminPasswordReqExplainer": "لن يظهر هنا المستخدمون الذين وافقت عليهم أو رفضتهم. تنتهي الطلبات المعلقة بعد 24 ساعة.",
-  "adminPasswordReqApproveTitle": "هل توافق على تغيير كلمة المرور؟",
-  "adminPasswordReqApproveExplain": "سيؤدي ذلك إلى تعيين كلمة مرور {name} إلى تلك التي كتبها (لن تراها أنت).",
-  "@adminPasswordReqApproveExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqVerifyWarning": "وافق فقط بعد التأكد أن مقدّم الطلب هو فعلًا {name} — اتصل به أو تأكد شخصيًا. يمكن لأي شخص يعرف اسم المستخدم تقديم هذا الطلب.",
-  "@adminPasswordReqVerifyWarning": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqConfirmApprove": "تحققت — موافقة",
-  "adminPasswordReqApproveSnackbar": "تمت الموافقة — يمكن لـ {name} تسجيل الدخول الآن.",
-  "@adminPasswordReqApproveSnackbar": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectTitle": "هل ترفض تغيير كلمة المرور؟",
-  "adminPasswordReqRejectExplain": "لن تتغيّر كلمة مرور {name}. يستطيع تقديم طلب جديد عند الحاجة.",
-  "@adminPasswordReqRejectExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectSnackbar": "تم الرفض.",
-  "adminPasswordReqRejectButton": "رفض",
-  "adminPasswordReqApproveButton": "موافقة",
-  "adminPasswordReqCardCopy": "يريد تغيير كلمة المرور. كلمة المرور الجديدة مخفية.",
-  "adminPasswordReqCallTooltip": "اتصال",
-  "adminPasswordReqSmsTooltip": "رسالة نصية",
   "adminSetupSchoolSetup": "إعداد المدرسة",
   "adminSetupComplete": "اكتمل الإعداد. اضغط أي عنصر لإعادة زيارته أو تعديله.",
   "adminSetupInstructions": "أكمل هذه الخطوات لإعداد مدرستك بالكامل.",
@@ -2755,19 +2719,6 @@
   "teacherDoneSelected": "تم ({count} محدد)",
   "secretaryAllCohorts": "جميع المجموعات",
   "secretaryClassrooms": "الصفوف",
-  "adminPasswordReqTitle": "طلبات كلمات المرور",
-  "adminPasswordReqBlurb": "مستخدمون من مدرستك طلبوا منك الموافقة على تغيير كلمة المرور.",
-  "adminPasswordReqWaiting": "{count, plural, =1{مستخدم واحد ينتظر موافقتك.} other{{count} مستخدمون ينتظرون موافقتك.}}",
-  "@adminPasswordReqWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adminPasswordReqWantsChange": "يريد تغيير كلمة المرور الخاصة به. كلمة المرور الجديدة مخفية.",
-  "adminPasswordReqReject": "رفض",
-  "adminPasswordReqApprove": "موافقة",
   "adminPeopleGrade": "الصف",
   "adminSchoolSettingsTapToAddTranslations": "اضغط لإضافة الترجمات",
   "adminSchoolSettingsAddPeriodNum": "إضافة حصة (P{num})",
@@ -2781,7 +2732,6 @@
   "navPlans": "خطط NOVA",
   "navReports": "البلاغات",
   "navExportData": "تصدير البيانات",
-  "navPasswordRequests": "طلبات كلمات المرور",
   "sectionSecretaryTools": "أدوات السكرتارية",
   "sectionSchoolToolsLabel": "أدوات المدرسة",
   "sectionAdminTools": "أدوات الإدارة",
@@ -2874,9 +2824,6 @@
   "parentNoNotificationsYet": "لا توجد إشعارات بعد.",
   "forwardCouldNotLoadChats": "تعذر تحميل المحادثات: {error}",
   "forwardNoChats": "لا توجد محادثات",
-  "forgotPasswordFindAdmins": "ابحث عن مديري مدرستي",
-  "forgotPasswordChooseAdmin": "اختر مديرًا من {school}:",
-  "forgotPasswordSendRequest": "إرسال طلب كلمة المرور",
   "commonTitle": "العنوان",
   "commonNotes": "ملاحظات",
   "commonEmail": "البريد الإلكتروني",
@@ -2896,9 +2843,6 @@
   "forwardSearchChatsAndClassrooms": "ابحث في المحادثات والصفوف…",
   "profileNewPhone": "رقم هاتف جديد",
   "profileNewEmail": "بريد إلكتروني جديد",
-  "forgotPasswordYourPhone": "رقم هاتفك (حتى يتمكن المدير من التحقق من هويتك)",
-  "forgotPasswordPhoneHelper": "سيتصل المدير أو يرسل رسالة نصية إلى هذا الرقم قبل الموافقة.",
-  "forgotPasswordNewPasswordHelper": "على الأقل 8 أحرف. تُخزن مشفّرة — لن يراها المدير.",
   "adminExportPasswordsWarning": "{count, plural, one{سيحتوي الملف على معلومات تسجيل الدخول لطالب واحد، بما في ذلك كلمة المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كهذا الطالب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم المستخدم بتسجيل الدخول التالي أو إعادة التعيين.} other{سيحتوي الملف على معلومات تسجيل الدخول لـ {count} طلاب، بما في ذلك كلمات المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كأحد هؤلاء الطلاب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم كل مستخدم بتسجيل الدخول التالي أو إعادة التعيين.}}",
   "pickerSelectStudents": "اختر الطلاب",
   "pickerSelectCohorts": "اختر المجموعات",
@@ -3238,8 +3182,6 @@
   "passwordMinChars": "8 أحرف على الأقل.",
   "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
   "adminWelcomeHeading": "مرحباً بك في ClassMate",
-  "forgotPasswordSendRequestTo": "إرسال الطلب إلى",
-  "forgotPasswordChooseAdminDash": "— اختر مسؤولاً —",
   "diplomasNoFilesAttached": "لا توجد ملفات مرفقة بهذه الشهادة.",
   "diplomasFilesProcessing": "تعذّر فتح الملفات — قد تكون لا تزال قيد المعالجة.",
   "novaOutOfTokens": "لقد استهلكت كل رصيدك لهذه الفترة. قم بالترقية أو الشحن لمواصلة الدردشة مع NOVA.",
@@ -3253,7 +3195,6 @@
   "adminScheduleFrequencyWeeks": "×{freq} أسبوع",
   "gradeLevelLabel": "الصف {grade}",
   "adminPeriodOption": "الحصة {period}",
-  "adminPasswordRequestHoursLeft": "باقٍ {hours} س",
   "cohortStudentsCount": "{count} طالب",
   "diplomasIssuedCount": "{count} شهادة صادرة",
   "adminExportImportantHeading": "هام",
@@ -3535,7 +3476,6 @@
   "profileChangeContact": "تغيير {label}",
   "profileVerifyNewContactInfo": "سيُرسل رمز تحقق إلى القيمة التي تدخلها — لتأكيد ملكيتك لها.",
   "profileVerifyCurrentContactInfo": "سيُرسل رمز تحقق إلى {label} الحالي الخاص بك حتى تثبت ملكيتك له قبل التبديل.",
-  "appShellPasswordRequests": "طلبات كلمة المرور",
   "appShellReports": "التقارير",
   "appShellExportData": "تصدير البيانات",
   "appShellAdmin": "المسؤول",
@@ -3629,7 +3569,6 @@
   "adminEditUserCohortMemberCount": "عضو في {count} مجموعة{count, plural, one{} other{}}.",
   "adminEditUserSearchStudents": "البحث عن طلاب…",
   "adminEditUserGradeSuffix": "(الصف {grade})",
-  "adminPasswordRequestsScreenVerifyIdentity": "تحقق من أن هذا فعلاً {name} قبل الموافقة (اتصل به أو تأكد شخصياً).",
   "solutionAssetPreviewSheetPdfDocument": "مستند PDF",
   "solutionAssetPreviewSheetUnableToPreview": "تعذّرت معاينة ملف PDF.",
   "classroomDetailSectionHeader": "{title} ({count})",
@@ -3655,7 +3594,6 @@
   "teacherCohortsScreenSingleGrade": "الصف {grade}",
   "teacherCohortsScreenGradeRange": "الصفوف {from}-{to}",
   "teacherCohortsScreenMultiGrade": "الصفوف {grades}",
-  "teacherAddGradeScreenNoCohortAnchor": "لا توجد مجموعة متاحة لربط هذا الصف بها. أنشئ مجموعة أولاً.",
   "teacherAddGradeScreenFailedCreateRecord": "تعذّر إنشاء سجل الدرجة.",
   "phoneFieldLabel": "الهاتف (اختياري)",
   "phoneFieldHelper": "يُستخدم لإعادة تعيين كلمة المرور عبر الرسائل النصية",
@@ -3690,5 +3628,12 @@
     }
   },
   "teacherMaterialAddedBy": "أضافها {name}",
-  "teacherMaterialAttachedTo": "مرفقة بـ {period}"
+  "teacherMaterialAttachedTo": "مرفقة بـ {period}",
+  "teacherCreateClassroomNoStudentsInCohort": "لا يوجد طلاب في الفصل المحدد بعد.",
+  "audienceSummaryResolving": "جارٍ العثور على الطلاب…",
+  "audienceSummaryCount": "سيشاهدها {count}",
+  "audienceSummaryEmpty": "لا يوجد طلاب مطابقون لهذا الجمهور.",
+  "audienceSummaryRestore": "استعادة {count} محذوف",
+  "scheduleUpcomingExam": "الامتحان القادم",
+  "scheduleNoUpcomingExams": "لا توجد امتحانات قادمة"
 }

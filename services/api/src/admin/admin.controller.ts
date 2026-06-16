@@ -294,6 +294,13 @@ export class AdminController {
     return this.admin.createUser(req.user, body);
   }
 
+  // Live username-availability check for the add-user / bulk-add forms.
+  @Roles(Role.ADMIN)
+  @Get('users/check-username')
+  checkUsername(@Req() req: any, @Query('username') username?: string) {
+    return this.admin.checkUsername(req.user, username ?? '');
+  }
+
   // Bulk create from the in-app spreadsheet grid.
   @Roles(Role.ADMIN)
   @Post('users/bulk')
@@ -352,32 +359,6 @@ export class AdminController {
   @Post('users/:id/set-password')
   setUserPassword(@Req() req: any, @Param('id') id: string, @Body() body: { newPassword?: string }) {
     return this.admin.setUserPassword(req.user, id, body);
-  }
-
-  // ── Password-change requests (user-asked-the-admin flow) ─────────────────
-
-  @Roles(Role.ADMIN)
-  @Get('password-requests')
-  async listPasswordRequests(@Req() req: any) {
-    const adminId = req.user?.sub ?? req.user?.id;
-    const pending = await this.admin.listPasswordRequests(adminId);
-    return { ok: true, pending };
-  }
-
-  @Roles(Role.ADMIN)
-  @Post('password-requests/:id/approve')
-  async approvePasswordRequest(@Req() req: any, @Param('id') id: string) {
-    const adminId = req.user?.sub ?? req.user?.id;
-    await this.admin.approvePasswordRequest(adminId, id);
-    return { ok: true };
-  }
-
-  @Roles(Role.ADMIN)
-  @Post('password-requests/:id/reject')
-  async rejectPasswordRequest(@Req() req: any, @Param('id') id: string) {
-    const adminId = req.user?.sub ?? req.user?.id;
-    await this.admin.rejectPasswordRequest(adminId, id);
-    return { ok: true };
   }
 
   @Roles(Role.ADMIN, Role.SECRETARY)

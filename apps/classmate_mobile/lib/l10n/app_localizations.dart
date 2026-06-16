@@ -9453,12 +9453,6 @@ abstract class AppLocalizations {
   /// **'SMS'**
   String get forgotPasswordModeSms;
 
-  /// No description provided for @forgotPasswordModeAdmin.
-  ///
-  /// In en, this message translates to:
-  /// **'Admin'**
-  String get forgotPasswordModeAdmin;
-
   /// No description provided for @forgotPasswordEmailSent.
   ///
   /// In en, this message translates to:
@@ -9926,96 +9920,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} selected'**
   String chatSelectedCount(Object count);
-
-  /// No description provided for @adminPasswordReqEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No pending requests'**
-  String get adminPasswordReqEmpty;
-
-  /// No description provided for @adminPasswordReqExplainer.
-  ///
-  /// In en, this message translates to:
-  /// **'Users you have approved or rejected won\'t appear here. Pending requests expire after 24 hours.'**
-  String get adminPasswordReqExplainer;
-
-  /// No description provided for @adminPasswordReqApproveTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve password change?'**
-  String get adminPasswordReqApproveTitle;
-
-  /// No description provided for @adminPasswordReqApproveExplain.
-  ///
-  /// In en, this message translates to:
-  /// **'This sets {name}\'s password to the one they typed (you don\'t see it).'**
-  String adminPasswordReqApproveExplain(Object name);
-
-  /// No description provided for @adminPasswordReqVerifyWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'Only approve if you have verified the requester is really {name} — call them, or confirm in person. Anyone who knows a username can file this request.'**
-  String adminPasswordReqVerifyWarning(Object name);
-
-  /// No description provided for @adminPasswordReqConfirmApprove.
-  ///
-  /// In en, this message translates to:
-  /// **'I verified — approve'**
-  String get adminPasswordReqConfirmApprove;
-
-  /// No description provided for @adminPasswordReqApproveSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Approved — {name} can sign in now.'**
-  String adminPasswordReqApproveSnackbar(Object name);
-
-  /// No description provided for @adminPasswordReqRejectTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Reject password change?'**
-  String get adminPasswordReqRejectTitle;
-
-  /// No description provided for @adminPasswordReqRejectExplain.
-  ///
-  /// In en, this message translates to:
-  /// **'{name}\'s password won\'t change. They can submit a new request if needed.'**
-  String adminPasswordReqRejectExplain(Object name);
-
-  /// No description provided for @adminPasswordReqRejectSnackbar.
-  ///
-  /// In en, this message translates to:
-  /// **'Rejected.'**
-  String get adminPasswordReqRejectSnackbar;
-
-  /// No description provided for @adminPasswordReqRejectButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Reject'**
-  String get adminPasswordReqRejectButton;
-
-  /// No description provided for @adminPasswordReqApproveButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve'**
-  String get adminPasswordReqApproveButton;
-
-  /// No description provided for @adminPasswordReqCardCopy.
-  ///
-  /// In en, this message translates to:
-  /// **'Wants their password changed. The new password is hidden.'**
-  String get adminPasswordReqCardCopy;
-
-  /// No description provided for @adminPasswordReqCallTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Call'**
-  String get adminPasswordReqCallTooltip;
-
-  /// No description provided for @adminPasswordReqSmsTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'SMS'**
-  String get adminPasswordReqSmsTooltip;
 
   /// No description provided for @adminSetupSchoolSetup.
   ///
@@ -12135,42 +12039,6 @@ abstract class AppLocalizations {
   /// **'Classrooms'**
   String get secretaryClassrooms;
 
-  /// No description provided for @adminPasswordReqTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Password requests'**
-  String get adminPasswordReqTitle;
-
-  /// No description provided for @adminPasswordReqBlurb.
-  ///
-  /// In en, this message translates to:
-  /// **'Users from your school who\'ve asked you to approve a password change.'**
-  String get adminPasswordReqBlurb;
-
-  /// No description provided for @adminPasswordReqWaiting.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 user waiting for your approval.} other{{count} users waiting for your approval.}}'**
-  String adminPasswordReqWaiting(int count);
-
-  /// No description provided for @adminPasswordReqWantsChange.
-  ///
-  /// In en, this message translates to:
-  /// **'Wants their password changed. The new password is hidden.'**
-  String get adminPasswordReqWantsChange;
-
-  /// No description provided for @adminPasswordReqReject.
-  ///
-  /// In en, this message translates to:
-  /// **'Reject'**
-  String get adminPasswordReqReject;
-
-  /// No description provided for @adminPasswordReqApprove.
-  ///
-  /// In en, this message translates to:
-  /// **'Approve'**
-  String get adminPasswordReqApprove;
-
   /// No description provided for @adminPeopleGrade.
   ///
   /// In en, this message translates to:
@@ -12248,12 +12116,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export Data'**
   String get navExportData;
-
-  /// No description provided for @navPasswordRequests.
-  ///
-  /// In en, this message translates to:
-  /// **'Password Requests'**
-  String get navPasswordRequests;
 
   /// No description provided for @sectionSecretaryTools.
   ///
@@ -12723,24 +12585,6 @@ abstract class AppLocalizations {
   /// **'No chats'**
   String get forwardNoChats;
 
-  /// No description provided for @forgotPasswordFindAdmins.
-  ///
-  /// In en, this message translates to:
-  /// **'Find my school\'s admins'**
-  String get forgotPasswordFindAdmins;
-
-  /// No description provided for @forgotPasswordChooseAdmin.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose an admin from {school}:'**
-  String forgotPasswordChooseAdmin(String school);
-
-  /// No description provided for @forgotPasswordSendRequest.
-  ///
-  /// In en, this message translates to:
-  /// **'Send password request'**
-  String get forgotPasswordSendRequest;
-
   /// No description provided for @commonTitle.
   ///
   /// In en, this message translates to:
@@ -12854,24 +12698,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New email'**
   String get profileNewEmail;
-
-  /// No description provided for @forgotPasswordYourPhone.
-  ///
-  /// In en, this message translates to:
-  /// **'Your phone (so the admin can verify it\'s really you)'**
-  String get forgotPasswordYourPhone;
-
-  /// No description provided for @forgotPasswordPhoneHelper.
-  ///
-  /// In en, this message translates to:
-  /// **'The admin will call or text this number before approving.'**
-  String get forgotPasswordPhoneHelper;
-
-  /// No description provided for @forgotPasswordNewPasswordHelper.
-  ///
-  /// In en, this message translates to:
-  /// **'At least 8 characters. Stored hashed — your admin will not see it.'**
-  String get forgotPasswordNewPasswordHelper;
 
   /// No description provided for @adminExportPasswordsWarning.
   ///
@@ -14775,18 +14601,6 @@ abstract class AppLocalizations {
   /// **'Welcome to ClassMate'**
   String get adminWelcomeHeading;
 
-  /// forgotPasswordSendRequestTo
-  ///
-  /// In en, this message translates to:
-  /// **'Send request to'**
-  String get forgotPasswordSendRequestTo;
-
-  /// forgotPasswordChooseAdminDash
-  ///
-  /// In en, this message translates to:
-  /// **'— Choose admin —'**
-  String get forgotPasswordChooseAdminDash;
-
   /// diplomasNoFilesAttached
   ///
   /// In en, this message translates to:
@@ -14864,12 +14678,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Period {period}'**
   String adminPeriodOption(Object period);
-
-  /// adminPasswordRequestHoursLeft
-  ///
-  /// In en, this message translates to:
-  /// **'{hours}h left'**
-  String adminPasswordRequestHoursLeft(Object hours);
 
   /// cohortStudentsCount
   ///
@@ -16557,12 +16365,6 @@ abstract class AppLocalizations {
   /// **'A verification code will be sent to your CURRENT {label} so you can prove ownership before switching.'**
   String profileVerifyCurrentContactInfo(String label);
 
-  /// No description provided for @appShellPasswordRequests.
-  ///
-  /// In en, this message translates to:
-  /// **'Password Requests'**
-  String get appShellPasswordRequests;
-
   /// No description provided for @appShellReports.
   ///
   /// In en, this message translates to:
@@ -17121,12 +16923,6 @@ abstract class AppLocalizations {
   /// **'(Grade {grade})'**
   String adminEditUserGradeSuffix(int grade);
 
-  /// No description provided for @adminPasswordRequestsScreenVerifyIdentity.
-  ///
-  /// In en, this message translates to:
-  /// **'Verify this is really {name} before approving (call them or confirm in person).'**
-  String adminPasswordRequestsScreenVerifyIdentity(String name);
-
   /// No description provided for @solutionAssetPreviewSheetPdfDocument.
   ///
   /// In en, this message translates to:
@@ -17277,12 +17073,6 @@ abstract class AppLocalizations {
   /// **'Grades {grades}'**
   String teacherCohortsScreenMultiGrade(String grades);
 
-  /// No description provided for @teacherAddGradeScreenNoCohortAnchor.
-  ///
-  /// In en, this message translates to:
-  /// **'No cohort available to anchor this grade. Create a cohort first.'**
-  String get teacherAddGradeScreenNoCohortAnchor;
-
   /// No description provided for @teacherAddGradeScreenFailedCreateRecord.
   ///
   /// In en, this message translates to:
@@ -17348,6 +17138,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attached to {period}'**
   String teacherMaterialAttachedTo(String period);
+
+  /// No description provided for @adminPeopleAddMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Add many'**
+  String get adminPeopleAddMany;
+
+  /// No description provided for @adminAddManyPasteNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste names'**
+  String get adminAddManyPasteNames;
+
+  /// No description provided for @adminAddManyApplyRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Set role for all'**
+  String get adminAddManyApplyRole;
+
+  /// No description provided for @adminAddManyApplyGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Set grade for all'**
+  String get adminAddManyApplyGrade;
+
+  /// No description provided for @adminAddManyParentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get adminAddManyParentLabel;
+
+  /// No description provided for @adminAddManyParentNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No parent'**
+  String get adminAddManyParentNone;
+
+  /// No description provided for @adminAddManyParentInBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'New parents in this list'**
+  String get adminAddManyParentInBatch;
+
+  /// No description provided for @adminAddManyParentExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing parents'**
+  String get adminAddManyParentExisting;
+
+  /// No description provided for @adminAddManySearchParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search parents…'**
+  String get adminAddManySearchParents;
+
+  /// No description provided for @adminAddManyNoParentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching parents — type a name above to create one'**
+  String get adminAddManyNoParentsYet;
+
+  /// No description provided for @adminAddManyUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Username already taken'**
+  String get adminAddManyUsernameTaken;
+
+  /// No description provided for @adminAddManyUsernameDupe.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate username in this list'**
+  String get adminAddManyUsernameDupe;
+
+  /// No description provided for @adminAddManyCreateParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new parent \"{name}\"'**
+  String adminAddManyCreateParent(String name);
+
+  /// No description provided for @adminAddManyPastedRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} rows'**
+  String adminAddManyPastedRows(int count);
+
+  /// No description provided for @teacherCreateClassroomNoStudentsInCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in the selected cohort yet.'**
+  String get teacherCreateClassroomNoStudentsInCohort;
+
+  /// No description provided for @audienceSummaryResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding students…'**
+  String get audienceSummaryResolving;
+
+  /// No description provided for @audienceSummaryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} will see this'**
+  String audienceSummaryCount(int count);
+
+  /// No description provided for @audienceSummaryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No students match this audience.'**
+  String get audienceSummaryEmpty;
+
+  /// No description provided for @audienceSummaryRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {count} removed'**
+  String audienceSummaryRestore(int count);
+
+  /// No description provided for @scheduleUpcomingExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Exam'**
+  String get scheduleUpcomingExam;
+
+  /// No description provided for @scheduleNoUpcomingExams.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming exams'**
+  String get scheduleNoUpcomingExams;
 }
 
 class _AppLocalizationsDelegate

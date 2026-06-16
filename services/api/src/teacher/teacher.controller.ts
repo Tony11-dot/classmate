@@ -148,6 +148,13 @@ export class TeacherController {
   listAssessments(@Req() req: any, @Query('cohortId') cohortId?: string) {
     return this.teacher.listAssessments(req.user, { cohortId } as any);
   }
+
+  /// Resolve an audience selection into the concrete list of students who
+  /// will see an item — powers the "students who will see this" summary.
+  @Post('audience/resolve')
+  resolveAudience(@Req() req: any, @Body() body: any) {
+    return this.teacher.resolveAudience(req.user, body);
+  }
   @Get('assessments/:id/grades')
   @Get('grades/assessment/:id/grades')
   assessmentGrades(@Req() req: any, @Param('id') id: string) {

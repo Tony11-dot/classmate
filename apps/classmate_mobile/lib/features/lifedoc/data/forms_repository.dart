@@ -11,6 +11,15 @@ DateTime? _formsCachedAt;
 List<StudentFormItem>? _formsCachedItems;
 Future<List<StudentFormItem>>? _formsInflight;
 
+/// Wipe the module-level forms cache. MUST be called on logout so the next
+/// user on the same device isn't served the previous user's forms (the cache
+/// is keyed only by a 2-minute TTL, not by user).
+void resetStudentFormsCache() {
+  _formsCachedAt = null;
+  _formsCachedItems = null;
+  _formsInflight = null;
+}
+
 final formsRepositoryProvider = Provider<StudentFormsRepository>((ref) {
   final session = ref.watch(authSessionProvider);
   final token = (session.token ?? '').trim();

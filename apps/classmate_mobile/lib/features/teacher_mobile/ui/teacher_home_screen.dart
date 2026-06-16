@@ -155,6 +155,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
   TeacherTodaySchedule? _today;
   TeacherAssessmentBundle? _bundle;
   List<Map<String, dynamic>> _assignments = const [];
+  int _examsCount = 0;
   String? _error;
   bool _loading = true;
 
@@ -175,12 +176,14 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
         repo.fetchTodaySchedule(),
         repo.fetchAssessments(),
         repo.listTeacherAssignments().catchError((_) => <Map<String, dynamic>>[]),
+        repo.listTeacherExams().catchError((_) => <Map<String, dynamic>>[]),
       ]);
       if (!mounted) return;
       setState(() {
         _today = values[0] as TeacherTodaySchedule;
         _bundle = values[1] as TeacherAssessmentBundle;
         _assignments = (values[2] as List).cast<Map<String, dynamic>>();
+        _examsCount = (values[3] as List).length;
         _loading = false;
       });
     } on CMApiException catch (error) {
@@ -349,7 +352,9 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                     const SizedBox(width: 8),
                     _StatPill(
                       icon: Icons.grade_rounded,
-                      value: '${bundle?.assessments.length ?? 0}',
+                      // Count the teacher's exams (which exist before grading);
+                      // fall back to graded assessments if no exams created.
+                      value: '${_examsCount > 0 ? _examsCount : (bundle?.assessments.length ?? 0)}',
                       label: l.teacherTestsLabel,
                       color: cs.tertiaryContainer,
                     ),
@@ -387,7 +392,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                     const SizedBox(width: 10),
                     Expanded(child: _BigActionButton(icon: Icons.campaign_rounded, label: l.teacherAnnounceLabel, color: cs.secondary, onTap: () => context.push('/teacher/announcements/new'))),
                     const SizedBox(width: 10),
-                    Expanded(child: _BigActionButton(icon: Icons.psychology_rounded, label: l.navNova, color: cs.tertiary, onTap: () => context.go('/tutor'))),
+                    Expanded(child: _BigActionButton(icon: Icons.quiz_rounded, label: l.navExams, color: cs.tertiary, onTap: () => context.go('/teacher/exams'))),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -396,7 +401,6 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _ActionChip(icon: Icons.quiz_rounded, label: l.navExams, onTap: () => context.go('/teacher/exams')),
                     _ActionChip(icon: Icons.article_rounded, label: l.navForms, onTap: () => context.go('/teacher/forms')),
                     _ActionChip(icon: Icons.notifications_rounded, label: l.navNotifications, onTap: () => context.go('/notifications')),
                   ],

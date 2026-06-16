@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
 import '../config/env.dart';
@@ -55,12 +56,33 @@ class RealtimeService {
   int _parentRetryDelay = 3;
   bool _parentEnabled = false;
 
+  // On web, package:http's BrowserClient buffers the whole response instead of
+  // streaming, so SSE never delivers incremental events. Fall back to periodic
+  // polling so web data stays fresh like the phone.
+  Timer? _webPoll;
+  static const _webPollInterval = Duration(seconds: 20);
+
   void connect(String token) {
     _token = token;
     _disposed = false;
     _retryDelay = 3;
+    if (kIsWeb) {
+      _startWebPolling();
+      return;
+    }
     _doConnect();
     if (_parentEnabled) _doConnectParent();
+  }
+
+  void _startWebPolling() {
+    _webPoll?.cancel();
+    if (_token.isEmpty) return;
+    // Emit one immediate refresh, then poll on an interval.
+    _controller.add(const RealtimeEvent(type: 'poll'));
+    _webPoll = Timer.periodic(_webPollInterval, (_) {
+      if (_disposed || _token.isEmpty) return;
+      _controller.add(const RealtimeEvent(type: 'poll'));
+    });
   }
 
   /// Opt the current connection into the parent SSE stream. Called
@@ -77,7 +99,10 @@ class RealtimeService {
     final base = Env.apiBaseUrl
         .replaceAll(RegExp(r'/api/?$'), '')
         .replaceAll(RegExp(r'/+$'), '');
-    final uri = Uri.parse('$base/realtime/stream');
+    // Pass the token as a query param too (mirrors the parent stream) so the
+    // server's SSE guard can authenticate even where the Authorization header
+    // isn't honored.
+    final uri = Uri.parse('$base/realtime/stream?token=$_token');
 
     final client = http.Client();
     final request = http.Request('GET', uri)
@@ -187,6 +212,7 @@ class RealtimeService {
     _parentLineSub?.cancel();
     _reconnect?.cancel();
     _parentReconnect?.cancel();
+    _webPoll?.cancel();
     _token = '';
   }
 }

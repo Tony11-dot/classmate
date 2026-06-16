@@ -2314,7 +2314,6 @@
   "forgotPasswordTitle": "Сброс пароля",
   "forgotPasswordModeEmail": "Email",
   "forgotPasswordModeSms": "SMS",
-  "forgotPasswordModeAdmin": "Администратор",
   "forgotPasswordEmailSent": "Ссылка для сброса отправлена (если аккаунт найден).",
   "forgotPasswordEmptyError": "Введите email или имя пользователя, чтобы продолжить.",
   "forgotPasswordEmailButton": "Отправить ссылку по email",
@@ -2433,41 +2432,6 @@
       "count": {}
     }
   },
-  "adminPasswordReqEmpty": "Нет ожидающих запросов",
-  "adminPasswordReqExplainer": "Пользователи, которых вы одобрили или отклонили, здесь не появятся. Ожидающие запросы истекают через 24 часа.",
-  "adminPasswordReqApproveTitle": "Одобрить смену пароля?",
-  "adminPasswordReqApproveExplain": "Это установит пароль {name} тот, который он ввёл (вы его не видите).",
-  "@adminPasswordReqApproveExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqVerifyWarning": "Одобряйте только если вы убедились, что заявитель действительно {name} — позвоните ему или подтвердите лично. Любой, кто знает имя пользователя, может подать такой запрос.",
-  "@adminPasswordReqVerifyWarning": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqConfirmApprove": "Подтвердил — одобрить",
-  "adminPasswordReqApproveSnackbar": "Одобрено — {name} теперь может войти.",
-  "@adminPasswordReqApproveSnackbar": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectTitle": "Отклонить смену пароля?",
-  "adminPasswordReqRejectExplain": "Пароль {name} не изменится. При необходимости он может подать новый запрос.",
-  "@adminPasswordReqRejectExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectSnackbar": "Отклонено.",
-  "adminPasswordReqRejectButton": "Отклонить",
-  "adminPasswordReqApproveButton": "Одобрить",
-  "adminPasswordReqCardCopy": "Хочет сменить пароль. Новый пароль скрыт.",
-  "adminPasswordReqCallTooltip": "Позвонить",
-  "adminPasswordReqSmsTooltip": "SMS",
   "adminSetupSchoolSetup": "Настройка школы",
   "adminSetupComplete": "Всё готово. Нажмите на любой пункт, чтобы вернуться или уточнить.",
   "adminSetupInstructions": "Завершите эти шаги для полной настройки школы.",
@@ -2962,19 +2926,6 @@
   "teacherDoneSelected": "Готово (выбрано {count})",
   "secretaryAllCohorts": "Все группы",
   "secretaryClassrooms": "Классы",
-  "adminPasswordReqTitle": "Запросы пароля",
-  "adminPasswordReqBlurb": "Пользователи вашей школы, которые попросили вас одобрить смену пароля.",
-  "adminPasswordReqWaiting": "{count, plural, one{{count} пользователь ожидает вашего одобрения.} few{{count} пользователя ожидают вашего одобрения.} many{{count} пользователей ожидают вашего одобрения.} other{{count} пользователя ожидают вашего одобрения.}}",
-  "@adminPasswordReqWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adminPasswordReqWantsChange": "Хочет изменить пароль. Новый пароль скрыт.",
-  "adminPasswordReqReject": "Отклонить",
-  "adminPasswordReqApprove": "Одобрить",
   "adminPeopleGrade": "Класс",
   "adminSchoolSettingsTapToAddTranslations": "Нажмите, чтобы добавить переводы",
   "adminSchoolSettingsAddPeriodNum": "Добавить урок (P{num})",
@@ -2988,7 +2939,6 @@
   "navPlans": "Планы NOVA",
   "navReports": "Жалобы",
   "navExportData": "Экспорт данных",
-  "navPasswordRequests": "Запросы пароля",
   "sectionSecretaryTools": "Инструменты секретаря",
   "sectionSchoolToolsLabel": "Инструменты школы",
   "sectionAdminTools": "Инструменты администратора",
@@ -3081,9 +3031,6 @@
   "parentNoNotificationsYet": "Уведомлений пока нет.",
   "forwardCouldNotLoadChats": "Не удалось загрузить чаты: {error}",
   "forwardNoChats": "Нет чатов",
-  "forgotPasswordFindAdmins": "Найти администраторов моей школы",
-  "forgotPasswordChooseAdmin": "Выберите администратора из {school}:",
-  "forgotPasswordSendRequest": "Отправить запрос пароля",
   "commonTitle": "Заголовок",
   "commonNotes": "Заметки",
   "commonEmail": "Эл. почта",
@@ -3103,9 +3050,6 @@
   "forwardSearchChatsAndClassrooms": "Поиск чатов и классов…",
   "profileNewPhone": "Новый телефон",
   "profileNewEmail": "Новая эл. почта",
-  "forgotPasswordYourPhone": "Ваш телефон (чтобы администратор мог подтвердить вашу личность)",
-  "forgotPasswordPhoneHelper": "Администратор позвонит или отправит SMS на этот номер перед одобрением.",
-  "forgotPasswordNewPasswordHelper": "Не менее 8 символов. Хранится зашифрованным — администратор её не увидит.",
   "adminExportPasswordsWarning": "{count, plural, one{Файл будет содержать данные входа {count} ученика, включая текущий пароль. Любой, у кого есть файл, может войти как этот ученик — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока пользователь не войдёт снова или не сбросит его.} few{Файл будет содержать данные входа {count} учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.} many{Файл будет содержать данные входа {count} учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.} other{Файл будет содержать данные входа {count} учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.}}",
   "pickerSelectStudents": "Выберите учеников",
   "pickerSelectCohorts": "Выберите группы",
@@ -3445,8 +3389,6 @@
   "passwordMinChars": "Не менее 8 символов.",
   "passwordsDoNotMatch": "Пароли не совпадают.",
   "adminWelcomeHeading": "Добро пожаловать в ClassMate",
-  "forgotPasswordSendRequestTo": "Отправить запрос",
-  "forgotPasswordChooseAdminDash": "— Выберите администратора —",
   "diplomasNoFilesAttached": "К этому сертификату не прикреплены файлы.",
   "diplomasFilesProcessing": "Не удалось открыть файлы — возможно, они ещё обрабатываются.",
   "novaOutOfTokens": "Вы израсходовали все токены за этот период. Обновите план или пополните, чтобы продолжить общение с NOVA.",
@@ -3460,7 +3402,6 @@
   "adminScheduleFrequencyWeeks": "×{freq} нед",
   "gradeLevelLabel": "Класс {grade}",
   "adminPeriodOption": "Период {period}",
-  "adminPasswordRequestHoursLeft": "осталось {hours} ч",
   "cohortStudentsCount": "{count} учеников",
   "diplomasIssuedCount": "Выдано сертификатов: {count}",
   "adminExportImportantHeading": "Важно",
@@ -3742,7 +3683,6 @@
   "profileChangeContact": "Изменить {label}",
   "profileVerifyNewContactInfo": "Код подтверждения будет отправлен на введённое вами значение — чтобы подтвердить, что оно принадлежит вам.",
   "profileVerifyCurrentContactInfo": "Код подтверждения будет отправлен на ваш ТЕКУЩИЙ {label}, чтобы подтвердить владение перед сменой.",
-  "appShellPasswordRequests": "Запросы на пароль",
   "appShellReports": "Жалобы",
   "appShellExportData": "Экспорт данных",
   "appShellAdmin": "Администрирование",
@@ -3836,7 +3776,6 @@
   "adminEditUserCohortMemberCount": "Состоит в {count, plural, one{{count} группе} other{{count} группах}}.",
   "adminEditUserSearchStudents": "Поиск учеников…",
   "adminEditUserGradeSuffix": "(Класс {grade})",
-  "adminPasswordRequestsScreenVerifyIdentity": "Убедитесь, что это действительно {name}, перед одобрением (позвоните или подтвердите лично).",
   "solutionAssetPreviewSheetPdfDocument": "Документ PDF",
   "solutionAssetPreviewSheetUnableToPreview": "Не удалось показать предпросмотр PDF.",
   "classroomDetailSectionHeader": "{title} ({count})",
@@ -3862,7 +3801,6 @@
   "teacherCohortsScreenSingleGrade": "{grade} класс",
   "teacherCohortsScreenGradeRange": "{from}-{to} классы",
   "teacherCohortsScreenMultiGrade": "Классы {grades}",
-  "teacherAddGradeScreenNoCohortAnchor": "Нет группы для привязки этой оценки. Сначала создайте группу.",
   "teacherAddGradeScreenFailedCreateRecord": "Не удалось создать запись об оценке.",
   "phoneFieldLabel": "Телефон (необязательно)",
   "phoneFieldHelper": "Используется для сброса пароля по SMS",
@@ -3897,5 +3835,12 @@
     }
   },
   "teacherMaterialAddedBy": "Добавил(а): {name}",
-  "teacherMaterialAttachedTo": "Прикреплено к {period}"
+  "teacherMaterialAttachedTo": "Прикреплено к {period}",
+  "teacherCreateClassroomNoStudentsInCohort": "В выбранной когорте пока нет учеников.",
+  "audienceSummaryResolving": "Поиск учеников…",
+  "audienceSummaryCount": "{count} увидят это",
+  "audienceSummaryEmpty": "Нет учеников, соответствующих этой аудитории.",
+  "audienceSummaryRestore": "Восстановить {count}",
+  "scheduleUpcomingExam": "Ближайший экзамен",
+  "scheduleNoUpcomingExams": "Нет предстоящих экзаменов"
 }

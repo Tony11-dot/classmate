@@ -140,21 +140,6 @@ class AdminRepository {
     await _api.postJson('/admin/users/$id/set-password', body: {'newPassword': newPassword});
   }
 
-  // ── Password change requests (this admin's queue) ─────────────────────────
-
-  Future<List<PasswordChangeRequest>> listPasswordRequests() async {
-    final raw = await _api.getJson('/admin/password-requests');
-    return _l(_m(raw)['pending']).map((e) => PasswordChangeRequest.fromJson(_m(e))).toList();
-  }
-
-  Future<void> approvePasswordRequest(String id) async {
-    await _api.postJson('/admin/password-requests/$id/approve');
-  }
-
-  Future<void> rejectPasswordRequest(String id) async {
-    await _api.postJson('/admin/password-requests/$id/reject');
-  }
-
   // ── Message reports (Play policy queue) ─────────────────────────────────
 
   Future<List<Map<String, dynamic>>> listReports({String status = 'OPEN'}) async {
@@ -462,8 +447,18 @@ class AdminRepository {
 
   /// Bulk-create users from the in-app grid. Returns the raw summary
   /// (createdCount, failedCount, created[], errors[], linksCreated, linkErrors[]).
+  /// Each row may carry `ref` (stable client id), `parentId` (link to an
+  /// existing parent), or `parentRef` (link to a parent row in this batch).
   Future<Map<String, dynamic>> bulkCreateUsers(List<Map<String, dynamic>> rows) async {
     return _m(await _api.postJson('/admin/users/bulk', body: {'rows': rows}));
+  }
+
+  /// Live username-availability check for the add-user forms.
+  /// Returns (valid, available) — valid=false means bad format.
+  Future<({bool valid, bool available})> checkUsername(String username) async {
+    final raw = await _api.getJson('/admin/users/check-username', query: {'username': username});
+    final m = _m(raw);
+    return (valid: m['valid'] == true, available: m['available'] == true);
   }
 
   /// Upload a CSV file. dryRun → preview (detectedFields, rowCount, preview[]);
@@ -730,38 +725,6 @@ class AdminSchool {
         maxGrade: (m['maxGrade'] as num?)?.toInt() ?? 12,
         gradeRanges: m['gradeRanges']?.toString() ?? '',
         semesters: m['semesters']?.toString() ?? '',
-      );
-}
-
-class PasswordChangeRequest {
-  const PasswordChangeRequest({
-    required this.id,
-    required this.requesterName,
-    this.requesterEmail,
-    this.requesterUsername,
-    this.requesterPhone,
-    required this.createdAt,
-    required this.expiresAt,
-  });
-
-  final String id;
-  final String requesterName;
-  final String? requesterEmail;
-  final String? requesterUsername;
-  /// Phone the requester typed (or the one on their user record) — admin
-  /// uses this to call/text and verify identity before approving.
-  final String? requesterPhone;
-  final DateTime createdAt;
-  final DateTime expiresAt;
-
-  factory PasswordChangeRequest.fromJson(Map<String, dynamic> m) => PasswordChangeRequest(
-        id: m['id']?.toString() ?? '',
-        requesterName: m['requesterName']?.toString() ?? '',
-        requesterEmail: m['requesterEmail']?.toString(),
-        requesterUsername: m['requesterUsername']?.toString(),
-        requesterPhone: m['requesterPhone']?.toString(),
-        createdAt: DateTime.tryParse(m['createdAt']?.toString() ?? '') ?? DateTime.now(),
-        expiresAt: DateTime.tryParse(m['expiresAt']?.toString() ?? '') ?? DateTime.now(),
       );
 }
 

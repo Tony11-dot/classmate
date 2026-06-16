@@ -8,6 +8,13 @@ import '../../features/chat_core/controllers/dm_chat_thread_controller.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/classrooms/providers/classrooms_providers.dart';
 import '../../features/lifedoc/notifications_provider.dart';
+import '../../features/lifedoc/data/exams_repository.dart';
+import '../../features/lifedoc/data/forms_repository.dart';
+import '../../features/insights/providers/insights_providers.dart';
+import '../../features/insights/providers/submissions_provider.dart';
+import '../../features/practice/providers/practice_providers.dart';
+import '../../features/parent/data/parent_repository.dart';
+import '../../features/solutions/providers/solutions_flow_provider.dart';
 import 'auth_session.dart';
 export 'auth_session.dart' show authSessionProvider, AuthSession;
 
@@ -25,6 +32,10 @@ class AuthController {
     //    leaked chat previews, optimistic messages, and CDN URL caches.
     ClassroomChatThreadController.clearAllSessionCaches();
     DmChatThreadController.clearAllSessionCaches();
+    // Module-level caches that bypass providers entirely (time-keyed, not
+    // user-keyed) — the worst offenders for cross-account leakage.
+    resetStudentExamsCache();
+    resetStudentFormsCache();
     await _clearUserScopedPrefs();
 
     // 2. Invalidate every long-lived provider that holds a cached
@@ -43,6 +54,26 @@ class AuthController {
     ref.invalidate(localNotificationsProvider);
     ref.invalidate(notificationInboxProvider);
     ref.invalidate(unreadNotificationsCountProvider);
+    // Exams / forms live feeds (back the now-reset module caches).
+    ref.invalidate(examsLiveProvider);
+    ref.invalidate(formsLiveProvider);
+    // Insights / analytics — non-autoDispose, so they retain the previous
+    // user's numbers until explicitly invalidated.
+    ref.invalidate(serverInsightsProvider);
+    ref.invalidate(effectiveAccuracyPercentProvider);
+    ref.invalidate(effectiveTotalSessionsProvider);
+    ref.invalidate(effectiveTotalAttemptsProvider);
+    ref.invalidate(aiInsightsSummaryProvider);
+    ref.invalidate(unifiedStudentInsightsProvider);
+    ref.invalidate(submissionStatsProvider);
+    ref.invalidate(practiceHistoryProvider);
+    ref.invalidate(practiceAnalyticsProvider);
+    // Parent-scoped data + the selected-child context.
+    ref.invalidate(parentChildrenProvider);
+    ref.invalidate(parentNotificationsProvider);
+    ref.invalidate(selectedChildProvider);
+    // Solutions feed.
+    ref.invalidate(liveSolutionsPreviewProvider);
 
     // 3. Tell AuthSession to wipe its own state (token, name, school…).
     await ref.read(authSessionProvider).logout();

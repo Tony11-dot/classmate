@@ -1483,6 +1483,20 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return this._createUserInSchool(schoolId, dto);
   }
 
+  /// Lightweight availability check for the username field. Usernames are
+  /// globally unique, so this checks across all schools. Returns a `valid`
+  /// flag for basic format too so the UI can flag bad input before submit.
+  async checkUsername(user: any, raw: string) {
+    this.requireAdminOrSecretary(user);
+    const username = String(raw ?? '').trim().toLowerCase();
+    if (!username) return { ok: true, username, valid: false, available: false };
+    // Same shape the create path expects: letters/digits/._- , 3+ chars.
+    const valid = /^[a-z0-9._-]{3,}$/.test(username);
+    if (!valid) return { ok: true, username, valid: false, available: false };
+    const existing = await this.prisma.user.findFirst({ where: { username }, select: { id: true } });
+    return { ok: true, username, valid: true, available: !existing };
+  }
+
   /// Core user creation, shared by single-create and bulk/CSV import. Caller
   /// is responsible for auth + resolving schoolId. Throws on validation /
   /// uniqueness errors; bulk callers catch per-row so one bad row never
@@ -1731,22 +1745,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return { ok: true, email: target.email };
   }
 
-  /** Pending password-change requests for THIS admin to approve. */
-  async listPasswordRequests(adminId: string) {
-    if (!adminId) throw new BadRequestException('Not authenticated');
-    return this.passwordReset.listPendingForAdmin(adminId);
-  }
-
-  async approvePasswordRequest(adminId: string, requestId: string) {
-    if (!adminId) throw new BadRequestException('Not authenticated');
-    await this.passwordReset.approveChangeRequest(adminId, requestId);
-  }
-
-  async rejectPasswordRequest(adminId: string, requestId: string) {
-    if (!adminId) throw new BadRequestException('Not authenticated');
-    await this.passwordReset.rejectChangeRequest(adminId, requestId);
-  }
-
   /** Best-effort display name for the admin who initiated an action. */
   private async lookupAdminDisplayName(user: any): Promise<string> {
     const fromJwt = String(user?.name ?? user?.email ?? '').trim();
@@ -1929,6 +1927,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     return this._runBulk(schoolId, rows.map((dto: any, i: number) => ({
       dto,
+      // Stable client-assigned row id, used to link an in-batch student row to
+      // an in-batch parent row without relying on (auto-generated) usernames.
+      clientRef: dto?.ref ? String(dto.ref) : undefined,
+      // Preferred parent link: an existing parent user's id (from the picker).
+      parentId: dto?.parentId ? String(dto.parentId) : undefined,
+      // Fallback parent link: another row in this same batch, by its clientRef.
+      parentRef: dto?.parentRef ? String(dto.parentRef) : undefined,
       parentUsername: dto?.parentUsername ? String(dto.parentUsername).toLowerCase() : undefined,
       childUsernames: Array.isArray(dto?.childUsernames)
         ? dto.childUsernames.map((x: any) => String(x).toLowerCase())
@@ -1971,11 +1976,21 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   private async _runBulk(
     schoolId: string,
-    items: Array<{ dto: any; parentUsername?: string; childUsernames?: string[]; rowNumber: number }>,
+    items: Array<{
+      dto: any;
+      clientRef?: string;
+      parentId?: string;
+      parentRef?: string;
+      parentUsername?: string;
+      childUsernames?: string[];
+      rowNumber: number;
+    }>,
   ) {
     const created: any[] = [];
     const errors: Array<{ row: number; reason: string }> = [];
     const usernameToId = new Map<string, string>(); // lowercased username → userId
+    const refToId = new Map<string, string>();      // clientRef → userId (this batch)
+    const idByRow = new Map<number, string>();       // rowNumber → created userId
 
     for (const item of items) {
       try {
@@ -1985,6 +2000,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
           tempPassword: res.tempPassword, role: res.user.roles?.[0],
         });
         usernameToId.set(String(res.username).toLowerCase(), res.user.id);
+        idByRow.set(item.rowNumber, res.user.id);
+        if (item.clientRef) refToId.set(item.clientRef, res.user.id);
       } catch (e: any) {
         const reason = e?.response?.message || e?.message || 'failed';
         errors.push({ row: item.rowNumber, reason: Array.isArray(reason) ? reason.join(', ') : String(reason) });
@@ -2002,6 +2019,17 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       return null;
     };
 
+    // Validate that an existing-parent id (from the picker) really belongs to
+    // this school — never link across schools.
+    const existingParentIds = new Map<string, boolean>();
+    const resolveExistingParent = async (parentId?: string): Promise<string | null> => {
+      if (!parentId) return null;
+      if (existingParentIds.has(parentId)) return existingParentIds.get(parentId) ? parentId : null;
+      const u = await this.prisma.user.findFirst({ where: { id: parentId, schoolId }, select: { id: true } });
+      existingParentIds.set(parentId, !!u);
+      return u ? parentId : null;
+    };
+
     let linksCreated = 0;
     const linkErrors: Array<{ row: number; reason: string }> = [];
     const link = async (parentId: string, childId: string, row: number, label: string) => {
@@ -2010,15 +2038,26 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     };
 
     for (const item of items) {
-      const selfId = usernameToId.get(String(item.dto?.username ?? '').toLowerCase()) ?? null;
-      // a student row that names its parent
-      if (item.parentUsername && selfId) {
-        const parentId = await resolve(item.parentUsername);
-        if (parentId) await link(parentId, selfId, item.rowNumber, item.parentUsername);
-        else linkErrors.push({ row: item.rowNumber, reason: `parent "${item.parentUsername}" not found` });
+      // Prefer the id we just created for THIS row over a username lookup —
+      // works even when the username was auto-generated.
+      const selfId = idByRow.get(item.rowNumber)
+        ?? usernameToId.get(String(item.dto?.username ?? '').toLowerCase())
+        ?? null;
+      if (!selfId) continue;
+
+      // a student row linked to a parent — by existing id, in-batch ref, or
+      // (CSV) username, in that order of preference.
+      const parentByPicker = await resolveExistingParent(item.parentId);
+      const parentByRef = item.parentRef ? (refToId.get(item.parentRef) ?? null) : null;
+      const parentByName = item.parentUsername ? await resolve(item.parentUsername) : null;
+      const parentId = parentByPicker ?? parentByRef ?? parentByName;
+      if ((item.parentId || item.parentRef || item.parentUsername)) {
+        if (parentId) await link(parentId, selfId, item.rowNumber, item.parentUsername ?? 'parent');
+        else linkErrors.push({ row: item.rowNumber, reason: `parent not found for row ${item.rowNumber}` });
       }
-      // a parent row that names its children
-      if (item.childUsernames?.length && selfId) {
+
+      // a parent row that names its children (CSV path)
+      if (item.childUsernames?.length) {
         for (const cu of item.childUsernames) {
           const cid = await resolve(cu);
           if (cid) await link(selfId, cid, item.rowNumber, cu);

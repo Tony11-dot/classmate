@@ -222,7 +222,6 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule',
     '/admin/settings',
     '/admin/periods',
-    '/admin/password-requests',
     '/admin/reports',
     '/admin/export',
     '/admin/',
@@ -304,7 +303,6 @@ class AppShell extends ConsumerWidget {
     '/admin/bell-schedule' => l.adminSettingsBellSchedule,
     '/admin/settings' => l.adminSettingsTitle,
     '/admin/periods' => l.adminSettingsPeriodDefaults,
-    '/admin/password-requests' => l.appShellPasswordRequests,
     '/admin/reports' => l.appShellReports,
     '/admin/export' => l.appShellExportData,
     '/admin/' => l.roleAdmin,
@@ -594,6 +592,20 @@ class AppShell extends ConsumerWidget {
         case 'classroom_message':
         case 'dm_message':
           // Messages handle their own invalidation in messages screens
+          break;
+        case 'poll':
+          // Web fallback (no SSE streaming on web): periodically refresh the
+          // primary feeds + notifications so web stays as fresh as the phone.
+          ref.invalidate(examsLiveProvider);
+          ref.invalidate(assignmentsFeedProvider);
+          ref.invalidate(studentMaterialsProvider);
+          ref.invalidate(meetingsFeedProvider);
+          ref.invalidate(notificationInboxProvider);
+          ref.invalidate(unreadNotificationsCountProvider);
+          ref.invalidate(unifiedStudentInsightsProvider);
+          if (isParent) {
+            ref.invalidate(parentNotificationsProvider);
+          }
           break;
         default:
           break;

@@ -113,13 +113,6 @@ class AdminDashboardScreen extends ConsumerWidget {
                           color: cs.onSurfaceVariant,
                           onTap: () => context.go('/admin/school'),
                         ),
-                        if (isAdmin)
-                          _QuickAction(
-                            icon: Icons.shield_outlined,
-                            label: l.adminPasswordReqTitle,
-                            color: cs.error,
-                            onTap: () => context.go('/admin/password-requests'),
-                          ),
                       ],
                     ),
                   ],

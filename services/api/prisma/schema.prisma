@@ -150,11 +150,6 @@ model User {
   teacherMaterials             TeacherMaterial[]             @relation("TeacherMaterials")
   teacherMeetings              TeacherMeeting[]              @relation("TeacherMeetings")
 
-  /// Password-change requests this user has filed on themselves.
-  passwordChangeRequests  PasswordChangeRequest[] @relation("PasswordChangeRequestUser")
-  /// Pending password-change requests waiting for THIS user (an admin) to approve.
-  passwordChangeApprovals PasswordChangeRequest[] @relation("PasswordChangeRequestAdmin")
-
   // Billing relations — NOVA / Practice token economy.
   subscriptions UserSubscription[]
   tokenBalance  TokenBalance?
@@ -232,41 +227,6 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
-}
-
-/// Admin-mediated password change. The user types the password they want and
-/// picks an admin from their school; the admin gets a notification and
-/// approves or rejects without ever seeing the raw password. On approve the
-/// stored bcrypt hash becomes the user's new password.
-model PasswordChangeRequest {
-  id             String    @id @default(uuid())
-  /// The user whose password should change.
-  userId         String
-  /// The admin chosen to approve the request.
-  toAdminId      String
-  /// Bcrypt hash of the user's desired password. Admin never sees plaintext.
-  passwordHash   String
-  /// Plaintext of the user's desired password. Stored only so the admin
-  /// export can pick up the new value after approval — never read by any
-  /// API that returns to clients. Cleared (or row deleted) on resolve.
-  plainPassword  String?
-  /// Phone number the requester typed when filing the request — surfaced to
-  /// the admin so they can call/text it to verify identity before approving.
-  /// Optional: blank when the requester didn't provide one.
-  requesterPhone String?
-  /// 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED'
-  status         String    @default("PENDING")
-  /// 24h from creation; expired rows can be auto-cleaned later.
-  expiresAt      DateTime
-  createdAt      DateTime  @default(now())
-  /// Stamped when approve/reject happens.
-  resolvedAt     DateTime?
-
-  user    User @relation("PasswordChangeRequestUser", fields: [userId], references: [id], onDelete: Cascade)
-  toAdmin User @relation("PasswordChangeRequestAdmin", fields: [toAdminId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([toAdminId, status])
 }
 
 model Cohort {
@@ -591,7 +551,10 @@ model AttendanceRecord {
 
 model Assessment {
   id        String   @id @default(uuid())
-  cohortId  String
+  /// Nullable: a grade can be recorded for a student who belongs to no cohort
+  /// (e.g. a one-off "Other" grade). GradeRecord links student→assessment
+  /// directly, so cohortId is metadata only and may be null.
+  cohortId  String?
   title     String
   subject   String?
   date      DateTime
@@ -602,7 +565,7 @@ model Assessment {
   teacherAssignmentId String?
   published           Boolean @default(true)
 
-  cohort            Cohort             @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  cohort            Cohort?            @relation(fields: [cohortId], references: [id], onDelete: SetNull)
   teacher           User               @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   exam              TeacherExam?       @relation(fields: [examId], references: [id], onDelete: SetNull)
   teacherAssignment TeacherAssignment? @relation(fields: [teacherAssignmentId], references: [id], onDelete: SetNull)

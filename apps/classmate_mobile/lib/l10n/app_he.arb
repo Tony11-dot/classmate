@@ -2107,7 +2107,6 @@
   "forgotPasswordTitle": "איפוס סיסמה",
   "forgotPasswordModeEmail": "דוא\"ל",
   "forgotPasswordModeSms": "SMS",
-  "forgotPasswordModeAdmin": "מנהל",
   "forgotPasswordEmailSent": "קישור איפוס נשלח (אם נמצא חשבון תואם).",
   "forgotPasswordEmptyError": "הזן דוא\"ל או שם משתמש כדי להמשיך.",
   "forgotPasswordEmailButton": "שלח לי קישור איפוס בדוא\"ל",
@@ -2226,41 +2225,6 @@
       "count": {}
     }
   },
-  "adminPasswordReqEmpty": "אין בקשות ממתינות",
-  "adminPasswordReqExplainer": "משתמשים שאישרת או דחית לא יופיעו כאן. בקשות ממתינות פגות לאחר 24 שעות.",
-  "adminPasswordReqApproveTitle": "לאשר שינוי סיסמה?",
-  "adminPasswordReqApproveExplain": "פעולה זו תגדיר את הסיסמה של {name} לזו שהוא הקליד (אתה לא רואה אותה).",
-  "@adminPasswordReqApproveExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqVerifyWarning": "אשר רק לאחר שאימתת שמגיש הבקשה הוא באמת {name} — התקשר אליו או אמת אישית. כל מי שיודע שם משתמש יכול להגיש בקשה כזו.",
-  "@adminPasswordReqVerifyWarning": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqConfirmApprove": "אימתתי — אשר",
-  "adminPasswordReqApproveSnackbar": "אושר — {name} יכול להתחבר עכשיו.",
-  "@adminPasswordReqApproveSnackbar": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectTitle": "לדחות שינוי סיסמה?",
-  "adminPasswordReqRejectExplain": "הסיסמה של {name} לא תשתנה. הוא יכול להגיש בקשה חדשה במידת הצורך.",
-  "@adminPasswordReqRejectExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectSnackbar": "נדחה.",
-  "adminPasswordReqRejectButton": "דחה",
-  "adminPasswordReqApproveButton": "אשר",
-  "adminPasswordReqCardCopy": "מעוניין בשינוי סיסמה. הסיסמה החדשה מוסתרת.",
-  "adminPasswordReqCallTooltip": "התקשר",
-  "adminPasswordReqSmsTooltip": "SMS",
   "adminSetupSchoolSetup": "הגדרת בית הספר",
   "adminSetupComplete": "הכול מוכן. הקש על כל פריט כדי לחזור אליו או לעדכן.",
   "adminSetupInstructions": "השלם שלבים אלה כדי להגדיר את בית הספר במלואו.",
@@ -2755,19 +2719,6 @@
   "teacherDoneSelected": "בוצע ({count} נבחרו)",
   "secretaryAllCohorts": "כל הקבוצות",
   "secretaryClassrooms": "כיתות",
-  "adminPasswordReqTitle": "בקשות סיסמה",
-  "adminPasswordReqBlurb": "משתמשים מבית הספר שלך שביקשו את אישורך לשינוי סיסמה.",
-  "adminPasswordReqWaiting": "{count, plural, =1{משתמש אחד ממתין לאישור שלך.} other{{count} משתמשים ממתינים לאישור שלך.}}",
-  "@adminPasswordReqWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adminPasswordReqWantsChange": "רוצה לשנות את הסיסמה. הסיסמה החדשה מוסתרת.",
-  "adminPasswordReqReject": "דחה",
-  "adminPasswordReqApprove": "אשר",
   "adminPeopleGrade": "כיתה",
   "adminSchoolSettingsTapToAddTranslations": "לחץ להוספת תרגומים",
   "adminSchoolSettingsAddPeriodNum": "הוסף שיעור (P{num})",
@@ -2781,7 +2732,6 @@
   "navPlans": "תוכניות NOVA",
   "navReports": "דיווחים",
   "navExportData": "יצוא נתונים",
-  "navPasswordRequests": "בקשות סיסמה",
   "sectionSecretaryTools": "כלי מזכירות",
   "sectionSchoolToolsLabel": "כלי בית הספר",
   "sectionAdminTools": "כלי מנהל",
@@ -2874,9 +2824,6 @@
   "parentNoNotificationsYet": "אין התראות עדיין.",
   "forwardCouldNotLoadChats": "לא ניתן לטעון את הצ'אטים: {error}",
   "forwardNoChats": "אין צ'אטים",
-  "forgotPasswordFindAdmins": "מצא את מנהלי בית הספר שלי",
-  "forgotPasswordChooseAdmin": "בחר מנהל מתוך {school}:",
-  "forgotPasswordSendRequest": "שלח בקשת סיסמה",
   "commonTitle": "כותרת",
   "commonNotes": "הערות",
   "commonEmail": "דוא\"ל",
@@ -2896,9 +2843,6 @@
   "forwardSearchChatsAndClassrooms": "חפש בצ'אטים ובכיתות…",
   "profileNewPhone": "טלפון חדש",
   "profileNewEmail": "דוא\"ל חדש",
-  "forgotPasswordYourPhone": "הטלפון שלך (כדי שהמנהל יוכל לאמת שזה באמת אתה)",
-  "forgotPasswordPhoneHelper": "המנהל יתקשר או ישלח הודעה למספר זה לפני האישור.",
-  "forgotPasswordNewPasswordHelper": "לפחות 8 תווים. נשמר מוצפן — המנהל לא יראה אותה.",
   "adminExportPasswordsWarning": "{count, plural, one{הקובץ יכיל את פרטי הכניסה של תלמיד אחד, כולל הסיסמה הנוכחית. כל מי שיש לו גישה לקובץ יכול להתחבר כתלמיד הזה — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שהמשתמש יתחבר שוב או יאפס.} other{הקובץ יכיל את פרטי הכניסה של {count} תלמידים, כולל סיסמאות נוכחיות. כל מי שיש לו גישה לקובץ יכול להתחבר כאחד התלמידים — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שכל משתמש יתחבר שוב או יאפס.}}",
   "pickerSelectStudents": "בחר תלמידים",
   "pickerSelectCohorts": "בחר קבוצות",
@@ -3238,8 +3182,6 @@
   "passwordMinChars": "לפחות 8 תווים.",
   "passwordsDoNotMatch": "הסיסמאות אינן תואמות.",
   "adminWelcomeHeading": "ברוך הבא ל-ClassMate",
-  "forgotPasswordSendRequestTo": "שליחת בקשה אל",
-  "forgotPasswordChooseAdminDash": "— בחירת מנהל —",
   "diplomasNoFilesAttached": "אין קבצים מצורפים לתעודה זו.",
   "diplomasFilesProcessing": "לא ניתן לפתוח את הקבצים — ייתכן שהם עדיין בעיבוד.",
   "novaOutOfTokens": "ניצלת את כל המכסה לתקופה זו. שדרג או טען מחדש כדי להמשיך לשוחח עם NOVA.",
@@ -3253,7 +3195,6 @@
   "adminScheduleFrequencyWeeks": "×{freq} שב'",
   "gradeLevelLabel": "כיתה {grade}",
   "adminPeriodOption": "שיעור {period}",
-  "adminPasswordRequestHoursLeft": "נותרו {hours} ש'",
   "cohortStudentsCount": "{count} תלמידים",
   "diplomasIssuedCount": "הונפקו {count} תעודות",
   "adminExportImportantHeading": "חשוב",
@@ -3535,7 +3476,6 @@
   "profileChangeContact": "שינוי {label}",
   "profileVerifyNewContactInfo": "קוד אימות יישלח לערך שתזינו — לאישור שהוא שלכם.",
   "profileVerifyCurrentContactInfo": "קוד אימות יישלח ל{label} הנוכחי שלכם כדי שתוכלו להוכיח בעלות לפני המעבר.",
-  "appShellPasswordRequests": "בקשות סיסמה",
   "appShellReports": "דיווחים",
   "appShellExportData": "ייצוא נתונים",
   "appShellAdmin": "ניהול",
@@ -3629,7 +3569,6 @@
   "adminEditUserCohortMemberCount": "חבר ב-{count} {count, plural, one{קבוצה} other{קבוצות}}.",
   "adminEditUserSearchStudents": "חיפוש תלמידים…",
   "adminEditUserGradeSuffix": "(כיתה {grade})",
-  "adminPasswordRequestsScreenVerifyIdentity": "ודאו שזה באמת {name} לפני האישור (התקשרו אליהם או אשרו פנים אל פנים).",
   "solutionAssetPreviewSheetPdfDocument": "מסמך PDF",
   "solutionAssetPreviewSheetUnableToPreview": "לא ניתן להציג תצוגה מקדימה של ה-PDF.",
   "classroomDetailSectionHeader": "{title} ({count})",
@@ -3655,7 +3594,6 @@
   "teacherCohortsScreenSingleGrade": "כיתה {grade}",
   "teacherCohortsScreenGradeRange": "כיתות {from}-{to}",
   "teacherCohortsScreenMultiGrade": "כיתות {grades}",
-  "teacherAddGradeScreenNoCohortAnchor": "אין מחזור זמין לעגן אליו את הציון הזה. צור מחזור תחילה.",
   "teacherAddGradeScreenFailedCreateRecord": "יצירת רשומת הציון נכשלה.",
   "phoneFieldLabel": "טלפון (אופציונלי)",
   "phoneFieldHelper": "משמש לאיפוס סיסמה באמצעות SMS",
@@ -3690,5 +3628,12 @@
     }
   },
   "teacherMaterialAddedBy": "נוסף על ידי {name}",
-  "teacherMaterialAttachedTo": "מצורף ל{period}"
+  "teacherMaterialAttachedTo": "מצורף ל{period}",
+  "teacherCreateClassroomNoStudentsInCohort": "אין עדיין תלמידים בקבוצה שנבחרה.",
+  "audienceSummaryResolving": "מחפש תלמידים…",
+  "audienceSummaryCount": "{count} יראו זאת",
+  "audienceSummaryEmpty": "אין תלמידים התואמים לקהל זה.",
+  "audienceSummaryRestore": "שחזר {count} שהוסרו",
+  "scheduleUpcomingExam": "מבחן קרוב",
+  "scheduleNoUpcomingExams": "אין מבחנים קרובים"
 }

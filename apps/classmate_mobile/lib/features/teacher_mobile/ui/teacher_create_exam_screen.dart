@@ -10,6 +10,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/audience_section.dart';
+import 'widgets/audience_students_summary.dart';
 import 'widgets/classroom_library_picker.dart';
 
 class TeacherCreateExamScreen extends ConsumerStatefulWidget {
@@ -44,6 +45,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
   final Set<int> _selectedGrades = {};
+  AudienceResolution? _audienceResolution;
 
   List<int> get _availableGrades {
     final s = <int>{};
@@ -224,6 +226,18 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           ? _courses.where((c) => c.subject == _selectedSubject).firstOrNull?.id
           : _courses.firstOrNull?.id;
 
+      var effectiveTargetType = _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE';
+      var outCohortIds = _selectedCohortIds.toList();
+      var outStudentIds = _selectedStudentIds.toList();
+      var outGrades = _selectedGrades.toList();
+      // Materialize to an explicit student list when students were removed.
+      if (_audienceResolution?.hasExclusions == true) {
+        effectiveTargetType = 'STUDENTS';
+        outStudentIds = _audienceResolution!.effective.map((s) => s.studentId).toList();
+        outCohortIds = [];
+        outGrades = [];
+      }
+
       // Pending-material rows are written via /attach-material after the
       // exam is saved (server expands material audience + snapshots files).
       // They don't have a `url`, so the existing filter already excludes them.
@@ -239,10 +253,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             'date': dateStr,
             'maxGrade': int.tryParse(_maxGradeCtrl.text.trim()),
             'published': _published,
-            'targetType': _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
-            'targetCohortIds': _selectedCohortIds.toList(),
-            'targetStudentIds': _selectedStudentIds.toList(),
-            'targetGrades': _selectedGrades.toList(),
+            'targetType': effectiveTargetType,
+            'targetCohortIds': outCohortIds,
+            'targetStudentIds': outStudentIds,
+            'targetGrades': outGrades,
             'attachments': _attachments.where((a) => a['_localOnly'] != true && a['_pendingMaterial'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
           },
         );
@@ -255,10 +269,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           date: dateStr,
           maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
           published: _published,
-          targetType: _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
-          targetCohortIds: _selectedCohortIds.toList(),
-          targetStudentIds: _selectedStudentIds.toList(),
-          targetGrades: _selectedGrades.toList(),
+          targetType: effectiveTargetType,
+          targetCohortIds: outCohortIds,
+          targetStudentIds: outStudentIds,
+          targetGrades: outGrades,
           attachments: _attachments.where((a) => a['_localOnly'] != true && a['_pendingMaterial'] != true && (a['url'] as String? ?? '').startsWith('http')).toList(),
         );
         // Server returns `{ok, exam: {id, …}}` — the legacy shape was
@@ -347,6 +361,17 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                     repo: ref.read(teacherMobileRepositoryProvider),
                     onChanged: () => setState(() {}),
                   ),
+                ),
+                AudienceStudentsSummary(
+                  targetType: _selectedCohortIds.isNotEmpty
+                      ? 'COHORT'
+                      : _selectedStudentIds.isNotEmpty
+                          ? 'STUDENTS'
+                          : null,
+                  cohortIds: _selectedCohortIds.toList(),
+                  studentIds: _selectedStudentIds.toList(),
+                  grades: _selectedGrades.toList(),
+                  onResolutionChanged: (r) => _audienceResolution = r,
                 ),
                 const SizedBox(height: 12),
 

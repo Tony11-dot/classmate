@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/realtime/realtime_listener.dart';
 import '../../core/semester/school_semester.dart';
+import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
@@ -382,8 +383,11 @@ class _ExamCard extends StatelessWidget {
         statusIcon = Icons.upcoming_rounded;
     }
 
+    final locale = Localizations.localeOf(context).toString();
     final metaLine = [
-          exam.dateLabel,
+          // dateLabel is a raw ISO string (kept raw for sorting); format it for
+          // display so it never shows as "2026-06-20T00:00:00.000Z".
+          FriendlyDate.date(exam.dateLabel, locale),
           exam.hourLabel,
           exam.periodLabel,
           exam.durationLabel,

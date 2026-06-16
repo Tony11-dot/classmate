@@ -2319,7 +2319,6 @@
   "forgotPasswordTitle": "Reset your password",
   "forgotPasswordModeEmail": "Email",
   "forgotPasswordModeSms": "SMS",
-  "forgotPasswordModeAdmin": "Admin",
   "forgotPasswordEmailSent": "Reset link sent (if an account matches).",
   "forgotPasswordEmptyError": "Enter your email or username to continue.",
   "forgotPasswordEmailButton": "Email me a reset link",
@@ -2438,41 +2437,6 @@
       "count": {}
     }
   },
-  "adminPasswordReqEmpty": "No pending requests",
-  "adminPasswordReqExplainer": "Users you have approved or rejected won't appear here. Pending requests expire after 24 hours.",
-  "adminPasswordReqApproveTitle": "Approve password change?",
-  "adminPasswordReqApproveExplain": "This sets {name}'s password to the one they typed (you don't see it).",
-  "@adminPasswordReqApproveExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqVerifyWarning": "Only approve if you have verified the requester is really {name} — call them, or confirm in person. Anyone who knows a username can file this request.",
-  "@adminPasswordReqVerifyWarning": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqConfirmApprove": "I verified — approve",
-  "adminPasswordReqApproveSnackbar": "Approved — {name} can sign in now.",
-  "@adminPasswordReqApproveSnackbar": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectTitle": "Reject password change?",
-  "adminPasswordReqRejectExplain": "{name}'s password won't change. They can submit a new request if needed.",
-  "@adminPasswordReqRejectExplain": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "adminPasswordReqRejectSnackbar": "Rejected.",
-  "adminPasswordReqRejectButton": "Reject",
-  "adminPasswordReqApproveButton": "Approve",
-  "adminPasswordReqCardCopy": "Wants their password changed. The new password is hidden.",
-  "adminPasswordReqCallTooltip": "Call",
-  "adminPasswordReqSmsTooltip": "SMS",
   "adminSetupSchoolSetup": "School Setup",
   "adminSetupComplete": "You're all set. Tap any item to revisit or refine it.",
   "adminSetupInstructions": "Complete these steps to fully set up your school.",
@@ -3137,19 +3101,6 @@
   },
   "secretaryAllCohorts": "All cohorts",
   "secretaryClassrooms": "Classrooms",
-  "adminPasswordReqTitle": "Password requests",
-  "adminPasswordReqBlurb": "Users from your school who've asked you to approve a password change.",
-  "adminPasswordReqWaiting": "{count, plural, =1{1 user waiting for your approval.} other{{count} users waiting for your approval.}}",
-  "@adminPasswordReqWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "adminPasswordReqWantsChange": "Wants their password changed. The new password is hidden.",
-  "adminPasswordReqReject": "Reject",
-  "adminPasswordReqApprove": "Approve",
   "adminPeopleGrade": "Grade",
   "adminSchoolSettingsTapToAddTranslations": "Tap to add translations",
   "adminSchoolSettingsAddPeriodNum": "Add Period (P{num})",
@@ -3177,7 +3128,6 @@
   "navPlans": "NOVA Plans",
   "navReports": "Reports",
   "navExportData": "Export Data",
-  "navPasswordRequests": "Password Requests",
   "sectionSecretaryTools": "Secretary Tools",
   "sectionSchoolToolsLabel": "School Tools",
   "sectionAdminTools": "Admin Tools",
@@ -3347,16 +3297,6 @@
     }
   },
   "forwardNoChats": "No chats",
-  "forgotPasswordFindAdmins": "Find my school's admins",
-  "forgotPasswordChooseAdmin": "Choose an admin from {school}:",
-  "@forgotPasswordChooseAdmin": {
-    "placeholders": {
-      "school": {
-        "type": "String"
-      }
-    }
-  },
-  "forgotPasswordSendRequest": "Send password request",
   "commonTitle": "Title",
   "commonNotes": "Notes",
   "commonEmail": "Email",
@@ -3376,9 +3316,6 @@
   "forwardSearchChatsAndClassrooms": "Search chats and classrooms…",
   "profileNewPhone": "New phone",
   "profileNewEmail": "New email",
-  "forgotPasswordYourPhone": "Your phone (so the admin can verify it's really you)",
-  "forgotPasswordPhoneHelper": "The admin will call or text this number before approving.",
-  "forgotPasswordNewPasswordHelper": "At least 8 characters. Stored hashed — your admin will not see it.",
   "adminExportPasswordsWarning": "{count, plural, one{The file will contain {count} student's login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}",
   "@adminExportPasswordsWarning": {
     "placeholders": {
@@ -4057,14 +3994,6 @@
   "@adminWelcomeHeading": {
     "description": "adminWelcomeHeading"
   },
-  "forgotPasswordSendRequestTo": "Send request to",
-  "@forgotPasswordSendRequestTo": {
-    "description": "forgotPasswordSendRequestTo"
-  },
-  "forgotPasswordChooseAdminDash": "— Choose admin —",
-  "@forgotPasswordChooseAdminDash": {
-    "description": "forgotPasswordChooseAdminDash"
-  },
   "diplomasNoFilesAttached": "No files attached to this certificate.",
   "@diplomasNoFilesAttached": {
     "description": "diplomasNoFilesAttached"
@@ -4128,15 +4057,6 @@
     "description": "adminPeriodOption",
     "placeholders": {
       "period": {
-        "type": "Object"
-      }
-    }
-  },
-  "adminPasswordRequestHoursLeft": "{hours}h left",
-  "@adminPasswordRequestHoursLeft": {
-    "description": "adminPasswordRequestHoursLeft",
-    "placeholders": {
-      "hours": {
         "type": "Object"
       }
     }
@@ -4496,7 +4416,6 @@
   "profileChangeContact": "Change {label}",
   "profileVerifyNewContactInfo": "A verification code will be sent to the value you enter — confirming you own it.",
   "profileVerifyCurrentContactInfo": "A verification code will be sent to your CURRENT {label} so you can prove ownership before switching.",
-  "appShellPasswordRequests": "Password Requests",
   "appShellReports": "Reports",
   "appShellExportData": "Export Data",
   "appShellAdmin": "Admin",
@@ -4590,7 +4509,6 @@
   "adminEditUserCohortMemberCount": "Member of {count} cohort{count, plural, one{} other{s}}.",
   "adminEditUserSearchStudents": "Search students…",
   "adminEditUserGradeSuffix": "(Grade {grade})",
-  "adminPasswordRequestsScreenVerifyIdentity": "Verify this is really {name} before approving (call them or confirm in person).",
   "solutionAssetPreviewSheetPdfDocument": "PDF document",
   "solutionAssetPreviewSheetUnableToPreview": "Unable to preview PDF.",
   "classroomDetailSectionHeader": "{title} ({count})",
@@ -5266,13 +5184,6 @@
       }
     }
   },
-  "@adminPasswordRequestsScreenVerifyIdentity": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "@classroomDetailSectionHeader": {
     "placeholders": {
       "title": {
@@ -5300,7 +5211,6 @@
   "teacherCohortsScreenSingleGrade": "Grade {grade}",
   "teacherCohortsScreenGradeRange": "Grade {from}-{to}",
   "teacherCohortsScreenMultiGrade": "Grades {grades}",
-  "teacherAddGradeScreenNoCohortAnchor": "No cohort available to anchor this grade. Create a cohort first.",
   "teacherAddGradeScreenFailedCreateRecord": "Failed to create grade record.",
   "phoneFieldLabel": "Phone (optional)",
   "phoneFieldHelper": "Used for SMS password reset",
@@ -5349,5 +5259,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "adminPeopleAddMany": "Add many",
+  "adminAddManyPasteNames": "Paste names",
+  "adminAddManyApplyRole": "Set role for all",
+  "adminAddManyApplyGrade": "Set grade for all",
+  "adminAddManyParentLabel": "Parent",
+  "adminAddManyParentNone": "No parent",
+  "adminAddManyParentInBatch": "New parents in this list",
+  "adminAddManyParentExisting": "Existing parents",
+  "adminAddManySearchParents": "Search parents…",
+  "adminAddManyNoParentsYet": "No matching parents — type a name above to create one",
+  "adminAddManyUsernameTaken": "Username already taken",
+  "adminAddManyUsernameDupe": "Duplicate username in this list",
+  "adminAddManyCreateParent": "Create new parent \"{name}\"",
+  "@adminAddManyCreateParent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminAddManyPastedRows": "Added {count} rows",
+  "@adminAddManyPastedRows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teacherCreateClassroomNoStudentsInCohort": "No students in the selected cohort yet.",
+  "audienceSummaryResolving": "Finding students…",
+  "audienceSummaryCount": "{count} will see this",
+  "@audienceSummaryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "audienceSummaryEmpty": "No students match this audience.",
+  "audienceSummaryRestore": "Restore {count} removed",
+  "@audienceSummaryRestore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scheduleUpcomingExam": "Upcoming Exam",
+  "scheduleNoUpcomingExams": "No upcoming exams"
 }

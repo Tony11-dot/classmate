@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
 import '../../core/http/cm_api.dart';
+import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../class_materials/ui/class_materials_section.dart';
+import '../lifedoc/data/exams_repository.dart';
+import '../lifedoc/domain/exam_models.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Attendance helpers shared across the schedule tile and detail sheet
@@ -211,6 +215,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final days = _weekDays(data);
     final selectedItems = _itemsForSelectedDate(data);
     final next = selectedItems.isNotEmpty ? selectedItems.first : null;
+    final upcomingExam = _nextUpcomingExam();
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -258,6 +263,18 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 value: next == null
                     ? l.scheduleNoMoreClasses
                     : '${_timeLabel(next)} • ${_titleOf(context, next)}',
+              ),
+              // Tappable — jumps to the Exams tab (top pill switches to Exams,
+              // drawer highlights Exams, bottom nav hides — all driven by the
+              // /exams route in the shell).
+              _statPill(
+                context,
+                icon: Icons.quiz_rounded,
+                label: l.scheduleUpcomingExam,
+                value: upcomingExam == null
+                    ? l.scheduleNoUpcomingExams
+                    : '${FriendlyDate.date(upcomingExam.dateLabel, Localizations.localeOf(context).toString())} • ${upcomingExam.title}',
+                onTap: () => context.go('/exams'),
               ),
             ],
           ),
@@ -467,6 +484,26 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         .toList();
   }
 
+  /// Soonest exam that is today or later, from the live exams feed. Returns
+  /// null while loading, on error, or when there are no upcoming exams.
+  StudentExamItem? _nextUpcomingExam() {
+    final exams = ref.watch(examsLiveProvider).asData?.value;
+    if (exams == null || exams.isEmpty) return null;
+    final todayStart = _dateOnly(DateTime.now());
+    StudentExamItem? best;
+    DateTime? bestWhen;
+    for (final e in exams) {
+      final when = DateTime.tryParse(e.dateLabel);
+      if (when == null) continue;
+      if (_dateOnly(when).isBefore(todayStart)) continue;
+      if (bestWhen == null || when.isBefore(bestWhen)) {
+        best = e;
+        bestWhen = when;
+      }
+    }
+    return best;
+  }
+
   int _nowMinutes() {
     final now = DateTime.now();
     return now.hour * 60 + now.minute;
@@ -534,50 +571,67 @@ Widget _statPill(
   required IconData icon,
   required String label,
   required String value,
+  VoidCallback? onTap,
 }) {
   final theme = Theme.of(context);
   final cs = theme.colorScheme;
 
+  final content = Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: cs.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: cs.outline, width: 1.5),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18, color: cs.primary),
+        const SizedBox(width: 10),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (onTap != null) ...[
+          const SizedBox(width: 4),
+          Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
+        ],
+      ],
+    ),
+  );
+
   return ConstrainedBox(
     constraints: const BoxConstraints(minWidth: 150),
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outline, width: 1.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18, color: cs.primary),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: cs.onSurface,
-                  ),
-                ),
-              ],
+    child: onTap == null
+        ? content
+        : Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: onTap,
+              child: content,
             ),
           ),
-        ],
-      ),
-    ),
   );
 }
 

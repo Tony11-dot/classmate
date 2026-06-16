@@ -12,6 +12,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import 'widgets/audience_students_summary.dart';
 
 class TeacherAddMaterialScreen extends ConsumerStatefulWidget {
   const TeacherAddMaterialScreen({
@@ -62,6 +63,7 @@ class _TeacherAddMaterialScreenState
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
   final Set<int> _selectedGrades = {};
+  AudienceResolution? _audienceResolution;
   final Map<String, List<String>> _memberCache = {};
 
   List<int> get _availableGrades {
@@ -256,7 +258,17 @@ class _TeacherAddMaterialScreenState
 
     setState(() => _saving = true);
     try {
-      final effectiveTargetType = _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE';
+      var effectiveTargetType = _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE';
+      var outCohortIds = _selectedCohortIds.toList();
+      var outStudentIds = _selectedStudentIds.toList();
+      var outGrades = _selectedGrades.toList();
+      // Materialize to an explicit student list when students were removed.
+      if (_audienceResolution?.hasExclusions == true) {
+        effectiveTargetType = 'STUDENTS';
+        outStudentIds = _audienceResolution!.effective.map((s) => s.studentId).toList();
+        outCohortIds = [];
+        outGrades = [];
+      }
 
       // Upload all local files and collect their URLs
       final repo = ref.read(teacherMobileRepositoryProvider);
@@ -294,9 +306,9 @@ class _TeacherAddMaterialScreenState
             'courseId': _selectedCourseId,
             'subject': _selectedSubject,
             'targetType': effectiveTargetType,
-            'targetCohortIds': _selectedCohortIds.toList(),
-            'targetStudentIds': _selectedStudentIds.toList(),
-            'targetGrades': _selectedGrades.toList(),
+            'targetCohortIds': outCohortIds,
+            'targetStudentIds': outStudentIds,
+            'targetGrades': outGrades,
           },
         );
       } else {
@@ -307,9 +319,9 @@ class _TeacherAddMaterialScreenState
           courseId: _selectedCourseId,
           subject: _selectedSubject,
           targetType: effectiveTargetType,
-          targetCohortIds: _selectedCohortIds.toList(),
-          targetStudentIds: _selectedStudentIds.toList(),
-          targetGrades: _selectedGrades.toList(),
+          targetCohortIds: outCohortIds,
+          targetStudentIds: outStudentIds,
+          targetGrades: outGrades,
           attachments: allAttachments,
         );
       }
@@ -495,6 +507,17 @@ class _TeacherAddMaterialScreenState
                         const SizedBox(height: 8),
                         Text(AppLocalizations.of(context)!.teacherMeetingVisibleToEveryone, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
+                      AudienceStudentsSummary(
+                        targetType: _selectedCohortIds.isNotEmpty
+                            ? 'COHORT'
+                            : _selectedStudentIds.isNotEmpty
+                                ? 'STUDENTS'
+                                : null,
+                        cohortIds: _selectedCohortIds.toList(),
+                        studentIds: _selectedStudentIds.toList(),
+                        grades: _selectedGrades.toList(),
+                        onResolutionChanged: (r) => _audienceResolution = r,
+                      ),
                     ],
                   ),
                 ),

@@ -56,40 +56,6 @@ export class PasswordResetController {
   }
 
   /**
-   * Looks up the school's admins so the Flutter Forgot Password screen can
-   * render an admin picker for the "ask an admin" path. Always 200 with
-   * empty data when the identifier doesn't match anything.
-   */
-  @Public()
-  @Post('auth/password-request/lookup')
-  @HttpCode(200)
-  async lookupAdmins(@Body() body: { identifier?: string }) {
-    const identifier = String(body?.identifier ?? '').trim();
-    if (!identifier) throw new BadRequestException('identifier is required');
-    const out = await this.service.lookupAdminsForRequest(identifier);
-    return { ok: true, ...out };
-  }
-
-  /**
-   * User submits the password they want + which admin should approve. Hash
-   * is stored, admin gets a notification, but the raw password is never
-   * surfaced to the admin.
-   */
-  @Public()
-  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
-  @Post('auth/password-request/submit')
-  @HttpCode(200)
-  async submitRequest(@Body() body: { identifier?: string; adminId?: string; desiredPassword?: string; phone?: string }) {
-    const identifier = String(body?.identifier ?? '').trim();
-    const adminId = String(body?.adminId ?? '').trim();
-    const desiredPassword = String(body?.desiredPassword ?? '');
-    const requesterPhone = body?.phone != null ? String(body.phone).trim() : null;
-    if (!identifier || !adminId) throw new BadRequestException('identifier and adminId are required');
-    await this.service.submitPasswordChangeRequest({ identifier, adminId, desiredPassword, requesterPhone });
-    return { ok: true, message: 'Request sent. Your admin will receive a notification.' };
-  }
-
-  /**
    * Styled HTML reset page (matches /cms branding). User lands here from the
    * email/SMS link. JS posts to /auth/reset-password and renders success/error
    * inline so it works on any device with no app install.
@@ -99,28 +65,6 @@ export class PasswordResetController {
   resetPage(@Query('token') token: string, @Res() res: Response) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(buildResetPage(token ?? ''));
-  }
-
-  /**
-   * Public reject path — target user clicks the link from the heads-up
-   * email/SMS we sent them. Validates an HMAC over the request id and
-   * marks the request REJECTED so the admin can't approve it anymore.
-   * Renders a small confirmation HTML page so it works without an app
-   * install (which is the whole point of an email link).
-   */
-  @Public()
-  @Get('auth/password-request/reject')
-  async rejectPage(
-    @Query('id') id: string,
-    @Query('sig') sig: string,
-    @Res() res: Response,
-  ) {
-    const outcome = await this.service.rejectViaPublicLink(
-      String(id ?? ''),
-      String(sig ?? ''),
-    );
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(buildRejectPage(outcome));
   }
 }
 
@@ -311,71 +255,3 @@ function buildResetPage(token: string): string {
 </html>`;
 }
 
-/**
- * Minimal styled confirmation page for the heads-up reject link. The user
- * lands here after clicking "this wasn't me" in the email/SMS we sent them.
- * Self-contained HTML — no JS, no fonts pulled.
- */
-function buildRejectPage(outcome: 'rejected' | 'already_resolved' | 'expired' | 'not_found' | 'bad_sig'): string {
-  const { title, body, ok } = (() => {
-    switch (outcome) {
-      case 'rejected':
-        return {
-          title: 'Request rejected',
-          body: "We've cancelled the password change request. Nothing happened to your account. If you didn't expect this email at all, ask your admin who filed the request.",
-          ok: true,
-        };
-      case 'already_resolved':
-        return {
-          title: 'Already handled',
-          body: 'This request has already been approved, rejected, or expired. Nothing more to do.',
-          ok: false,
-        };
-      case 'expired':
-        return {
-          title: 'Link expired',
-          body: 'This request has expired and was auto-closed. Your account is unchanged.',
-          ok: false,
-        };
-      case 'not_found':
-      case 'bad_sig':
-        return {
-          title: 'Invalid link',
-          body: "This reject link is invalid or tampered with. If you got it in a legitimate email, contact your admin to handle the request manually.",
-          ok: false,
-        };
-    }
-  })();
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ClassMate — ${title}</title>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-         background:#0b0b10;color:#e4e4f0;min-height:100vh;
-         display:flex;align-items:flex-start;justify-content:center;
-         padding:60px 20px}
-    .card{background:#16161f;border:1px solid #252533;border-radius:20px;
-          padding:32px;max-width:440px;width:100%}
-    .icon{width:56px;height:56px;border-radius:14px;display:flex;
-          align-items:center;justify-content:center;margin-bottom:18px;
-          font-size:30px;font-weight:700;
-          background:${ok ? '#081c10' : '#1c0808'};color:${ok ? '#22c55e' : '#ef4444'};
-          border:1px solid ${ok ? '#105c28' : '#5c1010'}}
-    h1{font-size:20px;font-weight:800;margin-bottom:10px}
-    p{font-size:14px;color:#9999c0;line-height:1.55}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="icon">${ok ? '✓' : '!'}</div>
-    <h1>${title}</h1>
-    <p>${body}</p>
-  </div>
-</body>
-</html>`;
-}

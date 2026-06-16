@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
 import 'admin_edit_user_screen.dart';
+import 'admin_import_users_screen.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -84,11 +85,25 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
     return Scaffold(
       backgroundColor: cs.surface,
       floatingActionButton: isAdmin
-          ? FloatingActionButton.extended(
-              heroTag: 'fab_add_user',
-              onPressed: () => _showAddUserSheet(context, initialRole: activeRole),
-              icon: const Icon(Icons.person_add_rounded),
-              label: Text(addLabel),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Bulk entry — paste/fill a whole list at once, link parents.
+                FloatingActionButton.small(
+                  heroTag: 'fab_add_many',
+                  tooltip: l.adminPeopleAddMany,
+                  onPressed: () => _openAddMany(context),
+                  child: const Icon(Icons.group_add_rounded),
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton.extended(
+                  heroTag: 'fab_add_user',
+                  onPressed: () => _showAddUserSheet(context, initialRole: activeRole),
+                  icon: const Icon(Icons.person_add_rounded),
+                  label: Text(addLabel),
+                ),
+              ],
             )
           : null,
       body: Column(
@@ -129,6 +144,16 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _openAddMany(BuildContext context) async {
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (_) => const AdminImportUsersScreen()),
+    );
+    // Bulk add may have created users across every role — refresh all tabs.
+    for (final role in _roles) {
+      ref.invalidate(_usersProvider(role));
+    }
   }
 
   Future<void> _showAddUserSheet(BuildContext context, {String initialRole = 'STUDENT'}) async {

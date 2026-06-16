@@ -82,7 +82,6 @@ import '../features/admin/ui/admin_schedule_screen.dart';
 import '../features/admin/ui/admin_school_settings_screen.dart';
 import '../features/admin/ui/admin_settings_screen.dart';
 import '../features/admin/ui/admin_export_screen.dart';
-import '../features/admin/ui/admin_password_requests_screen.dart';
 import '../features/admin/ui/admin_reports_screen.dart';
 import '../features/secretary/ui/secretary_students_screen.dart';
 import '../features/secretary/ui/secretary_home_screen.dart';
@@ -714,10 +713,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/admin/export',
             builder: (context, state) => const AdminExportScreen(),
-          ),
-          _fadeRoute(
-            path: '/admin/password-requests',
-            builder: (context, state) => const AdminPasswordRequestsScreen(),
           ),
           _fadeRoute(
             path: '/admin/reports',

@@ -7,12 +7,15 @@
    3) Showcase phone choreography styles live in styles.css.
    ────────────────────────────────────────────────────────────────────────── */
 
-/* ── Global background — multi-layer parallax with real detail so you FEEL the
-   scroll. The glow drifts slowly (transform); the grid/dots/near layers are
-   infinite-tiling patterns moved fast via background-position. ── */
+/* ── Global background — clean, smooth parallax. Two layers only: soft colour
+   washes (.site-bg-glow) and a very subtle graph grid (.site-bg-grid). Both are
+   driven by transform: translate3d in app.js (lerped toward a scroll-derived
+   target) so the parallax is buttery — never per-frame background-position
+   recompute (which ticks/stutters). ── */
 .site-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.site-bg-layer { position: absolute; inset: 0; will-change: transform, background-position; }
-/* Far soft colour washes (slowest). */
+.site-bg-layer { position: absolute; inset: 0; will-change: transform; backface-visibility: hidden; }
+/* Far soft colour washes (slowest). Padded out so the parallax shift never
+   exposes an edge. */
 .site-bg-glow {
   inset: -35% -12%;
   background:
@@ -20,32 +23,19 @@
     radial-gradient(28% 20% at 88% 26%, color-mix(in srgb, var(--primary-2) 30%, transparent), transparent 66%),
     radial-gradient(30% 20% at 30% 64%, color-mix(in srgb, var(--accent-green, #37c26b) 24%, transparent), transparent 70%),
     radial-gradient(26% 18% at 78% 84%, color-mix(in srgb, var(--gold, #f4b23e) 26%, transparent), transparent 68%);
-  filter: blur(34px); opacity: .8;
+  filter: blur(40px); opacity: .8;
 }
-/* Graph-paper grid lines (medium speed) — adds structure/detail. */
+/* Very subtle graph-paper grid — kept faint so it reads as smooth structure,
+   not noise. Over-sized + offset so the translate parallax never shows an edge. */
 .site-bg-grid {
+  inset: -20% -20%;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--primary-2) 16%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--primary-2) 16%, transparent) 1px, transparent 1px);
-  background-size: 70px 70px; opacity: .55;
+    linear-gradient(color-mix(in srgb, var(--primary-2) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--primary-2) 9%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px; opacity: .5;
 }
-/* Dot grid (faster). */
-.site-bg-dots {
-  background-image: radial-gradient(color-mix(in srgb, var(--primary) 46%, transparent) 2.1px, transparent 2.6px);
-  background-size: 40px 40px; opacity: .6;
-}
-/* Big bold dots (closest, fastest → they rush past as you scroll). */
-.site-bg-near {
-  background-image:
-    radial-gradient(color-mix(in srgb, var(--primary-2) 42%, transparent) 4.5px, transparent 6px),
-    radial-gradient(color-mix(in srgb, var(--accent-green, #37c26b) 34%, transparent) 3px, transparent 5px);
-  background-size: 150px 150px, 150px 150px;
-  background-position: 0 0, 75px 75px;
-  opacity: .5;
-}
-[data-theme="dark"] .site-bg-grid { opacity: .32; }
-[data-theme="dark"] .site-bg-dots { opacity: .4; }
-[data-theme="dark"] .site-bg-glow, [data-theme="dark"] .site-bg-near { opacity: .55; }
+[data-theme="dark"] .site-bg-grid { opacity: .28; }
+[data-theme="dark"] .site-bg-glow { opacity: .55; }
 
 /* Sections sit above the global bg and stay transparent so it shows through. */
 .hero-stage, .section { background: transparent; }
@@ -86,7 +76,12 @@
   .hero-stage .hero-copy { margin: 0 auto; }
   .hero-phone-flip { width: min(248px, 64vw); }
   .hero-face-back { display: none; }
-  .site-bg-dots { background-size: 26px 26px; }
+  /* Phones don't scroll-parallax the background (see app.js), so keep the fixed
+     field cheap to composite: lighter blur, and release the GPU layer
+     promotions that eat mobile memory. */
+  .site-bg-layer { will-change: auto; }
+  .site-bg-glow { filter: blur(26px); opacity: .42; }
+  .site-bg-grid { opacity: .3; }
 }
 
 /* Reduced motion: no float, everything visible. */
@@ -94,6 +89,8 @@
   .hero-stage .hero-copy > *, .hero-phone-pos { opacity: 1 !important; }
   .hero-phone-flip { animation: none; }
   .site-bg-layer { transform: none !important; }
+  /* No scroll choreography → every showcase panel stays fully readable. */
+  .sc-copy { opacity: 1 !important; transform: none !important; }
 }
 
 /* ── Showcase — a sticky REAL 3D phone (thickness + dynamic island) that spins
@@ -109,9 +106,13 @@
 .sc-texts { position: relative; margin-top: -100vh; z-index: 1; }
 .sc-copy {
   min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
-  opacity: .08; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease;
+  opacity: .35; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease;
 }
 .sc-copy.is-active { opacity: 1; transform: none; }
+/* Fallback when the scroll animation can't/shouldn't run (reduced motion or the
+   <769px branch): the GSAP onUpdate never fires, so make EVERY panel fully
+   readable and undo the offset — text is never left gray. */
+.sc-wrap.no-anim .sc-copy { opacity: 1 !important; transform: none !important; }
 .sc-copy[data-side="right"] { align-items: flex-end; text-align: right; padding-right: clamp(24px, 14vw, 400px); }
 .sc-copy[data-side="left"]  { align-items: flex-start; text-align: left;  padding-left:  clamp(24px, 14vw, 400px); }
 .sc-copy h3 { font-size: clamp(32px, 4.4vw, 54px); letter-spacing: -0.035em; font-weight: 900; line-height: 1.04; max-width: 11ch; }

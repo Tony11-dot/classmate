@@ -38,8 +38,19 @@ class TeacherMobileRepository {
       query: standalone ? const <String, String>{'standalone': 'true'} : null,
     );
     final map = _asMap(raw);
-    final courses = _asList(map['courses'])
-        .map((item) => TeacherCourse.fromJson(_asMap(item)))
+    // The API returns the teacher's groups under `cohorts` (shape
+    // {id, name, grade}); older builds expected `courses`. Read whichever is
+    // present and normalize so `cohortId` is populated (it equals the cohort
+    // id), otherwise the "teaching groups" stat is always 0.
+    final rawCourses = map['courses'] is List ? map['courses'] : map['cohorts'];
+    final courses = _asList(rawCourses)
+        .map((item) {
+          final m = _asMap(item);
+          if ((m['cohortId'] == null || '${m['cohortId']}'.isEmpty) && m['id'] != null) {
+            m['cohortId'] = m['id'];
+          }
+          return TeacherCourse.fromJson(m);
+        })
         .toList(growable: false);
     final assessments = _asList(map['assessments'])
         .map((item) => TeacherAssessment.fromJson(_asMap(item)))
@@ -121,6 +132,37 @@ class TeacherMobileRepository {
     final map = _asMap(raw);
     return _asList(map['students'])
         .map((item) => TeacherStudent.fromJson(_asMap(item)))
+        .toList(growable: false);
+  }
+
+  /// Resolve an audience selection (grades + cohorts + individual students,
+  /// or EVERYONE) into the concrete students who will receive the item.
+  /// Powers the "students who will see this" summary on the create screens.
+  Future<List<TeacherStudent>> resolveAudience({
+    String? targetType,
+    List<String> cohortIds = const [],
+    List<String> studentIds = const [],
+    List<int> grades = const [],
+  }) async {
+    final raw = await _api.postJson(
+      '/teacher/audience/resolve',
+      body: <String, dynamic>{
+        if (targetType != null) 'targetType': targetType,
+        'targetCohortIds': cohortIds,
+        'targetStudentIds': studentIds,
+        'targetGrades': grades,
+      },
+    );
+    final map = _asMap(raw);
+    return _asList(map['students'])
+        .map((item) {
+          final m = _asMap(item);
+          return TeacherStudent(
+            studentId: _asString(m['id']),
+            name: _asString(m['name']),
+            email: _asString(m['email']),
+          );
+        })
         .toList(growable: false);
   }
 
@@ -262,12 +304,13 @@ class TeacherMobileRepository {
         .toList(growable: false);
   }
 
-  /// Creates an Assessment. The server's Assessment model is keyed on cohort,
-  /// not classroom — `cohortId` is required.  Returns the raw server payload
+  /// Creates an Assessment. `cohortId` is optional: pass null (or empty) to
+  /// record a cohortless assessment — used when grading students who belong
+  /// to no cohort. Returns the raw server payload
   /// (e.g. `{ ok: true, assessment: { id, ... } }`); the caller can pull
   /// `assessment.id` straight out instead of round-tripping a list query.
   Future<Map<String, dynamic>> createAssessment({
-    required String cohortId,
+    String? cohortId,
     required String title,
     required String date,
     String? subject,
@@ -278,7 +321,7 @@ class TeacherMobileRepository {
     final raw = await _api.postJson(
       '/teacher/grades/assessment',
       body: <String, dynamic>{
-        'cohortId': cohortId,
+        if (cohortId != null && cohortId.trim().isNotEmpty) 'cohortId': cohortId.trim(),
         'title': title.trim(),
         if (subject != null && subject.trim().isNotEmpty) 'subject': subject.trim(),
         'date': date.trim().isEmpty ? null : date.trim(),

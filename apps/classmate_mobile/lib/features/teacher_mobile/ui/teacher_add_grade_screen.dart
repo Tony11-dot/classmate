@@ -364,29 +364,20 @@ class _TeacherAddGradeScreenState
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
 
-      // Group by cohort: students without a cohort fall into the synthetic
-      // empty-string bucket, which we handle by assigning to the first
-      // available cohort (the assessment row still needs a cohortId per
-      // schema, but the grade itself is per-student).
-      final fallbackCohort = _allCohorts.isNotEmpty
-          ? (_allCohorts.first['id'] ?? '').toString()
-          : '';
-
+      // Group by the student's own cohort. Students with no cohort fall into
+      // a single empty-string bucket which the API records as a cohortless
+      // assessment (Assessment.cohortId is nullable) — grading no longer
+      // requires the student to belong to any cohort.
       final byCohort = <String, List<_PendingEntry>>{};
       for (final e in entries) {
-        final cohortId = e.student.cohortId.isNotEmpty
-            ? e.student.cohortId
-            : fallbackCohort;
-        if (cohortId.isEmpty) {
-          throw Exception(l.teacherAddGradeScreenNoCohortAnchor);
-        }
-        byCohort.putIfAbsent(cohortId, () => []).add(e);
+        byCohort.putIfAbsent(e.student.cohortId, () => []).add(e);
       }
 
       final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
       for (final entry in byCohort.entries) {
         final created = await repo.createAssessment(
-          cohortId: entry.key,
+          // Empty string → cohortless assessment on the server.
+          cohortId: entry.key.isEmpty ? null : entry.key,
           title: title,
           subject: inherited.subject,
           date: today,

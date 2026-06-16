@@ -8,6 +8,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'widgets/audience_section.dart';
+import 'widgets/audience_students_summary.dart';
 
 class _FormQuestion {
   String text = '';
@@ -43,6 +44,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   final Set<String> _selectedCohortIds = {};
   final Set<String> _selectedStudentIds = {};
   final Set<int> _selectedGrades = {};
+  AudienceResolution? _audienceResolution;
 
   /// Distinct grade values across the teacher's cohorts. Used as the
   /// option list for the Grades audience picker.
@@ -115,6 +117,18 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
               })
           .toList();
 
+      var effectiveTargetType = _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE';
+      var outCohortIds = _selectedCohortIds.toList();
+      var outStudentIds = _selectedStudentIds.toList();
+      var outGrades = _selectedGrades.toList();
+      // Materialize to an explicit student list when students were removed.
+      if (_audienceResolution?.hasExclusions == true) {
+        effectiveTargetType = 'STUDENTS';
+        outStudentIds = _audienceResolution!.effective.map((s) => s.studentId).toList();
+        outCohortIds = [];
+        outGrades = [];
+      }
+
       await ref.read(teacherMobileRepositoryProvider).createForm(<String, dynamic>{
         'title': title,
         'description': _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
@@ -122,10 +136,10 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
         'acceptingResponses': _acceptingResponses,
         'allowMultipleResponses': _allowMultipleResponses,
         'published': published,
-        'targetType': _selectedCohortIds.isNotEmpty ? 'COHORT' : _selectedStudentIds.isNotEmpty ? 'STUDENTS' : 'EVERYONE',
-        'targetCohortIds': _selectedCohortIds.toList(),
-        'targetStudentIds': _selectedStudentIds.toList(),
-        'targetGrades': _selectedGrades.toList(),
+        'targetType': effectiveTargetType,
+        'targetCohortIds': outCohortIds,
+        'targetStudentIds': outStudentIds,
+        'targetGrades': outGrades,
         'questions': questions,
       });
 
@@ -218,6 +232,17 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
                 availableGrades: _availableGrades,
                 repo: ref.read(teacherMobileRepositoryProvider),
                 onChanged: () => setState(() {}),
+              ),
+              AudienceStudentsSummary(
+                targetType: _selectedCohortIds.isNotEmpty
+                    ? 'COHORT'
+                    : _selectedStudentIds.isNotEmpty
+                        ? 'STUDENTS'
+                        : null,
+                cohortIds: _selectedCohortIds.toList(),
+                studentIds: _selectedStudentIds.toList(),
+                grades: _selectedGrades.toList(),
+                onResolutionChanged: (r) => _audienceResolution = r,
               ),
             ])),
           const SizedBox(height: 12),

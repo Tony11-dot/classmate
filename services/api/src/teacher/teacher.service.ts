@@ -146,6 +146,32 @@ export class TeacherService {
     });
   }
 
+  /// Resolve an audience selection (grades + cohorts + individual students,
+  /// or EVERYONE) into the concrete list of students who will receive the
+  /// item. Powers the "students who will see this" summary on the create
+  /// screens. Returns id + name, sorted by name.
+  async resolveAudience(
+    user: any,
+    body: {
+      targetType?: string | null;
+      targetStudentIds?: string[];
+      targetCohortIds?: string[];
+      targetGrades?: number[];
+    },
+  ): Promise<{ ok: true; students: { id: string; name: string }[] }> {
+    this.ensureTeacher(user);
+    const ids = await this._audienceUserIds(user, body ?? {});
+    if (!ids.length) return { ok: true, students: [] };
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, legalName: true, email: true },
+    });
+    const students = users
+      .map((u) => ({ id: u.id, name: u.name || u.legalName || u.email || u.id }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { ok: true, students };
+  }
+
   private ensureTeacher(user: any) {
     if (!hasAnyRole(user, ['TEACHER','ADMIN']))
       throw new ForbiddenException('Teacher only');
@@ -1056,20 +1082,40 @@ export class TeacherService {
     });
     if (!slotCohort) throw new ForbiddenException('Not your cohort');
 
-    // Use StudentCohort (many-to-many) so students in multiple cohorts all appear
-    const links = await this.prisma.studentCohort.findMany({
-      where: { cohortId },
-      select: {
-        studentId: true,
-        student: {
-          select: {
-            user: { select: { name: true, legalName: true, email: true } },
+    // A student can belong to a cohort via two paths that must BOTH be honored:
+    //   1) StudentCohort (many-to-many) — students in multiple cohorts
+    //   2) StudentProfile.cohortId (denormalized primary cohort)
+    // Older/imported students are often only linked via (2); querying only the
+    // join table returns an empty list and the client spins forever. Union both.
+    const [links, primary] = await Promise.all([
+      this.prisma.studentCohort.findMany({
+        where: { cohortId },
+        select: {
+          studentId: true,
+          student: {
+            select: {
+              user: { select: { name: true, legalName: true, email: true } },
+            },
           },
         },
-      },
-      orderBy: { student: { user: { name: 'asc' } } },
-    });
-    const rows = links.map((l) => ({ userId: l.studentId, user: l.student.user }));
+        orderBy: { student: { user: { name: 'asc' } } },
+      }),
+      this.prisma.studentProfile.findMany({
+        where: { cohortId },
+        select: {
+          userId: true,
+          user: { select: { name: true, legalName: true, email: true } },
+        },
+        orderBy: { user: { name: 'asc' } },
+      }),
+    ]);
+
+    const byId = new Map<string, { name: string | null; legalName: string | null; email: string | null }>();
+    for (const l of links) byId.set(l.studentId, l.student.user);
+    for (const p of primary) if (!byId.has(p.userId)) byId.set(p.userId, p.user);
+    const rows = Array.from(byId.entries())
+      .map(([userId, user]) => ({ userId, user }))
+      .sort((a, b) => (a.user.name ?? '').localeCompare(b.user.name ?? ''));
 
     return {
       ok: true,
@@ -1088,23 +1134,27 @@ export class TeacherService {
 
   async createAssessment(
     user: any,
-    body: { cohortId: string; title: string; subject?: string; date?: string; maxGrade?: number },
+    body: { cohortId?: string | null; title: string; subject?: string; date?: string; maxGrade?: number },
   ) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
 
-    if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!body?.title) throw new BadRequestException('title is required');
 
-    const cohort = await this.prisma.cohort.findUnique({ where: { id: body.cohortId } });
-    if (!cohort) throw new BadRequestException('Invalid cohortId');
+    // cohortId is optional: a grade can be recorded for cohortless students.
+    // When provided, it must reference a real cohort.
+    let cohortId: string | null = body.cohortId?.trim() || null;
+    if (cohortId) {
+      const cohort = await this.prisma.cohort.findUnique({ where: { id: cohortId } });
+      if (!cohort) throw new BadRequestException('Invalid cohortId');
+    }
 
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
 
     const assessment = await this.prisma.assessment.create({
       data: {
-        cohortId: body.cohortId,
+        cohortId,
         title: body.title,
         subject: body.subject ?? undefined,
         date,
@@ -1440,16 +1490,16 @@ export class TeacherService {
         select: { studentId: true },
       });
       if (!members.length) return;
-      await this.prisma.notification.createMany({
-        data: members.map((m) => ({
-          userId: m.studentId,
-          type: 'CLASSROOM_UPDATE',
-          title,
-          body,
-          data: data ?? {},
-          severity: 'info',
-        })) as any[],
-        skipDuplicates: true,
+      // Route through the hub so members get a real-time SSE event, an FCM/APNs
+      // push, AND parent fan-out — not just a silent DB row. Use the caller's
+      // specific type (NEW_ASSIGNMENT/NEW_MATERIAL/NEW_MEETING) when supplied.
+      await this.hub.notify({
+        recipientUserIds: members.map((m) => m.studentId),
+        type: (data?.type as string) || 'CLASSROOM_UPDATE',
+        title,
+        body,
+        data: data ?? {},
+        severity: 'info',
       });
     } catch {}
   }
@@ -3914,19 +3964,19 @@ export class TeacherService {
     const cohortByStudent = new Map(profiles.map((p) => [p.userId, p.cohortId ?? '']));
     const fallbackCohortId = (exam.targetCohortIds ?? [])[0] ?? '';
 
+    // Group grades by cohort. Students with no cohort (and no exam target
+    // cohort to fall back to) go into a single null-cohort bucket — keyed by
+    // '' here — so they are graded instead of silently dropped. Assessment
+    // .cohortId is nullable, so a cohortless assessment is valid.
     const byCohort = new Map<string, { studentId: string; grade: number }[]>();
-    const dropped: string[] = [];
     for (const g of grades) {
       const cohortId = cohortByStudent.get(g.studentId) || fallbackCohortId;
-      if (!cohortId) {
-        dropped.push(g.studentId);
-        continue;
-      }
       byCohort.set(cohortId, [...(byCohort.get(cohortId) ?? []), g]);
     }
 
     let saved = 0;
-    for (const [cohortId, cohortGrades] of byCohort.entries()) {
+    for (const [cohortKey, cohortGrades] of byCohort.entries()) {
+      const cohortId = cohortKey || null;
       let assessment = await this.prisma.assessment.findFirst({ where: { examId, cohortId } });
       if (!assessment) {
         assessment = await this.prisma.assessment.create({
@@ -3952,7 +4002,7 @@ export class TeacherService {
         this.realtime.emitToUser(g.studentId, { type: 'grade_updated', studentId: g.studentId });
       }
     }
-    return { ok: true, saved, requested: grades.length, dropped };
+    return { ok: true, saved, requested: grades.length, dropped: [] as string[] };
   }
 
   async deleteTeacherExam(user: any, id: string) {
