@@ -1125,6 +1125,72 @@ abstract class AppLocalizations {
   /// **'Authenticate to enable biometric sign-in'**
   String get biometricEnableReason;
 
+  /// No description provided for @biometricSignInFaceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Face ID'**
+  String get biometricSignInFaceId;
+
+  /// No description provided for @biometricSignInFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with fingerprint'**
+  String get biometricSignInFingerprint;
+
+  /// No description provided for @biometricSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric sign-in'**
+  String get biometricSectionTitle;
+
+  /// No description provided for @biometricSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.'**
+  String get biometricSectionSubtitle;
+
+  /// No description provided for @biometricFaceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Face ID'**
+  String get biometricFaceId;
+
+  /// No description provided for @biometricFaceIdDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Face ID to sign in'**
+  String get biometricFaceIdDesc;
+
+  /// No description provided for @biometricFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint'**
+  String get biometricFingerprint;
+
+  /// No description provided for @biometricFingerprintDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your fingerprint to sign in'**
+  String get biometricFingerprintDesc;
+
+  /// No description provided for @biometricConfirmPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get biometricConfirmPasswordTitle;
+
+  /// No description provided for @biometricConfirmPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password to turn on biometric sign-in.'**
+  String get biometricConfirmPasswordBody;
+
+  /// No description provided for @biometricPasswordIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password. Please try again.'**
+  String get biometricPasswordIncorrect;
+
   /// No description provided for @biometricEnterCredsFirst.
   ///
   /// In en, this message translates to:
@@ -6209,6 +6275,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overdue'**
   String get assignmentsStatusOverdue;
+
+  /// No description provided for @assignmentsStatusGraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded'**
+  String get assignmentsStatusGraded;
 
   /// No description provided for @assignmentsStatusDueSoon.
   ///

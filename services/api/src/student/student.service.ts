@@ -556,16 +556,16 @@ export class StudentService {
       include: { teacher: { select: { name: true } } },
     });
 
-    // Find grades for each exam (via Assessment + GradeRecord)
+    // Find grades for each exam. A student has at most one grade per exam, so
+    // rather than guess which cohort bucket the teacher's save landed in
+    // (StudentProfile.cohortId vs StudentCohort, plus the cohortless null
+    // bucket), just find this student's GradeRecord for ANY assessment tied to
+    // the exam. This is what made saved exam grades fail to show for students.
     const items = await Promise.all(exams.map(async (exam) => {
-      const assessment = await this.prisma.assessment.findFirst({
-        where: { examId: exam.id, cohortId: { in: [...cohortIds, ''] } },
-        select: { id: true },
-      });
-      const grade = assessment ? await this.prisma.gradeRecord.findFirst({
-        where: { assessmentId: assessment.id, studentId },
+      const grade = await this.prisma.gradeRecord.findFirst({
+        where: { studentId, assessment: { is: { examId: exam.id } } },
         select: { grade: true },
-      }) : null;
+      });
       return {
         id: exam.id,
         title: exam.title,
@@ -573,6 +573,7 @@ export class StudentService {
         date: exam.date,
         maxGrade: exam.maxGrade ?? 100,
         grade: grade?.grade ?? null,
+        graded: grade?.grade != null,
         teacherName: (exam as any).teacher?.name ?? null,
       };
     }));

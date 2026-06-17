@@ -1352,18 +1352,24 @@ export class TeacherService {
       return { ok: true, cohort, assessments };
     }
 
-    // List assessments across all cohorts this teacher teaches
+    // List assessments across all cohorts this teacher teaches PLUS every
+    // assessment this teacher created. The createdBy clause is what surfaces
+    // cohortless assessments (null bucket) and assignment-derived assessments
+    // for cohorts the teacher has no schedule slot for — without it, exam
+    // grades for cohortless students and all assignment grades were invisible
+    // in the teacher Grades tab.
     const slotCohorts = await this.prisma.scheduleSlotCohort.findMany({
       where: { slot: { teacherId } },
       select: { cohortId: true },
     });
     const cohortIds = Array.from(new Set(slotCohorts.map((sc) => sc.cohortId)));
-    if (cohortIds.length === 0) return { ok: true, cohorts: [], assessments: [] };
 
     const [cohorts, assessments] = await Promise.all([
-      this.prisma.cohort.findMany({ where: { id: { in: cohortIds } }, select: { id: true, name: true, grade: true } }),
+      cohortIds.length
+        ? this.prisma.cohort.findMany({ where: { id: { in: cohortIds } }, select: { id: true, name: true, grade: true } })
+        : Promise.resolve([] as { id: string; name: string; grade: number }[]),
       this.prisma.assessment.findMany({
-        where: { cohortId: { in: cohortIds } },
+        where: { OR: [{ cohortId: { in: cohortIds } }, { createdBy: teacherId }] },
         orderBy: [{ date: 'desc' }, { id: 'desc' }],
       }),
     ]);
@@ -2685,10 +2691,21 @@ export class TeacherService {
         include: { classroom: { select: { name: true, subject: true } }, _count: { select: { submissions: true } } },
       }),
     ]);
+    // How many submissions are graded per standalone assignment — drives the
+    // "Graded" chip + status on the assignment list.
+    const stdIds = standalone.map((a) => a.id);
+    const gradedGroups = stdIds.length
+      ? await this.prisma.teacherAssignmentSubmission.groupBy({
+          by: ['assignmentId'],
+          where: { assignmentId: { in: stdIds }, status: 'GRADED' },
+          _count: { _all: true },
+        })
+      : [];
+    const gradedByAssignment = new Map(gradedGroups.map((g) => [g.assignmentId, g._count._all]));
     // Keep all TeacherAssignments (they have `published`). Only add ClassroomAssignments that have NO TeacherAssignment mirror.
     const filteredClassroom = classroom.filter(c => !c.teacherAssignmentId);
     const merged = [
-      ...standalone.map(a => ({ ...a, submissionCount: a._count.submissions })),
+      ...standalone.map(a => ({ ...a, submissionCount: a._count.submissions, gradedCount: gradedByAssignment.get(a.id) ?? 0 })),
       ...filteredClassroom.map(c => ({ ...c, _type: 'classroom', _classroomName: c.classroom?.name ?? null, submissionCount: c._count.submissions })),
     ].sort((a, b) => {
       const da = (a as any).dueAt ? new Date((a as any).dueAt).getTime() : Infinity;
@@ -2871,13 +2888,59 @@ export class TeacherService {
       const student = await this.prisma.user.findFirst({ where: { id: studentId, schoolId } });
       if (!student) throw new ForbiddenException('Student does not belong to your school');
     }
+    const gradeNum = body?.grade != null ? Number(body.grade) : null;
     await this.prisma.teacherAssignmentSubmission.upsert({
       where: { assignmentId_studentId: { assignmentId, studentId } },
-      update: { grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date(), status: 'GRADED' },
-      create: { assignmentId, studentId, grade: body?.grade != null ? Number(body.grade) : null, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date(), status: 'GRADED' },
+      update: { grade: gradeNum, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date(), status: 'GRADED' },
+      create: { assignmentId, studentId, grade: gradeNum, feedback: body?.feedback ? String(body.feedback) : null, gradedAt: new Date(), status: 'GRADED' },
     });
+    // Mirror the grade into the Assessment/GradeRecord system — the SAME place
+    // exam grades and Grades-tab grades live — so an assignment graded from the
+    // assignment screen shows up in the student AND teacher Grades tabs, not
+    // just on the assignment itself.
+    await this.syncAssignmentGradeToAssessment(teacherId, assignment, studentId, gradeNum);
     this.realtime.emitToUser(studentId, { type: 'grade_updated', studentId });
     return { ok: true };
+  }
+
+  /// Keep an assignment's per-student grade in sync with an Assessment +
+  /// GradeRecord (mirrors saveExamGrades). Assessments are cohort-bucketed the
+  /// same way exams are, so the Grades tab can group them. Clearing a grade
+  /// removes the mirrored record.
+  private async syncAssignmentGradeToAssessment(teacherId: string, assignment: any, studentId: string, gradeNum: number | null) {
+    const profile = await this.prisma.studentProfile.findFirst({
+      where: { userId: studentId },
+      select: { cohortId: true },
+    });
+    const cohortId = profile?.cohortId || (assignment.targetCohortIds ?? [])[0] || null;
+    let assessment = await this.prisma.assessment.findFirst({
+      where: { teacherAssignmentId: assignment.id, cohortId },
+    });
+    if (gradeNum == null) {
+      if (assessment) {
+        await this.prisma.gradeRecord.deleteMany({ where: { assessmentId: assessment.id, studentId } });
+      }
+      return;
+    }
+    if (!assessment) {
+      assessment = await this.prisma.assessment.create({
+        data: {
+          createdBy: teacherId,
+          title: assignment.title,
+          subject: assignment.subject ?? null,
+          cohortId,
+          date: assignment.dueAt ?? new Date(),
+          maxGrade: assignment.maxGrade ?? 100,
+          teacherAssignmentId: assignment.id,
+          published: true,
+        },
+      });
+    }
+    await this.prisma.gradeRecord.upsert({
+      where: { assessmentId_studentId: { assessmentId: assessment.id, studentId } },
+      update: { grade: gradeNum },
+      create: { assessmentId: assessment.id, studentId, grade: gradeNum },
+    });
   }
 
   /// Return a submission to the student for re-solution. Flips status to
@@ -3797,7 +3860,27 @@ export class TeacherService {
       where: { teacherId },
       orderBy: [{ date: 'desc' }],
     });
-    return { exams };
+    // How many students have been graded per exam (across all its cohort
+    // assessment buckets) — drives the "Graded" chip + status on the exam list.
+    const examIds = exams.map((e) => e.id);
+    const assessments = examIds.length
+      ? await this.prisma.assessment.findMany({
+          where: { examId: { in: examIds } },
+          select: { examId: true, _count: { select: { grades: true } } },
+        })
+      : [];
+    const gradedByExam = new Map<string, number>();
+    for (const a of assessments) {
+      if (a.examId) {
+        gradedByExam.set(a.examId, (gradedByExam.get(a.examId) ?? 0) + a._count.grades);
+      }
+    }
+    return {
+      exams: exams.map((e) => ({
+        ...e,
+        gradedCount: gradedByExam.get(e.id) ?? 0,
+      })),
+    };
   }
 
   async createTeacherExam(user: any, body: any) {

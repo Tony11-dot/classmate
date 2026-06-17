@@ -209,6 +209,7 @@ class _TeacherAssignmentsScreenState
               final courseName = a['courseName'] as String? ?? '';
               final dueAtRaw = a['dueAt'] as String? ?? '';
               final submissionsCount = a['submissionsCount'] as int? ?? 0;
+              final gradedCount = a['gradedCount'] as int? ?? 0;
               final published = a['published'] as bool? ?? false;
 
               DateTime? dueDate;
@@ -290,6 +291,12 @@ class _TeacherAssignmentsScreenState
                                         label: AppLocalizations.of(context)!.teacherAssignmentsScreenSubmitted(submissionsCount),
                                         color: cs.tertiaryContainer,
                                         textColor: cs.onTertiaryContainer,
+                                      ),
+                                    if (gradedCount > 0)
+                                      _Chip(
+                                        label: AppLocalizations.of(context)!.teacherExamsScreenGradedCount(gradedCount),
+                                        color: cs.primaryContainer,
+                                        textColor: cs.onPrimaryContainer,
                                       ),
                                   ],
                                 ),

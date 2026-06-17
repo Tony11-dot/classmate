@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_session.dart';
+import '../../core/auth/biometric_service.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
@@ -287,7 +288,7 @@ class ProfileScreen extends ConsumerWidget {
         // ── Security ──────────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
             child: _Section(
               title: l.profileSecurity,
               icon: Icons.lock_outline_rounded,
@@ -300,6 +301,9 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ),
+
+        // ── Biometric sign-in (only when the device has biometrics) ────────
+        const SliverToBoxAdapter(child: _BiometricSection()),
       ],
     );
   }
@@ -1250,6 +1254,257 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
                 child: Text(AppLocalizations.of(context)!.accountContinueButton),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Biometric sign-in section ────────────────────────────────────────────────
+
+/// Lets the user turn Face ID / fingerprint sign-in on or off, the same way the
+/// phone's own settings enroll each. Turning one on confirms the account
+/// password (verified against the server) once, then stores the credentials in
+/// the Keychain/Keystore behind a biometric challenge so the login screen can
+/// reuse them. Hidden entirely on devices with no enrolled biometrics.
+class _BiometricSection extends ConsumerStatefulWidget {
+  const _BiometricSection();
+
+  @override
+  ConsumerState<_BiometricSection> createState() => _BiometricSectionState();
+}
+
+class _BiometricSectionState extends ConsumerState<_BiometricSection> {
+  Set<BiometricMethod> _available = const {};
+  Set<BiometricMethod> _enabled = const {};
+  bool _loaded = false;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final bio = ref.read(biometricServiceProvider);
+    final available = await bio.availableMethods();
+    final enabled = await bio.enabledMethods();
+    if (!mounted) return;
+    setState(() {
+      _available = available;
+      _enabled = enabled;
+      _loaded = true;
+    });
+  }
+
+  Future<void> _toggle(BiometricMethod m, bool on) async {
+    if (_busy) return;
+    final l = AppLocalizations.of(context)!;
+    final bio = ref.read(biometricServiceProvider);
+    setState(() => _busy = true);
+    try {
+      if (!on) {
+        await bio.disableMethod(m);
+        await _load();
+        return;
+      }
+      final session = ref.read(authSessionProvider);
+      final identifier =
+          session.email.isNotEmpty ? session.email : session.username;
+      // Reuse stored credentials when another method is already on; otherwise
+      // confirm the account password first.
+      final existing = await bio.readCredentials();
+      String id;
+      String pw;
+      if (existing != null) {
+        id = existing.identifier;
+        pw = existing.password;
+      } else {
+        if (!mounted) return;
+        final entered = await showModalBottomSheet<String>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (_) => _ConfirmPasswordSheet(identifier: identifier),
+        );
+        if (entered == null || !mounted) return;
+        id = identifier;
+        pw = entered;
+      }
+      // A live biometric challenge confirms the sensor works and it's them.
+      final ok = await bio.authenticate(l.biometricEnableReason);
+      if (!ok) return;
+      await bio.enableMethod(m, identifier: id, password: pw);
+      await _load();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded || _available.isEmpty) return const SizedBox.shrink();
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+      child: _Section(
+        title: l.biometricSectionTitle,
+        icon: Icons.fingerprint_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l.biometricSectionSubtitle,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 4),
+            if (_available.contains(BiometricMethod.face))
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: Icon(Icons.face_rounded, color: cs.primary),
+                title: Text(l.biometricFaceId),
+                subtitle: Text(l.biometricFaceIdDesc),
+                value: _enabled.contains(BiometricMethod.face),
+                onChanged:
+                    _busy ? null : (v) => _toggle(BiometricMethod.face, v),
+              ),
+            if (_available.contains(BiometricMethod.fingerprint))
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: Icon(Icons.fingerprint_rounded, color: cs.primary),
+                title: Text(l.biometricFingerprint),
+                subtitle: Text(l.biometricFingerprintDesc),
+                value: _enabled.contains(BiometricMethod.fingerprint),
+                onChanged: _busy
+                    ? null
+                    : (v) => _toggle(BiometricMethod.fingerprint, v),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet that confirms the account password by signing in against the
+/// server, returning the verified password to the caller (or null).
+class _ConfirmPasswordSheet extends ConsumerStatefulWidget {
+  const _ConfirmPasswordSheet({required this.identifier});
+  final String identifier;
+
+  @override
+  ConsumerState<_ConfirmPasswordSheet> createState() =>
+      _ConfirmPasswordSheetState();
+}
+
+class _ConfirmPasswordSheetState extends ConsumerState<_ConfirmPasswordSheet> {
+  final _ctrl = TextEditingController();
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final l = AppLocalizations.of(context)!;
+    final pw = _ctrl.text.trim();
+    if (pw.isEmpty) {
+      setState(() => _error = l.biometricPasswordIncorrect);
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final api = CMApi();
+    try {
+      final raw = await api.postJson('/auth/login',
+          body: {'identifier': widget.identifier, 'password': pw});
+      final token = (raw is Map ? raw['token'] : null)?.toString().trim() ?? '';
+      if (!mounted) return;
+      if (token.isEmpty) {
+        setState(() {
+          _loading = false;
+          _error = l.biometricPasswordIncorrect;
+        });
+        return;
+      }
+      Navigator.of(context).pop(pw);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = l.biometricPasswordIncorrect;
+      });
+    } finally {
+      api.dispose();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 28,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.fingerprint_rounded, color: cs.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                l.biometricConfirmPasswordTitle,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l.biometricConfirmPasswordBody,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          _PasswordField(controller: _ctrl, hint: l.loginPasswordLabel, autofocus: true),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(_error!, style: TextStyle(color: cs.error, fontSize: 12.5)),
+          ],
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _loading ? null : _submit,
+              child: _loading
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : Text(l.biometricEnrollYes),
+            ),
           ),
         ],
       ),

@@ -20,6 +20,7 @@ const _assignmentStateNoDueDate = '__no_due_date__';
 const _assignmentStateOverdue = '__overdue__';
 const _assignmentStateDueSoon = '__due_soon__';
 const _assignmentStateUpcoming = '__upcoming__';
+const _assignmentStateGraded = '__graded__';
 
 final assignmentsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
@@ -234,6 +235,12 @@ String _friendlyError(BuildContext context, Object error) {
 }
 
 String _statusForAssignment(Map<String, dynamic> assignment) {
+  // A graded submission is done — surface "Graded" ahead of the date-based
+  // states so the student sees their assignment flipped to graded.
+  final subStatus = (assignment['status'] ?? '').toString().toUpperCase();
+  if (subStatus == 'GRADED' || assignment['grade'] != null) {
+    return _assignmentStateGraded;
+  }
   final due = _parseFlexibleDate(_stringValue(assignment, 'dueAt'));
   if (due == null) return _assignmentStateNoDueDate;
 
@@ -250,6 +257,8 @@ String _statusForAssignment(Map<String, dynamic> assignment) {
 String _statusLabel(BuildContext context, String status) {
   final l = AppLocalizations.of(context)!;
   switch (status) {
+    case _assignmentStateGraded:
+      return l.assignmentsStatusGraded;
     case _assignmentStateOverdue:
       return l.assignmentsStatusOverdue;
     case _assignmentStateDueSoon:
@@ -265,6 +274,8 @@ String _statusLabel(BuildContext context, String status) {
 Color _statusTone(BuildContext context, String status) {
   final cs = Theme.of(context).colorScheme;
   switch (status) {
+    case _assignmentStateGraded:
+      return cs.primaryContainer;
     case _assignmentStateOverdue:
       return cs.errorContainer;
     case _assignmentStateDueSoon:

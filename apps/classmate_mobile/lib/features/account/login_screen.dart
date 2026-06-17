@@ -24,10 +24,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   bool _obscure = true;
   String? _error;
 
-  // Biometric quick sign-in. `_biometricAvailable` = device has enrolled
-  // biometrics; `_biometricEnrolled` = we have saved credentials to unlock.
-  bool _biometricAvailable = false;
-  bool _biometricEnrolled = false;
+  // Biometric quick sign-in. Set-up happens in Profile; the login screen only
+  // shows a button per method the user enabled (and the device still has).
+  Set<BiometricMethod> _loginMethods = const {};
 
   late final AnimationController _anim;
   late final Animation<double> _fade;
@@ -46,13 +45,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Future<void> _initBiometric() async {
     final bio = ref.read(biometricServiceProvider);
-    final available = await bio.isAvailable();
-    final enrolled = available && await bio.hasStoredCredentials();
+    final available = await bio.availableMethods();
+    final enabled = await bio.enabledMethods();
     if (!mounted) return;
-    setState(() {
-      _biometricAvailable = available;
-      _biometricEnrolled = enrolled;
-    });
+    // Only offer a method the user enabled AND the device still has enrolled.
+    setState(() => _loginMethods = enabled.intersection(available));
   }
 
   String _routeFor(dynamic session) =>
@@ -76,7 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final creds = await bio.readCredentials();
     if (creds == null) {
       setState(() {
-        _biometricEnrolled = false;
+        _loginMethods = const {};
         _error = l.biometricLoginFailed;
       });
       return;
@@ -89,66 +86,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
       // Stored credentials are stale (e.g. password changed) — forget them so
-      // the user falls back to a normal password sign-in.
+      // the user falls back to a normal password sign-in and re-enrolls in
+      // Profile.
       await bio.clear();
       if (!mounted) return;
       setState(() {
-        _biometricEnrolled = false;
+        _loginMethods = const {};
         _error = l.biometricLoginFailed;
       });
     } finally {
       if (mounted) setState(() => _loading = false);
     }
-  }
-
-  /// Verify the typed credentials by signing in, then save them behind a
-  /// biometric challenge so future sign-ins can use Face ID / fingerprint.
-  Future<void> _enableBiometric() async {
-    final l = AppLocalizations.of(context)!;
-    final identifier = _emailCtrl.text.trim();
-    final password = _passwordCtrl.text.trim();
-    if (identifier.isEmpty || password.isEmpty) {
-      setState(() => _error = l.biometricEnterCredsFirst);
-      return;
-    }
-    setState(() { _loading = true; _error = null; });
-    try {
-      final session = ref.read(authSessionProvider);
-      await session.login(identifier: identifier, password: password);
-      final bio = ref.read(biometricServiceProvider);
-      final ok = await bio.authenticate(l.biometricEnableReason);
-      if (ok) {
-        await bio.saveCredentials(identifier: identifier, password: password);
-      }
-      if (!mounted) return;
-      GoRouter.of(context).go(_routeFor(session));
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _error = _friendlyError(e, l));
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  /// After a successful password sign-in, offer to enable biometric unlock.
-  Future<void> _maybeOfferBiometricEnroll(String identifier, String password) async {
-    if (!_biometricAvailable || _biometricEnrolled) return;
-    final l = AppLocalizations.of(context)!;
-    final accept = await showDialog<bool>(
-      context: context,
-      builder: (d) => AlertDialog(
-        title: Text(l.biometricEnrollTitle),
-        content: Text(l.biometricEnrollBody),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.biometricEnrollNo)),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.biometricEnrollYes)),
-        ],
-      ),
-    );
-    if (accept != true || !mounted) return;
-    final bio = ref.read(biometricServiceProvider);
-    final ok = await bio.authenticate(l.biometricEnableReason);
-    if (ok) await bio.saveCredentials(identifier: identifier, password: password);
   }
 
   @override
@@ -173,8 +121,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     try {
       final session = ref.read(authSessionProvider);
       await session.login(identifier: identifier, password: password);
-      if (!mounted) return;
-      await _maybeOfferBiometricEnroll(identifier, password);
       if (!mounted) return;
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
@@ -228,12 +174,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         loading: _loading,
                         obscure: _obscure,
                         error: _error,
-                        biometricAvailable: _biometricAvailable,
-                        biometricEnrolled: _biometricEnrolled,
+                        loginMethods: _loginMethods,
                         onToggleObscure: () => setState(() => _obscure = !_obscure),
                         onSubmit: _submit,
                         onBiometricSignIn: _biometricSignIn,
-                        onEnableBiometric: _enableBiometric,
                       ),
                     ),
                   ),
@@ -256,12 +200,10 @@ class _LoginCard extends StatelessWidget {
     required this.loading,
     required this.obscure,
     required this.error,
-    required this.biometricAvailable,
-    required this.biometricEnrolled,
+    required this.loginMethods,
     required this.onToggleObscure,
     required this.onSubmit,
     required this.onBiometricSignIn,
-    required this.onEnableBiometric,
   });
 
   final TextEditingController emailCtrl;
@@ -271,12 +213,10 @@ class _LoginCard extends StatelessWidget {
   final bool loading;
   final bool obscure;
   final String? error;
-  final bool biometricAvailable;
-  final bool biometricEnrolled;
+  final Set<BiometricMethod> loginMethods;
   final VoidCallback onToggleObscure;
   final VoidCallback onSubmit;
   final VoidCallback onBiometricSignIn;
-  final VoidCallback onEnableBiometric;
 
   @override
   Widget build(BuildContext context) {
@@ -350,23 +290,20 @@ class _LoginCard extends StatelessWidget {
             ),
           ),
 
-          if (biometricAvailable) ...[
+          if (loginMethods.contains(BiometricMethod.face)) ...[
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: loading
-                    ? null
-                    : (biometricEnrolled ? onBiometricSignIn : onEnableBiometric),
-                icon: const Icon(Icons.fingerprint_rounded, size: 20),
-                label: Text(biometricEnrolled ? l.biometricSignIn : l.biometricEnable),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: cs.primary,
-                  side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.8)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
+            _BiometricButton(
+              icon: Icons.face_rounded,
+              label: l.biometricSignInFaceId,
+              onPressed: loading ? null : onBiometricSignIn,
+            ),
+          ],
+          if (loginMethods.contains(BiometricMethod.fingerprint)) ...[
+            const SizedBox(height: 12),
+            _BiometricButton(
+              icon: Icons.fingerprint_rounded,
+              label: l.biometricSignInFingerprint,
+              onPressed: loading ? null : onBiometricSignIn,
             ),
           ],
 
@@ -450,6 +387,37 @@ class _LoginCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BiometricButton extends StatelessWidget {
+  const _BiometricButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 22),
+        label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: cs.primary,
+          side: BorderSide(color: cs.primary.withValues(alpha: 0.5)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          padding: const EdgeInsets.symmetric(vertical: 13),
+        ),
       ),
     );
   }

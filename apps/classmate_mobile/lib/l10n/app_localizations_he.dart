@@ -609,6 +609,42 @@ class AppLocalizationsHe extends AppLocalizations {
       'Authenticate to enable biometric sign-in';
 
   @override
+  String get biometricSignInFaceId => 'Sign in with Face ID';
+
+  @override
+  String get biometricSignInFingerprint => 'Sign in with fingerprint';
+
+  @override
+  String get biometricSectionTitle => 'Biometric sign-in';
+
+  @override
+  String get biometricSectionSubtitle =>
+      'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.';
+
+  @override
+  String get biometricFaceId => 'Face ID';
+
+  @override
+  String get biometricFaceIdDesc => 'Use Face ID to sign in';
+
+  @override
+  String get biometricFingerprint => 'Fingerprint';
+
+  @override
+  String get biometricFingerprintDesc => 'Use your fingerprint to sign in';
+
+  @override
+  String get biometricConfirmPasswordTitle => 'Confirm your password';
+
+  @override
+  String get biometricConfirmPasswordBody =>
+      'Enter your password to turn on biometric sign-in.';
+
+  @override
+  String get biometricPasswordIncorrect =>
+      'Incorrect password. Please try again.';
+
+  @override
   String get biometricEnterCredsFirst =>
       'Enter your email and password first, then enable biometric sign-in.';
 
@@ -3468,6 +3504,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get assignmentsStatusOverdue => 'באיחור';
+
+  @override
+  String get assignmentsStatusGraded => 'Graded';
 
   @override
   String get assignmentsStatusDueSoon => 'מועד קרוב';
