@@ -63,8 +63,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       setState(() => _error = l.biometricNotSetUp);
       return;
     }
+    // OS scans the finger/face and matches it against what's enrolled on this
+    // device. We never see the biometric itself — only this pass/fail.
     final ok = await bio.authenticate(l.biometricReason);
-    if (!ok || !mounted) return;
+    if (!mounted) return;
+    if (!ok) {
+      // Scan didn't match (or was cancelled) — surface the error the user asked
+      // for instead of silently doing nothing.
+      setState(() => _error = l.biometricNotRecognized);
+      return;
+    }
     final creds = await bio.readCredentials();
     if (creds == null) {
       setState(() => _error = l.biometricNotSetUp);

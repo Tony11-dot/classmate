@@ -98,6 +98,7 @@ export class StudentClassroomsController {
   @Get('all-materials')
   async allMaterials(@Req() req: any) {
     const uid = this.uid(req);
+    const schoolId = req?.user?.schoolId ?? null;
 
     // Resolve the student's grade + cohorts so we can match audience scopes
     // beyond classroom membership (slot-level attachments + cohort-targeted
@@ -154,6 +155,12 @@ export class StudentClassroomsController {
       this.prisma.teacherMaterial.findMany({
         where: {
           published: { not: false },
+          // School isolation: only surface materials whose owning teacher is in
+          // the student's school. Without this, an EVERYONE-targeted material
+          // (e.g. a teacher's "test" upload) leaked into EVERY school's
+          // materials list. Skip the filter only for school-less (legacy)
+          // students so they aren't left with an empty list.
+          ...(schoolId ? { teacher: { is: { schoolId } } } : {}),
           OR: [
             // Gate the broadcast clause to records with NO narrower targeting, so a
             // grade-only item (stored as EVERYONE + targetGrades) no longer leaks
@@ -234,6 +241,7 @@ export class StudentClassroomsController {
   @Get('all-meetings')
   async allMeetings(@Req() req: any) {
     const uid = this.uid(req);
+    const schoolId = req?.user?.schoolId ?? null;
     const [profile, studentCohorts, memberships] = await Promise.all([
       this.prisma.studentProfile.findUnique({
         where: { userId: uid },
@@ -271,6 +279,9 @@ export class StudentClassroomsController {
         : [],
       this.prisma.teacherMeeting.findMany({
         where: {
+          // School isolation — same fix as all-materials: an EVERYONE meeting
+          // was leaking into every school's feed.
+          ...(schoolId ? { teacher: { is: { schoolId } } } : {}),
           OR: [
             // Gate the broadcast clause to records with NO narrower targeting, so a
             // grade-only item (stored as EVERYONE + targetGrades) no longer leaks

@@ -65,6 +65,19 @@ class BiometricService {
     }
   }
 
+  /// Whether the device can do a biometric / device-credential challenge at
+  /// all (hardware present, even if nothing's enrolled yet). Used to decide
+  /// whether to OFFER set-up in Profile — so we can show both Face ID and
+  /// fingerprint switches and let the OS use whichever sensor the device has.
+  Future<bool> deviceSupported() async {
+    try {
+      if (await _auth.isDeviceSupported()) return true;
+      return await _auth.canCheckBiometrics;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Methods the user has turned ON (and that still have stored credentials).
   Future<Set<BiometricMethod>> enabledMethods() async {
     try {

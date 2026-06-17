@@ -620,6 +620,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.';
 
   @override
+  String get biometricNotRecognized =>
+      'Biometric not recognized. Try again or sign in with your password.';
+
+  @override
   String get biometricSectionTitle => 'Biometric sign-in';
 
   @override
@@ -648,6 +652,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get biometricPasswordIncorrect =>
       'Incorrect password. Please try again.';
+
+  @override
+  String get biometricEnrollFailed =>
+      'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.';
 
   @override
   String get biometricEnterCredsFirst =>

@@ -1276,7 +1276,7 @@ class _BiometricSection extends ConsumerStatefulWidget {
 }
 
 class _BiometricSectionState extends ConsumerState<_BiometricSection> {
-  Set<BiometricMethod> _available = const {};
+  bool _supported = false;
   Set<BiometricMethod> _enabled = const {};
   bool _loaded = false;
   bool _busy = false;
@@ -1289,11 +1289,11 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
 
   Future<void> _load() async {
     final bio = ref.read(biometricServiceProvider);
-    final available = await bio.availableMethods();
+    final supported = await bio.deviceSupported();
     final enabled = await bio.enabledMethods();
     if (!mounted) return;
     setState(() {
-      _available = available;
+      _supported = supported;
       _enabled = enabled;
       _loaded = true;
     });
@@ -1335,7 +1335,14 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
       }
       // A live biometric challenge confirms the sensor works and it's them.
       final ok = await bio.authenticate(l.biometricEnableReason);
-      if (!ok) return;
+      if (!ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l.biometricEnrollFailed)),
+          );
+        }
+        return;
+      }
       await bio.enableMethod(m, identifier: id, password: pw);
       await _load();
     } finally {
@@ -1345,7 +1352,10 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_loaded || _available.isEmpty) return const SizedBox.shrink();
+    // Show on any device that can do a biometric/device-credential challenge.
+    // BOTH switches always appear (Face ID + Fingerprint) so the user can set
+    // up either — the OS uses whichever sensor the device actually has.
+    if (!_loaded || !_supported) return const SizedBox.shrink();
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Padding(
@@ -1364,27 +1374,23 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
                   ?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
-            if (_available.contains(BiometricMethod.face))
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: Icon(Icons.face_rounded, color: cs.primary),
-                title: Text(l.biometricFaceId),
-                subtitle: Text(l.biometricFaceIdDesc),
-                value: _enabled.contains(BiometricMethod.face),
-                onChanged:
-                    _busy ? null : (v) => _toggle(BiometricMethod.face, v),
-              ),
-            if (_available.contains(BiometricMethod.fingerprint))
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: Icon(Icons.fingerprint_rounded, color: cs.primary),
-                title: Text(l.biometricFingerprint),
-                subtitle: Text(l.biometricFingerprintDesc),
-                value: _enabled.contains(BiometricMethod.fingerprint),
-                onChanged: _busy
-                    ? null
-                    : (v) => _toggle(BiometricMethod.fingerprint, v),
-              ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: Icon(Icons.face_rounded, color: cs.primary),
+              title: Text(l.biometricFaceId),
+              subtitle: Text(l.biometricFaceIdDesc),
+              value: _enabled.contains(BiometricMethod.face),
+              onChanged: _busy ? null : (v) => _toggle(BiometricMethod.face, v),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: Icon(Icons.fingerprint_rounded, color: cs.primary),
+              title: Text(l.biometricFingerprint),
+              subtitle: Text(l.biometricFingerprintDesc),
+              value: _enabled.contains(BiometricMethod.fingerprint),
+              onChanged:
+                  _busy ? null : (v) => _toggle(BiometricMethod.fingerprint, v),
+            ),
           ],
         ),
       ),

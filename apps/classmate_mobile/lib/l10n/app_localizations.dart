@@ -1149,6 +1149,12 @@ abstract class AppLocalizations {
   /// **'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.'**
   String get biometricNotSetUp;
 
+  /// No description provided for @biometricNotRecognized.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric not recognized. Try again or sign in with your password.'**
+  String get biometricNotRecognized;
+
   /// No description provided for @biometricSectionTitle.
   ///
   /// In en, this message translates to:
@@ -1202,6 +1208,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Incorrect password. Please try again.'**
   String get biometricPasswordIncorrect;
+
+  /// No description provided for @biometricEnrollFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.'**
+  String get biometricEnrollFailed;
 
   /// No description provided for @biometricEnterCredsFirst.
   ///
