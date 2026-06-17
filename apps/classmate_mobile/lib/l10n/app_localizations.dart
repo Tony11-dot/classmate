@@ -1137,6 +1137,18 @@ abstract class AppLocalizations {
   /// **'Sign in with fingerprint'**
   String get biometricSignInFingerprint;
 
+  /// No description provided for @biometricOrSignInWith.
+  ///
+  /// In en, this message translates to:
+  /// **'or sign in with'**
+  String get biometricOrSignInWith;
+
+  /// No description provided for @biometricNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.'**
+  String get biometricNotSetUp;
+
   /// No description provided for @biometricSectionTitle.
   ///
   /// In en, this message translates to:

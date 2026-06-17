@@ -621,6 +621,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get biometricSignInFingerprint => 'Sign in with fingerprint';
 
   @override
+  String get biometricOrSignInWith => 'or sign in with';
+
+  @override
+  String get biometricNotSetUp =>
+      'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.';
+
+  @override
   String get biometricSectionTitle => 'Biometric sign-in';
 
   @override

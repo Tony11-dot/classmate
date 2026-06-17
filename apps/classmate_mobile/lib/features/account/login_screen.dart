@@ -24,10 +24,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   bool _obscure = true;
   String? _error;
 
-  // Biometric quick sign-in. Set-up happens in Profile; the login screen only
-  // shows a button per method the user enabled (and the device still has).
-  Set<BiometricMethod> _loginMethods = const {};
-
   late final AnimationController _anim;
   late final Animation<double> _fade;
   late final Animation<Offset> _slide;
@@ -40,16 +36,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
         .animate(CurvedAnimation(parent: _anim, curve: Curves.easeOut));
     _anim.forward();
-    _initBiometric();
-  }
-
-  Future<void> _initBiometric() async {
-    final bio = ref.read(biometricServiceProvider);
-    final available = await bio.availableMethods();
-    final enabled = await bio.enabledMethods();
-    if (!mounted) return;
-    // Only offer a method the user enabled AND the device still has enrolled.
-    setState(() => _loginMethods = enabled.intersection(available));
   }
 
   String _routeFor(dynamic session) =>
@@ -64,18 +50,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return e.toString().replaceFirst('Exception: ', '');
   }
 
-  /// Unlock with a stored credential set behind a biometric challenge.
+  /// Tapping a biometric icon. The icons are ALWAYS shown; if the user hasn't
+  /// attached Face ID / fingerprint (in Profile) on this device, we show an
+  /// error telling them how, otherwise we challenge and sign them in.
   Future<void> _biometricSignIn() async {
+    if (_loading) return;
     final l = AppLocalizations.of(context)!;
     final bio = ref.read(biometricServiceProvider);
+    // Nothing attached on this device → guide them to Profile.
+    if (!await bio.isEnabled()) {
+      if (!mounted) return;
+      setState(() => _error = l.biometricNotSetUp);
+      return;
+    }
     final ok = await bio.authenticate(l.biometricReason);
     if (!ok || !mounted) return;
     final creds = await bio.readCredentials();
     if (creds == null) {
-      setState(() {
-        _loginMethods = const {};
-        _error = l.biometricLoginFailed;
-      });
+      setState(() => _error = l.biometricNotSetUp);
       return;
     }
     setState(() { _loading = true; _error = null; });
@@ -86,14 +78,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
       // Stored credentials are stale (e.g. password changed) — forget them so
-      // the user falls back to a normal password sign-in and re-enrolls in
-      // Profile.
+      // the user re-enrolls in Profile.
       await bio.clear();
       if (!mounted) return;
-      setState(() {
-        _loginMethods = const {};
-        _error = l.biometricLoginFailed;
-      });
+      setState(() => _error = l.biometricLoginFailed);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -174,7 +162,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         loading: _loading,
                         obscure: _obscure,
                         error: _error,
-                        loginMethods: _loginMethods,
                         onToggleObscure: () => setState(() => _obscure = !_obscure),
                         onSubmit: _submit,
                         onBiometricSignIn: _biometricSignIn,
@@ -200,7 +187,6 @@ class _LoginCard extends StatelessWidget {
     required this.loading,
     required this.obscure,
     required this.error,
-    required this.loginMethods,
     required this.onToggleObscure,
     required this.onSubmit,
     required this.onBiometricSignIn,
@@ -213,7 +199,6 @@ class _LoginCard extends StatelessWidget {
   final bool loading;
   final bool obscure;
   final String? error;
-  final Set<BiometricMethod> loginMethods;
   final VoidCallback onToggleObscure;
   final VoidCallback onSubmit;
   final VoidCallback onBiometricSignIn;
@@ -289,23 +274,6 @@ class _LoginCard extends StatelessWidget {
               onPressed: onToggleObscure,
             ),
           ),
-
-          if (loginMethods.contains(BiometricMethod.face)) ...[
-            const SizedBox(height: 12),
-            _BiometricButton(
-              icon: Icons.face_rounded,
-              label: l.biometricSignInFaceId,
-              onPressed: loading ? null : onBiometricSignIn,
-            ),
-          ],
-          if (loginMethods.contains(BiometricMethod.fingerprint)) ...[
-            const SizedBox(height: 12),
-            _BiometricButton(
-              icon: Icons.fingerprint_rounded,
-              label: l.biometricSignInFingerprint,
-              onPressed: loading ? null : onBiometricSignIn,
-            ),
-          ],
 
           Align(
             alignment: Alignment.centerRight,
@@ -386,37 +354,78 @@ class _LoginCard extends StatelessWidget {
               ),
             ),
           ),
+
+          // Biometric quick sign-in — always shown for everyone (iOS + Android).
+          // Tapping a method you've set up in Profile signs you straight in;
+          // tapping one you haven't attached shows a hint.
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(child: Divider(color: cs.outlineVariant.withValues(alpha: 0.6))),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  l.biometricOrSignInWith,
+                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                ),
+              ),
+              Expanded(child: Divider(color: cs.outlineVariant.withValues(alpha: 0.6))),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _BiometricIcon(
+                icon: Icons.face_rounded,
+                tooltip: l.biometricFaceId,
+                onTap: loading ? null : onBiometricSignIn,
+              ),
+              const SizedBox(width: 22),
+              _BiometricIcon(
+                icon: Icons.fingerprint_rounded,
+                tooltip: l.biometricFingerprint,
+                onTap: loading ? null : onBiometricSignIn,
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _BiometricButton extends StatelessWidget {
-  const _BiometricButton({
+/// Minimal circular biometric icon button (Face ID / fingerprint). Always
+/// shown on the login card regardless of platform; the tap handler decides
+/// whether the method is set up.
+class _BiometricIcon extends StatelessWidget {
+  const _BiometricIcon({
     required this.icon,
-    required this.label,
-    required this.onPressed,
+    required this.tooltip,
+    required this.onTap,
   });
 
   final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
+  final String tooltip;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 22),
-        label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: cs.primary,
-          side: BorderSide(color: cs.primary.withValues(alpha: 0.5)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(vertical: 13),
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        shape: CircleBorder(
+          side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Icon(icon, size: 26, color: cs.primary),
+          ),
         ),
       ),
     );

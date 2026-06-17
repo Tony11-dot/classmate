@@ -270,6 +270,8 @@
   "biometricEnableReason": "Authenticate to enable biometric sign-in",
   "biometricSignInFaceId": "Sign in with Face ID",
   "biometricSignInFingerprint": "Sign in with fingerprint",
+  "biometricOrSignInWith": "or sign in with",
+  "biometricNotSetUp": "No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.",
   "biometricSectionTitle": "Biometric sign-in",
   "biometricSectionSubtitle": "Turn on Face ID or your fingerprint to sign in faster. You'll confirm your password once.",
   "biometricFaceId": "Face ID",
