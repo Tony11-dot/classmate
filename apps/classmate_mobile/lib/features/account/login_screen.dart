@@ -23,6 +23,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   bool _loading = false;
   bool _obscure = true;
   String? _error;
+  // Which biometric icon is mid-scan (drives its glow). Null = idle.
+  BiometricMethod? _scanning;
 
   late final AnimationController _anim;
   late final Animation<double> _fade;
@@ -50,11 +52,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return e.toString().replaceFirst('Exception: ', '');
   }
 
-  /// Tapping a biometric icon. The icons are ALWAYS shown; if the user hasn't
-  /// attached Face ID / fingerprint (in Profile) on this device, we show an
-  /// error telling them how, otherwise we challenge and sign them in.
-  Future<void> _biometricSignIn() async {
-    if (_loading) return;
+  /// Tapping a biometric icon. The icons are ALWAYS shown; the tapped icon
+  /// glows while scanning. If the user hasn't attached Face ID / fingerprint
+  /// (in Profile) on this device we show an error; otherwise we challenge and
+  /// sign them in.
+  Future<void> _biometricSignIn(BiometricMethod method) async {
+    if (_loading || _scanning != null) return;
     final l = AppLocalizations.of(context)!;
     final bio = ref.read(biometricServiceProvider);
     // Nothing attached on this device → guide them to Profile.
@@ -63,23 +66,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       setState(() => _error = l.biometricNotSetUp);
       return;
     }
-    // OS scans the finger/face and matches it against what's enrolled on this
-    // device. We never see the biometric itself — only this pass/fail.
-    final ok = await bio.authenticate(l.biometricReason);
-    if (!mounted) return;
-    if (!ok) {
-      // Scan didn't match (or was cancelled) — surface the error the user asked
-      // for instead of silently doing nothing.
-      setState(() => _error = l.biometricNotRecognized);
-      return;
-    }
-    final creds = await bio.readCredentials();
-    if (creds == null) {
-      setState(() => _error = l.biometricNotSetUp);
-      return;
-    }
-    setState(() { _loading = true; _error = null; });
+    // Start the glow, then let the OS scan the finger/face and match it against
+    // what's enrolled on this device. We never see the biometric itself — only
+    // this pass/fail.
+    setState(() { _scanning = method; _error = null; });
     try {
+      final ok = await bio.authenticate(l.biometricReason);
+      if (!mounted) return;
+      if (!ok) {
+        // Scan didn't match (or was cancelled) — surface the error.
+        setState(() => _error = l.biometricNotRecognized);
+        return;
+      }
+      final creds = await bio.readCredentials();
+      if (creds == null) {
+        setState(() => _error = l.biometricNotSetUp);
+        return;
+      }
+      setState(() => _loading = true);
       final session = ref.read(authSessionProvider);
       await session.login(identifier: creds.identifier, password: creds.password);
       if (!mounted) return;
@@ -91,7 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       if (!mounted) return;
       setState(() => _error = l.biometricLoginFailed);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() { _scanning = null; _loading = false; });
     }
   }
 
@@ -170,6 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         loading: _loading,
                         obscure: _obscure,
                         error: _error,
+                        scanningMethod: _scanning,
                         onToggleObscure: () => setState(() => _obscure = !_obscure),
                         onSubmit: _submit,
                         onBiometricSignIn: _biometricSignIn,
@@ -195,6 +200,7 @@ class _LoginCard extends StatelessWidget {
     required this.loading,
     required this.obscure,
     required this.error,
+    required this.scanningMethod,
     required this.onToggleObscure,
     required this.onSubmit,
     required this.onBiometricSignIn,
@@ -207,9 +213,10 @@ class _LoginCard extends StatelessWidget {
   final bool loading;
   final bool obscure;
   final String? error;
+  final BiometricMethod? scanningMethod;
   final VoidCallback onToggleObscure;
   final VoidCallback onSubmit;
-  final VoidCallback onBiometricSignIn;
+  final ValueChanged<BiometricMethod> onBiometricSignIn;
 
   @override
   Widget build(BuildContext context) {
@@ -387,13 +394,19 @@ class _LoginCard extends StatelessWidget {
               _BiometricIcon(
                 icon: Icons.face_rounded,
                 tooltip: l.biometricFaceId,
-                onTap: loading ? null : onBiometricSignIn,
+                glowing: scanningMethod == BiometricMethod.face,
+                onTap: (loading || scanningMethod != null)
+                    ? null
+                    : () => onBiometricSignIn(BiometricMethod.face),
               ),
               const SizedBox(width: 22),
               _BiometricIcon(
                 icon: Icons.fingerprint_rounded,
                 tooltip: l.biometricFingerprint,
-                onTap: loading ? null : onBiometricSignIn,
+                glowing: scanningMethod == BiometricMethod.fingerprint,
+                onTap: (loading || scanningMethod != null)
+                    ? null
+                    : () => onBiometricSignIn(BiometricMethod.fingerprint),
               ),
             ],
           ),
@@ -404,37 +417,103 @@ class _LoginCard extends StatelessWidget {
 }
 
 /// Minimal circular biometric icon button (Face ID / fingerprint). Always
-/// shown on the login card regardless of platform; the tap handler decides
-/// whether the method is set up.
-class _BiometricIcon extends StatelessWidget {
+/// shown on the login card regardless of platform. While [glowing] (i.e. the
+/// OS is scanning), it pulses a soft primary glow so the user sees it "light
+/// up and scan".
+class _BiometricIcon extends StatefulWidget {
   const _BiometricIcon({
     required this.icon,
     required this.tooltip,
+    required this.glowing,
     required this.onTap,
   });
 
   final IconData icon;
   final String tooltip;
+  final bool glowing;
   final VoidCallback? onTap;
+
+  @override
+  State<_BiometricIcon> createState() => _BiometricIconState();
+}
+
+class _BiometricIconState extends State<_BiometricIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 850),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.glowing) _pulse.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant _BiometricIcon old) {
+    super.didUpdateWidget(old);
+    if (widget.glowing && !_pulse.isAnimating) {
+      _pulse.repeat(reverse: true);
+    } else if (!widget.glowing && _pulse.isAnimating) {
+      _pulse.stop();
+      _pulse.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        shape: CircleBorder(
-          side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.7)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Icon(icon, size: 26, color: cs.primary),
-          ),
-        ),
+      message: widget.tooltip,
+      child: AnimatedBuilder(
+        animation: _pulse,
+        builder: (context, _) {
+          final t = widget.glowing
+              ? Curves.easeInOut.transform(_pulse.value)
+              : 0.0;
+          return Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: t > 0
+                  ? [
+                      BoxShadow(
+                        color: cs.primary.withValues(alpha: 0.55 * t),
+                        blurRadius: 14 + 12 * t,
+                        spreadRadius: 1 + 3 * t,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Material(
+              color: widget.glowing
+                  ? cs.primaryContainer
+                  : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: widget.glowing
+                      ? cs.primary
+                      : cs.outlineVariant.withValues(alpha: 0.7),
+                  width: widget.glowing ? 1.6 : 1,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: widget.onTap,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Icon(widget.icon, size: 26, color: cs.primary),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
