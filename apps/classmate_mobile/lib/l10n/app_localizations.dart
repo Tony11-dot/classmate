@@ -1155,6 +1155,24 @@ abstract class AppLocalizations {
   /// **'Biometric not recognized. Try again or sign in with your password.'**
   String get biometricNotRecognized;
 
+  /// No description provided for @biometricFaceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Face ID isn\'t available on this device.'**
+  String get biometricFaceUnavailable;
+
+  /// No description provided for @biometricFingerprintUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint isn\'t available on this device.'**
+  String get biometricFingerprintUnavailable;
+
+  /// No description provided for @biometricNotAvailableOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available on this device'**
+  String get biometricNotAvailableOnDevice;
+
   /// No description provided for @biometricSectionTitle.
   ///
   /// In en, this message translates to:

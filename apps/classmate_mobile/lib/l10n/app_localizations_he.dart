@@ -626,6 +626,17 @@ class AppLocalizationsHe extends AppLocalizations {
       'Biometric not recognized. Try again or sign in with your password.';
 
   @override
+  String get biometricFaceUnavailable =>
+      'Face ID isn\'t available on this device.';
+
+  @override
+  String get biometricFingerprintUnavailable =>
+      'Fingerprint isn\'t available on this device.';
+
+  @override
+  String get biometricNotAvailableOnDevice => 'Not available on this device';
+
+  @override
   String get biometricSectionTitle => 'Biometric sign-in';
 
   @override

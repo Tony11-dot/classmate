@@ -1277,6 +1277,7 @@ class _BiometricSection extends ConsumerStatefulWidget {
 
 class _BiometricSectionState extends ConsumerState<_BiometricSection> {
   bool _supported = false;
+  Set<BiometricMethod> _available = const {};
   Set<BiometricMethod> _enabled = const {};
   bool _loaded = false;
   bool _busy = false;
@@ -1290,10 +1291,12 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
   Future<void> _load() async {
     final bio = ref.read(biometricServiceProvider);
     final supported = await bio.deviceSupported();
+    final available = await bio.availableMethods();
     final enabled = await bio.enabledMethods();
     if (!mounted) return;
     setState(() {
       _supported = supported;
+      _available = available;
       _enabled = enabled;
       _loaded = true;
     });
@@ -1374,23 +1377,38 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
                   ?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              secondary: Icon(Icons.face_rounded, color: cs.primary),
-              title: Text(l.biometricFaceId),
-              subtitle: Text(l.biometricFaceIdDesc),
-              value: _enabled.contains(BiometricMethod.face),
-              onChanged: _busy ? null : (v) => _toggle(BiometricMethod.face, v),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              secondary: Icon(Icons.fingerprint_rounded, color: cs.primary),
-              title: Text(l.biometricFingerprint),
-              subtitle: Text(l.biometricFingerprintDesc),
-              value: _enabled.contains(BiometricMethod.fingerprint),
-              onChanged:
-                  _busy ? null : (v) => _toggle(BiometricMethod.fingerprint, v),
-            ),
+            Builder(builder: (context) {
+              final hasFace = _available.contains(BiometricMethod.face);
+              return SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: Icon(Icons.face_rounded,
+                    color: hasFace ? cs.primary : cs.onSurfaceVariant),
+                title: Text(l.biometricFaceId),
+                subtitle: Text(hasFace
+                    ? l.biometricFaceIdDesc
+                    : l.biometricNotAvailableOnDevice),
+                value: _enabled.contains(BiometricMethod.face),
+                onChanged: (_busy || !hasFace)
+                    ? null
+                    : (v) => _toggle(BiometricMethod.face, v),
+              );
+            }),
+            Builder(builder: (context) {
+              final hasFinger = _available.contains(BiometricMethod.fingerprint);
+              return SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: Icon(Icons.fingerprint_rounded,
+                    color: hasFinger ? cs.primary : cs.onSurfaceVariant),
+                title: Text(l.biometricFingerprint),
+                subtitle: Text(hasFinger
+                    ? l.biometricFingerprintDesc
+                    : l.biometricNotAvailableOnDevice),
+                value: _enabled.contains(BiometricMethod.fingerprint),
+                onChanged: (_busy || !hasFinger)
+                    ? null
+                    : (v) => _toggle(BiometricMethod.fingerprint, v),
+              );
+            }),
           ],
         ),
       ),

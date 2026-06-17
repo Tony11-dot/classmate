@@ -60,17 +60,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (_loading || _scanning != null) return;
     final l = AppLocalizations.of(context)!;
     final bio = ref.read(biometricServiceProvider);
+    // The device must actually HAVE this sensor — don't silently fall back to
+    // the other biometric (e.g. running Face ID when fingerprint was tapped on
+    // a Face ID-only iPhone). Say it's unavailable instead.
+    final available = await bio.availableMethods();
+    if (!mounted) return;
+    if (!available.contains(method)) {
+      setState(() => _error = method == BiometricMethod.face
+          ? l.biometricFaceUnavailable
+          : l.biometricFingerprintUnavailable);
+      return;
+    }
     // Nothing attached on this device → guide them to Profile.
     if (!await bio.isEnabled()) {
       if (!mounted) return;
       setState(() => _error = l.biometricNotSetUp);
       return;
     }
-    // Start the glow, then let the OS scan the finger/face and match it against
-    // what's enrolled on this device. We never see the biometric itself — only
-    // this pass/fail.
+    // Start the glow first and let it pulse for a beat so the user actually
+    // SEES it light up before the OS scan UI takes over the screen.
     setState(() { _scanning = method; _error = null; });
     try {
+      await Future.delayed(const Duration(milliseconds: 480));
+      if (!mounted) return;
+      // OS scans the finger/face and matches it against what's enrolled. We
+      // never see the biometric itself — only this pass/fail.
       final ok = await bio.authenticate(l.biometricReason);
       if (!mounted) return;
       if (!ok) {
