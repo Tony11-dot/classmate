@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../lifedoc/announcements_provider.dart';
@@ -180,7 +181,7 @@ class _TeacherNewAnnouncementScreenState
   ///   3. School-wide 1..12 fallback — last resort so the picker is
   ///      never empty even before the cohort fetch resolves.
   List<int> get _availableGrades {
-    final s = <int>{};
+    final s = <int>{...ref.read(authSessionProvider).schoolGrades};
     for (final st in _allStudents) {
       final g = st.gradeLevel;
       if (g != null && g > 0) s.add(g);

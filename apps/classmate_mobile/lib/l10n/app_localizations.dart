@@ -1101,6 +1101,66 @@ abstract class AppLocalizations {
   /// **'Sign in'**
   String get loginSignIn;
 
+  /// No description provided for @biometricSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with biometrics'**
+  String get biometricSignIn;
+
+  /// No description provided for @biometricEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable biometric sign-in'**
+  String get biometricEnable;
+
+  /// No description provided for @biometricReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate to sign in to ClassMate'**
+  String get biometricReason;
+
+  /// No description provided for @biometricEnableReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate to enable biometric sign-in'**
+  String get biometricEnableReason;
+
+  /// No description provided for @biometricEnterCredsFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and password first, then enable biometric sign-in.'**
+  String get biometricEnterCredsFirst;
+
+  /// No description provided for @biometricLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric sign-in failed. Please sign in with your password.'**
+  String get biometricLoginFailed;
+
+  /// No description provided for @biometricEnrollTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable biometric sign-in?'**
+  String get biometricEnrollTitle;
+
+  /// No description provided for @biometricEnrollBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Face ID or your fingerprint to sign in faster next time.'**
+  String get biometricEnrollBody;
+
+  /// No description provided for @biometricEnrollYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get biometricEnrollYes;
+
+  /// No description provided for @biometricEnrollNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get biometricEnrollNo;
+
   /// No description provided for @loginWelcomeTitle.
   ///
   /// In en, this message translates to:

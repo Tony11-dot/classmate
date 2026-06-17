@@ -601,6 +601,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSignIn => 'Sign in';
 
   @override
+  String get biometricSignIn => 'Sign in with biometrics';
+
+  @override
+  String get biometricEnable => 'Enable biometric sign-in';
+
+  @override
+  String get biometricReason => 'Authenticate to sign in to ClassMate';
+
+  @override
+  String get biometricEnableReason =>
+      'Authenticate to enable biometric sign-in';
+
+  @override
+  String get biometricEnterCredsFirst =>
+      'Enter your email and password first, then enable biometric sign-in.';
+
+  @override
+  String get biometricLoginFailed =>
+      'Biometric sign-in failed. Please sign in with your password.';
+
+  @override
+  String get biometricEnrollTitle => 'Enable biometric sign-in?';
+
+  @override
+  String get biometricEnrollBody =>
+      'Use Face ID or your fingerprint to sign in faster next time.';
+
+  @override
+  String get biometricEnrollYes => 'Enable';
+
+  @override
+  String get biometricEnrollNo => 'Not now';
+
+  @override
   String get loginWelcomeTitle => 'Welcome back';
 
   @override

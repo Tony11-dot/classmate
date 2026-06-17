@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -285,7 +286,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
   bool _saving = false;
 
   List<int> get _availableGrades {
-    final s = <int>{};
+    final s = <int>{...ref.read(authSessionProvider).schoolGrades};
     for (final c in _cohorts) {
       if (c.grade > 0) s.add(c.grade);
     }

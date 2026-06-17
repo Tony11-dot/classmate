@@ -237,9 +237,24 @@ class NotificationSyncService {
         ? const <StudentNotificationItem>[]
         : remoteItems.where((item) => !knownRemoteIds.contains(item.id)).toList(growable: false);
 
+    // Persist the UNION of every remote id we've ever seen — NOT just the
+    // current fetch. Overwriting with only the current page meant a
+    // notification that scrolled out of the (capped) inbox fetch was treated
+    // as brand-new again on the next sync, re-firing its in-app banner "out
+    // of nowhere". Keep the freshest ids on the tail and cap the set so it
+    // can't grow without bound.
+    const maxKnownIds = 800;
+    final mergedKnown = <String>[];
+    final seenKnown = <String>{};
+    for (final id in <String>[...knownRemoteIds, ...currentRemoteIds]) {
+      if (seenKnown.add(id)) mergedKnown.add(id);
+    }
+    final trimmedKnown = mergedKnown.length > maxKnownIds
+        ? mergedKnown.sublist(mergedKnown.length - maxKnownIds)
+        : mergedKnown;
     await prefs.setStringList(
       _knownRemoteNotificationsPrefsKey,
-      currentRemoteIds.toList()..sort(),
+      trimmedKnown,
     );
 
     ref.invalidate(notificationInboxProvider);

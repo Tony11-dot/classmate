@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/grade_multi_select_field.dart';
 import '../data/teacher_mobile_repository.dart';
 
 /// Teacher-facing cohort management — create cohorts, expand to see the
@@ -23,7 +25,7 @@ class TeacherCohortsScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final async = ref.watch(_cohortsProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l.teacherCohortsScreenTitle)),
+      backgroundColor: cs.surface,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createDialog(context, ref),
         icon: const Icon(Icons.add_rounded),
@@ -70,48 +72,45 @@ class TeacherCohortsScreen extends ConsumerWidget {
   Future<void> _createDialog(BuildContext context, WidgetRef ref) async {
     final l = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController();
-    final gradeCtrl = TextEditingController();
+    final grades = <int>{};
+    final available = ref.read(authSessionProvider).schoolGrades;
     final ok = await showDialog<bool>(
       context: context,
-      builder: (d) => AlertDialog(
-        title: Text(l.teacherCohortsScreenNewCohort),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameCtrl, autofocus: true,
-              decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel, hintText: l.teacherCohortsScreenCohortNameHint)),
-          const SizedBox(height: 8),
-          TextField(controller: gradeCtrl, keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: l.teacherCohortsScreenGradesLabel, hintText: l.teacherCohortsScreenGradesHint)),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenCreate)),
-        ],
+      builder: (d) => StatefulBuilder(
+        builder: (d, setSheet) => AlertDialog(
+          title: Text(l.teacherCohortsScreenNewCohort),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: nameCtrl, autofocus: true,
+                decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel, hintText: l.teacherCohortsScreenCohortNameHint)),
+            const SizedBox(height: 12),
+            GradeMultiSelectField(
+              label: l.teacherCohortsScreenGradesLabel,
+              hint: l.pickerSelectGrades,
+              availableGrades: available,
+              selected: grades,
+              onChanged: (next) => setSheet(() => grades..clear()..addAll(next)),
+            ),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
+            FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenCreate)),
+          ],
+        ),
       ),
     );
     if (ok != true) return;
-    final grades = _parseGrades(gradeCtrl.text);
-    if (nameCtrl.text.trim().isEmpty || grades.isEmpty) {
+    final gradeList = grades.toList()..sort();
+    if (nameCtrl.text.trim().isEmpty || gradeList.isEmpty) {
       _toast(context, l.teacherCohortsScreenEnterNameAndGrade);
       return;
     }
     try {
-      await _repo(ref).createManagedCohort(name: nameCtrl.text.trim(), grades: grades);
+      await _repo(ref).createManagedCohort(name: nameCtrl.text.trim(), grades: gradeList);
       ref.invalidate(_cohortsProvider);
       _toast(context, l.teacherCohortsScreenCohortCreated);
     } catch (e) {
       _toast(context, '${l.teacherCohortsScreenFailed}: $e');
     }
-  }
-
-  static List<int> _parseGrades(String raw) {
-    return raw
-        .split(RegExp(r'[,;\s]+'))
-        .map((s) => int.tryParse(s.trim()))
-        .whereType<int>()
-        .where((g) => g >= 1 && g <= 20)
-        .toSet()
-        .toList()
-      ..sort();
   }
 
   static void _toast(BuildContext context, String msg) {
@@ -171,29 +170,42 @@ class _CohortTile extends ConsumerWidget {
   Future<void> _renameDialog(BuildContext context, WidgetRef ref, String id, String name, Map<String, dynamic> c) async {
     final l = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController(text: name);
-    final gradeCtrl = TextEditingController(
-        text: (c['grades'] is List ? (c['grades'] as List).join(',') : '${c['grade'] ?? ''}'));
+    final grades = <int>{};
+    final raw = c['grades'];
+    if (raw is List) {
+      grades.addAll(raw.map((e) => (e as num).toInt()));
+    } else if (c['grade'] != null) {
+      grades.add((c['grade'] as num).toInt());
+    }
+    final available = ref.read(authSessionProvider).schoolGrades;
     final ok = await showDialog<bool>(
       context: context,
-      builder: (d) => AlertDialog(
-        title: Text(l.teacherCohortsScreenEditCohort),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel)),
-          const SizedBox(height: 8),
-          TextField(controller: gradeCtrl, keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: l.teacherCohortsScreenGradesLabel)),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
-          FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenSave)),
-        ],
+      builder: (d) => StatefulBuilder(
+        builder: (d, setSheet) => AlertDialog(
+          title: Text(l.teacherCohortsScreenEditCohort),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel)),
+            const SizedBox(height: 12),
+            GradeMultiSelectField(
+              label: l.teacherCohortsScreenGradesLabel,
+              hint: l.pickerSelectGrades,
+              availableGrades: available,
+              selected: grades,
+              onChanged: (next) => setSheet(() => grades..clear()..addAll(next)),
+            ),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
+            FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenSave)),
+          ],
+        ),
       ),
     );
     if (ok != true) return;
-    final grades = TeacherCohortsScreen._parseGrades(gradeCtrl.text);
+    final gradeList = grades.toList()..sort();
     try {
       await ref.read(teacherMobileRepositoryProvider).updateManagedCohort(
-            id, name: nameCtrl.text.trim(), grades: grades.isEmpty ? null : grades);
+            id, name: nameCtrl.text.trim(), grades: gradeList.isEmpty ? null : gradeList);
       ref.invalidate(_cohortsProvider);
       TeacherCohortsScreen._toast(context, l.teacherCohortsScreenSaved);
     } catch (e) {

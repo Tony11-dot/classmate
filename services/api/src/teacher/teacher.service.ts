@@ -936,9 +936,17 @@ export class TeacherService {
 
   async schoolCohorts(user: any) {
     this.ensureTeacher(user);
+    // Scope the audience cohort picker to the teacher's own school. Without
+    // this, teachers saw EVERY school's cohorts in the targeting picker.
+    // Null-school (legacy) teachers fall back to the unfiltered list so they
+    // aren't left with an empty picker.
+    const schoolId = (user as any)?.schoolId ?? null;
     const cohorts = await this.prisma.cohort.findMany({
-      where: { name: { not: 'Dev Cohort' } },
-      select: { id: true, name: true, grade: true },
+      where: {
+        name: { not: 'Dev Cohort' },
+        ...(schoolId ? { schoolId } : {}),
+      },
+      select: { id: true, name: true, grade: true, grades: true },
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
     });
     return { ok: true, cohorts };

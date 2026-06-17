@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
@@ -49,7 +50,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   /// Distinct grade values across the teacher's cohorts. Used as the
   /// option list for the Grades audience picker.
   List<int> get _availableGrades {
-    final s = <int>{};
+    final s = <int>{...ref.read(authSessionProvider).schoolGrades};
     for (final c in _cohorts) {
       if (c.grade > 0) s.add(c.grade);
     }

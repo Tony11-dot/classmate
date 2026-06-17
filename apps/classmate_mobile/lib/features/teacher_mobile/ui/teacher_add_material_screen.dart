@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -67,7 +68,7 @@ class _TeacherAddMaterialScreenState
   final Map<String, List<String>> _memberCache = {};
 
   List<int> get _availableGrades {
-    final s = <int>{};
+    final s = <int>{...ref.read(authSessionProvider).schoolGrades};
     for (final c in _cohorts) {
       if (c.grade > 0) s.add(c.grade);
     }

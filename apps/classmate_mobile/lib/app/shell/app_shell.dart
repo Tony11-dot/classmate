@@ -73,7 +73,6 @@ String _routePathOnly(String loc) {
 bool _hideTopBarForRoute(String loc) {
   final l = _routePathOnly(loc);
   return l == '/admin/import-users' ||
-      l == '/teacher/cohorts' ||
       l.startsWith('/messages/') ||
       l.startsWith('/messages/request/') ||
       l.startsWith('/tutor/chat/') ||
@@ -190,6 +189,7 @@ class AppShell extends ConsumerWidget {
     '/teacher/insights',
     '/teacher/attendance',
     '/teacher/classrooms',
+    '/teacher/cohorts',
     '/teacher/grades',
     '/teacher/exams',
     '/teacher/forms',
@@ -332,6 +332,7 @@ class AppShell extends ConsumerWidget {
     '/teacher/insights' => l.navInsights,
     '/teacher/attendance' => l.navAttendance,
     '/teacher/classrooms' => l.navClassrooms,
+    '/teacher/cohorts' => l.navCohorts,
     '/teacher/grades' => l.navGrades,
     '/teacher/exams' => l.teacherExamsTitle,
     '/teacher/forms' => l.teacherFormsTitle,
@@ -740,7 +741,15 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       if (!mounted || newItems.isEmpty) return;
       final overlay = InAppNotificationOverlay.of(context);
       if (overlay == null) return;
-      for (final item in newItems.take(3)) {
+      // Only surface genuinely-recent items as banners. The sync already
+      // dedupes against everything we've ever seen, but a recency window is
+      // belt-and-suspenders: it guarantees a stale notification can never pop
+      // up "out of nowhere" (e.g. after a known-id set is lost on reinstall).
+      final now = DateTime.now();
+      final fresh = newItems
+          .where((n) => now.difference(n.createdAt) < const Duration(hours: 6))
+          .toList(growable: false);
+      for (final item in fresh.take(3)) {
         overlay.enqueue(
           item,
           onTap: (n) => context.push(notificationRoute(n)),

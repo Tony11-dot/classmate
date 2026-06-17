@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
@@ -48,7 +49,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   AudienceResolution? _audienceResolution;
 
   List<int> get _availableGrades {
-    final s = <int>{};
+    final s = <int>{...ref.read(authSessionProvider).schoolGrades};
     for (final c in _cohorts) {
       if (c.grade > 0) s.add(c.grade);
     }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
@@ -150,7 +151,7 @@ class _TeacherAddGradeScreenState
   /// empty for teachers whose student endpoint returns null
   /// gradeLevels (the messages-people fallback path).
   List<int> get _availableGrades {
-    final s = <int>{};
+    final s = <int>{...ref.read(authSessionProvider).schoolGrades};
     for (final st in _allStudents) {
       final g = st.gradeLevel;
       if (g != null && g > 0) s.add(g);
