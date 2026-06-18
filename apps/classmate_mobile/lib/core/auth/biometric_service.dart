@@ -4,8 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 
 /// The biometric methods we surface in the UI. The OS ultimately decides which
-/// sensor runs (local_auth can't target a specific one), but we track which the
-/// user turned on so the login screen can show the matching button(s).
+/// sensor runs, but we track which the user turned on so the UI can reflect it.
 enum BiometricMethod { face, fingerprint }
 
 BiometricMethod? _parseMethod(String s) => switch (s.trim()) {
@@ -17,11 +16,18 @@ BiometricMethod? _parseMethod(String s) => switch (s.trim()) {
 String _methodKey(BiometricMethod m) =>
     m == BiometricMethod.face ? 'face' : 'fingerprint';
 
-/// Opt-in Face ID / fingerprint quick sign-in. Set-up lives in Profile: the
-/// user confirms their password once, we verify it against the server, and the
-/// credentials are kept in the platform Keychain (iOS) / Keystore-backed
-/// EncryptedSharedPreferences (Android), released only after a successful
-/// biometric challenge. The login screen reads them to sign in.
+/// Opt-in Face ID / fingerprint quick sign-in.
+///
+/// IMPORTANT: biometric data is **per account**, keyed by the account's stable
+/// user id — NOT per device. So two users on the SAME phone each have their own
+/// independent on/off state: User A attaching Face ID does not make User B's
+/// switch appear on. The biometric itself never leaves the phone's secure chip
+/// (we can't read it or match it server-side); what we store, behind the OS
+/// challenge, is the account's credentials in the Keychain/Keystore.
+///
+/// A single device-level "active account" pointer records which account the
+/// login screen should sign into when biometrics succeed there (the last
+/// account to attach biometrics on this device).
 class BiometricService {
   BiometricService();
 
@@ -32,9 +38,14 @@ class BiometricService {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  static const _kId = 'biometric_identifier_v1';
-  static const _kPw = 'biometric_password_v1';
-  static const _kMethods = 'biometric_methods_v1';
+  // Per-account keys (namespaced by the account id).
+  String _idKey(String acct) => 'biometric_v2_id_$acct';
+  String _pwKey(String acct) => 'biometric_v2_pw_$acct';
+  String _methodsKey(String acct) => 'biometric_v2_methods_$acct';
+  // Device-level pointer: which account the LOGIN screen unlocks.
+  static const _kActiveAccount = 'biometric_v2_active_account';
+
+  // ── Device capability (sensor-level, account-independent) ──────────────────
 
   /// Biometric methods the device physically has enrolled (Face ID / Touch ID
   /// / fingerprint). Empty when there's no biometric hardware or nothing is set
@@ -49,9 +60,6 @@ class BiometricService {
       if (types.contains(BiometricType.fingerprint)) {
         out.add(BiometricMethod.fingerprint);
       }
-      // Android frequently reports only the generic `strong`/`weak` classes
-      // without naming the sensor. Most such devices are fingerprint, so fall
-      // back to that when nothing specific was reported.
       if (out.isEmpty &&
           (types.contains(BiometricType.strong) ||
               types.contains(BiometricType.weak))) {
@@ -65,36 +73,11 @@ class BiometricService {
     }
   }
 
-  /// Whether the device can do a biometric / device-credential challenge at
-  /// all (hardware present, even if nothing's enrolled yet). Used to decide
-  /// whether to OFFER set-up in Profile — so we can show both Face ID and
-  /// fingerprint switches and let the OS use whichever sensor the device has.
+  /// Whether the device can do a biometric / device-credential challenge at all.
   Future<bool> deviceSupported() async {
     try {
       if (await _auth.isDeviceSupported()) return true;
       return await _auth.canCheckBiometrics;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// Methods the user has turned ON (and that still have stored credentials).
-  Future<Set<BiometricMethod>> enabledMethods() async {
-    try {
-      if (!await hasStoredCredentials()) return {};
-      return _readMethods();
-    } catch (_) {
-      return {};
-    }
-  }
-
-  Future<bool> isEnabled() async => (await enabledMethods()).isNotEmpty;
-
-  Future<bool> hasStoredCredentials() async {
-    try {
-      final id = await _storage.read(key: _kId);
-      final pw = await _storage.read(key: _kPw);
-      return id != null && id.isNotEmpty && pw != null && pw.isNotEmpty;
     } catch (_) {
       return false;
     }
@@ -107,8 +90,6 @@ class BiometricService {
         localizedReason: reason,
         options: const AuthenticationOptions(
           stickyAuth: true,
-          // Allow device-PIN fallback so a temporarily-failing sensor doesn't
-          // lock the user out — still gated behind the OS sheet.
           biometricOnly: false,
         ),
       );
@@ -119,32 +100,103 @@ class BiometricService {
     }
   }
 
-  /// Turn a method ON, persisting the verified credentials.
+  // ── Per-account state (Profile, while logged in) ───────────────────────────
+
+  /// Methods THIS account has turned on (and that still have stored creds).
+  Future<Set<BiometricMethod>> enabledMethodsForAccount(String acct) async {
+    if (acct.isEmpty) return {};
+    try {
+      if (!await _hasCredentials(acct)) return {};
+      return _readMethods(acct);
+    } catch (_) {
+      return {};
+    }
+  }
+
+  /// Turn a method ON for [acct], persisting the verified credentials, and make
+  /// this account the one the login screen unlocks on this device.
   Future<void> enableMethod(
+    String acct,
     BiometricMethod method, {
     required String identifier,
     required String password,
   }) async {
-    await _storage.write(key: _kId, value: identifier);
-    await _storage.write(key: _kPw, value: password);
-    final cur = await _readMethods();
+    if (acct.isEmpty) return;
+    await _storage.write(key: _idKey(acct), value: identifier);
+    await _storage.write(key: _pwKey(acct), value: password);
+    final cur = await _readMethods(acct);
     cur.add(method);
-    await _writeMethods(cur);
+    await _writeMethods(acct, cur);
+    await _storage.write(key: _kActiveAccount, value: acct);
   }
 
-  /// Turn a method OFF. When no methods remain, the stored credentials are
-  /// wiped entirely.
-  Future<void> disableMethod(BiometricMethod method) async {
-    final cur = await _readMethods();
+  /// Turn a method OFF for [acct]. When none remain, its credentials are wiped,
+  /// and if it was the active login account that pointer is cleared too.
+  Future<void> disableMethod(String acct, BiometricMethod method) async {
+    if (acct.isEmpty) return;
+    final cur = await _readMethods(acct);
     cur.remove(method);
-    await _writeMethods(cur);
-    if (cur.isEmpty) await clear();
+    await _writeMethods(acct, cur);
+    if (cur.isEmpty) {
+      await _clearAccount(acct);
+      if ((await _storage.read(key: _kActiveAccount)) == acct) {
+        await _storage.delete(key: _kActiveAccount);
+      }
+    }
   }
 
-  Future<({String identifier, String password})?> readCredentials() async {
+  /// This account's stored credentials (so a 2nd method can reuse them).
+  Future<({String identifier, String password})?> accountCredentials(
+      String acct) async {
+    if (acct.isEmpty) return null;
+    return _readCredentials(acct);
+  }
+
+  // ── Login screen (no current user) ─────────────────────────────────────────
+
+  /// Methods the login screen can offer = the active account's methods.
+  Future<Set<BiometricMethod>> loginMethods() async {
+    final acct = await _activeAccount();
+    if (acct.isEmpty) return {};
+    return enabledMethodsForAccount(acct);
+  }
+
+  Future<bool> isLoginEnabled() async => (await loginMethods()).isNotEmpty;
+
+  Future<({String identifier, String password})?> loginCredentials() async {
+    final acct = await _activeAccount();
+    if (acct.isEmpty) return null;
+    return _readCredentials(acct);
+  }
+
+  /// Forget the active account's biometric login (e.g. its password changed).
+  Future<void> clearLogin() async {
+    final acct = await _activeAccount();
+    if (acct.isNotEmpty) await _clearAccount(acct);
+    await _storage.delete(key: _kActiveAccount);
+  }
+
+  // ── internals ──────────────────────────────────────────────────────────────
+
+  Future<String> _activeAccount() async {
     try {
-      final id = await _storage.read(key: _kId);
-      final pw = await _storage.read(key: _kPw);
+      return (await _storage.read(key: _kActiveAccount) ?? '').trim();
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<bool> _hasCredentials(String acct) async {
+    final id = await _storage.read(key: _idKey(acct));
+    final pw = await _storage.read(key: _pwKey(acct));
+    return id != null && id.isNotEmpty && pw != null && pw.isNotEmpty;
+  }
+
+  Future<({String identifier, String password})?> _readCredentials(
+      String acct) async {
+    try {
+      final id = await _storage.read(key: _idKey(acct));
+      final pw = await _storage.read(key: _pwKey(acct));
       if (id == null || id.isEmpty || pw == null || pw.isEmpty) return null;
       return (identifier: id, password: pw);
     } catch (_) {
@@ -152,16 +204,16 @@ class BiometricService {
     }
   }
 
-  Future<void> clear() async {
+  Future<void> _clearAccount(String acct) async {
     try {
-      await _storage.delete(key: _kId);
-      await _storage.delete(key: _kPw);
-      await _storage.delete(key: _kMethods);
+      await _storage.delete(key: _idKey(acct));
+      await _storage.delete(key: _pwKey(acct));
+      await _storage.delete(key: _methodsKey(acct));
     } catch (_) {}
   }
 
-  Future<Set<BiometricMethod>> _readMethods() async {
-    final raw = await _storage.read(key: _kMethods) ?? '';
+  Future<Set<BiometricMethod>> _readMethods(String acct) async {
+    final raw = await _storage.read(key: _methodsKey(acct)) ?? '';
     return raw
         .split(',')
         .map(_parseMethod)
@@ -169,12 +221,12 @@ class BiometricService {
         .toSet();
   }
 
-  Future<void> _writeMethods(Set<BiometricMethod> methods) async {
+  Future<void> _writeMethods(String acct, Set<BiometricMethod> methods) async {
     if (methods.isEmpty) {
-      await _storage.delete(key: _kMethods);
+      await _storage.delete(key: _methodsKey(acct));
     } else {
       await _storage.write(
-        key: _kMethods,
+        key: _methodsKey(acct),
         value: methods.map(_methodKey).join(','),
       );
     }

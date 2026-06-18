@@ -71,8 +71,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           : l.biometricFingerprintUnavailable);
       return;
     }
-    // Nothing attached on this device → guide them to Profile.
-    if (!await bio.isEnabled()) {
+    // No account has attached biometrics on this device → guide to Profile.
+    if (!await bio.isLoginEnabled()) {
       if (!mounted) return;
       setState(() => _error = l.biometricNotSetUp);
       return;
@@ -92,7 +92,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         setState(() => _error = l.biometricNotRecognized);
         return;
       }
-      final creds = await bio.readCredentials();
+      final creds = await bio.loginCredentials();
       if (creds == null) {
         setState(() => _error = l.biometricNotSetUp);
         return;
@@ -103,9 +103,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       if (!mounted) return;
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
-      // Stored credentials are stale (e.g. password changed) — forget them so
-      // the user re-enrolls in Profile.
-      await bio.clear();
+      // Stored credentials are stale (e.g. password changed) — forget this
+      // account's biometric so the user re-enrolls in Profile.
+      await bio.clearLogin();
       if (!mounted) return;
       setState(() => _error = l.biometricLoginFailed);
     } finally {

@@ -1288,11 +1288,19 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
     _load();
   }
 
+  /// Stable per-account key — biometric state is scoped to THIS account, not
+  /// the device, so a different user on the same phone sees their own state.
+  String get _acct {
+    final s = ref.read(authSessionProvider);
+    if (s.userId.isNotEmpty) return s.userId;
+    return s.email.isNotEmpty ? s.email : s.username;
+  }
+
   Future<void> _load() async {
     final bio = ref.read(biometricServiceProvider);
     final supported = await bio.deviceSupported();
     final available = await bio.availableMethods();
-    final enabled = await bio.enabledMethods();
+    final enabled = await bio.enabledMethodsForAccount(_acct);
     if (!mounted) return;
     setState(() {
       _supported = supported;
@@ -1308,8 +1316,9 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
     final bio = ref.read(biometricServiceProvider);
     setState(() => _busy = true);
     try {
+      final acct = _acct;
       if (!on) {
-        await bio.disableMethod(m);
+        await bio.disableMethod(acct, m);
         await _load();
         return;
       }
@@ -1318,7 +1327,7 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
           session.email.isNotEmpty ? session.email : session.username;
       // Reuse stored credentials when another method is already on; otherwise
       // confirm the account password first.
-      final existing = await bio.readCredentials();
+      final existing = await bio.accountCredentials(acct);
       String id;
       String pw;
       if (existing != null) {
@@ -1346,7 +1355,7 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
         }
         return;
       }
-      await bio.enableMethod(m, identifier: id, password: pw);
+      await bio.enableMethod(acct, m, identifier: id, password: pw);
       await _load();
     } finally {
       if (mounted) setState(() => _busy = false);
