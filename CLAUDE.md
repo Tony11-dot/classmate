@@ -4,11 +4,18 @@ Monorepo: `services/api` (NestJS + Prisma + Postgres, on Railway) · `apps/class
 
 ## Playbooks
 
-- **Shipping a release** → [docs/SHIPPING.md](docs/SHIPPING.md). TL;DR: verify (`flutter analyze lib` + `tsc --noEmit`) → bump `pubspec.yaml` build number **above the last uploaded** → commit/push → **Railway (if backend changed) → Web (`flutter build web` + `firebase deploy`) → `fastlane android internal` → `fastlane ios beta`**.
+The full runbooks below are auto-imported into context every session:
+
+@docs/SHIPPING.md
+@docs/SECURITY.md
+
+TL;DR pointers:
+
+- **Shipping a release** (full: `docs/SHIPPING.md`). Verify (`flutter analyze lib` + `tsc --noEmit`) → bump `pubspec.yaml` build number **above the last uploaded** → commit/push → **Railway (if backend changed) → Web (`flutter build web` + `firebase deploy`) → `fastlane android internal` → `fastlane ios beta`**.
   - ⚠ Sentry symbol upload **hangs intermittently** — it runs *after* the store upload, so the build is already delivered; `pkill -9 -f sentry-cli`. The `✅ Uploaded…` line prints *after* Sentry, so its absence ≠ failure.
   - ⚠ iOS "PLA Update available" = accept the Apple Developer Program License Agreement at developer.apple.com/account, `rm -f apps/classmate_mobile/build/ios/ipa/ClassMate.ipa`, re-run.
 
-- **Security hardening** → [docs/SECURITY.md](docs/SECURITY.md). Rate-limit auth (5/15min via `@nestjs/throttler`), scan for hardcoded secrets (`gitleaks`), secrets in env only (never in the Flutter app or Git), global `ValidationPipe` (whitelist + body/file size limits), and the full authZ / school-isolation / CORS / headers audit checklist.
+- **Security hardening** (full: `docs/SECURITY.md`). Rate-limit auth (5/15min via `@nestjs/throttler`), scan for hardcoded secrets (`gitleaks`), secrets in env only (never in the Flutter app or Git), global `ValidationPipe` (whitelist + body/file size limits), and the full authZ / school-isolation / CORS / headers audit checklist.
 
 ## Conventions
 
