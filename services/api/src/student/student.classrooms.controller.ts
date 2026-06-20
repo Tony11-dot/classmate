@@ -774,6 +774,7 @@ export class StudentClassroomsController {
           type: 'CLASSROOM_INVITE',
           title: `Joined ${hit.name}`,
           body: hit.name,
+          template: { key: 'classroom_invite', args: { subject: hit.name } },
           data: { classroomIds: [hit.id] },
         });
       } catch (e) {
@@ -846,6 +847,10 @@ export class StudentClassroomsController {
             ? `Joined ${names[0]}`
             : `Joined ${names.length} classes`,
           body: names.join(', ').slice(0, 200),
+          template: {
+            key: 'classroom_invite',
+            args: { subject: names.join(', ') },
+          },
           data: { cohortId: matchedCohortId, classroomIds },
         });
       } catch (e) { console.error('[student] join notify failed:', e); }

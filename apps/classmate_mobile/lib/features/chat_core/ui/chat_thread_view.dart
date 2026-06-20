@@ -1692,6 +1692,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           Expanded(
             child: Stack(
               children: [
+                const Positioned.fill(child: _ChatDoodleBackground()),
                 _buildMessageList(messages, l, isPeerTyping),
                 if (_showScrollToBottom)
                   Positioned(
@@ -1816,6 +1817,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     return ListView.builder(
       controller: _scrollController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      // Always scrollable so a near-empty thread can still be dragged to
+      // dismiss the keyboard (onDrag needs a scrollable that accepts drags).
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 24),
       itemCount: messages.length + (peerTyping ? 1 : 0),
       itemBuilder: (context, index) {
@@ -2001,4 +2005,91 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       },
     );
   }
+}
+
+/// WhatsApp-style faint doodle wallpaper behind the message list. A scattered,
+/// low-opacity tile of school-relevant glyphs that fills dead space without
+/// disrupting reading (bubbles are opaque and sit on top). Pure CustomPaint —
+/// no image asset, and it tints itself from the active color scheme so it
+/// works in light and dark.
+class _ChatDoodleBackground extends StatelessWidget {
+  const _ChatDoodleBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.onSurface
+        .withValues(alpha: theme.brightness == Brightness.dark ? 0.05 : 0.04);
+    return IgnorePointer(
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: _ChatDoodlePainter(color: color),
+          size: Size.infinite,
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatDoodlePainter extends CustomPainter {
+  _ChatDoodlePainter({required this.color});
+
+  final Color color;
+
+  static const List<IconData> _icons = <IconData>[
+    Icons.menu_book_rounded,
+    Icons.edit_rounded,
+    Icons.school_rounded,
+    Icons.calculate_rounded,
+    Icons.science_rounded,
+    Icons.lightbulb_rounded,
+    Icons.functions_rounded,
+    Icons.public_rounded,
+    Icons.brush_rounded,
+    Icons.music_note_rounded,
+    Icons.sports_basketball_rounded,
+    Icons.palette_rounded,
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double cell = 92.0; // grid spacing
+    const double iconSize = 30.0;
+    final int cols = (size.width / cell).ceil() + 1;
+    final int rows = (size.height / cell).ceil() + 1;
+    int i = 0;
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final IconData icon = _icons[(r * 3 + c * 5 + i) % _icons.length];
+        i++;
+        // Brick-offset alternate rows + a tiny deterministic jitter so it
+        // reads as hand-scattered, never a rigid grid.
+        final double dx =
+            c * cell + (r.isEven ? 0.0 : cell / 2) + ((c * 7 + r * 3) % 11) - 5;
+        final double dy = r * cell + ((r * 5 + c * 13) % 9) - 4;
+        final double angle = (((r * c + c) % 7) - 3) * 0.12; // ~±0.36 rad
+        final TextPainter tp = TextPainter(
+          text: TextSpan(
+            text: String.fromCharCode(icon.codePoint),
+            style: TextStyle(
+              fontFamily: icon.fontFamily,
+              package: icon.fontPackage,
+              fontSize: iconSize,
+              color: color,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        canvas.save();
+        canvas.translate(dx + iconSize / 2, dy + iconSize / 2);
+        canvas.rotate(angle);
+        tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
+        canvas.restore();
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ChatDoodlePainter oldDelegate) =>
+      oldDelegate.color != color;
 }

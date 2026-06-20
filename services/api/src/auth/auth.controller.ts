@@ -100,6 +100,27 @@ export class AuthController {
     return { ok: true, username: un };
   }
 
+  /// Persist the user's chosen UI language so notifications can be localized
+  /// per recipient (the app pushes this whenever the locale changes / on
+  /// startup). Accepts one of our supported codes; anything else clears it.
+  @UseGuards(JwtAuthGuard)
+  @Patch('me/language')
+  async updateMyLanguage(@Req() req: any, @Body() body: { language?: string | null }) {
+    const userId = req.user?.sub ?? req.user?.id;
+    if (!userId) throw new BadRequestException('Not authenticated');
+    const allowed = ['en', 'ar', 'he', 'fr', 'ru', 'ps'];
+    const raw = String(body?.language ?? '')
+      .trim()
+      .toLowerCase()
+      .split(/[-_]/)[0];
+    const lang = allowed.includes(raw) ? raw : null;
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { language: lang } as any,
+    });
+    return { ok: true, language: lang };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch('profile/name')
   async updateProfileName(@Req() req: any, @Body() body: any) {

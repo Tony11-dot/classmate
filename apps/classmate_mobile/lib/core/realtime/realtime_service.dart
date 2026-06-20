@@ -45,7 +45,10 @@ class RealtimeService {
   StreamSubscription<String>? _lineSub;
   Timer? _reconnect;
   bool _disposed = false;
-  int _retryDelay = 3;
+  // Start reconnect attempts fast (1s) so a dropped stream re-establishes
+  // near-instantly — a slow re-attach was the main cause of messages/
+  // notifications feeling "a minute late". Backs off to 30s on repeated fails.
+  int _retryDelay = 1;
 
   // Second SSE connection for parents: /parent/notifications/stream
   // fires alongside the main /realtime/stream so a logged-in parent
@@ -53,7 +56,7 @@ class RealtimeService {
   // notification pings.
   StreamSubscription<String>? _parentLineSub;
   Timer? _parentReconnect;
-  int _parentRetryDelay = 3;
+  int _parentRetryDelay = 1;
   bool _parentEnabled = false;
 
   // On web, package:http's BrowserClient buffers the whole response instead of
@@ -65,7 +68,7 @@ class RealtimeService {
   void connect(String token) {
     _token = token;
     _disposed = false;
-    _retryDelay = 3;
+    _retryDelay = 1;
     if (kIsWeb) {
       _startWebPolling();
       return;
@@ -113,7 +116,7 @@ class RealtimeService {
     client.send(request).then((response) {
       if (_disposed) { client.close(); return; }
       if (response.statusCode != 200) { client.close(); _scheduleReconnect(); return; }
-      _retryDelay = 3;
+      _retryDelay = 1;
 
       _lineSub = response.stream
           .transform(utf8.decoder)
@@ -141,7 +144,7 @@ class RealtimeService {
     if (_disposed) return;
     _reconnect?.cancel();
     _reconnect = Timer(Duration(seconds: _retryDelay), () {
-      _retryDelay = (_retryDelay * 2).clamp(3, 60);
+      _retryDelay = (_retryDelay * 2).clamp(1, 30);
       _doConnect();
     });
   }
@@ -166,7 +169,7 @@ class RealtimeService {
     client.send(request).then((response) {
       if (_disposed) { client.close(); return; }
       if (response.statusCode != 200) { client.close(); _scheduleParentReconnect(); return; }
-      _parentRetryDelay = 3;
+      _parentRetryDelay = 1;
 
       _parentLineSub = response.stream
           .transform(utf8.decoder)
@@ -201,7 +204,7 @@ class RealtimeService {
     if (_disposed) return;
     _parentReconnect?.cancel();
     _parentReconnect = Timer(Duration(seconds: _parentRetryDelay), () {
-      _parentRetryDelay = (_parentRetryDelay * 2).clamp(3, 60);
+      _parentRetryDelay = (_parentRetryDelay * 2).clamp(1, 30);
       _doConnectParent();
     });
   }

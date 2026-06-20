@@ -17349,6 +17349,18 @@ abstract class AppLocalizations {
   /// **'No parent'**
   String get adminAddManyParentNone;
 
+  /// No description provided for @adminAddManyAddParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add parent'**
+  String get adminAddManyAddParent;
+
+  /// No description provided for @adminAddManyCreateParentGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new parent'**
+  String get adminAddManyCreateParentGeneric;
+
   /// No description provided for @adminAddManyParentInBatch.
   ///
   /// In en, this message translates to:

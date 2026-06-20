@@ -4,6 +4,7 @@ import './instrument';
 
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
 import { json, urlencoded } from 'express';
 import { join } from 'path';
 import { AppModule } from './app.module';
@@ -14,6 +15,19 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
+
+  // Security headers (HSTS, X-Content-Type-Options: nosniff, X-Frame-Options:
+  // DENY, Referrer-Policy, etc.). CSP is disabled — this is a JSON API, not an
+  // HTML app, and a strict CSP would serve no purpose here while risking
+  // breakage. crossOriginResourcePolicy is relaxed to 'cross-origin' so the
+  // Flutter web SPA (different origin) and the mobile apps can still load
+  // uploaded images served from /uploads/.
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   // Bound the payload sizes Express will accept so a malicious client
   // can't DoS us by streaming an unbounded JSON or form body. Multer

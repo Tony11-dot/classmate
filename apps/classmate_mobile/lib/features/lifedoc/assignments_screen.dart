@@ -785,13 +785,22 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
           onRetry: () => ref.invalidate(assignmentsFeedProvider),
         ),
         data: (items) {
-          final assignment = widget.initialAssignment != null &&
-                  _stringValue(widget.initialAssignment!, 'id') == widget.assignmentId
-              ? widget.initialAssignment!
-              : items.firstWhere(
-                  (item) => _stringValue(item, 'id') == widget.assignmentId,
-                  orElse: () => <String, dynamic>{},
-                );
+          // Always prefer the authoritative feed record (the SAME source the
+          // standalone Assignments list uses) so the detail shows identical
+          // layout/status/data regardless of entry point. The passed-in
+          // `initialAssignment` (which can be a leaner object when opened from
+          // a classroom) is only a fallback when the feed doesn't carry it.
+          final fromFeed = items.firstWhere(
+            (item) => _stringValue(item, 'id') == widget.assignmentId,
+            orElse: () => <String, dynamic>{},
+          );
+          final assignment = fromFeed.isNotEmpty
+              ? fromFeed
+              : (widget.initialAssignment != null &&
+                      _stringValue(widget.initialAssignment!, 'id') ==
+                          widget.assignmentId
+                  ? widget.initialAssignment!
+                  : <String, dynamic>{});
 
           _initFromAssignment(assignment);
 

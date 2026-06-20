@@ -9943,6 +9943,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminAddManyParentNone => 'No parent';
 
   @override
+  String get adminAddManyAddParent => 'Add parent';
+
+  @override
+  String get adminAddManyCreateParentGeneric => 'Create new parent';
+
+  @override
   String get adminAddManyParentInBatch => 'New parents in this list';
 
   @override

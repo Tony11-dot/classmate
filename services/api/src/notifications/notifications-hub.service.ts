@@ -3,6 +3,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RealtimeService } from '../realtime/realtime.service';
 import { ParentNotificationsEvents } from '../parent/parent-notifications.events';
 import { PushService } from './push.service';
+import {
+  NotifTemplate,
+  NotifLocale,
+  normalizeLocale,
+  renderNotif,
+} from './notif-i18n';
 
 export type NotificationKind =
   | 'ANNOUNCEMENT'
@@ -28,11 +34,20 @@ export interface NotifyParams {
   /// color / deep-link target.
   type: NotificationKind | string;
 
-  /// Headline copy (max ~60 chars).
+  /// Headline copy (max ~60 chars). Used as the fallback when no
+  /// `template` is supplied (legacy callers) or for users with no stored
+  /// language.
   title: string;
 
   /// Optional longer body. Markdown not rendered — plain text only.
   body?: string;
+
+  /// Preferred path: a localizable template (`key` + `args`). When present,
+  /// the hub renders title/body PER RECIPIENT in that user's stored
+  /// `language` — so each person (and each parent) reads the event in their
+  /// own language, in both the in-app inbox and the system push. Falls back
+  /// to `title`/`body` above when absent.
+  template?: NotifTemplate;
 
   /// Free-form JSON for the client to render context (e.g. classroomId,
   /// announcementId, assignmentId). Tap-target deep-link data lives here.
@@ -82,16 +97,24 @@ export class NotificationsHubService {
     const uniqueRecipients = Array.from(new Set(recipients));
     const fanOut = params.fanOutToParents !== false;
 
+    // Per-recipient language (only needed when localizing via a template).
+    const recipientLang = params.template
+      ? await this.languagesFor(uniqueRecipients)
+      : new Map<string, NotifLocale>();
+
     try {
-      // Persist the recipient rows.
-      const data = uniqueRecipients.map((userId) => ({
-        userId,
-        type: String(params.type),
-        title: params.title,
-        body: params.body ?? null,
-        data: (params.data ?? {}) as any,
-        severity: params.severity ?? 'info',
-      }));
+      // Persist the recipient rows — title/body rendered in each user's language.
+      const data = uniqueRecipients.map((userId) => {
+        const { title, body } = this.copyFor(params, recipientLang.get(userId));
+        return {
+          userId,
+          type: String(params.type),
+          title,
+          body: body ?? null,
+          data: (params.data ?? {}) as any,
+          severity: params.severity ?? 'info',
+        };
+      });
       await this.prisma.notification.createMany({ data });
     } catch (e) {
       console.error('[notifications-hub] failed to persist Notification rows:', e);
@@ -106,18 +129,9 @@ export class NotificationsHubService {
     // FCM/APNs out-of-app push. Silent no-op when Firebase isn't
     // configured. Fired in parallel with SSE so an open-app user gets
     // the SSE banner immediately while a closed-app user gets the
-    // system push a moment later.
-    void this.push.sendToUsers({
-      userIds: uniqueRecipients,
-      title: params.title,
-      body: params.body ?? '',
-      data: {
-        type: String(params.type),
-        ...Object.fromEntries(
-          Object.entries(params.data ?? {}).map(([k, v]) => [k, String(v ?? '')]),
-        ),
-      },
-    });
+    // system push a moment later. Grouped by language so each device
+    // shows the copy in its owner's language.
+    void this.pushLocalized(uniqueRecipients, params, recipientLang);
 
     // Parent fan-out — every direct student recipient generates parent
     // rows for their approved parents.
@@ -158,15 +172,20 @@ export class NotificationsHubService {
         .map((u) => u.id)
         .filter((id) => !fanned.has(id));
       if (directParentIds.length > 0) {
+        // These parents are also direct recipients, so they already share
+        // the recipient language map.
         await this.prisma.parentNotification.createMany({
-          data: directParentIds.map((pid) => ({
-            parentId: pid,
-            studentId: null,
-            type: String(params.type),
-            title: params.title,
-            message: params.body ?? null,
-            data: (params.data ?? {}) as any,
-          })),
+          data: directParentIds.map((pid) => {
+            const { title, body } = this.copyFor(params, recipientLang.get(pid));
+            return {
+              parentId: pid,
+              studentId: null,
+              type: String(params.type),
+              title,
+              message: body ?? null,
+              data: (params.data ?? {}) as any,
+            };
+          }),
         });
         for (const pid of directParentIds) {
           this.parentEvents.emit({ type: 'notification.created', parentId: pid });
@@ -178,16 +197,24 @@ export class NotificationsHubService {
 
     if (parentTargets.length === 0) return;
 
+    const uniqueParentIds = Array.from(new Set(parentTargets.map((t) => t.parentId)));
+    const parentLang = params.template
+      ? await this.languagesFor(uniqueParentIds)
+      : new Map<string, NotifLocale>();
+
     try {
       await this.prisma.parentNotification.createMany({
-        data: parentTargets.map((t) => ({
-          parentId: t.parentId,
-          studentId: t.studentId,
-          type: String(params.type),
-          title: params.title,
-          message: params.body ?? null,
-          data: (params.data ?? {}) as any,
-        })),
+        data: parentTargets.map((t) => {
+          const { title, body } = this.copyFor(params, parentLang.get(t.parentId));
+          return {
+            parentId: t.parentId,
+            studentId: t.studentId,
+            type: String(params.type),
+            title,
+            message: body ?? null,
+            data: (params.data ?? {}) as any,
+          };
+        }),
       });
     } catch (e) {
       console.error('[notifications-hub] failed to persist ParentNotification rows:', e);
@@ -196,24 +223,93 @@ export class NotificationsHubService {
     // Push every affected parent through the SSE bus. Distinct parents
     // only — same parent linked to two children shouldn't get two
     // pings for one event.
-    const uniqueParentIds = Array.from(new Set(parentTargets.map((t) => t.parentId)));
     for (const parentId of uniqueParentIds) {
       this.parentEvents.emit({ type: 'notification.created', parentId });
     }
 
     // FCM/APNs out-of-app push to parents too — same fan-out, parent
-    // sees the system push on their device when the app is closed.
-    void this.push.sendToUsers({
-      userIds: uniqueParentIds,
-      title: params.title,
-      body: params.body ?? '',
-      data: {
-        type: String(params.type),
-        ...Object.fromEntries(
-          Object.entries(params.data ?? {}).map(([k, v]) => [k, String(v ?? '')]),
-        ),
-      },
-    });
+    // sees the system push on their device when the app is closed, in
+    // their own language.
+    void this.pushLocalized(uniqueParentIds, params, parentLang);
+  }
+
+  /// Load each user's stored UI language, normalized to a supported locale.
+  /// Missing rows / null languages default to English at render time.
+  private async languagesFor(ids: string[]): Promise<Map<string, NotifLocale>> {
+    const out = new Map<string, NotifLocale>();
+    const unique = Array.from(new Set(ids.filter(Boolean)));
+    if (unique.length === 0) return out;
+    try {
+      const rows = await this.prisma.user.findMany({
+        where: { id: { in: unique } },
+        select: { id: true, language: true } as any,
+      });
+      for (const r of rows as any[]) {
+        out.set(r.id, normalizeLocale(r.language));
+      }
+    } catch (e) {
+      console.error('[notifications-hub] failed to load recipient languages:', e);
+    }
+    return out;
+  }
+
+  /// Resolve the title/body for one recipient: render the template in their
+  /// language when present, otherwise fall back to the literal title/body.
+  private copyFor(
+    params: NotifyParams,
+    locale?: NotifLocale,
+  ): { title: string; body: string } {
+    if (params.template) {
+      return renderNotif(params.template, locale ?? 'en');
+    }
+    return { title: params.title, body: params.body ?? '' };
+  }
+
+  /// Send the FCM/APNs push to a set of users, grouped by language so every
+  /// device gets the copy in its owner's language. Falls back to a single
+  /// send when there is no template.
+  private async pushLocalized(
+    userIds: string[],
+    params: NotifyParams,
+    langMap: Map<string, NotifLocale>,
+  ): Promise<void> {
+    const ids = Array.from(new Set(userIds.filter(Boolean)));
+    if (ids.length === 0) return;
+
+    const dataPayload = {
+      type: String(params.type),
+      ...Object.fromEntries(
+        Object.entries(params.data ?? {}).map(([k, v]) => [k, String(v ?? '')]),
+      ),
+    };
+
+    if (!params.template) {
+      await this.push.sendToUsers({
+        userIds: ids,
+        title: params.title,
+        body: params.body ?? '',
+        data: dataPayload,
+      });
+      return;
+    }
+
+    // Bucket recipients by locale and send one multicast per language.
+    const byLocale = new Map<NotifLocale, string[]>();
+    for (const id of ids) {
+      const loc = langMap.get(id) ?? 'en';
+      const bucket = byLocale.get(loc) ?? [];
+      bucket.push(id);
+      byLocale.set(loc, bucket);
+    }
+    for (const [loc, group] of byLocale.entries()) {
+      const { title, body } = renderNotif(params.template, loc);
+      await this.push.sendToUsers({
+        userIds: group,
+        title,
+        body,
+        data: dataPayload,
+      });
+    }
   }
 
   /// Convenience: given an `audience` spec the way teacher endpoints

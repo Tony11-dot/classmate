@@ -5295,6 +5295,8 @@
   "adminAddManyApplyGrade": "Set grade for all",
   "adminAddManyParentLabel": "Parent",
   "adminAddManyParentNone": "No parent",
+  "adminAddManyAddParent": "Add parent",
+  "adminAddManyCreateParentGeneric": "Create new parent",
   "adminAddManyParentInBatch": "New parents in this list",
   "adminAddManyParentExisting": "Existing parents",
   "adminAddManySearchParents": "Search parents…",

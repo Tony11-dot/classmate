@@ -111,6 +111,7 @@ export class AnnouncementsService {
           type: 'ANNOUNCEMENT',
           title: title,
           body: text.slice(0, 200),
+          template: { key: 'announcement', args: { title } },
           data: { announcementId: created.id },
         });
       }

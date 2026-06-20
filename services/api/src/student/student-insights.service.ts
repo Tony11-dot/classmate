@@ -213,43 +213,89 @@ export class StudentInsightsService {
       };
     }
 
-    const [gradeRows, attendanceRows, practiceAttemptRows] = await Promise.all([
-      this.prisma.gradeRecord.findMany({
-        where: { studentId },
-        orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
-        include: { assessment: true },
-      }),
-      this.prisma.attendanceRecord.findMany({
-        where: { studentId },
-        orderBy: [{ session: { date: 'desc' } }, { session: { period: 'asc' } }],
-        include: {
-          session: {
+    // Each query is independently fault-tolerant: a transient failure in one
+    // (e.g. attendance) must NOT blank out the others. Previously a single
+    // rejected query rejected the whole endpoint, so the Grades tab would
+    // intermittently render empty and only repopulate on a later refresh —
+    // the "grades disappear, refresh a few times, they come back" bug.
+    const [gradeRows, assignmentGradeRows, attendanceRows, practiceAttemptRows] =
+      await Promise.all([
+        this.prisma.gradeRecord
+          .findMany({
+            where: { studentId },
+            orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
+            include: { assessment: true },
+          })
+          .catch(() => [] as any[]),
+        // Graded teacher-assignments belong in the Grades tab too. Mirror the
+        // /student/grades merge so both endpoints agree (the inconsistency was
+        // a second cause of grades appearing in one place but not the other).
+        this.prisma.teacherAssignmentSubmission
+          .findMany({
+            where: { studentId, grade: { not: null }, status: 'GRADED' },
+            orderBy: { gradedAt: 'desc' },
             include: {
-              
+              assignment: { select: { id: true, title: true, subject: true } },
             },
-          },
-        },
-      }),
-      this.prisma.practiceAttempt.findMany({
-        where: { userId: studentId },
-        orderBy: [{ createdAt: 'desc' }],
-        select: {
-          createdAt: true,
-          isCorrect: true,
-        },
-      }),
-    ]);
+          })
+          .catch(() => [] as any[]),
+        this.prisma.attendanceRecord
+          .findMany({
+            where: { studentId },
+            orderBy: [{ session: { date: 'desc' } }, { session: { period: 'asc' } }],
+            include: { session: { include: {} } },
+          })
+          .catch(() => [] as any[]),
+        this.prisma.practiceAttempt
+          .findMany({
+            where: { userId: studentId },
+            orderBy: [{ createdAt: 'desc' }],
+            select: { createdAt: true, isCorrect: true },
+          })
+          .catch(() => [] as any[]),
+      ]);
 
-    const practice =
-      (await this.practiceService.getProgressSummary(
+    // Normalize graded assignments into the same shape summarizeGrades reads,
+    // then merge with assessment grades, newest-first.
+    const assignmentAsGrades = (assignmentGradeRows as any[]).map((s) => ({
+      id: `asn-${s.id}`,
+      grade: s.grade,
+      assessment: {
+        id: `assignment-${s.assignment?.id ?? s.assignmentId}`,
+        title: s.assignment?.title ?? 'Assignment',
+        subject: s.assignment?.subject ?? null,
+        date: s.gradedAt ?? s.submittedAt,
+      },
+    }));
+    const mergedGradeRows = [...(gradeRows as any[]), ...assignmentAsGrades].sort(
+      (a, b) => {
+        const ad = new Date(a.assessment?.date ?? 0).getTime();
+        const bd = new Date(b.assessment?.date ?? 0).getTime();
+        return bd - ad;
+      },
+    );
+
+    let practice: StudentInsightsPracticeSummary;
+    try {
+      practice = (await this.practiceService.getProgressSummary(
         studentId,
       )) as StudentInsightsPracticeSummary;
+    } catch {
+      practice = {
+        totalSessions: 0,
+        totalAttempts: 0,
+        totalCorrect: 0,
+        overallAccuracy: 0,
+        weakTopics: [],
+        strongestTopics: [],
+      } as StudentInsightsPracticeSummary;
+    }
 
     return {
       ok: true,
       studentId,
       generatedAt: new Date().toISOString(),
-      grades: this.summarizeGrades(gradeRows),
+      grades: this.summarizeGrades(mergedGradeRows),
       attendance: this.summarizeAttendance(attendanceRows),
       practice: {
         ...practice,

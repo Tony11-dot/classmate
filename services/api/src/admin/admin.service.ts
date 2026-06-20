@@ -1930,11 +1930,22 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       // Stable client-assigned row id, used to link an in-batch student row to
       // an in-batch parent row without relying on (auto-generated) usernames.
       clientRef: dto?.ref ? String(dto.ref) : undefined,
-      // Preferred parent link: an existing parent user's id (from the picker).
-      parentId: dto?.parentId ? String(dto.parentId) : undefined,
-      // Fallback parent link: another row in this same batch, by its clientRef.
-      parentRef: dto?.parentRef ? String(dto.parentRef) : undefined,
-      parentUsername: dto?.parentUsername ? String(dto.parentUsername).toLowerCase() : undefined,
+      // A student may be linked to MULTIPLE parents. The grid sends arrays;
+      // the singular keys are accepted for back-compat (older clients / CSV).
+      parentIds: [
+        ...(dto?.parentId ? [String(dto.parentId)] : []),
+        ...(Array.isArray(dto?.parentIds) ? dto.parentIds.map((x: any) => String(x)) : []),
+      ],
+      parentRefs: [
+        ...(dto?.parentRef ? [String(dto.parentRef)] : []),
+        ...(Array.isArray(dto?.parentRefs) ? dto.parentRefs.map((x: any) => String(x)) : []),
+      ],
+      parentUsernames: [
+        ...(dto?.parentUsername ? [String(dto.parentUsername).toLowerCase()] : []),
+        ...(Array.isArray(dto?.parentUsernames)
+          ? dto.parentUsernames.map((x: any) => String(x).toLowerCase())
+          : []),
+      ],
       childUsernames: Array.isArray(dto?.childUsernames)
         ? dto.childUsernames.map((x: any) => String(x).toLowerCase())
         : undefined,
@@ -1979,9 +1990,14 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     items: Array<{
       dto: any;
       clientRef?: string;
+      // Singular keys: legacy / CSV path (one parent). Plural keys: the grid,
+      // which supports linking a student to multiple parents at once.
       parentId?: string;
       parentRef?: string;
       parentUsername?: string;
+      parentIds?: string[];
+      parentRefs?: string[];
+      parentUsernames?: string[];
       childUsernames?: string[];
       rowNumber: number;
     }>,
@@ -2045,15 +2061,41 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ?? null;
       if (!selfId) continue;
 
-      // a student row linked to a parent — by existing id, in-batch ref, or
-      // (CSV) username, in that order of preference.
-      const parentByPicker = await resolveExistingParent(item.parentId);
-      const parentByRef = item.parentRef ? (refToId.get(item.parentRef) ?? null) : null;
-      const parentByName = item.parentUsername ? await resolve(item.parentUsername) : null;
-      const parentId = parentByPicker ?? parentByRef ?? parentByName;
-      if ((item.parentId || item.parentRef || item.parentUsername)) {
-        if (parentId) await link(parentId, selfId, item.rowNumber, item.parentUsername ?? 'parent');
-        else linkErrors.push({ row: item.rowNumber, reason: `parent not found for row ${item.rowNumber}` });
+      // A student row may link to MULTIPLE parents — by existing id, in-batch
+      // ref, and/or (CSV) username. Merge singular (legacy/CSV) + plural (grid)
+      // sources, then resolve and link each; ParentChild's unique
+      // (parentId, childId) constraint + the P2002 swallow in link() make
+      // duplicates harmless.
+      const allParentIds = [
+        ...(item.parentIds ?? []),
+        ...(item.parentId ? [item.parentId] : []),
+      ];
+      const allParentRefs = [
+        ...(item.parentRefs ?? []),
+        ...(item.parentRef ? [item.parentRef] : []),
+      ];
+      const allParentUsernames = [
+        ...(item.parentUsernames ?? []),
+        ...(item.parentUsername ? [item.parentUsername] : []),
+      ];
+      const resolvedParents = new Set<string>();
+      for (const pid of allParentIds) {
+        const r = await resolveExistingParent(pid);
+        if (r) resolvedParents.add(r);
+        else linkErrors.push({ row: item.rowNumber, reason: `parent "${pid}" not found` });
+      }
+      for (const ref of allParentRefs) {
+        const r = refToId.get(ref) ?? null;
+        if (r) resolvedParents.add(r);
+        else linkErrors.push({ row: item.rowNumber, reason: `in-batch parent not found for row ${item.rowNumber}` });
+      }
+      for (const un of allParentUsernames) {
+        const r = await resolve(un);
+        if (r) resolvedParents.add(r);
+        else linkErrors.push({ row: item.rowNumber, reason: `parent "${un}" not found` });
+      }
+      for (const parentId of resolvedParents) {
+        await link(parentId, selfId, item.rowNumber, 'parent');
       }
 
       // a parent row that names its children (CSV path)

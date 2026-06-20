@@ -589,6 +589,9 @@ export class TeacherService {
           type: 'ATTENDANCE_ALERT',
           title: __newStatus === 'ABSENT' ? 'You were marked absent' : 'You were marked late',
           body: `Period ${session.period} · ${session.date.toISOString().slice(0, 10)}`,
+          template: {
+            key: __newStatus === 'ABSENT' ? 'attendance_absent' : 'attendance_late',
+          },
           data: { sessionId: record.sessionId, status: __newStatus },
           severity: 'warning',
           fanOutToParents: false,
@@ -762,6 +765,9 @@ export class TeacherService {
             type: 'ATTENDANCE_ALERT',
             title: __newStatus === 'ABSENT' ? 'You were marked absent' : 'You were marked late',
             body: `Period ${session.period} · ${session.date.toISOString().slice(0, 10)}`,
+            template: {
+              key: __newStatus === 'ABSENT' ? 'attendance_absent' : 'attendance_late',
+            },
             data: { sessionId: __upserted.sessionId, status: __newStatus },
             severity: 'warning',
             fanOutToParents: false,
@@ -1310,6 +1316,14 @@ export class TeacherService {
             type: 'GRADE_POSTED',
             title: 'New grade posted',
             body: `You got ${__upserted.grade}`,
+            template: {
+              key: 'grade',
+              args: {
+                teacher: this._notifierName(user),
+                grade: __upserted.grade,
+                subject: (assessment as any)?.subject ?? '',
+              },
+            },
             data: {
               grade: __upserted.grade,
               assessmentId: __assessmentId,
@@ -1497,7 +1511,13 @@ export class TeacherService {
     return cr;
   }
 
-  private async notifyClassroomMembers(classroomId: string, title: string, body: string, data?: any) {
+  private async notifyClassroomMembers(
+    classroomId: string,
+    title: string,
+    body: string,
+    data?: any,
+    template?: import('../notifications/notif-i18n').NotifTemplate,
+  ) {
     try {
       const members = await this.prisma.classroomMember.findMany({
         where: { classroomId },
@@ -1512,6 +1532,7 @@ export class TeacherService {
         type: (data?.type as string) || 'CLASSROOM_UPDATE',
         title,
         body,
+        template,
         data: data ?? {},
         severity: 'info',
       });
@@ -1707,6 +1728,10 @@ export class TeacherService {
         type: 'CLASSROOM_INVITE',
         title: `Added to ${subject}`,
         body: `You're now a member of ${classroom?.name ?? 'a new classroom'}.`,
+        template: {
+          key: 'classroom_invite',
+          args: { subject: classroom?.name ?? subject },
+        },
         data: { classroomId },
       });
     } catch (e) { console.error('[teacher] classroom-add notify failed:', e); }
@@ -1837,7 +1862,7 @@ export class TeacherService {
       data: { classroomId, title, body: bodyText ?? undefined, dueAt: dueAt ?? undefined, createdBy: teacherId, attachments } as any,
     });
     const dueLabel = dueAt ? ` — due ${dueAt.toLocaleDateString()}` : '';
-    await this.notifyClassroomMembers(classroomId, `New assignment: ${title}`, `${cr.name}${dueLabel}`, { type: 'NEW_ASSIGNMENT', assignmentId: item.id, classroomId });
+    await this.notifyClassroomMembers(classroomId, `New assignment: ${title}`, `${cr.name}${dueLabel}`, { type: 'NEW_ASSIGNMENT', assignmentId: item.id, classroomId }, { key: 'assignment', args: { teacher: this._notifierName(user), title, subject: (cr as any).subject ?? cr.name } });
     void this.emitToClassroomMembers(classroomId, { type: 'assignment_created', classroomId });
     return { ok: true, item };
   }
@@ -1896,7 +1921,7 @@ export class TeacherService {
     const item = await this.prisma.classroomMaterial.create({
       data: { classroomId, title, url: effectiveUrl, description: body?.description ? String(body.description).trim() : undefined, mime: body?.mime ? String(body.mime).trim() : undefined, createdBy: teacherId, attachments } as any,
     });
-    await this.notifyClassroomMembers(classroomId, `New material: ${title}`, cr.name, { type: 'NEW_MATERIAL', materialId: item.id, classroomId });
+    await this.notifyClassroomMembers(classroomId, `New material: ${title}`, cr.name, { type: 'NEW_MATERIAL', materialId: item.id, classroomId }, { key: 'material', args: { teacher: this._notifierName(user), title, subject: (cr as any).subject ?? cr.name } });
     void this.emitToClassroomMembers(classroomId, { type: 'material_created', classroomId });
     return { ok: true, item };
   }
@@ -1943,7 +1968,7 @@ export class TeacherService {
       data: { classroomId, title, link, startsAt, endsAt: endsAt ?? undefined, createdBy: teacherId },
     });
     const timeLabel = startsAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    await this.notifyClassroomMembers(classroomId, `Meeting: ${title}`, `${cr.name} — ${timeLabel}`, { type: 'NEW_MEETING', meetingId: item.id, classroomId });
+    await this.notifyClassroomMembers(classroomId, `Meeting: ${title}`, `${cr.name} — ${timeLabel}`, { type: 'NEW_MEETING', meetingId: item.id, classroomId }, { key: 'meeting', args: { teacher: this._notifierName(user), title } });
     void this.emitToClassroomMembers(classroomId, { type: 'meeting_created', classroomId });
     return { ok: true, item };
   }
@@ -2501,6 +2526,10 @@ export class TeacherService {
             type: 'NEW_FORM',
             title: `New form: ${form.title}`,
             body: (form.description ?? form.subject ?? '').slice(0, 200),
+            template: {
+              key: 'form',
+              args: { teacher: this._notifierName(user), title: form.title },
+            },
             data: { formId: form.id },
           });
         }
@@ -2623,6 +2652,7 @@ export class TeacherService {
           type: 'NEW_DIPLOMA',
           title: `You earned a certificate: ${diploma.title}`,
           body: [diploma.subject, diploma.distinction, diploma.notes].filter(Boolean).join(' · ').slice(0, 200),
+          template: { key: 'diploma', args: { title: diploma.title } },
           data: { diplomaId: diploma.id },
         });
       } catch (e) { console.error('[teacher] diploma notify failed:', e); }
@@ -2769,6 +2799,14 @@ export class TeacherService {
             type: 'NEW_ASSIGNMENT',
             title: `New assignment: ${title}`,
             body: a.subject ? `${a.subject} · ${a.description ?? ''}`.slice(0, 200) : (a.description ?? '').slice(0, 200),
+            template: {
+              key: 'assignment',
+              args: {
+                teacher: this._notifierName(user),
+                title,
+                subject: a.subject ?? '',
+              },
+            },
             data: { assignmentId: a.id, classroomId },
           });
         }
@@ -3081,6 +3119,14 @@ export class TeacherService {
             type: 'NEW_MATERIAL',
             title: `New material: ${title}`,
             body: (m.subject ?? m.description ?? '').slice(0, 200),
+            template: {
+              key: 'material',
+              args: {
+                teacher: this._notifierName(user),
+                title,
+                subject: m.subject ?? '',
+              },
+            },
             data: { materialId: m.id, classroomId },
           });
         }
@@ -3753,6 +3799,15 @@ export class TeacherService {
     }
   }
 
+  /// Display name of the acting teacher/admin, for notification bodies
+  /// ("Sarah added a 100 in Math"). Falls back to a generic label.
+  private _notifierName(user: any): string {
+    const n = (user?.displayName || user?.name || user?.fullName || '')
+      .toString()
+      .trim();
+    return n || 'Your teacher';
+  }
+
   async createTeacherMeeting(user: any, body: any) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -3804,6 +3859,10 @@ export class TeacherService {
           type: 'NEW_MEETING',
           title: title,
           body: `New meeting scheduled by ${teacherName} at ${this._friendlyDateTime(startsAt)}`,
+          template: {
+            key: 'meeting',
+            args: { teacher: teacherName, title },
+          },
           data: { meetingId: m.id, classroomId },
         });
       }
@@ -3918,6 +3977,14 @@ export class TeacherService {
             type: 'NEW_EXAM',
             title: `New exam: ${title}`,
             body: e.subject ? `${e.subject} · ${e.date.toISOString().slice(0, 10)}` : e.date.toISOString().slice(0, 10),
+            template: {
+              key: 'exam',
+              args: {
+                teacher: this._notifierName(user),
+                title,
+                subject: e.subject ?? '',
+              },
+            },
             data: { examId: e.id },
           });
         }

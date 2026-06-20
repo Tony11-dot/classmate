@@ -20,6 +20,10 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
   final Set<String> _expanded = {};
   bool _showingPrevious = false;
   SemesterWindow? _selectedPast;
+  // Last successfully-loaded insights. A refresh that transiently returns
+  // null/empty (network blip, slow endpoint) must NOT blank out grades the
+  // student already saw — we fall back to this instead of flashing empty.
+  UnifiedStudentInsights? _lastGood;
 
   DateTime? _parseDate(String? raw) {
     final value = (raw ?? '').trim();
@@ -134,7 +138,11 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
           ),
         ),
         data: (data) {
-          final raw = data?.grades.latest ?? const <UnifiedGradeInsight>[];
+          if (data != null && data.grades.latest.isNotEmpty) _lastGood = data;
+          final source = (data != null && data.grades.latest.isNotEmpty)
+              ? data
+              : (data ?? _lastGood);
+          final raw = source?.grades.latest ?? const <UnifiedGradeInsight>[];
           final all = _sorted(raw);
           // Semester split (by grade date) — pills only show when the school
           // configured semesters.

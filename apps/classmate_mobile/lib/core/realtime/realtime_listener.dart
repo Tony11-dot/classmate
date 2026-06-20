@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_controller.dart';
+import '../locale/locale_controller.dart';
 import 'realtime_service.dart';
 export 'realtime_service.dart' show RealtimeEvent;
 
@@ -70,6 +71,11 @@ class _RealtimeListenerState extends ConsumerState<RealtimeListener> {
     }
 
     RealtimeService.instance.connect(token);
+
+    // Mirror the chosen UI language to the server on (re)login so the
+    // notification hub can localize copy for this account.
+    pushLocaleToServer(token, ref.read(localeControllerProvider)?.languageCode);
+
     _eventSub = RealtimeService.instance.events.listen((event) {
       if (!mounted) return;
       ref.read(realtimeEventProvider.notifier).emit(event);

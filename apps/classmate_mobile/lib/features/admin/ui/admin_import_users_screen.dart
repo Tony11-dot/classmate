@@ -48,11 +48,10 @@ class _Row {
   // grade list. Persistent (not rebuilt per frame) so the cursor/IME survive.
   final gradeCtrl = TextEditingController();
 
-  // Parent link (students only): EITHER an existing parent user id, OR another
-  // PARENT row in this same batch (by its ref). Mutually exclusive.
-  String? parentExistingId;
-  String? parentExistingName;
-  String? parentRowRef;
+  // Parent links (students only). A student may be linked to MULTIPLE parents.
+  // Each link is one of: an existing parent user id, another PARENT row in this
+  // same batch (by its ref), or a CSV username.
+  final List<_ParentLink> parents = [];
 
   List<String>? childUsernames; // carried through from CSV (parent rows)
 
@@ -70,24 +69,15 @@ class _Row {
     if (r.grade != null) r.gradeCtrl.text = '${r.grade}';
     // CSV still links by username text — keep it as a username link.
     final p = '${m['parentUsername'] ?? ''}'.trim();
-    if (p.isNotEmpty) { r.parentExistingName = p; r._parentUsername = p; }
+    if (p.isNotEmpty) r.parents.add(_ParentLink(username: p, displayName: p));
     final cu = m['childUsernames'];
     if (cu is List && cu.isNotEmpty) r.childUsernames = cu.map((e) => '$e').toList();
     return r;
   }
 
-  // Set only on the CSV path (parent identified by a typed username).
-  String? _parentUsername;
+  void clearParent() => parents.clear();
 
-  void clearParent() {
-    parentExistingId = null;
-    parentExistingName = null;
-    parentRowRef = null;
-    _parentUsername = null;
-  }
-
-  bool get hasParent =>
-      parentExistingId != null || parentRowRef != null || _parentUsername != null;
+  bool get hasParent => parents.isNotEmpty;
 
   void dispose() {
     debounce?.cancel();
@@ -104,17 +94,43 @@ class _Row {
     if (u.isNotEmpty) dto['username'] = u;
     if (role == 'STUDENT') {
       if (grade != null) dto['grade'] = grade;
-      if (parentExistingId != null) {
-        dto['parentId'] = parentExistingId;
-      } else if (parentRowRef != null) {
-        dto['parentRef'] = parentRowRef;
-      } else if (_parentUsername != null) {
-        dto['parentUsername'] = _parentUsername;
+      final ids = <String>[];
+      final refs = <String>[];
+      final usernames = <String>[];
+      for (final p in parents) {
+        if (p.existingId != null) {
+          ids.add(p.existingId!);
+        } else if (p.rowRef != null) {
+          refs.add(p.rowRef!);
+        } else if (p.username != null) {
+          usernames.add(p.username!);
+        }
       }
+      if (ids.isNotEmpty) dto['parentIds'] = ids;
+      if (refs.isNotEmpty) dto['parentRefs'] = refs;
+      if (usernames.isNotEmpty) dto['parentUsernames'] = usernames;
     }
     if (childUsernames != null && childUsernames!.isNotEmpty) dto['childUsernames'] = childUsernames;
     return dto;
   }
+}
+
+/// One parent link on a student row. Exactly one of [existingId] / [rowRef] /
+/// [username] is set. [displayName] is the chip label (kept in sync from the
+/// live PARENT row for in-batch links).
+class _ParentLink {
+  _ParentLink({this.existingId, this.rowRef, this.username, this.displayName});
+  final String? existingId; // an existing parent user id (from the picker)
+  final String? rowRef; // another PARENT row in this batch, by its ref
+  final String? username; // CSV username link
+  final String? displayName;
+
+  // Stable identity for de-duplication.
+  String get key => existingId != null
+      ? 'id:$existingId'
+      : rowRef != null
+          ? 'ref:$rowRef'
+          : 'un:${username ?? ''}';
 }
 
 class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
@@ -143,7 +159,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     final removed = _rows[i];
     // Detach any student rows that linked to this (in-batch parent) row.
     for (final r in _rows) {
-      if (r.parentRowRef == removed.ref) r.clearParent();
+      r.parents.removeWhere((p) => p.rowRef == removed.ref);
     }
     setState(() => _rows.removeAt(i).dispose());
   }
@@ -268,34 +284,55 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     );
     if (result == null) return;
     setState(() {
-      student.clearParent();
       switch (result.kind) {
         case _ParentKind.none:
-          break;
+          // "No parent" clears ALL links on this student.
+          student.parents.clear();
         case _ParentKind.existing:
-          student.parentExistingId = result.id;
-          student.parentExistingName = result.name;
+          _addParentLink(
+            student,
+            _ParentLink(existingId: result.id, displayName: result.name),
+          );
         case _ParentKind.batch:
-          student.parentRowRef = result.ref;
+          _addParentLink(
+            student,
+            _ParentLink(rowRef: result.ref, displayName: result.name),
+          );
         case _ParentKind.create:
-          // Spin up a new PARENT row and link this student to it by ref.
+          // Spin up a new PARENT row and link this student to it by ref. The
+          // new row exposes the same fields as any other parent row, so the
+          // admin fills it in inline.
           final p = _Row(_nextRef())..role = 'PARENT';
           p.name.text = result.name ?? '';
           _rows.add(p);
-          student.parentRowRef = p.ref;
+          _addParentLink(
+            student,
+            _ParentLink(rowRef: p.ref, displayName: result.name),
+          );
       }
     });
   }
 
-  String? _parentLabelFor(_Row row) {
-    if (row.parentExistingId != null) return row.parentExistingName;
-    if (row.parentRowRef != null) {
+  // Add a parent link, de-duplicating so the same parent can't be linked twice.
+  void _addParentLink(_Row student, _ParentLink link) {
+    if (student.parents.any((p) => p.key == link.key)) return;
+    student.parents.add(link);
+  }
+
+  // Live label for a link's chip — for in-batch links it follows the current
+  // name typed into the PARENT row.
+  String _parentLinkLabel(_ParentLink p) {
+    if (p.rowRef != null) {
       for (final r in _rows) {
-        if (r.ref == row.parentRowRef) return r.name.text.trim().isEmpty ? '—' : r.name.text.trim();
+        if (r.ref == p.rowRef) {
+          final n = r.name.text.trim();
+          return n.isEmpty ? '—' : n;
+        }
       }
     }
-    if (row._parentUsername != null) return row._parentUsername;
-    return null;
+    return (p.displayName ?? p.username ?? '—').trim().isEmpty
+        ? '—'
+        : (p.displayName ?? p.username ?? '—');
   }
 
   // ── Submit ──────────────────────────────────────────────────────────────
@@ -622,27 +659,44 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
   Widget _parentField(_Row row, {String? label}) {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    final parentLabel = _parentLabelFor(row);
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: () => _pickParent(row),
-      child: InputDecorator(
-        decoration: InputDecoration(labelText: label, isDense: true, border: const OutlineInputBorder()),
-        child: Row(children: [
-          Expanded(
-            child: Text(
-              parentLabel ?? l.adminAddManyParentNone,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    final addLabel =
+        row.parents.isEmpty ? l.adminAddManyParentNone : l.adminAddManyAddParent;
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        isDense: true,
+        border: const OutlineInputBorder(),
+      ),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          for (final p in row.parents)
+            InputChip(
+              label: Text(
+                _parentLinkLabel(p),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onDeleted: () => setState(() => row.parents.remove(p)),
+            ),
+          ActionChip(
+            avatar: Icon(Icons.add_rounded, size: 16, color: cs.primary),
+            label: Text(
+              addLabel,
               style: TextStyle(
-                fontSize: 13,
-                color: parentLabel == null ? cs.onSurfaceVariant : cs.onSurface,
-                fontWeight: parentLabel == null ? FontWeight.w400 : FontWeight.w600,
+                fontSize: 12,
+                color: cs.primary,
+                fontWeight: FontWeight.w600,
               ),
             ),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            onPressed: () => _pickParent(row),
           ),
-          Icon(parentLabel == null ? Icons.link_rounded : Icons.edit_rounded, size: 16, color: cs.onSurfaceVariant),
-        ]),
+        ],
       ),
     );
   }
@@ -715,17 +769,27 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
           ),
           Expanded(
             child: ListView(controller: scrollCtrl, padding: const EdgeInsets.fromLTRB(12, 0, 12, 16), children: [
+              // Create-new-parent sits on TOP so a parent can be made on the
+              // spot. Uses the typed search text as the name when present.
+              ListTile(
+                leading: Icon(Icons.person_add_rounded, color: cs.primary),
+                title: Text(
+                  _q.trim().isEmpty
+                      ? l.adminAddManyCreateParentGeneric
+                      : l.adminAddManyCreateParent(_q.trim()),
+                  style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700),
+                ),
+                onTap: () => Navigator.pop(
+                  context,
+                  _ParentChoice(_ParentKind.create,
+                      name: _q.trim().isEmpty ? null : _q.trim()),
+                ),
+              ),
               ListTile(
                 leading: const Icon(Icons.link_off_rounded),
                 title: Text(l.adminAddManyParentNone),
                 onTap: () => Navigator.pop(context, const _ParentChoice(_ParentKind.none)),
               ),
-              if (_q.trim().isNotEmpty)
-                ListTile(
-                  leading: Icon(Icons.person_add_rounded, color: cs.primary),
-                  title: Text(l.adminAddManyCreateParent(_q.trim()), style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700)),
-                  onTap: () => Navigator.pop(context, _ParentChoice(_ParentKind.create, name: _q.trim())),
-                ),
               if (batch.isNotEmpty) ...[
                 _sectionLabel(cs, l.adminAddManyParentInBatch),
                 for (final p in batch)

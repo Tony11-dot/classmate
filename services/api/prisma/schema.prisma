@@ -93,6 +93,11 @@ model User {
   phone       String?
   status      AccountStatus @default(AUTH_ONLY)
 
+  /// The user's chosen UI language ('en'|'ar'|'he'|'fr'|'ru'|'ps'), pushed by
+  /// the app whenever the locale changes. Used to localize notification copy
+  /// per recipient (in-app inbox + system push). Null → English.
+  language    String?
+
   // optional future tzfonet fields
   tzfonetEmail      String?
   tzfonetVerifiedAt DateTime?

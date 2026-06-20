@@ -1370,6 +1370,10 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
           type: 'NEW_MESSAGE',
           title: `${senderName} sent you a message`,
           body: preview,
+          template: {
+            key: 'message',
+            args: { sender: senderName, preview },
+          },
           data: { threadId, messageId: created.id },
         });
       }
