@@ -73,11 +73,6 @@ model User {
   /// migration runner that respects the 20260527_username_required SQL.
   username                String?                  @unique
   password                String
-  /// Plaintext of the current password, kept so admins can re-export login
-  /// credentials without resetting them. Updated on every write path that
-  /// changes `password` (signup, admin create/set, user change, reset). Only
-  /// read by the admin export endpoint, never returned to clients.
-  plainPassword           String?
   name                    String
   parentNotificationState ParentNotificationState?
 
@@ -162,6 +157,10 @@ model User {
 
   dmMessageReportsFiled DmMessageReport[] @relation("DmMessageReportsFiled")
   dmMessagesSent        DmMessage[]       @relation("DmMessagesSent")
+
+  // Tenant key — every "users in school X" query filters on this; index it so
+  // those reads don't seq-scan the user table as tenants grow.
+  @@index([schoolId])
 }
 
 model UserRole {
@@ -252,6 +251,8 @@ model Cohort {
   attendanceSessions    AttendanceSession[]
   scheduleTemplateBinds CohortScheduleTemplate[]
   assessments           Assessment[]
+
+  @@index([schoolId])
 }
 
 model CohortJoinCode {

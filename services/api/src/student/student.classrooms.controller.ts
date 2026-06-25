@@ -450,6 +450,7 @@ export class StudentClassroomsController {
       } as any,
     });
     this._emitClassroomMessage(id, uid);
+    void this._notifyClassroomMessage(id, uid, text);
     return { ok: true, item: msg };
   }
 
@@ -508,6 +509,43 @@ export class StudentClassroomsController {
       const targets = members.map((m) => m.studentId);
       if (teacher?.teacherId && teacher.teacherId !== senderUserId) targets.push(teacher.teacherId);
       this.realtime.emitToUsers(targets, { type: 'classroom_message', classroomId });
+    } catch (_) {}
+  }
+
+  /// In-app inbox row + FCM push for a classroom chat message, to every other
+  /// member plus the teacher (excluding the sender). The SSE emit above only
+  /// refreshes an already-open chat; this is what surfaces a banner/push when
+  /// the recipient isn't looking. fanOutToParents:false — pushing every group
+  /// chat message to parents would be spam (grades/announcements still do).
+  private async _notifyClassroomMessage(classroomId: string, senderUserId: string, text: string) {
+    try {
+      const members = await this.prisma.classroomMember.findMany({
+        where: { classroomId, studentId: { not: senderUserId } },
+        select: { studentId: true },
+      });
+      const cls = await this.prisma.classroom.findUnique({
+        where: { id: classroomId },
+        select: { teacherId: true },
+      });
+      const targets = members.map((m) => m.studentId);
+      if (cls?.teacherId && cls.teacherId !== senderUserId) targets.push(cls.teacherId);
+      if (!targets.length) return;
+      const sender = await this.prisma.user.findUnique({
+        where: { id: senderUserId },
+        select: { name: true },
+      });
+      const senderName = sender?.name ?? 'Someone';
+      const preview = String(text ?? '').slice(0, 120) || 'Attachment';
+      await this.hub.notify({
+        recipientUserIds: targets,
+        type: 'NEW_MESSAGE',
+        title: 'New message',
+        body: `${senderName}: ${preview}`,
+        template: { key: 'message', args: { sender: senderName, preview } },
+        data: { type: 'classroom_message', classroomId },
+        fanOutToParents: false,
+        severity: 'info',
+      });
     } catch (_) {}
   }
 
@@ -614,6 +652,7 @@ export class StudentClassroomsController {
       } as any,
     });
     this._emitClassroomMessage(id, uid);
+    void this._notifyClassroomMessage(id, uid, String(body?.text ?? ''));
     return { ok: true, item: msg };
   }
 

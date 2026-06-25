@@ -1,8 +1,13 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import { BagrutService } from './bagrut.service';
 
-@UseGuards(JwtAuthGuard)
+// AI question/exam generation (metered Anthropic spend) — students only.
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.STUDENT)
 @Controller('bagrut')
 export class BagrutController {
   constructor(private service: BagrutService) {}

@@ -114,6 +114,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         select: { slotId: true },
       });
       if (!slotCohort) throw new ForbiddenException('Teacher not authorized for this cohort');
+    } else if (roles.includes('ADMIN')) {
+      // School isolation: an admin can only mint codes for their own school's cohorts.
+      await this.assertCohortInSchool(user, body.cohortId);
     }
 
 
@@ -653,6 +656,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     this.requireAdminOrSecretary(user);
     const { cohortId, from, to } = query ?? {} as any;
     if (!cohortId) throw new BadRequestException('cohortId is required');
+    await this.assertCohortInSchool(user, cohortId);
     const fromDt = new Date(`${from}T00:00:00.000Z`);
     const toDt = new Date(`${to}T00:00:00.000Z`);
     const end = new Date(toDt); end.setUTCDate(end.getUTCDate() + 1);
@@ -676,6 +680,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async getCohortSchedule(user: any, cohortId: string) {
     this.requireAdminOrSecretary(user);
     if (!cohortId) throw new BadRequestException('cohortId is required');
+    await this.assertCohortInSchool(user, cohortId);
     const slotIds = (await this.prisma.scheduleSlotCohort.findMany({ where: { cohortId }, select: { slotId: true } })).map((r) => r.slotId);
     if (!slotIds.length) return [];
     return this.prisma.scheduleSlot.findMany({ where: { id: { in: slotIds } }, orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }] });
@@ -706,6 +711,17 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       select: { id: true },
     });
     return valid.map((u) => u.id);
+  }
+
+  /** Throws 403 if the cohort does not belong to the admin's school. */
+  private async assertCohortInSchool(user: any, cohortId: string): Promise<void> {
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) return;
+    const cohort = await this.prisma.cohort.findFirst({
+      where: { id: cohortId, schoolId },
+      select: { id: true },
+    });
+    if (!cohort) throw new ForbiddenException('That cohort does not belong to your school');
   }
 
   private requireAdminOrSecretary(user: any) {
@@ -1061,7 +1077,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         email: true,
         username: true,
         phone: true,
-        plainPassword: true,
         studentProfile: {
           select: {
             cohort: { select: { id: true, name: true, grade: true } },
@@ -1098,12 +1113,20 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       );
     }
 
-    // Non-destructive: when the admin asks for passwords, we read the
-    // plaintext copy maintained alongside the bcrypt hash. Users who
-    // existed before plainPassword was introduced will show an empty
-    // password column until they next change/reset their password
-    // (which is the only path that can backfill plaintext safely).
+    // Passwords are stored only as bcrypt hashes and can never be recovered.
+    // When the admin asks to include passwords, we RESET each exported student
+    // to a freshly generated temp password and return that — the only way an
+    // export can hand over a usable credential without persisting plaintext.
     const includePasswords = query?.generatePasswords === 'true';
+    const resetPasswords = new Map<string, string>();
+    if (includePasswords) {
+      for (const r of filtered) {
+        const fresh = `Classmate${randomDigits(6)}!`;
+        const hash = await bcrypt.hash(fresh, 10);
+        await this.prisma.user.update({ where: { id: r.id }, data: { password: hash } });
+        resetPasswords.set(r.id, fresh);
+      }
+    }
     const result: Array<{
       id: string; name: string;
       email: string | null; username?: string | null; phone: string | null;
@@ -1141,7 +1164,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         cohortName: cohortList[0]?.name ?? '',
         cohortNames,
         schoolName,
-        tempPassword: includePasswords ? ((r as any).plainPassword ?? '') : undefined,
+        tempPassword: includePasswords ? (resetPasswords.get(r.id) ?? '') : undefined,
       };
       result.push(entry);
     }
@@ -1155,9 +1178,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   ///   - cohortIds[]     → STUDENT users belonging to any of these cohorts
   ///   - gradeIds[]      → STUDENT users whose grade is in this set
   ///   - userIds[]       → specific users (any role) added one-by-one
-  /// Result is deduplicated by user id. When includePasswords is true,
-  /// rows carry their stored plainPassword (or empty for legacy accounts
-  /// created before plaintext was tracked — see exportStudents notes).
+  /// Result is deduplicated by user id. When includePasswords is true, each
+  /// row's password is RESET to a fresh generated value that is returned once
+  /// (passwords are hashed and cannot be recovered — see exportStudents).
   async exportUsers(
     user: any,
     query: {
@@ -1269,7 +1292,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         email: true,
         username: true,
         phone: true,
-        plainPassword: true,
         roles: { select: { role: true } },
         studentProfile: {
           select: {
@@ -1289,25 +1311,19 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     const schoolName = school?.name ?? '';
 
-    // When the caller asks for passwords, every row must have one. Users
-    // who already have a stored plainPassword keep it; users without one
-    // (typically accounts created before plainPassword existed, or who
-    // changed their own password via /me/password and never had a temp
-    // value backfilled) get a fresh generated password persisted to the
-    // DB. This DOES reset their old credential — the admin gets a new
-    // value they can hand over. That's the only way an export can
-    // promise "every row has a password" when the source-of-truth
-    // password is hashed.
+    // Passwords are stored only as bcrypt hashes — they can never be read back.
+    // So "include passwords" RESETS every exported user to a fresh generated
+    // password and returns that. This DOES invalidate their old credential;
+    // the admin receives a new value to hand over. It's the only way an export
+    // can promise "every row has a password" against a hashed source of truth.
     const backfilledPasswords = new Map<string, string>();
     if (includePasswords) {
       for (const r of rows) {
-        const existing = (r as any).plainPassword;
-        if (existing && String(existing).length > 0) continue;
         const fresh = `Classmate${randomDigits(6)}!`;
         const hash = await bcrypt.hash(fresh, 10);
         await this.prisma.user.update({
           where: { id: r.id },
-          data: { password: hash, plainPassword: fresh } as any,
+          data: { password: hash },
         });
         backfilledPasswords.set(r.id, fresh);
       }
@@ -1331,7 +1347,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       const role = rolePriority.find((p) => roles.includes(p)) ?? roles[0] ?? '';
 
       const passwordForRow = includePasswords
-        ? (((r as any).plainPassword as string | undefined) ?? backfilledPasswords.get(r.id) ?? '')
+        ? (backfilledPasswords.get(r.id) ?? '')
         : undefined;
 
       return {
@@ -1577,7 +1593,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ...(rawPhone ? { phone: rawPhone } : {}),
         username,
         password: hash,
-        plainPassword: tempPassword,
         schoolId,
         status: 'ACTIVE',
         roles: { create: [{ role: role as any }] },
@@ -1672,6 +1687,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async getUserChildren(user: any, userId: string) {
     this.requireAdminOrSecretary(user);
+    // School isolation: only read children of a parent in the admin's school.
+    await this.assertUserInSchool(user, userId);
     const links = await this.prisma.parentChild.findMany({
       where: { parentId: userId },
       include: {
@@ -1725,7 +1742,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!target) throw new NotFoundException('User not found');
 
     const hash = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({ where: { id }, data: { password: hash, plainPassword: newPassword } });
+    await this.prisma.user.update({ where: { id }, data: { password: hash } });
 
     // Invalidate any pending password-reset tokens for this user — the admin
     // just set the password, so old reset links shouldn't work anymore.
@@ -1890,6 +1907,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async getCohortRoster(user: any, cohortId: string) {
     this.requireAdminOrSecretary(user);
+    await this.assertCohortInSchool(user, cohortId);
     const links = await this.prisma.studentCohort.findMany({
       where: { cohortId },
       select: {

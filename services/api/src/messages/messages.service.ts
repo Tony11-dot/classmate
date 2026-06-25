@@ -1681,12 +1681,22 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
         // Try classroom target (classrooms replaced old cohort-based rooms)
         const classroom = await this.prisma.classroom.findUnique({
           where: { id: targetThreadId },
-          select: { id: true },
+          select: { id: true, teacherId: true },
         });
         if (!classroom) {
           // Skip invalid targets silently rather than throwing — the picker
           // may mix DM and classroom IDs and we want partial success.
           continue;
+        }
+        // Authorization: the forwarder must belong to this classroom (its
+        // teacher or an enrolled member) — without this, any user could inject
+        // a message into any classroom by id.
+        if (classroom.teacherId !== userId) {
+          const membership = await this.prisma.classroomMember.findUnique({
+            where: { classroomId_studentId: { classroomId: targetThreadId, studentId: userId } },
+            select: { studentId: true },
+          });
+          if (!membership) continue; // not a member — skip this target silently
         }
         await this.prisma.classroomMessage.create({
           data: {

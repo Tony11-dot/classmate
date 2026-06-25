@@ -1,13 +1,10 @@
 name: CI
 
-# Temporarily paused — workflow fails on Prisma/seed setup and was
-# spamming the owner's inbox on every push. Re-enable when we're
-# actually iterating on tests by restoring the push/PR triggers below.
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [ main ]
-  # pull_request:
+  push:
+    branches: [ main ]
+  pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -36,6 +33,11 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/classmate_test
+      # Guards only honor the dev bypass with this flag set (auth/dev-bypass.ts).
+      # Tests authenticate with real JWTs; this preserves the historical
+      # "test env = role checks relaxed" behavior.
+      DEV_AUTH_BYPASS: "1"
+      JWT_SECRET: ci-test-jwt-secret-not-used-in-prod
 
     steps:
       - uses: actions/checkout@v4
@@ -64,8 +66,32 @@ jobs:
       - name: Prisma db push (api)
         run: pnpm -C services/api exec prisma db push
 
+      # Seeding has been the flaky step that paused this workflow — keep it
+      # best-effort so a seed hiccup never red-Xes the whole run / spams the
+      # owner. The Jest steps below are the real gate.
       - name: Prisma seed (api)
+        continue-on-error: true
         run: pnpm -C services/api exec prisma db seed
+
+      # Unit suite — fast, no app bootstrap. Uses the CI DATABASE_URL directly
+      # (not .env.test), so invoke jest rather than the .env.test-coupled script.
+      - name: Unit tests (api)
+        working-directory: services/api
+        run: pnpm exec jest -c jest.config.cjs --ci --testPathIgnorePatterns='e2e\.spec\.ts$'
+
+      # Integration / security specs (src/test/*.e2e.spec.ts) — these were
+      # orphaned by naming: ignored by `test` and not matched by the e2e config.
+      # They cover join-code school-scope, validation pipe, parent-link, etc.
+      - name: Integration tests (api)
+        working-directory: services/api
+        run: pnpm exec jest -c jest.config.cjs --ci --testMatch '**/src/**/*.e2e.spec.ts'
+
+      # Full HTTP e2e suite (test/*.e2e-spec.ts) — best-effort for now; it has
+      # heavier bootstrap/.env coupling. Promote to a hard gate once stable.
+      - name: E2E tests (api)
+        continue-on-error: true
+        working-directory: services/api
+        run: pnpm exec jest --config ./test/jest-e2e.json --ci
 
       - name: Run health checks
         run: |

@@ -2,6 +2,7 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from './public.decorator';
+import { isDevAuthBypassEnabled } from './dev-bypass';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -18,11 +19,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (isPublic) return true;
 
     const req = context.switchToHttp().getRequest<any>();
-    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
-    const isDev =
-      String(appEnv).toLowerCase().includes('dev') ||
-      String(appEnv).toLowerCase().includes('test');
-    const devBypassEnabled = process.env.DEV_AUTH_BYPASS === '1';
     const devUser =
       String(
         req?.headers?.['x-dev-user'] ??
@@ -32,7 +28,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           '',
       ).trim();
 
-    if (isDev && devBypassEnabled && devUser) {
+    if (isDevAuthBypassEnabled() && devUser) {
       const devRolesRaw =
         String(
           req?.headers?.['x-dev-roles'] ??

@@ -264,7 +264,7 @@ export class PasswordResetService {
 
     const hash = await bcrypt.hash(pw, 10);
     await this.prisma.$transaction([
-      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash, plainPassword: pw } }),
+      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash } }),
       this.prisma.passwordResetToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
       // Invalidate any sibling tokens so they can't be redeemed either.
       this.prisma.passwordResetToken.updateMany({

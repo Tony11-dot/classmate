@@ -1423,6 +1423,8 @@ class TeacherAssessment {
     required this.title,
     required this.date,
     required this.maxGrade,
+    this.subject = '',
+    this.cohortId = '',
     this.published = false,
     this.attachments = const [],
   });
@@ -1435,6 +1437,11 @@ class TeacherAssessment {
       title: _asString(json['title']),
       date: _asString(json['date']),
       maxGrade: json['maxGrade'] == null ? null : _asInt(json['maxGrade']),
+      // The backend Assessment model carries the real `subject` (and
+      // `cohortId`); parse them so grade screens can bucket by the actual
+      // subject instead of falling back to the assessment title.
+      subject: _asString(json['subject']),
+      cohortId: _asString(json['cohortId']),
       published: json['published'] == true,
       attachments: rawAttachments is List
           ? rawAttachments.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
@@ -1447,6 +1454,8 @@ class TeacherAssessment {
   final String title;
   final String date;
   final int? maxGrade;
+  final String subject;
+  final String cohortId;
   final bool published;
   final List<Map<String, dynamic>> attachments;
 }

@@ -158,7 +158,19 @@ export class AnnouncementsService {
       if (typeof t.grade === 'number') grades.add(t.grade);
     }
 
-    directIds.forEach((id) => result.add(id));
+    // School isolation: direct user targets must belong to the sender's school
+    // (the backend can't trust client-supplied userIds across schools).
+    if (directIds.size > 0) {
+      if (schoolId) {
+        const rows = await this.prisma.user.findMany({
+          where: { id: { in: Array.from(directIds) }, schoolId },
+          select: { id: true },
+        });
+        rows.forEach((r) => result.add(r.id));
+      } else {
+        directIds.forEach((id) => result.add(id));
+      }
+    }
 
     if (roles.size > 0 && schoolId) {
       const rows = await this.prisma.user.findMany({
@@ -173,7 +185,11 @@ export class AnnouncementsService {
 
     if (cohortIds.size > 0) {
       const rows = await this.prisma.studentCohort.findMany({
-        where: { cohortId: { in: Array.from(cohortIds) } },
+        // School isolation: only resolve cohorts belonging to the sender's school.
+        where: {
+          cohortId: { in: Array.from(cohortIds) },
+          ...(schoolId ? { cohort: { schoolId } } : {}),
+        },
         select: { studentId: true },
       });
       rows.forEach((r) => result.add(r.studentId));

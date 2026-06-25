@@ -114,7 +114,11 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
       for (final r in gradeResults) {
         if (r == null) continue;
         final course = courseById[r.assessment.courseId];
-        final subject = course?.subject ?? r.assessment.title;
+        // Prefer the assessment's real subject (the backend sends it); only
+        // fall back to a course lookup or the title for legacy rows.
+        final subject = r.assessment.subject.isNotEmpty
+            ? r.assessment.subject
+            : (course?.subject ?? r.assessment.title);
         for (final g in r.grades) {
           if (g.grade == null) continue;
           matrix.putIfAbsent(g.studentId, () => {})[subject] = g.grade;

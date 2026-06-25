@@ -4,6 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AppRole } from './roles';
 import { isRole } from './roles';
+import { isDevAuthBypassEnabled } from './dev-bypass';
 import * as bcrypt from 'bcrypt';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 
@@ -16,12 +17,8 @@ export class DevOverrideGuard implements CanActivate {
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest<any>();
-    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
-    const isDev =
-      String(appEnv).toLowerCase().includes('dev') ||
-      String(appEnv).toLowerCase().includes('test');
 
-    if (!isDev) return true;
+    if (!isDevAuthBypassEnabled()) return true;
 
     const h = req.headers || {};
 

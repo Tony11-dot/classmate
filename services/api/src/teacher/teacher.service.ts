@@ -177,6 +177,22 @@ export class TeacherService {
       throw new ForbiddenException('Teacher only');
   }
 
+  /// School isolation: a teacher may only act on a cohort they are actually
+  /// scheduled to teach (a scheduleSlot of theirs targets that cohort). This
+  /// implicitly scopes to their own school — you can't be scheduled against
+  /// another school's cohort — and blocks attendance reads/writes against a
+  /// client-supplied cohortId from a different class or school. ADMINs (who
+  /// reach these via @Roles) are not cohort-scoped here.
+  private async assertTeacherTeachesCohort(user: any, cohortId: string): Promise<void> {
+    if (hasAnyRole(user, ['ADMIN'])) return;
+    const teacherId = user.id ?? user.sub;
+    const slotCohort = await this.prisma.scheduleSlotCohort.findFirst({
+      where: { cohortId, slot: { teacherId } },
+      select: { slotId: true },
+    });
+    if (!slotCohort) throw new ForbiddenException('Not authorized for this cohort');
+  }
+
   /// Hardcoded fallback bell schedule. Kept in sync with the same
   /// constant in schedule.service.ts so teacher + student views always
   /// resolve identical default times.
@@ -320,6 +336,13 @@ export class TeacherService {
 
     if (slotForTeacher?.teacherId && slotForTeacher.teacherId !== teacherId) {
       throw new ForbiddenException('Not your slot');
+    }
+
+    // School isolation: if a cohortId was used without a matching teacher slot
+    // (client supplied it directly), verify this teacher actually teaches it —
+    // otherwise the session could be read for another class/school's cohort.
+    if (cohortId && !slotForTeacher) {
+      await this.assertTeacherTeachesCohort(user, cohortId);
     }
 
     // Key the session by cohort when there is one; otherwise by the slot
@@ -469,6 +492,9 @@ export class TeacherService {
 
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
+
+    // School isolation: the teacher must actually teach this cohort.
+    await this.assertTeacherTeachesCohort(user, body.cohortId);
 
     const sp = await this.prisma.studentProfile.findUnique({
       where: { userId: body.studentId },
@@ -633,6 +659,17 @@ export class TeacherService {
 
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
+
+    // School isolation: only act on a cohort/slot that belongs to this teacher.
+    if (cohortId) {
+      await this.assertTeacherTeachesCohort(user, cohortId);
+    } else if (!hasAnyRole(user, ['ADMIN'])) {
+      const ownSlot = await this.prisma.scheduleSlot.findFirst({
+        where: { id: slotId, teacherId },
+        select: { id: true },
+      });
+      if (!ownSlot) throw new ForbiddenException('Not your slot');
+    }
 
     // Key by cohort when present; otherwise by slot (grade/individual-student
     // periods have no cohort).
@@ -1517,6 +1554,7 @@ export class TeacherService {
     body: string,
     data?: any,
     template?: import('../notifications/notif-i18n').NotifTemplate,
+    opts?: { fanOutToParents?: boolean },
   ) {
     try {
       const members = await this.prisma.classroomMember.findMany({
@@ -1534,6 +1572,9 @@ export class TeacherService {
         body,
         template,
         data: data ?? {},
+        // Default ON (assignments/materials/meetings should reach parents).
+        // Callers pass false for high-volume events like group chat.
+        fanOutToParents: opts?.fanOutToParents ?? true,
         severity: 'info',
       });
     } catch {}
@@ -1835,6 +1876,18 @@ export class TeacherService {
     // Push to every classroom member so students' chat refreshes
     // immediately, matching how the student->teacher direction works.
     void this.emitToClassroomMembers(classroomId, { type: 'classroom_message', classroomId });
+    // In-app inbox row + FCM push to members (the SSE above only updates an
+    // already-open chat). fanOutToParents:false — group chat would spam parents.
+    const senderName = this._notifierName(user);
+    const preview = text.slice(0, 120);
+    void this.notifyClassroomMembers(
+      classroomId,
+      'New message',
+      `${senderName}: ${preview}`,
+      { type: 'NEW_MESSAGE', classroomId },
+      { key: 'message', args: { sender: senderName, preview } },
+      { fanOutToParents: false },
+    );
     return { ok: true, message: msg };
   }
 
