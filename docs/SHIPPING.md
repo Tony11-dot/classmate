@@ -84,6 +84,23 @@ Sentry token: `~/.classmate_sentry_token` (org `classmate-02`, project `flutter`
 2. `rm -f apps/classmate_mobile/build/ios/ipa/ClassMate.ipa` — so a failed export can't silently re-upload the **previous** IPA (which triggers "bundle version must be higher than <N-1>").
 3. Re-run `fastlane ios beta`.
 
+### iOS export: "No Accounts" / "No signing certificate iOS Distribution found" (cert lost)
+Export fails repeatedly with `exportArchive: No Accounts` + `No signing certificate "iOS Distribution" found` (the **archive** succeeds; only **export** fails). Means this Mac's keychain has **no Apple Distribution cert for the app's team** (team `NNFD7CKGLG`, bundle `com.tonyaboud.classmate`) and **no Apple ID is signed into Xcode**. A keychain reset/cert removal causes it; the private key is **not** recoverable from Apple, so a new cert must be issued. The project uses *automatic* signing with no `match`, so there's no cert backup.
+
+Fix — fully headless via the ASC API key (no Xcode GUI):
+```bash
+cd apps/classmate_mobile
+fastlane ios fix_signing          # creates+installs an Apple Distribution cert
+                                  # + a "ClassMate AppStore" App Store profile
+                                  # that INCLUDES that cert (sigh force:true)
+rm -f build/ios/ipa/ClassMate.ipa # drop any stale IPA so a retry can't re-upload it
+fastlane ios beta                 # export now uses manual signing (ExportOptions.plist)
+```
+- `fastlane ios fix_signing` is a dedicated lane (in the Fastfile). It must regenerate the profile with `force: true` — a stale Xcode-managed profile references the *old* cert and export then errors `profile … doesn't include signing certificate`.
+- `ios/ExportOptions.plist` is set to **manual** signing (`signingStyle=manual`, `signingCertificate=Apple Distribution`, profile `ClassMate AppStore`) — automatic signing can't work at export without an Xcode account even when the cert is present.
+- Cert/profile artifacts land in `fastlane/certs/` + `fastlane/profiles/` (the `.p12` private key) — **gitignored, never commit**.
+- Apple caps Apple Distribution certs at ~2/account. If `fix_signing` reports "reached the limit", revoke an unused one at developer.apple.com/account → Certificates, then re-run.
+
 ### Version-number collisions
 Bump above the last uploaded build. Play: "Version code N has already been used". TestFlight: "bundle version must be higher than the previously uploaded version".
 

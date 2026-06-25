@@ -4,6 +4,22 @@
 <dict>
   <key>method</key>
   <string>app-store</string>
+  <!-- Manual signing for the export step: this Mac has no Apple ID in Xcode, so
+       automatic signing fails at export with "No Accounts". The distribution
+       cert + this App Store profile are installed by `fastlane ios fix_signing`
+       (which uses the ASC API key) — re-run that lane if the cert is ever lost
+       or the profile expires. -->
+  <key>signingStyle</key>
+  <string>manual</string>
+  <key>teamID</key>
+  <string>NNFD7CKGLG</string>
+  <key>signingCertificate</key>
+  <string>Apple Distribution</string>
+  <key>provisioningProfiles</key>
+  <dict>
+    <key>com.tonyaboud.classmate</key>
+    <string>ClassMate AppStore</string>
+  </dict>
   <key>uploadBitcode</key>
   <false/>
   <key>uploadSymbols</key>

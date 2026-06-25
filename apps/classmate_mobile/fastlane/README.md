@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios fix_signing
+
+```sh
+[bundle exec] fastlane ios fix_signing
+```
+
+Headless signing repair: create+install an Apple Distribution cert + App Store provisioning profile via the ASC API key. Run this when the Mac's keychain has lost the distribution cert (export fails with 'No signing certificate "iOS Distribution" found').
+
 ### ios beta
 
 ```sh

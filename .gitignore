@@ -86,3 +86,10 @@ apps/classmate_mobile/fastlane/.env*
 
 # Firebase Hosting deploy caches (regenerated on deploy)
 **/.firebase/*.cache
+
+# iOS signing artifacts produced by `fastlane ios fix_signing` — NEVER commit
+apps/classmate_mobile/fastlane/certs/
+apps/classmate_mobile/fastlane/profiles/
+*.p12
+*.cer
+*.mobileprovision
