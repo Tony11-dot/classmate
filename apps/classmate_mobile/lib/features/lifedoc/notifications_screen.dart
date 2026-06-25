@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/semester/school_semester.dart';
+import '../../core/util/friendly_date.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
@@ -31,11 +32,7 @@ String _notificationTitleLocalized(
 }
 
 String _friendlyNotificationDateTime(BuildContext context, DateTime value) {
-  final localizations = MaterialLocalizations.of(context);
-  final date = localizations.formatMediumDate(value);
-  final hh = value.hour.toString().padLeft(2, '0');
-  final mm = value.minute.toString().padLeft(2, '0');
-  return '$date • $hh:$mm';
+  return FriendlyDate.dateTime(value);
 }
 
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -69,9 +66,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   }
 
   String _timeLabel(DateTime date) {
-    final hh = date.hour.toString().padLeft(2, '0');
-    final mm = date.minute.toString().padLeft(2, '0');
-    return '$hh:$mm';
+    return FriendlyDate.time(date);
   }
 
   String _sourceLabel(BuildContext context, String source) {

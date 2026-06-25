@@ -594,100 +594,101 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginSignIn => 'Войти';
 
   @override
-  String get biometricSignIn => 'Sign in with biometrics';
+  String get biometricSignIn => 'Вход по биометрии';
 
   @override
-  String get biometricEnable => 'Enable biometric sign-in';
+  String get biometricEnable => 'Включить вход по биометрии';
 
   @override
-  String get biometricReason => 'Authenticate to sign in to ClassMate';
+  String get biometricReason => 'Пройдите аутентификацию для входа в ClassMate';
 
   @override
   String get biometricEnableReason =>
-      'Authenticate to enable biometric sign-in';
+      'Пройдите аутентификацию, чтобы включить вход по биометрии';
 
   @override
-  String get biometricSignInFaceId => 'Sign in with Face ID';
+  String get biometricSignInFaceId => 'Вход с Face ID';
 
   @override
-  String get biometricSignInFingerprint => 'Sign in with fingerprint';
+  String get biometricSignInFingerprint => 'Вход по отпечатку пальца';
 
   @override
-  String get biometricOrSignInWith => 'or sign in with';
+  String get biometricOrSignInWith => 'или войдите с помощью';
 
   @override
   String get biometricNotSetUp =>
-      'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.';
+      'Вход по биометрии ещё не настроен. Включите Face ID или отпечаток пальца в разделе «Профиль» → «Вход по биометрии».';
 
   @override
   String get biometricNotRecognized =>
-      'Biometric not recognized. Try again or sign in with your password.';
+      'Биометрия не распознана. Попробуйте ещё раз или войдите с паролем.';
 
   @override
   String get biometricFaceUnavailable =>
-      'Face ID isn\'t available on this device.';
+      'Face ID недоступен на этом устройстве.';
 
   @override
   String get biometricFingerprintUnavailable =>
-      'Fingerprint isn\'t available on this device.';
+      'Отпечаток пальца недоступен на этом устройстве.';
 
   @override
-  String get biometricNotAvailableOnDevice => 'Not available on this device';
+  String get biometricNotAvailableOnDevice => 'Недоступно на этом устройстве';
 
   @override
-  String get biometricSectionTitle => 'Biometric sign-in';
+  String get biometricSectionTitle => 'Вход по биометрии';
 
   @override
   String get biometricSectionSubtitle =>
-      'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.';
+      'Включите Face ID или отпечаток пальца, чтобы входить быстрее. Пароль нужно будет подтвердить один раз.';
 
   @override
   String get biometricFaceId => 'Face ID';
 
   @override
-  String get biometricFaceIdDesc => 'Use Face ID to sign in';
+  String get biometricFaceIdDesc => 'Использовать Face ID для входа';
 
   @override
-  String get biometricFingerprint => 'Fingerprint';
+  String get biometricFingerprint => 'Отпечаток пальца';
 
   @override
-  String get biometricFingerprintDesc => 'Use your fingerprint to sign in';
+  String get biometricFingerprintDesc =>
+      'Использовать отпечаток пальца для входа';
 
   @override
-  String get biometricConfirmPasswordTitle => 'Confirm your password';
+  String get biometricConfirmPasswordTitle => 'Подтвердите пароль';
 
   @override
   String get biometricConfirmPasswordBody =>
-      'Enter your password to turn on biometric sign-in.';
+      'Введите пароль, чтобы включить вход по биометрии.';
 
   @override
   String get biometricPasswordIncorrect =>
-      'Incorrect password. Please try again.';
+      'Неверный пароль. Попробуйте ещё раз.';
 
   @override
   String get biometricEnrollFailed =>
-      'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.';
+      'Не удалось проверить биометрию. Убедитесь, что Face ID или отпечаток пальца настроены в настройках устройства.';
 
   @override
   String get biometricEnterCredsFirst =>
-      'Enter your email and password first, then enable biometric sign-in.';
+      'Сначала введите email и пароль, затем включите вход по биометрии.';
 
   @override
   String get biometricLoginFailed =>
-      'Biometric sign-in failed. Please sign in with your password.';
+      'Не удалось войти по биометрии. Войдите с паролем.';
 
   @override
-  String get biometricEnrollTitle => 'Enable biometric sign-in?';
+  String get biometricEnrollTitle => 'Включить вход по биометрии?';
 
   @override
   String get biometricEnrollBody =>
-      'Use Face ID or your fingerprint to sign in faster next time.';
+      'Используйте Face ID или отпечаток пальца, чтобы в следующий раз входить быстрее.';
 
   @override
-  String get biometricEnrollYes => 'Enable';
+  String get biometricEnrollYes => 'Включить';
 
   @override
-  String get biometricEnrollNo => 'Not now';
+  String get biometricEnrollNo => 'Не сейчас';
 
   @override
   String get loginWelcomeTitle => 'С возвращением';
@@ -3527,7 +3528,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get assignmentsStatusOverdue => 'Просрочено';
 
   @override
-  String get assignmentsStatusGraded => 'Graded';
+  String get assignmentsStatusGraded => 'Оценено';
 
   @override
   String get assignmentsStatusDueSoon => 'Скоро срок';
@@ -10023,56 +10024,57 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get adminPeopleAddMany => 'Add many';
+  String get adminPeopleAddMany => 'Добавить нескольких';
 
   @override
-  String get adminAddManyPasteNames => 'Paste names';
+  String get adminAddManyPasteNames => 'Вставить имена';
 
   @override
-  String get adminAddManyApplyRole => 'Set role for all';
+  String get adminAddManyApplyRole => 'Задать роль для всех';
 
   @override
-  String get adminAddManyApplyGrade => 'Set grade for all';
+  String get adminAddManyApplyGrade => 'Задать класс для всех';
 
   @override
-  String get adminAddManyParentLabel => 'Parent';
+  String get adminAddManyParentLabel => 'Родитель';
 
   @override
-  String get adminAddManyParentNone => 'No parent';
+  String get adminAddManyParentNone => 'Без родителя';
 
   @override
-  String get adminAddManyAddParent => 'Add parent';
+  String get adminAddManyAddParent => 'Добавить родителя';
 
   @override
-  String get adminAddManyCreateParentGeneric => 'Create new parent';
+  String get adminAddManyCreateParentGeneric => 'Создать нового родителя';
 
   @override
-  String get adminAddManyParentInBatch => 'New parents in this list';
+  String get adminAddManyParentInBatch => 'Новые родители в этом списке';
 
   @override
-  String get adminAddManyParentExisting => 'Existing parents';
+  String get adminAddManyParentExisting => 'Существующие родители';
 
   @override
-  String get adminAddManySearchParents => 'Search parents…';
+  String get adminAddManySearchParents => 'Поиск родителей…';
 
   @override
   String get adminAddManyNoParentsYet =>
-      'No matching parents — type a name above to create one';
+      'Нет подходящих родителей — введите имя выше, чтобы создать';
 
   @override
-  String get adminAddManyUsernameTaken => 'Username already taken';
+  String get adminAddManyUsernameTaken => 'Имя пользователя уже занято';
 
   @override
-  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+  String get adminAddManyUsernameDupe =>
+      'Повтор имени пользователя в этом списке';
 
   @override
   String adminAddManyCreateParent(String name) {
-    return 'Create new parent \"$name\"';
+    return 'Создать нового родителя \"$name\"';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return 'Added $count rows';
+    return 'Добавлено строк: $count';
   }
 
   @override

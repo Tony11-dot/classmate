@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -107,7 +107,6 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
 
     // Semester split (by exam date) — pills only show when the school
@@ -218,7 +217,6 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
               const SizedBox(height: 8),
               ...upcoming.map((e) => _ExamCard(
                     exam: e,
-                    locale: locale,
                     isUpcoming: true,
                     onTap: () => _openExamGrades(e),
                     onEdit: () => _openExamEdit(e),
@@ -232,7 +230,6 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
               const SizedBox(height: 8),
               ...past.map((e) => _ExamCard(
                     exam: e,
-                    locale: locale,
                     isUpcoming: false,
                     onTap: () => _openExamGrades(e),
                     onEdit: () => _openExamEdit(e),
@@ -250,7 +247,6 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
 class _ExamCard extends StatelessWidget {
   const _ExamCard({
     required this.exam,
-    required this.locale,
     required this.isUpcoming,
     required this.onTap,
     required this.onEdit,
@@ -259,7 +255,6 @@ class _ExamCard extends StatelessWidget {
   });
 
   final Map<String, dynamic> exam;
-  final String locale;
   final bool isUpcoming;
   final VoidCallback onTap;
   final VoidCallback onEdit;
@@ -333,7 +328,7 @@ class _ExamCard extends StatelessWidget {
                       runSpacing: 4,
                       children: [
                         if (date != null)
-                          _Chip(label: DateFormat.yMMMd(locale).format(date), color: accentColor),
+                          _Chip(label: FriendlyDate.date(date), color: accentColor),
                         if (maxGrade != null)
                           _Chip(label: '/ $maxGrade', color: cs.tertiary),
                         if (gradedCount > 0)

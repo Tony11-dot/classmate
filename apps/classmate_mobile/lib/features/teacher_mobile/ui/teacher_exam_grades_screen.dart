@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -70,8 +70,12 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
         targeted = allStudents;
       }
 
-      // Build grade map from existing grades
-      final gradeList = gradeData['grades'] as List? ?? [];
+      // Build grade map from existing grades. The backend returns the
+      // per-student rows under `students` (each with `grade`); `grades` is kept
+      // as a fallback in case of a future rename. Reading the wrong key here is
+      // what made every cell render the empty "/ maxGrade" hint.
+      final gradeList =
+          (gradeData['students'] as List?) ?? (gradeData['grades'] as List?) ?? [];
       final saved = <String, int?>{};
       for (final g in gradeList) {
         if (g is Map) {
@@ -224,7 +228,6 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
 
     final exam = widget.exam;
     final title = exam['title'] as String? ?? 'Exam';
@@ -250,7 +253,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
             Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             if (subject.isNotEmpty || date != null)
               Text(
-                [subject, if (date != null) DateFormat.yMMMd(locale).format(date)]
+                [subject, if (date != null) FriendlyDate.date(date)]
                     .where((s) => s.isNotEmpty)
                     .join(' · '),
                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),

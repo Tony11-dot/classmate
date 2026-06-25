@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -102,7 +103,7 @@ class _TeacherAttendanceHistoryScreenState
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final fromLabel = DateFormat('MMM d, yyyy').format(_from);
+    final fromLabel = FriendlyDate.date(_from);
 
     // Semester split (by session date) — pills only show when the school
     // configured semesters.

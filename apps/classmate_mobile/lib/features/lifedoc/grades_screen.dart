@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/realtime/realtime_listener.dart';
+import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
@@ -47,12 +48,10 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
   }
 
   String _friendlyDate(BuildContext context, String? raw) {
-    final parsed = _parseDate(raw);
-    if (parsed == null) {
-      final fb = (raw ?? '').trim();
-      return fb.isEmpty ? AppLocalizations.of(context)!.attendanceUndated : fb;
+    if ((raw ?? '').trim().isEmpty) {
+      return AppLocalizations.of(context)!.attendanceUndated;
     }
-    return MaterialLocalizations.of(context).formatMediumDate(parsed);
+    return FriendlyDate.date(raw);
   }
 
   String _friendlyError(BuildContext context, Object error) {

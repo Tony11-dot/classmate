@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -137,7 +138,6 @@ class _TeacherClassroomAddMeetingScreenState
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
-    final dateFmt = DateFormat.yMMMd(locale);
     final timeFmt = DateFormat.jm(locale);
 
     // Helper to format a TimeOfDay for display via intl.
@@ -280,7 +280,7 @@ class _TeacherClassroomAddMeetingScreenState
                             ),
                             child: Text(
                               _startDate != null
-                                  ? dateFmt.format(_startDate!)
+                                  ? FriendlyDate.date(_startDate!)
                                   : AppLocalizations.of(context)!.meetingStartDateRequired,
                               style: TextStyle(
                                 color: _startDate != null
@@ -337,7 +337,7 @@ class _TeacherClassroomAddMeetingScreenState
                             ),
                             child: Text(
                               _endDate != null
-                                  ? dateFmt.format(_endDate!)
+                                  ? FriendlyDate.date(_endDate!)
                                   : AppLocalizations.of(context)!.meetingEndDateOptional,
                               style: TextStyle(
                                 color: _endDate != null

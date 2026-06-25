@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widgets/cm_ai_message.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/practice_history_repository.dart';
 import '../domain/practice_models.dart';
@@ -146,7 +147,7 @@ class PracticeHistoryScreen extends ConsumerWidget {
   }
 
   String _formatDateHeader(BuildContext context, DateTime date) {
-    return MaterialLocalizations.of(context).formatMediumDate(date);
+    return FriendlyDate.date(date);
   }
 }
 

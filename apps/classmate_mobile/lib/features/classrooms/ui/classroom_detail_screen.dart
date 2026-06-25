@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/auth/auth_session.dart';
 import '../../../core/realtime/realtime_listener.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/attachment_pill.dart';
@@ -1079,14 +1080,7 @@ String _pickFirst(dynamic item, List<String> keys, {String fallback = ''}) {
 
 String _friendlyDateTime(String raw) {
   if (raw.trim().isEmpty) return '';
-  final dt = DateTime.tryParse(raw)?.toLocal();
-  if (dt == null) return raw;
-  final y = dt.year.toString().padLeft(4, '0');
-  final m = dt.month.toString().padLeft(2, '0');
-  final d = dt.day.toString().padLeft(2, '0');
-  final hh = dt.hour.toString().padLeft(2, '0');
-  final mm = dt.minute.toString().padLeft(2, '0');
-  return '$y-$m-$d $hh:$mm';
+  return FriendlyDate.dateTime(raw);
 }
 
 IconData _subjectIcon(String subject) {

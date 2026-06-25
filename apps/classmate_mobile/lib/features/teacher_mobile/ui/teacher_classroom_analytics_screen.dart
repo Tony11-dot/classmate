@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -151,9 +152,7 @@ class _TeacherClassroomAnalyticsScreenState
                                   ].fold<int>(0, (a, b) { final bInt = b is int ? b : 0; return a > bInt ? a : bInt; });
 
                                   final date = (s['date'] ?? '').toString();
-                                  final dt = DateTime.tryParse(date);
-                                  final months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                                  final dateLabel = dt != null ? '${months[dt.month-1]} ${dt.day}' : '';
+                                  final dateLabel = date.isNotEmpty ? FriendlyDate.date(date) : '';
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),

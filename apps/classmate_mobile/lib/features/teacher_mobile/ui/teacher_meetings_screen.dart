@@ -2,11 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/semester/school_semester.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
@@ -76,7 +76,6 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
     final now = DateTime.now();
 
     // Semester split (by meeting start) — pills only show when the school
@@ -155,14 +154,14 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
             if (upcoming.isNotEmpty) ...[
               _SectionHeader(label: l.teacherExamsUpcoming, icon: Icons.upcoming_rounded, color: cs.primary),
               const SizedBox(height: 8),
-              ...upcoming.map((m) => _MeetingCard(meeting: m, locale: locale, onDelete: () => _delete(m['id'] as String? ?? ''),
+              ...upcoming.map((m) => _MeetingCard(meeting: m, onDelete: () => _delete(m['id'] as String? ?? ''),
                 onEdit: () => context.push('/teacher/meetings/add', extra: m).then((_) => _load()))),
               const SizedBox(height: 8),
             ],
             if (past.isNotEmpty) ...[
               _SectionHeader(label: l.teacherExamsPast, icon: Icons.history_rounded, color: cs.secondary),
               const SizedBox(height: 8),
-              ...past.map((m) => _MeetingCard(meeting: m, locale: locale, onDelete: () => _delete(m['id'] as String? ?? ''),
+              ...past.map((m) => _MeetingCard(meeting: m, onDelete: () => _delete(m['id'] as String? ?? ''),
                 onEdit: () => context.push('/teacher/meetings/add', extra: m).then((_) => _load()))),
             ],
           ],
@@ -173,9 +172,8 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
 }
 
 class _MeetingCard extends StatelessWidget {
-  const _MeetingCard({required this.meeting, required this.locale, required this.onDelete, required this.onEdit});
+  const _MeetingCard({required this.meeting, required this.onDelete, required this.onEdit});
   final Map<String, dynamic> meeting;
-  final String locale;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -193,9 +191,7 @@ class _MeetingCard extends StatelessWidget {
     final isUpcoming = startsAt != null && !startsAt.isBefore(now);
     final accentColor = isUpcoming ? cs.primary : cs.secondary;
 
-    final timeLabel = startsAt != null
-        ? '${DateFormat.yMMMd(locale).format(startsAt)} · ${DateFormat.Hm(locale).format(startsAt)}'
-        : '';
+    final timeLabel = startsAt != null ? FriendlyDate.dateTime(startsAt) : '';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -566,7 +562,6 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -665,7 +660,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                         labelText: AppLocalizations.of(context)!.teacherMeetingStartTime, border: const OutlineInputBorder(),
                         suffixIcon: _startsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
-                        _startsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_startsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickStartTime,
+                        _startsAt != null ? FriendlyDate.dateTime(_startsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickStartTime,
                         style: TextStyle(color: _startsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
                   const SizedBox(height: 12),
                   InkWell(
@@ -676,7 +671,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                         labelText: AppLocalizations.of(context)!.teacherMeetingEndTime, border: const OutlineInputBorder(),
                         suffixIcon: _endsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
-                        _endsAt != null ? DateFormat('yMMMd · HH:mm', locale).format(_endsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickEndTime,
+                        _endsAt != null ? FriendlyDate.dateTime(_endsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickEndTime,
                         style: TextStyle(color: _endsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
                 ])),
                 const SizedBox(height: 12),

@@ -43,7 +43,9 @@
 /* ── Hero (welcome) ── */
 .hero-stage { position: relative; }
 .hero-pin {
-  position: relative; min-height: clamp(560px, 86vh, 900px);
+  /* dvh (not vh) so mobile browser chrome retracting/expanding doesn't jump the
+     hero height. dvh == vh on desktop, so the PC layout is unchanged. */
+  position: relative; min-height: clamp(560px, 86dvh, 900px);
   display: flex; align-items: center;
   padding: clamp(24px, 5vw, 60px) 0;
 }
@@ -98,14 +100,15 @@
    Texts are all pre-rendered (active emphasised, no fade-from-nothing). ── */
 .sc-wrap { position: relative; }
 .sc-phone-wrap {
-  position: sticky; top: 0; height: 100vh;
+  /* dvh == vh on desktop (PC unchanged); avoids the mobile chrome jump. */
+  position: sticky; top: 0; height: 100dvh;
   display: flex; align-items: center; justify-content: center;
   z-index: 3; pointer-events: none;
   perspective: 1700px; perspective-origin: 50% 45%;
 }
-.sc-texts { position: relative; margin-top: -100vh; z-index: 1; }
+.sc-texts { position: relative; margin-top: -100dvh; z-index: 1; }
 .sc-copy {
-  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  min-height: 100dvh; display: flex; flex-direction: column; justify-content: center;
   opacity: .35; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease;
 }
 .sc-copy.is-active { opacity: 1; transform: none; }
@@ -173,4 +176,9 @@
   .sc-edge, .sc-back { display: none; }
   .sc-front { transform: none; }
   .sc-copy { min-height: 0; opacity: 1; transform: none; align-items: center !important; text-align: center !important; padding: 0 clamp(16px,6vw,28px) 28px !important; }
+  /* The desktop ch caps (11ch / 26ch) leave centered phone text in a cramped,
+     awkwardly-wrapped column — let it use the full width on phones. */
+  .sc-copy h3, .sc-copy p { max-width: 100% !important; }
+  .sc-copy h3 { font-size: clamp(26px, 7vw, 34px); }
+  .sc-copy p { font-size: clamp(15px, 4.2vw, 18px); margin-top: 12px; }
 }

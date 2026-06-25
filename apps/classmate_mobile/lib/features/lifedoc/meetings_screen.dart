@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../core/semester/school_semester.dart';
+import '../../core/util/friendly_date.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
@@ -193,33 +194,16 @@ DateTime? _parseFlexibleDate(String? raw) {
 const String _meetingAccessReady = '__meeting_access_ready__';
 const String _meetingAccessNoLink = '__meeting_access_no_link__';
 
-String _friendlyDateLabel(BuildContext context, String? raw) {
-  final parsed = _parseFlexibleDate(raw);
-  final l = AppLocalizations.of(context)!;
-  if (parsed == null) {
-    final fallback = (raw ?? '').trim();
-    return fallback.isEmpty ? l.profileNotAvailable : fallback;
-  }
-
-  return MaterialLocalizations.of(context).formatMediumDate(parsed.toLocal());
-}
-
 String _friendlyDateTimeLabel(BuildContext context, String? raw) {
   final parsed = _parseFlexibleDate(raw);
-  final l = AppLocalizations.of(context)!;
-  if (parsed == null) {
-    final fallback = (raw ?? '').trim();
-    return fallback.isEmpty ? l.profileNotAvailable : fallback;
+  if (parsed == null && (raw ?? '').trim().isEmpty) {
+    return AppLocalizations.of(context)!.profileNotAvailable;
   }
-
-  final local = parsed.toLocal();
-  final date = _friendlyDateLabel(context, raw);
-  final hasClock = parsed.hour != 0 || parsed.minute != 0;
-  if (!hasClock) return date;
-  final time = MaterialLocalizations.of(context).formatTimeOfDay(
-    TimeOfDay.fromDateTime(local),
-  );
-  return l.meetingsDateTimeValue(date, time);
+  // A pure date (midnight) shows date-only; otherwise full timestamp.
+  if (parsed != null && parsed.hour == 0 && parsed.minute == 0) {
+    return FriendlyDate.date(raw);
+  }
+  return FriendlyDate.dateTime(raw);
 }
 
 String _friendlyError(BuildContext context, Object error) {

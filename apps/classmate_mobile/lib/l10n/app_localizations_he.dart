@@ -596,100 +596,97 @@ class AppLocalizationsHe extends AppLocalizations {
   String get loginSignIn => 'התחבר';
 
   @override
-  String get biometricSignIn => 'Sign in with biometrics';
+  String get biometricSignIn => 'התחברות באמצעות ביומטריה';
 
   @override
-  String get biometricEnable => 'Enable biometric sign-in';
+  String get biometricEnable => 'הפעלת התחברות ביומטרית';
 
   @override
-  String get biometricReason => 'Authenticate to sign in to ClassMate';
+  String get biometricReason => 'אימות כדי להתחבר ל-ClassMate';
 
   @override
-  String get biometricEnableReason =>
-      'Authenticate to enable biometric sign-in';
+  String get biometricEnableReason => 'אימות כדי להפעיל התחברות ביומטרית';
 
   @override
-  String get biometricSignInFaceId => 'Sign in with Face ID';
+  String get biometricSignInFaceId => 'התחברות באמצעות Face ID';
 
   @override
-  String get biometricSignInFingerprint => 'Sign in with fingerprint';
+  String get biometricSignInFingerprint => 'התחברות באמצעות טביעת אצבע';
 
   @override
-  String get biometricOrSignInWith => 'or sign in with';
+  String get biometricOrSignInWith => 'או התחבר באמצעות';
 
   @override
   String get biometricNotSetUp =>
-      'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.';
+      'עדיין לא הוגדרה התחברות ביומטרית. הפעל Face ID או טביעת אצבע בפרופיל ← התחברות ביומטרית.';
 
   @override
   String get biometricNotRecognized =>
-      'Biometric not recognized. Try again or sign in with your password.';
+      'הביומטריה לא זוהתה. נסה שוב או התחבר באמצעות הסיסמה.';
 
   @override
-  String get biometricFaceUnavailable =>
-      'Face ID isn\'t available on this device.';
+  String get biometricFaceUnavailable => 'Face ID אינו זמין במכשיר זה.';
 
   @override
   String get biometricFingerprintUnavailable =>
-      'Fingerprint isn\'t available on this device.';
+      'טביעת אצבע אינה זמינה במכשיר זה.';
 
   @override
-  String get biometricNotAvailableOnDevice => 'Not available on this device';
+  String get biometricNotAvailableOnDevice => 'לא זמין במכשיר זה';
 
   @override
-  String get biometricSectionTitle => 'Biometric sign-in';
+  String get biometricSectionTitle => 'התחברות ביומטרית';
 
   @override
   String get biometricSectionSubtitle =>
-      'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.';
+      'הפעל Face ID או טביעת אצבע כדי להתחבר מהר יותר. תתבקש לאשר את הסיסמה פעם אחת.';
 
   @override
   String get biometricFaceId => 'Face ID';
 
   @override
-  String get biometricFaceIdDesc => 'Use Face ID to sign in';
+  String get biometricFaceIdDesc => 'השתמש ב-Face ID כדי להתחבר';
 
   @override
-  String get biometricFingerprint => 'Fingerprint';
+  String get biometricFingerprint => 'טביעת אצבע';
 
   @override
-  String get biometricFingerprintDesc => 'Use your fingerprint to sign in';
+  String get biometricFingerprintDesc => 'השתמש בטביעת האצבע כדי להתחבר';
 
   @override
-  String get biometricConfirmPasswordTitle => 'Confirm your password';
+  String get biometricConfirmPasswordTitle => 'אשר את הסיסמה';
 
   @override
   String get biometricConfirmPasswordBody =>
-      'Enter your password to turn on biometric sign-in.';
+      'הזן את הסיסמה כדי להפעיל התחברות ביומטרית.';
 
   @override
-  String get biometricPasswordIncorrect =>
-      'Incorrect password. Please try again.';
+  String get biometricPasswordIncorrect => 'סיסמה שגויה. נסה שוב.';
 
   @override
   String get biometricEnrollFailed =>
-      'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.';
+      'לא ניתן לאמת את הביומטריה. ודא שהוגדר Face ID או טביעת אצבע בהגדרות המכשיר.';
 
   @override
   String get biometricEnterCredsFirst =>
-      'Enter your email and password first, then enable biometric sign-in.';
+      'הזן תחילה אימייל וסיסמה, ולאחר מכן הפעל התחברות ביומטרית.';
 
   @override
   String get biometricLoginFailed =>
-      'Biometric sign-in failed. Please sign in with your password.';
+      'ההתחברות הביומטרית נכשלה. התחבר באמצעות הסיסמה.';
 
   @override
-  String get biometricEnrollTitle => 'Enable biometric sign-in?';
+  String get biometricEnrollTitle => 'להפעיל התחברות ביומטרית?';
 
   @override
   String get biometricEnrollBody =>
-      'Use Face ID or your fingerprint to sign in faster next time.';
+      'השתמש ב-Face ID או בטביעת אצבע כדי להתחבר מהר יותר בפעם הבאה.';
 
   @override
-  String get biometricEnrollYes => 'Enable';
+  String get biometricEnrollYes => 'הפעל';
 
   @override
-  String get biometricEnrollNo => 'Not now';
+  String get biometricEnrollNo => 'לא עכשיו';
 
   @override
   String get loginWelcomeTitle => 'ברוך שובך';
@@ -3532,7 +3529,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get assignmentsStatusOverdue => 'באיחור';
 
   @override
-  String get assignmentsStatusGraded => 'Graded';
+  String get assignmentsStatusGraded => 'מדורג';
 
   @override
   String get assignmentsStatusDueSoon => 'מועד קרוב';
@@ -9925,56 +9922,56 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get adminPeopleAddMany => 'Add many';
+  String get adminPeopleAddMany => 'הוספה מרובה';
 
   @override
-  String get adminAddManyPasteNames => 'Paste names';
+  String get adminAddManyPasteNames => 'הדבק שמות';
 
   @override
-  String get adminAddManyApplyRole => 'Set role for all';
+  String get adminAddManyApplyRole => 'הגדר תפקיד לכולם';
 
   @override
-  String get adminAddManyApplyGrade => 'Set grade for all';
+  String get adminAddManyApplyGrade => 'הגדר כיתה לכולם';
 
   @override
-  String get adminAddManyParentLabel => 'Parent';
+  String get adminAddManyParentLabel => 'הורה';
 
   @override
-  String get adminAddManyParentNone => 'No parent';
+  String get adminAddManyParentNone => 'ללא הורה';
 
   @override
-  String get adminAddManyAddParent => 'Add parent';
+  String get adminAddManyAddParent => 'הוסף הורה';
 
   @override
-  String get adminAddManyCreateParentGeneric => 'Create new parent';
+  String get adminAddManyCreateParentGeneric => 'צור הורה חדש';
 
   @override
-  String get adminAddManyParentInBatch => 'New parents in this list';
+  String get adminAddManyParentInBatch => 'הורים חדשים ברשימה זו';
 
   @override
-  String get adminAddManyParentExisting => 'Existing parents';
+  String get adminAddManyParentExisting => 'הורים קיימים';
 
   @override
-  String get adminAddManySearchParents => 'Search parents…';
+  String get adminAddManySearchParents => 'חפש הורים…';
 
   @override
   String get adminAddManyNoParentsYet =>
-      'No matching parents — type a name above to create one';
+      'אין הורים תואמים — הקלד שם למעלה כדי ליצור הורה חדש';
 
   @override
-  String get adminAddManyUsernameTaken => 'Username already taken';
+  String get adminAddManyUsernameTaken => 'שם המשתמש כבר תפוס';
 
   @override
-  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+  String get adminAddManyUsernameDupe => 'שם משתמש כפול ברשימה זו';
 
   @override
   String adminAddManyCreateParent(String name) {
-    return 'Create new parent \"$name\"';
+    return 'צור הורה חדש \"$name\"';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return 'Added $count rows';
+    return 'נוספו $count שורות';
   }
 
   @override

@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
@@ -314,7 +314,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -425,7 +424,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                           ),
                           child: Text(
                             _selectedDate != null
-                                ? DateFormat.yMMMd(locale).format(_selectedDate!)
+                                ? FriendlyDate.date(_selectedDate!)
                                 : 'Pick a date',
                             style: TextStyle(color: _selectedDate != null ? cs.onSurface : cs.onSurfaceVariant),
                           ),

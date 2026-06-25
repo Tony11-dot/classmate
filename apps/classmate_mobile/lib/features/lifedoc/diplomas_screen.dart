@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import '../../core/util/friendly_date.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -186,7 +186,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
                     },
                     icon: const Icon(Icons.event_rounded, size: 18),
                     label: Text(
-                      AppLocalizations.of(ctx)!.diplomasScreenIssuedDate(DateFormat.yMMMd().format(issuedAt)),
+                      AppLocalizations.of(ctx)!.diplomasScreenIssuedDate(FriendlyDate.date(issuedAt)),
                     ),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
@@ -252,7 +252,6 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final locale = Localizations.localeOf(context).toString();
 
     final semWindow = ref.watch(currentSemesterWindowProvider);
     final visible = visibleForSemester<Map<String, dynamic>>(
@@ -359,11 +358,7 @@ class _DiplomasScreenState extends ConsumerState<DiplomasScreen> {
               final grade = d['grade'] as String? ?? '';
               final distinction = d['distinction'] as String? ?? '';
               final issuedAt = d['issuedAt'] as String? ?? '';
-              final dateStr = () {
-                final dt = DateTime.tryParse(issuedAt);
-                if (dt == null) return issuedAt.split('T').first;
-                return DateFormat.yMMMd(locale).format(dt);
-              }();
+              final dateStr = FriendlyDate.date(issuedAt);
 
               final attachments = d['attachments'];
               final attachList = attachments is List ? attachments : const [];

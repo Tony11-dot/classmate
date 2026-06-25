@@ -388,3 +388,20 @@ section[id] { scroll-margin-top: 88px; }
   .nav.open .nav-scrim { opacity: 1; pointer-events: auto; }
   .support-contact { flex-direction: column; text-align: center; }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Mobile polish (≤768px). Everything here lives INSIDE a max-width query, so
+   the desktop/PC layout (≥769px) is provably untouched.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* The 34ch cap leaves the centered hero subtitle a narrow, ragged column. */
+  .lead { max-width: 100%; margin-inline: auto; }
+  /* Easy-to-tap, full-width CTAs on phones instead of two cramped pills. */
+  .hero-actions { width: 100%; gap: 12px; }
+  .hero-actions .btn { flex: 1 1 220px; justify-content: center; }
+  .hero-badges { justify-content: center; gap: 14px 20px; }
+  /* Demo video frame: trim the heavy padding/radius so it isn't cramped. */
+  .demo-frame { padding: 8px; border-radius: 18px; }
+  /* Belt-and-suspenders: never let a stray wide child cause sideways drift. */
+  .section, .hero-stage, .sc-wrap { max-width: 100%; overflow-x: clip; }
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/parent_models.dart';
@@ -294,9 +295,7 @@ Color _toneForType(BuildContext context, String? type) {
 String? _timeLabel(String? iso) {
   final dt = DateTime.tryParse(iso ?? '')?.toLocal();
   if (dt == null) return null;
-  final hh = dt.hour.toString().padLeft(2, '0');
-  final mm = dt.minute.toString().padLeft(2, '0');
-  return '$hh:$mm';
+  return FriendlyDate.time(dt);
 }
 
 class _NotificationTile extends StatelessWidget {

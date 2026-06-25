@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/realtime/realtime_listener.dart';
+import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/attachment_pill.dart';
@@ -79,14 +80,7 @@ class AnnouncementReadController extends Notifier<Set<String>> {
 }
 
 String _friendlyDateTime(BuildContext context, DateTime value) {
-  final material = MaterialLocalizations.of(context);
-  final use24Hour = MediaQuery.maybeOf(context)?.alwaysUse24HourFormat ?? false;
-  final date = material.formatMediumDate(value);
-  final time = material.formatTimeOfDay(
-    TimeOfDay.fromDateTime(value),
-    alwaysUse24HourFormat: use24Hour,
-  );
-  return '$date • $time';
+  return FriendlyDate.dateTime(value);
 }
 
 String _sourceLabel(BuildContext context, String source) {

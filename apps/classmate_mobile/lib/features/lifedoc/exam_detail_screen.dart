@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import 'data/exams_repository.dart';
 import 'domain/exam_models.dart';
@@ -35,10 +36,8 @@ _ExamStatus _statusOf(StudentExamItem exam) {
 
 /// Format ISO date string → DD/MM/YYYY
 String _fmtDate(String? raw) {
-  final dt = _parseDate(raw);
-  if (dt == null) return raw ?? '—';
-  final d = dt.toLocal();
-  return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+  if ((raw ?? '').trim().isEmpty) return '—';
+  return FriendlyDate.date(raw);
 }
 
 /// Format two HH:MM time strings → "HH:MM – HH:MM"

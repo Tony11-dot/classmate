@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart' show DateFormat;
+import '../../../core/util/friendly_date.dart';
 
 import '../../../l10n/app_localizations.dart';
 
@@ -177,25 +177,19 @@ class BalanceSnapshot {
   bool get isOutOfTokens => totalRemaining <= 0;
   bool get isPaid => activeTier != 'FREE';
 
-  /// Legacy English-only "May 31"-style label. Kept so any old caller
-  /// keeps compiling; UI code should use `resetLabelLocalized` so the
-  /// month name matches the user's chosen language.
+  /// Legacy label. Kept so any old caller keeps compiling; UI code should
+  /// use `resetLabelLocalized`. Now rendered in the app-wide `DD/MM/YYYY`
+  /// format via [FriendlyDate].
   String get resetLabel {
     if (resetAt == null) return '';
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    final d = resetAt!.toLocal();
-    return '${months[d.month - 1]} ${d.day}';
+    return FriendlyDate.date(resetAt);
   }
 
-  /// Reset date in the user's locale ("31 mai", "31 мая", "מאי 31", etc).
+  /// Reset date in the app-wide `DD/MM/YYYY` format.
   /// Returns empty if no reset is scheduled.
   String resetLabelLocalized(String locale) {
     if (resetAt == null) return '';
-    final d = resetAt!.toLocal();
-    return DateFormat.MMMd(locale).format(d);
+    return FriendlyDate.date(resetAt, locale);
   }
 
   factory BalanceSnapshot.fromJson(Map<String, dynamic> json) {

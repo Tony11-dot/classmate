@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../core/semester/school_semester.dart';
+import '../../core/util/friendly_date.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
@@ -71,13 +72,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   }
 
   String _friendlyDate(BuildContext context, String? raw) {
-    final parsed = _parseDate(raw);
-    if (parsed == null) {
-      final fallback = (raw ?? '').trim();
-      return fallback.isEmpty ? AppLocalizations.of(context)!.attendanceUndated : fallback;
+    if ((raw ?? '').trim().isEmpty) {
+      return AppLocalizations.of(context)!.attendanceUndated;
     }
-
-    return MaterialLocalizations.of(context).formatMediumDate(parsed);
+    return FriendlyDate.date(raw);
   }
 
   String _normalizedStatus(String? status) {

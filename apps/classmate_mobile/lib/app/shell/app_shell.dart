@@ -9,9 +9,9 @@ import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../core/auth/auth_session.dart';
+import '../../core/util/friendly_date.dart';
 import '../../core/realtime/realtime_listener.dart';
 import '../../features/lifedoc/assignments_screen.dart';
 import '../../features/lifedoc/data/exams_repository.dart';
@@ -1700,7 +1700,7 @@ class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
                       child: Text(
                         _selectedDate == null
                             ? widget.l.teacherGradesFieldDate
-                            : DateFormat.yMMMd(locale).format(_selectedDate!),
+                            : FriendlyDate.date(_selectedDate!, locale),
                         style: TextStyle(color: _selectedDate == null ? cs.onSurfaceVariant : cs.onSurface),
                       ),
                     ),

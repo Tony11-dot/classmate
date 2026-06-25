@@ -611,100 +611,103 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginSignIn => 'Se connecter';
 
   @override
-  String get biometricSignIn => 'Sign in with biometrics';
+  String get biometricSignIn => 'Se connecter avec la biométrie';
 
   @override
-  String get biometricEnable => 'Enable biometric sign-in';
+  String get biometricEnable => 'Activer la connexion biométrique';
 
   @override
-  String get biometricReason => 'Authenticate to sign in to ClassMate';
+  String get biometricReason =>
+      'Authentifiez-vous pour vous connecter à ClassMate';
 
   @override
   String get biometricEnableReason =>
-      'Authenticate to enable biometric sign-in';
+      'Authentifiez-vous pour activer la connexion biométrique';
 
   @override
-  String get biometricSignInFaceId => 'Sign in with Face ID';
+  String get biometricSignInFaceId => 'Se connecter avec Face ID';
 
   @override
-  String get biometricSignInFingerprint => 'Sign in with fingerprint';
+  String get biometricSignInFingerprint =>
+      'Se connecter avec l\'empreinte digitale';
 
   @override
-  String get biometricOrSignInWith => 'or sign in with';
+  String get biometricOrSignInWith => 'ou connectez-vous avec';
 
   @override
   String get biometricNotSetUp =>
-      'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.';
+      'Aucune connexion biométrique configurée pour l\'instant. Activez Face ID ou l\'empreinte digitale dans Profil → Connexion biométrique.';
 
   @override
   String get biometricNotRecognized =>
-      'Biometric not recognized. Try again or sign in with your password.';
+      'Biométrie non reconnue. Réessayez ou connectez-vous avec votre mot de passe.';
 
   @override
   String get biometricFaceUnavailable =>
-      'Face ID isn\'t available on this device.';
+      'Face ID n\'est pas disponible sur cet appareil.';
 
   @override
   String get biometricFingerprintUnavailable =>
-      'Fingerprint isn\'t available on this device.';
+      'L\'empreinte digitale n\'est pas disponible sur cet appareil.';
 
   @override
-  String get biometricNotAvailableOnDevice => 'Not available on this device';
+  String get biometricNotAvailableOnDevice => 'Non disponible sur cet appareil';
 
   @override
-  String get biometricSectionTitle => 'Biometric sign-in';
+  String get biometricSectionTitle => 'Connexion biométrique';
 
   @override
   String get biometricSectionSubtitle =>
-      'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.';
+      'Activez Face ID ou votre empreinte digitale pour vous connecter plus vite. Vous confirmerez votre mot de passe une fois.';
 
   @override
   String get biometricFaceId => 'Face ID';
 
   @override
-  String get biometricFaceIdDesc => 'Use Face ID to sign in';
+  String get biometricFaceIdDesc => 'Utilisez Face ID pour vous connecter';
 
   @override
-  String get biometricFingerprint => 'Fingerprint';
+  String get biometricFingerprint => 'Empreinte digitale';
 
   @override
-  String get biometricFingerprintDesc => 'Use your fingerprint to sign in';
+  String get biometricFingerprintDesc =>
+      'Utilisez votre empreinte digitale pour vous connecter';
 
   @override
-  String get biometricConfirmPasswordTitle => 'Confirm your password';
+  String get biometricConfirmPasswordTitle => 'Confirmez votre mot de passe';
 
   @override
   String get biometricConfirmPasswordBody =>
-      'Enter your password to turn on biometric sign-in.';
+      'Saisissez votre mot de passe pour activer la connexion biométrique.';
 
   @override
   String get biometricPasswordIncorrect =>
-      'Incorrect password. Please try again.';
+      'Mot de passe incorrect. Veuillez réessayer.';
 
   @override
   String get biometricEnrollFailed =>
-      'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.';
+      'Impossible de vérifier votre biométrie. Assurez-vous que Face ID ou une empreinte digitale est configuré dans les réglages de votre appareil.';
 
   @override
   String get biometricEnterCredsFirst =>
-      'Enter your email and password first, then enable biometric sign-in.';
+      'Saisissez d\'abord votre e-mail et votre mot de passe, puis activez la connexion biométrique.';
 
   @override
   String get biometricLoginFailed =>
-      'Biometric sign-in failed. Please sign in with your password.';
+      'Échec de la connexion biométrique. Veuillez vous connecter avec votre mot de passe.';
 
   @override
-  String get biometricEnrollTitle => 'Enable biometric sign-in?';
+  String get biometricEnrollTitle => 'Activer la connexion biométrique ?';
 
   @override
   String get biometricEnrollBody =>
-      'Use Face ID or your fingerprint to sign in faster next time.';
+      'Utilisez Face ID ou votre empreinte digitale pour vous connecter plus vite la prochaine fois.';
 
   @override
-  String get biometricEnrollYes => 'Enable';
+  String get biometricEnrollYes => 'Activer';
 
   @override
-  String get biometricEnrollNo => 'Not now';
+  String get biometricEnrollNo => 'Pas maintenant';
 
   @override
   String get loginWelcomeTitle => 'Bon retour';
@@ -2622,7 +2625,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get practiceSetupModeLabelPractice => 'Entraînement';
 
   @override
-  String get practiceSetupModeLabelFlashcards => 'Flashcards';
+  String get practiceSetupModeLabelFlashcards => 'Cartes mémoire';
 
   @override
   String get practiceSetupModeLabelSpeedRound => 'Round rapide';
@@ -3621,7 +3624,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get assignmentsStatusOverdue => 'En retard';
 
   @override
-  String get assignmentsStatusGraded => 'Graded';
+  String get assignmentsStatusGraded => 'Noté';
 
   @override
   String get assignmentsStatusDueSoon => 'Bientôt à rendre';
@@ -10174,56 +10177,57 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get adminPeopleAddMany => 'Add many';
+  String get adminPeopleAddMany => 'Ajouter plusieurs';
 
   @override
-  String get adminAddManyPasteNames => 'Paste names';
+  String get adminAddManyPasteNames => 'Coller des noms';
 
   @override
-  String get adminAddManyApplyRole => 'Set role for all';
+  String get adminAddManyApplyRole => 'Définir le rôle pour tous';
 
   @override
-  String get adminAddManyApplyGrade => 'Set grade for all';
+  String get adminAddManyApplyGrade => 'Définir la classe pour tous';
 
   @override
   String get adminAddManyParentLabel => 'Parent';
 
   @override
-  String get adminAddManyParentNone => 'No parent';
+  String get adminAddManyParentNone => 'Aucun parent';
 
   @override
-  String get adminAddManyAddParent => 'Add parent';
+  String get adminAddManyAddParent => 'Ajouter un parent';
 
   @override
-  String get adminAddManyCreateParentGeneric => 'Create new parent';
+  String get adminAddManyCreateParentGeneric => 'Créer un nouveau parent';
 
   @override
-  String get adminAddManyParentInBatch => 'New parents in this list';
+  String get adminAddManyParentInBatch => 'Nouveaux parents dans cette liste';
 
   @override
-  String get adminAddManyParentExisting => 'Existing parents';
+  String get adminAddManyParentExisting => 'Parents existants';
 
   @override
-  String get adminAddManySearchParents => 'Search parents…';
+  String get adminAddManySearchParents => 'Rechercher des parents…';
 
   @override
   String get adminAddManyNoParentsYet =>
-      'No matching parents — type a name above to create one';
+      'Aucun parent correspondant — saisissez un nom ci-dessus pour en créer un';
 
   @override
-  String get adminAddManyUsernameTaken => 'Username already taken';
+  String get adminAddManyUsernameTaken => 'Nom d\'utilisateur déjà pris';
 
   @override
-  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+  String get adminAddManyUsernameDupe =>
+      'Nom d\'utilisateur en double dans cette liste';
 
   @override
   String adminAddManyCreateParent(String name) {
-    return 'Create new parent \"$name\"';
+    return 'Créer un nouveau parent \"$name\"';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return 'Added $count rows';
+    return '$count lignes ajoutées';
   }
 
   @override

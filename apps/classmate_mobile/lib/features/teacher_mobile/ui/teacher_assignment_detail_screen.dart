@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -138,7 +138,6 @@ class _TeacherAssignmentDetailScreenState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
 
     // Refresh when student submits (teacher sees new submission live)
     ref.listen(realtimeEventProvider, (_, event) {
@@ -304,7 +303,7 @@ class _TeacherAssignmentDetailScreenState
                                             Text(name, style: const TextStyle(fontWeight: FontWeight.w800)),
                                             if (submittedDate != null)
                                               Text(
-                                                AppLocalizations.of(context)!.teacherAssignmentDetailScreenSubmittedOn(DateFormat.yMMMd(locale).format(submittedDate)),
+                                                AppLocalizations.of(context)!.teacherAssignmentDetailScreenSubmittedOn(FriendlyDate.date(submittedDate)),
                                                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                               ),
                                           ],

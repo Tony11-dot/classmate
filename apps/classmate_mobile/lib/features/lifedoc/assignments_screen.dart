@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/realtime/realtime_listener.dart';
 import '../../core/semester/school_semester.dart';
+import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/attachment_pill.dart';
@@ -191,31 +192,22 @@ DateTime? _parseFlexibleDate(String? raw) {
 
 String _friendlyDateLabel(BuildContext context, String? raw) {
   final parsed = _parseFlexibleDate(raw);
-  if (parsed == null) {
-    final fallback = (raw ?? '').trim();
-    return fallback.isEmpty
-        ? AppLocalizations.of(context)!.assignmentsNoDueDate
-        : fallback;
+  if (parsed == null && (raw ?? '').trim().isEmpty) {
+    return AppLocalizations.of(context)!.assignmentsNoDueDate;
   }
-
-  return MaterialLocalizations.of(context).formatMediumDate(parsed);
+  return FriendlyDate.date(raw);
 }
 
 String _friendlyDateTimeLabel(BuildContext context, String? raw) {
   final parsed = _parseFlexibleDate(raw);
-  if (parsed == null) {
-    final fallback = (raw ?? '').trim();
-    return fallback.isEmpty ? AppLocalizations.of(context)!.profileNotAvailable : fallback;
+  if (parsed == null && (raw ?? '').trim().isEmpty) {
+    return AppLocalizations.of(context)!.profileNotAvailable;
   }
-
-  final hour = parsed.hour == 0 && parsed.minute == 0
-      ? null
-      : MaterialLocalizations.of(context).formatTimeOfDay(
-          TimeOfDay.fromDateTime(parsed),
-          alwaysUse24HourFormat: true,
-        );
-  final date = _friendlyDateLabel(context, raw);
-  return hour == null ? date : '$date • $hour';
+  // A pure date (midnight) shows date-only; otherwise full timestamp.
+  if (parsed != null && parsed.hour == 0 && parsed.minute == 0) {
+    return FriendlyDate.date(raw);
+  }
+  return FriendlyDate.dateTime(raw);
 }
 
 String _friendlyError(BuildContext context, Object error) {

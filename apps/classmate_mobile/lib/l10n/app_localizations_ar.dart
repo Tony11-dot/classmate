@@ -602,100 +602,99 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginSignIn => 'تسجيل الدخول';
 
   @override
-  String get biometricSignIn => 'Sign in with biometrics';
+  String get biometricSignIn => 'تسجيل الدخول بالبصمة الحيوية';
 
   @override
-  String get biometricEnable => 'Enable biometric sign-in';
+  String get biometricEnable => 'تفعيل تسجيل الدخول بالبصمة الحيوية';
 
   @override
-  String get biometricReason => 'Authenticate to sign in to ClassMate';
+  String get biometricReason => 'تحقّق من هويتك لتسجيل الدخول إلى ClassMate';
 
   @override
   String get biometricEnableReason =>
-      'Authenticate to enable biometric sign-in';
+      'تحقّق من هويتك لتفعيل تسجيل الدخول بالبصمة الحيوية';
 
   @override
-  String get biometricSignInFaceId => 'Sign in with Face ID';
+  String get biometricSignInFaceId => 'تسجيل الدخول باستخدام Face ID';
 
   @override
-  String get biometricSignInFingerprint => 'Sign in with fingerprint';
+  String get biometricSignInFingerprint => 'تسجيل الدخول ببصمة الإصبع';
 
   @override
-  String get biometricOrSignInWith => 'or sign in with';
+  String get biometricOrSignInWith => 'أو سجّل الدخول باستخدام';
 
   @override
   String get biometricNotSetUp =>
-      'No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.';
+      'لم يتم إعداد تسجيل الدخول بالبصمة الحيوية بعد. فعّل Face ID أو بصمة الإصبع من الملف الشخصي ← تسجيل الدخول بالبصمة الحيوية.';
 
   @override
   String get biometricNotRecognized =>
-      'Biometric not recognized. Try again or sign in with your password.';
+      'لم يتم التعرّف على البصمة الحيوية. حاول مرة أخرى أو سجّل الدخول بكلمة المرور.';
 
   @override
-  String get biometricFaceUnavailable =>
-      'Face ID isn\'t available on this device.';
+  String get biometricFaceUnavailable => 'Face ID غير متاح على هذا الجهاز.';
 
   @override
   String get biometricFingerprintUnavailable =>
-      'Fingerprint isn\'t available on this device.';
+      'بصمة الإصبع غير متاحة على هذا الجهاز.';
 
   @override
-  String get biometricNotAvailableOnDevice => 'Not available on this device';
+  String get biometricNotAvailableOnDevice => 'غير متاح على هذا الجهاز';
 
   @override
-  String get biometricSectionTitle => 'Biometric sign-in';
+  String get biometricSectionTitle => 'تسجيل الدخول بالبصمة الحيوية';
 
   @override
   String get biometricSectionSubtitle =>
-      'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.';
+      'فعّل Face ID أو بصمة إصبعك لتسجيل الدخول بشكل أسرع. ستؤكّد كلمة المرور مرة واحدة.';
 
   @override
   String get biometricFaceId => 'Face ID';
 
   @override
-  String get biometricFaceIdDesc => 'Use Face ID to sign in';
+  String get biometricFaceIdDesc => 'استخدم Face ID لتسجيل الدخول';
 
   @override
-  String get biometricFingerprint => 'Fingerprint';
+  String get biometricFingerprint => 'بصمة الإصبع';
 
   @override
-  String get biometricFingerprintDesc => 'Use your fingerprint to sign in';
+  String get biometricFingerprintDesc => 'استخدم بصمة إصبعك لتسجيل الدخول';
 
   @override
-  String get biometricConfirmPasswordTitle => 'Confirm your password';
+  String get biometricConfirmPasswordTitle => 'تأكيد كلمة المرور';
 
   @override
   String get biometricConfirmPasswordBody =>
-      'Enter your password to turn on biometric sign-in.';
+      'أدخل كلمة المرور لتفعيل تسجيل الدخول بالبصمة الحيوية.';
 
   @override
   String get biometricPasswordIncorrect =>
-      'Incorrect password. Please try again.';
+      'كلمة المرور غير صحيحة. يُرجى المحاولة مرة أخرى.';
 
   @override
   String get biometricEnrollFailed =>
-      'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.';
+      'تعذّر التحقّق من بصمتك الحيوية. تأكّد من إعداد Face ID أو بصمة إصبع في إعدادات جهازك.';
 
   @override
   String get biometricEnterCredsFirst =>
-      'Enter your email and password first, then enable biometric sign-in.';
+      'أدخل بريدك الإلكتروني وكلمة المرور أولاً، ثم فعّل تسجيل الدخول بالبصمة الحيوية.';
 
   @override
   String get biometricLoginFailed =>
-      'Biometric sign-in failed. Please sign in with your password.';
+      'فشل تسجيل الدخول بالبصمة الحيوية. يُرجى تسجيل الدخول بكلمة المرور.';
 
   @override
-  String get biometricEnrollTitle => 'Enable biometric sign-in?';
+  String get biometricEnrollTitle => 'تفعيل تسجيل الدخول بالبصمة الحيوية؟';
 
   @override
   String get biometricEnrollBody =>
-      'Use Face ID or your fingerprint to sign in faster next time.';
+      'استخدم Face ID أو بصمة إصبعك لتسجيل الدخول بشكل أسرع في المرة القادمة.';
 
   @override
-  String get biometricEnrollYes => 'Enable';
+  String get biometricEnrollYes => 'تفعيل';
 
   @override
-  String get biometricEnrollNo => 'Not now';
+  String get biometricEnrollNo => 'ليس الآن';
 
   @override
   String get loginWelcomeTitle => 'مرحبًا بعودتك';
@@ -3548,7 +3547,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assignmentsStatusOverdue => 'متأخر';
 
   @override
-  String get assignmentsStatusGraded => 'Graded';
+  String get assignmentsStatusGraded => 'مُقيَّم';
 
   @override
   String get assignmentsStatusDueSoon => 'حان الموعد قريباً';
@@ -9980,56 +9979,56 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get adminPeopleAddMany => 'Add many';
+  String get adminPeopleAddMany => 'إضافة عدة أشخاص';
 
   @override
-  String get adminAddManyPasteNames => 'Paste names';
+  String get adminAddManyPasteNames => 'لصق الأسماء';
 
   @override
-  String get adminAddManyApplyRole => 'Set role for all';
+  String get adminAddManyApplyRole => 'تعيين الدور للجميع';
 
   @override
-  String get adminAddManyApplyGrade => 'Set grade for all';
+  String get adminAddManyApplyGrade => 'تعيين الصف للجميع';
 
   @override
-  String get adminAddManyParentLabel => 'Parent';
+  String get adminAddManyParentLabel => 'ولي الأمر';
 
   @override
-  String get adminAddManyParentNone => 'No parent';
+  String get adminAddManyParentNone => 'بدون ولي أمر';
 
   @override
-  String get adminAddManyAddParent => 'Add parent';
+  String get adminAddManyAddParent => 'إضافة ولي أمر';
 
   @override
-  String get adminAddManyCreateParentGeneric => 'Create new parent';
+  String get adminAddManyCreateParentGeneric => 'إنشاء ولي أمر جديد';
 
   @override
-  String get adminAddManyParentInBatch => 'New parents in this list';
+  String get adminAddManyParentInBatch => 'أولياء أمور جدد في هذه القائمة';
 
   @override
-  String get adminAddManyParentExisting => 'Existing parents';
+  String get adminAddManyParentExisting => 'أولياء الأمور الحاليون';
 
   @override
-  String get adminAddManySearchParents => 'Search parents…';
+  String get adminAddManySearchParents => 'البحث عن أولياء الأمور…';
 
   @override
   String get adminAddManyNoParentsYet =>
-      'No matching parents — type a name above to create one';
+      'لا يوجد أولياء أمور مطابقون — اكتب اسمًا أعلاه لإنشاء واحد';
 
   @override
-  String get adminAddManyUsernameTaken => 'Username already taken';
+  String get adminAddManyUsernameTaken => 'اسم المستخدم مستخدم بالفعل';
 
   @override
-  String get adminAddManyUsernameDupe => 'Duplicate username in this list';
+  String get adminAddManyUsernameDupe => 'اسم مستخدم مكرر في هذه القائمة';
 
   @override
   String adminAddManyCreateParent(String name) {
-    return 'Create new parent \"$name\"';
+    return 'إنشاء ولي أمر جديد \"$name\"';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return 'Added $count rows';
+    return 'تمت إضافة $count صف';
   }
 
   @override

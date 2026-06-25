@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/attachment_pill.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -86,7 +86,6 @@ class _TeacherClassroomAddAssignmentScreenState
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final locale = Localizations.localeOf(context).toString();
     final title = widget.courseName.isNotEmpty
         ? widget.courseName
         : l.teacherClassroomAddAssignmentScreenTitle;
@@ -212,7 +211,7 @@ class _TeacherClassroomAddAssignmentScreenState
                       ),
                       child: Text(
                         _dueDate != null
-                            ? DateFormat.yMMMd(locale).format(_dueDate!)
+                            ? FriendlyDate.date(_dueDate!)
                             : l.teacherClassroomAddAssignmentScreenDueDateOptional,
                         style: TextStyle(
                           color: _dueDate != null
