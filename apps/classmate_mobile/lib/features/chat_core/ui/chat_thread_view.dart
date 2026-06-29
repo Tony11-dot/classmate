@@ -203,6 +203,14 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   void _handleScroll() {
     if (!_scrollController.hasClients) return;
+    // Near the top → page in older messages (upward infinite scroll). Fire-
+    // and-forget; the controller guards against re-entry while loading.
+    final pos = _scrollController.position;
+    if (pos.pixels <= pos.minScrollExtent + 240 &&
+        widget.controller.hasMoreOlder &&
+        !widget.controller.isLoadingOlder) {
+      widget.controller.loadOlder();
+    }
     // Dismiss keyboard whenever the list scrolls (handles TabBarView contexts
     // where keyboardDismissBehavior.onDrag alone is insufficient).
     FocusManager.instance.primaryFocus?.unfocus();
@@ -1694,6 +1702,31 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
               children: [
                 const Positioned.fill(child: _ChatDoodleBackground()),
                 _buildMessageList(messages, l, isPeerTyping),
+                // Top spinner while paging in older messages.
+                if (widget.controller.isLoadingOlder)
+                  Positioned(
+                    top: 8,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.12),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                        child: const CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  ),
                 if (_showScrollToBottom)
                   Positioned(
                     left: 0,

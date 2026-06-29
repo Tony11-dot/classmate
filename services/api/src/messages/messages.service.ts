@@ -451,32 +451,75 @@ export class MessagesService {
     return message;
   }
 
-  private async loadThreadOrThrow(threadId: string, userId: string) {
+  private async loadThreadOrThrow(
+    threadId: string,
+    userId: string,
+    opts?: { limit?: number; beforeId?: string },
+  ) {
     await this.loadParticipantOrThrow(threadId, userId);
 
-    const thread = await this.prisma.dmThread.findUnique({
+    const base = await this.prisma.dmThread.findUnique({
       where: { id: threadId },
       include: {
         participants: {
           orderBy: { createdAt: 'asc' },
         },
-        messages: {
-          orderBy: { createdAt: 'asc' },
-          include: {
-            reactions: {
-              orderBy: { createdAt: 'asc' },
-              take: 1,
-            },
-          },
-        },
       },
     });
 
-    if (!thread) {
+    if (!base) {
       throw new NotFoundException('Thread not found');
     }
 
-    return thread;
+    const reactionInclude = {
+      reactions: { orderBy: { createdAt: 'asc' as const }, take: 1 },
+    };
+    // Cap the window so a malicious/oversized limit can't pull the whole thread.
+    const limit =
+      opts?.limit && opts.limit > 0 ? Math.min(Math.floor(opts.limit), 100) : null;
+
+    let messages;
+    let hasMoreOlder = false;
+    if (limit) {
+      // Newest-first window. Fetch one extra to detect whether older pages
+      // exist, then reverse to chronological (ascending) for the client.
+      const rows = await this.prisma.dmMessage.findMany({
+        where: { threadId },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        ...(opts?.beforeId ? { cursor: { id: opts.beforeId }, skip: 1 } : {}),
+        include: reactionInclude,
+      });
+      hasMoreOlder = rows.length > limit;
+      messages = (hasMoreOlder ? rows.slice(0, limit) : rows).reverse();
+    } else {
+      // Legacy / no-pagination path: full history, ascending.
+      messages = await this.prisma.dmMessage.findMany({
+        where: { threadId },
+        orderBy: { createdAt: 'asc' },
+        include: reactionInclude,
+      });
+    }
+
+    // A reply may quote a message older than the loaded window. Fetch those
+    // targets so the quoted preview still renders (they're NOT added to the
+    // returned message list, only used to resolve previews).
+    const have = new Set<string>(messages.map((m: any) => String(m.id)));
+    const missingReplyIds: string[] = Array.from(
+      new Set<string>(
+        messages
+          .map((m: any) => m.replyToMessageId as string | null)
+          .filter((id): id is string => !!id && !have.has(id)),
+      ),
+    );
+    const replyTargets = missingReplyIds.length
+      ? await this.prisma.dmMessage.findMany({
+          where: { id: { in: missingReplyIds } },
+          include: reactionInclude,
+        })
+      : [];
+
+    return { ...base, messages, hasMoreOlder, replyTargets };
   }
 
   private async threadToSummary(participant: {
@@ -584,12 +627,18 @@ export class MessagesService {
   }
 
   private async threadToDetail(thread: ThreadWithRelations, viewerId: string) {
+    // Reply targets outside the loaded window (see loadThreadOrThrow) let us
+    // resolve quoted previews without adding them to the visible message list.
+    const replyTargets = (thread as any).replyTargets ?? [];
     const users = await this.userMapForIds([
       ...thread.participants.map((p) => p.userId),
       ...thread.messages.map((m) => m.senderId),
+      ...replyTargets.map((m: any) => m.senderId),
     ]);
 
-    const byId = new Map(thread.messages.map((m) => [m.id, m] as const));
+    const byId = new Map(
+      [...thread.messages, ...replyTargets].map((m) => [m.id, m] as const),
+    );
 
     const previewFor = (message: any) => {
       const kind = String(message?.kind ?? 'TEXT').toUpperCase();
@@ -679,6 +728,8 @@ export class MessagesService {
         };
       }),
       canSend: this.canViewerSend(thread, viewerId),
+      // True when older messages exist before the loaded window (pagination).
+      hasMoreOlder: (thread as any).hasMoreOlder ?? false,
     };
   }
 
@@ -789,9 +840,13 @@ export class MessagesService {
     };
   }
 
-  async fetchThread(user: AppUser, threadId: string) {
+  async fetchThread(
+    user: AppUser,
+    threadId: string,
+    opts?: { limit?: number; beforeId?: string },
+  ) {
     const userId = this.viewerId(user);
-    const thread = await this.loadThreadOrThrow(threadId, userId);
+    const thread = await this.loadThreadOrThrow(threadId, userId, opts);
     return { thread: await this.threadToDetail(thread, userId) };
   }
 

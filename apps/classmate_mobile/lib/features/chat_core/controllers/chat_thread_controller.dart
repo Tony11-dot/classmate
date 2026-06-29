@@ -91,4 +91,11 @@ abstract class ChatThreadController {
   }
 
   void invalidate();
+
+  /// Pagination hooks for loading older messages on scroll. Default no-ops so
+  /// controllers that load full history (e.g. classroom) need no changes; the
+  /// DM controller overrides these to page older messages in on demand.
+  bool get hasMoreOlder => false;
+  bool get isLoadingOlder => false;
+  Future<void> loadOlder() async {}
 }

@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -58,8 +59,17 @@ export class MessagesController {
 
   @SkipThrottle()
   @Get('threads/:threadId')
-  fetchThread(@Req() req: any, @Param('threadId') threadId: string) {
-    return this.service.fetchThread(req.user, String(threadId || '').trim());
+  fetchThread(
+    @Req() req: any,
+    @Param('threadId') threadId: string,
+    @Query('limit') limit?: string,
+    @Query('before') before?: string,
+  ) {
+    const parsedLimit = limit ? Number(limit) : undefined;
+    return this.service.fetchThread(req.user, String(threadId || '').trim(), {
+      limit: Number.isFinite(parsedLimit) ? parsedLimit : undefined,
+      beforeId: before ? String(before).trim() : undefined,
+    });
   }
 
   @SkipThrottle()

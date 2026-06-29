@@ -4,6 +4,12 @@ import '../../../core/auth/auth_session.dart';
 import '../data/messages_repository.dart';
 import '../domain/message_thread_models.dart';
 
+/// How many recent messages a thread loads per page. The thread view fetches
+/// this most-recent window on open / refresh (instead of the entire history)
+/// and pages older messages in on demand as the user scrolls up. Keeps every
+/// fetch small → faster opens, cheaper bandwidth, lighter DB load.
+const int kDmPageSize = 40;
+
 final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
   final session = ref.watch(authSessionProvider);
   return ApiMessagesRepository(token: session.token ?? '');
@@ -17,7 +23,8 @@ final messagesInboxProvider = FutureProvider<List<MessageThreadSummary>>((ref) {
 final messageThreadProvider =
     FutureProvider.family<MessageThreadDetail, String>((ref, threadId) {
       final repo = ref.read(messagesRepositoryProvider);
-      return repo.fetchThread(threadId: threadId);
+      // Load only the most-recent window; older pages are fetched on scroll.
+      return repo.fetchThread(threadId: threadId, limit: kDmPageSize);
     });
 
 final messageRequestProvider =

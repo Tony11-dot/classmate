@@ -45,6 +45,57 @@ class DmChatThreadController extends ChatThreadController {
   final List<ChatMessage> _optimisticMessages = [];
   List<ChatMessage> _cachedMessages = [];
 
+  // ── Pagination (load older on scroll) ────────────────────────────────────
+  // Raw older-than-window messages fetched on demand, oldest-first. Kept as
+  // raw MessageItems (not converted) so sender-name resolution always uses the
+  // freshest participant map at build time. The recent window itself comes
+  // from messageThreadProvider and refreshes live; these accumulate above it.
+  List<MessageItem> _olderRaw = [];
+  bool _hasMoreOlder = false;
+  bool _loadingOlder = false;
+
+  /// True when there are older messages before the currently loaded set.
+  @override
+  bool get hasMoreOlder => _hasMoreOlder;
+
+  /// True while an older page is being fetched (for a top spinner).
+  @override
+  bool get isLoadingOlder => _loadingOlder;
+
+  /// Fetch the next older page and prepend it. No-op when already loading,
+  /// nothing older remains, or we don't yet have a cursor (oldest loaded id).
+  @override
+  Future<void> loadOlder() async {
+    if (_loadingOlder || !_hasMoreOlder) return;
+    String? oldestId;
+    for (final m in _cachedMessages) {
+      if (!m.isOptimistic) {
+        oldestId = m.id;
+        break;
+      }
+    }
+    if (oldestId == null) return;
+    _loadingOlder = true;
+    invalidate(); // reflect the loading state (top spinner)
+    try {
+      final page = await _repo.fetchThread(
+        threadId: _threadId,
+        limit: kDmPageSize,
+        before: oldestId,
+      );
+      // Prepend older messages, de-duping against what we already hold.
+      final existing = _olderRaw.map((m) => m.id).toSet();
+      final fresh = page.messages.where((m) => !existing.contains(m.id));
+      _olderRaw = [...fresh, ..._olderRaw];
+      _hasMoreOlder = page.hasMoreOlder;
+    } catch (_) {
+      // Leave _hasMoreOlder as-is so the user can retry by scrolling again.
+    } finally {
+      _loadingOlder = false;
+      invalidate();
+    }
+  }
+
   // Local deletion state — persisted so deletions survive exit + re-entry.
   // key: messageId (server or local), value: 'DELETED_FOR_ME' | 'DELETED_FOR_EVERYONE'
   Map<String, String> _localDeleted = {};
@@ -518,9 +569,22 @@ class DmChatThreadController extends ChatThreadController {
                   ? p.displayName
                   : (p.userId != _currentUserId ? threadTitle : ''),
         };
-        final server = thread.messages
+        // Baseline "older exists?" comes from the recent window. Once we've
+        // paged older messages in, loadOlder() owns the flag (it knows the
+        // deeper boundary), so don't let the window's value clobber it.
+        if (_olderRaw.isEmpty) {
+          _hasMoreOlder = thread.hasMoreOlder;
+        }
+        // Older pages (fetched on scroll) sit above the live recent window.
+        // Converted here so names use the freshest participant map; dedup in
+        // _mergeWithOptimistic handles any overlap.
+        final older = _olderRaw
             .map((item) => _convertMessageItem(item, participantNames))
             .toList();
+        final window = thread.messages
+            .map((item) => _convertMessageItem(item, participantNames))
+            .toList();
+        final server = [...older, ...window];
         return AsyncValue.data(_mergeWithOptimistic(server));
       },
       loading: () => _cachedMessages.isNotEmpty

@@ -156,6 +156,8 @@ class MessageThreadDetail {
   final List<MessageParticipant> participants;
   final List<MessageItem> messages;
   final bool canSend;
+  /// True when older messages exist before the loaded window (pagination).
+  final bool hasMoreOlder;
 
   const MessageThreadDetail({
     required this.id,
@@ -166,6 +168,7 @@ class MessageThreadDetail {
     required this.participants,
     required this.messages,
     this.canSend = true,
+    this.hasMoreOlder = false,
   });
 }
 

@@ -12,7 +12,11 @@ import '../../chat_core/utils/chat_time.dart';
 abstract class MessagesRepository {
   Future<List<MessageThreadSummary>> fetchInbox();
 
-  Future<MessageThreadDetail> fetchThread({required String threadId});
+  Future<MessageThreadDetail> fetchThread({
+    required String threadId,
+    int? limit,
+    String? before,
+  });
 
   Future<MessageThreadDetail> fetchRequest({required String threadId});
 
@@ -502,6 +506,7 @@ class ApiMessagesRepository implements MessagesRepository {
           .toList(),
       messages: messages,
       canSend: (json['canSend'] ?? true) == true,
+      hasMoreOlder: (json['hasMoreOlder'] ?? false) == true,
     );
   }
 
@@ -523,10 +528,21 @@ class ApiMessagesRepository implements MessagesRepository {
   }
 
   @override
-  Future<MessageThreadDetail> fetchThread({required String threadId}) async {
+  Future<MessageThreadDetail> fetchThread({
+    required String threadId,
+    int? limit,
+    String? before,
+  }) async {
+    final qp = <String, String>{
+      if (limit != null) 'limit': '$limit',
+      if (before != null && before.isNotEmpty) 'before': before,
+    };
+    final query = qp.isEmpty
+        ? ''
+        : '?${qp.entries.map((e) => '${e.key}=${Uri.encodeQueryComponent(e.value)}').join('&')}';
     final response = await _sendWithFallback(
       (uri) async => _client.get(uri, headers: await _headers()),
-      '/messages/threads/$threadId',
+      '/messages/threads/$threadId$query',
     );
 
     if (!_ok(response)) _fail('messages.fetchThread', response);
