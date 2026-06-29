@@ -3080,6 +3080,12 @@ abstract class AppLocalizations {
   /// **'Create group'**
   String get messagesCreateGroupAction;
 
+  /// No description provided for @messagesGroupMinMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least 2 people for a group'**
+  String get messagesGroupMinMembers;
+
   /// No description provided for @messagesBlockedPersonFallback.
   ///
   /// In en, this message translates to:

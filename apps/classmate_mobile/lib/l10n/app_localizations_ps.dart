@@ -1738,6 +1738,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get messagesCreateGroupAction => 'ګروپ جوړ کړه';
 
   @override
+  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+
+  @override
   String get messagesBlockedPersonFallback => 'دا کس';
 
   @override

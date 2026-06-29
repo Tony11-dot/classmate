@@ -133,15 +133,34 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: SizedBox(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_selected.length < 2)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          l.messagesGroupMinMembers,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                    SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _submitting || _selected.isEmpty || _nameCtl.text.trim().isEmpty
+                    // A group needs the creator + at least 2 others (1-on-1
+                    // chats use the direct-message flow), matching the backend
+                    // ArrayMinSize(2) on memberIds.
+                    onPressed: _submitting || _selected.length < 2 || _nameCtl.text.trim().isEmpty
                         ? null
                         : () async {
                             setState(() => _submitting = true);
+                            final messenger = ScaffoldMessenger.of(context);
+                            final nav = Navigator.of(context);
                             try {
-                              final nav = Navigator.of(context);
                               final detail = await ref
                                   .read(messagesRepositoryProvider)
                                   .createGroup(
@@ -151,6 +170,14 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                               if (!mounted) return;
                               ref.invalidate(messagesInboxProvider);
                               nav.pop(detail.id);
+                            } catch (_) {
+                              // Surface failures (e.g. validation, network) as a
+                              // snackbar instead of an uncaught fatal error.
+                              if (mounted) {
+                                messenger.showSnackBar(
+                                  SnackBar(content: Text(l.commonError)),
+                                );
+                              }
                             } finally {
                               if (mounted) {
                                 setState(() => _submitting = false);
@@ -164,7 +191,9 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(l.messagesCreateGroupAction),
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

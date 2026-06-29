@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// A lightweight, theme-aware animated background: a soft shifting gradient
-/// with slowly drifting colored "aurora" blobs painted behind content.
+/// A lively, theme-aware animated background: a slowly shifting gradient with
+/// several drifting, colorful "aurora" blobs painted behind content. Designed
+/// to feel alive (clear motion + real color) while staying cheap (one painter,
+/// one ticker) and readable for foreground text/cards.
 ///
-/// Cheap enough to sit under a full screen (single repaint via one painter),
-/// and subtle enough to keep foreground text/cards readable. Used on the
-/// login screen and the NOVA chat screen to make them feel alive.
+/// Used full-screen on the login screen and the NOVA chat.
 class AnimatedAuroraBackground extends StatefulWidget {
   const AnimatedAuroraBackground({
     super.key,
@@ -17,7 +17,8 @@ class AnimatedAuroraBackground extends StatefulWidget {
   /// Foreground content rendered above the animated layers.
   final Widget child;
 
-  /// Multiplier for blob opacity (0..1.5). Lower it where readability matters.
+  /// Multiplier for blob opacity / liveliness (0..1.5). Lower it where dense
+  /// text sits on top (e.g. chat), raise it on sparse screens (e.g. login).
   final double intensity;
 
   @override
@@ -34,7 +35,7 @@ class _AnimatedAuroraBackgroundState extends State<AnimatedAuroraBackground>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 18),
+      duration: const Duration(seconds: 14),
     )..repeat();
   }
 
@@ -49,11 +50,15 @@ class _AnimatedAuroraBackgroundState extends State<AnimatedAuroraBackground>
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // A small palette pulled from the theme so it always matches branding.
+    // A vivid palette: blend a few fixed accent hues toward the theme so it's
+    // always colorful and lively, not just a faint tint of the primary.
+    Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
     final blobs = <Color>[
-      cs.primary,
-      cs.secondary,
-      cs.tertiary,
+      mix(const Color(0xFF2563EB), cs.primary, 0.35), // brand blue
+      const Color(0xFF7C3AED),                        // violet
+      const Color(0xFF06B6D4),                        // cyan
+      const Color(0xFFEC4899),                        // pink
+      mix(const Color(0xFF22C55E), cs.tertiary, 0.4), // green
     ];
 
     return RepaintBoundary(
@@ -61,31 +66,29 @@ class _AnimatedAuroraBackgroundState extends State<AnimatedAuroraBackground>
         animation: _ctrl,
         builder: (context, _) {
           final t = _ctrl.value; // 0..1
+          final angle = t * 2 * math.pi;
           return Stack(
             fit: StackFit.expand,
             children: [
-              // Base shifting gradient.
+              // Base shifting gradient — a soft surface wash so the blobs read.
               DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment(
-                      math.cos(t * 2 * math.pi),
-                      math.sin(t * 2 * math.pi),
-                    ),
-                    end: Alignment(
-                      -math.cos(t * 2 * math.pi),
-                      -math.sin(t * 2 * math.pi),
-                    ),
+                    begin: Alignment(math.cos(angle), math.sin(angle)),
+                    end: Alignment(-math.cos(angle), -math.sin(angle)),
                     colors: isDark
                         ? [
-                            cs.surface,
+                            const Color(0xFF0B1020),
                             Color.alphaBlend(
-                                cs.primary.withValues(alpha: 0.14), cs.surface),
+                                cs.primary.withValues(alpha: 0.20),
+                                const Color(0xFF0B1020)),
                           ]
                         : [
                             Color.alphaBlend(
-                                cs.primary.withValues(alpha: 0.08), cs.surface),
-                            cs.surface,
+                                cs.primary.withValues(alpha: 0.10), cs.surface),
+                            Color.alphaBlend(
+                                const Color(0xFF7C3AED).withValues(alpha: 0.05),
+                                cs.surface),
                           ],
                   ),
                 ),
@@ -123,13 +126,16 @@ class _AuroraPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final baseAlpha = (isDark ? 0.22 : 0.16) * intensity;
+    final baseAlpha = (isDark ? 0.42 : 0.34) * intensity;
     for (var i = 0; i < colors.length; i++) {
       final phase = t * 2 * math.pi + i * (2 * math.pi / colors.length);
-      // Each blob drifts on its own slow elliptical path.
-      final cx = size.width * (0.5 + 0.42 * math.cos(phase + i));
-      final cy = size.height * (0.5 + 0.40 * math.sin(phase * 1.3 + i));
-      final radius = size.shortestSide * (0.45 + 0.08 * math.sin(phase * 0.7));
+      // Each blob drifts on its own slow elliptical path, with a little extra
+      // wobble so the motion never looks like a single rigid rotation.
+      final cx = size.width *
+          (0.5 + 0.46 * math.cos(phase + i) + 0.05 * math.sin(phase * 2.3));
+      final cy = size.height *
+          (0.5 + 0.44 * math.sin(phase * 1.25 + i) + 0.05 * math.cos(phase * 1.9));
+      final radius = size.shortestSide * (0.50 + 0.10 * math.sin(phase * 0.7));
 
       final paint = Paint()
         ..shader = RadialGradient(
@@ -137,17 +143,17 @@ class _AuroraPainter extends CustomPainter {
             colors[i].withValues(alpha: baseAlpha),
             colors[i].withValues(alpha: 0.0),
           ],
+          stops: const [0.0, 1.0],
         ).createShader(
           Rect.fromCircle(center: Offset(cx, cy), radius: radius),
         )
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 40);
+        ..blendMode = BlendMode.plus // additive → richer where blobs overlap
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 60);
       canvas.drawCircle(Offset(cx, cy), radius, paint);
     }
   }
 
   @override
   bool shouldRepaint(covariant _AuroraPainter old) =>
-      old.t != t ||
-      old.intensity != intensity ||
-      old.isDark != isDark;
+      old.t != t || old.intensity != intensity || old.isDark != isDark;
 }

@@ -1647,6 +1647,10 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final cmLogo = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
+    // Wide wordmark for the prominent centered brand mark at the top of the page.
+    final cmWordmark = pw.MemoryImage(
+      (await rootBundle.load('assets/images/logo_light.png')).buffer.asUint8List(),
+    );
 
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(
@@ -1696,6 +1700,23 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       pageFormat: fmt,
       margin: const pw.EdgeInsets.all(24),
       build: (ctx) => [
+        // ── Prominent centered brand mark at the very top ────────────────
+        pw.Center(
+          child: pw.Container(
+            margin: const pw.EdgeInsets.only(bottom: 12),
+            padding: const pw.EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+            decoration: pw.BoxDecoration(
+              color: brandLight,
+              borderRadius: pw.BorderRadius.circular(16),
+              border: pw.Border.all(color: brandBlue, width: 0.5),
+            ),
+            child: pw.SizedBox(
+              width: 240,
+              height: 54,
+              child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
+            ),
+          ),
+        ),
         pw.Container(
           padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(color: brandBlue, borderRadius: pw.BorderRadius.circular(12)),

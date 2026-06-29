@@ -47,9 +47,14 @@ class ChatComposer extends StatelessWidget {
     this.activeHoldDx = 0,
     this.activeHoldDy = 0,
     this.topContent,
+    this.backgroundColor,
   });
 
   final TextEditingController controller;
+  /// Optional override for the composer bar's fill. Defaults to the theme
+  /// surface; NOVA passes a translucent color so the full-screen background
+  /// shows through the bottom of the screen.
+  final Color? backgroundColor;
   final dynamic replyingTo;
   final VoidCallback? onCancelReply;
   final VoidCallback? onTapReplyPreview;
@@ -293,7 +298,7 @@ class ChatComposer extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: scheme.surface,
+        color: backgroundColor ?? scheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: scheme.outlineVariant,

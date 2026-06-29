@@ -1083,8 +1083,12 @@ export class MessagesService {
     if (!title) {
       throw new BadRequestException('title is required');
     }
-    if (!memberIds.length) {
-      throw new BadRequestException('At least one member is required');
+    // A group needs the creator + at least 2 other members (1-on-1 chats use
+    // the direct-message flow). Kept consistent with CreateGroupThreadDto's
+    // ArrayMinSize(2) — the DTO validates the raw payload, this re-checks after
+    // self/duplicate filtering.
+    if (memberIds.length < 2) {
+      throw new BadRequestException('A group needs at least 2 other members');
     }
 
     await this.requireUser(userId);

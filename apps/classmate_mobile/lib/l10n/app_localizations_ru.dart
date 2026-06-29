@@ -1724,6 +1724,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get messagesCreateGroupAction => 'Создать группу';
 
   @override
+  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+
+  @override
   String get messagesBlockedPersonFallback => 'этого пользователя';
 
   @override

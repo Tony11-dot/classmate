@@ -1856,8 +1856,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   }
 
   Widget _composer() {
+    final cs = Theme.of(context).colorScheme;
     return ChatComposer(
         controller: _controller,
+        // Translucent so the full-screen aurora bleeds through the bottom bar
+        // while keeping the input legible.
+        backgroundColor: cs.surface.withValues(alpha: 0.78),
         topContent: _novaComposerTopContent(),
         enabled: !_sending,
         isStreaming: false,
@@ -1917,14 +1921,6 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             builder: (context, showScroll, child) {
               return Stack(
                 children: [
-                  // Subtle animated "aurora" layer to give the chat life,
-                  // kept low-intensity so message bubbles stay readable.
-                  const Positioned.fill(
-                    child: AnimatedAuroraBackground(
-                      intensity: 0.5,
-                      child: SizedBox.expand(),
-                    ),
-                  ),
                   NotificationListener<ScrollUpdateNotification>(
                     onNotification: (notification) {
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -1944,7 +1940,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             },
           );
 
-    return Scaffold(
+    // Full-screen living background behind the WHOLE chat — app bar, message
+    // thread, and composer all sit on top of one continuous aurora. Scaffold +
+    // app bar are transparent so it reads as one smooth surface.
+    return AnimatedAuroraBackground(
+      intensity: 0.7,
+      child: Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: _showScrollToBottom,
@@ -1962,9 +1963,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           );
         },
       ),
-      backgroundColor: cs.surface,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 48,
         centerTitle: true,
@@ -2056,6 +2058,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 

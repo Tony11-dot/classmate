@@ -1726,6 +1726,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get messagesCreateGroupAction => 'إنشاء مجموعة';
 
   @override
+  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+
+  @override
   String get messagesBlockedPersonFallback => 'هذا الشخص';
 
   @override
