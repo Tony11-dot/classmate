@@ -5,6 +5,7 @@ import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, nor
 import { PasswordResetService } from '../auth/password-reset/password-reset.service';
 import { hasAnyRole } from '../auth/permissions';
 import { mapCsvToRows } from './csv-import.util';
+import { encryptPassword, decryptPassword } from '../common/password-vault';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
@@ -736,6 +737,21 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     }
   }
 
+  /// Exporting real passwords (generatePasswords=true) hands over recoverable
+  /// credentials, so it is ADMIN-only. Secretaries may export data but never
+  /// passwords — otherwise a secretary could export an ADMIN's current password
+  /// and escalate to admin. No-op when passwords aren't requested.
+  private requireAdminForPasswordExport(user: any, includePasswords: boolean) {
+    if (!includePasswords) return;
+    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
+    const isDev = appEnv.toLowerCase().includes('dev') || appEnv.toLowerCase().includes('test');
+    if (isDev) return;
+    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+    if (!roles.includes('ADMIN')) {
+      throw new ForbiddenException('Only admins can export passwords');
+    }
+  }
+
   private async resolveUserId(identifier: string): Promise<string> {
     const id = String(identifier ?? '').trim();
     if (!id) throw new BadRequestException('user identifier required');
@@ -1113,17 +1129,31 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       );
     }
 
-    // Passwords are stored only as bcrypt hashes and can never be recovered.
-    // When the admin asks to include passwords, we RESET each exported student
-    // to a freshly generated temp password and return that — the only way an
-    // export can hand over a usable credential without persisting plaintext.
+    // The bcrypt `password` hash can never be read back, so we keep a reversible
+    // AES copy in `passwordEnc` (written whenever a password is set). On export
+    // we DECRYPT that copy and return the user's CURRENT password unchanged.
+    // Only legacy users with no stored copy get a one-time reset, after which
+    // the new value is saved (encrypted) for future exports.
     const includePasswords = query?.generatePasswords === 'true';
+    this.requireAdminForPasswordExport(user, includePasswords);
     const resetPasswords = new Map<string, string>();
     if (includePasswords) {
       for (const r of filtered) {
+        const row = await this.prisma.user.findUnique({
+          where: { id: r.id },
+          select: { passwordEnc: true },
+        });
+        const current = decryptPassword(row?.passwordEnc);
+        if (current) {
+          resetPasswords.set(r.id, current);
+          continue;
+        }
         const fresh = `Classmate${randomDigits(6)}!`;
         const hash = await bcrypt.hash(fresh, 10);
-        await this.prisma.user.update({ where: { id: r.id }, data: { password: hash } });
+        await this.prisma.user.update({
+          where: { id: r.id },
+          data: { password: hash, passwordEnc: encryptPassword(fresh) },
+        });
         resetPasswords.set(r.id, fresh);
       }
     }
@@ -1283,6 +1313,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     }
 
     const includePasswords = query.generatePasswords === 'true';
+    this.requireAdminForPasswordExport(user, includePasswords);
 
     const rows = await this.prisma.user.findMany({
       where: { id: { in: Array.from(includedIds) }, schoolId },
@@ -1311,19 +1342,27 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     const schoolName = school?.name ?? '';
 
-    // Passwords are stored only as bcrypt hashes — they can never be read back.
-    // So "include passwords" RESETS every exported user to a fresh generated
-    // password and returns that. This DOES invalidate their old credential;
-    // the admin receives a new value to hand over. It's the only way an export
-    // can promise "every row has a password" against a hashed source of truth.
+    // "Include passwords" returns each user's CURRENT credential by decrypting
+    // the reversible `passwordEnc` copy — no reset, the login keeps working.
+    // Legacy users with no stored copy get a one-time reset, then we persist
+    // the new value (encrypted) so later exports stay non-destructive.
     const backfilledPasswords = new Map<string, string>();
     if (includePasswords) {
       for (const r of rows) {
+        const row = await this.prisma.user.findUnique({
+          where: { id: r.id },
+          select: { passwordEnc: true },
+        });
+        const current = decryptPassword(row?.passwordEnc);
+        if (current) {
+          backfilledPasswords.set(r.id, current);
+          continue;
+        }
         const fresh = `Classmate${randomDigits(6)}!`;
         const hash = await bcrypt.hash(fresh, 10);
         await this.prisma.user.update({
           where: { id: r.id },
-          data: { password: hash },
+          data: { password: hash, passwordEnc: encryptPassword(fresh) },
         });
         backfilledPasswords.set(r.id, fresh);
       }
@@ -1502,15 +1541,77 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   /// Lightweight availability check for the username field. Usernames are
   /// globally unique, so this checks across all schools. Returns a `valid`
   /// flag for basic format too so the UI can flag bad input before submit.
-  async checkUsername(user: any, raw: string) {
+  async checkUsername(user: any, raw: string, name?: string) {
     this.requireAdminOrSecretary(user);
     const username = String(raw ?? '').trim().toLowerCase();
-    if (!username) return { ok: true, username, valid: false, available: false };
+    if (!username) {
+      // Nothing typed yet — still offer name-based suggestions if we have a name.
+      const suggestions = await this.suggestUsernames(name, username);
+      return { ok: true, username, valid: false, available: false, suggestions };
+    }
     // Same shape the create path expects: letters/digits/._- , 3+ chars.
     const valid = /^[a-z0-9._-]{3,}$/.test(username);
-    if (!valid) return { ok: true, username, valid: false, available: false };
+    if (!valid) {
+      const suggestions = await this.suggestUsernames(name, username);
+      return { ok: true, username, valid: false, available: false, suggestions };
+    }
     const existing = await this.prisma.user.findFirst({ where: { username }, select: { id: true } });
-    return { ok: true, username, valid: true, available: !existing };
+    const available = !existing;
+    // Only spend the lookups generating alternatives when the typed value
+    // won't work — keeps the happy path (available) cheap.
+    const suggestions = available ? [] : await this.suggestUsernames(name, username);
+    return { ok: true, username, valid: true, available, suggestions };
+  }
+
+  /// Build a short list of *available*, format-valid username suggestions.
+  /// Derived from the typed username (if any) and/or the person's name, with
+  /// numeric/dotted variants. Each candidate is checked against the DB so the
+  /// UI only ever shows usernames that can actually be claimed.
+  private async suggestUsernames(name?: string, typed?: string): Promise<string[]> {
+    const clean = (s: string) =>
+      s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
+    const typedBase = clean(String(typed ?? '')).slice(0, 16);
+    const nameClean = clean(String(name ?? ''));
+    const nameBase = nameClean.slice(0, 16);
+
+    // Candidate "stems" to grow variants from, in priority order.
+    const stems: string[] = [];
+    if (typedBase.length >= 2) stems.push(typedBase);
+    if (nameBase.length >= 2 && !stems.includes(nameBase)) stems.push(nameBase);
+    // Name-based dotted form, e.g. "john smith" -> "john.smith".
+    const parts = String(name ?? '').toLowerCase().normalize('NFD')
+      .replace(/[̀-ͯ]/g, '').split(/\s+/).map((p) => p.replace(/[^a-z0-9]+/g, '')).filter(Boolean);
+    if (parts.length >= 2) {
+      const dotted = `${parts[0]}.${parts[parts.length - 1]}`.slice(0, 24);
+      if (!stems.includes(dotted)) stems.push(dotted);
+    }
+    if (stems.length === 0) stems.push('user');
+
+    const candidates: string[] = [];
+    const seen = new Set<string>();
+    const push = (c: string) => {
+      const v = c.slice(0, 24);
+      if (v.length >= 3 && /^[a-z0-9._-]{3,}$/.test(v) && !seen.has(v)) {
+        seen.add(v);
+        candidates.push(v);
+      }
+    };
+    for (const stem of stems) {
+      push(stem);
+      for (const n of [1, 2, 7, 21, 99]) push(`${stem}${n}`);
+      push(`${stem}${randomDigits(3)}`);
+      push(`${stem}${randomDigits(4)}`);
+      if (parts.length >= 2) push(`${parts[0]}${parts[parts.length - 1][0]}`);
+    }
+
+    // Verify availability, return the first few that are free.
+    const out: string[] = [];
+    for (const c of candidates) {
+      if (out.length >= 5) break;
+      const taken = await this.prisma.user.findFirst({ where: { username: c }, select: { id: true } });
+      if (!taken) out.push(c);
+    }
+    return out;
   }
 
   /// Core user creation, shared by single-create and bulk/CSV import. Caller
@@ -1593,6 +1694,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ...(rawPhone ? { phone: rawPhone } : {}),
         username,
         password: hash,
+        passwordEnc: encryptPassword(tempPassword),
         schoolId,
         status: 'ACTIVE',
         roles: { create: [{ role: role as any }] },
@@ -1742,7 +1844,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (!target) throw new NotFoundException('User not found');
 
     const hash = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({ where: { id }, data: { password: hash } });
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: hash, passwordEnc: encryptPassword(newPassword) },
+    });
 
     // Invalidate any pending password-reset tokens for this user — the admin
     // just set the password, so old reset links shouldn't work anymore.

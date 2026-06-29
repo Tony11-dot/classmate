@@ -21,6 +21,7 @@ import '../../../common/widgets/cm_ai_message.dart';
 import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/animated_aurora_background.dart';
 import 'chatgpt_chat_components.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
@@ -1916,7 +1917,14 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             builder: (context, showScroll, child) {
               return Stack(
                 children: [
-                  // Clean minimal background — no gradient overlay.
+                  // Subtle animated "aurora" layer to give the chat life,
+                  // kept low-intensity so message bubbles stay readable.
+                  const Positioned.fill(
+                    child: AnimatedAuroraBackground(
+                      intensity: 0.5,
+                      child: SizedBox.expand(),
+                    ),
+                  ),
                   NotificationListener<ScrollUpdateNotification>(
                     onNotification: (notification) {
                       FocusManager.instance.primaryFocus?.unfocus();

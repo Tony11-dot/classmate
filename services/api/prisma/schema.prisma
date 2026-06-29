@@ -73,6 +73,11 @@ model User {
   /// migration runner that respects the 20260527_username_required SQL.
   username                String?                  @unique
   password                String
+  /// Reversible (AES-256-GCM) copy of the user's current credential, kept ONLY
+  /// so admins can re-export the same password without resetting the login.
+  /// `password` above remains the one-way bcrypt hash used for auth. Written
+  /// whenever a password is set/changed; see common/password-vault.ts.
+  passwordEnc             String?
   name                    String
   parentNotificationState ParentNotificationState?
 

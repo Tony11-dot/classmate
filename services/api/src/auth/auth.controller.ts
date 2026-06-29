@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
+import { encryptPassword } from '../common/password-vault';
 
 @Controller('auth')
 export class AuthController {
@@ -60,6 +61,7 @@ export class AuthController {
         username,
         name,
         password: hash,
+        passwordEnc: encryptPassword(password),
         status: 'ACTIVE',
         ...(schoolId ? { schoolId } : {}),
         roles: { create: [{ role: 'STUDENT' }] },
@@ -302,7 +304,10 @@ export class AuthController {
     if (!isValid) throw new BadRequestException('WRONG_PASSWORD');
 
     const hash = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({ where: { id: userId }, data: { password: hash } });
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hash, passwordEnc: encryptPassword(newPassword) },
+    });
     return { ok: true };
   }
 }

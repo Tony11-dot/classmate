@@ -10022,6 +10022,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminAddManyUsernameDupe => 'اسم مستخدم مكرر في هذه القائمة';
 
   @override
+  String get adminUsernameAvailable => 'Username is available';
+
+  @override
+  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+
+  @override
+  String get adminUsernameSuggestionsLabel =>
+      'Available suggestions — tap to use:';
+
+  @override
   String adminAddManyCreateParent(String name) {
     return 'إنشاء ولي أمر جديد \"$name\"';
   }

@@ -17397,6 +17397,24 @@ abstract class AppLocalizations {
   /// **'Duplicate username in this list'**
   String get adminAddManyUsernameDupe;
 
+  /// No description provided for @adminUsernameAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is available'**
+  String get adminUsernameAvailable;
+
+  /// No description provided for @adminUsernameInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 3+ letters, digits, or . _ -'**
+  String get adminUsernameInvalidFormat;
+
+  /// No description provided for @adminUsernameSuggestionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Available suggestions — tap to use:'**
+  String get adminUsernameSuggestionsLabel;
+
   /// No description provided for @adminAddManyCreateParent.
   ///
   /// In en, this message translates to:

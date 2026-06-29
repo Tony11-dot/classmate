@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -472,6 +473,16 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   int?   _grade;
   bool   _saving = false;
 
+  // ── Live username availability + suggestions ──────────────────────────────
+  Timer? _uDebounce;
+  bool _uChecking = false;
+  bool _uValid = true;      // format ok
+  bool? _uAvailable;        // null = not checked yet
+  List<String> _uSuggestions = const [];
+  // True while we programmatically set the username (tap-to-fill) so the
+  // controller listener doesn't fight the user / loop.
+  bool _settingUsername = false;
+
   static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
 
   List<String> _roleLabels(AppLocalizations l) => [
@@ -491,11 +502,125 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    _usernameCtrl.addListener(_onUsernameChanged);
+    // Suggestions follow the name too, so a typed name surfaces ideas even
+    // before a username is entered.
+    _nameEnCtrl.addListener(_onUsernameChanged);
+  }
+
+  @override
   void dispose() {
+    _uDebounce?.cancel();
     for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  void _onUsernameChanged() {
+    if (_settingUsername) return;
+    _uDebounce?.cancel();
+    final value = _usernameCtrl.text.trim().toLowerCase();
+    setState(() {
+      _uChecking = value.isNotEmpty;
+      _uAvailable = null;
+    });
+    _uDebounce = Timer(const Duration(milliseconds: 450), _runUsernameCheck);
+  }
+
+  Future<void> _runUsernameCheck() async {
+    final value = _usernameCtrl.text.trim().toLowerCase();
+    final name = _nameEnCtrl.text.trim();
+    // Nothing to check and no name to base ideas on — clear state.
+    if (value.isEmpty && name.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _uChecking = false;
+          _uAvailable = null;
+          _uValid = true;
+          _uSuggestions = const [];
+        });
+      }
+      return;
+    }
+    try {
+      final res = await widget.repo.checkUsername(value, name: name);
+      if (!mounted) return;
+      // Drop stale responses if the field moved on while in flight.
+      if (_usernameCtrl.text.trim().toLowerCase() != value) return;
+      setState(() {
+        _uChecking = false;
+        _uValid = value.isEmpty ? true : res.valid;
+        _uAvailable = value.isEmpty ? null : res.available;
+        _uSuggestions = res.suggestions;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _uChecking = false);
+    }
+  }
+
+  void _applySuggestion(String username) {
+    _settingUsername = true;
+    _usernameCtrl.value = TextEditingValue(
+      text: username,
+      selection: TextSelection.collapsed(offset: username.length),
+    );
+    _settingUsername = false;
+    setState(() {
+      _uChecking = false;
+      _uValid = true;
+      _uAvailable = true;   // suggestions are server-verified as available
+      _uSuggestions = const [];
+    });
+  }
+
+  Widget? _usernameSuffixIcon(ColorScheme cs) {
+    if (_uChecking) {
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+    }
+    if (_usernameCtrl.text.trim().isEmpty) return null;
+    if (_uAvailable == true) {
+      return Icon(Icons.check_circle_rounded, color: cs.primary, size: 20);
+    }
+    if (_uAvailable == false || !_uValid) {
+      return Icon(Icons.error_outline_rounded, color: cs.error, size: 20);
+    }
+    return null;
+  }
+
+  Widget _usernameSuggestions(AppLocalizations l, ColorScheme cs) {
+    if (_uSuggestions.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.adminUsernameSuggestionsLabel,
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final s in _uSuggestions)
+                ActionChip(
+                  avatar: Icon(Icons.add_rounded, size: 16, color: cs.primary),
+                  label: Text(s),
+                  onPressed: () => _applySuggestion(s),
+                  visualDensity: VisualDensity.compact,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -678,9 +803,18 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.adminEditUserUsernameRequired,
                       prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
+                      suffixIcon: _usernameSuffixIcon(cs),
+                      errorText: (!_uValid && _usernameCtrl.text.trim().isNotEmpty)
+                          ? l.adminUsernameInvalidFormat
+                          : (_uAvailable == false
+                              ? l.adminAddManyUsernameTaken
+                              : null),
+                      helperText: _uAvailable == true ? l.adminUsernameAvailable : null,
+                      helperStyle: TextStyle(color: cs.primary),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
+                  _usernameSuggestions(l, cs),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _emailCtrl,

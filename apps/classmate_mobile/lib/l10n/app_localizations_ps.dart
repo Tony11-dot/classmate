@@ -10093,6 +10093,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminAddManyUsernameDupe => 'پدې لیست کې تکراري کارن نوم';
 
   @override
+  String get adminUsernameAvailable => 'Username is available';
+
+  @override
+  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+
+  @override
+  String get adminUsernameSuggestionsLabel =>
+      'Available suggestions — tap to use:';
+
+  @override
   String adminAddManyCreateParent(String name) {
     return 'نوی والد جوړ کړئ \"$name\"';
   }

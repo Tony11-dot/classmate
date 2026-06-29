@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/biometric_service.dart';
 import '../../ui/widgets/classmate_logo.dart';
+import '../../ui/widgets/animated_aurora_background.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -147,26 +148,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    cs.surface,
-                    Color.alphaBlend(cs.primary.withValues(alpha: 0.10), cs.surface),
-                  ]
-                : [
-                    Color.alphaBlend(cs.primary.withValues(alpha: 0.06), cs.surface),
-                    cs.surface,
-                  ],
-          ),
-        ),
+      body: AnimatedAuroraBackground(
         child: SafeArea(
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),

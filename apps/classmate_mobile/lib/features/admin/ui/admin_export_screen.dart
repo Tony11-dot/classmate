@@ -1158,7 +1158,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         buf.writeln(row.join(','));
       }
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/users_${DateTime.now().millisecondsSinceEpoch}.csv');
+      final file = File('${dir.path}/${_exportBaseName(users)}.csv');
       await file.writeAsString(buf.toString());
       if (!mounted) return;
       final origin = _shareOrigin(context);
@@ -1177,6 +1177,22 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
   }
 
   // ── PDF ────────────────────────────────────────────────────────────────────
+  /// Filesystem-safe slug for a single user, preferring their username (the
+  /// stable login id) and falling back to their localized name, then "user".
+  String _usernameSlug(dynamic u) {
+    final raw = (u is Map ? (u['username']?.toString() ?? '') : '').trim();
+    final base = raw.isNotEmpty ? raw : _nameForLang(u, _lang);
+    final slug = base
+        .replaceAll(RegExp(r'[^A-Za-z0-9_.-]+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
+    return slug.isEmpty ? 'user' : slug;
+  }
+
+  /// Base filename (no extension) for an export. A single-user export is named
+  /// `classmate_<username>`; a multi-user export stays `classmate_users`.
+  String _exportBaseName(List<dynamic> users) =>
+      users.length == 1 ? 'classmate_${_usernameSlug(users.first)}' : 'classmate_users';
+
   Future<void> _exportPdf() async {
     if (_includePasswords && !await _confirmPasswords()) return;
     setState(() => _exporting = true);
@@ -1206,7 +1222,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         Navigator.pop(context);
         await Printing.sharePdf(
           bytes: bytes,
-          filename: 'classmate_users.pdf',
+          filename: '${_exportBaseName(users)}.pdf',
           bounds: origin,
         );
       } else if (!_separateFiles) {
@@ -1222,15 +1238,15 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         Navigator.pop(context);
         await Printing.sharePdf(
           bytes: bytes,
-          filename: 'classmate_users.pdf',
+          filename: '${_exportBaseName(users)}.pdf',
           bounds: origin,
         );
       } else {
         // One PDF per user. Write each to a temp file then share them
         // as a single XFile batch.
         final dir = await getTemporaryDirectory();
-        final stamp = DateTime.now().millisecondsSinceEpoch;
         final files = <XFile>[];
+        final usedNames = <String>{};
         for (var i = 0; i < users.length; i++) {
           final bytes = await _buildPerUserPdf(
             [users[i]],
@@ -1239,11 +1255,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             exportedBy: exportedBy,
             l: l,
           );
-          final safeName = (_nameForLang(users[i], _lang).isEmpty
-                  ? (users[i]['username']?.toString() ?? 'user')
-                  : _nameForLang(users[i], _lang))
-              .replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_');
-          final f = File('${dir.path}/classmate_${safeName}_$stamp.pdf');
+          // classmate_<username>.pdf. Usernames are unique, but guard against
+          // a rare slug collision (e.g. missing username) so files don't clobber.
+          var name = 'classmate_${_usernameSlug(users[i])}';
+          if (!usedNames.add(name)) name = '${name}_$i';
+          final f = File('${dir.path}/$name.pdf');
           await f.writeAsBytes(bytes);
           files.add(XFile(f.path, mimeType: 'application/pdf'));
         }
@@ -1263,6 +1279,16 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       if (mounted) setState(() => _exporting = false);
     }
   }
+
+  /// Replace Unicode arrow glyphs with ASCII equivalents. The Noto font
+  /// subsets embedded in the PDF (Latin / Arabic / Hebrew) don't include
+  /// arrows like → ← ⇒, so they render as a tofu box / "X". ASCII > and <
+  /// exist in every font, so navigation hints ("Settings → Account") stay
+  /// readable in every language. Direction is preserved so RTL strings that
+  /// use ← still point the right way.
+  String _pdfSafe(String s) => s
+      .replaceAll(RegExp(r'[→⇒⇨➔➜↦⟶»]'), '>')
+      .replaceAll(RegExp(r'[←⇐⟵«]'), '<');
 
   /// Builds a PDF where each user occupies a full A4 portrait page. The
   /// layout is data-forward (large name, badge row, info cards) rather
@@ -1343,19 +1369,29 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
             // ── Centred wordmark at the very top ─────────────────────────
-            // SizedBox needs BOTH width and height — Container(height: …)
-            // alone collapses to zero width in the pdf layout engine, so
-            // the image renders as a 0-px invisible blip. logo_light.png
-            // is 1530×344 (≈4.45:1), so we lock the height at 56 and let
-            // BoxFit.contain pick a width within the available 240.
+            // The wordmark is dark-on-transparent, so we sit it on a soft
+            // light-blue rounded band: guarantees contrast (no "colour on
+            // colour" wash-out), frames it as an intentional brand header,
+            // and reads clearly in print. SizedBox needs BOTH width and
+            // height — Container(height: …) alone collapses to zero width in
+            // the pdf layout engine. logo_light.png is 1530×344 (≈4.45:1),
+            // so we lock height at 64 and let BoxFit.contain pick the width.
             pw.Center(
-              child: pw.SizedBox(
-                width: 240,
-                height: 56,
-                child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
+              child: pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                decoration: pw.BoxDecoration(
+                  color: const PdfColor.fromInt(0xFFEFF6FF),
+                  borderRadius: pw.BorderRadius.circular(16),
+                  border: pw.Border.all(color: brandBlue, width: 0.5),
+                ),
+                child: pw.SizedBox(
+                  width: 260,
+                  height: 64,
+                  child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
+                ),
               ),
             ),
-            pw.SizedBox(height: 10),
+            pw.SizedBox(height: 12),
             if (schoolName.isNotEmpty)
               pw.Center(
                 child: pw.Text(
@@ -1383,29 +1419,34 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 borderRadius: pw.BorderRadius.circular(12),
                 border: pw.Border.all(color: brandBlue, width: 0.5),
               ),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    l.adminWelcomeHeading,
-                    style: pw.TextStyle(
-                      fontSize: 14,
-                      fontWeight: pw.FontWeight.bold,
-                      color: brandDeep,
+              child: pw.Directionality(
+                textDirection: _isRtlText(l.adminWelcomeHeading)
+                    ? pw.TextDirection.rtl
+                    : pw.TextDirection.ltr,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      _pdfSafe(l.adminWelcomeHeading),
+                      style: pw.TextStyle(
+                        fontSize: 14,
+                        fontWeight: pw.FontWeight.bold,
+                        color: brandDeep,
+                      ),
                     ),
-                  ),
-                  pw.SizedBox(height: 4),
-                  pw.Text(
-                    withPasswords
-                        ? l.adminExportWelcomeBodyWithPw
-                        : l.adminExportWelcomeBodyNoPw,
-                    style: const pw.TextStyle(
-                      fontSize: 10,
-                      color: brandDeep,
-                      lineSpacing: 2,
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      _pdfSafe(withPasswords
+                          ? l.adminExportWelcomeBodyWithPw
+                          : l.adminExportWelcomeBodyNoPw),
+                      style: const pw.TextStyle(
+                        fontSize: 10,
+                        color: brandDeep,
+                        lineSpacing: 2,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             pw.SizedBox(height: 18),
@@ -1551,9 +1592,17 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   ])
                     pw.Padding(
                       padding: const pw.EdgeInsets.only(bottom: 3),
-                      child: pw.Text(
-                        note,
-                        style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                      child: pw.Directionality(
+                        textDirection: _isRtlText(note)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
+                        child: pw.Text(
+                          _pdfSafe(note),
+                          textAlign: _isRtlText(note)
+                              ? pw.TextAlign.right
+                              : pw.TextAlign.left,
+                          style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
+                        ),
                       ),
                     ),
                 ],

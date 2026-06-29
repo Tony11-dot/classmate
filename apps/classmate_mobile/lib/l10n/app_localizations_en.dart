@@ -10075,6 +10075,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminAddManyUsernameDupe => 'Duplicate username in this list';
 
   @override
+  String get adminUsernameAvailable => 'Username is available';
+
+  @override
+  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+
+  @override
+  String get adminUsernameSuggestionsLabel =>
+      'Available suggestions — tap to use:';
+
+  @override
   String adminAddManyCreateParent(String name) {
     return 'Create new parent \"$name\"';
   }

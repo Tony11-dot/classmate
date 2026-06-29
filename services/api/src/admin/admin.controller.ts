@@ -297,8 +297,12 @@ export class AdminController {
   // Live username-availability check for the add-user / bulk-add forms.
   @Roles(Role.ADMIN)
   @Get('users/check-username')
-  checkUsername(@Req() req: any, @Query('username') username?: string) {
-    return this.admin.checkUsername(req.user, username ?? '');
+  checkUsername(
+    @Req() req: any,
+    @Query('username') username?: string,
+    @Query('name') name?: string,
+  ) {
+    return this.admin.checkUsername(req.user, username ?? '', name ?? '');
   }
 
   // Bulk create from the in-app spreadsheet grid.

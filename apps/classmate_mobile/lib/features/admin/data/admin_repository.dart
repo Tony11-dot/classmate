@@ -454,11 +454,26 @@ class AdminRepository {
   }
 
   /// Live username-availability check for the add-user forms.
-  /// Returns (valid, available) — valid=false means bad format.
-  Future<({bool valid, bool available})> checkUsername(String username) async {
-    final raw = await _api.getJson('/admin/users/check-username', query: {'username': username});
+  /// Returns (valid, available, suggestions) — valid=false means bad format;
+  /// suggestions is a list of available alternative usernames (empty when the
+  /// typed value is itself available). Passing [name] yields name-based ideas.
+  Future<({bool valid, bool available, List<String> suggestions})> checkUsername(
+    String username, {
+    String? name,
+  }) async {
+    final raw = await _api.getJson('/admin/users/check-username', query: {
+      'username': username,
+      if (name != null && name.trim().isNotEmpty) 'name': name.trim(),
+    });
     final m = _m(raw);
-    return (valid: m['valid'] == true, available: m['available'] == true);
+    final sugg = (m['suggestions'] is List)
+        ? (m['suggestions'] as List).whereType<String>().toList()
+        : <String>[];
+    return (
+      valid: m['valid'] == true,
+      available: m['available'] == true,
+      suggestions: sugg,
+    );
   }
 
   /// Upload a CSV file. dryRun → preview (detectedFields, rowCount, preview[]);

@@ -5303,6 +5303,9 @@
   "adminAddManyNoParentsYet": "No matching parents — type a name above to create one",
   "adminAddManyUsernameTaken": "Username already taken",
   "adminAddManyUsernameDupe": "Duplicate username in this list",
+  "adminUsernameAvailable": "Username is available",
+  "adminUsernameInvalidFormat": "Use 3+ letters, digits, or . _ -",
+  "adminUsernameSuggestionsLabel": "Available suggestions — tap to use:",
   "adminAddManyCreateParent": "Create new parent \"{name}\"",
   "@adminAddManyCreateParent": {
     "placeholders": {

@@ -10068,6 +10068,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Повтор имени пользователя в этом списке';
 
   @override
+  String get adminUsernameAvailable => 'Username is available';
+
+  @override
+  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+
+  @override
+  String get adminUsernameSuggestionsLabel =>
+      'Available suggestions — tap to use:';
+
+  @override
   String adminAddManyCreateParent(String name) {
     return 'Создать нового родителя \"$name\"';
   }

@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
+import { encryptPassword } from '../common/password-vault';
 
 @Injectable()
 export class AuthService {
@@ -67,8 +68,9 @@ export class AuthService {
         username,
         name,
         password: hash,
+        passwordEnc: encryptPassword(nPassword),
         roles: { create: [{ role: 'STUDENT' }] },
-      },
+      } as any,
       include: { roles: true },
     });
 

@@ -10221,6 +10221,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Nom d\'utilisateur en double dans cette liste';
 
   @override
+  String get adminUsernameAvailable => 'Username is available';
+
+  @override
+  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+
+  @override
+  String get adminUsernameSuggestionsLabel =>
+      'Available suggestions — tap to use:';
+
+  @override
   String adminAddManyCreateParent(String name) {
     return 'Créer un nouveau parent \"$name\"';
   }
