@@ -1304,11 +1304,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final baseBold = await PdfGoogleFonts.notoSansBold();
     final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
     final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
-    // logo_light.png is the wide wordmark — used here as the page-top
-    // brand mark. icon_light.png is kept for the corner chip so the
-    // header still has a recognisable square icon next to metadata.
-    final cmWordmark = pw.MemoryImage(
-      (await rootBundle.load('assets/images/logo_light.png')).buffer.asUint8List(),
+    // icon_light.png is the blue CM monogram — it renders reliably in the PDF
+    // engine (the wide logo_light.png wordmark did not), so we compose the
+    // brand mark as monogram + a "ClassMate" text wordmark.
+    final cmLogo = pw.MemoryImage(
+      (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
     const supportEmail = 'support@classmateapp.org';
 
@@ -1368,30 +1368,33 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         build: (ctx) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            // ── Centred wordmark at the very top ─────────────────────────
-            // The wordmark is dark-on-transparent, so we sit it on a soft
-            // light-blue rounded band: guarantees contrast (no "colour on
-            // colour" wash-out), frames it as an intentional brand header,
-            // and reads clearly in print. SizedBox needs BOTH width and
-            // height — Container(height: …) alone collapses to zero width in
-            // the pdf layout engine. logo_light.png is 1530×344 (≈4.45:1),
-            // so we lock height at 64 and let BoxFit.contain pick the width.
+            // ── Centred brand mark at the very top: CM monogram + ClassMate ──
+            // Composed from the monogram image (renders reliably) plus a text
+            // wordmark, so it always shows clearly regardless of the PDF
+            // engine's PNG handling.
             pw.Center(
-              child: pw.Container(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                decoration: pw.BoxDecoration(
-                  color: const PdfColor.fromInt(0xFFEFF6FF),
-                  borderRadius: pw.BorderRadius.circular(16),
-                  border: pw.Border.all(color: brandBlue, width: 0.5),
-                ),
-                child: pw.SizedBox(
-                  width: 260,
-                  height: 64,
-                  child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
-                ),
+              child: pw.Row(
+                mainAxisSize: pw.MainAxisSize.min,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
+                  ),
+                  pw.SizedBox(width: 12),
+                  pw.Text(
+                    'ClassMate',
+                    style: pw.TextStyle(
+                      fontSize: 30,
+                      fontWeight: pw.FontWeight.bold,
+                      color: brandBlue,
+                    ),
+                  ),
+                ],
               ),
             ),
-            pw.SizedBox(height: 12),
+            pw.SizedBox(height: 14),
             if (schoolName.isNotEmpty)
               pw.Center(
                 child: pw.Text(
@@ -1609,21 +1612,42 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               ),
             ),
             pw.Spacer(),
-            // ── Footer ──────────────────────────────────────────────────
+            // ── Footer: "Created by" + CM monogram + ClassMate ───────────
             pw.Container(
-              padding: const pw.EdgeInsets.all(9),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: pw.BoxDecoration(
                 color: const PdfColor.fromInt(0xFFEFF6FF),
                 borderRadius: pw.BorderRadius.circular(8),
                 border: pw.Border.all(color: brandBlue, width: 0.5),
               ),
-              child: pw.Text(
-                l.adminExportPdfFooter,
-                style: pw.TextStyle(
-                  fontSize: 7.5,
-                  color: brandBlue,
-                  fontStyle: pw.FontStyle.italic,
-                ),
+              child: pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    'Created by',
+                    style: pw.TextStyle(
+                      fontSize: 9,
+                      color: brandBlue,
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                  ),
+                  pw.SizedBox(width: 7),
+                  pw.SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
+                  ),
+                  pw.SizedBox(width: 5),
+                  pw.Text(
+                    'ClassMate',
+                    style: pw.TextStyle(
+                      fontSize: 11,
+                      fontWeight: pw.FontWeight.bold,
+                      color: brandBlue,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -1647,11 +1671,6 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final cmLogo = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
-    // Wide wordmark for the prominent centered brand mark at the top of the page.
-    final cmWordmark = pw.MemoryImage(
-      (await rootBundle.load('assets/images/logo_light.png')).buffer.asUint8List(),
-    );
-
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(
         base: baseFont,
@@ -1700,23 +1719,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       pageFormat: fmt,
       margin: const pw.EdgeInsets.all(24),
       build: (ctx) => [
-        // ── Prominent centered brand mark at the very top ────────────────
-        pw.Center(
-          child: pw.Container(
-            margin: const pw.EdgeInsets.only(bottom: 12),
-            padding: const pw.EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-            decoration: pw.BoxDecoration(
-              color: brandLight,
-              borderRadius: pw.BorderRadius.circular(16),
-              border: pw.Border.all(color: brandBlue, width: 0.5),
-            ),
-            child: pw.SizedBox(
-              width: 240,
-              height: 54,
-              child: pw.Image(cmWordmark, fit: pw.BoxFit.contain),
-            ),
-          ),
-        ),
+        // Brand mark lives in the blue header row below (monogram + ClassMate).
         pw.Container(
           padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(color: brandBlue, borderRadius: pw.BorderRadius.circular(12)),
