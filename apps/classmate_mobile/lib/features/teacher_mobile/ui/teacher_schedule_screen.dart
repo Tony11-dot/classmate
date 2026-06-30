@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -14,6 +15,32 @@ import '../../../ui/widgets/cm_loading.dart';
 final _teacherWeekProvider = FutureProvider.family<Map<String, dynamic>, String>(
   (ref, weekOf) => ref.read(teacherMobileRepositoryProvider).fetchWeekSchedule(weekOf: weekOf),
 );
+
+/// The soonest PUBLISHED exam this teacher created that is today or later.
+/// Mirrors the student schedule's `_nextUpcomingExam` (which reads the
+/// student-targeted exam feed); here we read the teacher's own exam list.
+/// Null while loading, on error, or when there are no upcoming exams.
+final _teacherUpcomingExamProvider =
+    FutureProvider<({String title, String dateLabel})?>((ref) async {
+  final exams = await ref.read(teacherMobileRepositoryProvider).listTeacherExams();
+  final todayStart = _dateOnly(DateTime.now());
+  ({String title, String dateLabel})? best;
+  DateTime? bestWhen;
+  for (final e in exams) {
+    // Only published exams (matches what students can see). Missing flag
+    // defaults to published, mirroring the teacher exams list screen.
+    if ((e['published'] as bool?) == false) continue;
+    final dateStr = (e['date'] ?? '').toString();
+    final when = DateTime.tryParse(dateStr);
+    if (when == null) continue;
+    if (_dateOnly(when).isBefore(todayStart)) continue;
+    if (bestWhen == null || when.isBefore(bestWhen)) {
+      best = (title: (e['title'] ?? '').toString(), dateLabel: dateStr);
+      bestWhen = when;
+    }
+  }
+  return best;
+});
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -319,7 +346,72 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               ),
             ),
           ],
+          // Closest published exam this teacher created (mirrors the
+          // student schedule's upcoming-exam pill). Taps through to the
+          // teacher's exams list.
+          const SizedBox(height: 12),
+          _buildUpcomingExamPill(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingExamPill(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final exam = ref.watch(_teacherUpcomingExamProvider).asData?.value;
+    final value = exam == null
+        ? l.scheduleNoUpcomingExams
+        : '${FriendlyDate.date(exam.dateLabel, Localizations.localeOf(context).toString())} • ${exam.title}';
+
+    final content = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.quiz_rounded, size: 16, color: cs.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.scheduleUpcomingExam,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: cs.primary,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.onPrimaryContainer,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
+        ],
+      ),
+    );
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => context.go('/teacher/exams'),
+        child: content,
       ),
     );
   }
