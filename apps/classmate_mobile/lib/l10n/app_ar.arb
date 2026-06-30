@@ -3738,5 +3738,6 @@
   "certPdfGeneratedBy": "أُنشئت بواسطة",
   "certPdfName": "الاسم",
   "certPdfClass": "الصف",
-  "adminEditUserNationalId": "رقم الهوية"
+  "adminEditUserNationalId": "رقم الهوية",
+  "teacherCohortsScreenNoStudentsToAdd": "جميع الطلاب موجودون بالفعل في هذا الصف."
 }

@@ -4355,5 +4355,6 @@
   "certPdfGeneratedBy": "جوړوونکی",
   "certPdfName": "نوم",
   "certPdfClass": "ټولګی",
-  "adminEditUserNationalId": "ملي پېژندپاڼه"
+  "adminEditUserNationalId": "ملي پېژندپاڼه",
+  "teacherCohortsScreenNoStudentsToAdd": "ټول زده‌کوونکي دمخه په دې ټولګي کې دي."
 }

@@ -1444,7 +1444,7 @@ export class TeacherService {
 
     const rows = await this.prisma.gradeRecord.findMany({
       where: { assessmentId },
-      select: { studentId: true, grade: true, comment: true },
+      select: { studentId: true, grade: true, comment: true, updatedAt: true, createdAt: true },
       orderBy: [{ studentId: 'asc' }],
     });
 

@@ -5418,5 +5418,6 @@
   "certPdfGeneratedBy": "Created by",
   "certPdfName": "Name",
   "certPdfClass": "Class",
-  "adminEditUserNationalId": "National ID"
+  "adminEditUserNationalId": "National ID",
+  "teacherCohortsScreenNoStudentsToAdd": "All students are already in this class."
 }

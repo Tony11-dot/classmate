@@ -10329,4 +10329,8 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminEditUserNationalId => 'ملي پېژندپاڼه';
+
+  @override
+  String get teacherCohortsScreenNoStudentsToAdd =>
+      'ټول زده‌کوونکي دمخه په دې ټولګي کې دي.';
 }

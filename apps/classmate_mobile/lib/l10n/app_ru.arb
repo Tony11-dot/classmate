@@ -3945,5 +3945,6 @@
   "certPdfGeneratedBy": "Создано",
   "certPdfName": "Имя",
   "certPdfClass": "Класс",
-  "adminEditUserNationalId": "Удостоверение личности"
+  "adminEditUserNationalId": "Удостоверение личности",
+  "teacherCohortsScreenNoStudentsToAdd": "Все ученики уже в этом классе."
 }

@@ -103,7 +103,9 @@ class _AveragesScreenState extends ConsumerState<AveragesScreen> {
 
   Future<void> _openEditor({AvgFormula? existing}) async {
     if (_cohort == null || _subject == null) return;
-    final changed = await Navigator.of(context).push<bool>(
+    // rootNavigator: push ABOVE the app shell so the editor is truly
+    // full-screen (no shell top bar / burger), with iOS edge-swipe-to-leave.
+    final changed = await Navigator.of(context, rootNavigator: true).push<bool>(
       MaterialPageRoute(
         builder: (_) => AveragesEditScreen(
           cohort: _cohort!,

@@ -10257,4 +10257,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminEditUserNationalId => 'رقم الهوية';
+
+  @override
+  String get teacherCohortsScreenNoStudentsToAdd =>
+      'جميع الطلاب موجودون بالفعل في هذا الصف.';
 }

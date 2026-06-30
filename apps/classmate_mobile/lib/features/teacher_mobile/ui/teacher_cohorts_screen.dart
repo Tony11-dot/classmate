@@ -243,9 +243,17 @@ class _CohortTile extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     List<Map<String, dynamic>> students;
     try {
-      students = await repo.fetchSchoolStudents();
+      final all = await repo.fetchSchoolStudents();
+      // Exclude students already in this cohort — only offer ones not yet added.
+      final existing = await repo.fetchCohortStudents(id);
+      final existingIds = existing.map((s) => s.studentId).toSet();
+      students = all.where((s) => !existingIds.contains('${s['id']}')).toList();
     } catch (e) {
       TeacherCohortsScreen._toast(context, '${l.teacherCohortsScreenLoadStudentsError}: $e');
+      return;
+    }
+    if (students.isEmpty) {
+      TeacherCohortsScreen._toast(context, l.teacherCohortsScreenNoStudentsToAdd);
       return;
     }
     final selected = <String>{};

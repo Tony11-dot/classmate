@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/auth/auth_controller.dart';
-import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'data/averages_repository.dart';
@@ -31,8 +29,6 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
 
   List<AvgVariant> _variants = [AvgVariant(components: [AvgComponent(assessmentId: '', weight: 0)])];
   List<AvgAssessment> _assessments = [];
-  int _semester = 1;
-  int _semesterCount = 1;
 
   bool _loadingGrades = true;
   bool _saving = false;
@@ -41,10 +37,6 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
   @override
   void initState() {
     super.initState();
-    final sems = parseSchoolSemesters(ref.read(authSessionProvider).schoolSemesters);
-    _semesterCount = sems.isEmpty ? 1 : sems.length;
-    _semester = currentSemesterWindow(sems, DateTime.now())?.number ?? 1;
-
     final ex = widget.existing;
     if (ex != null) {
       _titleCtrl.text = ex.title;
@@ -74,11 +66,7 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
   Future<void> _loadGrades() async {
     setState(() => _loadingGrades = true);
     try {
-      final g = await _repo.grades(
-        widget.cohort.id,
-        widget.subject.value,
-        semester: _semesterCount > 1 ? _semester : null,
-      );
+      final g = await _repo.grades(widget.cohort.id, widget.subject.value);
       setState(() {
         _assessments = g;
         _loadingGrades = false;
@@ -193,20 +181,6 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            // Semester selector — scopes which grades are offered.
-            if (_semesterCount > 1)
-              LiquidGlassSelectField<int>(
-                label: l.averagesSemester,
-                value: _semester,
-                items: List.generate(_semesterCount, (i) => i + 1)
-                    .map((n) => LiquidGlassDropdownItem(value: n, label: l.adminSchoolSemesterN('$n')))
-                    .toList(),
-                onChanged: (n) {
-                  setState(() => _semester = n);
-                  _loadGrades();
-                },
-              ),
-            if (_semesterCount > 1) const SizedBox(height: 14),
             // Units
             TextField(
               controller: _unitsCtrl,

@@ -10459,4 +10459,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminEditUserNationalId => 'Numéro national';
+
+  @override
+  String get teacherCohortsScreenNoStudentsToAdd =>
+      'Tous les élèves sont déjà dans cette classe.';
 }

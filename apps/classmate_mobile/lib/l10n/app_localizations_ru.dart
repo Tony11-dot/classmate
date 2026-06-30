@@ -10308,4 +10308,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminEditUserNationalId => 'Удостоверение личности';
+
+  @override
+  String get teacherCohortsScreenNoStudentsToAdd =>
+      'Все ученики уже в этом классе.';
 }

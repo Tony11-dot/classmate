@@ -34,14 +34,8 @@ export class AveragesController {
   }
 
   @Get('grades')
-  grades(
-    @Req() req: any,
-    @Query('cohortId') cohortId: string,
-    @Query('subject') subject: string,
-    @Query('semester') semester?: string,
-  ) {
-    const sem = semester ? Number(semester) : null;
-    return this.averages.grades(req.user, cohortId, subject, Number.isFinite(sem as number) ? sem : null);
+  grades(@Req() req: any, @Query('cohortId') cohortId: string, @Query('subject') subject: string) {
+    return this.averages.grades(req.user, cohortId, subject);
   }
 
   @Get()

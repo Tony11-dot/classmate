@@ -17822,6 +17822,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'National ID'**
   String get adminEditUserNationalId;
+
+  /// No description provided for @teacherCohortsScreenNoStudentsToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'All students are already in this class.'**
+  String get teacherCohortsScreenNoStudentsToAdd;
 }
 
 class _AppLocalizationsDelegate

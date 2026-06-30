@@ -1673,17 +1673,20 @@ class TeacherJoinCode {
 }
 
 class TeacherAssessmentGrade {
-  const TeacherAssessmentGrade({required this.studentId, required this.grade});
+  const TeacherAssessmentGrade({required this.studentId, required this.grade, this.updatedAt});
 
   factory TeacherAssessmentGrade.fromJson(Map<String, dynamic> json) {
     return TeacherAssessmentGrade(
       studentId: _asString(json['studentId']),
       grade: json['grade'] == null ? null : _asInt(json['grade']),
+      updatedAt: json['updatedAt']?.toString() ?? json['createdAt']?.toString(),
     );
   }
 
   final String studentId;
   final int? grade;
+  /// When the grade was recorded / last changed (ISO-8601 with time).
+  final String? updatedAt;
 }
 
 class TeacherGradeDraftRecord {

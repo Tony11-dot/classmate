@@ -122,12 +122,8 @@ class AveragesRepository {
     return _l(_m(raw)['subjects']).map((e) => AvgSubject.fromJson(_m(e))).toList();
   }
 
-  Future<List<AvgAssessment>> grades(String cohortId, String subject, {int? semester}) async {
-    final raw = await _api.getJson('/averages/grades', query: {
-      'cohortId': cohortId,
-      'subject': subject,
-      if (semester != null) 'semester': '$semester',
-    });
+  Future<List<AvgAssessment>> grades(String cohortId, String subject) async {
+    final raw = await _api.getJson('/averages/grades', query: {'cohortId': cohortId, 'subject': subject});
     return _l(_m(raw)['grades']).map((e) => AvgAssessment.fromJson(_m(e))).toList();
   }
 

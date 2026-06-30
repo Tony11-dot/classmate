@@ -235,26 +235,33 @@ export class AveragesService {
   }
 
   // ── Assessments for a cohort+subject (populate the grade DDL) ──────────────
-  async grades(user: any, cohortId: string, subject: string, semesterNumber?: number | null) {
+  /**
+   * Every assessment for this subject that's tied to the cohort — either
+   * scoped to it (`cohortId`) OR holding a grade for a student who belongs to
+   * it (covers grades recorded against a student directly, where the
+   * assessment's cohortId is null/different). No semester filter: the builder
+   * shows all the teacher's grades; semester windowing happens later, at
+   * certificate-compute time, from each assessment's date.
+   */
+  async grades(user: any, cohortId: string, subject: string) {
     if (!cohortId || !subject) throw new BadRequestException('cohortId and subject are required');
     const teacherId = this.userId(user);
     const admin = this.isAdmin(user);
-    // Optional semester scoping — filter assessments to the chosen semester's
-    // window (in the school's current academic year).
-    let dateFilter: { gte: Date; lte: Date } | undefined;
-    if (semesterNumber) {
-      const schoolId = this.schoolId(user);
-      if (schoolId) {
-        const w = await this.resolveCurrentWindow(schoolId, semesterNumber);
-        if (w) dateFilter = { gte: w.start, lte: w.end };
-      }
-    }
+
+    const memberLinks = await this.prisma.studentCohort.findMany({
+      where: { cohortId },
+      select: { studentId: true },
+    });
+    const memberIds = memberLinks.map((m) => m.studentId);
+
+    const or: any[] = [{ cohortId }];
+    if (memberIds.length) or.push({ grades: { some: { studentId: { in: memberIds } } } });
+
     const assessments = await this.prisma.assessment.findMany({
       where: {
-        cohortId,
         subject,
         ...(admin ? {} : { createdBy: teacherId }),
-        ...(dateFilter ? { date: dateFilter } : {}),
+        OR: or,
       },
       select: { id: true, title: true, date: true, maxGrade: true },
       orderBy: { date: 'desc' },

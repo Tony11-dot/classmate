@@ -3738,5 +3738,6 @@
   "certPdfGeneratedBy": "נוצר על ידי",
   "certPdfName": "שם",
   "certPdfClass": "כיתה",
-  "adminEditUserNationalId": "מספר זהות"
+  "adminEditUserNationalId": "מספר זהות",
+  "teacherCohortsScreenNoStudentsToAdd": "כל התלמידים כבר נמצאים בכיתה זו."
 }

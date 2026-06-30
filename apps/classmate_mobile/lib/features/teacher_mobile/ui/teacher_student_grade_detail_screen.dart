@@ -17,6 +17,7 @@ class _GradeEntry {
     required this.assessment,
     required this.subject,
     this.grade,
+    this.gradeTime,
   }) : controller = TextEditingController(
           text: grade?.toString() ?? '',
         ),
@@ -27,6 +28,8 @@ class _GradeEntry {
   final TextEditingController controller;
   int? grade;
   int? initialGrade;
+  /// Real moment the grade was recorded (with time), when graded.
+  final String? gradeTime;
 
   bool get isDirty => int.tryParse(controller.text.trim()) != initialGrade;
 
@@ -94,7 +97,7 @@ class _TeacherStudentGradeDetailScreenState
                 final match = grades
                     .where((g) => g.studentId == widget.student.studentId)
                     .firstOrNull;
-                return (assessment: a, grade: match?.grade);
+                return (assessment: a, grade: match?.grade, gradeTime: match?.updatedAt);
               } catch (_) {
                 return null;
               }
@@ -120,6 +123,7 @@ class _TeacherStudentGradeDetailScreenState
             assessment: r.assessment,
             subject: subject,
             grade: r.grade,
+            gradeTime: r.gradeTime,
           ),
         );
       }
@@ -487,9 +491,13 @@ class _GradeRow extends StatelessWidget {
                   style: theme.textTheme.bodyMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                if (entry.assessment.date.isNotEmpty)
+                // Graded → the real moment the grade was recorded (with time);
+                // ungraded → the assessment's date (date-only, no real time).
+                if (entry.gradeTime != null || entry.assessment.date.isNotEmpty)
                   Text(
-                    FriendlyDate.dateTime(entry.assessment.date),
+                    entry.gradeTime != null
+                        ? FriendlyDate.dateTime(entry.gradeTime)
+                        : FriendlyDate.date(entry.assessment.date),
                     style: theme.textTheme.labelSmall
                         ?.copyWith(color: cs.onSurfaceVariant),
                   ),

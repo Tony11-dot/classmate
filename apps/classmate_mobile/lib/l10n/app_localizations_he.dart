@@ -10199,4 +10199,8 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminEditUserNationalId => 'מספר זהות';
+
+  @override
+  String get teacherCohortsScreenNoStudentsToAdd =>
+      'כל התלמידים כבר נמצאים בכיתה זו.';
 }
