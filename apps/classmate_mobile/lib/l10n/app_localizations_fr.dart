@@ -10268,4 +10268,195 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get scheduleNoUpcomingExams => 'Aucun examen à venir';
+
+  @override
+  String get navAverages => 'Moyennes';
+
+  @override
+  String get navCertificates => 'Certificats';
+
+  @override
+  String get averagesTitle => 'Moyennes';
+
+  @override
+  String get averagesAddTitle => 'Nouvelle moyenne';
+
+  @override
+  String get averagesEditTitle => 'Modifier la moyenne';
+
+  @override
+  String get averagesSelectCohort => 'Classe';
+
+  @override
+  String get averagesSelectSubject => 'Matière';
+
+  @override
+  String get averagesNoSubjects => 'Aucune matière trouvée pour cette classe.';
+
+  @override
+  String get averagesEmpty => 'Aucune moyenne. Appuyez sur + pour en ajouter.';
+
+  @override
+  String averagesVariantCount(int count, int units) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count formats',
+      one: '1 format',
+    );
+    return '$_temp0 · $units unités';
+  }
+
+  @override
+  String get averagesDeleteTitle => 'Supprimer la moyenne';
+
+  @override
+  String get averagesDeleteConfirm =>
+      'Supprimer cette moyenne ? Action irréversible.';
+
+  @override
+  String get averagesDelete => 'Supprimer';
+
+  @override
+  String get averagesFieldTitle => 'Titre';
+
+  @override
+  String get averagesFieldTitleHint => 'ex. Formule finale maths 5 unités';
+
+  @override
+  String get averagesSemester => 'Semestre';
+
+  @override
+  String get averagesUnits => 'Unités (coefficient)';
+
+  @override
+  String get averagesUnitsHint =>
+      '0 si ce niveau n\'a pas d\'unités pondérées, ex. 7e année';
+
+  @override
+  String get averagesBestFormatNote =>
+      'Le système choisit automatiquement le format le mieux adapté à chaque élève de cette classe.';
+
+  @override
+  String get averagesNoGrades =>
+      'Aucune note trouvée pour cette classe et cette matière.';
+
+  @override
+  String get averagesAddFormat => 'Ajouter un format';
+
+  @override
+  String get averagesSave => 'Enregistrer';
+
+  @override
+  String get averagesFormat => 'Format';
+
+  @override
+  String get averagesAddGrade => 'Ajouter une note';
+
+  @override
+  String get averagesGrade => 'Note';
+
+  @override
+  String averagesWeightSum(String sum) {
+    return 'Total : $sum %';
+  }
+
+  @override
+  String get averagesTitleRequired => 'Veuillez saisir un titre.';
+
+  @override
+  String get averagesPickGradeForEachRow =>
+      'Choisissez une note pour chaque ligne.';
+
+  @override
+  String get averagesWeightMustBe100 =>
+      'La somme des pourcentages de chaque format doit être 100 %.';
+
+  @override
+  String get certificatesTitle => 'Certificats';
+
+  @override
+  String get certHomeroom => 'Classe (titulaire)';
+
+  @override
+  String get certStudent => 'Élève';
+
+  @override
+  String get certDisplayName => 'Nom sur le certificat';
+
+  @override
+  String get certNationalId => 'Numéro national';
+
+  @override
+  String get certHomeroomTeacher => 'Professeur principal';
+
+  @override
+  String get certPrincipal => 'Directeur/trice';
+
+  @override
+  String get certPublisherNote => 'Note (facultatif)';
+
+  @override
+  String get certSemesterWeights => 'Pondération des semestres';
+
+  @override
+  String get certLanguage => 'Langue du certificat';
+
+  @override
+  String get certGenerate => 'Générer le PDF';
+
+  @override
+  String get certWeightsMustBe100 =>
+      'La somme des pondérations des semestres doit être 100 %.';
+
+  @override
+  String get certSelectStudentFirst => 'Sélectionnez d\'abord un élève.';
+
+  @override
+  String get certSaved => 'Certificat généré.';
+
+  @override
+  String get certPdfAnnualCertificate => 'Certificat annuel';
+
+  @override
+  String get certPdfSubject => 'Matière';
+
+  @override
+  String get certPdfFinal => 'Finale';
+
+  @override
+  String get certPdfOverall => 'Moyenne générale';
+
+  @override
+  String get certPdfAverage => 'Moyenne';
+
+  @override
+  String get certPdfAbsences => 'Absences';
+
+  @override
+  String get certPdfLateness => 'Retards';
+
+  @override
+  String get certPdfHomeroomTeacher => 'Professeur principal';
+
+  @override
+  String get certPdfPrincipal => 'Directeur/trice';
+
+  @override
+  String get certPdfNationalId => 'N° national';
+
+  @override
+  String get certPdfDate => 'Date';
+
+  @override
+  String get certPdfGeneratedBy => 'Créé par';
+
+  @override
+  String get certPdfName => 'Nom';
+
+  @override
+  String get certPdfClass => 'Classe';
+
+  @override
+  String get adminEditUserNationalId => 'Numéro national';
 }

@@ -17474,6 +17474,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No upcoming exams'**
   String get scheduleNoUpcomingExams;
+
+  /// No description provided for @navAverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages'**
+  String get navAverages;
+
+  /// No description provided for @navCertificates.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get navCertificates;
+
+  /// No description provided for @averagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages'**
+  String get averagesTitle;
+
+  /// No description provided for @averagesAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New average'**
+  String get averagesAddTitle;
+
+  /// No description provided for @averagesEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit average'**
+  String get averagesEditTitle;
+
+  /// No description provided for @averagesSelectCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get averagesSelectCohort;
+
+  /// No description provided for @averagesSelectSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get averagesSelectSubject;
+
+  /// No description provided for @averagesNoSubjects.
+  ///
+  /// In en, this message translates to:
+  /// **'No subjects found for this class.'**
+  String get averagesNoSubjects;
+
+  /// No description provided for @averagesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No averages yet. Tap + to add one.'**
+  String get averagesEmpty;
+
+  /// No description provided for @averagesVariantCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 format} other{{count} formats}} · {units} units'**
+  String averagesVariantCount(int count, int units);
+
+  /// No description provided for @averagesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete average'**
+  String get averagesDeleteTitle;
+
+  /// No description provided for @averagesDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this average? This cannot be undone.'**
+  String get averagesDeleteConfirm;
+
+  /// No description provided for @averagesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get averagesDelete;
+
+  /// No description provided for @averagesFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get averagesFieldTitle;
+
+  /// No description provided for @averagesFieldTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Math 5-unit final formula'**
+  String get averagesFieldTitleHint;
+
+  /// No description provided for @averagesSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester'**
+  String get averagesSemester;
+
+  /// No description provided for @averagesUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units (weight)'**
+  String get averagesUnits;
+
+  /// No description provided for @averagesUnitsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 if this grade level has no weighted units, e.g. 7th grade'**
+  String get averagesUnitsHint;
+
+  /// No description provided for @averagesBestFormatNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The system automatically picks the best-matching format for each student in this class.'**
+  String get averagesBestFormatNote;
+
+  /// No description provided for @averagesNoGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades found for this class & subject.'**
+  String get averagesNoGrades;
+
+  /// No description provided for @averagesAddFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Add format'**
+  String get averagesAddFormat;
+
+  /// No description provided for @averagesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get averagesSave;
+
+  /// No description provided for @averagesFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get averagesFormat;
+
+  /// No description provided for @averagesAddGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Add grade'**
+  String get averagesAddGrade;
+
+  /// No description provided for @averagesGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get averagesGrade;
+
+  /// No description provided for @averagesWeightSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {sum}%'**
+  String averagesWeightSum(String sum);
+
+  /// No description provided for @averagesTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title.'**
+  String get averagesTitleRequired;
+
+  /// No description provided for @averagesPickGradeForEachRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a grade for every row.'**
+  String get averagesPickGradeForEachRow;
+
+  /// No description provided for @averagesWeightMustBe100.
+  ///
+  /// In en, this message translates to:
+  /// **'Each format\'s percentages must total 100%.'**
+  String get averagesWeightMustBe100;
+
+  /// No description provided for @certificatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get certificatesTitle;
+
+  /// No description provided for @certHomeroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Class (homeroom)'**
+  String get certHomeroom;
+
+  /// No description provided for @certStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get certStudent;
+
+  /// No description provided for @certDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name on certificate'**
+  String get certDisplayName;
+
+  /// No description provided for @certNationalId.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get certNationalId;
+
+  /// No description provided for @certHomeroomTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Homeroom teacher'**
+  String get certHomeroomTeacher;
+
+  /// No description provided for @certPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get certPrincipal;
+
+  /// No description provided for @certPublisherNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get certPublisherNote;
+
+  /// No description provided for @certSemesterWeights.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester weights'**
+  String get certSemesterWeights;
+
+  /// No description provided for @certLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate language'**
+  String get certLanguage;
+
+  /// No description provided for @certGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate PDF'**
+  String get certGenerate;
+
+  /// No description provided for @certWeightsMustBe100.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester weights must total 100%.'**
+  String get certWeightsMustBe100;
+
+  /// No description provided for @certSelectStudentFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a student first.'**
+  String get certSelectStudentFirst;
+
+  /// No description provided for @certSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate generated.'**
+  String get certSaved;
+
+  /// No description provided for @certPdfAnnualCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual Certificate'**
+  String get certPdfAnnualCertificate;
+
+  /// No description provided for @certPdfSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get certPdfSubject;
+
+  /// No description provided for @certPdfFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final'**
+  String get certPdfFinal;
+
+  /// No description provided for @certPdfOverall.
+  ///
+  /// In en, this message translates to:
+  /// **'General Average'**
+  String get certPdfOverall;
+
+  /// No description provided for @certPdfAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get certPdfAverage;
+
+  /// No description provided for @certPdfAbsences.
+  ///
+  /// In en, this message translates to:
+  /// **'Absences'**
+  String get certPdfAbsences;
+
+  /// No description provided for @certPdfLateness.
+  ///
+  /// In en, this message translates to:
+  /// **'Lateness'**
+  String get certPdfLateness;
+
+  /// No description provided for @certPdfHomeroomTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Homeroom teacher'**
+  String get certPdfHomeroomTeacher;
+
+  /// No description provided for @certPdfPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get certPdfPrincipal;
+
+  /// No description provided for @certPdfNationalId.
+  ///
+  /// In en, this message translates to:
+  /// **'ID No.'**
+  String get certPdfNationalId;
+
+  /// No description provided for @certPdfDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get certPdfDate;
+
+  /// No description provided for @certPdfGeneratedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by'**
+  String get certPdfGeneratedBy;
+
+  /// No description provided for @certPdfName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get certPdfName;
+
+  /// No description provided for @certPdfClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get certPdfClass;
+
+  /// No description provided for @adminEditUserNationalId.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get adminEditUserNationalId;
 }
 
 class _AppLocalizationsDelegate

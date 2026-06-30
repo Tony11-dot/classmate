@@ -10116,4 +10116,196 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get scheduleNoUpcomingExams => 'Нет предстоящих экзаменов';
+
+  @override
+  String get navAverages => 'Средние баллы';
+
+  @override
+  String get navCertificates => 'Сертификаты';
+
+  @override
+  String get averagesTitle => 'Средние баллы';
+
+  @override
+  String get averagesAddTitle => 'Новый средний балл';
+
+  @override
+  String get averagesEditTitle => 'Изменить средний балл';
+
+  @override
+  String get averagesSelectCohort => 'Класс';
+
+  @override
+  String get averagesSelectSubject => 'Предмет';
+
+  @override
+  String get averagesNoSubjects => 'Для этого класса предметы не найдены.';
+
+  @override
+  String get averagesEmpty =>
+      'Пока нет средних баллов. Нажмите +, чтобы добавить.';
+
+  @override
+  String averagesVariantCount(int count, int units) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count форматов',
+      one: '1 формат',
+    );
+    return '$_temp0 · $units ед.';
+  }
+
+  @override
+  String get averagesDeleteTitle => 'Удалить средний балл';
+
+  @override
+  String get averagesDeleteConfirm =>
+      'Удалить этот средний балл? Действие необратимо.';
+
+  @override
+  String get averagesDelete => 'Удалить';
+
+  @override
+  String get averagesFieldTitle => 'Название';
+
+  @override
+  String get averagesFieldTitleHint =>
+      'напр. Итоговая формула по математике, 5 ед.';
+
+  @override
+  String get averagesSemester => 'Семестр';
+
+  @override
+  String get averagesUnits => 'Единицы (вес)';
+
+  @override
+  String get averagesUnitsHint =>
+      '0, если на этом уровне нет взвешенных единиц, напр. 7 класс';
+
+  @override
+  String get averagesBestFormatNote =>
+      'Система автоматически выбирает наиболее подходящий формат для каждого ученика класса.';
+
+  @override
+  String get averagesNoGrades =>
+      'Оценки для этого класса и предмета не найдены.';
+
+  @override
+  String get averagesAddFormat => 'Добавить формат';
+
+  @override
+  String get averagesSave => 'Сохранить';
+
+  @override
+  String get averagesFormat => 'Формат';
+
+  @override
+  String get averagesAddGrade => 'Добавить оценку';
+
+  @override
+  String get averagesGrade => 'Оценка';
+
+  @override
+  String averagesWeightSum(String sum) {
+    return 'Итого: $sum%';
+  }
+
+  @override
+  String get averagesTitleRequired => 'Введите название.';
+
+  @override
+  String get averagesPickGradeForEachRow =>
+      'Выберите оценку для каждой строки.';
+
+  @override
+  String get averagesWeightMustBe100 =>
+      'Сумма процентов в каждом формате должна быть 100%.';
+
+  @override
+  String get certificatesTitle => 'Сертификаты';
+
+  @override
+  String get certHomeroom => 'Класс (классный руководитель)';
+
+  @override
+  String get certStudent => 'Ученик';
+
+  @override
+  String get certDisplayName => 'Имя в сертификате';
+
+  @override
+  String get certNationalId => 'Удостоверение личности';
+
+  @override
+  String get certHomeroomTeacher => 'Классный руководитель';
+
+  @override
+  String get certPrincipal => 'Директор';
+
+  @override
+  String get certPublisherNote => 'Примечание (необязательно)';
+
+  @override
+  String get certSemesterWeights => 'Веса семестров';
+
+  @override
+  String get certLanguage => 'Язык сертификата';
+
+  @override
+  String get certGenerate => 'Создать PDF';
+
+  @override
+  String get certWeightsMustBe100 => 'Сумма весов семестров должна быть 100%.';
+
+  @override
+  String get certSelectStudentFirst => 'Сначала выберите ученика.';
+
+  @override
+  String get certSaved => 'Сертификат создан.';
+
+  @override
+  String get certPdfAnnualCertificate => 'Годовой сертификат';
+
+  @override
+  String get certPdfSubject => 'Предмет';
+
+  @override
+  String get certPdfFinal => 'Итог';
+
+  @override
+  String get certPdfOverall => 'Общий средний балл';
+
+  @override
+  String get certPdfAverage => 'Средний балл';
+
+  @override
+  String get certPdfAbsences => 'Пропуски';
+
+  @override
+  String get certPdfLateness => 'Опоздания';
+
+  @override
+  String get certPdfHomeroomTeacher => 'Классный руководитель';
+
+  @override
+  String get certPdfPrincipal => 'Директор';
+
+  @override
+  String get certPdfNationalId => '№ удостоверения';
+
+  @override
+  String get certPdfDate => 'Дата';
+
+  @override
+  String get certPdfGeneratedBy => 'Создано';
+
+  @override
+  String get certPdfName => 'Имя';
+
+  @override
+  String get certPdfClass => 'Класс';
+
+  @override
+  String get adminEditUserNationalId => 'Удостоверение личности';
 }

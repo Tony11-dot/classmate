@@ -10141,4 +10141,192 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get scheduleNoUpcomingExams => 'هیڅ راتلونکې ازموینه نشته';
+
+  @override
+  String get navAverages => 'اوسطونه';
+
+  @override
+  String get navCertificates => 'سندونه';
+
+  @override
+  String get averagesTitle => 'اوسطونه';
+
+  @override
+  String get averagesAddTitle => 'نوی اوسط';
+
+  @override
+  String get averagesEditTitle => 'د اوسط سمون';
+
+  @override
+  String get averagesSelectCohort => 'ټولګی';
+
+  @override
+  String get averagesSelectSubject => 'مضمون';
+
+  @override
+  String get averagesNoSubjects => 'د دې ټولګي لپاره مضمونونه ونه موندل شول.';
+
+  @override
+  String get averagesEmpty =>
+      'تر اوسه هیڅ اوسط نشته. د زیاتولو لپاره + کېکاږئ.';
+
+  @override
+  String averagesVariantCount(int count, int units) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بڼې',
+      one: 'یوه بڼه',
+    );
+    return '$_temp0 · $units واحدونه';
+  }
+
+  @override
+  String get averagesDeleteTitle => 'د اوسط ړنګول';
+
+  @override
+  String get averagesDeleteConfirm => 'دا اوسط ړنګ کړئ؟ بیرته نشي کېدی.';
+
+  @override
+  String get averagesDelete => 'ړنګول';
+
+  @override
+  String get averagesFieldTitle => 'سرليک';
+
+  @override
+  String get averagesFieldTitleHint => 'بېلګه: د ریاضي د ۵ واحدونو وروستۍ بڼه';
+
+  @override
+  String get averagesSemester => 'سمسټر';
+
+  @override
+  String get averagesUnits => 'واحدونه (وزن)';
+
+  @override
+  String get averagesUnitsHint =>
+      '۰ که چېرې دې کچې ته وزن لرونکي واحدونه نه وي، لکه اوومه ټولګۍ';
+
+  @override
+  String get averagesBestFormatNote =>
+      'سیسټم په اتومات ډول د دې ټولګي د هر زده‌کوونکي لپاره غوره بڼه ټاکي.';
+
+  @override
+  String get averagesNoGrades =>
+      'د دې ټولګي او مضمون لپاره نمرې ونه موندل شوې.';
+
+  @override
+  String get averagesAddFormat => 'بڼه زیاته کړئ';
+
+  @override
+  String get averagesSave => 'ساتل';
+
+  @override
+  String get averagesFormat => 'بڼه';
+
+  @override
+  String get averagesAddGrade => 'نمره زیاته کړئ';
+
+  @override
+  String get averagesGrade => 'نمره';
+
+  @override
+  String averagesWeightSum(String sum) {
+    return 'ټول: $sum%';
+  }
+
+  @override
+  String get averagesTitleRequired => 'مهرباني وکړئ سرليک دننه کړئ.';
+
+  @override
+  String get averagesPickGradeForEachRow => 'د هرې کرښې لپاره یوه نمره وټاکئ.';
+
+  @override
+  String get averagesWeightMustBe100 => 'د هرې بڼې سلنه باید ۱۰۰٪ شي.';
+
+  @override
+  String get certificatesTitle => 'سندونه';
+
+  @override
+  String get certHomeroom => 'ټولګی (سرښوونکی)';
+
+  @override
+  String get certStudent => 'زده‌کوونکی';
+
+  @override
+  String get certDisplayName => 'په سند کې نوم';
+
+  @override
+  String get certNationalId => 'ملي پېژندپاڼه';
+
+  @override
+  String get certHomeroomTeacher => 'د ټولګي سرښوونکی';
+
+  @override
+  String get certPrincipal => 'مدير';
+
+  @override
+  String get certPublisherNote => 'یادښت (اختیاري)';
+
+  @override
+  String get certSemesterWeights => 'د سمسټرونو وزنونه';
+
+  @override
+  String get certLanguage => 'د سند ژبه';
+
+  @override
+  String get certGenerate => 'PDF جوړ کړئ';
+
+  @override
+  String get certWeightsMustBe100 => 'د سمسټرونو د وزنونو مجموعه باید ۱۰۰٪ شي.';
+
+  @override
+  String get certSelectStudentFirst => 'لومړی یو زده‌کوونکی وټاکئ.';
+
+  @override
+  String get certSaved => 'سند جوړ شو.';
+
+  @override
+  String get certPdfAnnualCertificate => 'کلنی سند';
+
+  @override
+  String get certPdfSubject => 'مضمون';
+
+  @override
+  String get certPdfFinal => 'وروستی';
+
+  @override
+  String get certPdfOverall => 'عمومي اوسط';
+
+  @override
+  String get certPdfAverage => 'اوسط';
+
+  @override
+  String get certPdfAbsences => 'غیرحاضري';
+
+  @override
+  String get certPdfLateness => 'ناوختي';
+
+  @override
+  String get certPdfHomeroomTeacher => 'د ټولګي سرښوونکی';
+
+  @override
+  String get certPdfPrincipal => 'مدير';
+
+  @override
+  String get certPdfNationalId => 'د پېژندپاڼې شمېره';
+
+  @override
+  String get certPdfDate => 'نېټه';
+
+  @override
+  String get certPdfGeneratedBy => 'جوړوونکی';
+
+  @override
+  String get certPdfName => 'نوم';
+
+  @override
+  String get certPdfClass => 'ټولګی';
+
+  @override
+  String get adminEditUserNationalId => 'ملي پېژندپاڼه';
 }

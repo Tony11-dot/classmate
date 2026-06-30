@@ -5343,5 +5343,80 @@
     }
   },
   "scheduleUpcomingExam": "Upcoming Exam",
-  "scheduleNoUpcomingExams": "No upcoming exams"
+  "scheduleNoUpcomingExams": "No upcoming exams",
+  "navAverages": "Averages",
+  "navCertificates": "Certificates",
+  "averagesTitle": "Averages",
+  "averagesAddTitle": "New average",
+  "averagesEditTitle": "Edit average",
+  "averagesSelectCohort": "Class",
+  "averagesSelectSubject": "Subject",
+  "averagesNoSubjects": "No subjects found for this class.",
+  "averagesEmpty": "No averages yet. Tap + to add one.",
+  "averagesVariantCount": "{count, plural, =1{1 format} other{{count} formats}} · {units} units",
+  "@averagesVariantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "units": {
+        "type": "int"
+      }
+    }
+  },
+  "averagesDeleteTitle": "Delete average",
+  "averagesDeleteConfirm": "Delete this average? This cannot be undone.",
+  "averagesDelete": "Delete",
+  "averagesFieldTitle": "Title",
+  "averagesFieldTitleHint": "e.g. Math 5-unit final formula",
+  "averagesSemester": "Semester",
+  "averagesUnits": "Units (weight)",
+  "averagesUnitsHint": "0 if this grade level has no weighted units, e.g. 7th grade",
+  "averagesBestFormatNote": "The system automatically picks the best-matching format for each student in this class.",
+  "averagesNoGrades": "No grades found for this class & subject.",
+  "averagesAddFormat": "Add format",
+  "averagesSave": "Save",
+  "averagesFormat": "Format",
+  "averagesAddGrade": "Add grade",
+  "averagesGrade": "Grade",
+  "averagesWeightSum": "Total: {sum}%",
+  "@averagesWeightSum": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
+  "averagesTitleRequired": "Please enter a title.",
+  "averagesPickGradeForEachRow": "Pick a grade for every row.",
+  "averagesWeightMustBe100": "Each format's percentages must total 100%.",
+  "certificatesTitle": "Certificates",
+  "certHomeroom": "Class (homeroom)",
+  "certStudent": "Student",
+  "certDisplayName": "Name on certificate",
+  "certNationalId": "National ID",
+  "certHomeroomTeacher": "Homeroom teacher",
+  "certPrincipal": "Principal",
+  "certPublisherNote": "Note (optional)",
+  "certSemesterWeights": "Semester weights",
+  "certLanguage": "Certificate language",
+  "certGenerate": "Generate PDF",
+  "certWeightsMustBe100": "Semester weights must total 100%.",
+  "certSelectStudentFirst": "Select a student first.",
+  "certSaved": "Certificate generated.",
+  "certPdfAnnualCertificate": "Annual Certificate",
+  "certPdfSubject": "Subject",
+  "certPdfFinal": "Final",
+  "certPdfOverall": "General Average",
+  "certPdfAverage": "Average",
+  "certPdfAbsences": "Absences",
+  "certPdfLateness": "Lateness",
+  "certPdfHomeroomTeacher": "Homeroom teacher",
+  "certPdfPrincipal": "Principal",
+  "certPdfNationalId": "ID No.",
+  "certPdfDate": "Date",
+  "certPdfGeneratedBy": "Created by",
+  "certPdfName": "Name",
+  "certPdfClass": "Class",
+  "adminEditUserNationalId": "National ID"
 }

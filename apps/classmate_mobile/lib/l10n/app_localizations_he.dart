@@ -10012,4 +10012,191 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get scheduleNoUpcomingExams => 'אין מבחנים קרובים';
+
+  @override
+  String get navAverages => 'ממוצעים';
+
+  @override
+  String get navCertificates => 'תעודות';
+
+  @override
+  String get averagesTitle => 'ממוצעים';
+
+  @override
+  String get averagesAddTitle => 'ממוצע חדש';
+
+  @override
+  String get averagesEditTitle => 'עריכת ממוצע';
+
+  @override
+  String get averagesSelectCohort => 'כיתה';
+
+  @override
+  String get averagesSelectSubject => 'מקצוע';
+
+  @override
+  String get averagesNoSubjects => 'לא נמצאו מקצועות לכיתה זו.';
+
+  @override
+  String get averagesEmpty => 'אין ממוצעים עדיין. הקש + להוספה.';
+
+  @override
+  String averagesVariantCount(int count, int units) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תבניות',
+      one: 'תבנית אחת',
+    );
+    return '$_temp0 · $units יחידות';
+  }
+
+  @override
+  String get averagesDeleteTitle => 'מחיקת ממוצע';
+
+  @override
+  String get averagesDeleteConfirm => 'למחוק ממוצע זה? לא ניתן לבטל.';
+
+  @override
+  String get averagesDelete => 'מחק';
+
+  @override
+  String get averagesFieldTitle => 'כותרת';
+
+  @override
+  String get averagesFieldTitleHint => 'לדוגמה: נוסחת בגרות מתמטיקה 5 יח׳';
+
+  @override
+  String get averagesSemester => 'סמסטר';
+
+  @override
+  String get averagesUnits => 'יחידות (משקל)';
+
+  @override
+  String get averagesUnitsHint =>
+      '0 אם לשכבה זו אין יחידות משוקללות, למשל כיתה ז׳';
+
+  @override
+  String get averagesBestFormatNote =>
+      'המערכת בוחרת אוטומטית את התבנית המתאימה ביותר לכל תלמיד בכיתה.';
+
+  @override
+  String get averagesNoGrades => 'לא נמצאו ציונים לכיתה ולמקצוע אלה.';
+
+  @override
+  String get averagesAddFormat => 'הוסף תבנית';
+
+  @override
+  String get averagesSave => 'שמור';
+
+  @override
+  String get averagesFormat => 'תבנית';
+
+  @override
+  String get averagesAddGrade => 'הוסף ציון';
+
+  @override
+  String get averagesGrade => 'ציון';
+
+  @override
+  String averagesWeightSum(String sum) {
+    return 'סה״כ: $sum%';
+  }
+
+  @override
+  String get averagesTitleRequired => 'נא להזין כותרת.';
+
+  @override
+  String get averagesPickGradeForEachRow => 'בחר ציון לכל שורה.';
+
+  @override
+  String get averagesWeightMustBe100 =>
+      'סכום האחוזים בכל תבנית חייב להיות 100%.';
+
+  @override
+  String get certificatesTitle => 'תעודות';
+
+  @override
+  String get certHomeroom => 'כיתה (מחנך)';
+
+  @override
+  String get certStudent => 'תלמיד';
+
+  @override
+  String get certDisplayName => 'שם בתעודה';
+
+  @override
+  String get certNationalId => 'מספר זהות';
+
+  @override
+  String get certHomeroomTeacher => 'מחנך/ת הכיתה';
+
+  @override
+  String get certPrincipal => 'מנהל/ת בית הספר';
+
+  @override
+  String get certPublisherNote => 'הערה (רשות)';
+
+  @override
+  String get certSemesterWeights => 'משקלי הסמסטרים';
+
+  @override
+  String get certLanguage => 'שפת התעודה';
+
+  @override
+  String get certGenerate => 'צור PDF';
+
+  @override
+  String get certWeightsMustBe100 => 'סכום משקלי הסמסטרים חייב להיות 100%.';
+
+  @override
+  String get certSelectStudentFirst => 'בחר תלמיד תחילה.';
+
+  @override
+  String get certSaved => 'התעודה נוצרה.';
+
+  @override
+  String get certPdfAnnualCertificate => 'תעודה שנתית';
+
+  @override
+  String get certPdfSubject => 'מקצוע';
+
+  @override
+  String get certPdfFinal => 'סופי';
+
+  @override
+  String get certPdfOverall => 'ממוצע כללי';
+
+  @override
+  String get certPdfAverage => 'ממוצע';
+
+  @override
+  String get certPdfAbsences => 'היעדרויות';
+
+  @override
+  String get certPdfLateness => 'איחורים';
+
+  @override
+  String get certPdfHomeroomTeacher => 'מחנך/ת הכיתה';
+
+  @override
+  String get certPdfPrincipal => 'מנהל/ת בית הספר';
+
+  @override
+  String get certPdfNationalId => 'מס׳ זהות';
+
+  @override
+  String get certPdfDate => 'תאריך';
+
+  @override
+  String get certPdfGeneratedBy => 'נוצר על ידי';
+
+  @override
+  String get certPdfName => 'שם';
+
+  @override
+  String get certPdfClass => 'כיתה';
+
+  @override
+  String get adminEditUserNationalId => 'מספר זהות';
 }

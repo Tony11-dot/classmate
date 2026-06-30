@@ -10069,4 +10069,192 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scheduleNoUpcomingExams => 'لا توجد امتحانات قادمة';
+
+  @override
+  String get navAverages => 'المعدلات';
+
+  @override
+  String get navCertificates => 'الشهادات';
+
+  @override
+  String get averagesTitle => 'المعدلات';
+
+  @override
+  String get averagesAddTitle => 'معدل جديد';
+
+  @override
+  String get averagesEditTitle => 'تعديل المعدل';
+
+  @override
+  String get averagesSelectCohort => 'الصف';
+
+  @override
+  String get averagesSelectSubject => 'المادة';
+
+  @override
+  String get averagesNoSubjects => 'لا توجد مواد لهذا الصف.';
+
+  @override
+  String get averagesEmpty => 'لا توجد معدلات بعد. اضغط + للإضافة.';
+
+  @override
+  String averagesVariantCount(int count, int units) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صِيَغ',
+      one: 'صيغة واحدة',
+    );
+    return '$_temp0 · $units وحدات';
+  }
+
+  @override
+  String get averagesDeleteTitle => 'حذف المعدل';
+
+  @override
+  String get averagesDeleteConfirm =>
+      'هل تريد حذف هذا المعدل؟ لا يمكن التراجع.';
+
+  @override
+  String get averagesDelete => 'حذف';
+
+  @override
+  String get averagesFieldTitle => 'العنوان';
+
+  @override
+  String get averagesFieldTitleHint => 'مثال: صيغة بجروت الرياضيات ٥ وحدات';
+
+  @override
+  String get averagesSemester => 'الفصل';
+
+  @override
+  String get averagesUnits => 'الوحدات (الوزن)';
+
+  @override
+  String get averagesUnitsHint =>
+      '0 إذا لم يكن لهذا الصف وحدات موزونة، مثل الصف السابع';
+
+  @override
+  String get averagesBestFormatNote =>
+      'يختار النظام تلقائيًا الصيغة الأنسب لكل طالب في هذا الصف.';
+
+  @override
+  String get averagesNoGrades => 'لا توجد علامات لهذا الصف والمادة.';
+
+  @override
+  String get averagesAddFormat => 'إضافة صيغة';
+
+  @override
+  String get averagesSave => 'حفظ';
+
+  @override
+  String get averagesFormat => 'صيغة';
+
+  @override
+  String get averagesAddGrade => 'إضافة علامة';
+
+  @override
+  String get averagesGrade => 'العلامة';
+
+  @override
+  String averagesWeightSum(String sum) {
+    return 'المجموع: $sum%';
+  }
+
+  @override
+  String get averagesTitleRequired => 'يرجى إدخال عنوان.';
+
+  @override
+  String get averagesPickGradeForEachRow => 'اختر علامة لكل صف.';
+
+  @override
+  String get averagesWeightMustBe100 =>
+      'يجب أن يكون مجموع النسب في كل صيغة 100%.';
+
+  @override
+  String get certificatesTitle => 'الشهادات';
+
+  @override
+  String get certHomeroom => 'الصف (المربّي)';
+
+  @override
+  String get certStudent => 'الطالب';
+
+  @override
+  String get certDisplayName => 'الاسم على الشهادة';
+
+  @override
+  String get certNationalId => 'رقم الهوية';
+
+  @override
+  String get certHomeroomTeacher => 'مربّي/ة الصف';
+
+  @override
+  String get certPrincipal => 'مدير/ة المدرسة';
+
+  @override
+  String get certPublisherNote => 'ملاحظة (اختياري)';
+
+  @override
+  String get certSemesterWeights => 'أوزان الفصول';
+
+  @override
+  String get certLanguage => 'لغة الشهادة';
+
+  @override
+  String get certGenerate => 'إنشاء PDF';
+
+  @override
+  String get certWeightsMustBe100 => 'يجب أن يكون مجموع أوزان الفصول 100%.';
+
+  @override
+  String get certSelectStudentFirst => 'اختر طالبًا أولًا.';
+
+  @override
+  String get certSaved => 'تم إنشاء الشهادة.';
+
+  @override
+  String get certPdfAnnualCertificate => 'شهادة سنوية';
+
+  @override
+  String get certPdfSubject => 'الموضوع';
+
+  @override
+  String get certPdfFinal => 'النهائي';
+
+  @override
+  String get certPdfOverall => 'المعدل العام';
+
+  @override
+  String get certPdfAverage => 'المعدل';
+
+  @override
+  String get certPdfAbsences => 'الغيابات';
+
+  @override
+  String get certPdfLateness => 'التأخر';
+
+  @override
+  String get certPdfHomeroomTeacher => 'مربّي/ة الصف';
+
+  @override
+  String get certPdfPrincipal => 'مدير/ة المدرسة';
+
+  @override
+  String get certPdfNationalId => 'رقم الهوية';
+
+  @override
+  String get certPdfDate => 'التاريخ';
+
+  @override
+  String get certPdfGeneratedBy => 'أُنشئت بواسطة';
+
+  @override
+  String get certPdfName => 'الاسم';
+
+  @override
+  String get certPdfClass => 'الصف';
+
+  @override
+  String get adminEditUserNationalId => 'رقم الهوية';
 }

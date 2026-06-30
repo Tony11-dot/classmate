@@ -1442,6 +1442,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         id: true,
         name: true,
         legalName: true,
+        nationalId: true,
         email: true,
         username: true,
         phone: true,
@@ -1512,6 +1513,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         id: row.id,
         name: row.name,
         legalName: (row as any).legalName ?? null,
+        nationalId: (row as any).nationalId ?? null,
         email: row.email,
         username: (row as any).username ?? null,
         phone: (row as any).phone ?? null,
@@ -1738,6 +1740,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       if (n) data.name = n;
     }
     if (dto?.legalName !== undefined) data.legalName = String(dto.legalName).trim() || null;
+    if (dto?.nationalId !== undefined) data.nationalId = String(dto.nationalId).trim() || null;
     if (dto?.email !== undefined) {
       const em = String(dto.email).trim().toLowerCase() || null;
       if (em) {

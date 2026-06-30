@@ -10122,4 +10122,192 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleNoUpcomingExams => 'No upcoming exams';
+
+  @override
+  String get navAverages => 'Averages';
+
+  @override
+  String get navCertificates => 'Certificates';
+
+  @override
+  String get averagesTitle => 'Averages';
+
+  @override
+  String get averagesAddTitle => 'New average';
+
+  @override
+  String get averagesEditTitle => 'Edit average';
+
+  @override
+  String get averagesSelectCohort => 'Class';
+
+  @override
+  String get averagesSelectSubject => 'Subject';
+
+  @override
+  String get averagesNoSubjects => 'No subjects found for this class.';
+
+  @override
+  String get averagesEmpty => 'No averages yet. Tap + to add one.';
+
+  @override
+  String averagesVariantCount(int count, int units) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count formats',
+      one: '1 format',
+    );
+    return '$_temp0 · $units units';
+  }
+
+  @override
+  String get averagesDeleteTitle => 'Delete average';
+
+  @override
+  String get averagesDeleteConfirm =>
+      'Delete this average? This cannot be undone.';
+
+  @override
+  String get averagesDelete => 'Delete';
+
+  @override
+  String get averagesFieldTitle => 'Title';
+
+  @override
+  String get averagesFieldTitleHint => 'e.g. Math 5-unit final formula';
+
+  @override
+  String get averagesSemester => 'Semester';
+
+  @override
+  String get averagesUnits => 'Units (weight)';
+
+  @override
+  String get averagesUnitsHint =>
+      '0 if this grade level has no weighted units, e.g. 7th grade';
+
+  @override
+  String get averagesBestFormatNote =>
+      'The system automatically picks the best-matching format for each student in this class.';
+
+  @override
+  String get averagesNoGrades => 'No grades found for this class & subject.';
+
+  @override
+  String get averagesAddFormat => 'Add format';
+
+  @override
+  String get averagesSave => 'Save';
+
+  @override
+  String get averagesFormat => 'Format';
+
+  @override
+  String get averagesAddGrade => 'Add grade';
+
+  @override
+  String get averagesGrade => 'Grade';
+
+  @override
+  String averagesWeightSum(String sum) {
+    return 'Total: $sum%';
+  }
+
+  @override
+  String get averagesTitleRequired => 'Please enter a title.';
+
+  @override
+  String get averagesPickGradeForEachRow => 'Pick a grade for every row.';
+
+  @override
+  String get averagesWeightMustBe100 =>
+      'Each format\'s percentages must total 100%.';
+
+  @override
+  String get certificatesTitle => 'Certificates';
+
+  @override
+  String get certHomeroom => 'Class (homeroom)';
+
+  @override
+  String get certStudent => 'Student';
+
+  @override
+  String get certDisplayName => 'Name on certificate';
+
+  @override
+  String get certNationalId => 'National ID';
+
+  @override
+  String get certHomeroomTeacher => 'Homeroom teacher';
+
+  @override
+  String get certPrincipal => 'Principal';
+
+  @override
+  String get certPublisherNote => 'Note (optional)';
+
+  @override
+  String get certSemesterWeights => 'Semester weights';
+
+  @override
+  String get certLanguage => 'Certificate language';
+
+  @override
+  String get certGenerate => 'Generate PDF';
+
+  @override
+  String get certWeightsMustBe100 => 'Semester weights must total 100%.';
+
+  @override
+  String get certSelectStudentFirst => 'Select a student first.';
+
+  @override
+  String get certSaved => 'Certificate generated.';
+
+  @override
+  String get certPdfAnnualCertificate => 'Annual Certificate';
+
+  @override
+  String get certPdfSubject => 'Subject';
+
+  @override
+  String get certPdfFinal => 'Final';
+
+  @override
+  String get certPdfOverall => 'General Average';
+
+  @override
+  String get certPdfAverage => 'Average';
+
+  @override
+  String get certPdfAbsences => 'Absences';
+
+  @override
+  String get certPdfLateness => 'Lateness';
+
+  @override
+  String get certPdfHomeroomTeacher => 'Homeroom teacher';
+
+  @override
+  String get certPdfPrincipal => 'Principal';
+
+  @override
+  String get certPdfNationalId => 'ID No.';
+
+  @override
+  String get certPdfDate => 'Date';
+
+  @override
+  String get certPdfGeneratedBy => 'Created by';
+
+  @override
+  String get certPdfName => 'Name';
+
+  @override
+  String get certPdfClass => 'Class';
+
+  @override
+  String get adminEditUserNationalId => 'National ID';
 }

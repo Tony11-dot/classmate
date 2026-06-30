@@ -108,6 +108,7 @@ class AdminRepository {
     String? phone,
     String? role,
     int? grade,
+    String? nationalId,
   }) async {
     await _api.patchJson('/admin/users/$id', body: {
       'name': ?name,
@@ -116,6 +117,7 @@ class AdminRepository {
       'phone': ?phone,
       'role': ?role,
       'grade': ?grade,
+      'nationalId': ?nationalId,
     });
   }
 

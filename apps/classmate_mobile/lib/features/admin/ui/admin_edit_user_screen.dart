@@ -23,6 +23,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   final _emailCtrl    = TextEditingController();
   final _usernameCtrl = TextEditingController();
   final _phoneCtrl    = TextEditingController();
+  final _nationalIdCtrl = TextEditingController();
   String  _dialCode = kDefaultDialCode;
 
   String? _role;
@@ -52,7 +53,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl]) {
+    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _nationalIdCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -64,6 +65,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       _nameEnCtrl.text   = m['name']?.toString() ?? m['nameEn']?.toString() ?? '';
       _emailCtrl.text    = m['email']?.toString() ?? '';
       _usernameCtrl.text = m['username']?.toString() ?? '';
+      _nationalIdCtrl.text = m['nationalId']?.toString() ?? '';
       // Split the stored E.164 phone into dial-code + local digits so the
       // PhoneField shows the right country chip on first paint.
       final phoneRaw = m['phone']?.toString() ?? '';
@@ -119,6 +121,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         phone: joinE164(_dialCode, _phoneCtrl.text) ?? '',
         role: _role,
         grade: _grade,
+        nationalId: _nationalIdCtrl.text.trim(),
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserSaved)));
@@ -287,6 +290,17 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     controller: _phoneCtrl,
                     dialCode: _dialCode,
                     onDialCodeChanged: (v) => setState(() => _dialCode = v),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _nationalIdCtrl,
+                    autocorrect: false,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: l.adminEditUserNationalId,
+                      prefixIcon: const Icon(Icons.badge_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   // Reset password
