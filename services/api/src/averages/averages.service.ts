@@ -74,10 +74,56 @@ export class AveragesService {
     return s.trim().toLowerCase().replace(/\s+/g, ' ');
   }
 
-  // ── Cohorts the teacher teaches (schedule-derived) ─────────────────────────
+  // ── Cohorts the teacher has touched ────────────────────────────────────────
+  /**
+   * Every cohort this teacher has any link to:
+   *  - they teach a schedule slot for it, OR
+   *  - they created an assessment scoped to it, OR
+   *  - they graded a student who belongs to it (covers grades recorded against
+   *    a student directly, where the assessment's cohortId is null/different).
+   */
+  private async teacherCohortIds(teacherId: string): Promise<Set<string>> {
+    const ids = new Set<string>();
+    const [slotCohorts, assessments] = await Promise.all([
+      this.prisma.scheduleSlotCohort.findMany({
+        where: { slot: { teacherId } },
+        select: { cohortId: true },
+        distinct: ['cohortId'],
+      }),
+      this.prisma.assessment.findMany({
+        where: { createdBy: teacherId },
+        select: { id: true, cohortId: true },
+      }),
+    ]);
+    slotCohorts.forEach((s) => ids.add(s.cohortId));
+    const assessmentIds: string[] = [];
+    assessments.forEach((a) => {
+      if (a.cohortId) ids.add(a.cohortId);
+      assessmentIds.push(a.id);
+    });
+    // Cohorts of students the teacher actually graded.
+    if (assessmentIds.length) {
+      const records = await this.prisma.gradeRecord.findMany({
+        where: { assessmentId: { in: assessmentIds } },
+        select: { studentId: true },
+        distinct: ['studentId'],
+      });
+      const studentIds = records.map((r) => r.studentId);
+      if (studentIds.length) {
+        const links = await this.prisma.studentCohort.findMany({
+          where: { studentId: { in: studentIds } },
+          select: { cohortId: true },
+          distinct: ['cohortId'],
+        });
+        links.forEach((l) => ids.add(l.cohortId));
+      }
+    }
+    return ids;
+  }
+
   async cohorts(user: any) {
     const teacherId = this.userId(user);
-    // Admins generating certificates may pass through; they read all school cohorts.
+    // Admins generating certificates read all school cohorts.
     if (this.isAdmin(user)) {
       const schoolId = this.schoolId(user);
       const cohorts = await this.prisma.cohort.findMany({
@@ -87,64 +133,105 @@ export class AveragesService {
       });
       return { ok: true, cohorts };
     }
-    const slotCohorts = await this.prisma.scheduleSlotCohort.findMany({
-      where: { slot: { teacherId } },
-      select: { cohortId: true, cohort: { select: { id: true, name: true, grade: true } } },
-      distinct: ['cohortId'],
+    const ids = Array.from(await this.teacherCohortIds(teacherId));
+    if (!ids.length) return { ok: true, cohorts: [] };
+    // ids are derived strictly from this teacher's own slots/assessments/grades,
+    // so they're already tenant-safe — no extra schoolId filter needed (and it
+    // would wrongly drop legacy null-school cohorts).
+    const cohorts = await this.prisma.cohort.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true, grade: true },
+      orderBy: { name: 'asc' },
     });
-    return { ok: true, cohorts: slotCohorts.map((sc) => sc.cohort) };
+    return { ok: true, cohorts };
   }
 
-  // ── Subjects the teacher teaches in a cohort (schedule-derived, deduped) ────
+  // ── Subjects available for a cohort (EVERY school subject) ─────────────────
+  /**
+   * Returns one clean entry per subject for the cohort, drawn from three
+   * sources so every subject the school offers appears:
+   *   1. the school's canonical subjects for the cohort's grade
+   *      (SchoolGradeSubjectDefault.subjectsI18n) — these are the school's
+   *      official subjects, shown even if no grades exist yet,
+   *   2. schedule slots for the cohort (any teacher), and
+   *   3. assessments for the cohort (any teacher).
+   * Deduped/canonicalized. The returned `value` is a raw subject string that
+   * resolves grades (an assessment subject is preferred so the grade DDL works),
+   * falling back to a schedule subject, then the canonical English name.
+   */
   async options(user: any, cohortId: string) {
     if (!cohortId) throw new BadRequestException('cohortId is required');
-    const teacherId = this.userId(user);
-    const admin = this.isAdmin(user);
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: cohortId },
       select: { id: true, grade: true, schoolId: true },
     });
     if (!cohort) throw new NotFoundException('Cohort not found');
+    const schoolId = cohort.schoolId ?? this.schoolId(user);
 
-    // Schedule slots for this cohort taught by the signed-in teacher (admins: any).
-    const slots = await this.prisma.scheduleSlot.findMany({
-      where: {
-        ...(admin ? {} : { teacherId }),
-        cohorts: { some: { cohortId } },
-        subject: { not: null },
-      },
-      select: { subject: true },
-    });
+    const [slots, assessments, canon] = await Promise.all([
+      this.prisma.scheduleSlot.findMany({
+        where: { cohorts: { some: { cohortId } }, subject: { not: null } },
+        select: { subject: true },
+      }),
+      this.prisma.assessment.findMany({
+        where: { cohortId, subject: { not: null } },
+        select: { subject: true },
+        distinct: ['subject'],
+      }),
+      this.canonicalSubjectsForGrade(schoolId, cohort.grade),
+    ]);
 
-    const canon = await this.canonicalSubjectsForGrade(cohort.schoolId ?? this.schoolId(user), cohort.grade);
-    // Build a lookup from any localized name → canonical display (prefer the
-    // viewer-agnostic English/native name; we expose all names so the client
-    // can localize, plus a default display string).
     const canonByKey = new Map<string, any>();
     for (const c of canon) {
       for (const v of [c.nameEn, c.nameAr, c.nameHe, c.nameFr, c.nameRu]) {
-        if (v && v.trim()) canonByKey.set(this.normKey(v), c);
+        if (v && String(v).trim()) canonByKey.set(this.normKey(v), c);
       }
     }
 
-    const seen = new Map<string, { value: string; display: string; i18n: any | null }>();
-    for (const s of slots) {
-      const raw = (s.subject ?? '').trim();
-      if (!raw) continue;
-      const key = this.normKey(raw);
+    type Entry = { value: string; display: string; i18n: any | null; hasAssessment: boolean };
+    const seen = new Map<string, Entry>();
+
+    const upsert = (raw: string, fromAssessment: boolean) => {
+      const trimmed = raw.trim();
+      if (!trimmed) return;
+      const key = this.normKey(trimmed);
       const match = canonByKey.get(key) ?? null;
-      // Dedup key: canonical English name if matched, else normalized raw.
       const dedupKey = match?.nameEn ? this.normKey(match.nameEn) : key;
-      if (seen.has(dedupKey)) continue;
-      seen.set(dedupKey, {
-        value: raw, // raw string is what matches Assessment.subject
-        display: match?.nameEn ?? raw,
-        i18n: match,
-      });
+      const existing = seen.get(dedupKey);
+      if (!existing) {
+        seen.set(dedupKey, {
+          value: trimmed,
+          display: match?.nameEn ?? trimmed,
+          i18n: match,
+          hasAssessment: fromAssessment,
+        });
+        return;
+      }
+      // Prefer a value backed by an assessment (so the grade DDL resolves).
+      if (fromAssessment && !existing.hasAssessment) {
+        existing.value = trimmed;
+        existing.hasAssessment = true;
+      }
+    };
+
+    // Assessments first (their raw value best resolves grades), then schedule.
+    for (const a of assessments) upsert(a.subject ?? '', true);
+    for (const s of slots) upsert(s.subject ?? '', false);
+    // Every official school subject for this grade — even with no grades yet.
+    for (const c of canon) {
+      const name = (c.nameEn ?? '').trim();
+      if (!name) continue;
+      const dedupKey = this.normKey(name);
+      if (!seen.has(dedupKey)) {
+        seen.set(dedupKey, { value: name, display: name, i18n: c, hasAssessment: false });
+      }
     }
 
-    return { ok: true, subjects: Array.from(seen.values()) };
+    const subjects = Array.from(seen.values())
+      .map(({ value, display, i18n }) => ({ value, display, i18n }))
+      .sort((a, b) => a.display.localeCompare(b.display));
+    return { ok: true, subjects };
   }
 
   // ── Assessments for a cohort+subject (populate the grade DDL) ──────────────
@@ -189,20 +276,13 @@ export class AveragesService {
     }
   }
 
-  private async assertTeachesCohortSubject(user: any, cohortId: string, subject: string) {
+  private async assertTeachesCohortSubject(user: any, cohortId: string, _subject: string) {
     if (this.isAdmin(user)) return;
     const teacherId = this.userId(user);
-    const slot = await this.prisma.scheduleSlot.findFirst({
-      where: { teacherId, subject, cohorts: { some: { cohortId } } },
-      select: { id: true },
-    });
-    // Fallback: allow if teacher has any slot in the cohort (co-taught/free-text).
-    if (slot) return;
-    const anySlot = await this.prisma.scheduleSlot.findFirst({
-      where: { teacherId, cohorts: { some: { cohortId } } },
-      select: { id: true },
-    });
-    if (!anySlot) throw new ForbiddenException('You do not teach this cohort.');
+    // Allow any cohort the teacher has touched (teaches, created an assessment
+    // for, or graded a student in) — matches the cohort DDL the picker shows.
+    const ids = await this.teacherCohortIds(teacherId);
+    if (!ids.has(cohortId)) throw new ForbiddenException('You do not teach this cohort.');
   }
 
   async create(user: any, dto: CreateGradeFormulaDto) {

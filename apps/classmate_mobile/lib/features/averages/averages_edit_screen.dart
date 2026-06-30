@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'data/averages_repository.dart';
 
 class AveragesEditScreen extends ConsumerStatefulWidget {
@@ -141,8 +142,23 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
     final cs = Theme.of(context).colorScheme;
     final isNew = widget.existing == null;
 
+    // Full-screen editor: minimal transparent bar with a back chevron; the
+    // page is pushed with a MaterialPageRoute so iOS gives edge-swipe-to-leave.
     return Scaffold(
-      appBar: AppBar(title: Text(isNew ? l.averagesAddTitle : l.averagesEditTitle)),
+      backgroundColor: cs.surface,
+      appBar: AppBar(
+        backgroundColor: cs.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(
+          isNew ? l.averagesAddTitle : l.averagesEditTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+        ),
+      ),
       body: AbsorbPointer(
         absorbing: _saving,
         child: ListView(
@@ -179,26 +195,16 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
             const SizedBox(height: 14),
             // Semester selector — scopes which grades are offered.
             if (_semesterCount > 1)
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _semester,
-                      decoration: InputDecoration(
-                        labelText: l.averagesSemester,
-                        border: const OutlineInputBorder(),
-                      ),
-                      items: List.generate(_semesterCount, (i) => i + 1)
-                          .map((n) => DropdownMenuItem(value: n, child: Text(l.adminSchoolSemesterN('$n'))))
-                          .toList(),
-                      onChanged: (n) {
-                        if (n == null) return;
-                        setState(() => _semester = n);
-                        _loadGrades();
-                      },
-                    ),
-                  ),
-                ],
+              LiquidGlassSelectField<int>(
+                label: l.averagesSemester,
+                value: _semester,
+                items: List.generate(_semesterCount, (i) => i + 1)
+                    .map((n) => LiquidGlassDropdownItem(value: n, label: l.adminSchoolSemesterN('$n')))
+                    .toList(),
+                onChanged: (n) {
+                  setState(() => _semester = n);
+                  _loadGrades();
+                },
               ),
             if (_semesterCount > 1) const SizedBox(height: 14),
             // Units
@@ -317,18 +323,14 @@ class _AveragesEditScreenState extends ConsumerState<AveragesEditScreen> {
         children: [
           Expanded(
             flex: 5,
-            child: DropdownButtonFormField<String>(
-              initialValue: hasValue ? c.assessmentId : null,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: l.averagesGrade,
-                border: const OutlineInputBorder(),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              ),
+            child: LiquidGlassSelectField<String>(
+              label: l.averagesGrade,
+              hint: l.averagesGrade,
+              value: hasValue ? c.assessmentId : null,
               items: _assessments
-                  .map((a) => DropdownMenuItem(value: a.id, child: Text(a.title, overflow: TextOverflow.ellipsis)))
+                  .map((a) => LiquidGlassDropdownItem(value: a.id, label: a.title))
                   .toList(),
-              onChanged: (id) => setState(() => c.assessmentId = id ?? ''),
+              onChanged: (id) => setState(() => c.assessmentId = id),
             ),
           ),
           const SizedBox(width: 8),

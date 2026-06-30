@@ -20,7 +20,7 @@ class LiquidGlassDropdownItem<T> {
 Future<T?> showLiquidGlassPicker<T>({
   required BuildContext context,
   required String title,
-  required T currentValue,
+  required T? currentValue,
   required List<LiquidGlassDropdownItem<T>> items,
   String? searchHint,
 }) {
@@ -137,9 +137,107 @@ class LiquidGlassDropdown<T> extends StatelessWidget {
   }
 }
 
+/// Like [LiquidGlassDropdown] but accepts a NULLABLE value and shows a [hint]
+/// when nothing is selected — for forms where no option is chosen initially.
+class LiquidGlassSelectField<T> extends StatelessWidget {
+  final String label;
+  final String? hint;
+  final T? value;
+  final List<LiquidGlassDropdownItem<T>> items;
+  final ValueChanged<T> onChanged;
+  final bool enabled;
+  final String? searchHint;
+
+  const LiquidGlassSelectField({
+    super.key,
+    required this.label,
+    required this.items,
+    required this.onChanged,
+    this.value,
+    this.hint,
+    this.enabled = true,
+    this.searchHint,
+  });
+
+  String? _labelFor(T? v) {
+    for (final it in items) {
+      if (it.value == v) return it.label;
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final selectedLabel = _labelFor(value);
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: InkWell(
+        onTap: enabled ? () => _open(context) : null,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                cs.surface.withValues(alpha: isDark ? 0.76 : 0.88),
+                cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
+              ],
+            ),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      selectedLabel ?? (hint ?? ''),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: selectedLabel == null ? cs.onSurfaceVariant : cs.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final selected = await showLiquidGlassPicker<T>(
+      context: context,
+      title: label,
+      currentValue: value,
+      items: items,
+      searchHint: searchHint,
+    );
+    if (selected != null && selected != value) onChanged(selected);
+  }
+}
+
 class _LiquidGlassPicker<T> extends StatefulWidget {
   final String title;
-  final T value;
+  final T? value;
   final List<LiquidGlassDropdownItem<T>> items;
   final String? searchHint;
 

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'certificate_pdf.dart';
 import 'data/certificates_repository.dart';
 
@@ -227,119 +228,120 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
     final cs = Theme.of(context).colorScheme;
     final p = _prefill;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.certificatesTitle)),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : AbsorbPointer(
-              absorbing: _generating,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(_error!, style: TextStyle(color: cs.error)),
-                    ),
-                  // Homeroom (cohort)
-                  DropdownButtonFormField<String>(
-                    initialValue: _cohortId,
-                    isExpanded: true,
-                    decoration: InputDecoration(labelText: l.certHomeroom, border: const OutlineInputBorder()),
-                    items: _cohorts.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
-                    onChanged: _onCohortChanged,
-                  ),
-                  const SizedBox(height: 14),
-                  // Student
-                  DropdownButtonFormField<String>(
-                    initialValue: _studentId,
-                    isExpanded: true,
-                    decoration: InputDecoration(labelText: l.certStudent, border: const OutlineInputBorder()),
-                    items: _students.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
-                    onChanged: (_cohortId == null || _loadingStudents) ? null : _onStudentChanged,
-                  ),
-                  if (_loadingPrefill)
-                    const Padding(padding: EdgeInsets.only(top: 12), child: LinearProgressIndicator()),
-                  if (p != null && _studentId != null) ...[
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _displayNameCtrl,
-                      decoration: InputDecoration(labelText: l.certDisplayName, border: const OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _nationalIdCtrl,
-                      decoration: InputDecoration(labelText: l.certNationalId, border: const OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 14),
-                    DropdownButtonFormField<String>(
-                      initialValue: _homeroomTeacher,
-                      isExpanded: true,
-                      decoration: InputDecoration(labelText: l.certHomeroomTeacher, border: const OutlineInputBorder()),
-                      items: {
-                        ?_homeroomTeacher,
-                        ...p.teacherNames,
-                      }.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-                      onChanged: (t) => setState(() => _homeroomTeacher = t),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _principalCtrl,
-                      decoration: InputDecoration(labelText: l.certPrincipal, border: const OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _noteCtrl,
-                      maxLines: 3,
-                      decoration: InputDecoration(labelText: l.certPublisherNote, border: const OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 14),
-                    // Semester weights
-                    Text(l.certSemesterWeights, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        for (int i = 0; i < _weightCtrls.length; i++) ...[
-                          Expanded(
-                            child: TextField(
-                              controller: _weightCtrls[i],
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              decoration: InputDecoration(
-                                labelText: l.adminSchoolSemesterN('${i + 1}'),
-                                suffixText: '%',
-                                border: const OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          if (i < _weightCtrls.length - 1) const SizedBox(width: 8),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    // Language
-                    DropdownButtonFormField<String>(
-                      initialValue: _language,
-                      isExpanded: true,
-                      decoration: InputDecoration(labelText: l.certLanguage, border: const OutlineInputBorder()),
-                      items: _certLanguages
-                          .map((lang) => DropdownMenuItem(value: lang.$1, child: Text(lang.$2)))
-                          .toList(),
-                      onChanged: (v) => setState(() => _language = v ?? 'en'),
-                    ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: _generating ? null : _generate,
-                      icon: _generating
-                          ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.picture_as_pdf_rounded),
-                      label: Text(l.certGenerate),
-                    ),
-                    const SizedBox(height: 40),
-                  ],
-                ],
-              ),
+    // Body-only: the app shell supplies the top bar / section pill.
+    if (_loading) return const Center(child: CircularProgressIndicator());
+
+    final homeroomItems = <String>{
+      ?_homeroomTeacher,
+      ...?p?.teacherNames,
+    }.map((t) => LiquidGlassDropdownItem(value: t, label: t)).toList();
+
+    return AbsorbPointer(
+      absorbing: _generating,
+      child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+        children: [
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(_error!, style: TextStyle(color: cs.error)),
             ),
+          // Homeroom (cohort)
+          LiquidGlassSelectField<String>(
+            label: l.certHomeroom,
+            hint: l.certHomeroom,
+            value: _cohortId,
+            items: _cohorts.map((c) => LiquidGlassDropdownItem(value: c.id, label: c.name)).toList(),
+            onChanged: _onCohortChanged,
+          ),
+          const SizedBox(height: 14),
+          // Student
+          LiquidGlassSelectField<String>(
+            label: l.certStudent,
+            hint: l.certStudent,
+            value: _studentId,
+            enabled: _cohortId != null && !_loadingStudents,
+            items: _students.map((s) => LiquidGlassDropdownItem(value: s.id, label: s.name)).toList(),
+            onChanged: _onStudentChanged,
+          ),
+          if (_loadingPrefill)
+            const Padding(padding: EdgeInsets.only(top: 12), child: LinearProgressIndicator()),
+          if (p != null && _studentId != null) ...[
+            const SizedBox(height: 14),
+            TextField(
+              controller: _displayNameCtrl,
+              decoration: InputDecoration(labelText: l.certDisplayName, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _nationalIdCtrl,
+              decoration: InputDecoration(labelText: l.certNationalId, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 14),
+            LiquidGlassSelectField<String>(
+              label: l.certHomeroomTeacher,
+              hint: l.certHomeroomTeacher,
+              value: _homeroomTeacher,
+              items: homeroomItems,
+              onChanged: (t) => setState(() => _homeroomTeacher = t),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _principalCtrl,
+              decoration: InputDecoration(labelText: l.certPrincipal, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _noteCtrl,
+              maxLines: 3,
+              decoration: InputDecoration(labelText: l.certPublisherNote, border: const OutlineInputBorder()),
+            ),
+            const SizedBox(height: 14),
+            // Semester weights
+            Text(l.certSemesterWeights, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                for (int i = 0; i < _weightCtrls.length; i++) ...[
+                  Expanded(
+                    child: TextField(
+                      controller: _weightCtrls[i],
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        labelText: l.adminSchoolSemesterN('${i + 1}'),
+                        suffixText: '%',
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  if (i < _weightCtrls.length - 1) const SizedBox(width: 8),
+                ],
+              ],
+            ),
+            const SizedBox(height: 14),
+            // Language
+            LiquidGlassSelectField<String>(
+              label: l.certLanguage,
+              value: _language,
+              items: _certLanguages
+                  .map((lang) => LiquidGlassDropdownItem(value: lang.$1, label: lang.$2))
+                  .toList(),
+              onChanged: (v) => setState(() => _language = v),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: _generating ? null : _generate,
+              icon: _generating
+                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.picture_as_pdf_rounded),
+              label: Text(l.certGenerate),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ],
+      ),
     );
   }
 }

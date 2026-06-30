@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/auth/auth_controller.dart';
-import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'data/averages_repository.dart';
 import 'averages_edit_screen.dart';
 
@@ -143,106 +142,93 @@ class _AveragesScreenState extends ConsumerState<AveragesScreen> {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l.averagesTitle)),
-      floatingActionButton: (_cohort != null && _subject != null)
-          ? FloatingActionButton.extended(
+    // Body-only: the app shell supplies the top bar / section pill, so this
+    // screen has no header of its own.
+    return RefreshIndicator(
+      onRefresh: _loadCohorts,
+      child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+        children: [
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(_error!, style: TextStyle(color: cs.error)),
+            ),
+          // Class picker (liquid glass)
+          LiquidGlassSelectField<AvgCohort>(
+            label: l.averagesSelectCohort,
+            hint: l.averagesSelectCohort,
+            value: _cohort,
+            enabled: !_loadingCohorts,
+            items: _cohorts
+                .map((c) => LiquidGlassDropdownItem(value: c, label: c.name))
+                .toList(),
+            onChanged: _onCohortChanged,
+          ),
+          const SizedBox(height: 14),
+          // Subject picker (liquid glass)
+          LiquidGlassSelectField<AvgSubject>(
+            label: l.averagesSelectSubject,
+            hint: l.averagesSelectSubject,
+            value: _subject,
+            enabled: _cohort != null && !_loadingSubjects,
+            items: _subjects
+                .map((s) => LiquidGlassDropdownItem(value: s, label: s.display))
+                .toList(),
+            onChanged: _onSubjectChanged,
+          ),
+          if (_loadingSubjects)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: LinearProgressIndicator(),
+            ),
+          if (_cohort != null && !_loadingSubjects && _subjects.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(l.averagesNoSubjects, style: TextStyle(color: cs.onSurfaceVariant)),
+            ),
+          const SizedBox(height: 20),
+          if (_cohort != null && _subject != null) ...[
+            FilledButton.icon(
               onPressed: () => _openEditor(),
               icon: const Icon(Icons.add),
               label: Text(l.averagesAddTitle),
-            )
-          : null,
-      body: RefreshIndicator(
-        onRefresh: _loadCohorts,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(_error!, style: TextStyle(color: cs.error)),
-              ),
-            // Class picker
-            DropdownButtonFormField<AvgCohort>(
-              initialValue: _cohort,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: l.averagesSelectCohort,
-                border: const OutlineInputBorder(),
-              ),
-              items: _cohorts
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
-                  .toList(),
-              onChanged: _loadingCohorts ? null : _onCohortChanged,
             ),
-            const SizedBox(height: 14),
-            // Subject picker
-            DropdownButtonFormField<AvgSubject>(
-              initialValue: _subject,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: l.averagesSelectSubject,
-                border: const OutlineInputBorder(),
-              ),
-              items: _subjects
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s.display)))
-                  .toList(),
-              onChanged: (_cohort == null || _loadingSubjects) ? null : _onSubjectChanged,
-            ),
-            if (_loadingSubjects)
-              const Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: LinearProgressIndicator(),
-              ),
-            if (_cohort != null && !_loadingSubjects && _subjects.isEmpty)
+            const SizedBox(height: 16),
+            if (_loadingFormulas)
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+            else if (_formulas.isEmpty)
               Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Text(l.averagesNoSubjects, style: TextStyle(color: cs.onSurfaceVariant)),
-              ),
-            const SizedBox(height: 20),
-            if (_subject != null) ...[
-              if (_loadingFormulas)
-                const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
-              else if (_formulas.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: Center(
-                    child: Text(l.averagesEmpty, style: TextStyle(color: cs.onSurfaceVariant)),
-                  ),
-                )
-              else
-                ..._formulas.map((f) => Card(
-                      child: ListTile(
-                        title: Text(f.title),
-                        subtitle: Text(l.averagesVariantCount(f.variants.length, f.units)),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit_outlined),
-                              onPressed: () => _openEditor(existing: f),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete_outline, color: cs.error),
-                              onPressed: () => _delete(f),
-                            ),
-                          ],
-                        ),
-                        onTap: () => _openEditor(existing: f),
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(l.averagesEmpty, style: TextStyle(color: cs.onSurfaceVariant)),
+                ),
+              )
+            else
+              ..._formulas.map((f) => Card(
+                    child: ListTile(
+                      title: Text(f.title),
+                      subtitle: Text(l.averagesVariantCount(f.variants.length, f.units)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => _openEditor(existing: f),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete_outline, color: cs.error),
+                            onPressed: () => _delete(f),
+                          ),
+                        ],
                       ),
-                    )),
-            ],
+                      onTap: () => _openEditor(existing: f),
+                    ),
+                  )),
           ],
-        ),
+        ],
       ),
     );
   }
-}
-
-/// The current default semester number from the school's config (1 if none).
-int defaultSemesterNumber(WidgetRef ref) {
-  final raw = ref.read(authSessionProvider).schoolSemesters;
-  final sems = parseSchoolSemesters(raw);
-  final cur = currentSemesterWindow(sems, DateTime.now());
-  return cur?.number ?? 1;
 }

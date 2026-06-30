@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -488,7 +489,7 @@ class _GradeRow extends StatelessWidget {
                 ),
                 if (entry.assessment.date.isNotEmpty)
                   Text(
-                    entry.assessment.date,
+                    FriendlyDate.dateTime(entry.assessment.date),
                     style: theme.textTheme.labelSmall
                         ?.copyWith(color: cs.onSurfaceVariant),
                   ),
