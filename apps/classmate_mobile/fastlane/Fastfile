@@ -223,6 +223,25 @@ platform :android do
     UI.success "✅ Uploaded to Play internal testing!"
   end
 
+  desc "Build AAB and upload to Play Console CLOSED testing track (alpha)"
+  # Production access is reviewed on the CLOSED track — keep the 12+ testers on
+  # the newest build here so their engagement is real and current.
+  lane :closed do
+    flutter_build_aab
+    upload_to_play_store(
+      track:                   "alpha", # default "Closed testing – Alpha"
+      aab:                     AAB_PATH,
+      json_key:                PLAY_JSON,
+      skip_upload_apk:         true,
+      skip_upload_metadata:    true,
+      skip_upload_images:      true,
+      skip_upload_screenshots: true,
+      release_status:          "completed",
+    )
+    upload_sentry_symbols
+    UI.success "✅ Uploaded to Play closed testing (alpha)!"
+  end
+
   desc "Build AAB and roll out to Play Console PRODUCTION"
   lane :production do
     flutter_build_aab
