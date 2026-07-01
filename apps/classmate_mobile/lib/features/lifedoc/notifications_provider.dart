@@ -153,8 +153,16 @@ class NotificationActions {
     if (item.isLocal) {
       await ref.read(localNotificationsProvider.notifier).markRead(item.id);
     } else {
-      await ref.read(notificationsApiProvider).markSeen(<String>[item.id]);
-      ref.invalidate(persistedNotificationsProvider);
+      // Fire-and-forget server sync: a transient network/offline failure must
+      // NOT throw (the local read-override below still marks it read in the UI,
+      // and the server reconciles on the next successful load). Swallowing here
+      // keeps DNS/"Failed host lookup" errors out of Sentry.
+      try {
+        await ref.read(notificationsApiProvider).markSeen(<String>[item.id]);
+        ref.invalidate(persistedNotificationsProvider);
+      } catch (_) {
+        // ignored — best-effort, reconciled on next sync
+      }
     }
     await _setReadOverride(item.id, true);
     ref.invalidate(notificationInboxProvider);
@@ -179,8 +187,14 @@ class NotificationActions {
       await ref.read(localNotificationsProvider.notifier).markAllRead();
     }
     if (remoteIds.isNotEmpty) {
-      await ref.read(notificationsApiProvider).markSeen(remoteIds);
-      ref.invalidate(persistedNotificationsProvider);
+      // Best-effort server sync — offline/DNS failures are swallowed (the local
+      // overrides below still mark everything read; next sync reconciles).
+      try {
+        await ref.read(notificationsApiProvider).markSeen(remoteIds);
+        ref.invalidate(persistedNotificationsProvider);
+      } catch (_) {
+        // ignored — best-effort
+      }
     }
     await _setReadOverrides(items.map((item) => item.id), true);
     ref.invalidate(notificationInboxProvider);
