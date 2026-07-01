@@ -4,6 +4,7 @@ import { Response } from 'express';
 export type RealtimeEvent =
   | { type: 'classroom_message'; classroomId: string }
   | { type: 'dm_message'; threadId: string }
+  | { type: 'dm_read'; threadId: string }
   | { type: 'notification'; userId: string }
   | { type: 'grade_updated'; studentId: string }
   | { type: 'assignment_returned'; assignmentId: string; studentId: string }

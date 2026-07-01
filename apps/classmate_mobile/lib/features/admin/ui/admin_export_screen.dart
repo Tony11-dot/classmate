@@ -1117,6 +1117,17 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         generatePasswords: _includePasswords,
       );
 
+  /// Localizations resolved to the chosen export language (`_lang`) rather than
+  /// the admin's current app language, so every label, note and the date on the
+  /// exported PDF/CSV is translated into the language picked for the export.
+  AppLocalizations _exportL10n() {
+    try {
+      return lookupAppLocalizations(Locale(_lang));
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('en'));
+    }
+  }
+
   // ── CSV ────────────────────────────────────────────────────────────────────
   Future<void> _exportCsv() async {
     if (_includePasswords && !await _confirmPasswords()) return;
@@ -1124,7 +1135,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     try {
       final users = await _fetch();
       if (!mounted) return;
-      final l = AppLocalizations.of(context)!;
+      final l = _exportL10n();
       final headers = [
         l.profileFullName,
         l.adminExportColumnRole,
@@ -1201,7 +1212,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       if (!mounted) return;
       final schoolName = widget.session?.schoolName ?? '';
       final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? 'Admin') as String;
-      final l = AppLocalizations.of(context)!;
+      final l = _exportL10n();
 
       // Three branches:
       //   1. Compact table (legacy) — one PDF, all users in a single
@@ -1330,7 +1341,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     const noteBorder = PdfColor.fromInt(0xFFEA580C);
 
     final now = DateTime.now();
-    final dateStr = '${_months[now.month]} ${now.day}, ${now.year}';
+    final dateStr = _localizedExportDate(now, _lang);
 
     for (final u in users) {
       final role = (u['role'] ?? '').toString();
@@ -1368,33 +1379,46 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         build: (ctx) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            // ── Centred brand mark at the very top: CM monogram + ClassMate ──
-            // Composed from the monogram image (renders reliably) plus a text
-            // wordmark, so it always shows clearly regardless of the PDF
-            // engine's PNG handling.
-            pw.Center(
-              child: pw.Row(
-                mainAxisSize: pw.MainAxisSize.min,
+            // ── Brand header band: a big, perfectly-centred ClassMate logo in
+            // the blue space at the very top of the page. The blue monogram is
+            // placed on a white disc so it stays crisp and visible against the
+            // blue band, with the wordmark beneath it.
+            pw.Container(
+              width: double.infinity,
+              padding: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              decoration: pw.BoxDecoration(
+                color: brandBlue,
+                borderRadius: pw.BorderRadius.circular(16),
+              ),
+              child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
+                mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
-                  pw.SizedBox(
-                    width: 44,
-                    height: 44,
+                  pw.Container(
+                    width: 78,
+                    height: 78,
+                    padding: const pw.EdgeInsets.all(12),
+                    decoration: const pw.BoxDecoration(
+                      color: PdfColors.white,
+                      shape: pw.BoxShape.circle,
+                    ),
                     child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
                   ),
-                  pw.SizedBox(width: 12),
+                  pw.SizedBox(height: 12),
                   pw.Text(
                     'ClassMate',
+                    textAlign: pw.TextAlign.center,
                     style: pw.TextStyle(
-                      fontSize: 30,
+                      fontSize: 26,
                       fontWeight: pw.FontWeight.bold,
-                      color: brandBlue,
+                      color: PdfColors.white,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ],
               ),
             ),
-            pw.SizedBox(height: 14),
+            pw.SizedBox(height: 16),
             if (schoolName.isNotEmpty)
               pw.Center(
                 child: pw.Text(
@@ -1679,7 +1703,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       ),
     );
     final now = DateTime.now();
-    final dateStr = '${_months[now.month]} ${now.day}, ${now.year}';
+    final dateStr = _localizedExportDate(now, _lang);
 
     const brandBlue = PdfColor.fromInt(0xFF2563EB);
     const brandLight = PdfColor.fromInt(0xFFEFF6FF);
@@ -2046,7 +2070,25 @@ class _PerUserField {
   final bool mono;
 }
 
-const _months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Long, localized month names for each supported export language so the date on
+// the exported PDF reads naturally in the chosen language (not always English).
+const _monthNamesByLang = <String, List<String>>{
+  'en': ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  'fr': ['', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
+  'ru': ['', 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+  'ar': ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+  'he': ['', 'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'],
+};
+
+/// A fully localized long-form date for the export PDF, e.g.
+/// `July 1, 2026` (en) or `1 يوليو 2026` (ar). English reads month-first; the
+/// other supported languages read day-first.
+String _localizedExportDate(DateTime dt, String lang) {
+  final months = _monthNamesByLang[lang] ?? _monthNamesByLang['en']!;
+  final month = months[dt.month];
+  if (lang == 'en') return '$month ${dt.day}, ${dt.year}';
+  return '${dt.day} $month ${dt.year}';
+}
 
 String _esc(String v) {
   if (v.contains(',') || v.contains('"') || v.contains('\n')) {

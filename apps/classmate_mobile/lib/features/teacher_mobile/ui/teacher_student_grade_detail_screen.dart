@@ -44,9 +44,14 @@ class TeacherStudentGradeDetailScreen extends ConsumerStatefulWidget {
   const TeacherStudentGradeDetailScreen({
     super.key,
     required this.student,
+    this.subject,
   });
 
   final TeacherStudentWithLevel student;
+
+  /// When set, only this subject's grades are shown (opened from a subject).
+  /// Null = every subject the student is enrolled in.
+  final String? subject;
 
   @override
   ConsumerState<TeacherStudentGradeDetailScreen> createState() =>
@@ -89,7 +94,11 @@ class _TeacherStudentGradeDetailScreenState
       for (final r in full) {
         final match = r.grades.where((g) => g.studentId == widget.student.studentId).firstOrNull;
         final subject = r.assessment.subject.isNotEmpty ? r.assessment.subject : r.assessment.title;
-        // Only show assessments for subjects this student is enrolled in.
+        // When opened from a subject, show ONLY that subject's grades.
+        if (widget.subject != null && widget.subject!.isNotEmpty && subject != widget.subject) {
+          continue;
+        }
+        // Otherwise only show assessments for subjects this student is enrolled in.
         if (widget.student.subjects.isNotEmpty && !widget.student.subjects.contains(subject)) {
           continue;
         }
@@ -511,7 +520,7 @@ class _GradeRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           SizedBox(
-            width: 90,
+            width: 108,
             child: TextField(
               controller: entry.controller,
               keyboardType: TextInputType.number,
@@ -527,6 +536,25 @@ class _GradeRow extends StatelessWidget {
                     color: cs.onSurfaceVariant, fontSize: 14),
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: 8, vertical: 10),
+                // In-field X clears just the number (does NOT delete the grade).
+                suffixIcon: entry.controller.text.trim().isEmpty
+                    ? null
+                    : IconButton(
+                        icon: Icon(Icons.close_rounded,
+                            size: 16, color: cs.onSurfaceVariant),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        constraints:
+                            const BoxConstraints(minWidth: 26, minHeight: 26),
+                        tooltip: MaterialLocalizations.of(context)
+                            .deleteButtonTooltip,
+                        onPressed: () {
+                          entry.controller.clear();
+                          onChanged();
+                        },
+                      ),
+                suffixIconConstraints:
+                    const BoxConstraints(minWidth: 26, minHeight: 26),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12)),
                 enabledBorder: OutlineInputBorder(

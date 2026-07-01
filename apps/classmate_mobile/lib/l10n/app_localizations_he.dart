@@ -10269,4 +10269,29 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get gradesAveragesNoWeighted =>
       'אין ציונים עם משקל בסמסטר זה. הוסף אחד או קבע אחוז על ציון.';
+
+  @override
+  String get gradesAvgPickTitle => 'Add a grade to the average';
+
+  @override
+  String gradesAvgPickSubtitle(String subject) {
+    return 'Pick a published grade in $subject, then set its weight, semester and format.';
+  }
+
+  @override
+  String get gradesAvgFilterAll => 'All';
+
+  @override
+  String gradesAvgFilterCohort(String name) {
+    return 'Cohort — $name';
+  }
+
+  @override
+  String get gradesAvgSearchHint => 'Search grades';
+
+  @override
+  String get gradesAvgNoResults => 'No matching grades in this subject.';
+
+  @override
+  String get gradesAvgInAverage => 'In average';
 }

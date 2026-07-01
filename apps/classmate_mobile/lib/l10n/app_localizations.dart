@@ -17924,6 +17924,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No grades with a weight in this semester. Add one or set a % on a grade.'**
   String get gradesAveragesNoWeighted;
+
+  /// No description provided for @gradesAvgPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a grade to the average'**
+  String get gradesAvgPickTitle;
+
+  /// No description provided for @gradesAvgPickSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a published grade in {subject}, then set its weight, semester and format.'**
+  String gradesAvgPickSubtitle(String subject);
+
+  /// No description provided for @gradesAvgFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get gradesAvgFilterAll;
+
+  /// No description provided for @gradesAvgFilterCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort — {name}'**
+  String gradesAvgFilterCohort(String name);
+
+  /// No description provided for @gradesAvgSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search grades'**
+  String get gradesAvgSearchHint;
+
+  /// No description provided for @gradesAvgNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching grades in this subject.'**
+  String get gradesAvgNoResults;
+
+  /// No description provided for @gradesAvgInAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'In average'**
+  String get gradesAvgInAverage;
 }
 
 class _AppLocalizationsDelegate

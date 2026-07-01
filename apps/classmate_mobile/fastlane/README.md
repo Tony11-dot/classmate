@@ -68,6 +68,14 @@ Distribute via Firebase App Distribution (beta)
 
 Build AAB and upload to Play Console INTERNAL testing track
 
+### android closed
+
+```sh
+[bundle exec] fastlane android closed
+```
+
+Build AAB and upload to Play Console CLOSED testing track (alpha)
+
 ### android production
 
 ```sh

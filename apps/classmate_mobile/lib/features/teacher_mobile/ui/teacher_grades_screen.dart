@@ -389,7 +389,10 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                       onTap: () async {
                         await Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute<void>(
-                            builder: (_) => TeacherStudentGradeDetailScreen(student: gs.student),
+                            builder: (_) => TeacherStudentGradeDetailScreen(
+                              student: gs.student,
+                              subject: g.subject,
+                            ),
                           ),
                         );
                       },
@@ -563,13 +566,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
         ),
         const SizedBox(height: 14),
         FilledButton.icon(
-          onPressed: () async {
-            await context.push('/teacher/grades/add', extra: <String, dynamic>{
-              'studentIds': g.students.map((s) => s.student.studentId).toList(),
-              'subject': g.subject,
-            });
-            if (mounted) Navigator.of(context).maybePop();
-          },
+          onPressed: () => _addToAverage(g),
           icon: const Icon(Icons.add),
           label: Text(l.adminScheduleAddGrade),
         ),
@@ -635,6 +632,230 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
     if (changed == true && mounted) {
       Navigator.of(context).maybePop(); // back to hub, which reloads
     }
+  }
+
+  /// Averages flow: instead of creating a grade on the spot, pick an existing
+  /// published grade in this subject (filterable by student / grade / cohort),
+  /// then set its weight %, semester and multi-format on the edit sheet — which
+  /// is what makes it count toward (and be stored in) the average.
+  Future<void> _addToAverage(_SubjectGroup g) async {
+    final picked = await showModalBottomSheet<TeacherAssessment>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (_) => _AddToAverageSheet(group: g),
+    );
+    if (picked == null || !mounted) return;
+    await _editAssessment(picked);
+  }
+}
+
+// ── Pick an existing grade to add to the average ──────────────────────────────
+
+class _AddToAverageSheet extends ConsumerStatefulWidget {
+  const _AddToAverageSheet({required this.group});
+  final _SubjectGroup group;
+
+  @override
+  ConsumerState<_AddToAverageSheet> createState() => _AddToAverageSheetState();
+}
+
+class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
+  final _searchCtrl = TextEditingController();
+  // 'all' | 'grade:<n>' | 'cohort:<id>' | 'student:<id>'
+  String _filter = 'all';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  bool _weighted(TeacherAssessment a) =>
+      a.weightPercents.isNotEmpty || a.weightPercent != null;
+
+  bool _matchesFilter(TeacherAssessment a) {
+    // An assessment with no cohort is visible to any audience → always shown.
+    final noCohort = a.cohortId.isEmpty;
+    if (_filter == 'all') return true;
+    if (_filter.startsWith('cohort:')) {
+      return noCohort || a.cohortId == _filter.substring(7);
+    }
+    if (_filter.startsWith('grade:')) {
+      final n = int.tryParse(_filter.substring(6));
+      final ids = widget.group.students
+          .where((s) => s.student.gradeLevel == n)
+          .map((s) => s.student.cohortId)
+          .where((c) => c.isNotEmpty)
+          .toSet();
+      return noCohort || ids.contains(a.cohortId);
+    }
+    if (_filter.startsWith('student:')) {
+      final sid = _filter.substring(8);
+      final cid = widget.group.students
+              .where((s) => s.student.studentId == sid)
+              .map((s) => s.student.cohortId)
+              .firstWhere((_) => true, orElse: () => '');
+      return noCohort || (cid.isNotEmpty && a.cohortId == cid);
+    }
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final g = widget.group;
+
+    // Distinct cohorts and grades present among the graded students.
+    final cohortNames = <String, String>{}; // id → name
+    final grades = <int>{};
+    for (final s in g.students) {
+      if (s.student.cohortId.isNotEmpty) {
+        cohortNames[s.student.cohortId] =
+            s.student.cohortName.isNotEmpty ? s.student.cohortName : s.student.cohortId;
+      }
+      if (s.student.gradeLevel != null) grades.add(s.student.gradeLevel!);
+    }
+    final sortedGrades = grades.toList()..sort();
+    final students = [...g.students]
+      ..sort((a, b) => a.student.name.compareTo(b.student.name));
+
+    final query = _searchCtrl.text.trim().toLowerCase();
+    final results = g.assessments
+        .where(_matchesFilter)
+        .where((a) => query.isEmpty || a.title.toLowerCase().contains(query))
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    Widget chip(String id, String label) => Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: ChoiceChip(
+            label: Text(label),
+            selected: _filter == id,
+            onSelected: (_) => setState(() => _filter = id),
+          ),
+        );
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(22)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.gradesAvgPickTitle,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text(l.gradesAvgPickSubtitle(g.subject),
+                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded),
+                hintText: l.gradesAvgSearchHint,
+                isDense: true,
+                border: const OutlineInputBorder(),
+                suffixIcon: _searchCtrl.text.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => _searchCtrl.clear(),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // ── Filters: All / by grade / by cohort / by student ──────────
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: [
+                chip('all', l.gradesAvgFilterAll),
+                for (final n in sortedGrades)
+                  chip('grade:$n', l.adminCohortGradeFormat('$n')),
+                for (final e in cohortNames.entries)
+                  chip('cohort:${e.key}', l.gradesAvgFilterCohort(e.value)),
+                for (final s in students)
+                  chip('student:${s.student.studentId}', s.student.name),
+              ]),
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              child: results.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 30),
+                      child: Center(
+                        child: Text(l.gradesAvgNoResults,
+                            style: TextStyle(color: cs.onSurfaceVariant)),
+                      ),
+                    )
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: results.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (_, i) {
+                        final a = results[i];
+                        return InkWell(
+                          onTap: () => Navigator.of(context).pop(a),
+                          borderRadius: BorderRadius.circular(14),
+                          child: LiquidGlassCard(
+                            borderRadius: BorderRadius.circular(14),
+                            color: cs.surfaceContainerLow,
+                            border: Border.all(color: cs.outlineVariant),
+                            child: Row(children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(a.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.titleSmall
+                                            ?.copyWith(fontWeight: FontWeight.w700)),
+                                    const SizedBox(height: 2),
+                                    Text(FriendlyDate.date(a.date),
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(color: cs.onSurfaceVariant)),
+                                  ],
+                                ),
+                              ),
+                              if (_weighted(a))
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: cs.primaryContainer,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(l.gradesAvgInAverage,
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                          color: cs.onPrimaryContainer,
+                                          fontWeight: FontWeight.w700)),
+                                )
+                              else
+                                Icon(Icons.add_circle_outline_rounded,
+                                    size: 20, color: cs.primary),
+                            ]),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

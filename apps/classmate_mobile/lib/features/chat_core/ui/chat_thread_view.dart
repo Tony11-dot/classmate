@@ -604,81 +604,107 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   // ─── info sheet ──────────────────────────────────────────────────────────
 
+  /// Fetches the live per-participant read/delivered state for a DM message.
+  /// Recomputed from each participant's `lastSeenAt` vs the message time, so it
+  /// stays accurate as people open the thread. Returns null for non-DM threads.
+  Future<_ReadState?> _fetchReadState(ChatMessage message) async {
+    if (widget.controller.threadType != ChatThreadType.direct) return null;
+    final seenBy = <MessageReadParticipant>[];
+    final deliveredTo = <MessageReadParticipant>[];
+    final pendingFor = <MessageReadParticipant>[];
+    DateTime? latestSeen;
+    DateTime? latestDelivered;
+    try {
+      final repo = ref.read(messagesRepositoryProvider) as ApiMessagesRepository;
+      final raw = await repo.fetchThreadInfo(threadId: widget.controller.threadId);
+      final threadMap = raw['thread'] is Map
+          ? Map<String, dynamic>.from(raw['thread'] as Map)
+          : <String, dynamic>{};
+      final members = threadMap['members'] is List
+          ? (threadMap['members'] as List)
+              .map((m) => Map<String, dynamic>.from(m is Map ? m : {}))
+              .toList()
+          : <Map<String, dynamic>>[];
+
+      for (final m in members) {
+        final userId = (m['userId'] ?? '').toString();
+        if (userId == widget.controller.currentUserId) continue;
+        final name = (m['name'] ?? '').toString();
+        final lastSeenRaw = (m['lastSeenAt'] ?? '').toString().trim();
+        final lastSeenDt =
+            lastSeenRaw.isEmpty ? null : DateTime.tryParse(lastSeenRaw)?.toLocal();
+        if (lastSeenDt == null) {
+          pendingFor.add(MessageReadParticipant(name: name));
+          continue;
+        }
+        final timeLabel = _formatTime(lastSeenDt);
+        if (!lastSeenDt.isBefore(message.createdAt)) {
+          seenBy.add(MessageReadParticipant(name: name, time: timeLabel));
+          if (latestSeen == null || lastSeenDt.isAfter(latestSeen)) {
+            latestSeen = lastSeenDt;
+          }
+        } else {
+          deliveredTo.add(MessageReadParticipant(name: name, time: timeLabel));
+          if (latestDelivered == null || lastSeenDt.isAfter(latestDelivered)) {
+            latestDelivered = lastSeenDt;
+          }
+        }
+      }
+    } catch (_) {
+      return null;
+    }
+
+    // For the whole message: "seen" only when nobody is still pending/delivered,
+    // "delivered" once everyone has at least opened the thread.
+    final seen = pendingFor.isEmpty && deliveredTo.isEmpty && seenBy.isNotEmpty;
+    final delivered =
+        pendingFor.isEmpty && (seenBy.isNotEmpty || deliveredTo.isNotEmpty);
+    return (
+      seenBy: seenBy,
+      deliveredTo: deliveredTo,
+      pendingFor: pendingFor,
+      seen: seen,
+      delivered: delivered,
+      seenAt: latestSeen == null ? '' : _formatTime(latestSeen),
+      deliveredAt: latestDelivered == null ? '' : _formatTime(latestDelivered),
+    );
+  }
+
   Future<void> _openInfoPage(ChatMessage message) async {
     String fmtDt(DateTime? dt) => dt == null ? '' : _formatTime(dt);
 
-    // For DM threads, fetch per-participant seen/delivered state.
-    List<MessageReadParticipant> seenBy = [];
-    List<MessageReadParticipant> deliveredTo = [];
-    List<MessageReadParticipant> pendingFor = [];
+    final baseInfo = ChatMessageInfo(
+      title: message.senderName,
+      isMine: message.isOwn,
+      sentAt: _formatTime(message.createdAt),
+      deliveredAt: fmtDt(message.deliveredAt),
+      seenAt: fmtDt(message.seenAt),
+      delivered: message.delivered,
+      seen: message.seen,
+      messageType: _kindToString(message.kind),
+      voiceDuration: message.voiceDurationSeconds != null
+          ? '${message.voiceDurationSeconds}s'
+          : '',
+      edited: message.editedAt != null,
+      forwarded: message.forwarded,
+      deleteState: message.deletedForEveryone
+          ? 'DELETED_FOR_EVERYONE'
+          : message.deletedForMe
+              ? 'DELETED_FOR_ME'
+              : 'VISIBLE',
+    );
 
-    if (widget.controller.threadType == ChatThreadType.direct) {
-      try {
-        final repo = ref.read(messagesRepositoryProvider) as ApiMessagesRepository;
-        final raw = await repo.fetchThreadInfo(
-            threadId: widget.controller.threadId);
-        final threadMap = raw['thread'] is Map
-            ? Map<String, dynamic>.from(raw['thread'] as Map)
-            : <String, dynamic>{};
-        final members = threadMap['members'] is List
-            ? (threadMap['members'] as List)
-                .map((m) => Map<String, dynamic>.from(m is Map ? m : {}))
-                .toList()
-            : <Map<String, dynamic>>[];
-
-        for (final m in members) {
-          final userId = (m['userId'] ?? '').toString();
-          if (userId == widget.controller.currentUserId) continue;
-          final name = (m['name'] ?? '').toString();
-          final lastSeenRaw = (m['lastSeenAt'] ?? '').toString().trim();
-          if (lastSeenRaw.isEmpty) {
-            pendingFor.add(MessageReadParticipant(name: name));
-            continue;
-          }
-          final lastSeenDt = DateTime.tryParse(lastSeenRaw)?.toLocal();
-          if (lastSeenDt == null) {
-            pendingFor.add(MessageReadParticipant(name: name));
-            continue;
-          }
-          final timeLabel = _formatTime(lastSeenDt);
-          if (!lastSeenDt.isBefore(message.createdAt)) {
-            seenBy.add(MessageReadParticipant(name: name, time: timeLabel));
-          } else {
-            deliveredTo
-                .add(MessageReadParticipant(name: name, time: timeLabel));
-          }
-        }
-      } catch (_) {}
-    }
-
+    // First fetch before opening so the page paints with fresh state.
+    final initial = await _fetchReadState(message);
     if (!mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => ChatMessageInfoPage(
-          info: ChatMessageInfo(
-            title: message.senderName,
-            isMine: message.isOwn,
-            sentAt: _formatTime(message.createdAt),
-            deliveredAt: fmtDt(message.deliveredAt),
-            seenAt: fmtDt(message.seenAt),
-            delivered: message.delivered,
-            seen: message.seen,
-            messageType: _kindToString(message.kind),
-            voiceDuration: message.voiceDurationSeconds != null
-                ? '${message.voiceDurationSeconds}s'
-                : '',
-            edited: message.editedAt != null,
-            forwarded: message.forwarded,
-            deleteState: message.deletedForEveryone
-                ? 'DELETED_FOR_EVERYONE'
-                : message.deletedForMe
-                    ? 'DELETED_FOR_ME'
-                    : 'VISIBLE',
-          ),
+        builder: (_) => _LiveMessageInfoPage(
+          threadId: widget.controller.threadId,
+          baseInfo: baseInfo,
+          initial: initial,
+          fetch: () => _fetchReadState(message),
           previewBubbleBuilder: (ctx) => _buildBubble(message, showName: true),
-          seenBy: seenBy,
-          deliveredTo: deliveredTo,
-          pendingFor: pendingFor,
         ),
       ),
     );
@@ -2125,4 +2151,102 @@ class _ChatDoodlePainter extends CustomPainter {
   @override
   bool shouldRepaint(_ChatDoodlePainter oldDelegate) =>
       oldDelegate.color != color;
+}
+
+/// Live per-participant read/delivered state for the message-info page.
+typedef _ReadState = ({
+  List<MessageReadParticipant> seenBy,
+  List<MessageReadParticipant> deliveredTo,
+  List<MessageReadParticipant> pendingFor,
+  bool seen,
+  bool delivered,
+  String seenAt,
+  String deliveredAt,
+});
+
+/// Wraps [ChatMessageInfoPage] and keeps its Seen/Delivered state live: it
+/// re-fetches whenever a realtime read/message event arrives for this thread,
+/// so the WhatsApp-style "Read by" list updates in real time and stays accurate.
+class _LiveMessageInfoPage extends ConsumerStatefulWidget {
+  const _LiveMessageInfoPage({
+    required this.threadId,
+    required this.baseInfo,
+    required this.initial,
+    required this.fetch,
+    required this.previewBubbleBuilder,
+  });
+
+  final String threadId;
+  final ChatMessageInfo baseInfo;
+  final _ReadState? initial;
+  final Future<_ReadState?> Function() fetch;
+  final WidgetBuilder previewBubbleBuilder;
+
+  @override
+  ConsumerState<_LiveMessageInfoPage> createState() =>
+      _LiveMessageInfoPageState();
+}
+
+class _LiveMessageInfoPageState extends ConsumerState<_LiveMessageInfoPage> {
+  _ReadState? _state;
+  bool _refreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _state = widget.initial;
+  }
+
+  Future<void> _refresh() async {
+    if (_refreshing) return;
+    _refreshing = true;
+    try {
+      final s = await widget.fetch();
+      if (mounted && s != null) setState(() => _state = s);
+    } finally {
+      _refreshing = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // React to realtime read receipts / new messages for THIS thread. A read
+    // receipt (`dm_read`) is emitted by the server when the other side opens the
+    // thread, so an open info page flips Delivered → Seen without a manual refresh.
+    ref.listen<RealtimeEvent?>(realtimeEventProvider, (prev, next) {
+      if (next == null) return;
+      final t = next.type;
+      final matches = t == 'poll' ||
+          ((t == 'dm_read' || t == 'dm_message') && next.threadId == widget.threadId);
+      if (matches) _refresh();
+    });
+
+    final s = _state;
+    final info = s == null
+        ? widget.baseInfo
+        : ChatMessageInfo(
+            title: widget.baseInfo.title,
+            isMine: widget.baseInfo.isMine,
+            sentAt: widget.baseInfo.sentAt,
+            deliveredAt: s.deliveredAt.isNotEmpty
+                ? s.deliveredAt
+                : widget.baseInfo.deliveredAt,
+            seenAt: s.seenAt.isNotEmpty ? s.seenAt : widget.baseInfo.seenAt,
+            delivered: s.delivered || widget.baseInfo.delivered,
+            seen: s.seen,
+            messageType: widget.baseInfo.messageType,
+            voiceDuration: widget.baseInfo.voiceDuration,
+            edited: widget.baseInfo.edited,
+            forwarded: widget.baseInfo.forwarded,
+            deleteState: widget.baseInfo.deleteState,
+          );
+
+    return ChatMessageInfoPage(
+      info: info,
+      previewBubbleBuilder: widget.previewBubbleBuilder,
+      seenBy: s?.seenBy ?? const <MessageReadParticipant>[],
+      deliveredTo: s?.deliveredTo ?? const <MessageReadParticipant>[],
+      pendingFor: s?.pendingFor ?? const <MessageReadParticipant>[],
+    );
+  }
 }

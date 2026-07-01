@@ -386,14 +386,20 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     final filledCount = _rows.where((r) => r.name.text.trim().isNotEmpty).length;
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 760;
+      // Toolbar (paste button etc.) + header scroll together with the rows —
+      // nothing is pinned/sticky at the top.
+      final headerCount = wide ? 2 : 1;
       return Column(children: [
-        _toolbar(context, wide),
-        if (wide) _gridHeader(cs),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.fromLTRB(wide ? 16 : 12, 8, wide ? 16 : 12, 12),
-            itemCount: _rows.length,
-            itemBuilder: (context, i) => wide ? _rowWide(i, cs) : _rowCard(i, cs),
+            itemCount: _rows.length + headerCount,
+            itemBuilder: (context, i) {
+              if (i == 0) return _toolbar(context, wide);
+              if (wide && i == 1) return _gridHeader(cs);
+              final idx = i - headerCount;
+              return wide ? _rowWide(idx, cs) : _rowCard(idx, cs);
+            },
           ),
         ),
         SafeArea(
@@ -432,7 +438,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     final cs = Theme.of(context).colorScheme;
     final grades = ref.watch(authSessionProvider).schoolGrades;
     return Padding(
-      padding: EdgeInsets.fromLTRB(wide ? 16 : 12, 10, wide ? 16 : 12, 2),
+      padding: const EdgeInsets.fromLTRB(0, 2, 0, 4),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(l.adminImportUsersScreenGridIntro, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5)),
         const SizedBox(height: 8),
@@ -486,7 +492,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     Widget h(String t, int flex) => Expanded(flex: flex, child: Text(t.toUpperCase(),
         style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4)));
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Row(children: [
         SizedBox(width: 150, child: Text(l.adminImportUsersScreenRole.toUpperCase(),
             style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4))),

@@ -5470,5 +5470,26 @@
         "type": "int"
       }
     }
-  }
+  },
+  "gradesAvgPickTitle": "Add a grade to the average",
+  "gradesAvgPickSubtitle": "Pick a published grade in {subject}, then set its weight, semester and format.",
+  "@gradesAvgPickSubtitle": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "gradesAvgFilterAll": "All",
+  "gradesAvgFilterCohort": "Cohort — {name}",
+  "@gradesAvgFilterCohort": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gradesAvgSearchHint": "Search grades",
+  "gradesAvgNoResults": "No matching grades in this subject.",
+  "gradesAvgInAverage": "In average"
 }

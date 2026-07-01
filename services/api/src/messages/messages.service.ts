@@ -1841,6 +1841,21 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
     });
 
+    // Push a real-time read receipt to the other participants so an open
+    // "message info" screen updates its Seen/Delivered state live.
+    try {
+      const others = await this.prisma.dmParticipant.findMany({
+        where: { threadId, userId: { not: userId } },
+        select: { userId: true },
+      });
+      const peerIds = others.map((p) => p.userId);
+      if (peerIds.length > 0) {
+        this.realtime.emitToUsers(peerIds, { type: 'dm_read', threadId });
+      }
+    } catch {
+      // Read receipts are best-effort; never fail the mark-read call.
+    }
+
     return { ok: true };
   }
 
