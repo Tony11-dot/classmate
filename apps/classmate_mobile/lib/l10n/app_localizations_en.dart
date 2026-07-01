@@ -10352,4 +10352,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get certRoundWholeHint =>
       'Below .5 rounds down, .5 and up rounds up. Turn off to show two decimals.';
+
+  @override
+  String get teacherAddGradeSubjectRequired =>
+      'Please choose a subject for this grade.';
+
+  @override
+  String get gradesSubjectAveragesTab => 'Averages';
+
+  @override
+  String get gradesAveragesSummaryTitle => 'Semester average';
+
+  @override
+  String gradesAveragesSummaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weighted grades',
+      one: '1 weighted grade',
+      zero: 'No weighted grades yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesAveragesTotalWeight => 'Total weight';
+
+  @override
+  String get gradesAveragesNoWeighted =>
+      'No grades with a weight in this semester. Add one or set a % on a grade.';
 }

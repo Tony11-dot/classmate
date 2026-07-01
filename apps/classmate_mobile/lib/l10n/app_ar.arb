@@ -3749,5 +3749,11 @@
   "certTypeAnnual": "سنوية",
   "certTypeSemester": "نهاية {sem}",
   "certRoundWhole": "تقريب إلى عدد صحيح",
-  "certRoundWholeHint": "أقل من ٠٫٥ إلى الأسفل، ٠٫٥ فأكثر إلى الأعلى. أوقفه لعرض رقمين عشريين."
+  "certRoundWholeHint": "أقل من ٠٫٥ إلى الأسفل، ٠٫٥ فأكثر إلى الأعلى. أوقفه لعرض رقمين عشريين.",
+  "teacherAddGradeSubjectRequired": "يرجى اختيار مادة لهذه العلامة.",
+  "gradesSubjectAveragesTab": "المعدلات",
+  "gradesAveragesSummaryTitle": "معدل الفصل",
+  "gradesAveragesSummaryCount": "{count, plural, =0{لا توجد علامات موزونة بعد} =1{علامة موزونة واحدة} other{{count} علامات موزونة}}",
+  "gradesAveragesTotalWeight": "مجموع الوزن",
+  "gradesAveragesNoWeighted": "لا توجد علامات لها وزن في هذا الفصل. أضف واحدة أو حدّد نسبة على علامة."
 }

@@ -10299,4 +10299,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get certRoundWholeHint =>
       'أقل من ٠٫٥ إلى الأسفل، ٠٫٥ فأكثر إلى الأعلى. أوقفه لعرض رقمين عشريين.';
+
+  @override
+  String get teacherAddGradeSubjectRequired => 'يرجى اختيار مادة لهذه العلامة.';
+
+  @override
+  String get gradesSubjectAveragesTab => 'المعدلات';
+
+  @override
+  String get gradesAveragesSummaryTitle => 'معدل الفصل';
+
+  @override
+  String gradesAveragesSummaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count علامات موزونة',
+      one: 'علامة موزونة واحدة',
+      zero: 'لا توجد علامات موزونة بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesAveragesTotalWeight => 'مجموع الوزن';
+
+  @override
+  String get gradesAveragesNoWeighted =>
+      'لا توجد علامات لها وزن في هذا الفصل. أضف واحدة أو حدّد نسبة على علامة.';
 }

@@ -10347,4 +10347,33 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get certRoundWholeHint =>
       'Меньше .5 — вниз, .5 и больше — вверх. Выключите для двух знаков после запятой.';
+
+  @override
+  String get teacherAddGradeSubjectRequired =>
+      'Пожалуйста, выберите предмет для этой оценки.';
+
+  @override
+  String get gradesSubjectAveragesTab => 'Средние';
+
+  @override
+  String get gradesAveragesSummaryTitle => 'Средний балл за семестр';
+
+  @override
+  String gradesAveragesSummaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count взвешенных оценок',
+      one: '1 взвешенная оценка',
+      zero: 'Пока нет взвешенных оценок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesAveragesTotalWeight => 'Суммарный вес';
+
+  @override
+  String get gradesAveragesNoWeighted =>
+      'Нет оценок с весом в этом семестре. Добавьте оценку или задайте %.';
 }

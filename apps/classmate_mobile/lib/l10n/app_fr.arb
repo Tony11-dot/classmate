@@ -3749,5 +3749,11 @@
   "certTypeAnnual": "Annuel",
   "certTypeSemester": "Fin du {sem}",
   "certRoundWhole": "Arrondir au nombre entier",
-  "certRoundWholeHint": "En dessous de ,5 arrondi au plus bas ; ,5 et plus au plus haut. Désactivez pour deux décimales."
+  "certRoundWholeHint": "En dessous de ,5 arrondi au plus bas ; ,5 et plus au plus haut. Désactivez pour deux décimales.",
+  "teacherAddGradeSubjectRequired": "Veuillez choisir une matière pour cette note.",
+  "gradesSubjectAveragesTab": "Moyennes",
+  "gradesAveragesSummaryTitle": "Moyenne du semestre",
+  "gradesAveragesSummaryCount": "{count, plural, =0{Aucune note pondérée} =1{1 note pondérée} other{{count} notes pondérées}}",
+  "gradesAveragesTotalWeight": "Poids total",
+  "gradesAveragesNoWeighted": "Aucune note pondérée dans ce semestre. Ajoutez-en une ou définissez un %."
 }

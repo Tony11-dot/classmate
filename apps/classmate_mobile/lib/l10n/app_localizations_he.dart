@@ -10241,4 +10241,32 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get certRoundWholeHint =>
       'מתחת ל־.5 מעוגל למטה, .5 ומעלה מעוגל למעלה. כבה כדי להציג שתי ספרות עשרוניות.';
+
+  @override
+  String get teacherAddGradeSubjectRequired => 'נא לבחור מקצוע לציון זה.';
+
+  @override
+  String get gradesSubjectAveragesTab => 'ממוצעים';
+
+  @override
+  String get gradesAveragesSummaryTitle => 'ממוצע סמסטר';
+
+  @override
+  String gradesAveragesSummaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ציונים משוקללים',
+      one: 'ציון משוקלל אחד',
+      zero: 'אין עדיין ציונים משוקללים',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesAveragesTotalWeight => 'משקל כולל';
+
+  @override
+  String get gradesAveragesNoWeighted =>
+      'אין ציונים עם משקל בסמסטר זה. הוסף אחד או קבע אחוז על ציון.';
 }

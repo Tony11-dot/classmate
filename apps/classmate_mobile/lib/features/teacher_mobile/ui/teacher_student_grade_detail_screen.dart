@@ -81,49 +81,24 @@ class _TeacherStudentGradeDetailScreenState
     });
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
-      final bundle = await repo.fetchAssessments();
-
-      final courseById = <String, TeacherCourse>{
-        for (final c in bundle.courses) c.id: c,
-      };
-
-      // Fetch grades for all published assessments in parallel.
-      final results = await Future.wait(
-        bundle.assessments
-            .where((a) => a.published)
-            .map((a) async {
-              try {
-                final grades = await repo.fetchAssessmentGrades(a.id);
-                final match = grades
-                    .where((g) => g.studentId == widget.student.studentId)
-                    .firstOrNull;
-                return (assessment: a, grade: match?.grade, gradeTime: match?.updatedAt);
-              } catch (_) {
-                return null;
-              }
-            }),
-      );
+      // ONE atomic call (all assessments + their grades) — no per-assessment
+      // fetch loop, so a transient failure can't silently drop entries.
+      final full = await repo.fetchGradesFull();
 
       final entries = <_GradeEntry>[];
-      for (final r in results) {
-        if (r == null) continue;
-        final course = courseById[r.assessment.courseId];
-        // Prefer the assessment's real subject (the backend sends it); only
-        // fall back to a course lookup or the title for legacy rows.
-        final subject = r.assessment.subject.isNotEmpty
-            ? r.assessment.subject
-            : (course?.subject ?? r.assessment.title);
+      for (final r in full) {
+        final match = r.grades.where((g) => g.studentId == widget.student.studentId).firstOrNull;
+        final subject = r.assessment.subject.isNotEmpty ? r.assessment.subject : r.assessment.title;
         // Only show assessments for subjects this student is enrolled in.
-        if (widget.student.subjects.isNotEmpty &&
-            !widget.student.subjects.contains(subject)) {
+        if (widget.student.subjects.isNotEmpty && !widget.student.subjects.contains(subject)) {
           continue;
         }
         entries.add(
           _GradeEntry(
             assessment: r.assessment,
             subject: subject,
-            grade: r.grade,
-            gradeTime: r.gradeTime,
+            grade: match?.grade,
+            gradeTime: match?.updatedAt,
           ),
         );
       }

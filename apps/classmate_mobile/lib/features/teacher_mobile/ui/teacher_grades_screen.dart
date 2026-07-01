@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/semester/school_semester.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -78,35 +79,21 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     });
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
+      // Two ATOMIC calls in parallel — each either loads fully or throws, so a
+      // transient failure never yields partial data (no vanishing subjects).
       final results = await Future.wait<dynamic>([
         repo.fetchAllStudents(),
-        repo.fetchAssessments(),
+        repo.fetchGradesFull(),
       ]);
       final allStudents = results[0] as List<TeacherStudentWithLevel>;
-      final bundle = results[1] as TeacherAssessmentBundle;
+      final full = results[1] as List<({TeacherAssessment assessment, List<TeacherAssessmentGrade> grades})>;
       final studentById = {for (final s in allStudents) s.studentId: s};
-      final courseById = {for (final c in bundle.courses) c.id: c};
-
-      final published = bundle.assessments.where((a) => a.published).toList();
-      final gradeResults = await Future.wait(
-        published.map((a) async {
-          try {
-            return (assessment: a, grades: await repo.fetchAssessmentGrades(a.id));
-          } catch (_) {
-            return null;
-          }
-        }),
-      );
 
       // subject → studentId → list of grades, and subject → assessments
       final bySubject = <String, Map<String, List<int>>>{};
       final bySubjectAssessments = <String, List<TeacherAssessment>>{};
-      for (final r in gradeResults) {
-        if (r == null) continue;
-        final course = courseById[r.assessment.courseId];
-        final subject = r.assessment.subject.isNotEmpty
-            ? r.assessment.subject
-            : (course?.subject ?? r.assessment.title);
+      for (final r in full) {
+        final subject = r.assessment.subject.isNotEmpty ? r.assessment.subject : r.assessment.title;
         bySubjectAssessments.putIfAbsent(subject, () => []).add(r.assessment);
         for (final g in r.grades) {
           final val = g.grade;
@@ -346,6 +333,8 @@ class _SubjectGradesScreen extends ConsumerStatefulWidget {
 }
 
 class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
+  int _avgSem = 1;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -354,7 +343,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
     final g = widget.group;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: cs.surface,
         appBar: AppBar(
@@ -367,9 +356,12 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
           ),
           title: Text(g.subject, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
           bottom: TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
               Tab(text: l.gradesSubjectStudentsTab),
               Tab(text: l.gradesSubjectGradesTab),
+              Tab(text: l.gradesSubjectAveragesTab),
             ],
           ),
         ),
@@ -490,9 +482,137 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                     ),
               ],
             ),
+            // ── Averages by semester ──────────────────────────────────────
+            _buildAveragesTab(context, l, cs, theme, g),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAveragesTab(BuildContext context, AppLocalizations l, ColorScheme cs, ThemeData theme, _SubjectGroup g) {
+    final rawSem = ref.read(authSessionProvider).schoolSemesters;
+    final count = schoolSemesterCount(rawSem);
+    final sems = parseSchoolSemesters(rawSem);
+    int? semOf(TeacherAssessment a) =>
+        a.semester ?? semesterOfDate(sems, DateTime.tryParse(a.date) ?? DateTime.now());
+
+    final weighted = g.assessments
+        .where((a) => a.weightPercents.isNotEmpty || a.weightPercent != null)
+        .where((a) => semOf(a) == _avgSem)
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    // Weighting summary for the selected semester.
+    final formatCount = weighted.fold<int>(0, (m, a) {
+      final w = a.weightPercents.isNotEmpty ? a.weightPercents.length : (a.weightPercent != null ? 1 : 0);
+      return w > m ? w : m;
+    });
+    final totals = <int>[
+      for (int f = 0; f < (formatCount == 0 ? 1 : formatCount); f++)
+        weighted.fold<int>(0, (s, a) {
+          final ws = a.weightPercents.isNotEmpty ? a.weightPercents : (a.weightPercent != null ? [a.weightPercent!] : <int>[]);
+          if (ws.isEmpty) return s;
+          return s + (f < ws.length ? ws[f] : ws.last);
+        }),
+    ];
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+      children: [
+        // Semester selector
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (int i = 1; i <= count; i++)
+              ChoiceChip(
+                label: Text(l.adminSchoolSemesterN('$i')),
+                selected: _avgSem == i,
+                onSelected: (_) => setState(() => _avgSem = i),
+              ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        // Summary of the weighting for this semester.
+        LiquidGlassCard(
+          borderRadius: BorderRadius.circular(16),
+          color: cs.primaryContainer,
+          border: Border.all(color: cs.outlineVariant),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l.gradesAveragesSummaryTitle,
+                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onPrimaryContainer)),
+              const SizedBox(height: 6),
+              Text(l.gradesAveragesSummaryCount(weighted.length),
+                  style: theme.textTheme.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+              const SizedBox(height: 4),
+              for (int f = 0; f < totals.length; f++)
+                Text(
+                  totals.length > 1
+                      ? '${l.gradeFormatN('${f + 1}')}: ${totals[f]}%'
+                      : '${l.gradesAveragesTotalWeight}: ${totals[f]}%',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: totals[f] == 100 ? cs.onPrimaryContainer : cs.error,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        FilledButton.icon(
+          onPressed: () async {
+            await context.push('/teacher/grades/add', extra: <String, dynamic>{
+              'studentIds': g.students.map((s) => s.student.studentId).toList(),
+              'subject': g.subject,
+            });
+            if (mounted) Navigator.of(context).maybePop();
+          },
+          icon: const Icon(Icons.add),
+          label: Text(l.adminScheduleAddGrade),
+        ),
+        const SizedBox(height: 8),
+        if (weighted.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: Center(child: Text(l.gradesAveragesNoWeighted, style: TextStyle(color: cs.onSurfaceVariant))),
+          )
+        else
+          for (final a in weighted)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: InkWell(
+                onTap: () => _editAssessment(a),
+                borderRadius: BorderRadius.circular(16),
+                child: LiquidGlassCard(
+                  borderRadius: BorderRadius.circular(16),
+                  color: cs.surfaceContainerLow,
+                  border: Border.all(color: cs.outlineVariant),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(a.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 2),
+                            Text(_assessmentSubtitle(l, a),
+                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.tune_rounded, size: 18, color: cs.primary),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      ],
     );
   }
 

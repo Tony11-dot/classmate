@@ -17888,6 +17888,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Below .5 rounds down, .5 and up rounds up. Turn off to show two decimals.'**
   String get certRoundWholeHint;
+
+  /// No description provided for @teacherAddGradeSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a subject for this grade.'**
+  String get teacherAddGradeSubjectRequired;
+
+  /// No description provided for @gradesSubjectAveragesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages'**
+  String get gradesSubjectAveragesTab;
+
+  /// No description provided for @gradesAveragesSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester average'**
+  String get gradesAveragesSummaryTitle;
+
+  /// No description provided for @gradesAveragesSummaryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No weighted grades yet} =1{1 weighted grade} other{{count} weighted grades}}'**
+  String gradesAveragesSummaryCount(int count);
+
+  /// No description provided for @gradesAveragesTotalWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Total weight'**
+  String get gradesAveragesTotalWeight;
+
+  /// No description provided for @gradesAveragesNoWeighted.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades with a weight in this semester. Add one or set a % on a grade.'**
+  String get gradesAveragesNoWeighted;
 }
 
 class _AppLocalizationsDelegate

@@ -32,6 +32,18 @@ List<SchoolSemester> parseSchoolSemesters(String raw) {
   return out;
 }
 
+/// The 1-based semester number whose month-range contains [date]'s month, or
+/// null when the school has no semesters. Used to bucket a grade (by its date)
+/// into a semester when it wasn't explicitly tagged.
+int? semesterOfDate(List<SchoolSemester> sems, DateTime date) {
+  final m = date.month;
+  for (final s in sems) {
+    final inRange = s.wraps ? (m >= s.startMonth || m <= s.endMonth) : (m >= s.startMonth && m <= s.endMonth);
+    if (inRange) return s.number;
+  }
+  return null;
+}
+
 DateTime _endOfMonth(int year, int month) {
   final firstNext = (month == 12) ? DateTime(year + 1, 1, 1) : DateTime(year, month + 1, 1);
   return firstNext.subtract(const Duration(seconds: 1));

@@ -4366,5 +4366,11 @@
   "certTypeAnnual": "کلنی",
   "certTypeSemester": "د {sem} پای",
   "certRoundWhole": "بشپړ عدد ته نږدې کول",
-  "certRoundWholeHint": "له ۰٫۵ لاندې ښکته، ۰٫۵ او پورته پورته. د دوو اعشاریه شمېرو ښودلو لپاره یې بند کړئ."
+  "certRoundWholeHint": "له ۰٫۵ لاندې ښکته، ۰٫۵ او پورته پورته. د دوو اعشاریه شمېرو ښودلو لپاره یې بند کړئ.",
+  "teacherAddGradeSubjectRequired": "مهرباني وکړئ د دې نمرې لپاره یو مضمون وټاکئ.",
+  "gradesSubjectAveragesTab": "اوسطونه",
+  "gradesAveragesSummaryTitle": "د سمسټر اوسط",
+  "gradesAveragesSummaryCount": "{count, plural, =0{تر اوسه وزن‌لرونکې نمرې نشته} =1{یوه وزن‌لرونکې نمره} other{{count} وزن‌لرونکې نمرې}}",
+  "gradesAveragesTotalWeight": "ټول وزن",
+  "gradesAveragesNoWeighted": "په دې سمسټر کې وزن‌لرونکې نمرې نشته. یوه ورزیاته کړئ یا په نمره کې سلنه وټاکئ."
 }

@@ -149,6 +149,11 @@ export class TeacherController {
     return this.teacher.listAssessments(req.user, { cohortId } as any);
   }
 
+  @Get('grades/full')
+  gradesFull(@Req() req: any) {
+    return this.teacher.gradesFull(req.user);
+  }
+
   /// Resolve an audience selection into the concrete list of students who
   /// will see an item — powers the "students who will see this" summary.
   @Post('audience/resolve')

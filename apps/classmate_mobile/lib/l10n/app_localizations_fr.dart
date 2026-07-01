@@ -10500,4 +10500,33 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get certRoundWholeHint =>
       'En dessous de ,5 arrondi au plus bas ; ,5 et plus au plus haut. Désactivez pour deux décimales.';
+
+  @override
+  String get teacherAddGradeSubjectRequired =>
+      'Veuillez choisir une matière pour cette note.';
+
+  @override
+  String get gradesSubjectAveragesTab => 'Moyennes';
+
+  @override
+  String get gradesAveragesSummaryTitle => 'Moyenne du semestre';
+
+  @override
+  String gradesAveragesSummaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes pondérées',
+      one: '1 note pondérée',
+      zero: 'Aucune note pondérée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesAveragesTotalWeight => 'Poids total';
+
+  @override
+  String get gradesAveragesNoWeighted =>
+      'Aucune note pondérée dans ce semestre. Ajoutez-en une ou définissez un %.';
 }

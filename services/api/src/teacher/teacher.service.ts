@@ -1472,6 +1472,35 @@ export class TeacherService {
     return { ok: true, cohorts, assessments };
   }
 
+  /**
+   * ATOMIC grades payload for the teacher Grades screen: every published
+   * assessment (cohort-taught OR teacher-created) WITH its grade records, in a
+   * SINGLE query. Replaces the old per-assessment fetch loop whose transient
+   * failures silently dropped subjects/grades on refresh — this either returns
+   * the whole set or throws (the client keeps its previous data on error).
+   */
+  async gradesFull(user: any) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const slotCohorts = await this.prisma.scheduleSlotCohort.findMany({
+      where: { slot: { teacherId } },
+      select: { cohortId: true },
+    });
+    const cohortIds = Array.from(new Set(slotCohorts.map((sc) => sc.cohortId)));
+
+    const assessments = await this.prisma.assessment.findMany({
+      where: {
+        published: true,
+        OR: [{ cohortId: { in: cohortIds } }, { createdBy: teacherId }],
+      },
+      orderBy: [{ date: 'desc' }, { id: 'desc' }],
+      include: {
+        grades: { select: { studentId: true, grade: true, comment: true, updatedAt: true } },
+      },
+    });
+    return { ok: true, assessments };
+  }
+
   async assessmentGrades(user: any, assessmentId: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;

@@ -3749,5 +3749,11 @@
   "certTypeAnnual": "שנתית",
   "certTypeSemester": "סוף {sem}",
   "certRoundWhole": "עיגול למספר שלם",
-  "certRoundWholeHint": "מתחת ל־.5 מעוגל למטה, .5 ומעלה מעוגל למעלה. כבה כדי להציג שתי ספרות עשרוניות."
+  "certRoundWholeHint": "מתחת ל־.5 מעוגל למטה, .5 ומעלה מעוגל למעלה. כבה כדי להציג שתי ספרות עשרוניות.",
+  "teacherAddGradeSubjectRequired": "נא לבחור מקצוע לציון זה.",
+  "gradesSubjectAveragesTab": "ממוצעים",
+  "gradesAveragesSummaryTitle": "ממוצע סמסטר",
+  "gradesAveragesSummaryCount": "{count, plural, =0{אין עדיין ציונים משוקללים} =1{ציון משוקלל אחד} other{{count} ציונים משוקללים}}",
+  "gradesAveragesTotalWeight": "משקל כולל",
+  "gradesAveragesNoWeighted": "אין ציונים עם משקל בסמסטר זה. הוסף אחד או קבע אחוז על ציון."
 }

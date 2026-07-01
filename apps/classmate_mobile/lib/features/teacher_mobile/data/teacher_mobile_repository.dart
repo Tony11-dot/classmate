@@ -296,6 +296,18 @@ class TeacherMobileRepository {
     return _asList(list).map(_asMap).toList();
   }
 
+  /// ATOMIC: every published assessment WITH its grades, in one request.
+  /// Either the whole set loads or it throws — no partial/dropped subjects.
+  Future<List<({TeacherAssessment assessment, List<TeacherAssessmentGrade> grades})>> fetchGradesFull() async {
+    final raw = await _api.getJson('/teacher/grades/full');
+    final map = _asMap(raw);
+    return _asList(map['assessments']).map((item) {
+      final m = _asMap(item);
+      final grades = _asList(m['grades']).map((g) => TeacherAssessmentGrade.fromJson(_asMap(g))).toList();
+      return (assessment: TeacherAssessment.fromJson(m), grades: grades);
+    }).toList(growable: false);
+  }
+
   Future<List<TeacherAssessmentGrade>> fetchAssessmentGrades(String assessmentId) async {
     final raw = await _api.getJson('/teacher/assessments/$assessmentId/grades');
     final map = _asMap(raw);

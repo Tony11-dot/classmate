@@ -10371,4 +10371,33 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get certRoundWholeHint =>
       'له ۰٫۵ لاندې ښکته، ۰٫۵ او پورته پورته. د دوو اعشاریه شمېرو ښودلو لپاره یې بند کړئ.';
+
+  @override
+  String get teacherAddGradeSubjectRequired =>
+      'مهرباني وکړئ د دې نمرې لپاره یو مضمون وټاکئ.';
+
+  @override
+  String get gradesSubjectAveragesTab => 'اوسطونه';
+
+  @override
+  String get gradesAveragesSummaryTitle => 'د سمسټر اوسط';
+
+  @override
+  String gradesAveragesSummaryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count وزن‌لرونکې نمرې',
+      one: 'یوه وزن‌لرونکې نمره',
+      zero: 'تر اوسه وزن‌لرونکې نمرې نشته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesAveragesTotalWeight => 'ټول وزن';
+
+  @override
+  String get gradesAveragesNoWeighted =>
+      'په دې سمسټر کې وزن‌لرونکې نمرې نشته. یوه ورزیاته کړئ یا په نمره کې سلنه وټاکئ.';
 }

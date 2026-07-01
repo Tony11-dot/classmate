@@ -348,6 +348,12 @@ class _TeacherAddGradeScreenState
       _snack(l.teacherAddGradeScreenCouldNotResolveTitle);
       return;
     }
+    // Subject is REQUIRED — grades must belong to a subject so they land in the
+    // right column of the grades hub and the diploma.
+    if ((inherited.subject ?? '').trim().isEmpty) {
+      _snack(l.teacherAddGradeSubjectRequired);
+      return;
+    }
 
     // Validate every student has a numeric grade.
     final entries = <_PendingEntry>[];

@@ -5457,5 +5457,18 @@
         "type": "String"
       }
     }
+  },
+  "teacherAddGradeSubjectRequired": "Please choose a subject for this grade.",
+  "gradesSubjectAveragesTab": "Averages",
+  "gradesAveragesSummaryTitle": "Semester average",
+  "gradesAveragesSummaryCount": "{count, plural, =0{No weighted grades yet} =1{1 weighted grade} other{{count} weighted grades}}",
+  "gradesAveragesTotalWeight": "Total weight",
+  "gradesAveragesNoWeighted": "No grades with a weight in this semester. Add one or set a % on a grade.",
+  "@gradesAveragesSummaryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
