@@ -40,6 +40,8 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
   String? _cohortId;
   String? _studentId;
   String _language = 'en';
+  int _semesterOnly = 0; // 0 = annual (all semesters); 1..N = semester diploma
+  bool _roundWhole = true; // true = round-half-up to whole; false = 2 decimals
 
   bool _loading = true;
   bool _loadingStudents = false;
@@ -194,6 +196,8 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         absences: fresh.absences,
         lates: fresh.lates,
         semesterCount: fresh.semesterCount,
+        semesterOnly: _semesterOnly,
+        roundWhole: _roundWhole,
         dateLabel: dateLabel,
       );
 
@@ -319,6 +323,28 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
                   if (i < _weightCtrls.length - 1) const SizedBox(width: 8),
                 ],
               ],
+            ),
+            const SizedBox(height: 14),
+            // Certificate type — Annual or an end-of-semester diploma.
+            LiquidGlassSelectField<int>(
+              label: l.certTypeLabel,
+              value: _semesterOnly,
+              items: [
+                LiquidGlassDropdownItem(value: 0, label: l.certTypeAnnual),
+                for (int i = 1; i <= p.semesterCount; i++)
+                  LiquidGlassDropdownItem(value: i, label: l.certTypeSemester(l.adminSchoolSemesterN('$i'))),
+              ],
+              onChanged: (v) => setState(() => _semesterOnly = v),
+            ),
+            const SizedBox(height: 14),
+            // Rounding — whole (round-half-up) or two decimals.
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _roundWhole,
+              title: Text(l.certRoundWhole),
+              subtitle: Text(l.certRoundWholeHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+              onChanged: (v) => setState(() => _roundWhole = v),
             ),
             const SizedBox(height: 14),
             // Language

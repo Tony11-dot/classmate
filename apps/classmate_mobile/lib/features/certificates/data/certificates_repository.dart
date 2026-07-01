@@ -37,9 +37,9 @@ class CertSubjectRow {
   final String subject;
   final Map<String, dynamic>? i18n;
   final int units;
-  final List<int?> semesters; // per-semester average (null = none)
-  final int? finalAvg;
-  final List<String> teachers; // subject teacher(s), from the schedule
+  final List<double?> semesters; // per-semester average, 2dp (null = none)
+  final double? finalAvg;
+  final List<String> teachers; // subject teacher(s) = the grader(s)
 
   /// Localized display name for [lang] ('en','ar','he','fr','ru','ps'), falling
   /// back through English then the raw subject string.
@@ -66,9 +66,9 @@ class CertSubjectRow {
         i18n: j['i18n'] is Map ? Map<String, dynamic>.from(j['i18n'] as Map) : null,
         units: j['units'] is int ? j['units'] as int : int.tryParse('${j['units']}') ?? 0,
         semesters: (j['semesters'] as List? ?? [])
-            .map((e) => e == null ? null : (e is int ? e : int.tryParse('$e')))
+            .map((e) => e == null ? null : (e is num ? e.toDouble() : double.tryParse('$e')))
             .toList(),
-        finalAvg: j['final'] == null ? null : (j['final'] is int ? j['final'] as int : int.tryParse('${j['final']}')),
+        finalAvg: j['final'] == null ? null : (j['final'] is num ? (j['final'] as num).toDouble() : double.tryParse('${j['final']}')),
         teachers: (j['teachers'] as List? ?? []).map((e) => '$e').where((s) => s.isNotEmpty).toList(),
       );
 }
@@ -105,7 +105,7 @@ class CertPrefill {
   final CertStudent? student;
   final String? studentNationalId;
   final List<CertSubjectRow> subjects;
-  final int? overall;
+  final double? overall;
   final int absences;
   final int lates;
 
@@ -132,7 +132,7 @@ class CertPrefill {
       subjects: (j['subjects'] as List? ?? [])
           .map((e) => CertSubjectRow.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
-      overall: j['overall'] == null ? null : (j['overall'] is int ? j['overall'] as int : int.tryParse('${j['overall']}')),
+      overall: j['overall'] == null ? null : (j['overall'] is num ? (j['overall'] as num).toDouble() : double.tryParse('${j['overall']}')),
       absences: att['absences'] is int ? att['absences'] as int : int.tryParse('${att['absences']}') ?? 0,
       lates: att['lates'] is int ? att['lates'] as int : int.tryParse('${att['lates']}') ?? 0,
     );

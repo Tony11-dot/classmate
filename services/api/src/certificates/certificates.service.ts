@@ -9,6 +9,11 @@ import {
 } from '../common/semester';
 import { CreateCertificateDto } from './dto/certificate.dto';
 
+/** Round to 2 decimals, keeping the client free to round-half-up or show 2dp. */
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
 @Injectable()
 export class CertificatesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -44,7 +49,10 @@ export class CertificatesService {
       new Date(),
     );
     const windows: SemesterWindow[] = semesterWindowsForYear(sems, startYear);
-    const semesterCount = Math.max(windows.length, 2); // grid shows ≥2 columns
+    // Semesters are admin-defined (School.semesters) — honor the real count
+    // (a school can have 1, 2, 3, … semesters). Fall back to 2 only when the
+    // school configured none at all.
+    const semesterCount = windows.length > 0 ? windows.length : 2;
     const schoolYear = academicYearLabel(startYear);
 
     let weights = this.defaultWeights(semesterCount);
@@ -151,7 +159,7 @@ export class CertificatesService {
     windows: SemesterWindow[],
     weights: number[],
   ) {
-    const semesterCount = Math.max(windows.length, weights.length, 2);
+    const semesterCount = windows.length > 0 ? windows.length : Math.max(weights.length, 2);
 
     // The student's grades + the assessment meta needed to weight/bucket them.
     const records = await this.prisma.gradeRecord.findMany({
@@ -238,7 +246,7 @@ export class CertificatesService {
     }
 
     subjects.sort((a, b) => a.subject.localeCompare(b.subject));
-    const overall = finals.length ? Math.round(finals.reduce((s, x) => s + x, 0) / finals.length) : null;
+    const overall = finals.length ? round2(finals.reduce((s, x) => s + x, 0) / finals.length) : null;
     return { subjects, overall };
   }
 
@@ -246,6 +254,7 @@ export class CertificatesService {
    * %-weighted mean, renormalized. Supports multiple weight "formats": the
    * average is computed under each format and the BEST (highest) is returned
    * (student-favouring). Equal weights when no grade carries a weight.
+   * Returns a 2-decimal number — the client rounds/formats per its toggle.
    */
   private weightedAverage(items: { pct: number; weights: number[] }[]): number | null {
     if (!items.length) return null;
@@ -254,7 +263,7 @@ export class CertificatesService {
     // No weights anywhere → simple mean.
     if (formatCount === 0) {
       const mean = items.reduce((s, it) => s + it.pct, 0) / items.length;
-      return Math.round(mean);
+      return round2(mean);
     }
 
     let best: number | null = null;
@@ -274,11 +283,10 @@ export class CertificatesService {
       if (best == null || avg > best) best = avg;
     }
     if (best == null) {
-      // Some grades but none weighted under any format → simple mean.
       const mean = items.reduce((s, it) => s + it.pct, 0) / items.length;
-      return Math.round(mean);
+      return round2(mean);
     }
-    return Math.round(best);
+    return round2(best);
   }
 
   private weightedFinal(semAverages: (number | null)[], weights: number[]): number | null {
@@ -292,7 +300,7 @@ export class CertificatesService {
       den += w;
     }
     if (den === 0) return null;
-    return Math.round(num / den);
+    return round2(num / den);
   }
 
   /** Name of the principal responsible for [grade], or ''. */

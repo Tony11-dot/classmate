@@ -3742,5 +3742,12 @@
   "gradesBreakdownAverage": "المعدل",
   "adminPrincipalRangeFrom": "من",
   "adminPrincipalRangeTo": "إلى",
-  "adminPrincipalAddRange": "إضافة نطاق"
+  "adminPrincipalAddRange": "إضافة نطاق",
+  "certPdfSemesterCertificate": "شهادة فصلية — {sem}",
+  "certPdfRemarks": "ملاحظات المربّي/ة",
+  "certTypeLabel": "نوع الشهادة",
+  "certTypeAnnual": "سنوية",
+  "certTypeSemester": "نهاية {sem}",
+  "certRoundWhole": "تقريب إلى عدد صحيح",
+  "certRoundWholeHint": "أقل من ٠٫٥ إلى الأسفل، ٠٫٥ فأكثر إلى الأعلى. أوقفه لعرض رقمين عشريين."
 }

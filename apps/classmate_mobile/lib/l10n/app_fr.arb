@@ -3742,5 +3742,12 @@
   "gradesBreakdownAverage": "Moyenne",
   "adminPrincipalRangeFrom": "De",
   "adminPrincipalRangeTo": "À",
-  "adminPrincipalAddRange": "Ajouter une plage"
+  "adminPrincipalAddRange": "Ajouter une plage",
+  "certPdfSemesterCertificate": "Certificat de semestre — {sem}",
+  "certPdfRemarks": "Remarques du professeur principal",
+  "certTypeLabel": "Type de certificat",
+  "certTypeAnnual": "Annuel",
+  "certTypeSemester": "Fin du {sem}",
+  "certRoundWhole": "Arrondir au nombre entier",
+  "certRoundWholeHint": "En dessous de ,5 arrondi au plus bas ; ,5 et plus au plus haut. Désactivez pour deux décimales."
 }

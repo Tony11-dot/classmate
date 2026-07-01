@@ -10215,4 +10215,30 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'הוסף טווח';
+
+  @override
+  String certPdfSemesterCertificate(String sem) {
+    return 'תעודת סמסטר — $sem';
+  }
+
+  @override
+  String get certPdfRemarks => 'הערות המחנך/ת';
+
+  @override
+  String get certTypeLabel => 'סוג התעודה';
+
+  @override
+  String get certTypeAnnual => 'שנתית';
+
+  @override
+  String certTypeSemester(String sem) {
+    return 'סוף $sem';
+  }
+
+  @override
+  String get certRoundWhole => 'עיגול למספר שלם';
+
+  @override
+  String get certRoundWholeHint =>
+      'מתחת ל־.5 מעוגל למטה, .5 ומעלה מעוגל למעלה. כבה כדי להציג שתי ספרות עשרוניות.';
 }

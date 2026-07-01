@@ -3949,5 +3949,12 @@
   "gradesBreakdownAverage": "Средний балл",
   "adminPrincipalRangeFrom": "От",
   "adminPrincipalRangeTo": "До",
-  "adminPrincipalAddRange": "Добавить диапазон"
+  "adminPrincipalAddRange": "Добавить диапазон",
+  "certPdfSemesterCertificate": "Семестровый сертификат — {sem}",
+  "certPdfRemarks": "Замечания классного руководителя",
+  "certTypeLabel": "Тип сертификата",
+  "certTypeAnnual": "Годовой",
+  "certTypeSemester": "Конец: {sem}",
+  "certRoundWhole": "Округлять до целого",
+  "certRoundWholeHint": "Меньше .5 — вниз, .5 и больше — вверх. Выключите для двух знаков после запятой."
 }

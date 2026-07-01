@@ -10345,4 +10345,30 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'لړ زیات کړئ';
+
+  @override
+  String certPdfSemesterCertificate(String sem) {
+    return 'سمسټر سند — $sem';
+  }
+
+  @override
+  String get certPdfRemarks => 'د ټولګي سرښوونکي یادښتونه';
+
+  @override
+  String get certTypeLabel => 'د سند ډول';
+
+  @override
+  String get certTypeAnnual => 'کلنی';
+
+  @override
+  String certTypeSemester(String sem) {
+    return 'د $sem پای';
+  }
+
+  @override
+  String get certRoundWhole => 'بشپړ عدد ته نږدې کول';
+
+  @override
+  String get certRoundWholeHint =>
+      'له ۰٫۵ لاندې ښکته، ۰٫۵ او پورته پورته. د دوو اعشاریه شمېرو ښودلو لپاره یې بند کړئ.';
 }

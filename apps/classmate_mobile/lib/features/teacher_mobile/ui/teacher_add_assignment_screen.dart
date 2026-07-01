@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
+import '../../../ui/widgets/semester_select_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
@@ -747,15 +748,10 @@ class _TeacherAddAssignmentScreenState
                         onChanged: (w) => _weights = w,
                       ),
                       const SizedBox(height: 12),
-                      LiquidGlassSelectField<int>(
-                        label: AppLocalizations.of(context)!.gradeSemesterLabel,
-                        value: _semester ?? 0,
-                        items: [
-                          LiquidGlassDropdownItem(value: 0, label: AppLocalizations.of(context)!.gradeSemesterAuto),
-                          LiquidGlassDropdownItem(value: 1, label: AppLocalizations.of(context)!.adminSchoolSemesterN('1')),
-                          LiquidGlassDropdownItem(value: 2, label: AppLocalizations.of(context)!.adminSchoolSemesterN('2')),
-                        ],
-                        onChanged: (v) => setState(() => _semester = v == 0 ? null : v),
+                      SemesterSelectField(
+                        count: schoolSemesterCount(ref.read(authSessionProvider).schoolSemesters),
+                        value: _semester,
+                        onChanged: (v) => setState(() => _semester = v),
                       ),
                       const SizedBox(height: 12),
 

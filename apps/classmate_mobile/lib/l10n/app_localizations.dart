@@ -17846,6 +17846,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add range'**
   String get adminPrincipalAddRange;
+
+  /// No description provided for @certPdfSemesterCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester Certificate — {sem}'**
+  String certPdfSemesterCertificate(String sem);
+
+  /// No description provided for @certPdfRemarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Homeroom teacher\'s remarks'**
+  String get certPdfRemarks;
+
+  /// No description provided for @certTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate type'**
+  String get certTypeLabel;
+
+  /// No description provided for @certTypeAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual'**
+  String get certTypeAnnual;
+
+  /// No description provided for @certTypeSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'End of {sem}'**
+  String certTypeSemester(String sem);
+
+  /// No description provided for @certRoundWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'Round to whole number'**
+  String get certRoundWhole;
+
+  /// No description provided for @certRoundWholeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Below .5 rounds down, .5 and up rounds up. Turn off to show two decimals.'**
+  String get certRoundWholeHint;
 }
 
 class _AppLocalizationsDelegate

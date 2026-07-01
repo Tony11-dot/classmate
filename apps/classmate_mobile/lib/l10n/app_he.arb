@@ -3742,5 +3742,12 @@
   "gradesBreakdownAverage": "ממוצע",
   "adminPrincipalRangeFrom": "מ־",
   "adminPrincipalRangeTo": "עד",
-  "adminPrincipalAddRange": "הוסף טווח"
+  "adminPrincipalAddRange": "הוסף טווח",
+  "certPdfSemesterCertificate": "תעודת סמסטר — {sem}",
+  "certPdfRemarks": "הערות המחנך/ת",
+  "certTypeLabel": "סוג התעודה",
+  "certTypeAnnual": "שנתית",
+  "certTypeSemester": "סוף {sem}",
+  "certRoundWhole": "עיגול למספר שלם",
+  "certRoundWholeHint": "מתחת ל־.5 מעוגל למטה, .5 ומעלה מעוגל למעלה. כבה כדי להציג שתי ספרות עשרוניות."
 }

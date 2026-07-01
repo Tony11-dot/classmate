@@ -10321,4 +10321,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'Добавить диапазон';
+
+  @override
+  String certPdfSemesterCertificate(String sem) {
+    return 'Семестровый сертификат — $sem';
+  }
+
+  @override
+  String get certPdfRemarks => 'Замечания классного руководителя';
+
+  @override
+  String get certTypeLabel => 'Тип сертификата';
+
+  @override
+  String get certTypeAnnual => 'Годовой';
+
+  @override
+  String certTypeSemester(String sem) {
+    return 'Конец: $sem';
+  }
+
+  @override
+  String get certRoundWhole => 'Округлять до целого';
+
+  @override
+  String get certRoundWholeHint =>
+      'Меньше .5 — вниз, .5 и больше — вверх. Выключите для двух знаков после запятой.';
 }

@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
-import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
+import '../../../ui/widgets/semester_select_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'teacher_student_grade_detail_screen.dart';
@@ -635,15 +636,10 @@ class _EditAssessmentSheetState extends ConsumerState<_EditAssessmentSheet> {
               const SizedBox(height: 14),
               WeightFormatsField(value: _weights, onChanged: (w) => _weights = w),
               const SizedBox(height: 12),
-              LiquidGlassSelectField<int>(
-                label: l.gradeSemesterLabel,
-                value: _semester ?? 0,
-                items: [
-                  LiquidGlassDropdownItem(value: 0, label: l.gradeSemesterAuto),
-                  LiquidGlassDropdownItem(value: 1, label: l.adminSchoolSemesterN('1')),
-                  LiquidGlassDropdownItem(value: 2, label: l.adminSchoolSemesterN('2')),
-                ],
-                onChanged: (v) => setState(() => _semester = v == 0 ? null : v),
+              SemesterSelectField(
+                count: schoolSemesterCount(ref.read(authSessionProvider).schoolSemesters),
+                value: _semester,
+                onChanged: (v) => setState(() => _semester = v),
               ),
               const SizedBox(height: 18),
               SizedBox(

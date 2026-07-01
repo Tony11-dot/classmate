@@ -4359,5 +4359,12 @@
   "gradesBreakdownAverage": "اوسط",
   "adminPrincipalRangeFrom": "له",
   "adminPrincipalRangeTo": "تر",
-  "adminPrincipalAddRange": "لړ زیات کړئ"
+  "adminPrincipalAddRange": "لړ زیات کړئ",
+  "certPdfSemesterCertificate": "سمسټر سند — {sem}",
+  "certPdfRemarks": "د ټولګي سرښوونکي یادښتونه",
+  "certTypeLabel": "د سند ډول",
+  "certTypeAnnual": "کلنی",
+  "certTypeSemester": "د {sem} پای",
+  "certRoundWhole": "بشپړ عدد ته نږدې کول",
+  "certRoundWholeHint": "له ۰٫۵ لاندې ښکته، ۰٫۵ او پورته پورته. د دوو اعشاریه شمېرو ښودلو لپاره یې بند کړئ."
 }

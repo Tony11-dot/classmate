@@ -10474,4 +10474,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'Ajouter une plage';
+
+  @override
+  String certPdfSemesterCertificate(String sem) {
+    return 'Certificat de semestre — $sem';
+  }
+
+  @override
+  String get certPdfRemarks => 'Remarques du professeur principal';
+
+  @override
+  String get certTypeLabel => 'Type de certificat';
+
+  @override
+  String get certTypeAnnual => 'Annuel';
+
+  @override
+  String certTypeSemester(String sem) {
+    return 'Fin du $sem';
+  }
+
+  @override
+  String get certRoundWhole => 'Arrondir au nombre entier';
+
+  @override
+  String get certRoundWholeHint =>
+      'En dessous de ,5 arrondi au plus bas ; ,5 et plus au plus haut. Désactivez pour deux décimales.';
 }

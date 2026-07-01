@@ -10326,4 +10326,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'Add range';
+
+  @override
+  String certPdfSemesterCertificate(String sem) {
+    return 'Semester Certificate — $sem';
+  }
+
+  @override
+  String get certPdfRemarks => 'Homeroom teacher\'s remarks';
+
+  @override
+  String get certTypeLabel => 'Certificate type';
+
+  @override
+  String get certTypeAnnual => 'Annual';
+
+  @override
+  String certTypeSemester(String sem) {
+    return 'End of $sem';
+  }
+
+  @override
+  String get certRoundWhole => 'Round to whole number';
+
+  @override
+  String get certRoundWholeHint =>
+      'Below .5 rounds down, .5 and up rounds up. Turn off to show two decimals.';
 }

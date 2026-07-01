@@ -5436,5 +5436,26 @@
         "type": "String"
       }
     }
+  },
+  "certPdfSemesterCertificate": "Semester Certificate — {sem}",
+  "certPdfRemarks": "Homeroom teacher's remarks",
+  "certTypeLabel": "Certificate type",
+  "certTypeAnnual": "Annual",
+  "certTypeSemester": "End of {sem}",
+  "certRoundWhole": "Round to whole number",
+  "certRoundWholeHint": "Below .5 rounds down, .5 and up rounds up. Turn off to show two decimals.",
+  "@certPdfSemesterCertificate": {
+    "placeholders": {
+      "sem": {
+        "type": "String"
+      }
+    }
+  },
+  "@certTypeSemester": {
+    "placeholders": {
+      "sem": {
+        "type": "String"
+      }
+    }
   }
 }

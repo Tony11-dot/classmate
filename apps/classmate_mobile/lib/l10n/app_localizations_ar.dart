@@ -10273,4 +10273,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'إضافة نطاق';
+
+  @override
+  String certPdfSemesterCertificate(String sem) {
+    return 'شهادة فصلية — $sem';
+  }
+
+  @override
+  String get certPdfRemarks => 'ملاحظات المربّي/ة';
+
+  @override
+  String get certTypeLabel => 'نوع الشهادة';
+
+  @override
+  String get certTypeAnnual => 'سنوية';
+
+  @override
+  String certTypeSemester(String sem) {
+    return 'نهاية $sem';
+  }
+
+  @override
+  String get certRoundWhole => 'تقريب إلى عدد صحيح';
+
+  @override
+  String get certRoundWholeHint =>
+      'أقل من ٠٫٥ إلى الأسفل، ٠٫٥ فأكثر إلى الأعلى. أوقفه لعرض رقمين عشريين.';
 }
