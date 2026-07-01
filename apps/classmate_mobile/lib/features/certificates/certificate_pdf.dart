@@ -81,12 +81,14 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
   final l = lookupAppLocalizations(_localeFor(data.language));
   final rtl = _isRtlLang(data.language);
 
-  // Fonts: Latin/Cyrillic base + Arabic + Hebrew, regular AND bold, so mixed
-  // scripts and bold headings all render with no tofu boxes.
-  final baseFont = await PdfGoogleFonts.notoSansRegular();
-  final baseBold = await PdfGoogleFonts.notoSansBold();
-  final arabicReg = await PdfGoogleFonts.notoSansArabicRegular();
-  final arabicBold = await PdfGoogleFonts.notoSansArabicBold();
+  // Premium, modern type: IBM Plex Sans (Latin) + IBM Plex Sans Arabic, with a
+  // lighter SemiBold used as the "bold" weight so headings read clean, not heavy.
+  // The base font follows the certificate language so the primary script SHAPES
+  // correctly (a fallback-only Arabic font renders detached/reversed glyphs).
+  final latin = await PdfGoogleFonts.iBMPlexSansRegular();
+  final latinSemi = await PdfGoogleFonts.iBMPlexSansSemiBold();
+  final arabicReg = await PdfGoogleFonts.iBMPlexSansArabicRegular();
+  final arabicSemi = await PdfGoogleFonts.iBMPlexSansArabicSemiBold();
   final hebrewReg = await PdfGoogleFonts.notoSansHebrewRegular();
   final hebrewBold = await PdfGoogleFonts.notoSansHebrewBold();
 
@@ -107,10 +109,26 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     }
   }
 
+  final pw.Font baseFont, boldFont;
+  final List<pw.Font> fontFallback;
+  if (data.language == 'ar') {
+    baseFont = arabicReg;
+    boldFont = arabicSemi;
+    fontFallback = [latin, latinSemi, hebrewReg, hebrewBold];
+  } else if (data.language == 'he') {
+    baseFont = hebrewReg;
+    boldFont = hebrewBold;
+    fontFallback = [latin, latinSemi, arabicReg, arabicSemi];
+  } else {
+    baseFont = latin;
+    boldFont = latinSemi;
+    fontFallback = [arabicReg, arabicSemi, hebrewReg, hebrewBold];
+  }
+
   final theme = pw.ThemeData.withFont(
     base: baseFont,
-    bold: baseBold,
-    fontFallback: [arabicReg, arabicBold, hebrewReg, hebrewBold],
+    bold: boldFont,
+    fontFallback: fontFallback,
   );
   final doc = pw.Document(theme: theme);
 
@@ -131,30 +149,15 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     return v.toStringAsFixed(2);
   }
 
-  final annual = data.semesterOnly == 0;
-  // Which semester columns to render (0-based). Semester diploma → just one.
-  final semIndexes = annual
-      ? List<int>.generate(data.semesterCount, (i) => i)
-      : <int>[data.semesterOnly - 1];
+  // Unified certificate — no annual vs. semester distinction. Always render
+  // every semester column plus the final; cells with no grade stay empty ("—").
+  final semIndexes = List<int>.generate(data.semesterCount, (i) => i);
 
-  // Effective per-subject "final" for the chosen mode.
-  double? subjectFinal(CertSubjectRow s) {
-    if (annual) return s.finalAvg;
-    final idx = data.semesterOnly - 1;
-    return idx >= 0 && idx < s.semesters.length ? s.semesters[idx] : null;
-  }
+  double? subjectFinal(CertSubjectRow s) => s.finalAvg;
 
-  // Overall for the chosen mode.
-  double? overall() {
-    if (annual) return data.overall;
-    final vals = data.subjects.map(subjectFinal).whereType<double>().toList();
-    if (vals.isEmpty) return null;
-    return vals.reduce((a, b) => a + b) / vals.length;
-  }
+  double? overall() => data.overall;
 
-  final title = annual
-      ? l.certPdfAnnualCertificate
-      : l.certPdfSemesterCertificate(l.adminSchoolSemesterN('${data.semesterOnly}'));
+  final title = l.certPdfAnnualCertificate;
 
   // ── Sections ───────────────────────────────────────────────────────────────
   pw.Widget roundedBox({required pw.Widget child, PdfColor? color, PdfColor? border, pw.EdgeInsets? padding}) {
@@ -170,27 +173,37 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     );
   }
 
-  // Clean, white, diploma-style masthead: big school logo + name up top, a slim
-  // brand rule, then the certificate title — no heavy coloured fills.
+  // Clean, white, diploma-style masthead: the school logo and name sit side by
+  // side, centred, on top — then a slim brand rule and the certificate title.
+  // No letterSpacing anywhere (it breaks Arabic letter-joining).
   pw.Widget header() {
     final logo = schoolLogo;
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        if (logo != null) pw.SizedBox(height: 96, child: pw.Image(logo, fit: pw.BoxFit.contain)),
-        if (logo != null) pw.SizedBox(height: 14),
-        pw.Text(
-          data.schoolName,
-          textAlign: pw.TextAlign.center,
-          style: pw.TextStyle(fontSize: 31, fontWeight: pw.FontWeight.bold, color: brandDeep, letterSpacing: 0.3),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          children: [
+            if (logo != null) ...[
+              pw.SizedBox(width: 70, height: 70, child: pw.Image(logo, fit: pw.BoxFit.contain)),
+              pw.SizedBox(width: 16),
+            ],
+            pw.Flexible(
+              child: pw.Text(
+                data.schoolName,
+                style: pw.TextStyle(fontSize: 29, fontWeight: pw.FontWeight.bold, color: brandDeep),
+              ),
+            ),
+          ],
         ),
-        pw.SizedBox(height: 12),
+        pw.SizedBox(height: 14),
         pw.Container(width: 130, height: 2, color: brandBlue),
         pw.SizedBox(height: 12),
         pw.Text(
           '$title  ·  ${data.schoolYear}',
           textAlign: pw.TextAlign.center,
-          style: pw.TextStyle(fontSize: 13, color: brandBlue, fontWeight: pw.FontWeight.bold, letterSpacing: 1.0),
+          style: pw.TextStyle(fontSize: 13, color: brandBlue, fontWeight: pw.FontWeight.bold),
         ),
       ],
     );

@@ -1311,49 +1311,47 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     required String exportedBy,
     required AppLocalizations l,
   }) async {
-    final baseFont = await PdfGoogleFonts.notoSansRegular();
-    final baseBold = await PdfGoogleFonts.notoSansBold();
-    final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
-    final arabicBold = await PdfGoogleFonts.notoSansArabicBold();
-    final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
+    // Premium, modern type: IBM Plex Sans (Latin) + IBM Plex Sans Arabic, with a
+    // lighter SemiBold used as the "bold" weight so nothing looks heavy/blocky.
+    // The base font follows the export language so each script SHAPES correctly:
+    // on the pdf engine, an Arabic/Hebrew font that is only a *fallback* renders
+    // detached, reversed glyphs, so the primary script must be the theme base.
+    final latin = await PdfGoogleFonts.iBMPlexSansRegular();
+    final latinSemi = await PdfGoogleFonts.iBMPlexSansSemiBold();
+    final arab = await PdfGoogleFonts.iBMPlexSansArabicRegular();
+    final arabSemi = await PdfGoogleFonts.iBMPlexSansArabicSemiBold();
+    final hebrew = await PdfGoogleFonts.notoSansHebrewRegular();
     final hebrewBold = await PdfGoogleFonts.notoSansHebrewBold();
     // icon_light.png is the blue CM monogram — it renders reliably in the PDF
-    // engine (the wide logo_light.png wordmark did not), so we compose the
-    // brand mark as monogram + a "ClassMate" text wordmark.
+    // engine (the wide logo_light.png wordmark did not).
     final cmLogo = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
     const supportEmail = 'support@classmateapp.org';
 
-    // CRITICAL: this per-user card is a `pw.Page` (not a `MultiPage`). On that
-    // path the pdf engine only shapes a script correctly when its font is the
-    // THEME BASE — a fallback-only Arabic/Hebrew font renders detached, reversed
-    // glyphs AND corrupts layout (the "giant blue octagon, no logo" bug). So the
-    // base font follows the export language; the other scripts stay fallbacks.
     late final pw.Font base;
     late final pw.Font boldFont;
     late final List<pw.Font> fallback;
     if (_lang == 'ar') {
-      base = arabicFont;
-      boldFont = arabicBold;
-      fallback = [baseFont, baseBold, hebrewFont, hebrewBold];
+      base = arab;
+      boldFont = arabSemi;
+      fallback = [latin, latinSemi, hebrew, hebrewBold];
     } else if (_lang == 'he') {
-      base = hebrewFont;
+      base = hebrew;
       boldFont = hebrewBold;
-      fallback = [baseFont, baseBold, arabicFont, arabicBold];
+      fallback = [latin, latinSemi, arab, arabSemi];
     } else {
-      base = baseFont;
-      boldFont = baseBold;
-      fallback = [arabicFont, arabicBold, hebrewFont, hebrewBold];
+      base = latin;
+      boldFont = latinSemi;
+      fallback = [arab, arabSemi, hebrew, hebrewBold];
     }
 
-    final doc = pw.Document(
-      theme: pw.ThemeData.withFont(
-        base: base,
-        bold: boldFont,
-        fontFallback: fallback,
-      ),
+    final theme = pw.ThemeData.withFont(
+      base: base,
+      bold: boldFont,
+      fontFallback: fallback,
     );
+    final doc = pw.Document(theme: theme);
 
     const brandBlue = PdfColor.fromInt(0xFF2563EB);
     const brandDeep = PdfColor.fromInt(0xFF1E3A5F);
@@ -1403,26 +1401,47 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           ? pw.TextDirection.rtl
           : pw.TextDirection.ltr;
 
-      doc.addPage(pw.Page(
+      // MultiPage (not Page) so a tall card paginates instead of overflowing —
+      // overflow was clipping the logo, password box and footer and collapsing
+      // the header into a giant blue shape.
+      doc.addPage(pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.fromLTRB(40, 36, 40, 32),
-        build: (ctx) => pw.Directionality(
-          textDirection: pageDir,
-          child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-          children: [
-            // ── Brand header band: a big, perfectly-centred ClassMate logo in
-            // the blue space at the very top of the page. The blue monogram is
-            // placed on a white disc so it stays crisp and visible against the
-            // blue band, with the wordmark beneath it.
+        margin: const pw.EdgeInsets.fromLTRB(40, 34, 40, 30),
+        textDirection: pageDir,
+        footer: (ctx) => pw.Directionality(
+          textDirection: pw.TextDirection.ltr,
+          child: pw.Container(
+            margin: const pw.EdgeInsets.only(top: 10),
+            padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+            decoration: pw.BoxDecoration(
+              color: const PdfColor.fromInt(0xFFEFF6FF),
+              borderRadius: pw.BorderRadius.circular(14),
+              border: pw.Border.all(color: brandBlue, width: 0.5),
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text('Created by', style: pw.TextStyle(fontSize: 9, color: brandBlue, fontStyle: pw.FontStyle.italic)),
+                pw.SizedBox(width: 7),
+                pw.SizedBox(width: 16, height: 16, child: pw.Image(cmLogo, fit: pw.BoxFit.contain)),
+                pw.SizedBox(width: 5),
+                pw.Text('ClassMate', style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: brandBlue)),
+              ],
+            ),
+          ),
+        ),
+        build: (ctx) => [
+            // ── Brand header band: a big, perfectly-centred ClassMate logo on a
+            // blue band at the very top, monogram on a white disc + wordmark.
             pw.Container(
               width: double.infinity,
               padding: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 16),
               decoration: pw.BoxDecoration(
                 color: brandBlue,
-                borderRadius: pw.BorderRadius.circular(16),
+                borderRadius: pw.BorderRadius.circular(18),
               ),
               child: pw.Column(
+                mainAxisSize: pw.MainAxisSize.min,
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
@@ -1530,24 +1549,31 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 ),
               ),
             ),
-            pw.SizedBox(height: 6),
-            pw.Center(
-              child: pw.Container(
-                padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                decoration: pw.BoxDecoration(
-                  color: brandBlue,
-                  borderRadius: pw.BorderRadius.circular(999),
-                ),
-                child: pw.Text(
-                  _localizedRoleName(l, role).toUpperCase(),
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    fontWeight: pw.FontWeight.bold,
-                    color: PdfColors.white,
-                    letterSpacing: 1.2,
+            pw.SizedBox(height: 7),
+            // Role chip. IMPORTANT: a fully-rounded pill (borderRadius 999) makes
+            // the pdf engine balloon this container into a giant octagon that
+            // swallows the whole page — use a moderate radius. Centre it with a
+            // non-expanding Row (pw.Center would grab the page's spare height).
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Container(
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 13, vertical: 5),
+                  decoration: pw.BoxDecoration(
+                    color: brandBlue,
+                    borderRadius: pw.BorderRadius.circular(10),
+                  ),
+                  child: pw.Text(
+                    _localizedRoleName(l, role),
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.white,
+                      letterSpacing: 0.4,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
             pw.SizedBox(height: 18),
             // ── Field cards ──────────────────────────────────────────────
@@ -1672,36 +1698,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 ],
               ),
             ),
-            pw.Spacer(),
-            // ── Footer: "Created by" + CM monogram + ClassMate (always LTR
-            // brand, so it never flips order on an RTL page). ───────────────
-            pw.Container(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-              decoration: pw.BoxDecoration(
-                color: const PdfColor.fromInt(0xFFEFF6FF),
-                borderRadius: pw.BorderRadius.circular(14),
-                border: pw.Border.all(color: brandBlue, width: 0.5),
-              ),
-              child: pw.Directionality(
-                textDirection: pw.TextDirection.ltr,
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.center,
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    pw.Text('Created by',
-                        style: pw.TextStyle(fontSize: 9, color: brandBlue, fontStyle: pw.FontStyle.italic)),
-                    pw.SizedBox(width: 7),
-                    pw.SizedBox(width: 16, height: 16, child: pw.Image(cmLogo, fit: pw.BoxFit.contain)),
-                    pw.SizedBox(width: 5),
-                    pw.Text('ClassMate',
-                        style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: brandBlue)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-          ),
-        ),
+        ],
       ));
     }
     return doc.save();
