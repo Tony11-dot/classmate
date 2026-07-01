@@ -2036,6 +2036,7 @@
   "chatForwardNoChatAvailable": "No approved chats available",
   "chatFilterAll": "All",
   "novaDisclaimer": "NOVA can make mistakes. Double-check important answers.",
+  "novaTokenTip": "Use your tokens carefully — they're meant for studying.",
   "practiceCustomDisclaimer": "Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.",
   "classroomsJoined": "You joined the classroom!",
   "classroomsJoinAction": "Join Classroom",

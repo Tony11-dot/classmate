@@ -4610,6 +4610,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get novaDisclaimer => 'NOVA עלולה לטעות. בדוק תשובות חשובות.';
 
   @override
+  String get novaTokenTip =>
+      'Use your tokens carefully — they\'re meant for studying.';
+
+  @override
   String get practiceCustomDisclaimer =>
       'נושאים מותאמים אישית נוצרים על ידי בינה מלאכותית בזמן אמת. שאלות עלולות לסטות מהנושא או להיות לא מדויקות בנושאים נישתיים. אמת תשובות לא מוכרות באופן עצמאי.';
 

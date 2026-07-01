@@ -8247,6 +8247,12 @@ abstract class AppLocalizations {
   /// **'NOVA can make mistakes. Double-check important answers.'**
   String get novaDisclaimer;
 
+  /// No description provided for @novaTokenTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your tokens carefully — they\'re meant for studying.'**
+  String get novaTokenTip;
+
   /// No description provided for @practiceCustomDisclaimer.
   ///
   /// In en, this message translates to:

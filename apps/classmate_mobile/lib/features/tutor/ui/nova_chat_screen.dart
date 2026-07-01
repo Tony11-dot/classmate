@@ -1849,6 +1849,33 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 10),
+            // Gentle reminder that tokens are a study resource — use them well.
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.eco_outlined, size: 14, color: cs.primary),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      l.novaTokenTip,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

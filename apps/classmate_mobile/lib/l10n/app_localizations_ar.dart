@@ -4631,6 +4631,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get novaDisclaimer => 'قد تُخطئ NOVA. تحقق من الإجابات المهمة.';
 
   @override
+  String get novaTokenTip =>
+      'Use your tokens carefully — they\'re meant for studying.';
+
+  @override
   String get practiceCustomDisclaimer =>
       'الموضوعات المخصصة مُولَّدة بالذكاء الاصطناعي فورياً. قد تنحرف الأسئلة عن الموضوع أو تكون غير دقيقة للمواضيع المتخصصة. تحقق من الإجابات غير المألوفة باستقلالية.';
 

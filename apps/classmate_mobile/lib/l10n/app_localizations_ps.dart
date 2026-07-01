@@ -4659,6 +4659,10 @@ class AppLocalizationsPs extends AppLocalizations {
       'NOVA کولی شي تېروتنه وکړي. مهم ځوابونه دوه ځله وګورئ.';
 
   @override
+  String get novaTokenTip =>
+      'Use your tokens carefully — they\'re meant for studying.';
+
+  @override
   String get practiceCustomDisclaimer =>
       'دودیز موضوعات په همغه شیبه کې د AI لخوا جوړیږي. پوښتنې ممکن له موضوع څخه لرې شي یا د ځانګړو مضامینو لپاره ناسمې وي. ناآشنا ځوابونه په خپلواکه توګه تایید کړئ.';
 

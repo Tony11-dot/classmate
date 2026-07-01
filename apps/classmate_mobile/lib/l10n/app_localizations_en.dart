@@ -4650,6 +4650,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'NOVA can make mistakes. Double-check important answers.';
 
   @override
+  String get novaTokenTip =>
+      'Use your tokens carefully — they\'re meant for studying.';
+
+  @override
   String get practiceCustomDisclaimer =>
       'Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.';
 

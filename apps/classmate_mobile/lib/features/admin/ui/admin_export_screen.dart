@@ -1372,11 +1372,19 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
 
       final displayName = _nameForLang(u, _lang);
       final isRtlName = _isRtlText(displayName);
+      // The whole page inherits the export language's direction so Arabic
+      // labels AND titles are shaped + ordered correctly (previously the labels
+      // and role title had no direction context → reversed, disconnected glyphs).
+      final pageDir = (_lang == 'ar' || _lang == 'he')
+          ? pw.TextDirection.rtl
+          : pw.TextDirection.ltr;
 
       doc.addPage(pw.Page(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.fromLTRB(40, 36, 40, 32),
-        build: (ctx) => pw.Column(
+        build: (ctx) => pw.Directionality(
+          textDirection: pageDir,
+          child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
             // ── Brand header band: a big, perfectly-centred ClassMate logo in
@@ -1521,7 +1529,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 padding: const pw.EdgeInsets.fromLTRB(14, 10, 14, 10),
                 decoration: pw.BoxDecoration(
                   color: fieldBg,
-                  borderRadius: pw.BorderRadius.circular(9),
+                  borderRadius: pw.BorderRadius.circular(14),
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1560,7 +1568,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 padding: const pw.EdgeInsets.fromLTRB(14, 12, 14, 12),
                 decoration: pw.BoxDecoration(
                   color: pwBg,
-                  borderRadius: pw.BorderRadius.circular(9),
+                  borderRadius: pw.BorderRadius.circular(14),
                   border: pw.Border.all(color: pwBorder, width: 1),
                 ),
                 child: pw.Column(
@@ -1595,7 +1603,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               padding: const pw.EdgeInsets.fromLTRB(14, 10, 14, 10),
               decoration: pw.BoxDecoration(
                 color: noteBg,
-                borderRadius: pw.BorderRadius.circular(9),
+                borderRadius: pw.BorderRadius.circular(14),
                 border: pw.Border.all(color: noteBorder, width: 0.6),
               ),
               child: pw.Column(
@@ -1636,45 +1644,34 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               ),
             ),
             pw.Spacer(),
-            // ── Footer: "Created by" + CM monogram + ClassMate ───────────
+            // ── Footer: "Created by" + CM monogram + ClassMate (always LTR
+            // brand, so it never flips order on an RTL page). ───────────────
             pw.Container(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 9),
               decoration: pw.BoxDecoration(
                 color: const PdfColor.fromInt(0xFFEFF6FF),
-                borderRadius: pw.BorderRadius.circular(8),
+                borderRadius: pw.BorderRadius.circular(14),
                 border: pw.Border.all(color: brandBlue, width: 0.5),
               ),
-              child: pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Text(
-                    'Created by',
-                    style: pw.TextStyle(
-                      fontSize: 9,
-                      color: brandBlue,
-                      fontStyle: pw.FontStyle.italic,
-                    ),
-                  ),
-                  pw.SizedBox(width: 7),
-                  pw.SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
-                  ),
-                  pw.SizedBox(width: 5),
-                  pw.Text(
-                    'ClassMate',
-                    style: pw.TextStyle(
-                      fontSize: 11,
-                      fontWeight: pw.FontWeight.bold,
-                      color: brandBlue,
-                    ),
-                  ),
-                ],
+              child: pw.Directionality(
+                textDirection: pw.TextDirection.ltr,
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Text('Created by',
+                        style: pw.TextStyle(fontSize: 9, color: brandBlue, fontStyle: pw.FontStyle.italic)),
+                    pw.SizedBox(width: 7),
+                    pw.SizedBox(width: 16, height: 16, child: pw.Image(cmLogo, fit: pw.BoxFit.contain)),
+                    pw.SizedBox(width: 5),
+                    pw.Text('ClassMate',
+                        style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: brandBlue)),
+                  ],
+                ),
               ),
             ),
           ],
+          ),
         ),
       ));
     }
@@ -1742,6 +1739,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     doc.addPage(pw.MultiPage(
       pageFormat: fmt,
       margin: const pw.EdgeInsets.all(24),
+      // Page direction from the export language so Arabic/Hebrew is shaped and
+      // ordered correctly across the whole table (not reversed / detached).
+      textDirection: (_lang == 'ar' || _lang == 'he')
+          ? pw.TextDirection.rtl
+          : pw.TextDirection.ltr,
       build: (ctx) => [
         // Brand mark lives in the blue header row below (monogram + ClassMate).
         pw.Container(

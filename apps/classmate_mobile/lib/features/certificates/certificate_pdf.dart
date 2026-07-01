@@ -107,20 +107,19 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     }
   }
 
-  final doc = pw.Document(
-    theme: pw.ThemeData.withFont(
-      base: baseFont,
-      bold: baseBold,
-      fontFallback: [arabicReg, arabicBold, hebrewReg, hebrewBold],
-    ),
+  final theme = pw.ThemeData.withFont(
+    base: baseFont,
+    bold: baseBold,
+    fontFallback: [arabicReg, arabicBold, hebrewReg, hebrewBold],
   );
+  final doc = pw.Document(theme: theme);
 
   const brandBlue = PdfColor.fromInt(0xFF2563EB);
   const brandDeep = PdfColor.fromInt(0xFF1E3A5F);
   const line = PdfColor.fromInt(0xFFE2E8F0);
-  const softBg = PdfColor.fromInt(0xFFF6F9FF);
+  const softBg = PdfColor.fromInt(0xFFF9FBFF);
   const headerBg = PdfColor.fromInt(0xFFEFF4FF);
-  const radius = pw.Radius.circular(14);
+  const radius = pw.Radius.circular(18);
 
   // ── Number formatting per the rounding toggle ──────────────────────────────
   String fmt(double? v) {
@@ -171,39 +170,29 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     );
   }
 
+  // Clean, white, diploma-style masthead: big school logo + name up top, a slim
+  // brand rule, then the certificate title — no heavy coloured fills.
   pw.Widget header() {
     final logo = schoolLogo;
-    return pw.Container(
-      width: double.infinity,
-      padding: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 18),
-      decoration: const pw.BoxDecoration(
-        color: headerBg,
-        borderRadius: pw.BorderRadius.all(pw.Radius.circular(18)),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.center,
-        children: [
-          if (logo != null) pw.SizedBox(height: 64, child: pw.Image(logo, fit: pw.BoxFit.contain)),
-          if (logo != null) pw.SizedBox(height: 10),
-          pw.Text(
-            data.schoolName,
-            textAlign: pw.TextAlign.center,
-            style: pw.TextStyle(fontSize: 26, fontWeight: pw.FontWeight.bold, color: brandDeep),
-          ),
-          pw.SizedBox(height: 8),
-          pw.Container(
-            padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-            decoration: pw.BoxDecoration(
-              color: brandBlue,
-              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(999)),
-            ),
-            child: pw.Text(
-              '$title  ·  ${data.schoolYear}',
-              style: pw.TextStyle(fontSize: 12, color: PdfColors.white, fontWeight: pw.FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        if (logo != null) pw.SizedBox(height: 96, child: pw.Image(logo, fit: pw.BoxFit.contain)),
+        if (logo != null) pw.SizedBox(height: 14),
+        pw.Text(
+          data.schoolName,
+          textAlign: pw.TextAlign.center,
+          style: pw.TextStyle(fontSize: 31, fontWeight: pw.FontWeight.bold, color: brandDeep, letterSpacing: 0.3),
+        ),
+        pw.SizedBox(height: 12),
+        pw.Container(width: 130, height: 2, color: brandBlue),
+        pw.SizedBox(height: 12),
+        pw.Text(
+          '$title  ·  ${data.schoolYear}',
+          textAlign: pw.TextAlign.center,
+          style: pw.TextStyle(fontSize: 13, color: brandBlue, fontWeight: pw.FontWeight.bold, letterSpacing: 1.0),
+        ),
+      ],
     );
   }
 
@@ -235,7 +224,7 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
           padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 8),
           child: pw.Text(t,
               textAlign: align,
-              style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+              style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: brandDeep)),
         );
     pw.Widget td(String t, {pw.TextAlign align = pw.TextAlign.center, bool bold = false}) => pw.Padding(
           padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 7),
@@ -246,7 +235,7 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
 
     final startAlign = rtl ? pw.TextAlign.right : pw.TextAlign.left;
     final header = pw.TableRow(
-      decoration: const pw.BoxDecoration(color: brandDeep),
+      decoration: const pw.BoxDecoration(color: headerBg),
       children: [
         th(l.certPdfSubject, align: startAlign),
         th(l.certPdfTeacher, align: startAlign),
@@ -285,8 +274,8 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
         border: pw.Border.all(color: line, width: 0.8),
       ),
       child: pw.ClipRRect(
-        horizontalRadius: 14,
-        verticalRadius: 14,
+        horizontalRadius: 18,
+        verticalRadius: 18,
         child: pw.Table(
           border: pw.TableBorder(
             horizontalInside: const pw.BorderSide(color: line, width: 0.6),
@@ -385,9 +374,25 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
 
   doc.addPage(
     pw.MultiPage(
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.fromLTRB(30, 26, 30, 26),
-      textDirection: rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+      pageTheme: pw.PageTheme(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.fromLTRB(38, 34, 38, 34),
+        textDirection: rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+        theme: theme,
+        // Thin rounded diploma frame around the whole (white) page.
+        buildBackground: (context) => pw.FullPage(
+          ignoreMargins: true,
+          child: pw.Padding(
+            padding: const pw.EdgeInsets.all(20),
+            child: pw.Container(
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: brandBlue, width: 1.4),
+                borderRadius: pw.BorderRadius.circular(24),
+              ),
+            ),
+          ),
+        ),
+      ),
       build: (context) => [
         header(),
         studentBlock(),

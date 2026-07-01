@@ -4723,6 +4723,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'NOVA peut se tromper. Vérifiez les réponses importantes.';
 
   @override
+  String get novaTokenTip =>
+      'Use your tokens carefully — they\'re meant for studying.';
+
+  @override
   String get practiceCustomDisclaimer =>
       'Les sujets personnalisés sont générés par l\'IA à la volée. Les questions peuvent dériver hors sujet ou être inexactes pour des sujets de niche. Vérifiez les réponses inconnues de manière indépendante.';
 

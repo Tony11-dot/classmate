@@ -4580,6 +4580,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'NOVA может ошибаться. Проверяйте важные ответы.';
 
   @override
+  String get novaTokenTip =>
+      'Use your tokens carefully — they\'re meant for studying.';
+
+  @override
   String get practiceCustomDisclaimer =>
       'Пользовательские темы создаются ИИ на лету. Вопросы могут отклоняться от темы или быть неточными для нишевых предметов. Проверяйте незнакомые ответы самостоятельно.';
 
