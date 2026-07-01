@@ -76,7 +76,10 @@ export class AdminService {
       throw new ForbiddenException('Admin or Teacher only');
   }
 
-  async createCohort(user: any, body: { name: string; grade?: number; grades?: number[] }) {
+  async createCohort(
+    user: any,
+    body: { name: string; grade?: number; grades?: number[]; homeroomTeacherId?: string | null },
+  ) {
     this.ensureAdmin(user);
     if (!body?.name) throw new BadRequestException('name is required');
 
@@ -84,10 +87,11 @@ export class AdminService {
     if (!grades.length) throw new BadRequestException('grade or grades[] required');
 
     const schoolId = (user as any)?.schoolId ?? null;
+    const homeroomTeacherId = body?.homeroomTeacherId?.trim() || null;
 
     try {
       const out = await this.prisma.cohort.create({
-        data: { name: body.name, grade: grades[0], grades, schoolId } as any,
+        data: { name: body.name, grade: grades[0], grades, schoolId, homeroomTeacherId } as any,
       });
       return out;
     } catch (e: any) {
@@ -1443,6 +1447,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         name: true,
         legalName: true,
         nationalId: true,
+        isPrincipal: true,
+        principalGrades: true,
         email: true,
         username: true,
         phone: true,
@@ -1514,6 +1520,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         name: row.name,
         legalName: (row as any).legalName ?? null,
         nationalId: (row as any).nationalId ?? null,
+        isPrincipal: (row as any).isPrincipal ?? false,
+        principalGrades: (row as any).principalGrades ?? [],
         email: row.email,
         username: (row as any).username ?? null,
         phone: (row as any).phone ?? null,
@@ -1700,6 +1708,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         schoolId,
         status: 'ACTIVE',
         roles: { create: [{ role: role as any }] },
+        ...(role === 'ADMIN' && dto?.isPrincipal === true
+          ? {
+              isPrincipal: true,
+              principalGrades: Array.isArray(dto?.principalGrades)
+                ? dto.principalGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+                : [],
+            }
+          : {}),
+        ...(dto?.nationalId ? { nationalId: String(dto.nationalId).trim() } : {}),
       } as any,
       select: { id: true, name: true, email: true, status: true, roles: { select: { role: true } } },
     });
@@ -1741,6 +1758,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     }
     if (dto?.legalName !== undefined) data.legalName = String(dto.legalName).trim() || null;
     if (dto?.nationalId !== undefined) data.nationalId = String(dto.nationalId).trim() || null;
+    if (dto?.isPrincipal !== undefined) data.isPrincipal = dto.isPrincipal === true;
+    if (dto?.principalGrades !== undefined) {
+      data.principalGrades = Array.isArray(dto.principalGrades)
+        ? dto.principalGrades.map((g: any) => Number(g)).filter((n: number) => Number.isFinite(n))
+        : [];
+    }
     if (dto?.email !== undefined) {
       const em = String(dto.email).trim().toLowerCase() || null;
       if (em) {
@@ -1973,6 +1996,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       if (!grades.length) throw new BadRequestException('grade or grades[] required');
       data.grade = grades[0];
       data.grades = grades;
+    }
+
+    if (dto?.homeroomTeacherId !== undefined) {
+      data.homeroomTeacherId = dto.homeroomTeacherId ? String(dto.homeroomTeacherId).trim() : null;
     }
 
     const row = await this.prisma.cohort.update({ where: { id }, data });

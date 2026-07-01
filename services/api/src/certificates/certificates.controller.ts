@@ -7,7 +7,7 @@ import { CertificatesService } from './certificates.service';
 import { CreateCertificateDto } from './dto/certificate.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.ADMIN, Role.SECRETARY)
+@Roles(Role.ADMIN, Role.SECRETARY, Role.TEACHER)
 @Controller('certificates')
 export class CertificatesController {
   constructor(private readonly certificates: CertificatesService) {}

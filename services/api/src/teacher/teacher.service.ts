@@ -30,6 +30,22 @@ function parseYmdToUtcMidnight(ymd: string): Date {
   return dt;
 }
 
+/** Normalize an optional grade weight to an int in 0..100, or null. */
+function normWeight(v: unknown): number | null {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Math.round(Number(v));
+  if (!Number.isFinite(n)) return null;
+  return Math.max(0, Math.min(100, n));
+}
+
+/** Normalize an optional 1-based semester number, or null. */
+function normSemester(v: unknown): number | null {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Math.round(Number(v));
+  if (!Number.isFinite(n) || n < 1) return null;
+  return Math.min(12, n);
+}
+
 function dayOfWeekInJerusalem(date = new Date()): number {
   const wk = new Intl.DateTimeFormat('en-US', {
     timeZone: 'Asia/Jerusalem',
@@ -1185,7 +1201,15 @@ export class TeacherService {
 
   async createAssessment(
     user: any,
-    body: { cohortId?: string | null; title: string; subject?: string; date?: string; maxGrade?: number },
+    body: {
+      cohortId?: string | null;
+      title: string;
+      subject?: string;
+      date?: string;
+      maxGrade?: number;
+      weightPercent?: number | null;
+      semester?: number | null;
+    },
   ) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -1211,6 +1235,8 @@ export class TeacherService {
         date,
         maxGrade: body.maxGrade ?? undefined,
         createdBy: teacherId,
+        weightPercent: normWeight(body.weightPercent),
+        semester: normSemester(body.semester),
       },
     });
 
@@ -1454,13 +1480,20 @@ export class TeacherService {
   async updateAssessment(
     user: any,
     id: string,
-    body: { title?: string; date?: string | null },
+    body: { title?: string; date?: string | null; weightPercent?: number | null; semester?: number | null; maxGrade?: number },
   ) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
 
     if (!id) throw new BadRequestException('id is required');
-    if (!body || (body.title === undefined && body.date === undefined))
+    if (
+      !body ||
+      (body.title === undefined &&
+        body.date === undefined &&
+        body.weightPercent === undefined &&
+        body.semester === undefined &&
+        body.maxGrade === undefined)
+    )
       throw new BadRequestException('Nothing to update');
 
     const existing = await this.prisma.assessment.findUnique({ where: { id } });
@@ -1486,6 +1519,13 @@ export class TeacherService {
       }
     }
 
+    if (body.weightPercent !== undefined) data.weightPercent = normWeight(body.weightPercent);
+    if (body.semester !== undefined) data.semester = normSemester(body.semester);
+    if (body.maxGrade !== undefined) {
+      const mg = Math.round(Number(body.maxGrade));
+      if (Number.isFinite(mg) && mg > 0) data.maxGrade = mg;
+    }
+
     const updated = await this.prisma.assessment.update({
       where: { id },
       data,
@@ -1508,6 +1548,18 @@ export class TeacherService {
     await this.prisma.gradeRecord.deleteMany({ where: { assessmentId: id } });
     await this.prisma.assessment.delete({ where: { id } });
 
+    return { ok: true };
+  }
+
+  /** Delete ONE student's grade on an assessment (leaves the assessment). */
+  async deleteGrade(user: any, assessmentId: string, studentId: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!assessmentId || !studentId) throw new BadRequestException('assessmentId and studentId are required');
+    const assessment = await this.prisma.assessment.findUnique({ where: { id: assessmentId } });
+    if (!assessment) throw new BadRequestException('Invalid assessment id');
+    if (assessment.createdBy !== teacherId) throw new ForbiddenException('Not your assessment');
+    await this.prisma.gradeRecord.deleteMany({ where: { assessmentId, studentId } });
     return { ok: true };
   }
 
@@ -2812,6 +2864,8 @@ export class TeacherService {
         subject: body?.subject ? String(body.subject).trim() : null,
         dueAt: body?.dueAt ? new Date(String(body.dueAt)) : null,
         maxGrade: body?.maxGrade ? Number(body.maxGrade) : null,
+        weightPercent: normWeight(body?.weightPercent),
+        semester: normSemester(body?.semester),
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
         targetStudentIds: Array.isArray(body?.targetStudentIds) ? body.targetStudentIds : [],
@@ -2877,6 +2931,8 @@ export class TeacherService {
     if (body?.subject !== undefined) data.subject = body.subject ? String(body.subject).trim() : null;
     if (body?.dueAt !== undefined) data.dueAt = body.dueAt ? new Date(String(body.dueAt)) : null;
     if (body?.maxGrade !== undefined) data.maxGrade = body.maxGrade ? Number(body.maxGrade) : null;
+    if (body?.weightPercent !== undefined) data.weightPercent = normWeight(body.weightPercent);
+    if (body?.semester !== undefined) data.semester = normSemester(body.semester);
     if (body?.targetType !== undefined) data.targetType = body.targetType;
     if (body?.targetCohortIds !== undefined) data.targetCohortIds = body.targetCohortIds;
     if (body?.targetStudentIds !== undefined) data.targetStudentIds = body.targetStudentIds;
@@ -2885,6 +2941,16 @@ export class TeacherService {
       : [];
     if (body?.published !== undefined) { data.published = body.published; if (body.published) data.publishedAt = new Date(); }
     await this.prisma.teacherAssignment.updateMany({ where: { id, teacherId }, data });
+    // Sync graded Assessment mirrors so certificate math reflects edits.
+    if (body?.weightPercent !== undefined || body?.semester !== undefined) {
+      await this.prisma.assessment.updateMany({
+        where: { teacherAssignmentId: id },
+        data: {
+          ...(body?.weightPercent !== undefined ? { weightPercent: normWeight(body.weightPercent) } : {}),
+          ...(body?.semester !== undefined ? { semester: normSemester(body.semester) } : {}),
+        },
+      });
+    }
     return { ok: true };
   }
 
@@ -2893,6 +2959,13 @@ export class TeacherService {
     const teacherId = user.id ?? user.sub;
     const ta = await this.prisma.teacherAssignment.findFirst({ where: { id, teacherId } });
     if (ta) {
+      // Remove the grade mirror so deleted assignments stop counting in averages.
+      const mirrors = await this.prisma.assessment.findMany({ where: { teacherAssignmentId: id }, select: { id: true } });
+      const mirrorIds = mirrors.map((m) => m.id);
+      if (mirrorIds.length) {
+        await this.prisma.gradeRecord.deleteMany({ where: { assessmentId: { in: mirrorIds } } });
+        await this.prisma.assessment.deleteMany({ where: { id: { in: mirrorIds } } });
+      }
       await this.prisma.teacherAssignment.deleteMany({ where: { id, teacherId } });
       // cascade: by back-ref or by matching title in teacher's classrooms
       await this.prisma.classroomAssignment.deleteMany({ where: { OR: [{ teacherAssignmentId: id }, { title: ta.title, classroom: { teacherId } }] } });
@@ -3023,6 +3096,8 @@ export class TeacherService {
           date: assignment.dueAt ?? new Date(),
           maxGrade: assignment.maxGrade ?? 100,
           teacherAssignmentId: assignment.id,
+          weightPercent: assignment.weightPercent ?? null,
+          semester: assignment.semester ?? null,
           published: true,
         },
       });
@@ -4007,6 +4082,8 @@ export class TeacherService {
         subject: body?.subject ? String(body.subject).trim() : null,
         date: body?.date ? new Date(String(body.date)) : new Date(),
         maxGrade: body?.maxGrade ? Number(body.maxGrade) : null,
+        weightPercent: normWeight(body?.weightPercent),
+        semester: normSemester(body?.semester),
         published: body?.published === true,
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
@@ -4076,6 +4153,8 @@ export class TeacherService {
     if (body?.maxGrade !== undefined) {
       data.maxGrade = body.maxGrade ? Number(body.maxGrade) : null;
     }
+    if (body?.weightPercent !== undefined) data.weightPercent = normWeight(body.weightPercent);
+    if (body?.semester !== undefined) data.semester = normSemester(body.semester);
     if (body?.published !== undefined) {
       data.published = body.published === true;
     }
@@ -4101,6 +4180,17 @@ export class TeacherService {
       where: { id },
       data,
     });
+    // Keep any already-graded Assessment mirrors in sync with the exam's
+    // weight/semester so the certificate math reflects edits.
+    if (body?.weightPercent !== undefined || body?.semester !== undefined) {
+      await this.prisma.assessment.updateMany({
+        where: { examId: id },
+        data: {
+          ...(body?.weightPercent !== undefined ? { weightPercent: normWeight(body.weightPercent) } : {}),
+          ...(body?.semester !== undefined ? { semester: normSemester(body.semester) } : {}),
+        },
+      });
+    }
     return { ok: true, exam: updated };
   }
 
@@ -4199,6 +4289,8 @@ export class TeacherService {
             date: exam.date,
             maxGrade: exam.maxGrade ?? 100,
             examId,
+            weightPercent: (exam as any).weightPercent ?? null,
+            semester: (exam as any).semester ?? null,
             published: true,
           },
         });
@@ -4219,6 +4311,15 @@ export class TeacherService {
   async deleteTeacherExam(user: any, id: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
+    const exam = await this.prisma.teacherExam.findFirst({ where: { id, teacherId }, select: { id: true } });
+    if (!exam) return { ok: true };
+    // Remove the grade mirror so a deleted exam stops counting in averages.
+    const mirrors = await this.prisma.assessment.findMany({ where: { examId: id }, select: { id: true } });
+    const mirrorIds = mirrors.map((m) => m.id);
+    if (mirrorIds.length) {
+      await this.prisma.gradeRecord.deleteMany({ where: { assessmentId: { in: mirrorIds } } });
+      await this.prisma.assessment.deleteMany({ where: { id: { in: mirrorIds } } });
+    }
     await this.prisma.teacherExam.deleteMany({ where: { id, teacherId } });
     return { ok: true };
   }

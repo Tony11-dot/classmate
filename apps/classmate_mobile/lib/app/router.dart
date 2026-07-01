@@ -46,7 +46,6 @@ import '../features/admin/ui/admin_import_users_screen.dart';
 import '../features/teacher_mobile/ui/teacher_exams_screen.dart';
 import '../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
-import '../features/averages/averages_screen.dart';
 import '../features/certificates/certificates_screen.dart';
 import '../features/teacher_mobile/ui/teacher_home_screen.dart';
 import '../features/teacher_mobile/ui/teacher_insights_screen.dart';
@@ -850,10 +849,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/teacher/grades',
             builder: (context, state) => const TeacherGradesScreen(),
-          ),
-          _fadeRoute(
-            path: '/teacher/averages',
-            builder: (context, state) => const AveragesScreen(),
           ),
           _fadeRoute(
             path: '/teacher/exams',

@@ -24,6 +24,8 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   final _usernameCtrl = TextEditingController();
   final _phoneCtrl    = TextEditingController();
   final _nationalIdCtrl = TextEditingController();
+  bool _isPrincipal = false;
+  final Set<int> _principalGrades = <int>{};
   String  _dialCode = kDefaultDialCode;
 
   String? _role;
@@ -66,6 +68,13 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       _emailCtrl.text    = m['email']?.toString() ?? '';
       _usernameCtrl.text = m['username']?.toString() ?? '';
       _nationalIdCtrl.text = m['nationalId']?.toString() ?? '';
+      _isPrincipal = m['isPrincipal'] == true;
+      final pg = m['principalGrades'];
+      if (pg is List) {
+        _principalGrades
+          ..clear()
+          ..addAll(pg.map((e) => e is int ? e : int.tryParse('$e')).whereType<int>());
+      }
       // Split the stored E.164 phone into dial-code + local digits so the
       // PhoneField shows the right country chip on first paint.
       final phoneRaw = m['phone']?.toString() ?? '';
@@ -122,6 +131,8 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         role: _role,
         grade: _grade,
         nationalId: _nationalIdCtrl.text.trim(),
+        isPrincipal: _role == 'ADMIN' ? _isPrincipal : false,
+        principalGrades: (_role == 'ADMIN' && _isPrincipal) ? (_principalGrades.toList()..sort()) : const <int>[],
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserSaved)));
@@ -330,6 +341,37 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     )),
                   ),
 
+                  // ── Principal (admins) ─────────────────────────────────────
+                  if (_role == 'ADMIN') ...[
+                    const SizedBox(height: 20),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _isPrincipal,
+                      title: Text(l.adminPrincipalLabel),
+                      subtitle: Text(l.adminPrincipalHint,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      onChanged: (v) => setState(() => _isPrincipal = v),
+                    ),
+                    if (_isPrincipal) ...[
+                      const SizedBox(height: 6),
+                      Text(l.adminPrincipalGrades, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8, runSpacing: 8,
+                        children: ref.watch(authSessionProvider).schoolGrades.map((g) => FilterChip(
+                          label: Text(l.adminCohortGradeFormat(g.toString())),
+                          selected: _principalGrades.contains(g),
+                          onSelected: (sel) => setState(() {
+                            if (sel) {
+                              _principalGrades.add(g);
+                            } else {
+                              _principalGrades.remove(g);
+                            }
+                          }),
+                        )).toList(),
+                      ),
+                    ],
+                  ],
                   // ── Grade (students) ───────────────────────────────────────
                   if (isStudent) ...[
                     const SizedBox(height: 20),

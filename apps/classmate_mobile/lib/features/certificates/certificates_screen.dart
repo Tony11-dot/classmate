@@ -125,6 +125,9 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         _displayNameCtrl.text = p.student?.name ?? '';
         _nationalIdCtrl.text = p.studentNationalId ?? '';
         _homeroomTeacher = p.defaultHomeroomTeacher.isNotEmpty ? p.defaultHomeroomTeacher : null;
+        if (_principalCtrl.text.trim().isEmpty && p.defaultPrincipalName.isNotEmpty) {
+          _principalCtrl.text = p.defaultPrincipalName;
+        }
         _syncWeightControllers(p.semesterWeights.isNotEmpty
             ? p.semesterWeights
             : List.filled(p.semesterCount, (100 / p.semesterCount).round()));

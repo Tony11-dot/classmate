@@ -3946,5 +3946,19 @@
   "certPdfName": "Имя",
   "certPdfClass": "Класс",
   "adminEditUserNationalId": "Удостоверение личности",
-  "teacherCohortsScreenNoStudentsToAdd": "Все ученики уже в этом классе."
+  "teacherCohortsScreenNoStudentsToAdd": "Все ученики уже в этом классе.",
+  "gradeWeightLabel": "Вес в среднем (%)",
+  "gradeWeightHint": "Необязательно — задайте, какой % учитывается в среднем по предмету, или оставьте пустым.",
+  "gradeSemesterLabel": "Семестр",
+  "gradeSemesterAuto": "Авто (по дате)",
+  "gradeDeleteTooltip": "Удалить оценку",
+  "gradeDeleteTitle": "Удалить оценку",
+  "gradeDeleteConfirm": "Удалить оценку за «{title}»?",
+  "cohortHomeroomLabel": "Классное руководство",
+  "cohortHomeroomHint": "Назначьте классного руководителя для этого класса.",
+  "cohortHomeroomTeacher": "Классный руководитель",
+  "adminPrincipalLabel": "Директор",
+  "adminPrincipalHint": "Этот администратор — директор; в сертификатах его имя подставляется по классу ученика.",
+  "adminPrincipalGrades": "Директор для классов",
+  "certPdfTeacher": "Учитель"
 }

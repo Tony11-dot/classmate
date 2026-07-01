@@ -149,6 +149,31 @@ class _TeacherStudentGradeDetailScreenState
     }
   }
 
+  Future<void> _deleteGrade(_GradeEntry entry) async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.gradeDeleteTitle),
+        content: Text(l.gradeDeleteConfirm(entry.assessment.title)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.averagesDelete)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(teacherMobileRepositoryProvider).deleteGrade(
+            assessmentId: entry.assessment.id,
+            studentId: widget.student.studentId,
+          );
+      if (mounted) await _load();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
   Future<void> _save() async {
     final dirty = _entries.where((e) => e.isDirty).toList();
     if (dirty.isEmpty) return;
@@ -432,7 +457,11 @@ class _TeacherStudentGradeDetailScreenState
                                           ],
                                           ...graded.asMap().entries.map((re) => Padding(
                                             padding: EdgeInsets.only(bottom: re.key < graded.length - 1 ? 10 : 0),
-                                            child: _GradeRow(entry: re.value, onChanged: () => setState(() {})),
+                                            child: _GradeRow(
+                                              entry: re.value,
+                                              onChanged: () => setState(() {}),
+                                              onDelete: () => _deleteGrade(re.value),
+                                            ),
                                           )),
                                         ],
                                       );
@@ -454,10 +483,11 @@ class _TeacherStudentGradeDetailScreenState
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _GradeRow extends StatelessWidget {
-  const _GradeRow({required this.entry, required this.onChanged});
+  const _GradeRow({required this.entry, required this.onChanged, this.onDelete});
 
   final _GradeEntry entry;
   final VoidCallback onChanged;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -537,6 +567,12 @@ class _GradeRow extends StatelessWidget {
               ),
             ),
           ),
+          if (onDelete != null && entry.grade != null)
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.gradeDeleteTooltip,
+              icon: Icon(Icons.delete_outline_rounded, color: cs.error, size: 20),
+              onPressed: onDelete,
+            ),
         ],
       ),
     );

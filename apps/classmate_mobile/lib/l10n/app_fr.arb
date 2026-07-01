@@ -3739,5 +3739,19 @@
   "certPdfName": "Nom",
   "certPdfClass": "Classe",
   "adminEditUserNationalId": "Numéro national",
-  "teacherCohortsScreenNoStudentsToAdd": "Tous les élèves sont déjà dans cette classe."
+  "teacherCohortsScreenNoStudentsToAdd": "Tous les élèves sont déjà dans cette classe.",
+  "gradeWeightLabel": "Poids dans la moyenne (%)",
+  "gradeWeightHint": "Facultatif — définissez le pourcentage compté dans la moyenne de la matière, ou laissez vide pour plus tard.",
+  "gradeSemesterLabel": "Semestre",
+  "gradeSemesterAuto": "Auto (par date)",
+  "gradeDeleteTooltip": "Supprimer la note",
+  "gradeDeleteTitle": "Supprimer la note",
+  "gradeDeleteConfirm": "Supprimer la note pour « {title} » ?",
+  "cohortHomeroomLabel": "Classe principale",
+  "cohortHomeroomHint": "Attribuez un professeur principal à cette classe.",
+  "cohortHomeroomTeacher": "Professeur principal",
+  "adminPrincipalLabel": "Directeur/trice",
+  "adminPrincipalHint": "Cet admin est directeur/trice ; les certificats remplissent son nom selon le niveau de l’élève.",
+  "adminPrincipalGrades": "Directeur/trice pour les niveaux",
+  "certPdfTeacher": "Enseignant"
 }

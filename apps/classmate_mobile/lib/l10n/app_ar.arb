@@ -3739,5 +3739,19 @@
   "certPdfName": "الاسم",
   "certPdfClass": "الصف",
   "adminEditUserNationalId": "رقم الهوية",
-  "teacherCohortsScreenNoStudentsToAdd": "جميع الطلاب موجودون بالفعل في هذا الصف."
+  "teacherCohortsScreenNoStudentsToAdd": "جميع الطلاب موجودون بالفعل في هذا الصف.",
+  "gradeWeightLabel": "الوزن في المعدل (%)",
+  "gradeWeightHint": "اختياري — حدّد النسبة التي تُحتسب في معدل المادة، أو اتركه لضبطه لاحقًا.",
+  "gradeSemesterLabel": "الفصل",
+  "gradeSemesterAuto": "تلقائي (حسب التاريخ)",
+  "gradeDeleteTooltip": "حذف العلامة",
+  "gradeDeleteTitle": "حذف العلامة",
+  "gradeDeleteConfirm": "حذف علامة “{title}”؟",
+  "cohortHomeroomLabel": "صف تربية (مربّي)",
+  "cohortHomeroomHint": "عيّن مربّي/ة الصف لهذا الصف.",
+  "cohortHomeroomTeacher": "مربّي/ة الصف",
+  "adminPrincipalLabel": "مدير/ة المدرسة",
+  "adminPrincipalHint": "هذا المشرف مدير/ة؛ تُملأ الشهادات باسمه تلقائيًا حسب صف الطالب.",
+  "adminPrincipalGrades": "مدير/ة للصفوف",
+  "certPdfTeacher": "المعلّم"
 }

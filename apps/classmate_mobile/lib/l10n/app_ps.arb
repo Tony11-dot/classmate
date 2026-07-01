@@ -4356,5 +4356,19 @@
   "certPdfName": "نوم",
   "certPdfClass": "ټولګی",
   "adminEditUserNationalId": "ملي پېژندپاڼه",
-  "teacherCohortsScreenNoStudentsToAdd": "ټول زده‌کوونکي دمخه په دې ټولګي کې دي."
+  "teacherCohortsScreenNoStudentsToAdd": "ټول زده‌کوونکي دمخه په دې ټولګي کې دي.",
+  "gradeWeightLabel": "په اوسط کې وزن (%)",
+  "gradeWeightHint": "اختیاري — وټاکئ چې څومره سلنه د مضمون په اوسط کې حساب شي، یا وروسته لپاره یې خالي پرېږدئ.",
+  "gradeSemesterLabel": "سمسټر",
+  "gradeSemesterAuto": "اتومات (د نېټې له مخې)",
+  "gradeDeleteTooltip": "نمره ړنګول",
+  "gradeDeleteTitle": "نمره ړنګول",
+  "gradeDeleteConfirm": "د “{title}” نمره ړنګه کړئ؟",
+  "cohortHomeroomLabel": "د ټولګي مشري (سرښوونکی)",
+  "cohortHomeroomHint": "د دې ټولګي لپاره سرښوونکی وټاکئ.",
+  "cohortHomeroomTeacher": "د ټولګي سرښوونکی",
+  "adminPrincipalLabel": "مدير",
+  "adminPrincipalHint": "دا مدير یو مدير دی؛ سندونه یې نوم د زده‌کوونکي د ټولګي له مخې په اتومات ډول ډکوي.",
+  "adminPrincipalGrades": "د ټولګیو لپاره مدير",
+  "certPdfTeacher": "ښوونکی"
 }

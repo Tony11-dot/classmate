@@ -10333,4 +10333,50 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get teacherCohortsScreenNoStudentsToAdd =>
       'ټول زده‌کوونکي دمخه په دې ټولګي کې دي.';
+
+  @override
+  String get gradeWeightLabel => 'په اوسط کې وزن (%)';
+
+  @override
+  String get gradeWeightHint =>
+      'اختیاري — وټاکئ چې څومره سلنه د مضمون په اوسط کې حساب شي، یا وروسته لپاره یې خالي پرېږدئ.';
+
+  @override
+  String get gradeSemesterLabel => 'سمسټر';
+
+  @override
+  String get gradeSemesterAuto => 'اتومات (د نېټې له مخې)';
+
+  @override
+  String get gradeDeleteTooltip => 'نمره ړنګول';
+
+  @override
+  String get gradeDeleteTitle => 'نمره ړنګول';
+
+  @override
+  String gradeDeleteConfirm(String title) {
+    return 'د “$title” نمره ړنګه کړئ؟';
+  }
+
+  @override
+  String get cohortHomeroomLabel => 'د ټولګي مشري (سرښوونکی)';
+
+  @override
+  String get cohortHomeroomHint => 'د دې ټولګي لپاره سرښوونکی وټاکئ.';
+
+  @override
+  String get cohortHomeroomTeacher => 'د ټولګي سرښوونکی';
+
+  @override
+  String get adminPrincipalLabel => 'مدير';
+
+  @override
+  String get adminPrincipalHint =>
+      'دا مدير یو مدير دی؛ سندونه یې نوم د زده‌کوونکي د ټولګي له مخې په اتومات ډول ډکوي.';
+
+  @override
+  String get adminPrincipalGrades => 'د ټولګیو لپاره مدير';
+
+  @override
+  String get certPdfTeacher => 'ښوونکی';
 }

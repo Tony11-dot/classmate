@@ -10314,4 +10314,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get teacherCohortsScreenNoStudentsToAdd =>
       'All students are already in this class.';
+
+  @override
+  String get gradeWeightLabel => 'Weight on average (%)';
+
+  @override
+  String get gradeWeightHint =>
+      'Optional — set what % this counts toward the subject average, or leave blank to set later.';
+
+  @override
+  String get gradeSemesterLabel => 'Semester';
+
+  @override
+  String get gradeSemesterAuto => 'Auto (by date)';
+
+  @override
+  String get gradeDeleteTooltip => 'Delete grade';
+
+  @override
+  String get gradeDeleteTitle => 'Delete grade';
+
+  @override
+  String gradeDeleteConfirm(String title) {
+    return 'Delete the grade for “$title”?';
+  }
+
+  @override
+  String get cohortHomeroomLabel => 'Homeroom class';
+
+  @override
+  String get cohortHomeroomHint => 'Assign a homeroom teacher for this class.';
+
+  @override
+  String get cohortHomeroomTeacher => 'Homeroom teacher';
+
+  @override
+  String get adminPrincipalLabel => 'Principal';
+
+  @override
+  String get adminPrincipalHint =>
+      'This admin is a principal; certificates auto-fill their name by the student’s grade.';
+
+  @override
+  String get adminPrincipalGrades => 'Principal for grades';
+
+  @override
+  String get certPdfTeacher => 'Teacher';
 }

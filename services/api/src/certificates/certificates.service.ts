@@ -1,6 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AveragesService } from '../averages/averages.service';
 import {
   parseSchoolSemesters,
   currentAcademicStartYear,
@@ -12,10 +11,7 @@ import { CreateCertificateDto } from './dto/certificate.dto';
 
 @Injectable()
 export class CertificatesService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly averages: AveragesService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   private userId(user: any): string {
     return (user?.id ?? user?.sub ?? '') as string;
@@ -33,23 +29,24 @@ export class CertificatesService {
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: cohortId },
-      select: { id: true, name: true, grade: true, schoolId: true },
+      select: { id: true, name: true, grade: true, schoolId: true, homeroomTeacherId: true },
     });
     if (!cohort) throw new NotFoundException('Cohort not found');
     if (cohort.schoolId && cohort.schoolId !== schoolId) throw new ForbiddenException('Cross-school access denied');
 
-    // School + semester setup.
     const school = await this.prisma.school.findUnique({
       where: { id: schoolId },
       select: { name: true, logoUrl: true, semesters: true },
     });
     const sems = parseSchoolSemesters(school?.semesters ?? null);
-    const startYear = currentAcademicStartYear(sems.length ? sems : [{ number: 1, startMonth: 9, endMonth: 6 }], new Date());
+    const startYear = currentAcademicStartYear(
+      sems.length ? sems : [{ number: 1, startMonth: 9, endMonth: 6 }],
+      new Date(),
+    );
     const windows: SemesterWindow[] = semesterWindowsForYear(sems, startYear);
-    const semesterCount = Math.max(windows.length, 1);
+    const semesterCount = Math.max(windows.length, 2); // grid shows ≥2 columns
     const schoolYear = academicYearLabel(startYear);
 
-    // Default semester weights (even split) unless provided.
     let weights = this.defaultWeights(semesterCount);
     if (semesterWeightsRaw) {
       const parsed = semesterWeightsRaw
@@ -59,35 +56,46 @@ export class CertificatesService {
       if (parsed.length) weights = parsed;
     }
 
-    // Cohorts (homerooms) for the picker + teacher names for the DDL.
     const [cohorts, teacherNames] = await Promise.all([
       this.prisma.cohort.findMany({
         where: { schoolId },
-        select: { id: true, name: true, grade: true },
+        select: { id: true, name: true, grade: true, homeroomTeacherId: true },
         orderBy: { name: 'asc' },
       }),
       this.teacherNames(schoolId),
     ]);
 
-    // Resolve the student (if chosen) + per-subject averages.
+    // Homeroom teacher default from the cohort, else the current user.
+    let defaultHomeroomTeacher = (user?.name ?? '') as string;
+    if (cohort.homeroomTeacherId) {
+      const hr = await this.prisma.user.findUnique({
+        where: { id: cohort.homeroomTeacherId },
+        select: { name: true },
+      });
+      if (hr?.name) defaultHomeroomTeacher = hr.name;
+    }
+
     let student: { id: string; name: string; nationalId: string | null } | null = null;
     let subjects: any[] = [];
     let overall: number | null = null;
     let attendance = { absences: 0, lates: 0 };
+    let defaultPrincipalName = '';
 
     if (studentId) {
       const u = await this.prisma.user.findUnique({
         where: { id: studentId },
-        select: { id: true, name: true, nationalId: true, schoolId: true },
+        select: { id: true, name: true, nationalId: true, schoolId: true, studentProfile: { select: { grade: true } } },
       });
       if (!u) throw new NotFoundException('Student not found');
       if (u.schoolId && u.schoolId !== schoolId) throw new ForbiddenException('Cross-school access denied');
       student = { id: u.id, name: u.name, nationalId: u.nationalId };
 
-      const computed = await this.computeSubjects(schoolId, cohortId, cohort.grade, studentId, windows, weights);
+      const grade = u.studentProfile?.grade ?? cohort.grade;
+      const computed = await this.computeSubjects(schoolId, cohortId, grade, studentId, windows, weights);
       subjects = computed.subjects;
       overall = computed.overall;
       attendance = await this.attendanceCounts(studentId, windows, startYear);
+      defaultPrincipalName = await this.resolvePrincipalName(schoolId, grade);
     }
 
     return {
@@ -97,8 +105,8 @@ export class CertificatesService {
       schoolYear,
       semesterCount,
       semesterWeights: weights,
-      defaultHomeroomTeacher: (user?.name ?? '') as string,
-      defaultPrincipalName: '',
+      defaultHomeroomTeacher,
+      defaultPrincipalName,
       cohorts,
       teacherNames,
       cohort: { id: cohort.id, name: cohort.name, grade: cohort.grade },
@@ -113,11 +121,24 @@ export class CertificatesService {
     if (count <= 1) return [100];
     const base = Math.floor(100 / count);
     const out = new Array(count).fill(base);
-    out[out.length - 1] = 100 - base * (count - 1); // remainder on last
+    out[out.length - 1] = 100 - base * (count - 1);
     return out;
   }
 
-  /** Per-subject semester averages + weighted final + overall (units-aware). */
+  /** Which semester (1-based) an assessment counts toward. */
+  private semesterOf(a: { semester: number | null; date: Date }, windows: SemesterWindow[]): number | null {
+    if (a.semester && a.semester >= 1) return a.semester;
+    const t = a.date.getTime();
+    const w = windows.find((win) => t >= win.start.getTime() && t <= win.end.getTime());
+    return w?.number ?? null;
+  }
+
+  /**
+   * Per-subject semester averages + weighted final + overall, computed from the
+   * student's graded assessments. Each grade's weight = its weightPercent (if
+   * any in the subject/semester are weighted), else equal weights; averages are
+   * renormalized over the grades the student actually has.
+   */
   private async computeSubjects(
     schoolId: string,
     cohortId: string,
@@ -126,12 +147,31 @@ export class CertificatesService {
     windows: SemesterWindow[],
     weights: number[],
   ) {
-    // Subjects that have a formula for this cohort.
-    const formulas = await this.prisma.gradeFormula.findMany({
-      where: { schoolId, cohortId },
-      select: { subject: true },
-      distinct: ['subject'],
+    const semesterCount = Math.max(windows.length, weights.length, 2);
+
+    // The student's grades + the assessment meta needed to weight/bucket them.
+    const records = await this.prisma.gradeRecord.findMany({
+      where: { studentId },
+      select: {
+        grade: true,
+        assessment: {
+          select: { id: true, subject: true, date: true, semester: true, weightPercent: true, maxGrade: true },
+        },
+      },
     });
+
+    // Group by subject (skip grades with no subject — they can't sit in the grid).
+    const bySubject = new Map<string, { pct: number; weight: number | null; sem: number | null }[]>();
+    for (const r of records) {
+      const a = r.assessment;
+      if (!a || !a.subject || !a.subject.trim()) continue;
+      const max = a.maxGrade && a.maxGrade > 0 ? a.maxGrade : 100;
+      const pct = (r.grade / max) * 100;
+      const key = a.subject.trim();
+      const arr = bySubject.get(key) ?? [];
+      arr.push({ pct, weight: a.weightPercent ?? null, sem: this.semesterOf(a, windows) });
+      bySubject.set(key, arr);
+    }
 
     // i18n display names for the cohort's grade.
     const defaultRow = grade == null
@@ -149,51 +189,40 @@ export class CertificatesService {
     }
 
     const subjects: any[] = [];
-    const finals: { final: number; units: number }[] = [];
+    const finals: number[] = [];
 
-    for (const f of formulas) {
-      const formula = await this.averages.findFormulaForCohortSubject(schoolId, cohortId, f.subject);
-      if (!formula) continue;
-
+    for (const [subject, items] of bySubject.entries()) {
       const semAverages: (number | null)[] = [];
-      for (const w of windows) {
-        const [res] = await this.averages.computeForFormula(formula, [studentId], w);
-        semAverages.push(res?.average ?? null);
+      for (let n = 1; n <= semesterCount; n++) {
+        const inSem = items.filter((it) => it.sem === n);
+        semAverages.push(this.weightedAverage(inSem));
       }
-      // Whole-year (no window) fallback when there are no configured semesters.
-      if (windows.length === 0) {
-        const [res] = await this.averages.computeForFormula(formula, [studentId], null);
-        semAverages.push(res?.average ?? null);
-      }
-
       const final = this.weightedFinal(semAverages, weights);
-      const i18n = i18nByKey.get(f.subject.trim().toLowerCase()) ?? null;
-      subjects.push({
-        subject: f.subject,
-        i18n,
-        units: formula.units ?? 0,
-        semesters: semAverages,
-        final,
-      });
-      if (final != null) finals.push({ final, units: formula.units ?? 0 });
+      const teachers = await this.subjectTeachers(cohortId, subject);
+      const i18n = i18nByKey.get(subject.toLowerCase()) ?? null;
+      subjects.push({ subject, i18n, teachers, semesters: semAverages, final });
+      if (final != null) finals.push(final);
     }
 
-    // Overall: units-weighted when any subject carries units, else simple mean.
-    let overall: number | null = null;
-    if (finals.length) {
-      const anyUnits = finals.some((x) => x.units > 0);
-      if (anyUnits) {
-        const totUnits = finals.reduce((a, x) => a + (x.units > 0 ? x.units : 0), 0);
-        if (totUnits > 0) {
-          overall = Math.round(finals.reduce((a, x) => a + x.final * (x.units > 0 ? x.units : 0), 0) / totUnits);
-        }
-      }
-      if (overall == null) {
-        overall = Math.round(finals.reduce((a, x) => a + x.final, 0) / finals.length);
-      }
-    }
-
+    subjects.sort((a, b) => a.subject.localeCompare(b.subject));
+    const overall = finals.length ? Math.round(finals.reduce((s, x) => s + x, 0) / finals.length) : null;
     return { subjects, overall };
+  }
+
+  /** %-weighted mean, renormalized; equal weights when none are set. */
+  private weightedAverage(items: { pct: number; weight: number | null }[]): number | null {
+    if (!items.length) return null;
+    const anyWeighted = items.some((it) => (it.weight ?? 0) > 0);
+    let num = 0;
+    let den = 0;
+    for (const it of items) {
+      const w = anyWeighted ? (it.weight ?? 0) : 1;
+      if (w <= 0) continue;
+      num += it.pct * w;
+      den += w;
+    }
+    if (den === 0) return null;
+    return Math.round(num / den);
   }
 
   private weightedFinal(semAverages: (number | null)[], weights: number[]): number | null {
@@ -210,24 +239,45 @@ export class CertificatesService {
     return Math.round(num / den);
   }
 
-  /** Absence/late counts for a student across the school year. */
+  /** Teacher name(s) for a subject in a cohort, derived from the schedule. */
+  private async subjectTeachers(cohortId: string, subject: string): Promise<string[]> {
+    const slots = await this.prisma.scheduleSlot.findMany({
+      where: { cohorts: { some: { cohortId } }, subject, teacherId: { not: null } },
+      select: { teacher: { select: { name: true } } },
+      distinct: ['teacherId'],
+    });
+    const names = slots.map((s) => s.teacher?.name).filter((n): n is string => !!n);
+    return Array.from(new Set(names));
+  }
+
+  /** Name of the principal responsible for [grade], or ''. */
+  private async resolvePrincipalName(schoolId: string, grade: number | null): Promise<string> {
+    const principals = await this.prisma.user.findMany({
+      where: { schoolId, isPrincipal: true },
+      select: { name: true, principalGrades: true },
+      orderBy: { name: 'asc' },
+    });
+    if (!principals.length) return '';
+    if (grade != null) {
+      const forGrade = principals.find((p) => (p.principalGrades ?? []).includes(grade));
+      if (forGrade) return forGrade.name;
+    }
+    const anyAll = principals.find((p) => !(p.principalGrades ?? []).length);
+    return (anyAll ?? principals[0]).name;
+  }
+
   private async attendanceCounts(studentId: string, windows: SemesterWindow[], startYear: number) {
-    // Year window = union of semester windows, or a Sep→Aug fallback.
     let start: Date;
     let end: Date;
     if (windows.length) {
       start = windows.reduce((a, w) => (w.start < a ? w.start : a), windows[0].start);
       end = windows.reduce((a, w) => (w.end > a ? w.end : a), windows[0].end);
     } else {
-      start = new Date(startYear, 8, 1); // Sep 1
-      end = new Date(startYear + 1, 7, 31, 23, 59, 59); // Aug 31
+      start = new Date(startYear, 8, 1);
+      end = new Date(startYear + 1, 7, 31, 23, 59, 59);
     }
     const records = await this.prisma.attendanceRecord.findMany({
-      where: {
-        studentId,
-        status: { in: ['ABSENT', 'LATE'] },
-        session: { date: { gte: start, lte: end } },
-      },
+      where: { studentId, status: { in: ['ABSENT', 'LATE'] }, session: { date: { gte: start, lte: end } } },
       select: { status: true },
     });
     let absences = 0;
@@ -257,20 +307,13 @@ export class CertificatesService {
       if (sum !== 100) throw new BadRequestException(`Semester weights must sum to 100 (got ${sum}).`);
     }
 
-    // Validate cohort in-school.
     const cohort = await this.prisma.cohort.findUnique({ where: { id: dto.cohortId }, select: { schoolId: true } });
     if (!cohort) throw new NotFoundException('Cohort not found');
     if (cohort.schoolId && cohort.schoolId !== schoolId) throw new ForbiddenException('Cross-school access denied');
 
-    // Re-compute and freeze a snapshot at issue time (server-authoritative).
     let snapshot: any = dto.snapshot ?? {};
     if (dto.studentId) {
-      const pre = await this.prefill(
-        user,
-        dto.cohortId,
-        dto.studentId,
-        weights.length ? weights.join(',') : undefined,
-      );
+      const pre = await this.prefill(user, dto.cohortId, dto.studentId, weights.length ? weights.join(',') : undefined);
       snapshot = {
         subjects: pre.subjects,
         overall: pre.overall,

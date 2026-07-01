@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { CertificatesController } from './certificates.controller';
 import { CertificatesService } from './certificates.service';
 import { PrismaModule } from '../prisma/prisma.module';
-import { AveragesModule } from '../averages/averages.module';
 
 @Module({
-  imports: [PrismaModule, AveragesModule],
+  imports: [PrismaModule],
   controllers: [CertificatesController],
   providers: [CertificatesService],
 })

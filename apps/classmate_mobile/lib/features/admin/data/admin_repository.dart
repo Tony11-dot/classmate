@@ -109,6 +109,8 @@ class AdminRepository {
     String? role,
     int? grade,
     String? nationalId,
+    bool? isPrincipal,
+    List<int>? principalGrades,
   }) async {
     await _api.patchJson('/admin/users/$id', body: {
       'name': ?name,
@@ -118,6 +120,8 @@ class AdminRepository {
       'role': ?role,
       'grade': ?grade,
       'nationalId': ?nationalId,
+      'isPrincipal': ?isPrincipal,
+      'principalGrades': ?principalGrades,
     });
   }
 
@@ -164,21 +168,23 @@ class AdminRepository {
     return _l(_m(raw)['cohorts']).map((e) => AdminCohort.fromJson(_m(e))).toList();
   }
 
-  Future<void> createCohort({required String name, required List<int> grades}) async {
+  Future<void> createCohort({required String name, required List<int> grades, String? homeroomTeacherId}) async {
     await _api.postJson('/admin/cohorts', body: {
       'name': name,
       'grades': grades,
       // Legacy single-grade field kept for older API builds and so existing
       // server-side validators that still look at `grade` keep working.
       'grade': grades.first,
+      'homeroomTeacherId': ?homeroomTeacherId,
     });
   }
 
-  Future<void> updateCohort(String id, {String? name, List<int>? grades}) async {
+  Future<void> updateCohort(String id, {String? name, List<int>? grades, String? homeroomTeacherId}) async {
     await _api.patchJson('/admin/cohorts/$id', body: {
       'name': ?name,
       'grades': ?grades,
       'grade': ?(grades?.first),
+      'homeroomTeacherId': ?homeroomTeacherId,
     });
   }
 

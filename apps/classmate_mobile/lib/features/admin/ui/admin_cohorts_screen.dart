@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
@@ -150,6 +151,20 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
   final _nameCtrl = TextEditingController();
   final Set<int> _grades = <int>{};
   bool _saving = false;
+  bool _homeroom = false;
+  String? _homeroomTeacherId;
+  List<Map<String, dynamic>> _teachers = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.microtask(() async {
+      try {
+        final t = await widget.repo.getDdlTeachers();
+        if (mounted) setState(() => _teachers = t);
+      } catch (_) {}
+    });
+  }
 
   @override
   void dispose() {
@@ -163,7 +178,11 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
     setState(() => _saving = true);
     try {
       final gradeList = _grades.toList()..sort();
-      await widget.repo.createCohort(name: name, grades: gradeList);
+      await widget.repo.createCohort(
+        name: name,
+        grades: gradeList,
+        homeroomTeacherId: _homeroom ? _homeroomTeacherId : null,
+      );
       if (!mounted) return;
 
       final allStudents = await widget.repo.getDdlStudents();
@@ -236,6 +255,30 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
                 }),
               )).toList(),
             ),
+            const SizedBox(height: 20),
+            // Homeroom class → pick the homeroom teacher (مربّي/ة الصف).
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _homeroom,
+              title: Text(AppLocalizations.of(context)!.cohortHomeroomLabel),
+              subtitle: Text(
+                AppLocalizations.of(context)!.cohortHomeroomHint,
+                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              onChanged: (v) => setState(() => _homeroom = v),
+            ),
+            if (_homeroom) ...[
+              const SizedBox(height: 8),
+              LiquidGlassSelectField<String>(
+                label: AppLocalizations.of(context)!.cohortHomeroomTeacher,
+                hint: AppLocalizations.of(context)!.cohortHomeroomTeacher,
+                value: _homeroomTeacherId,
+                items: _teachers
+                    .map((t) => LiquidGlassDropdownItem(value: '${t['id']}', label: '${t['name'] ?? ''}'))
+                    .toList(),
+                onChanged: (id) => setState(() => _homeroomTeacherId = id),
+              ),
+            ],
           ],
         ),
       ),

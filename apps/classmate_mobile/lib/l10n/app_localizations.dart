@@ -17828,6 +17828,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All students are already in this class.'**
   String get teacherCohortsScreenNoStudentsToAdd;
+
+  /// No description provided for @gradeWeightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight on average (%)'**
+  String get gradeWeightLabel;
+
+  /// No description provided for @gradeWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — set what % this counts toward the subject average, or leave blank to set later.'**
+  String get gradeWeightHint;
+
+  /// No description provided for @gradeSemesterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester'**
+  String get gradeSemesterLabel;
+
+  /// No description provided for @gradeSemesterAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto (by date)'**
+  String get gradeSemesterAuto;
+
+  /// No description provided for @gradeDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete grade'**
+  String get gradeDeleteTooltip;
+
+  /// No description provided for @gradeDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete grade'**
+  String get gradeDeleteTitle;
+
+  /// No description provided for @gradeDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the grade for “{title}”?'**
+  String gradeDeleteConfirm(String title);
+
+  /// No description provided for @cohortHomeroomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Homeroom class'**
+  String get cohortHomeroomLabel;
+
+  /// No description provided for @cohortHomeroomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a homeroom teacher for this class.'**
+  String get cohortHomeroomHint;
+
+  /// No description provided for @cohortHomeroomTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Homeroom teacher'**
+  String get cohortHomeroomTeacher;
+
+  /// No description provided for @adminPrincipalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal'**
+  String get adminPrincipalLabel;
+
+  /// No description provided for @adminPrincipalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This admin is a principal; certificates auto-fill their name by the student’s grade.'**
+  String get adminPrincipalHint;
+
+  /// No description provided for @adminPrincipalGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal for grades'**
+  String get adminPrincipalGrades;
+
+  /// No description provided for @certPdfTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher'**
+  String get certPdfTeacher;
 }
 
 class _AppLocalizationsDelegate

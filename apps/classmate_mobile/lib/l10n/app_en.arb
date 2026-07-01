@@ -5419,5 +5419,26 @@
   "certPdfName": "Name",
   "certPdfClass": "Class",
   "adminEditUserNationalId": "National ID",
-  "teacherCohortsScreenNoStudentsToAdd": "All students are already in this class."
+  "teacherCohortsScreenNoStudentsToAdd": "All students are already in this class.",
+  "gradeWeightLabel": "Weight on average (%)",
+  "gradeWeightHint": "Optional — set what % this counts toward the subject average, or leave blank to set later.",
+  "gradeSemesterLabel": "Semester",
+  "gradeSemesterAuto": "Auto (by date)",
+  "gradeDeleteTooltip": "Delete grade",
+  "gradeDeleteTitle": "Delete grade",
+  "gradeDeleteConfirm": "Delete the grade for “{title}”?",
+  "cohortHomeroomLabel": "Homeroom class",
+  "cohortHomeroomHint": "Assign a homeroom teacher for this class.",
+  "cohortHomeroomTeacher": "Homeroom teacher",
+  "adminPrincipalLabel": "Principal",
+  "adminPrincipalHint": "This admin is a principal; certificates auto-fill their name by the student’s grade.",
+  "adminPrincipalGrades": "Principal for grades",
+  "@gradeDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "certPdfTeacher": "Teacher"
 }

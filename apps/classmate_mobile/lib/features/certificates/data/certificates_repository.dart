@@ -32,12 +32,14 @@ class CertSubjectRow {
     required this.units,
     required this.semesters,
     required this.finalAvg,
+    this.teachers = const [],
   });
   final String subject;
   final Map<String, dynamic>? i18n;
   final int units;
   final List<int?> semesters; // per-semester average (null = none)
   final int? finalAvg;
+  final List<String> teachers; // subject teacher(s), from the schedule
 
   /// Localized display name for [lang] ('en','ar','he','fr','ru','ps'), falling
   /// back through English then the raw subject string.
@@ -67,6 +69,7 @@ class CertSubjectRow {
             .map((e) => e == null ? null : (e is int ? e : int.tryParse('$e')))
             .toList(),
         finalAvg: j['final'] == null ? null : (j['final'] is int ? j['final'] as int : int.tryParse('${j['final']}')),
+        teachers: (j['teachers'] as List? ?? []).map((e) => '$e').where((s) => s.isNotEmpty).toList(),
       );
 }
 
@@ -78,6 +81,7 @@ class CertPrefill {
     required this.semesterCount,
     required this.semesterWeights,
     required this.defaultHomeroomTeacher,
+    required this.defaultPrincipalName,
     required this.cohorts,
     required this.teacherNames,
     required this.student,
@@ -93,6 +97,7 @@ class CertPrefill {
   final int semesterCount;
   final List<int> semesterWeights;
   final String defaultHomeroomTeacher;
+  final String defaultPrincipalName;
   final List<CertCohort> cohorts;
   final List<String> teacherNames;
   final CertStudent? student;
@@ -114,6 +119,7 @@ class CertPrefill {
           .map((e) => e is int ? e : int.tryParse('$e') ?? 0)
           .toList(),
       defaultHomeroomTeacher: (j['defaultHomeroomTeacher'] ?? '').toString(),
+      defaultPrincipalName: (j['defaultPrincipalName'] ?? '').toString(),
       cohorts: (j['cohorts'] as List? ?? [])
           .map((e) => CertCohort.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),

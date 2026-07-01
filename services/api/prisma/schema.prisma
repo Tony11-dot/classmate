@@ -94,6 +94,12 @@ model User {
   /// school-scoped, role-gated reads; never exposed cross-school. NOT the DB
   /// `id`. Optional/back-compat (nullable). Auto-filled into certificates.
   nationalId  String?
+  /// True when this ADMIN user is a principal (مدير/ة المدرسة). Certificates
+  /// auto-fill the principal name from the principal whose `principalGrades`
+  /// covers the student's grade. Editable per-certificate.
+  isPrincipal   Boolean @default(false)
+  /// Grades this principal is responsible for, e.g. [10,11,12]. Empty = all.
+  principalGrades Int[]  @default([])
   phone       String?
   status      AccountStatus @default(AUTH_ONLY)
 
@@ -251,6 +257,10 @@ model Cohort {
   /// Authoritative grade list. Multi-grade cohorts have length > 1.
   grades   Int[]   @default([])
   schoolId String? // null = legacy/global; non-null = school-scoped
+  /// Homeroom teacher (مربّي/ة الصف) for this cohort, if it's a homeroom class.
+  /// Set when admin ticks "homeroom" on cohort create/edit and picks a teacher.
+  /// Certificates default the homeroom teacher from here for the student's cohort.
+  homeroomTeacherId String?
 
   students              StudentProfile[]
   studentLinks          StudentCohort[]
@@ -579,6 +589,16 @@ model Assessment {
   examId              String?
   teacherAssignmentId String?
   published           Boolean @default(true)
+
+  /// Optional weight (0..100) this grade contributes to the subject average.
+  /// A student's subject average = %-weighted mean of the grades they have,
+  /// renormalized to 100 (so students with different assessments are each
+  /// averaged over their own set — replaces the old formula "variants"). Null =
+  /// unweighted; if NO grade in a subject is weighted, a simple mean is used.
+  weightPercent Int?
+  /// Which semester (1-based) this grade counts toward, for the certificate
+  /// grid columns. Null → resolved from `date` against the school's semesters.
+  semester      Int?
 
   cohort            Cohort?            @relation(fields: [cohortId], references: [id], onDelete: SetNull)
   teacher           User               @relation(fields: [createdBy], references: [id], onDelete: Cascade)
@@ -1993,6 +2013,11 @@ model TeacherAssignment {
   subject          String?
   dueAt            DateTime?
   maxGrade         Int?
+  /// % this assignment contributes to the subject average (mirrored onto the
+  /// Assessment created when it's graded). Null = unweighted.
+  weightPercent    Int?
+  /// Semester (1-based) this assignment counts toward. Null → resolved by date.
+  semester         Int?
   targetType       AssignmentTargetType @default(EVERYONE)
   targetCohortIds  String[]             @default([])
   targetStudentIds String[]             @default([])
@@ -2043,6 +2068,11 @@ model TeacherExam {
   subject          String?
   date             DateTime
   maxGrade         Int?
+  /// % this exam contributes to the subject average (mirrored onto the
+  /// Assessment created when it's graded). Null = unweighted.
+  weightPercent    Int?
+  /// Semester (1-based) this exam counts toward. Null → resolved by date.
+  semester         Int?
   published        Boolean              @default(false)
   targetType       AssignmentTargetType @default(EVERYONE)
   targetCohortIds  String[]             @default([])

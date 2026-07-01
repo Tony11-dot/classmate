@@ -45,6 +45,8 @@ class _TeacherAddAssignmentScreenState
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
   final _maxGradeCtrl = TextEditingController();
+  final _weightCtrl = TextEditingController();
+  int? _semester;
   String? _selectedCourseId;
   String? _selectedSubject;
   DateTime? _dueDate;
@@ -87,6 +89,8 @@ class _TeacherAddAssignmentScreenState
       _titleCtrl.text = (a['title'] ?? '').toString();
       _descCtrl.text = (a['description'] ?? a['body'] ?? '').toString();
       _maxGradeCtrl.text = a['maxGrade'] != null ? '${a['maxGrade']}' : '';
+      _weightCtrl.text = a['weightPercent'] != null ? '${a['weightPercent']}' : '';
+      _semester = a['semester'] is int ? a['semester'] as int : int.tryParse('${a['semester']}');
       _selectedSubject = a['subject']?.toString();
       _selectedCourseId = (a['courseId'] ?? a['_courseId'] ?? '').toString().isEmpty ? null : (a['courseId'] ?? a['_courseId']).toString();
       if (a['dueAt'] != null) _dueDate = DateTime.tryParse(a['dueAt'].toString());
@@ -109,6 +113,7 @@ class _TeacherAddAssignmentScreenState
     _titleCtrl.dispose();
     _descCtrl.dispose();
     _maxGradeCtrl.dispose();
+    _weightCtrl.dispose();
     super.dispose();
   }
 
@@ -310,6 +315,8 @@ class _TeacherAddAssignmentScreenState
           'subject': _selectedSubject,
           'dueAt': dueAtStr,
           'maxGrade': int.tryParse(_maxGradeCtrl.text.trim()),
+          'weightPercent': int.tryParse(_weightCtrl.text.trim()),
+          'semester': _semester,
           'targetType': effectiveTargetType,
           'targetCohortIds': outCohortIds,
           'targetStudentIds': outStudentIds,
@@ -326,6 +333,8 @@ class _TeacherAddAssignmentScreenState
           subject: _selectedSubject,
           dueAt: dueAtStr,
           maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
+          weightPercent: int.tryParse(_weightCtrl.text.trim()),
+          semester: _semester,
           targetType: effectiveTargetType,
           targetCohortIds: outCohortIds,
           targetStudentIds: outStudentIds,
@@ -729,6 +738,31 @@ class _TeacherAddAssignmentScreenState
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.grade_rounded),
                         ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Weight on the subject average (optional) + semester
+                      TextField(
+                        controller: _weightCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.gradeWeightLabel,
+                          helperText: AppLocalizations.of(context)!.gradeWeightHint,
+                          suffixText: '%',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.percent_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      LiquidGlassSelectField<int>(
+                        label: AppLocalizations.of(context)!.gradeSemesterLabel,
+                        value: _semester ?? 0,
+                        items: [
+                          LiquidGlassDropdownItem(value: 0, label: AppLocalizations.of(context)!.gradeSemesterAuto),
+                          LiquidGlassDropdownItem(value: 1, label: AppLocalizations.of(context)!.adminSchoolSemesterN('1')),
+                          LiquidGlassDropdownItem(value: 2, label: AppLocalizations.of(context)!.adminSchoolSemesterN('2')),
+                        ],
+                        onChanged: (v) => setState(() => _semester = v == 0 ? null : v),
                       ),
                       const SizedBox(height: 12),
 

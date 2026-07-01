@@ -10203,4 +10203,50 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get teacherCohortsScreenNoStudentsToAdd =>
       'כל התלמידים כבר נמצאים בכיתה זו.';
+
+  @override
+  String get gradeWeightLabel => 'משקל בממוצע (%)';
+
+  @override
+  String get gradeWeightHint =>
+      'רשות — קבע איזה אחוז זה נחשב בממוצע המקצוע, או השאר ריק לקביעה בהמשך.';
+
+  @override
+  String get gradeSemesterLabel => 'סמסטר';
+
+  @override
+  String get gradeSemesterAuto => 'אוטומטי (לפי תאריך)';
+
+  @override
+  String get gradeDeleteTooltip => 'מחיקת ציון';
+
+  @override
+  String get gradeDeleteTitle => 'מחיקת ציון';
+
+  @override
+  String gradeDeleteConfirm(String title) {
+    return 'למחוק את הציון עבור “$title”?';
+  }
+
+  @override
+  String get cohortHomeroomLabel => 'כיתת אם (מחנך)';
+
+  @override
+  String get cohortHomeroomHint => 'שייך מחנך/ת לכיתה זו.';
+
+  @override
+  String get cohortHomeroomTeacher => 'מחנך/ת הכיתה';
+
+  @override
+  String get adminPrincipalLabel => 'מנהל/ת בית הספר';
+
+  @override
+  String get adminPrincipalHint =>
+      'מנהל זה הוא מנהל/ת; תעודות ימולאו בשמו אוטומטית לפי שכבת התלמיד.';
+
+  @override
+  String get adminPrincipalGrades => 'מנהל/ת לשכבות';
+
+  @override
+  String get certPdfTeacher => 'מורה';
 }

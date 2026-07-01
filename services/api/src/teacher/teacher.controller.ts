@@ -175,6 +175,11 @@ export class TeacherController {
     return this.teacher.deleteAssessment(req.user, id);
   }
 
+  @Delete('grades/assessment/:id/student/:studentId')
+  deleteGrade(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
+    return this.teacher.deleteGrade(req.user, id, studentId);
+  }
+
   // ── Classroom management ────────────────────────────────────────────────────
 
   @Post('classrooms')

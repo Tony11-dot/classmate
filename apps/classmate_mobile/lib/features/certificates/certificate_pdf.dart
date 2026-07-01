@@ -163,6 +163,7 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
   pw.Widget gradesTable() {
     final headerCells = <pw.Widget>[
       _th(l.certPdfSubject, align: rtl ? pw.TextAlign.right : pw.TextAlign.left),
+      _th(l.certPdfTeacher, align: rtl ? pw.TextAlign.right : pw.TextAlign.left),
       for (int i = 0; i < data.semesterCount; i++) _th(l.adminSchoolSemesterN('${i + 1}')),
       _th(l.certPdfFinal),
     ];
@@ -172,6 +173,7 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     for (final s in data.subjects) {
       rows.add(pw.TableRow(children: [
         _td(s.display(data.language), align: rtl ? pw.TextAlign.right : pw.TextAlign.left, bold: true),
+        _td(s.teachers.join('، '), align: rtl ? pw.TextAlign.right : pw.TextAlign.left),
         for (int i = 0; i < data.semesterCount; i++)
           _td(i < s.semesters.length && s.semesters[i] != null ? '${s.semesters[i]}' : '—'),
         _td(s.finalAvg != null ? '${s.finalAvg}' : '—', bold: true),
@@ -182,6 +184,7 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
       decoration: const pw.BoxDecoration(color: headerBg),
       children: [
         _td(l.certPdfOverall, align: rtl ? pw.TextAlign.right : pw.TextAlign.left, bold: true),
+        _td(''),
         for (int i = 0; i < data.semesterCount; i++) _td(''),
         _td(data.overall != null ? '${data.overall}' : '—', bold: true),
       ],
@@ -192,8 +195,9 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
       child: pw.Table(
         border: pw.TableBorder.all(color: lineColor, width: 0.6),
         columnWidths: {
-          0: const pw.FlexColumnWidth(3),
-          for (int i = 1; i <= data.semesterCount + 1; i++) i: const pw.FlexColumnWidth(1.2),
+          0: const pw.FlexColumnWidth(2.4),
+          1: const pw.FlexColumnWidth(2.0),
+          for (int i = 2; i <= data.semesterCount + 2; i++) i: const pw.FlexColumnWidth(1.1),
         },
         children: rows,
       ),

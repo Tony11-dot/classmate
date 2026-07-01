@@ -31,6 +31,8 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
   final _titleCtrl = TextEditingController();
   final _maxGradeCtrl = TextEditingController();
+  final _weightCtrl = TextEditingController();
+  int? _semester;
   String? _selectedCourseId;
   String? _selectedSubject;
   DateTime? _selectedDate;
@@ -74,6 +76,8 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
       // Safe extractions — never use `as String` on untrusted map values.
       _titleCtrl.text = exam['title']?.toString() ?? '';
       _maxGradeCtrl.text = exam['maxGrade']?.toString() ?? '';
+      _weightCtrl.text = exam['weightPercent']?.toString() ?? '';
+      _semester = exam['semester'] is int ? exam['semester'] as int : int.tryParse('${exam['semester']}');
       _published = exam['published'] == true;
       final dateRaw = exam['date']?.toString() ?? '';
       if (dateRaw.isNotEmpty) _selectedDate = DateTime.tryParse(dateRaw);
@@ -111,6 +115,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   void dispose() {
     _titleCtrl.dispose();
     _maxGradeCtrl.dispose();
+    _weightCtrl.dispose();
     super.dispose();
   }
 
@@ -253,6 +258,8 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             'courseId': derivedCourseId,
             'date': dateStr,
             'maxGrade': int.tryParse(_maxGradeCtrl.text.trim()),
+            'weightPercent': int.tryParse(_weightCtrl.text.trim()),
+            'semester': _semester,
             'published': _published,
             'targetType': effectiveTargetType,
             'targetCohortIds': outCohortIds,
@@ -269,6 +276,8 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           courseId: derivedCourseId,
           date: dateStr,
           maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
+          weightPercent: int.tryParse(_weightCtrl.text.trim()),
+          semester: _semester,
           published: _published,
           targetType: effectiveTargetType,
           targetCohortIds: outCohortIds,
@@ -441,6 +450,31 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.grade_rounded),
                         ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Weight on the subject average (optional) + semester
+                      TextField(
+                        controller: _weightCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.gradeWeightLabel,
+                          helperText: AppLocalizations.of(context)!.gradeWeightHint,
+                          suffixText: '%',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.percent_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      LiquidGlassSelectField<int>(
+                        label: AppLocalizations.of(context)!.gradeSemesterLabel,
+                        value: _semester ?? 0,
+                        items: [
+                          LiquidGlassDropdownItem(value: 0, label: AppLocalizations.of(context)!.gradeSemesterAuto),
+                          LiquidGlassDropdownItem(value: 1, label: AppLocalizations.of(context)!.adminSchoolSemesterN('1')),
+                          LiquidGlassDropdownItem(value: 2, label: AppLocalizations.of(context)!.adminSchoolSemesterN('2')),
+                        ],
+                        onChanged: (v) => setState(() => _semester = v == 0 ? null : v),
                       ),
                       const SizedBox(height: 8),
 

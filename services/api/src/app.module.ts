@@ -30,7 +30,6 @@ import { SmsService } from './auth/password-reset/sms.service';
 import { VerifyController } from './auth/verify/verify.controller';
 import { VerifyService } from './auth/verify/verify.service';
 import { TeacherModule } from './teacher/teacher.module';
-import { AveragesModule } from './averages/averages.module';
 import { CertificatesModule } from './certificates/certificates.module';
 import { ParentModule } from './parent/parent.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
@@ -132,7 +131,6 @@ const seedControllers = [
     StudentModule,
     AdminModule,
     TeacherModule,
-    AveragesModule,
     CertificatesModule,
     ParentModule,
     AnnouncementsModule,

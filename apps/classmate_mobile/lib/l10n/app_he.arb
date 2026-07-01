@@ -3739,5 +3739,19 @@
   "certPdfName": "שם",
   "certPdfClass": "כיתה",
   "adminEditUserNationalId": "מספר זהות",
-  "teacherCohortsScreenNoStudentsToAdd": "כל התלמידים כבר נמצאים בכיתה זו."
+  "teacherCohortsScreenNoStudentsToAdd": "כל התלמידים כבר נמצאים בכיתה זו.",
+  "gradeWeightLabel": "משקל בממוצע (%)",
+  "gradeWeightHint": "רשות — קבע איזה אחוז זה נחשב בממוצע המקצוע, או השאר ריק לקביעה בהמשך.",
+  "gradeSemesterLabel": "סמסטר",
+  "gradeSemesterAuto": "אוטומטי (לפי תאריך)",
+  "gradeDeleteTooltip": "מחיקת ציון",
+  "gradeDeleteTitle": "מחיקת ציון",
+  "gradeDeleteConfirm": "למחוק את הציון עבור “{title}”?",
+  "cohortHomeroomLabel": "כיתת אם (מחנך)",
+  "cohortHomeroomHint": "שייך מחנך/ת לכיתה זו.",
+  "cohortHomeroomTeacher": "מחנך/ת הכיתה",
+  "adminPrincipalLabel": "מנהל/ת בית הספר",
+  "adminPrincipalHint": "מנהל זה הוא מנהל/ת; תעודות ימולאו בשמו אוטומטית לפי שכבת התלמיד.",
+  "adminPrincipalGrades": "מנהל/ת לשכבות",
+  "certPdfTeacher": "מורה"
 }

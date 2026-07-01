@@ -10312,4 +10312,51 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get teacherCohortsScreenNoStudentsToAdd =>
       'Все ученики уже в этом классе.';
+
+  @override
+  String get gradeWeightLabel => 'Вес в среднем (%)';
+
+  @override
+  String get gradeWeightHint =>
+      'Необязательно — задайте, какой % учитывается в среднем по предмету, или оставьте пустым.';
+
+  @override
+  String get gradeSemesterLabel => 'Семестр';
+
+  @override
+  String get gradeSemesterAuto => 'Авто (по дате)';
+
+  @override
+  String get gradeDeleteTooltip => 'Удалить оценку';
+
+  @override
+  String get gradeDeleteTitle => 'Удалить оценку';
+
+  @override
+  String gradeDeleteConfirm(String title) {
+    return 'Удалить оценку за «$title»?';
+  }
+
+  @override
+  String get cohortHomeroomLabel => 'Классное руководство';
+
+  @override
+  String get cohortHomeroomHint =>
+      'Назначьте классного руководителя для этого класса.';
+
+  @override
+  String get cohortHomeroomTeacher => 'Классный руководитель';
+
+  @override
+  String get adminPrincipalLabel => 'Директор';
+
+  @override
+  String get adminPrincipalHint =>
+      'Этот администратор — директор; в сертификатах его имя подставляется по классу ученика.';
+
+  @override
+  String get adminPrincipalGrades => 'Директор для классов';
+
+  @override
+  String get certPdfTeacher => 'Учитель';
 }

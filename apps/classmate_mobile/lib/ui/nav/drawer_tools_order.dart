@@ -43,7 +43,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/teacher/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/teacher/attendance', icon: Icons.fact_check_rounded, label: l.navAttendance),
         DrawerTool(route: '/teacher/grades', icon: Icons.grade_rounded, label: l.navGrades),
-        DrawerTool(route: '/teacher/averages', icon: Icons.calculate_rounded, label: l.navAverages),
         DrawerTool(route: '/announcements', icon: Icons.campaign_rounded, label: l.navAnnouncements),
         DrawerTool(route: '/notifications', icon: Icons.notifications_rounded, label: l.navNotifications),
         DrawerTool(route: '/teacher/assignments', icon: Icons.assignment_rounded, label: l.navAssignments),
@@ -52,6 +51,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/solutions', icon: Icons.lightbulb_rounded, label: l.titleSolutions),
         DrawerTool(route: '/teacher/students', icon: Icons.people_rounded, label: l.teacherStudentsLabel),
         DrawerTool(route: '/teacher/exams', icon: Icons.quiz_rounded, label: l.navExams),
+        DrawerTool(route: '/admin/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/teacher/forms', icon: Icons.assignment_turned_in_rounded, label: l.navForms),
         DrawerTool(route: '/diplomas', icon: Icons.workspace_premium_rounded, label: l.navDiplomas),
       ];

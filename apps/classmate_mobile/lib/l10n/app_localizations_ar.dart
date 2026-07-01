@@ -10261,4 +10261,50 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get teacherCohortsScreenNoStudentsToAdd =>
       'جميع الطلاب موجودون بالفعل في هذا الصف.';
+
+  @override
+  String get gradeWeightLabel => 'الوزن في المعدل (%)';
+
+  @override
+  String get gradeWeightHint =>
+      'اختياري — حدّد النسبة التي تُحتسب في معدل المادة، أو اتركه لضبطه لاحقًا.';
+
+  @override
+  String get gradeSemesterLabel => 'الفصل';
+
+  @override
+  String get gradeSemesterAuto => 'تلقائي (حسب التاريخ)';
+
+  @override
+  String get gradeDeleteTooltip => 'حذف العلامة';
+
+  @override
+  String get gradeDeleteTitle => 'حذف العلامة';
+
+  @override
+  String gradeDeleteConfirm(String title) {
+    return 'حذف علامة “$title”؟';
+  }
+
+  @override
+  String get cohortHomeroomLabel => 'صف تربية (مربّي)';
+
+  @override
+  String get cohortHomeroomHint => 'عيّن مربّي/ة الصف لهذا الصف.';
+
+  @override
+  String get cohortHomeroomTeacher => 'مربّي/ة الصف';
+
+  @override
+  String get adminPrincipalLabel => 'مدير/ة المدرسة';
+
+  @override
+  String get adminPrincipalHint =>
+      'هذا المشرف مدير/ة؛ تُملأ الشهادات باسمه تلقائيًا حسب صف الطالب.';
+
+  @override
+  String get adminPrincipalGrades => 'مدير/ة للصفوف';
+
+  @override
+  String get certPdfTeacher => 'المعلّم';
 }
