@@ -1314,7 +1314,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final baseFont = await PdfGoogleFonts.notoSansRegular();
     final baseBold = await PdfGoogleFonts.notoSansBold();
     final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
+    final arabicBold = await PdfGoogleFonts.notoSansArabicBold();
     final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
+    final hebrewBold = await PdfGoogleFonts.notoSansHebrewBold();
     // icon_light.png is the blue CM monogram — it renders reliably in the PDF
     // engine (the wide logo_light.png wordmark did not), so we compose the
     // brand mark as monogram + a "ClassMate" text wordmark.
@@ -1323,11 +1325,33 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     );
     const supportEmail = 'support@classmateapp.org';
 
+    // CRITICAL: this per-user card is a `pw.Page` (not a `MultiPage`). On that
+    // path the pdf engine only shapes a script correctly when its font is the
+    // THEME BASE — a fallback-only Arabic/Hebrew font renders detached, reversed
+    // glyphs AND corrupts layout (the "giant blue octagon, no logo" bug). So the
+    // base font follows the export language; the other scripts stay fallbacks.
+    late final pw.Font base;
+    late final pw.Font boldFont;
+    late final List<pw.Font> fallback;
+    if (_lang == 'ar') {
+      base = arabicFont;
+      boldFont = arabicBold;
+      fallback = [baseFont, baseBold, hebrewFont, hebrewBold];
+    } else if (_lang == 'he') {
+      base = hebrewFont;
+      boldFont = hebrewBold;
+      fallback = [baseFont, baseBold, arabicFont, arabicBold];
+    } else {
+      base = baseFont;
+      boldFont = baseBold;
+      fallback = [arabicFont, arabicBold, hebrewFont, hebrewBold];
+    }
+
     final doc = pw.Document(
       theme: pw.ThemeData.withFont(
-        base: baseFont,
-        bold: baseBold,
-        fontFallback: [arabicFont, hebrewFont],
+        base: base,
+        bold: boldFont,
+        fontFallback: fallback,
       ),
     );
 
@@ -1413,14 +1437,19 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                     child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
                   ),
                   pw.SizedBox(height: 12),
-                  pw.Text(
-                    'ClassMate',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
-                      fontSize: 26,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.white,
-                      letterSpacing: 0.5,
+                  // LTR-locked so the Latin wordmark never reverses under an
+                  // Arabic/Hebrew base font on an RTL page.
+                  pw.Directionality(
+                    textDirection: pw.TextDirection.ltr,
+                    child: pw.Text(
+                      'ClassMate',
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(
+                        fontSize: 26,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.white,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                 ],
