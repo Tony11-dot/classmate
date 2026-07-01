@@ -595,7 +595,13 @@ model Assessment {
   /// renormalized to 100 (so students with different assessments are each
   /// averaged over their own set — replaces the old formula "variants"). Null =
   /// unweighted; if NO grade in a subject is weighted, a simple mean is used.
+  /// Kept in sync with weightPercents[0] for back-compat.
   weightPercent Int?
+  /// Multiple weight "formats" for this grade (e.g. [50, 60] = 50% under format
+  /// 1, 60% under format 2). Per format index, each subject grade contributes
+  /// its weight; the subject average is computed under every format and the
+  /// BEST (highest) result is kept per student. Empty → use weightPercent.
+  weightPercents Int[] @default([])
   /// Which semester (1-based) this grade counts toward, for the certificate
   /// grid columns. Null → resolved from `date` against the school's semesters.
   semester      Int?
@@ -2016,6 +2022,8 @@ model TeacherAssignment {
   /// % this assignment contributes to the subject average (mirrored onto the
   /// Assessment created when it's graded). Null = unweighted.
   weightPercent    Int?
+  /// Multiple weight "formats" (best-of picked at compute). Mirrors to Assessment.
+  weightPercents   Int[]                @default([])
   /// Semester (1-based) this assignment counts toward. Null → resolved by date.
   semester         Int?
   targetType       AssignmentTargetType @default(EVERYONE)
@@ -2071,6 +2079,8 @@ model TeacherExam {
   /// % this exam contributes to the subject average (mirrored onto the
   /// Assessment created when it's graded). Null = unweighted.
   weightPercent    Int?
+  /// Multiple weight "formats" (best-of picked at compute). Mirrors to Assessment.
+  weightPercents   Int[]                @default([])
   /// Semester (1-based) this exam counts toward. Null → resolved by date.
   semester         Int?
   published        Boolean              @default(false)

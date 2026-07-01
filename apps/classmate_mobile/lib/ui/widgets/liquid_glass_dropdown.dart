@@ -235,6 +235,49 @@ class LiquidGlassSelectField<T> extends StatelessWidget {
   }
 }
 
+/// An editable text field with a dropdown to PICK a suggested value (e.g. a
+/// teacher/principal name). Picking fills the field; the user can still type a
+/// custom value. Used where a name should be auto-filled but stay editable.
+class LiquidGlassNameField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final List<String> options;
+
+  const LiquidGlassNameField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.options = const [],
+  });
+
+  Future<void> _pick(BuildContext context) async {
+    final picked = await showLiquidGlassPicker<String>(
+      context: context,
+      title: label,
+      currentValue: controller.text,
+      items: options.map((o) => LiquidGlassDropdownItem(value: o, label: o)).toList(),
+    );
+    if (picked != null) controller.text = picked;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        suffixIcon: options.isEmpty
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_drop_down_rounded),
+                onPressed: () => _pick(context),
+              ),
+      ),
+    );
+  }
+}
+
 class _LiquidGlassPicker<T> extends StatefulWidget {
   final String title;
   final T? value;

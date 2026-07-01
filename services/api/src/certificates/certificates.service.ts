@@ -56,13 +56,16 @@ export class CertificatesService {
       if (parsed.length) weights = parsed;
     }
 
-    const [cohorts, teacherNames] = await Promise.all([
+    const [cohorts, teacherNames, principalNames] = await Promise.all([
       this.prisma.cohort.findMany({
         where: { schoolId },
         select: { id: true, name: true, grade: true, homeroomTeacherId: true },
         orderBy: { name: 'asc' },
       }),
       this.teacherNames(schoolId),
+      this.prisma.user
+        .findMany({ where: { schoolId, isPrincipal: true }, select: { name: true }, orderBy: { name: 'asc' } })
+        .then((rows) => Array.from(new Set(rows.map((r) => r.name).filter(Boolean)))),
     ]);
 
     // Homeroom teacher default from the cohort, else the current user.
@@ -109,6 +112,7 @@ export class CertificatesService {
       defaultPrincipalName,
       cohorts,
       teacherNames,
+      principalNames,
       cohort: { id: cohort.id, name: cohort.name, grade: cohort.grade },
       student,
       subjects,
@@ -155,23 +159,51 @@ export class CertificatesService {
       select: {
         grade: true,
         assessment: {
-          select: { id: true, subject: true, date: true, semester: true, weightPercent: true, maxGrade: true },
+          select: {
+            id: true,
+            subject: true,
+            date: true,
+            semester: true,
+            weightPercent: true,
+            weightPercents: true,
+            maxGrade: true,
+            createdBy: true,
+          },
         },
       },
     });
 
     // Group by subject (skip grades with no subject — they can't sit in the grid).
-    const bySubject = new Map<string, { pct: number; weight: number | null; sem: number | null }[]>();
+    const bySubject = new Map<string, { pct: number; weights: number[]; sem: number | null }[]>();
+    // Subject teacher(s) = whoever recorded the grades in that subject.
+    const bySubjectGraders = new Map<string, Set<string>>();
     for (const r of records) {
       const a = r.assessment;
       if (!a || !a.subject || !a.subject.trim()) continue;
       const max = a.maxGrade && a.maxGrade > 0 ? a.maxGrade : 100;
       const pct = (r.grade / max) * 100;
       const key = a.subject.trim();
+      const weights = (a.weightPercents ?? []).length
+        ? (a.weightPercents as number[])
+        : a.weightPercent != null
+          ? [a.weightPercent]
+          : [];
       const arr = bySubject.get(key) ?? [];
-      arr.push({ pct, weight: a.weightPercent ?? null, sem: this.semesterOf(a, windows) });
+      arr.push({ pct, weights, sem: this.semesterOf(a, windows) });
       bySubject.set(key, arr);
+      if (a.createdBy) {
+        const g = bySubjectGraders.get(key) ?? new Set<string>();
+        g.add(a.createdBy);
+        bySubjectGraders.set(key, g);
+      }
     }
+
+    // Resolve all grader ids → names once.
+    const graderIds = Array.from(new Set(Array.from(bySubjectGraders.values()).flatMap((s) => Array.from(s))));
+    const graderUsers = graderIds.length
+      ? await this.prisma.user.findMany({ where: { id: { in: graderIds } }, select: { id: true, name: true } })
+      : [];
+    const graderName = new Map(graderUsers.map((u) => [u.id, u.name]));
 
     // i18n display names for the cohort's grade.
     const defaultRow = grade == null
@@ -198,7 +230,8 @@ export class CertificatesService {
         semAverages.push(this.weightedAverage(inSem));
       }
       const final = this.weightedFinal(semAverages, weights);
-      const teachers = await this.subjectTeachers(cohortId, subject);
+      const graders = Array.from(bySubjectGraders.get(subject) ?? new Set<string>());
+      const teachers = graders.map((id) => graderName.get(id)).filter((n): n is string => !!n);
       const i18n = i18nByKey.get(subject.toLowerCase()) ?? null;
       subjects.push({ subject, i18n, teachers, semesters: semAverages, final });
       if (final != null) finals.push(final);
@@ -209,20 +242,43 @@ export class CertificatesService {
     return { subjects, overall };
   }
 
-  /** %-weighted mean, renormalized; equal weights when none are set. */
-  private weightedAverage(items: { pct: number; weight: number | null }[]): number | null {
+  /**
+   * %-weighted mean, renormalized. Supports multiple weight "formats": the
+   * average is computed under each format and the BEST (highest) is returned
+   * (student-favouring). Equal weights when no grade carries a weight.
+   */
+  private weightedAverage(items: { pct: number; weights: number[] }[]): number | null {
     if (!items.length) return null;
-    const anyWeighted = items.some((it) => (it.weight ?? 0) > 0);
-    let num = 0;
-    let den = 0;
-    for (const it of items) {
-      const w = anyWeighted ? (it.weight ?? 0) : 1;
-      if (w <= 0) continue;
-      num += it.pct * w;
-      den += w;
+    const formatCount = items.reduce((m, it) => Math.max(m, it.weights.length), 0);
+
+    // No weights anywhere → simple mean.
+    if (formatCount === 0) {
+      const mean = items.reduce((s, it) => s + it.pct, 0) / items.length;
+      return Math.round(mean);
     }
-    if (den === 0) return null;
-    return Math.round(num / den);
+
+    let best: number | null = null;
+    for (let f = 0; f < formatCount; f++) {
+      let num = 0;
+      let den = 0;
+      for (const it of items) {
+        // A grade with no weight for format f falls back to its last weight so
+        // partially-configured formats still count it.
+        const w = it.weights.length ? (it.weights[f] ?? it.weights[it.weights.length - 1]) : 0;
+        if (w <= 0) continue;
+        num += it.pct * w;
+        den += w;
+      }
+      if (den === 0) continue;
+      const avg = num / den;
+      if (best == null || avg > best) best = avg;
+    }
+    if (best == null) {
+      // Some grades but none weighted under any format → simple mean.
+      const mean = items.reduce((s, it) => s + it.pct, 0) / items.length;
+      return Math.round(mean);
+    }
+    return Math.round(best);
   }
 
   private weightedFinal(semAverages: (number | null)[], weights: number[]): number | null {
@@ -237,17 +293,6 @@ export class CertificatesService {
     }
     if (den === 0) return null;
     return Math.round(num / den);
-  }
-
-  /** Teacher name(s) for a subject in a cohort, derived from the schedule. */
-  private async subjectTeachers(cohortId: string, subject: string): Promise<string[]> {
-    const slots = await this.prisma.scheduleSlot.findMany({
-      where: { cohorts: { some: { cohortId } }, subject, teacherId: { not: null } },
-      select: { teacher: { select: { name: true } } },
-      distinct: ['teacherId'],
-    });
-    const names = slots.map((s) => s.teacher?.name).filter((n): n is string => !!n);
-    return Array.from(new Set(names));
   }
 
   /** Name of the principal responsible for [grade], or ''. */

@@ -4,6 +4,9 @@ export type StudentInsightsGradeItem = {
   assessmentTitle: string;
   grade: number;
   date: string | null;
+  maxGrade: number | null;
+  weightPercents: number[];
+  semester: number | null;
 };
 
 export type StudentInsightsAttendanceItem = {

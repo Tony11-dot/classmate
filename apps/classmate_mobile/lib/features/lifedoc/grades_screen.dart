@@ -10,6 +10,93 @@ import '../../core/semester/school_semester.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
 
+/// Subject average from grades: a plain mean by default, or — when the teacher
+/// set weight %'s — a %-weighted mean, computed under every "format" with the
+/// BEST result kept (mirrors the certificate + server logic).
+double? bestFormatAverage(List<UnifiedGradeInsight> items) {
+  if (items.isEmpty) return null;
+  final formatCount = items.fold<int>(0, (m, it) => it.weightPercents.length > m ? it.weightPercents.length : m);
+  if (formatCount == 0) {
+    return items.fold<double>(0, (s, i) => s + i.percent) / items.length;
+  }
+  double? best;
+  for (int f = 0; f < formatCount; f++) {
+    double num = 0;
+    double den = 0;
+    for (final it in items) {
+      final w = it.weightPercents.isEmpty
+          ? 0
+          : (f < it.weightPercents.length ? it.weightPercents[f] : it.weightPercents.last);
+      if (w <= 0) continue;
+      num += it.percent * w;
+      den += w;
+    }
+    if (den == 0) continue;
+    final avg = num / den;
+    if (best == null || avg > best) best = avg;
+  }
+  return best ?? (items.fold<double>(0, (s, i) => s + i.percent) / items.length);
+}
+
+/// Center popup showing how a subject average was reached — each grade, its
+/// weight %, and the score the student got.
+Future<void> showSubjectBreakdown(BuildContext context, String subject, List<UnifiedGradeInsight> items) {
+  final l = AppLocalizations.of(context)!;
+  final cs = Theme.of(context).colorScheme;
+  final avg = bestFormatAverage(items);
+  return showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(subject),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (avg != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text('${l.gradesBreakdownAverage}: ${avg.round()}',
+                    style: TextStyle(fontWeight: FontWeight.w800, color: cs.primary)),
+              ),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final it in items)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              it.assessmentTitle.isNotEmpty ? it.assessmentTitle : subject,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (it.weightPercents.isNotEmpty) ...[
+                            Text(it.weightPercents.map((w) => '$w%').join('/'),
+                                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                            const SizedBox(width: 10),
+                          ],
+                          Text('${it.grade.round()}${it.maxGrade != null ? '/${it.maxGrade}' : ''}',
+                              style: const TextStyle(fontWeight: FontWeight.w800)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.commonClose))],
+    ),
+  );
+}
+
 class GradesScreen extends ConsumerStatefulWidget {
   const GradesScreen({super.key});
 
@@ -105,10 +192,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
     return cs.onErrorContainer;
   }
 
-  double? _average(List<UnifiedGradeInsight> items) {
-    if (items.isEmpty) return null;
-    return items.fold<double>(0, (s, i) => s + i.grade) / items.length;
-  }
+  double? _average(List<UnifiedGradeInsight> items) => bestFormatAverage(items);
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +282,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
                         subject: subject,
                         average: avg,
                         items: preview,
+                        onAverageTap: () => showSubjectBreakdown(context, subject, items),
                         totalCount: items.length,
                         remainingCount: remaining,
                         isExpanded: isExpanded,
@@ -345,10 +430,12 @@ class _SubjectCard extends StatelessWidget {
     required this.friendlyDate,
     required this.gradeDotColor,
     required this.onToggle,
+    this.onAverageTap,
   });
 
   final String subject;
   final double? average;
+  final VoidCallback? onAverageTap;
   final List<UnifiedGradeInsight> items;
   final int totalCount;
   final int remainingCount;
@@ -408,17 +495,30 @@ class _SubjectCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   if (average != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: scoreColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        average!.toStringAsFixed(1),
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: scoreOnColor,
+                    InkWell(
+                      onTap: onAverageTap,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: scoreColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              average!.toStringAsFixed(1),
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: scoreOnColor,
+                              ),
+                            ),
+                            if (onAverageTap != null) ...[
+                              const SizedBox(width: 4),
+                              Icon(Icons.info_outline_rounded, size: 14, color: scoreOnColor),
+                            ],
+                          ],
                         ),
                       ),
                     ),

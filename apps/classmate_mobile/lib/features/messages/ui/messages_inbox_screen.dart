@@ -475,7 +475,9 @@ class _InboxRow extends StatelessWidget {
                   backgroundImage:
                       item.isGroup &&
                           (item.groupAvatarUrl ?? '').trim().isNotEmpty
-                      ? NetworkImage(item.groupAvatarUrl!.trim())
+                      // Decode at the display size (56px @2x) instead of full
+                      // resolution — much smaller image-cache footprint.
+                      ? ResizeImage(NetworkImage(item.groupAvatarUrl!.trim()), width: 112, height: 112)
                       : null,
                   child:
                       item.isGroup &&

@@ -8,6 +8,7 @@ import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/weight_formats_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/audience_section.dart';
@@ -31,7 +32,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
   final _titleCtrl = TextEditingController();
   final _maxGradeCtrl = TextEditingController();
-  final _weightCtrl = TextEditingController();
+  List<int> _weights = <int>[];
   int? _semester;
   String? _selectedCourseId;
   String? _selectedSubject;
@@ -76,7 +77,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
       // Safe extractions — never use `as String` on untrusted map values.
       _titleCtrl.text = exam['title']?.toString() ?? '';
       _maxGradeCtrl.text = exam['maxGrade']?.toString() ?? '';
-      _weightCtrl.text = exam['weightPercent']?.toString() ?? '';
+      _weights = readWeights(exam);
       _semester = exam['semester'] is int ? exam['semester'] as int : int.tryParse('${exam['semester']}');
       _published = exam['published'] == true;
       final dateRaw = exam['date']?.toString() ?? '';
@@ -115,7 +116,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   void dispose() {
     _titleCtrl.dispose();
     _maxGradeCtrl.dispose();
-    _weightCtrl.dispose();
     super.dispose();
   }
 
@@ -258,7 +258,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
             'courseId': derivedCourseId,
             'date': dateStr,
             'maxGrade': int.tryParse(_maxGradeCtrl.text.trim()),
-            'weightPercent': int.tryParse(_weightCtrl.text.trim()),
+            'weightPercents': _weights,
             'semester': _semester,
             'published': _published,
             'targetType': effectiveTargetType,
@@ -276,7 +276,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           courseId: derivedCourseId,
           date: dateStr,
           maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
-          weightPercent: int.tryParse(_weightCtrl.text.trim()),
+          weightPercents: _weights,
           semester: _semester,
           published: _published,
           targetType: effectiveTargetType,
@@ -453,17 +453,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       ),
                       const SizedBox(height: 12),
 
-                      // Weight on the subject average (optional) + semester
-                      TextField(
-                        controller: _weightCtrl,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.gradeWeightLabel,
-                          helperText: AppLocalizations.of(context)!.gradeWeightHint,
-                          suffixText: '%',
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.percent_rounded),
-                        ),
+                      // Weight on the subject average (multi-format) + semester
+                      WeightFormatsField(
+                        value: _weights,
+                        onChanged: (w) => _weights = w,
                       ),
                       const SizedBox(height: 12),
                       LiquidGlassSelectField<int>(

@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/weight_formats_field.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 enum _AudienceMode { students, cohorts, grades }
@@ -58,6 +59,8 @@ class _TeacherAddGradeScreenState
   // "Out of" / max score for an Other (free-form) grade — e.g. score out of 20.
   final _otherMaxCtrl = TextEditingController();
   String? _otherSubject;
+  List<int> _weights = <int>[];
+  int? _semester;
 
   // ── Per-student grade + notes inputs ────────────────────────────────────
   final Map<String, TextEditingController> _gradeCtrlMap = {};
@@ -384,6 +387,8 @@ class _TeacherAddGradeScreenState
           date: today,
           maxGrade: inherited.maxGrade,
           published: _published,
+          weightPercents: _weights,
+          semester: _semester,
         );
         final assessmentId = _extractAssessmentId(created);
         if (assessmentId == null) {
@@ -944,6 +949,19 @@ class _TeacherAddGradeScreenState
                             border: const OutlineInputBorder(),
                             prefixIcon: const Icon(Icons.percent_rounded),
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        WeightFormatsField(value: _weights, onChanged: (w) => _weights = w),
+                        const SizedBox(height: 12),
+                        LiquidGlassSelectField<int>(
+                          label: AppLocalizations.of(context)!.gradeSemesterLabel,
+                          value: _semester ?? 0,
+                          items: [
+                            LiquidGlassDropdownItem(value: 0, label: AppLocalizations.of(context)!.gradeSemesterAuto),
+                            LiquidGlassDropdownItem(value: 1, label: AppLocalizations.of(context)!.adminSchoolSemesterN('1')),
+                            LiquidGlassDropdownItem(value: 2, label: AppLocalizations.of(context)!.adminSchoolSemesterN('2')),
+                          ],
+                          onChanged: (v) => setState(() => _semester = v == 0 ? null : v),
                         ),
                       ],
                     ],

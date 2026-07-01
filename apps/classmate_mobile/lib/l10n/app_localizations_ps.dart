@@ -10143,49 +10143,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get scheduleNoUpcomingExams => 'هیڅ راتلونکې ازموینه نشته';
 
   @override
-  String get navAverages => 'اوسطونه';
-
-  @override
   String get navCertificates => 'سندونه';
-
-  @override
-  String get averagesTitle => 'اوسطونه';
-
-  @override
-  String get averagesAddTitle => 'نوی اوسط';
-
-  @override
-  String get averagesEditTitle => 'د اوسط سمون';
-
-  @override
-  String get averagesSelectCohort => 'ټولګی';
-
-  @override
-  String get averagesSelectSubject => 'مضمون';
-
-  @override
-  String get averagesNoSubjects => 'د دې ټولګي لپاره مضمونونه ونه موندل شول.';
-
-  @override
-  String get averagesEmpty =>
-      'تر اوسه هیڅ اوسط نشته. د زیاتولو لپاره + کېکاږئ.';
-
-  @override
-  String averagesVariantCount(int count, int units) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count بڼې',
-      one: 'یوه بڼه',
-    );
-    return '$_temp0 · $units واحدونه';
-  }
-
-  @override
-  String get averagesDeleteTitle => 'د اوسط ړنګول';
-
-  @override
-  String get averagesDeleteConfirm => 'دا اوسط ړنګ کړئ؟ بیرته نشي کېدی.';
 
   @override
   String get averagesDelete => 'ړنګول';
@@ -10194,54 +10152,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get averagesFieldTitle => 'سرليک';
 
   @override
-  String get averagesFieldTitleHint => 'بېلګه: د ریاضي د ۵ واحدونو وروستۍ بڼه';
-
-  @override
-  String get averagesSemester => 'سمسټر';
-
-  @override
-  String get averagesUnits => 'واحدونه (وزن)';
-
-  @override
-  String get averagesUnitsHint =>
-      '۰ که چېرې دې کچې ته وزن لرونکي واحدونه نه وي، لکه اوومه ټولګۍ';
-
-  @override
-  String get averagesBestFormatNote =>
-      'سیسټم په اتومات ډول د دې ټولګي د هر زده‌کوونکي لپاره غوره بڼه ټاکي.';
-
-  @override
-  String get averagesNoGrades =>
-      'د دې ټولګي او مضمون لپاره نمرې ونه موندل شوې.';
-
-  @override
-  String get averagesAddFormat => 'بڼه زیاته کړئ';
-
-  @override
   String get averagesSave => 'ساتل';
-
-  @override
-  String get averagesFormat => 'بڼه';
-
-  @override
-  String get averagesAddGrade => 'نمره زیاته کړئ';
-
-  @override
-  String get averagesGrade => 'نمره';
-
-  @override
-  String averagesWeightSum(String sum) {
-    return 'ټول: $sum%';
-  }
-
-  @override
-  String get averagesTitleRequired => 'مهرباني وکړئ سرليک دننه کړئ.';
-
-  @override
-  String get averagesPickGradeForEachRow => 'د هرې کرښې لپاره یوه نمره وټاکئ.';
-
-  @override
-  String get averagesWeightMustBe100 => 'د هرې بڼې سلنه باید ۱۰۰٪ شي.';
 
   @override
   String get certificatesTitle => 'سندونه';
@@ -10379,4 +10290,59 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get certPdfTeacher => 'ښوونکی';
+
+  @override
+  String gradesHubSummary(int subjects, int students) {
+    return '$subjects مضمونونه · $students زده‌کوونکي';
+  }
+
+  @override
+  String get gradesHubSearchSubjects => 'د مضمونونو لټون';
+
+  @override
+  String get gradesHubEmpty =>
+      'تر اوسه نمرې نشته. یوه نمره ورزیاته کړئ او مضمون به دلته ښکاره شي.';
+
+  @override
+  String gradesHubStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count زده‌کوونکي',
+      one: 'یو زده‌کوونکی',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesSubjectStudentsTab => 'زده‌کوونکي';
+
+  @override
+  String get gradesSubjectGradesTab => 'نمرې';
+
+  @override
+  String get gradesSubjectNoGrades => 'په دې مضمون کې تر اوسه نمرې نشته.';
+
+  @override
+  String get gradesEditGradeTitle => 'د نمرې سمون';
+
+  @override
+  String gradeFormatN(String n) {
+    return 'بڼه $n';
+  }
+
+  @override
+  String get gradeAddFormat => 'بڼه زیاته کړئ';
+
+  @override
+  String get gradesBreakdownAverage => 'اوسط';
+
+  @override
+  String get adminPrincipalRangeFrom => 'له';
+
+  @override
+  String get adminPrincipalRangeTo => 'تر';
+
+  @override
+  String get adminPrincipalAddRange => 'لړ زیات کړئ';
 }

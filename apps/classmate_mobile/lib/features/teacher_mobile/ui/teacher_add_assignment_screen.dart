@@ -8,6 +8,7 @@ import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/weight_formats_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
@@ -45,7 +46,7 @@ class _TeacherAddAssignmentScreenState
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
   final _maxGradeCtrl = TextEditingController();
-  final _weightCtrl = TextEditingController();
+  List<int> _weights = <int>[];
   int? _semester;
   String? _selectedCourseId;
   String? _selectedSubject;
@@ -89,7 +90,7 @@ class _TeacherAddAssignmentScreenState
       _titleCtrl.text = (a['title'] ?? '').toString();
       _descCtrl.text = (a['description'] ?? a['body'] ?? '').toString();
       _maxGradeCtrl.text = a['maxGrade'] != null ? '${a['maxGrade']}' : '';
-      _weightCtrl.text = a['weightPercent'] != null ? '${a['weightPercent']}' : '';
+      _weights = readWeights(a);
       _semester = a['semester'] is int ? a['semester'] as int : int.tryParse('${a['semester']}');
       _selectedSubject = a['subject']?.toString();
       _selectedCourseId = (a['courseId'] ?? a['_courseId'] ?? '').toString().isEmpty ? null : (a['courseId'] ?? a['_courseId']).toString();
@@ -113,7 +114,6 @@ class _TeacherAddAssignmentScreenState
     _titleCtrl.dispose();
     _descCtrl.dispose();
     _maxGradeCtrl.dispose();
-    _weightCtrl.dispose();
     super.dispose();
   }
 
@@ -315,7 +315,7 @@ class _TeacherAddAssignmentScreenState
           'subject': _selectedSubject,
           'dueAt': dueAtStr,
           'maxGrade': int.tryParse(_maxGradeCtrl.text.trim()),
-          'weightPercent': int.tryParse(_weightCtrl.text.trim()),
+          'weightPercents': _weights,
           'semester': _semester,
           'targetType': effectiveTargetType,
           'targetCohortIds': outCohortIds,
@@ -333,7 +333,7 @@ class _TeacherAddAssignmentScreenState
           subject: _selectedSubject,
           dueAt: dueAtStr,
           maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
-          weightPercent: int.tryParse(_weightCtrl.text.trim()),
+          weightPercents: _weights,
           semester: _semester,
           targetType: effectiveTargetType,
           targetCohortIds: outCohortIds,
@@ -741,17 +741,10 @@ class _TeacherAddAssignmentScreenState
                       ),
                       const SizedBox(height: 12),
 
-                      // Weight on the subject average (optional) + semester
-                      TextField(
-                        controller: _weightCtrl,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.gradeWeightLabel,
-                          helperText: AppLocalizations.of(context)!.gradeWeightHint,
-                          suffixText: '%',
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.percent_rounded),
-                        ),
+                      // Weight on the subject average (multi-format) + semester
+                      WeightFormatsField(
+                        value: _weights,
+                        onChanged: (w) => _weights = w,
                       ),
                       const SizedBox(height: 12),
                       LiquidGlassSelectField<int>(

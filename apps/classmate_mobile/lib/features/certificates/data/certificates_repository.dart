@@ -84,6 +84,7 @@ class CertPrefill {
     required this.defaultPrincipalName,
     required this.cohorts,
     required this.teacherNames,
+    required this.principalNames,
     required this.student,
     required this.studentNationalId,
     required this.subjects,
@@ -100,6 +101,7 @@ class CertPrefill {
   final String defaultPrincipalName;
   final List<CertCohort> cohorts;
   final List<String> teacherNames;
+  final List<String> principalNames;
   final CertStudent? student;
   final String? studentNationalId;
   final List<CertSubjectRow> subjects;
@@ -124,6 +126,7 @@ class CertPrefill {
           .map((e) => CertCohort.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
       teacherNames: (j['teacherNames'] as List? ?? []).map((e) => '$e').toList(),
+      principalNames: (j['principalNames'] as List? ?? []).map((e) => '$e').toList(),
       student: student == null ? null : CertStudent.fromJson(student),
       studentNationalId: student?['nationalId']?.toString(),
       subjects: (j['subjects'] as List? ?? [])

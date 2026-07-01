@@ -35,13 +35,20 @@ export class StudentInsightsService {
     // Full history (ordered newest-first): the Grades tab paginates this with
     // its own show-more/less UI, so return the whole list rather than a small
     // preview. The Insights dashboard independently takes only the top few.
-    const latest: StudentInsightsGradeItem[] = rows.slice(0, 400).map((r) => ({
-      id: String(r.id),
-      subject: String(r.assessment?.subject ?? ''),
-      assessmentTitle: String(r.assessment?.title ?? ''),
-      grade: Number(r.grade ?? 0),
-      date: this.ymd(r.assessment?.date),
-    }));
+    const latest: StudentInsightsGradeItem[] = rows.slice(0, 400).map((r) => {
+      const wp = Array.isArray(r.assessment?.weightPercents) ? (r.assessment.weightPercents as number[]) : [];
+      const single = r.assessment?.weightPercent;
+      return {
+        id: String(r.id),
+        subject: String(r.assessment?.subject ?? ''),
+        assessmentTitle: String(r.assessment?.title ?? ''),
+        grade: Number(r.grade ?? 0),
+        date: this.ymd(r.assessment?.date),
+        maxGrade: r.assessment?.maxGrade != null ? Number(r.assessment.maxGrade) : null,
+        weightPercents: wp.length ? wp : single != null ? [Number(single)] : [],
+        semester: r.assessment?.semester != null ? Number(r.assessment.semester) : null,
+      };
+    });
 
     const allGrades = rows
       .map((r) => Number(r.grade))

@@ -38,6 +38,21 @@ function normWeight(v: unknown): number | null {
   return Math.max(0, Math.min(100, n));
 }
 
+/** Normalize a list of format weights (each 0..100). Trailing/empty → []. */
+function normWeights(v: unknown): number[] {
+  if (!Array.isArray(v)) return [];
+  const out = v.map((x) => normWeight(x)).filter((n): n is number => n != null);
+  return out;
+}
+
+/** Merge the (new) weightPercents list with the legacy single weightPercent. */
+function resolveWeights(list: unknown, single: unknown): number[] {
+  const arr = normWeights(list);
+  if (arr.length) return arr;
+  const s = normWeight(single);
+  return s != null ? [s] : [];
+}
+
 /** Normalize an optional 1-based semester number, or null. */
 function normSemester(v: unknown): number | null {
   if (v === null || v === undefined || v === '') return null;
@@ -1208,6 +1223,7 @@ export class TeacherService {
       date?: string;
       maxGrade?: number;
       weightPercent?: number | null;
+      weightPercents?: number[] | null;
       semester?: number | null;
     },
   ) {
@@ -1227,6 +1243,7 @@ export class TeacherService {
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
     const date = parseYmdToUtcMidnight(dateYmd);
 
+    const weights = resolveWeights(body.weightPercents, body.weightPercent);
     const assessment = await this.prisma.assessment.create({
       data: {
         cohortId,
@@ -1235,7 +1252,8 @@ export class TeacherService {
         date,
         maxGrade: body.maxGrade ?? undefined,
         createdBy: teacherId,
-        weightPercent: normWeight(body.weightPercent),
+        weightPercent: weights.length ? weights[0] : null,
+        weightPercents: weights,
         semester: normSemester(body.semester),
       },
     });
@@ -1480,7 +1498,14 @@ export class TeacherService {
   async updateAssessment(
     user: any,
     id: string,
-    body: { title?: string; date?: string | null; weightPercent?: number | null; semester?: number | null; maxGrade?: number },
+    body: {
+      title?: string;
+      date?: string | null;
+      weightPercent?: number | null;
+      weightPercents?: number[] | null;
+      semester?: number | null;
+      maxGrade?: number;
+    },
   ) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -1491,6 +1516,7 @@ export class TeacherService {
       (body.title === undefined &&
         body.date === undefined &&
         body.weightPercent === undefined &&
+        body.weightPercents === undefined &&
         body.semester === undefined &&
         body.maxGrade === undefined)
     )
@@ -1519,7 +1545,11 @@ export class TeacherService {
       }
     }
 
-    if (body.weightPercent !== undefined) data.weightPercent = normWeight(body.weightPercent);
+    if (body.weightPercent !== undefined || body.weightPercents !== undefined) {
+      const weights = resolveWeights(body.weightPercents, body.weightPercent);
+      data.weightPercents = weights;
+      data.weightPercent = weights.length ? weights[0] : null;
+    }
     if (body.semester !== undefined) data.semester = normSemester(body.semester);
     if (body.maxGrade !== undefined) {
       const mg = Math.round(Number(body.maxGrade));
@@ -2864,7 +2894,8 @@ export class TeacherService {
         subject: body?.subject ? String(body.subject).trim() : null,
         dueAt: body?.dueAt ? new Date(String(body.dueAt)) : null,
         maxGrade: body?.maxGrade ? Number(body.maxGrade) : null,
-        weightPercent: normWeight(body?.weightPercent),
+        weightPercent: resolveWeights(body?.weightPercents, body?.weightPercent)[0] ?? null,
+        weightPercents: resolveWeights(body?.weightPercents, body?.weightPercent),
         semester: normSemester(body?.semester),
         targetType: body?.targetType ?? 'EVERYONE',
         targetCohortIds: Array.isArray(body?.targetCohortIds) ? body.targetCohortIds : [],
@@ -2931,7 +2962,11 @@ export class TeacherService {
     if (body?.subject !== undefined) data.subject = body.subject ? String(body.subject).trim() : null;
     if (body?.dueAt !== undefined) data.dueAt = body.dueAt ? new Date(String(body.dueAt)) : null;
     if (body?.maxGrade !== undefined) data.maxGrade = body.maxGrade ? Number(body.maxGrade) : null;
-    if (body?.weightPercent !== undefined) data.weightPercent = normWeight(body.weightPercent);
+    if (body?.weightPercent !== undefined || body?.weightPercents !== undefined) {
+      const weights = resolveWeights(body.weightPercents, body.weightPercent);
+      data.weightPercents = weights;
+      data.weightPercent = weights.length ? weights[0] : null;
+    }
     if (body?.semester !== undefined) data.semester = normSemester(body.semester);
     if (body?.targetType !== undefined) data.targetType = body.targetType;
     if (body?.targetCohortIds !== undefined) data.targetCohortIds = body.targetCohortIds;
@@ -2942,11 +2977,14 @@ export class TeacherService {
     if (body?.published !== undefined) { data.published = body.published; if (body.published) data.publishedAt = new Date(); }
     await this.prisma.teacherAssignment.updateMany({ where: { id, teacherId }, data });
     // Sync graded Assessment mirrors so certificate math reflects edits.
-    if (body?.weightPercent !== undefined || body?.semester !== undefined) {
+    if (body?.weightPercent !== undefined || body?.weightPercents !== undefined || body?.semester !== undefined) {
+      const weights = resolveWeights(body?.weightPercents, body?.weightPercent);
       await this.prisma.assessment.updateMany({
         where: { teacherAssignmentId: id },
         data: {
-          ...(body?.weightPercent !== undefined ? { weightPercent: normWeight(body.weightPercent) } : {}),
+          ...(body?.weightPercent !== undefined || body?.weightPercents !== undefined
+            ? { weightPercents: weights, weightPercent: weights.length ? weights[0] : null }
+            : {}),
           ...(body?.semester !== undefined ? { semester: normSemester(body.semester) } : {}),
         },
       });
@@ -3097,6 +3135,7 @@ export class TeacherService {
           maxGrade: assignment.maxGrade ?? 100,
           teacherAssignmentId: assignment.id,
           weightPercent: assignment.weightPercent ?? null,
+          weightPercents: assignment.weightPercents ?? [],
           semester: assignment.semester ?? null,
           published: true,
         },
@@ -4082,7 +4121,8 @@ export class TeacherService {
         subject: body?.subject ? String(body.subject).trim() : null,
         date: body?.date ? new Date(String(body.date)) : new Date(),
         maxGrade: body?.maxGrade ? Number(body.maxGrade) : null,
-        weightPercent: normWeight(body?.weightPercent),
+        weightPercent: resolveWeights(body?.weightPercents, body?.weightPercent)[0] ?? null,
+        weightPercents: resolveWeights(body?.weightPercents, body?.weightPercent),
         semester: normSemester(body?.semester),
         published: body?.published === true,
         targetType: body?.targetType ?? 'EVERYONE',
@@ -4153,7 +4193,11 @@ export class TeacherService {
     if (body?.maxGrade !== undefined) {
       data.maxGrade = body.maxGrade ? Number(body.maxGrade) : null;
     }
-    if (body?.weightPercent !== undefined) data.weightPercent = normWeight(body.weightPercent);
+    if (body?.weightPercent !== undefined || body?.weightPercents !== undefined) {
+      const weights = resolveWeights(body.weightPercents, body.weightPercent);
+      data.weightPercents = weights;
+      data.weightPercent = weights.length ? weights[0] : null;
+    }
     if (body?.semester !== undefined) data.semester = normSemester(body.semester);
     if (body?.published !== undefined) {
       data.published = body.published === true;
@@ -4182,11 +4226,14 @@ export class TeacherService {
     });
     // Keep any already-graded Assessment mirrors in sync with the exam's
     // weight/semester so the certificate math reflects edits.
-    if (body?.weightPercent !== undefined || body?.semester !== undefined) {
+    if (body?.weightPercent !== undefined || body?.weightPercents !== undefined || body?.semester !== undefined) {
+      const weights = resolveWeights(body?.weightPercents, body?.weightPercent);
       await this.prisma.assessment.updateMany({
         where: { examId: id },
         data: {
-          ...(body?.weightPercent !== undefined ? { weightPercent: normWeight(body.weightPercent) } : {}),
+          ...(body?.weightPercent !== undefined || body?.weightPercents !== undefined
+            ? { weightPercents: weights, weightPercent: weights.length ? weights[0] : null }
+            : {}),
           ...(body?.semester !== undefined ? { semester: normSemester(body.semester) } : {}),
         },
       });
@@ -4290,6 +4337,7 @@ export class TeacherService {
             maxGrade: exam.maxGrade ?? 100,
             examId,
             weightPercent: (exam as any).weightPercent ?? null,
+            weightPercents: (exam as any).weightPercents ?? [],
             semester: (exam as any).semester ?? null,
             published: true,
           },

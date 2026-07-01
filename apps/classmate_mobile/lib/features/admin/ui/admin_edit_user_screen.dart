@@ -25,7 +25,40 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   final _phoneCtrl    = TextEditingController();
   final _nationalIdCtrl = TextEditingController();
   bool _isPrincipal = false;
-  final Set<int> _principalGrades = <int>{};
+  // Multiple grade ranges, like the school grade range (e.g. [[4,6],[9,12]]).
+  List<List<int>> _principalRanges = <List<int>>[];
+
+  /// Compact a flat grade list into contiguous [lo,hi] ranges.
+  static List<List<int>> _gradesToRanges(List<int> grades) {
+    final s = (grades.toSet().toList()..sort());
+    final out = <List<int>>[];
+    for (final g in s) {
+      if (out.isNotEmpty && g == out.last[1] + 1) {
+        out.last[1] = g;
+      } else {
+        out.add([g, g]);
+      }
+    }
+    return out;
+  }
+
+  /// Expand [lo,hi] ranges into a sorted unique grade list.
+  static List<int> _rangesToGrades(List<List<int>> ranges) {
+    final set = <int>{};
+    for (final r in ranges) {
+      var lo = r[0];
+      var hi = r[1];
+      if (lo > hi) {
+        final t = lo;
+        lo = hi;
+        hi = t;
+      }
+      for (int g = lo; g <= hi; g++) {
+        set.add(g);
+      }
+    }
+    return set.toList()..sort();
+  }
   String  _dialCode = kDefaultDialCode;
 
   String? _role;
@@ -71,9 +104,8 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       _isPrincipal = m['isPrincipal'] == true;
       final pg = m['principalGrades'];
       if (pg is List) {
-        _principalGrades
-          ..clear()
-          ..addAll(pg.map((e) => e is int ? e : int.tryParse('$e')).whereType<int>());
+        _principalRanges =
+            _gradesToRanges(pg.map((e) => e is int ? e : int.tryParse('$e')).whereType<int>().toList());
       }
       // Split the stored E.164 phone into dial-code + local digits so the
       // PhoneField shows the right country chip on first paint.
@@ -132,7 +164,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         grade: _grade,
         nationalId: _nationalIdCtrl.text.trim(),
         isPrincipal: _role == 'ADMIN' ? _isPrincipal : false,
-        principalGrades: (_role == 'ADMIN' && _isPrincipal) ? (_principalGrades.toList()..sort()) : const <int>[],
+        principalGrades: (_role == 'ADMIN' && _isPrincipal) ? _rangesToGrades(_principalRanges) : const <int>[],
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserSaved)));
@@ -356,20 +388,56 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                       const SizedBox(height: 6),
                       Text(l.adminPrincipalGrades, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8, runSpacing: 8,
-                        children: ref.watch(authSessionProvider).schoolGrades.map((g) => FilterChip(
-                          label: Text(l.adminCohortGradeFormat(g.toString())),
-                          selected: _principalGrades.contains(g),
-                          onSelected: (sel) => setState(() {
-                            if (sel) {
-                              _principalGrades.add(g);
-                            } else {
-                              _principalGrades.remove(g);
-                            }
-                          }),
-                        )).toList(),
-                      ),
+                      Builder(builder: (context) {
+                        final grades = ref.watch(authSessionProvider).schoolGrades;
+                        final gmin = grades.isNotEmpty ? grades.first : 1;
+                        final gmax = grades.isNotEmpty ? grades.last : 12;
+                        List<LiquidGlassDropdownItem<int>> items() => [
+                              for (final g in grades)
+                                LiquidGlassDropdownItem(value: g, label: l.adminCohortGradeFormat('$g')),
+                            ];
+                        return Column(
+                          children: [
+                            for (int i = 0; i < _principalRanges.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: LiquidGlassSelectField<int>(
+                                        label: l.adminPrincipalRangeFrom,
+                                        value: _principalRanges[i][0].clamp(gmin, gmax),
+                                        items: items(),
+                                        onChanged: (v) => setState(() => _principalRanges[i][0] = v),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: LiquidGlassSelectField<int>(
+                                        label: l.adminPrincipalRangeTo,
+                                        value: _principalRanges[i][1].clamp(gmin, gmax),
+                                        items: items(),
+                                        onChanged: (v) => setState(() => _principalRanges[i][1] = v),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                                      onPressed: () => setState(() => _principalRanges.removeAt(i)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextButton.icon(
+                                onPressed: () => setState(() => _principalRanges.add([gmin, gmax])),
+                                icon: const Icon(Icons.add, size: 18),
+                                label: Text(l.adminPrincipalAddRange),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ],
                   ],
                   // ── Grade (students) ───────────────────────────────────────

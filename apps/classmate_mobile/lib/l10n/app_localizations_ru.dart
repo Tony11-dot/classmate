@@ -10118,50 +10118,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scheduleNoUpcomingExams => 'Нет предстоящих экзаменов';
 
   @override
-  String get navAverages => 'Средние баллы';
-
-  @override
   String get navCertificates => 'Сертификаты';
-
-  @override
-  String get averagesTitle => 'Средние баллы';
-
-  @override
-  String get averagesAddTitle => 'Новый средний балл';
-
-  @override
-  String get averagesEditTitle => 'Изменить средний балл';
-
-  @override
-  String get averagesSelectCohort => 'Класс';
-
-  @override
-  String get averagesSelectSubject => 'Предмет';
-
-  @override
-  String get averagesNoSubjects => 'Для этого класса предметы не найдены.';
-
-  @override
-  String get averagesEmpty =>
-      'Пока нет средних баллов. Нажмите +, чтобы добавить.';
-
-  @override
-  String averagesVariantCount(int count, int units) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count форматов',
-      one: '1 формат',
-    );
-    return '$_temp0 · $units ед.';
-  }
-
-  @override
-  String get averagesDeleteTitle => 'Удалить средний балл';
-
-  @override
-  String get averagesDeleteConfirm =>
-      'Удалить этот средний балл? Действие необратимо.';
 
   @override
   String get averagesDelete => 'Удалить';
@@ -10170,57 +10127,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get averagesFieldTitle => 'Название';
 
   @override
-  String get averagesFieldTitleHint =>
-      'напр. Итоговая формула по математике, 5 ед.';
-
-  @override
-  String get averagesSemester => 'Семестр';
-
-  @override
-  String get averagesUnits => 'Единицы (вес)';
-
-  @override
-  String get averagesUnitsHint =>
-      '0, если на этом уровне нет взвешенных единиц, напр. 7 класс';
-
-  @override
-  String get averagesBestFormatNote =>
-      'Система автоматически выбирает наиболее подходящий формат для каждого ученика класса.';
-
-  @override
-  String get averagesNoGrades =>
-      'Оценки для этого класса и предмета не найдены.';
-
-  @override
-  String get averagesAddFormat => 'Добавить формат';
-
-  @override
   String get averagesSave => 'Сохранить';
-
-  @override
-  String get averagesFormat => 'Формат';
-
-  @override
-  String get averagesAddGrade => 'Добавить оценку';
-
-  @override
-  String get averagesGrade => 'Оценка';
-
-  @override
-  String averagesWeightSum(String sum) {
-    return 'Итого: $sum%';
-  }
-
-  @override
-  String get averagesTitleRequired => 'Введите название.';
-
-  @override
-  String get averagesPickGradeForEachRow =>
-      'Выберите оценку для каждой строки.';
-
-  @override
-  String get averagesWeightMustBe100 =>
-      'Сумма процентов в каждом формате должна быть 100%.';
 
   @override
   String get certificatesTitle => 'Сертификаты';
@@ -10359,4 +10266,59 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get certPdfTeacher => 'Учитель';
+
+  @override
+  String gradesHubSummary(int subjects, int students) {
+    return '$subjects предметов · $students учеников';
+  }
+
+  @override
+  String get gradesHubSearchSubjects => 'Поиск предметов';
+
+  @override
+  String get gradesHubEmpty =>
+      'Пока нет оценок. Добавьте оценку — и предмет появится здесь.';
+
+  @override
+  String gradesHubStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count учеников',
+      one: '1 ученик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesSubjectStudentsTab => 'Ученики';
+
+  @override
+  String get gradesSubjectGradesTab => 'Оценки';
+
+  @override
+  String get gradesSubjectNoGrades => 'В этом предмете пока нет оценок.';
+
+  @override
+  String get gradesEditGradeTitle => 'Изменить оценку';
+
+  @override
+  String gradeFormatN(String n) {
+    return 'Формат $n';
+  }
+
+  @override
+  String get gradeAddFormat => 'Добавить формат';
+
+  @override
+  String get gradesBreakdownAverage => 'Средний балл';
+
+  @override
+  String get adminPrincipalRangeFrom => 'От';
+
+  @override
+  String get adminPrincipalRangeTo => 'До';
+
+  @override
+  String get adminPrincipalAddRange => 'Добавить диапазон';
 }

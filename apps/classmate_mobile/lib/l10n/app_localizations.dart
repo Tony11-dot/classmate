@@ -17475,77 +17475,11 @@ abstract class AppLocalizations {
   /// **'No upcoming exams'**
   String get scheduleNoUpcomingExams;
 
-  /// No description provided for @navAverages.
-  ///
-  /// In en, this message translates to:
-  /// **'Averages'**
-  String get navAverages;
-
   /// No description provided for @navCertificates.
   ///
   /// In en, this message translates to:
   /// **'Certificates'**
   String get navCertificates;
-
-  /// No description provided for @averagesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Averages'**
-  String get averagesTitle;
-
-  /// No description provided for @averagesAddTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'New average'**
-  String get averagesAddTitle;
-
-  /// No description provided for @averagesEditTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit average'**
-  String get averagesEditTitle;
-
-  /// No description provided for @averagesSelectCohort.
-  ///
-  /// In en, this message translates to:
-  /// **'Class'**
-  String get averagesSelectCohort;
-
-  /// No description provided for @averagesSelectSubject.
-  ///
-  /// In en, this message translates to:
-  /// **'Subject'**
-  String get averagesSelectSubject;
-
-  /// No description provided for @averagesNoSubjects.
-  ///
-  /// In en, this message translates to:
-  /// **'No subjects found for this class.'**
-  String get averagesNoSubjects;
-
-  /// No description provided for @averagesEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No averages yet. Tap + to add one.'**
-  String get averagesEmpty;
-
-  /// No description provided for @averagesVariantCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 format} other{{count} formats}} · {units} units'**
-  String averagesVariantCount(int count, int units);
-
-  /// No description provided for @averagesDeleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete average'**
-  String get averagesDeleteTitle;
-
-  /// No description provided for @averagesDeleteConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete this average? This cannot be undone.'**
-  String get averagesDeleteConfirm;
 
   /// No description provided for @averagesDelete.
   ///
@@ -17559,95 +17493,11 @@ abstract class AppLocalizations {
   /// **'Title'**
   String get averagesFieldTitle;
 
-  /// No description provided for @averagesFieldTitleHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. Math 5-unit final formula'**
-  String get averagesFieldTitleHint;
-
-  /// No description provided for @averagesSemester.
-  ///
-  /// In en, this message translates to:
-  /// **'Semester'**
-  String get averagesSemester;
-
-  /// No description provided for @averagesUnits.
-  ///
-  /// In en, this message translates to:
-  /// **'Units (weight)'**
-  String get averagesUnits;
-
-  /// No description provided for @averagesUnitsHint.
-  ///
-  /// In en, this message translates to:
-  /// **'0 if this grade level has no weighted units, e.g. 7th grade'**
-  String get averagesUnitsHint;
-
-  /// No description provided for @averagesBestFormatNote.
-  ///
-  /// In en, this message translates to:
-  /// **'The system automatically picks the best-matching format for each student in this class.'**
-  String get averagesBestFormatNote;
-
-  /// No description provided for @averagesNoGrades.
-  ///
-  /// In en, this message translates to:
-  /// **'No grades found for this class & subject.'**
-  String get averagesNoGrades;
-
-  /// No description provided for @averagesAddFormat.
-  ///
-  /// In en, this message translates to:
-  /// **'Add format'**
-  String get averagesAddFormat;
-
   /// No description provided for @averagesSave.
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get averagesSave;
-
-  /// No description provided for @averagesFormat.
-  ///
-  /// In en, this message translates to:
-  /// **'Format'**
-  String get averagesFormat;
-
-  /// No description provided for @averagesAddGrade.
-  ///
-  /// In en, this message translates to:
-  /// **'Add grade'**
-  String get averagesAddGrade;
-
-  /// No description provided for @averagesGrade.
-  ///
-  /// In en, this message translates to:
-  /// **'Grade'**
-  String get averagesGrade;
-
-  /// No description provided for @averagesWeightSum.
-  ///
-  /// In en, this message translates to:
-  /// **'Total: {sum}%'**
-  String averagesWeightSum(String sum);
-
-  /// No description provided for @averagesTitleRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter a title.'**
-  String get averagesTitleRequired;
-
-  /// No description provided for @averagesPickGradeForEachRow.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a grade for every row.'**
-  String get averagesPickGradeForEachRow;
-
-  /// No description provided for @averagesWeightMustBe100.
-  ///
-  /// In en, this message translates to:
-  /// **'Each format\'s percentages must total 100%.'**
-  String get averagesWeightMustBe100;
 
   /// No description provided for @certificatesTitle.
   ///
@@ -17912,6 +17762,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Teacher'**
   String get certPdfTeacher;
+
+  /// No description provided for @gradesHubSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{subjects} subjects · {students} students'**
+  String gradesHubSummary(int subjects, int students);
+
+  /// No description provided for @gradesHubSearchSubjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Search subjects'**
+  String get gradesHubSearchSubjects;
+
+  /// No description provided for @gradesHubEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades yet. Add a grade and the subject will appear here.'**
+  String get gradesHubEmpty;
+
+  /// No description provided for @gradesHubStudentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String gradesHubStudentCount(int count);
+
+  /// No description provided for @gradesSubjectStudentsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get gradesSubjectStudentsTab;
+
+  /// No description provided for @gradesSubjectGradesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get gradesSubjectGradesTab;
+
+  /// No description provided for @gradesSubjectNoGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades in this subject yet.'**
+  String get gradesSubjectNoGrades;
+
+  /// No description provided for @gradesEditGradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit grade'**
+  String get gradesEditGradeTitle;
+
+  /// No description provided for @gradeFormatN.
+  ///
+  /// In en, this message translates to:
+  /// **'Format {n}'**
+  String gradeFormatN(String n);
+
+  /// No description provided for @gradeAddFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Add format'**
+  String get gradeAddFormat;
+
+  /// No description provided for @gradesBreakdownAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get gradesBreakdownAverage;
+
+  /// No description provided for @adminPrincipalRangeFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get adminPrincipalRangeFrom;
+
+  /// No description provided for @adminPrincipalRangeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get adminPrincipalRangeTo;
+
+  /// No description provided for @adminPrincipalAddRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Add range'**
+  String get adminPrincipalAddRange;
 }
 
 class _AppLocalizationsDelegate

@@ -10071,49 +10071,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleNoUpcomingExams => 'لا توجد امتحانات قادمة';
 
   @override
-  String get navAverages => 'المعدلات';
-
-  @override
   String get navCertificates => 'الشهادات';
-
-  @override
-  String get averagesTitle => 'المعدلات';
-
-  @override
-  String get averagesAddTitle => 'معدل جديد';
-
-  @override
-  String get averagesEditTitle => 'تعديل المعدل';
-
-  @override
-  String get averagesSelectCohort => 'الصف';
-
-  @override
-  String get averagesSelectSubject => 'المادة';
-
-  @override
-  String get averagesNoSubjects => 'لا توجد مواد لهذا الصف.';
-
-  @override
-  String get averagesEmpty => 'لا توجد معدلات بعد. اضغط + للإضافة.';
-
-  @override
-  String averagesVariantCount(int count, int units) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count صِيَغ',
-      one: 'صيغة واحدة',
-    );
-    return '$_temp0 · $units وحدات';
-  }
-
-  @override
-  String get averagesDeleteTitle => 'حذف المعدل';
-
-  @override
-  String get averagesDeleteConfirm =>
-      'هل تريد حذف هذا المعدل؟ لا يمكن التراجع.';
 
   @override
   String get averagesDelete => 'حذف';
@@ -10122,54 +10080,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get averagesFieldTitle => 'العنوان';
 
   @override
-  String get averagesFieldTitleHint => 'مثال: صيغة بجروت الرياضيات ٥ وحدات';
-
-  @override
-  String get averagesSemester => 'الفصل';
-
-  @override
-  String get averagesUnits => 'الوحدات (الوزن)';
-
-  @override
-  String get averagesUnitsHint =>
-      '0 إذا لم يكن لهذا الصف وحدات موزونة، مثل الصف السابع';
-
-  @override
-  String get averagesBestFormatNote =>
-      'يختار النظام تلقائيًا الصيغة الأنسب لكل طالب في هذا الصف.';
-
-  @override
-  String get averagesNoGrades => 'لا توجد علامات لهذا الصف والمادة.';
-
-  @override
-  String get averagesAddFormat => 'إضافة صيغة';
-
-  @override
   String get averagesSave => 'حفظ';
-
-  @override
-  String get averagesFormat => 'صيغة';
-
-  @override
-  String get averagesAddGrade => 'إضافة علامة';
-
-  @override
-  String get averagesGrade => 'العلامة';
-
-  @override
-  String averagesWeightSum(String sum) {
-    return 'المجموع: $sum%';
-  }
-
-  @override
-  String get averagesTitleRequired => 'يرجى إدخال عنوان.';
-
-  @override
-  String get averagesPickGradeForEachRow => 'اختر علامة لكل صف.';
-
-  @override
-  String get averagesWeightMustBe100 =>
-      'يجب أن يكون مجموع النسب في كل صيغة 100%.';
 
   @override
   String get certificatesTitle => 'الشهادات';
@@ -10307,4 +10218,59 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get certPdfTeacher => 'المعلّم';
+
+  @override
+  String gradesHubSummary(int subjects, int students) {
+    return '$subjects مواد · $students طلاب';
+  }
+
+  @override
+  String get gradesHubSearchSubjects => 'بحث في المواد';
+
+  @override
+  String get gradesHubEmpty =>
+      'لا توجد علامات بعد. أضف علامة وستظهر المادة هنا.';
+
+  @override
+  String gradesHubStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلاب',
+      one: 'طالب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesSubjectStudentsTab => 'الطلاب';
+
+  @override
+  String get gradesSubjectGradesTab => 'العلامات';
+
+  @override
+  String get gradesSubjectNoGrades => 'لا توجد علامات في هذه المادة بعد.';
+
+  @override
+  String get gradesEditGradeTitle => 'تعديل العلامة';
+
+  @override
+  String gradeFormatN(String n) {
+    return 'صيغة $n';
+  }
+
+  @override
+  String get gradeAddFormat => 'إضافة صيغة';
+
+  @override
+  String get gradesBreakdownAverage => 'المعدل';
+
+  @override
+  String get adminPrincipalRangeFrom => 'من';
+
+  @override
+  String get adminPrincipalRangeTo => 'إلى';
+
+  @override
+  String get adminPrincipalAddRange => 'إضافة نطاق';
 }

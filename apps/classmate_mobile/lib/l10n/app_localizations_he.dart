@@ -10014,48 +10014,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get scheduleNoUpcomingExams => 'אין מבחנים קרובים';
 
   @override
-  String get navAverages => 'ממוצעים';
-
-  @override
   String get navCertificates => 'תעודות';
-
-  @override
-  String get averagesTitle => 'ממוצעים';
-
-  @override
-  String get averagesAddTitle => 'ממוצע חדש';
-
-  @override
-  String get averagesEditTitle => 'עריכת ממוצע';
-
-  @override
-  String get averagesSelectCohort => 'כיתה';
-
-  @override
-  String get averagesSelectSubject => 'מקצוע';
-
-  @override
-  String get averagesNoSubjects => 'לא נמצאו מקצועות לכיתה זו.';
-
-  @override
-  String get averagesEmpty => 'אין ממוצעים עדיין. הקש + להוספה.';
-
-  @override
-  String averagesVariantCount(int count, int units) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count תבניות',
-      one: 'תבנית אחת',
-    );
-    return '$_temp0 · $units יחידות';
-  }
-
-  @override
-  String get averagesDeleteTitle => 'מחיקת ממוצע';
-
-  @override
-  String get averagesDeleteConfirm => 'למחוק ממוצע זה? לא ניתן לבטל.';
 
   @override
   String get averagesDelete => 'מחק';
@@ -10064,54 +10023,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get averagesFieldTitle => 'כותרת';
 
   @override
-  String get averagesFieldTitleHint => 'לדוגמה: נוסחת בגרות מתמטיקה 5 יח׳';
-
-  @override
-  String get averagesSemester => 'סמסטר';
-
-  @override
-  String get averagesUnits => 'יחידות (משקל)';
-
-  @override
-  String get averagesUnitsHint =>
-      '0 אם לשכבה זו אין יחידות משוקללות, למשל כיתה ז׳';
-
-  @override
-  String get averagesBestFormatNote =>
-      'המערכת בוחרת אוטומטית את התבנית המתאימה ביותר לכל תלמיד בכיתה.';
-
-  @override
-  String get averagesNoGrades => 'לא נמצאו ציונים לכיתה ולמקצוע אלה.';
-
-  @override
-  String get averagesAddFormat => 'הוסף תבנית';
-
-  @override
   String get averagesSave => 'שמור';
-
-  @override
-  String get averagesFormat => 'תבנית';
-
-  @override
-  String get averagesAddGrade => 'הוסף ציון';
-
-  @override
-  String get averagesGrade => 'ציון';
-
-  @override
-  String averagesWeightSum(String sum) {
-    return 'סה״כ: $sum%';
-  }
-
-  @override
-  String get averagesTitleRequired => 'נא להזין כותרת.';
-
-  @override
-  String get averagesPickGradeForEachRow => 'בחר ציון לכל שורה.';
-
-  @override
-  String get averagesWeightMustBe100 =>
-      'סכום האחוזים בכל תבנית חייב להיות 100%.';
 
   @override
   String get certificatesTitle => 'תעודות';
@@ -10249,4 +10161,58 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get certPdfTeacher => 'מורה';
+
+  @override
+  String gradesHubSummary(int subjects, int students) {
+    return '$subjects מקצועות · $students תלמידים';
+  }
+
+  @override
+  String get gradesHubSearchSubjects => 'חיפוש מקצועות';
+
+  @override
+  String get gradesHubEmpty => 'אין ציונים עדיין. הוסף ציון והמקצוע יופיע כאן.';
+
+  @override
+  String gradesHubStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תלמידים',
+      one: 'תלמיד אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesSubjectStudentsTab => 'תלמידים';
+
+  @override
+  String get gradesSubjectGradesTab => 'ציונים';
+
+  @override
+  String get gradesSubjectNoGrades => 'אין ציונים במקצוע זה עדיין.';
+
+  @override
+  String get gradesEditGradeTitle => 'עריכת ציון';
+
+  @override
+  String gradeFormatN(String n) {
+    return 'תבנית $n';
+  }
+
+  @override
+  String get gradeAddFormat => 'הוסף תבנית';
+
+  @override
+  String get gradesBreakdownAverage => 'ממוצע';
+
+  @override
+  String get adminPrincipalRangeFrom => 'מ־';
+
+  @override
+  String get adminPrincipalRangeTo => 'עד';
+
+  @override
+  String get adminPrincipalAddRange => 'הוסף טווח';
 }

@@ -10124,49 +10124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleNoUpcomingExams => 'No upcoming exams';
 
   @override
-  String get navAverages => 'Averages';
-
-  @override
   String get navCertificates => 'Certificates';
-
-  @override
-  String get averagesTitle => 'Averages';
-
-  @override
-  String get averagesAddTitle => 'New average';
-
-  @override
-  String get averagesEditTitle => 'Edit average';
-
-  @override
-  String get averagesSelectCohort => 'Class';
-
-  @override
-  String get averagesSelectSubject => 'Subject';
-
-  @override
-  String get averagesNoSubjects => 'No subjects found for this class.';
-
-  @override
-  String get averagesEmpty => 'No averages yet. Tap + to add one.';
-
-  @override
-  String averagesVariantCount(int count, int units) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count formats',
-      one: '1 format',
-    );
-    return '$_temp0 · $units units';
-  }
-
-  @override
-  String get averagesDeleteTitle => 'Delete average';
-
-  @override
-  String get averagesDeleteConfirm =>
-      'Delete this average? This cannot be undone.';
 
   @override
   String get averagesDelete => 'Delete';
@@ -10175,54 +10133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get averagesFieldTitle => 'Title';
 
   @override
-  String get averagesFieldTitleHint => 'e.g. Math 5-unit final formula';
-
-  @override
-  String get averagesSemester => 'Semester';
-
-  @override
-  String get averagesUnits => 'Units (weight)';
-
-  @override
-  String get averagesUnitsHint =>
-      '0 if this grade level has no weighted units, e.g. 7th grade';
-
-  @override
-  String get averagesBestFormatNote =>
-      'The system automatically picks the best-matching format for each student in this class.';
-
-  @override
-  String get averagesNoGrades => 'No grades found for this class & subject.';
-
-  @override
-  String get averagesAddFormat => 'Add format';
-
-  @override
   String get averagesSave => 'Save';
-
-  @override
-  String get averagesFormat => 'Format';
-
-  @override
-  String get averagesAddGrade => 'Add grade';
-
-  @override
-  String get averagesGrade => 'Grade';
-
-  @override
-  String averagesWeightSum(String sum) {
-    return 'Total: $sum%';
-  }
-
-  @override
-  String get averagesTitleRequired => 'Please enter a title.';
-
-  @override
-  String get averagesPickGradeForEachRow => 'Pick a grade for every row.';
-
-  @override
-  String get averagesWeightMustBe100 =>
-      'Each format\'s percentages must total 100%.';
 
   @override
   String get certificatesTitle => 'Certificates';
@@ -10360,4 +10271,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get certPdfTeacher => 'Teacher';
+
+  @override
+  String gradesHubSummary(int subjects, int students) {
+    return '$subjects subjects · $students students';
+  }
+
+  @override
+  String get gradesHubSearchSubjects => 'Search subjects';
+
+  @override
+  String get gradesHubEmpty =>
+      'No grades yet. Add a grade and the subject will appear here.';
+
+  @override
+  String gradesHubStudentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gradesSubjectStudentsTab => 'Students';
+
+  @override
+  String get gradesSubjectGradesTab => 'Grades';
+
+  @override
+  String get gradesSubjectNoGrades => 'No grades in this subject yet.';
+
+  @override
+  String get gradesEditGradeTitle => 'Edit grade';
+
+  @override
+  String gradeFormatN(String n) {
+    return 'Format $n';
+  }
+
+  @override
+  String get gradeAddFormat => 'Add format';
+
+  @override
+  String get gradesBreakdownAverage => 'Average';
+
+  @override
+  String get adminPrincipalRangeFrom => 'From';
+
+  @override
+  String get adminPrincipalRangeTo => 'To';
+
+  @override
+  String get adminPrincipalAddRange => 'Add range';
 }

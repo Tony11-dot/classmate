@@ -317,7 +317,7 @@ class TeacherMobileRepository {
     int? maxGrade,
     bool published = false,
     List<Map<String, dynamic>>? attachments,
-    int? weightPercent,
+    List<int>? weightPercents,
     int? semester,
   }) async {
     final raw = await _api.postJson(
@@ -330,7 +330,7 @@ class TeacherMobileRepository {
         'maxGrade': maxGrade,
         'published': published,
         if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
-        'weightPercent': ?weightPercent,
+        'weightPercents': ?weightPercents,
         'semester': ?semester,
       },
     );
@@ -342,7 +342,7 @@ class TeacherMobileRepository {
     required String title,
     required String date,
     int? maxGrade,
-    int? weightPercent,
+    List<int>? weightPercents,
     int? semester,
   }) async {
     await _api.patchJson(
@@ -351,7 +351,7 @@ class TeacherMobileRepository {
         'title': title.trim(),
         'date': date.trim().isEmpty ? null : date.trim(),
         'maxGrade': maxGrade,
-        'weightPercent': ?weightPercent,
+        'weightPercents': ?weightPercents,
         'semester': ?semester,
       },
     );
@@ -778,7 +778,7 @@ class TeacherMobileRepository {
     List<int> targetGrades = const [],
     List<Map<String, dynamic>> attachments = const [],
     bool published = false,
-    int? weightPercent,
+    List<int>? weightPercents,
     int? semester,
   }) async {
     final raw = await _api.postJson(
@@ -790,7 +790,7 @@ class TeacherMobileRepository {
         if ((subject ?? '').isNotEmpty) 'subject': subject!.trim(),
         if ((dueAt ?? '').isNotEmpty) 'dueAt': dueAt,
         if (maxGrade != null) 'maxGrade': maxGrade,
-        'weightPercent': ?weightPercent,
+        'weightPercents': ?weightPercents,
         'semester': ?semester,
         'targetType': targetType,
         'targetCohortIds': targetCohortIds,
@@ -1106,7 +1106,7 @@ class TeacherMobileRepository {
     List<String> targetStudentIds = const [],
     List<int> targetGrades = const [],
     List<Map<String, dynamic>> attachments = const [],
-    int? weightPercent,
+    List<int>? weightPercents,
     int? semester,
   }) async {
     final raw = await _api.postJson(
@@ -1117,7 +1117,7 @@ class TeacherMobileRepository {
         if ((courseId ?? '').isNotEmpty) 'courseId': courseId,
         'date': date,
         if (maxGrade != null) 'maxGrade': maxGrade,
-        'weightPercent': ?weightPercent,
+        'weightPercents': ?weightPercents,
         'semester': ?semester,
         'published': published,
         'targetType': targetType,
@@ -1449,6 +1449,7 @@ class TeacherAssessment {
     this.published = false,
     this.attachments = const [],
     this.weightPercent,
+    this.weightPercents = const [],
     this.semester,
   });
 
@@ -1470,6 +1471,7 @@ class TeacherAssessment {
           ? rawAttachments.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList()
           : const [],
       weightPercent: json['weightPercent'] == null ? null : _asInt(json['weightPercent']),
+      weightPercents: (json['weightPercents'] as List? ?? []).map((e) => e is int ? e : _asInt(e)).toList(),
       semester: json['semester'] == null ? null : _asInt(json['semester']),
     );
   }
@@ -1485,6 +1487,8 @@ class TeacherAssessment {
   final List<Map<String, dynamic>> attachments;
   /// % this grade contributes to the subject average (null = unweighted).
   final int? weightPercent;
+  /// Weight formats (best-of at compute). Empty = use weightPercent/unweighted.
+  final List<int> weightPercents;
   /// Semester (1-based) this grade counts toward (null = by date).
   final int? semester;
 }

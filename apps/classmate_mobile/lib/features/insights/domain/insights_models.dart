@@ -166,6 +166,9 @@ class UnifiedGradeInsight {
   final String assessmentTitle;
   final double grade;
   final String? date;
+  final int? maxGrade;
+  final List<int> weightPercents;
+  final int? semester;
 
   const UnifiedGradeInsight({
     required this.id,
@@ -174,7 +177,17 @@ class UnifiedGradeInsight {
     required this.assessmentTitle,
     required this.grade,
     required this.date,
+    this.maxGrade,
+    this.weightPercents = const [],
+    this.semester,
   });
+
+  /// Score as a percentage (0..100), using maxGrade when present.
+  double get percent {
+    final m = maxGrade ?? 100;
+    if (m <= 0) return grade;
+    return grade / m * 100;
+  }
 
   factory UnifiedGradeInsight.fromJson(Map<String, dynamic> json) {
     double asDouble(Object? v) {
@@ -191,6 +204,11 @@ class UnifiedGradeInsight {
       assessmentTitle: '${json['assessmentTitle'] ?? ''}',
       grade: asDouble(json['grade']),
       date: json['date'] == null ? null : '${json['date']}',
+      maxGrade: json['maxGrade'] == null ? null : (json['maxGrade'] is int ? json['maxGrade'] as int : int.tryParse('${json['maxGrade']}')),
+      weightPercents: (json['weightPercents'] as List? ?? [])
+          .map((e) => e is int ? e : int.tryParse('$e') ?? 0)
+          .toList(),
+      semester: json['semester'] == null ? null : (json['semester'] is int ? json['semester'] as int : int.tryParse('${json['semester']}')),
     );
   }
 }

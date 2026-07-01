@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/weight_formats_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'teacher_student_grade_detail_screen.dart';
@@ -13,50 +16,46 @@ import 'teacher_student_grade_detail_screen.dart';
 //  Data helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _StudentGradeRow {
-  const _StudentGradeRow({
-    required this.student,
-    required this.gradeBySubject,
-  });
-
+/// A student graded in a subject, with their average in it.
+class _GradedStudent {
+  const _GradedStudent({required this.student, required this.average, required this.count});
   final TeacherStudentWithLevel student;
-  // subject → latest grade (null = not graded yet)
-  final Map<String, int?> gradeBySubject;
+  final int average; // rounded mean of their grades in the subject
+  final int count; // how many grades
+}
 
-  bool matchesQuery(String q) {
-    if (q.isEmpty) return true;
-    final lower = q.toLowerCase();
-    final name = student.name.toLowerCase();
-    final email = student.email.toLowerCase();
-    // Tokenise on whitespace so Arabic/Hebrew words can be searched individually.
-    if (name.contains(lower) || email.contains(lower)) return true;
-    for (final word in name.split(RegExp(r'\s+'))) {
-      if (word.startsWith(lower)) return true;
-    }
-    return false;
-  }
+/// One subject the teacher has graded, with the students graded in it.
+class _SubjectGroup {
+  const _SubjectGroup({
+    required this.subject,
+    required this.students,
+    required this.average,
+    required this.assessments,
+  });
+  final String subject;
+  final List<_GradedStudent> students;
+  final int? average; // subject-wide mean (rounded), null when no grades
+  final List<TeacherAssessment> assessments; // the graded items in this subject
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Screen
+//  Grades hub — subjects first (like the classrooms inbox)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class TeacherGradesScreen extends ConsumerStatefulWidget {
   const TeacherGradesScreen({super.key});
 
   @override
-  ConsumerState<TeacherGradesScreen> createState() =>
-      _TeacherGradesScreenState();
+  ConsumerState<TeacherGradesScreen> createState() => _TeacherGradesScreenState();
 }
 
 class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
-  List<_StudentGradeRow> _rows = [];
-  List<String> _allSubjects = [];
-  int _totalCourses = 0;
+  List<_SubjectGroup> _groups = [];
+  int _studentCount = 0;
   bool _loading = true;
   String? _error;
 
-  final TextEditingController _searchCtrl = TextEditingController();
+  final _searchCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -78,74 +77,70 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     });
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
-
-      // Fetch students and assessment bundle in parallel.
       final results = await Future.wait<dynamic>([
         repo.fetchAllStudents(),
         repo.fetchAssessments(),
       ]);
-
       final allStudents = results[0] as List<TeacherStudentWithLevel>;
       final bundle = results[1] as TeacherAssessmentBundle;
+      final studentById = {for (final s in allStudents) s.studentId: s};
+      final courseById = {for (final c in bundle.courses) c.id: c};
 
-      final publishedAssessments =
-          bundle.assessments.where((a) => a.published).toList();
-
-      // Build subject → courseId map from courses.
-      final courseById = <String, TeacherCourse>{
-        for (final c in bundle.courses) c.id: c,
-      };
-
-      // Fetch grades for all published assessments in parallel.
+      final published = bundle.assessments.where((a) => a.published).toList();
       final gradeResults = await Future.wait(
-        publishedAssessments.map((a) async {
+        published.map((a) async {
           try {
-            final grades = await repo.fetchAssessmentGrades(a.id);
-            return (assessment: a, grades: grades);
+            return (assessment: a, grades: await repo.fetchAssessmentGrades(a.id));
           } catch (_) {
             return null;
           }
         }),
       );
 
-      // Build studentId → {subject → grade} matrix.
-      // If a student has multiple grades per subject, keep the latest non-null.
-      final matrix = <String, Map<String, int?>>{};
+      // subject → studentId → list of grades, and subject → assessments
+      final bySubject = <String, Map<String, List<int>>>{};
+      final bySubjectAssessments = <String, List<TeacherAssessment>>{};
       for (final r in gradeResults) {
         if (r == null) continue;
         final course = courseById[r.assessment.courseId];
-        // Prefer the assessment's real subject (the backend sends it); only
-        // fall back to a course lookup or the title for legacy rows.
         final subject = r.assessment.subject.isNotEmpty
             ? r.assessment.subject
             : (course?.subject ?? r.assessment.title);
+        bySubjectAssessments.putIfAbsent(subject, () => []).add(r.assessment);
         for (final g in r.grades) {
-          if (g.grade == null) continue;
-          matrix.putIfAbsent(g.studentId, () => {})[subject] = g.grade;
+          final val = g.grade;
+          if (val == null) continue;
+          bySubject.putIfAbsent(subject, () => {}).putIfAbsent(g.studentId, () => []).add(val);
         }
       }
 
-      final allSubjects = bundle.courses
-          .map((c) => c.subject)
-          .where((s) => s.isNotEmpty)
-          .toSet()
-          .toList()
-        ..sort();
-
-      // Show ALL students — those without grades show empty cells so teacher can see who's missing
-      final rows = allStudents
-          .map((s) => _StudentGradeRow(
-                student: s,
-                gradeBySubject: matrix[s.studentId] ?? {},
-              ))
-          .toList()
-        ..sort((a, b) => a.student.name.compareTo(b.student.name));
+      final groups = <_SubjectGroup>[];
+      final allGradedStudentIds = <String>{};
+      for (final entry in bySubject.entries) {
+        final students = <_GradedStudent>[];
+        final allGrades = <int>[];
+        for (final se in entry.value.entries) {
+          final st = studentById[se.key];
+          if (st == null) continue;
+          allGradedStudentIds.add(se.key);
+          final grades = se.value;
+          allGrades.addAll(grades);
+          final avg = (grades.reduce((a, b) => a + b) / grades.length).round();
+          students.add(_GradedStudent(student: st, average: avg, count: grades.length));
+        }
+        if (students.isEmpty) continue;
+        students.sort((a, b) => a.student.name.compareTo(b.student.name));
+        final subjAvg = allGrades.isEmpty ? null : (allGrades.reduce((a, b) => a + b) / allGrades.length).round();
+        final assessments = (bySubjectAssessments[entry.key] ?? [])
+          ..sort((a, b) => b.date.compareTo(a.date));
+        groups.add(_SubjectGroup(subject: entry.key, students: students, average: subjAvg, assessments: assessments));
+      }
+      groups.sort((a, b) => a.subject.compareTo(b.subject));
 
       if (!mounted) return;
       setState(() {
-        _rows = rows;
-        _allSubjects = allSubjects;
-        _totalCourses = bundle.courses.length;
+        _groups = groups;
+        _studentCount = allGradedStudentIds.length;
         _loading = false;
       });
     } catch (e) {
@@ -157,37 +152,17 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     }
   }
 
-  List<_StudentGradeRow> get _filtered {
-    final q = _searchCtrl.text.trim();
-    return _rows.where((r) => r.matchesQuery(q)).toList();
+  List<_SubjectGroup> get _filtered {
+    final q = _searchCtrl.text.trim().toLowerCase();
+    if (q.isEmpty) return _groups;
+    return _groups.where((g) => g.subject.toLowerCase().contains(q)).toList();
   }
 
-  /// Split filtered rows into:
-  ///   1. students with at least one published grade
-  ///   2. other students in the same grade levels / cohorts as group 1
-  ///   (so the teacher only sees "peers", not the whole school).
-  ({List<_StudentGradeRow> graded, List<_StudentGradeRow> peers})
-      get _sections {
-    final filtered = _filtered;
-    final graded = <_StudentGradeRow>[];
-    final ungraded = <_StudentGradeRow>[];
-    for (final r in filtered) {
-      final hasGrade = r.gradeBySubject.values.any((v) => v != null);
-      (hasGrade ? graded : ungraded).add(r);
-    }
-    final cohortIds = graded.map((r) => r.student.cohortId).toSet()
-      ..removeWhere((c) => c.isEmpty);
-    final gradeLevels = graded
-        .map((r) => r.student.gradeLevel)
-        .whereType<int>()
-        .toSet();
-    final peers = ungraded.where((r) {
-      if (cohortIds.contains(r.student.cohortId)) return true;
-      final lvl = r.student.gradeLevel;
-      if (lvl != null && gradeLevels.contains(lvl)) return true;
-      return false;
-    }).toList();
-    return (graded: graded, peers: peers);
+  Future<void> _openSubject(_SubjectGroup g) async {
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(builder: (_) => _SubjectGradesScreen(group: g)),
+    );
+    if (mounted) _load();
   }
 
   @override
@@ -196,7 +171,6 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final filtered = _filtered;
-    final sections = _sections;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -204,83 +178,46 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         children: [
-          // ── Hero ────────────────────────────────────────────────────────
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
             color: cs.primaryContainer,
             border: Border.all(color: cs.outlineVariant),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l.navGrades,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              height: 1.1,
-                              color: cs.onPrimaryContainer,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_rows.length} students · ${_allSubjects.length} subjects',
-                            style: theme.textTheme.bodySmall
-                                ?.copyWith(color: cs.onPrimaryContainer),
-                          ),
-                        ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.navGrades,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                          color: cs.onPrimaryContainer,
+                        ),
                       ),
-                    ),
-                    Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: cs.secondaryContainer,
-                        borderRadius: BorderRadius.circular(14),
+                      const SizedBox(height: 4),
+                      Text(
+                        l.gradesHubSummary(_groups.length, _studentCount),
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onPrimaryContainer),
                       ),
-                      child: Icon(Icons.grade_rounded,
-                          size: 24, color: cs.onSecondaryContainer),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    _GradeStatPill(
-                      value: '$_totalCourses',
-                      label: l.titleClasses,
-                      // Distinct green — not primaryContainer so it's visible
-                      // against the card background.
-                      accentColor: const Color(0xFF22C55E),
-                    ),
-                    const SizedBox(width: 8),
-                    _GradeStatPill(
-                      value: '${_allSubjects.length}',
-                      label: l.adminSubjectsTitle,
-                      accentColor: cs.secondary,
-                    ),
-                    const SizedBox(width: 8),
-                    _GradeStatPill(
-                      value: '${_rows.length}',
-                      label: l.teacherGroupsLabel,
-                      accentColor: cs.tertiary,
-                    ),
-                  ],
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(color: cs.secondaryContainer, borderRadius: BorderRadius.circular(14)),
+                  child: Icon(Icons.grade_rounded, size: 24, color: cs.onSecondaryContainer),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 14),
-
-          // ── Search ──────────────────────────────────────────────────────
           TextField(
             controller: _searchCtrl,
             decoration: InputDecoration(
-              hintText: l.teacherSearchStudents,
+              hintText: l.gradesHubSearchSubjects,
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: _searchCtrl.text.isEmpty
                   ? null
@@ -292,182 +229,26 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                       },
                     ),
               filled: true,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide.none,
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
             ),
           ),
           const SizedBox(height: 12),
-
-          // ── Error ────────────────────────────────────────────────────────
           if (_error != null) ...[
-            LiquidGlassCard(
-              color: cs.errorContainer,
-              child: Text(_error!,
-                  style: TextStyle(color: cs.onErrorContainer)),
-            ),
+            LiquidGlassCard(color: cs.errorContainer, child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
             const SizedBox(height: 12),
           ],
-
-          // ── Content ──────────────────────────────────────────────────────
           if (_loading)
-            const Center(
-                child: Padding(
-                    padding: EdgeInsets.all(40), child: CmLoading()))
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (filtered.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Text(
-                  _rows.isEmpty
-                      ? l.teacherGradesNoStudentsLoaded
-                      : 'No students match "${_searchCtrl.text}"',
-                  style:
-                      theme.textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant),
-                  textAlign: TextAlign.center,
-                ),
+                child: Text(l.gradesHubEmpty,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
               ),
             )
-          else ...[
-            if (sections.graded.isNotEmpty) ...[
-              _SectionHeading(
-                title: l.teacherStudentsWithGrades,
-                count: sections.graded.length,
-              ),
-              ...sections.graded.map((row) => _StudentGradeCard(
-                    row: row,
-                    allSubjects: _allSubjects,
-                    onTap: () async {
-                      await Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => TeacherStudentGradeDetailScreen(
-                            student: row.student,
-                          ),
-                        ),
-                      );
-                      if (mounted) _load();
-                    },
-                    onAddGrade: () async {
-                      await context.push(
-                        '/teacher/grades/add',
-                        extra: <String, dynamic>{
-                          'studentIds': [row.student.studentId],
-                          'subject': row.student.subjects.isNotEmpty
-                              ? row.student.subjects.first
-                              : null,
-                        },
-                      );
-                      if (mounted) _load();
-                    },
-                  )),
-            ],
-            if (sections.peers.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              _SectionHeading(
-                title: l.teacherOtherStudentsSameGrade,
-                count: sections.peers.length,
-              ),
-              ...sections.peers.map((row) => _StudentGradeCard(
-                    row: row,
-                    allSubjects: _allSubjects,
-                    onTap: () async {
-                      await Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => TeacherStudentGradeDetailScreen(
-                            student: row.student,
-                          ),
-                        ),
-                      );
-                      if (mounted) _load();
-                    },
-                    onAddGrade: () async {
-                      await context.push(
-                        '/teacher/grades/add',
-                        extra: <String, dynamic>{
-                          'studentIds': [row.student.studentId],
-                          'subject': row.student.subjects.isNotEmpty
-                              ? row.student.subjects.first
-                              : null,
-                        },
-                      );
-                      if (mounted) _load();
-                    },
-                  )),
-            ],
-            // Fallback: nobody has grades AND we filtered nobody out — show
-            // everyone in a flat list rather than two empty sections.
-            if (sections.graded.isEmpty && sections.peers.isEmpty)
-              ...filtered.map((row) => _StudentGradeCard(
-                    row: row,
-                    allSubjects: _allSubjects,
-                    onTap: () async {
-                      await Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => TeacherStudentGradeDetailScreen(
-                            student: row.student,
-                          ),
-                        ),
-                      );
-                      if (mounted) _load();
-                    },
-                    onAddGrade: () async {
-                      await context.push(
-                        '/teacher/grades/add',
-                        extra: <String, dynamic>{
-                          'studentIds': [row.student.studentId],
-                          'subject': row.student.subjects.isNotEmpty
-                              ? row.student.subjects.first
-                              : null,
-                        },
-                      );
-                      if (mounted) _load();
-                    },
-                  )),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionHeading extends StatelessWidget {
-  const _SectionHeading({required this.title, required this.count});
-  final String title;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 6, 4, 10),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: cs.onSurface,
-              letterSpacing: 0.2,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              '$count',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: cs.onSurfaceVariant,
-              ),
-            ),
-          ),
+          else
+            ...filtered.map((g) => _SubjectCard(group: g, onTap: () => _openSubject(g))),
         ],
       ),
     );
@@ -475,149 +256,76 @@ class _SectionHeading extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Student grade card
+//  Subject card — two-band, like the classrooms inbox
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _StudentGradeCard extends StatelessWidget {
-  const _StudentGradeCard({
-    required this.row,
-    required this.allSubjects,
-    required this.onTap,
-    required this.onAddGrade,
-  });
-
-  final _StudentGradeRow row;
-  final List<String> allSubjects;
+class _SubjectCard extends StatelessWidget {
+  const _SubjectCard({required this.group, required this.onTap});
+  final _SubjectGroup group;
   final VoidCallback onTap;
-  final VoidCallback onAddGrade;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final graded = row.gradeBySubject;
-    // Union of the student's enrolled subjects + any subjects they've
-    // actually been graded in (so a grade in a subject that's missing
-    // from the enrolment record — e.g. the teacher graded "Other" — still
-    // renders as a pill instead of vanishing).
-    final subjects = {
-      ...row.student.subjects,
-      ...graded.keys,
-    }.toList();
-    if (subjects.isEmpty) subjects.addAll(allSubjects);
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(18),
-        color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Student name + cohort ────────────────────────────────────
-            Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
               children: [
                 Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    row.student.name.isNotEmpty
-                        ? row.student.name[0].toUpperCase()
-                        : '?',
-                    style: TextStyle(
-                      color: cs.onPrimaryContainer,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  width: double.infinity,
+                  color: cs.primaryContainer,
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                  child: Row(
                     children: [
-                      Text(
-                        row.student.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
+                      Icon(Icons.menu_book_rounded, size: 20, color: cs.onPrimaryContainer),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          group.subject,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800, color: cs.onPrimaryContainer),
+                        ),
                       ),
-                      if (row.student.cohortName.isNotEmpty)
-                        Text(
-                          row.student.cohortName,
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
+                      if (group.average != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(999)),
+                          child: Text('${group.average}',
+                              style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900, color: cs.primary)),
                         ),
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.add_rounded, size: 20),
-                  tooltip: AppLocalizations.of(context)!.adminScheduleAddGrade,
-                  visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
-                  onPressed: onAddGrade,
+                Container(
+                  width: double.infinity,
+                  color: cs.surfaceContainerLow,
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.people_alt_rounded, size: 15, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 6),
+                      Text(
+                        AppLocalizations.of(context)!.gradesHubStudentCount(group.students.length),
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                      ),
+                      const Spacer(),
+                      Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
+                    ],
+                  ),
                 ),
               ],
             ),
-            // ── Grade pills ───────────────────────────────────────────────
-            if (subjects.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: subjects.map((subject) {
-                  final grade = graded[subject];
-                  final hasGrade = grade != null;
-                  // Color-code by score: ≥80 green, 60-79 amber, <60 red
-                  Color pillColor;
-                  Color textColor;
-                  String pillLabel;
-                  if (!hasGrade) {
-                    pillColor = cs.surfaceContainerHighest;
-                    textColor = cs.onSurfaceVariant;
-                    pillLabel = subject; // just subject name if no grade
-                  } else if (grade >= 80) {
-                    pillColor = cs.secondaryContainer;
-                    textColor = cs.onSecondaryContainer;
-                    pillLabel = '$subject · $grade';
-                  } else if (grade >= 60) {
-                    pillColor = const Color(0xFFFFF3CD);
-                    textColor = const Color(0xFF7B5E00);
-                    pillLabel = '$subject · $grade';
-                  } else {
-                    pillColor = cs.errorContainer;
-                    textColor = cs.onErrorContainer;
-                    pillLabel = '$subject · $grade';
-                  }
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: pillColor,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: textColor.withValues(alpha: 0.20)),
-                    ),
-                    child: Text(
-                      pillLabel,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ],
-        ),
+          ),
         ),
       ),
     );
@@ -625,54 +333,359 @@ class _StudentGradeCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Hero stat pill — surface bg so it's always visible against the card bg
+//  Subject detail — full screen, students graded in this subject
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _GradeStatPill extends StatelessWidget {
-  const _GradeStatPill({
-    required this.value,
-    required this.label,
-    required this.accentColor,
-  });
-
-  final String value;
-  final String label;
-  final Color accentColor;
+class _SubjectGradesScreen extends ConsumerStatefulWidget {
+  const _SubjectGradesScreen({required this.group});
+  final _SubjectGroup group;
 
   @override
+  ConsumerState<_SubjectGradesScreen> createState() => _SubjectGradesScreenState();
+}
+
+class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
+  @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: accentColor.withValues(alpha: 0.30)),
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final g = widget.group;
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: cs.surface,
+        appBar: AppBar(
+          backgroundColor: cs.surface,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+          title: Text(g.subject, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: l.gradesSubjectStudentsTab),
+              Tab(text: l.gradesSubjectGradesTab),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            await context.push('/teacher/grades/add', extra: <String, dynamic>{
+              'studentIds': g.students.map((s) => s.student.studentId).toList(),
+              'subject': g.subject,
+            });
+            if (mounted) Navigator.of(context).maybePop();
+          },
+          icon: const Icon(Icons.add),
+          label: Text(l.adminScheduleAddGrade),
+        ),
+        body: TabBarView(
           children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 20,
-                color: accentColor,
-                height: 1.1,
-              ),
+            // ── Students ─────────────────────────────────────────────────
+            ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+              children: [
+                for (final gs in g.students)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: InkWell(
+                      onTap: () async {
+                        await Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => TeacherStudentGradeDetailScreen(student: gs.student),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: LiquidGlassCard(
+                        borderRadius: BorderRadius.circular(16),
+                        color: cs.surfaceContainerLow,
+                        border: Border.all(color: cs.outlineVariant),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
+                              child: Text(
+                                gs.student.name.isNotEmpty ? gs.student.name[0].toUpperCase() : '?',
+                                style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w900),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(gs.student.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                                  if (gs.student.cohortName.isNotEmpty)
+                                    Text(gs.student.cohortName,
+                                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            _GradeBadge(value: gs.average),
+                            const SizedBox(width: 4),
+                            Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                color: accentColor,
-                fontWeight: FontWeight.w600,
-              ),
+            // ── Grades (the assessments) — edit / set % ───────────────────
+            ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+              children: [
+                if (g.assessments.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Center(child: Text(l.gradesSubjectNoGrades, style: TextStyle(color: cs.onSurfaceVariant))),
+                  )
+                else
+                  for (final a in g.assessments)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: InkWell(
+                        onTap: () => _editAssessment(a),
+                        borderRadius: BorderRadius.circular(16),
+                        child: LiquidGlassCard(
+                          borderRadius: BorderRadius.circular(16),
+                          color: cs.surfaceContainerLow,
+                          border: Border.all(color: cs.outlineVariant),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(a.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _assessmentSubtitle(l, a),
+                                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.tune_rounded, size: 18, color: cs.primary),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  String _assessmentSubtitle(AppLocalizations l, TeacherAssessment a) {
+    final parts = <String>[FriendlyDate.date(a.date)];
+    final weights = readWeights({'weightPercents': a.weightPercents, 'weightPercent': a.weightPercent});
+    if (weights.isNotEmpty) parts.add(weights.map((w) => '$w%').join(' / '));
+    if (a.semester != null) parts.add(l.adminSchoolSemesterN('${a.semester}'));
+    return parts.join(' · ');
+  }
+
+  Future<void> _editAssessment(TeacherAssessment a) async {
+    final changed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (_) => _EditAssessmentSheet(assessment: a),
+    );
+    if (changed == true && mounted) {
+      Navigator.of(context).maybePop(); // back to hub, which reloads
+    }
+  }
+}
+
+// ── Edit / set-% sheet for an assessment ──────────────────────────────────────
+
+class _EditAssessmentSheet extends ConsumerStatefulWidget {
+  const _EditAssessmentSheet({required this.assessment});
+  final TeacherAssessment assessment;
+
+  @override
+  ConsumerState<_EditAssessmentSheet> createState() => _EditAssessmentSheetState();
+}
+
+class _EditAssessmentSheetState extends ConsumerState<_EditAssessmentSheet> {
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _maxCtrl;
+  late List<int> _weights;
+  int? _semester;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final a = widget.assessment;
+    _titleCtrl = TextEditingController(text: a.title);
+    _maxCtrl = TextEditingController(text: a.maxGrade != null ? '${a.maxGrade}' : '');
+    _weights = readWeights({'weightPercents': a.weightPercents, 'weightPercent': a.weightPercent});
+    _semester = a.semester;
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _maxCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(teacherMobileRepositoryProvider).updateAssessment(
+            assessmentId: widget.assessment.id,
+            title: _titleCtrl.text.trim().isEmpty ? widget.assessment.title : _titleCtrl.text.trim(),
+            date: widget.assessment.date,
+            maxGrade: int.tryParse(_maxCtrl.text.trim()),
+            weightPercents: _weights,
+            semester: _semester,
+          );
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _busy = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      }
+    }
+  }
+
+  Future<void> _delete() async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.gradeDeleteTitle),
+        content: Text(l.gradeDeleteConfirm(widget.assessment.title)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.averagesDelete)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(teacherMobileRepositoryProvider).deleteAssessment(widget.assessment.id);
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _busy = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+        decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(22)),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text(l.gradesEditGradeTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded, color: cs.error),
+                    onPressed: _busy ? null : _delete,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _titleCtrl,
+                decoration: InputDecoration(labelText: l.averagesFieldTitle, border: const OutlineInputBorder()),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _maxCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: l.teacherAssignmentMaxGrade, border: const OutlineInputBorder()),
+              ),
+              const SizedBox(height: 14),
+              WeightFormatsField(value: _weights, onChanged: (w) => _weights = w),
+              const SizedBox(height: 12),
+              LiquidGlassSelectField<int>(
+                label: l.gradeSemesterLabel,
+                value: _semester ?? 0,
+                items: [
+                  LiquidGlassDropdownItem(value: 0, label: l.gradeSemesterAuto),
+                  LiquidGlassDropdownItem(value: 1, label: l.adminSchoolSemesterN('1')),
+                  LiquidGlassDropdownItem(value: 2, label: l.adminSchoolSemesterN('2')),
+                ],
+                onChanged: (v) => setState(() => _semester = v == 0 ? null : v),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _busy ? null : _save,
+                  child: _busy
+                      ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text(l.averagesSave),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GradeBadge extends StatelessWidget {
+  const _GradeBadge({required this.value});
+  final int value;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    Color bg;
+    Color fg;
+    if (value >= 80) {
+      bg = cs.secondaryContainer;
+      fg = cs.onSecondaryContainer;
+    } else if (value >= 60) {
+      bg = const Color(0xFFFFF3CD);
+      fg = const Color(0xFF7B5E00);
+    } else {
+      bg = cs.errorContainer;
+      fg = cs.onErrorContainer;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      child: Text('$value', style: TextStyle(color: fg, fontWeight: FontWeight.w900, fontSize: 15)),
     );
   }
 }

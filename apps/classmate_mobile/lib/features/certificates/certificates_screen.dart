@@ -29,6 +29,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
   final _displayNameCtrl = TextEditingController();
   final _nationalIdCtrl = TextEditingController();
   final _principalCtrl = TextEditingController();
+  final _homeroomCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
   final List<TextEditingController> _weightCtrls = [];
 
@@ -38,7 +39,6 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
 
   String? _cohortId;
   String? _studentId;
-  String? _homeroomTeacher;
   String _language = 'en';
 
   bool _loading = true;
@@ -58,6 +58,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
     _displayNameCtrl.dispose();
     _nationalIdCtrl.dispose();
     _principalCtrl.dispose();
+    _homeroomCtrl.dispose();
     _noteCtrl.dispose();
     for (final c in _weightCtrls) {
       c.dispose();
@@ -124,7 +125,9 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         _prefill = p;
         _displayNameCtrl.text = p.student?.name ?? '';
         _nationalIdCtrl.text = p.studentNationalId ?? '';
-        _homeroomTeacher = p.defaultHomeroomTeacher.isNotEmpty ? p.defaultHomeroomTeacher : null;
+        if (_homeroomCtrl.text.trim().isEmpty && p.defaultHomeroomTeacher.isNotEmpty) {
+          _homeroomCtrl.text = p.defaultHomeroomTeacher;
+        }
         if (_principalCtrl.text.trim().isEmpty && p.defaultPrincipalName.isNotEmpty) {
           _principalCtrl.text = p.defaultPrincipalName;
         }
@@ -183,7 +186,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         studentName: displayName,
         nationalId: _nationalIdCtrl.text.trim(),
         cohortName: _cohorts.firstWhere((c) => c.id == _cohortId, orElse: () => const CertCohort(id: '', name: '')).name,
-        homeroomTeacher: _homeroomTeacher ?? fresh.defaultHomeroomTeacher,
+        homeroomTeacher: _homeroomCtrl.text.trim().isEmpty ? fresh.defaultHomeroomTeacher : _homeroomCtrl.text.trim(),
         principalName: _principalCtrl.text.trim(),
         publisherNote: _noteCtrl.text.trim(),
         subjects: fresh.subjects,
@@ -203,7 +206,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
           'studentDisplayName': displayName,
           if (_nationalIdCtrl.text.trim().isNotEmpty) 'nationalId': _nationalIdCtrl.text.trim(),
           'cohortId': _cohortId,
-          'homeroomTeacher': _homeroomTeacher ?? fresh.defaultHomeroomTeacher,
+          'homeroomTeacher': _homeroomCtrl.text.trim().isEmpty ? fresh.defaultHomeroomTeacher : _homeroomCtrl.text.trim(),
           'principalName': _principalCtrl.text.trim(),
           'language': _language,
           if (_noteCtrl.text.trim().isNotEmpty) 'publisherNote': _noteCtrl.text.trim(),
@@ -233,11 +236,6 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
 
     // Body-only: the app shell supplies the top bar / section pill.
     if (_loading) return const Center(child: CircularProgressIndicator());
-
-    final homeroomItems = <String>{
-      ?_homeroomTeacher,
-      ...?p?.teacherNames,
-    }.map((t) => LiquidGlassDropdownItem(value: t, label: t)).toList();
 
     return AbsorbPointer(
       absorbing: _generating,
@@ -282,17 +280,16 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
               decoration: InputDecoration(labelText: l.certNationalId, border: const OutlineInputBorder()),
             ),
             const SizedBox(height: 14),
-            LiquidGlassSelectField<String>(
+            LiquidGlassNameField(
+              controller: _homeroomCtrl,
               label: l.certHomeroomTeacher,
-              hint: l.certHomeroomTeacher,
-              value: _homeroomTeacher,
-              items: homeroomItems,
-              onChanged: (t) => setState(() => _homeroomTeacher = t),
+              options: p.teacherNames,
             ),
             const SizedBox(height: 14),
-            TextField(
+            LiquidGlassNameField(
               controller: _principalCtrl,
-              decoration: InputDecoration(labelText: l.certPrincipal, border: const OutlineInputBorder()),
+              label: l.certPrincipal,
+              options: p.principalNames,
             ),
             const SizedBox(height: 14),
             TextField(
