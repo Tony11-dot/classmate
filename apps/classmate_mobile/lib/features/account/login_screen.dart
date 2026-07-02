@@ -101,6 +101,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       setState(() => _loading = true);
       final session = ref.read(authSessionProvider);
       await session.login(identifier: creds.identifier, password: creds.password);
+      // Remember this account for the multi-account switcher.
+      await ref.read(authControllerProvider).rememberCurrentAccount();
       if (!mounted) return;
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
@@ -136,6 +138,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     try {
       final session = ref.read(authSessionProvider);
       await session.login(identifier: identifier, password: password);
+      // Remember this account for the multi-account switcher.
+      await ref.read(authControllerProvider).rememberCurrentAccount();
       if (!mounted) return;
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {

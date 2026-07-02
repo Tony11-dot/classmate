@@ -2500,6 +2500,104 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     return { ok: true, school: row };
   }
 
+  // ── Custom grade scales ───────────────────────────────────────────────────────
+
+  /// Normalize the incoming labels[] into a clean ordered array of
+  /// `{ label, i18n?, value }`. `value` is the numeric equivalent (0..100) used
+  /// for averages; null when the label carries no number.
+  private _normalizeScaleLabels(raw: any): any[] {
+    if (!Array.isArray(raw)) return [];
+    const out: any[] = [];
+    for (const item of raw) {
+      if (!item || typeof item !== 'object') continue;
+      const label = String(item.label ?? '').trim();
+      if (!label) continue;
+      let value: number | null = null;
+      if (item.value !== undefined && item.value !== null && String(item.value).trim() !== '') {
+        const n = Number(item.value);
+        if (Number.isFinite(n)) value = Math.max(0, Math.min(100, Math.round(n)));
+      }
+      const entry: any = { label, value };
+      // Optional per-locale labels: { en, ar, he, ru, fr, ps }.
+      if (item.i18n && typeof item.i18n === 'object') {
+        const i18n: Record<string, string> = {};
+        for (const [k, v] of Object.entries(item.i18n)) {
+          const s = String(v ?? '').trim();
+          if (s) i18n[k] = s;
+        }
+        if (Object.keys(i18n).length) entry.i18n = i18n;
+      }
+      out.push(entry);
+    }
+    return out;
+  }
+
+  private _normalizeGradeLevels(raw: any): number[] {
+    if (!Array.isArray(raw)) return [];
+    const set = new Set<number>();
+    for (const g of raw) {
+      const n = Number(g);
+      if (Number.isFinite(n) && n >= 1 && n <= 20) set.add(Math.round(n));
+    }
+    return [...set].sort((a, b) => a - b);
+  }
+
+  async listGradeScales(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) return { ok: true, scales: [] };
+    const scales = await this.prisma.customGradeScale.findMany({
+      where: { schoolId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { ok: true, scales };
+  }
+
+  async createGradeScale(user: any, body: any) {
+    this.ensureAdmin(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+    const name = String(body?.name ?? '').trim();
+    if (!name) throw new BadRequestException('name is required');
+    const labels = this._normalizeScaleLabels(body?.labels);
+    if (labels.length < 2) throw new BadRequestException('Add at least two labels (e.g. A, B).');
+    const gradeLevels = this._normalizeGradeLevels(body?.gradeLevels);
+    const scale = await this.prisma.customGradeScale.create({
+      data: { schoolId, name, gradeLevels, labels: labels as any },
+    });
+    return { ok: true, scale };
+  }
+
+  async updateGradeScale(user: any, id: string, body: any) {
+    this.ensureAdmin(user);
+    const schoolId = (user as any)?.schoolId;
+    const existing = await this.prisma.customGradeScale.findFirst({ where: { id, schoolId } });
+    if (!existing) throw new NotFoundException('Grade scale not found');
+    const data: any = {};
+    if (body?.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw new BadRequestException('name cannot be empty');
+      data.name = name;
+    }
+    if (body?.gradeLevels !== undefined) data.gradeLevels = this._normalizeGradeLevels(body.gradeLevels);
+    if (body?.labels !== undefined) {
+      const labels = this._normalizeScaleLabels(body.labels);
+      if (labels.length < 2) throw new BadRequestException('Add at least two labels (e.g. A, B).');
+      data.labels = labels as any;
+    }
+    const scale = await this.prisma.customGradeScale.update({ where: { id }, data });
+    return { ok: true, scale };
+  }
+
+  async deleteGradeScale(user: any, id: string) {
+    this.ensureAdmin(user);
+    const schoolId = (user as any)?.schoolId;
+    const existing = await this.prisma.customGradeScale.findFirst({ where: { id, schoolId } });
+    if (!existing) throw new NotFoundException('Grade scale not found');
+    await this.prisma.customGradeScale.delete({ where: { id } });
+    return { ok: true };
+  }
+
   // ── Analytics ─────────────────────────────────────────────────────────────────
 
   async getAnalyticsOverview(user: any) {

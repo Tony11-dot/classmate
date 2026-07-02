@@ -10420,6 +10420,214 @@ class AppLocalizationsPs extends AppLocalizations {
       'Grade unpublished — hidden from students.';
 
   @override
+  String get navGradeScales => 'Grade Scales';
+
+  @override
+  String get gradeScaleAdd => 'Add grade scale';
+
+  @override
+  String get gradeScaleEdit => 'Edit grade scale';
+
+  @override
+  String get gradeScaleDeleteTitle => 'Delete grade scale?';
+
+  @override
+  String gradeScaleDeleteConfirm(Object name) {
+    return 'Delete “$name”? Assessments already graded on it keep their labels.';
+  }
+
+  @override
+  String get gradeScaleEmptyTitle => 'No grade scales yet';
+
+  @override
+  String get gradeScaleEmptyHint =>
+      'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.';
+
+  @override
+  String get gradeScaleAllGrades => 'Applies to all grades';
+
+  @override
+  String gradeScaleAppliesTo(Object grades) {
+    return 'Grades $grades';
+  }
+
+  @override
+  String get gradeScaleNameLabel => 'Scale name';
+
+  @override
+  String get gradeScaleNameHint => 'e.g. Letter grades';
+
+  @override
+  String get gradeScaleNameRequired => 'Enter a scale name.';
+
+  @override
+  String get gradeScaleGradeLevels => 'Applies to grades';
+
+  @override
+  String get gradeScaleGradeLevelsHint =>
+      'Leave none selected to apply to all grades.';
+
+  @override
+  String get gradeScaleLabels => 'Labels';
+
+  @override
+  String get gradeScaleLabelsHint =>
+      'Add each label (e.g. A+) with an optional number (0–100) used for averages.';
+
+  @override
+  String get gradeScaleLabelText => 'Label';
+
+  @override
+  String get gradeScaleLabelValue => 'Value';
+
+  @override
+  String get gradeScaleAddLabel => 'Add label';
+
+  @override
+  String get gradeScaleNeedTwoLabels => 'Add at least two labels.';
+
+  @override
+  String get gradeScalePickLabel => 'Grade';
+
+  @override
+  String get gradeScaleUseScale => 'Grade scale';
+
+  @override
+  String gradeScaleNumeric(Object max) {
+    return 'Number (0–$max)';
+  }
+
+  @override
+  String get accountSwitcherTitle => 'Accounts';
+
+  @override
+  String get accountAddAccount => 'Add account';
+
+  @override
+  String get accountSignOutThis => 'Sign out this account';
+
+  @override
+  String get averagesManageTooltip => 'Manage averages';
+
+  @override
+  String get averagesTitle => 'Averages';
+
+  @override
+  String get averagesAdd => 'Add average';
+
+  @override
+  String get averagesDeleteTitle => 'Delete average';
+
+  @override
+  String averagesDeleteConfirm(Object title) {
+    return 'Delete \"$title\"? This cannot be undone.';
+  }
+
+  @override
+  String get averagesCancel => 'Cancel';
+
+  @override
+  String get averagesEmptyTitle => 'No averages yet';
+
+  @override
+  String get averagesEmptyBody =>
+      'Tap \"Add average\" to create a weighted grade formula for a subject.';
+
+  @override
+  String get averagesFullYear => 'Full year';
+
+  @override
+  String averagesSemesterN(Object n) {
+    return 'Semester $n';
+  }
+
+  @override
+  String averagesFormatChip(Object index, Object total) {
+    return 'Format $index: $total%';
+  }
+
+  @override
+  String get averagesNoStudents => 'No students to compute.';
+
+  @override
+  String averagesFormatN(Object n) {
+    return 'Format $n';
+  }
+
+  @override
+  String get averagesErrTitle => 'Enter a title.';
+
+  @override
+  String get averagesErrSubject => 'Choose a subject.';
+
+  @override
+  String get averagesErrCohort => 'Choose a cohort.';
+
+  @override
+  String get averagesErrNoFormat => 'Add at least one format.';
+
+  @override
+  String averagesErrFormatNoGrade(Object n) {
+    return 'Format $n: pick at least one grade.';
+  }
+
+  @override
+  String averagesErrFormatSum(Object n, Object total) {
+    return 'Format $n: weights must sum to 100 (now $total%).';
+  }
+
+  @override
+  String get averagesNew => 'New average';
+
+  @override
+  String get averagesEdit => 'Edit average';
+
+  @override
+  String get averagesLabelSubject => 'Subject';
+
+  @override
+  String get averagesHintSubject => 'Choose a subject';
+
+  @override
+  String get averagesLabelCohort => 'Cohort';
+
+  @override
+  String get averagesHintCohort => 'Choose a cohort';
+
+  @override
+  String get averagesLabelUnits => 'Units (optional)';
+
+  @override
+  String get averagesFormats => 'Formats';
+
+  @override
+  String get averagesFormatsHelp =>
+      'Each format\'s weights must sum to 100%. The best-scoring format is used per student.';
+
+  @override
+  String get averagesAddFormat => 'Add format';
+
+  @override
+  String get averagesLabelFormatLabel => 'Format label (optional)';
+
+  @override
+  String get averagesAddGrade => 'Add grade';
+
+  @override
+  String averagesTotal(Object total) {
+    return 'Total: $total%';
+  }
+
+  @override
+  String get averagesLabelGrade => 'Grade';
+
+  @override
+  String get averagesHintPickFirst => 'Pick subject & cohort first';
+
+  @override
+  String get averagesHintGrade => 'Choose a grade';
+
+  @override
   String get adminInsightsSearchHint => 'Search students by name…';
 
   @override

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/phone_field.dart';
+import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 import 'admin_edit_user_screen.dart';
 import 'admin_import_users_screen.dart';
@@ -467,11 +468,31 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   // Optional admin-set password. Blank = server auto-generates (existing
   // behavior); filled = used as-is so admins can hand the user a known one.
   final _passwordCtrl  = TextEditingController();
+  // Optional national ID — stored on User and auto-filled into certificates.
+  final _nationalIdCtrl = TextEditingController();
   // Default to Israel since that's where this school is. User can change it.
   String _dialCode     = '+972';
   late String _role = widget.initialRole;
   int?   _grade;
   bool   _saving = false;
+  // Principal (ADMIN role only). Grade ranges mirror the school grade range,
+  // e.g. [[4,6],[9,12]]. Empty = principal over all grades.
+  bool   _isPrincipal = false;
+  final List<List<int>> _principalRanges = <List<int>>[];
+
+  /// Expand [lo,hi] ranges into a sorted unique grade list.
+  static List<int> _rangesToGrades(List<List<int>> ranges) {
+    final set = <int>{};
+    for (final r in ranges) {
+      var lo = r[0];
+      var hi = r[1];
+      if (lo > hi) { final t = lo; lo = hi; hi = t; }
+      for (int g = lo; g <= hi; g++) {
+        set.add(g);
+      }
+    }
+    return set.toList()..sort();
+  }
 
   // ── Live username availability + suggestions ──────────────────────────────
   Timer? _uDebounce;
@@ -513,7 +534,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   @override
   void dispose() {
     _uDebounce?.cancel();
-    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl]) {
+    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _passwordCtrl, _nationalIdCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -656,6 +677,8 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
       // Normalize whatever the user typed (national `0525488441`, bare
       // digits, or already-prefixed `+972...`) into a clean E.164.
       final phoneE164 = joinE164(_dialCode, _phoneCtrl.text);
+      final nationalId = _nationalIdCtrl.text.trim();
+      final isPrincipal = _role == 'ADMIN' && _isPrincipal;
       final result = await widget.repo.createUser(
         name: nameEn,
         email: email.isEmpty ? null : email,
@@ -664,6 +687,9 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         password: password.isEmpty ? null : password,
         role: _role,
         grade: _grade,
+        nationalId: nationalId.isEmpty ? null : nationalId,
+        isPrincipal: isPrincipal ? true : null,
+        principalGrades: isPrincipal ? _rangesToGrades(_principalRanges) : null,
       );
       if (!mounted) return;
       final createdUsername = result.username ?? username;
@@ -845,6 +871,18 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  // ── Optional national ID (auto-fills into certificates) ────
+                  TextField(
+                    controller: _nationalIdCtrl,
+                    autocorrect: false,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.adminEditUserNationalId,
+                      prefixIcon: const Icon(Icons.badge_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   // ── Name ───────────────────────────────────────────────────
                   _langField(_nameEnCtrl, 'Full name *', required: true, autofocus: true),
@@ -861,6 +899,73 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                       onSelected: (_) => setState(() { _role = _roles[i]; if (_role != 'STUDENT') _grade = null; }),
                     )),
                   ),
+                  // ── Principal (admins only) ────────────────────────────────
+                  if (_role == 'ADMIN') ...[
+                    const SizedBox(height: 20),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _isPrincipal,
+                      title: Text(l.adminPrincipalLabel),
+                      subtitle: Text(l.adminPrincipalHint,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      onChanged: (v) => setState(() => _isPrincipal = v),
+                    ),
+                    if (_isPrincipal) ...[
+                      const SizedBox(height: 6),
+                      Text(l.adminPrincipalGrades, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                      const SizedBox(height: 8),
+                      Builder(builder: (context) {
+                        final grades = ref.watch(authSessionProvider).schoolGrades;
+                        final gmin = grades.isNotEmpty ? grades.first : 1;
+                        final gmax = grades.isNotEmpty ? grades.last : 12;
+                        List<LiquidGlassDropdownItem<int>> items() => [
+                              for (final g in grades)
+                                LiquidGlassDropdownItem(value: g, label: l.adminCohortGradeFormat('$g')),
+                            ];
+                        return Column(
+                          children: [
+                            for (int i = 0; i < _principalRanges.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: LiquidGlassSelectField<int>(
+                                        label: l.adminPrincipalRangeFrom,
+                                        value: _principalRanges[i][0].clamp(gmin, gmax),
+                                        items: items(),
+                                        onChanged: (v) => setState(() => _principalRanges[i][0] = v),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: LiquidGlassSelectField<int>(
+                                        label: l.adminPrincipalRangeTo,
+                                        value: _principalRanges[i][1].clamp(gmin, gmax),
+                                        items: items(),
+                                        onChanged: (v) => setState(() => _principalRanges[i][1] = v),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                                      onPressed: () => setState(() => _principalRanges.removeAt(i)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextButton.icon(
+                                onPressed: () => setState(() => _principalRanges.add([gmin, gmax])),
+                                icon: const Icon(Icons.add, size: 18),
+                                label: Text(l.adminPrincipalAddRange),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ],
                   // ── Grade (students only) ──────────────────────────────────
                   if (_role == 'STUDENT') ...[
                     const SizedBox(height: 16),

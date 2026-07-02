@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/contracts/grade_scale.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
@@ -67,7 +68,34 @@ class _TeacherAddGradeScreenState
   final Map<String, TextEditingController> _gradeCtrlMap = {};
   final Map<String, TextEditingController> _noteCtrlMap = {};
 
+  // ── Custom grade scales ─────────────────────────────────────────────────
+  List<CustomGradeScale> _scales = [];
+  /// Selected scale id; null = normal numeric grading.
+  String? _selectedScaleId;
+  /// Per-student chosen label when a scale is active.
+  final Map<String, String> _labelByStudent = {};
+
   bool _published = true;
+
+  CustomGradeScale? get _selectedScale =>
+      _scales.where((s) => s.id == _selectedScaleId).firstOrNull;
+
+  /// The selected scale, but only if it still covers the current audience;
+  /// otherwise null (falls back to numeric grading).
+  CustomGradeScale? get _activeScale {
+    final s = _selectedScale;
+    if (s == null) return null;
+    return _applicableScales.any((x) => x.id == s.id) ? s : null;
+  }
+
+  /// Scales that cover at least one of the currently-selected students'
+  /// grade levels (empty gradeLevels = applies to all).
+  List<CustomGradeScale> get _applicableScales {
+    final levels = _effectiveStudents.map((s) => s.gradeLevel).toSet();
+    return _scales
+        .where((sc) => sc.gradeLevels.isEmpty || levels.any(sc.appliesTo))
+        .toList();
+  }
 
   @override
   void initState() {
@@ -101,6 +129,7 @@ class _TeacherAddGradeScreenState
         repo.listTeacherAssignments(),
         repo.listTeacherExams(),
         repo.fetchSubjects(),
+        repo.fetchGradeScales().catchError((_) => <CustomGradeScale>[]),
       ]);
       if (!mounted) return;
       setState(() {
@@ -109,6 +138,7 @@ class _TeacherAddGradeScreenState
         _teacherAssignmentsList = results[2] as List<Map<String, dynamic>>;
         _teacherExamsList = results[3] as List<Map<String, dynamic>>;
         _schoolSubjects = results[4] as List<String>;
+        _scales = results[5] as List<CustomGradeScale>;
         if (widget.prefillSubject != null) {
           _otherSubject = widget.prefillSubject;
         }
@@ -355,20 +385,40 @@ class _TeacherAddGradeScreenState
       return;
     }
 
-    // Validate every student has a numeric grade.
+    // Validate every student has a grade. With a custom scale active the
+    // teacher picks a label per student; otherwise it's a numeric field.
+    final scale = _activeScale;
     final entries = <_PendingEntry>[];
     for (final s in effective) {
-      final raw = _gradeCtrlMap[s.studentId]?.text.trim() ?? '';
-      final grade = int.tryParse(raw);
-      if (grade == null) {
-        _snack(l.teacherAddGradeScreenEnterNumericGrade(s.name));
-        return;
+      if (scale != null) {
+        final label = _labelByStudent[s.studentId];
+        if (label == null || label.isEmpty) {
+          _snack(l.teacherAddGradeScreenEnterNumericGrade(s.name));
+          return;
+        }
+        final val = scale.labels
+            .where((x) => x.label == label)
+            .map((x) => x.value)
+            .firstOrNull;
+        entries.add(_PendingEntry(
+          student: s,
+          grade: val ?? 0,
+          label: label,
+          comment: _noteCtrlMap[s.studentId]?.text.trim(),
+        ));
+      } else {
+        final raw = _gradeCtrlMap[s.studentId]?.text.trim() ?? '';
+        final grade = int.tryParse(raw);
+        if (grade == null) {
+          _snack(l.teacherAddGradeScreenEnterNumericGrade(s.name));
+          return;
+        }
+        entries.add(_PendingEntry(
+          student: s,
+          grade: grade,
+          comment: _noteCtrlMap[s.studentId]?.text.trim(),
+        ));
       }
-      entries.add(_PendingEntry(
-        student: s,
-        grade: grade,
-        comment: _noteCtrlMap[s.studentId]?.text.trim(),
-      ));
     }
 
     setState(() => _saving = true);
@@ -396,6 +446,7 @@ class _TeacherAddGradeScreenState
           published: _published,
           weightPercents: _weights,
           semester: _semester,
+          gradeScaleId: scale?.id,
         );
         final assessmentId = _extractAssessmentId(created);
         if (assessmentId == null) {
@@ -407,6 +458,7 @@ class _TeacherAddGradeScreenState
               .map((p) => TeacherGradeDraftRecord(
                     studentId: p.student.studentId,
                     grade: p.grade,
+                    label: p.label,
                     comment: p.comment,
                   ))
               .toList(),
@@ -954,7 +1006,9 @@ class _TeacherAddGradeScreenState
                             labelText: AppLocalizations.of(context)!.teacherGradeOutOfLabel,
                             hintText: AppLocalizations.of(context)!.teacherGradeOutOfHint,
                             border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.percent_rounded),
+                            // Max grade is a points denominator, not a percentage —
+                            // a '#' icon (was a misleading % icon).
+                            prefixIcon: const Icon(Icons.tag_rounded),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -983,6 +1037,35 @@ class _TeacherAddGradeScreenState
                             .teacherEnterGradesSection,
                       ),
                       const SizedBox(height: 12),
+                      // Grade-scale selector: when the audience is covered by a
+                      // custom scale, let the teacher grade with labels (A/A+…)
+                      // instead of numbers. "Number" keeps the numeric field.
+                      if (effective.isNotEmpty && _applicableScales.isNotEmpty) ...[
+                        Text(
+                          AppLocalizations.of(context)!.gradeScaleUseScale,
+                          style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ChoiceChip(
+                              label: Text(AppLocalizations.of(context)!
+                                  .gradeScaleNumeric('${inherited.maxGrade ?? 100}')),
+                              selected: _activeScale == null,
+                              onSelected: (_) => setState(() => _selectedScaleId = null),
+                            ),
+                            for (final sc in _applicableScales)
+                              ChoiceChip(
+                                label: Text(sc.name),
+                                selected: _activeScale?.id == sc.id,
+                                onSelected: (_) => setState(() => _selectedScaleId = sc.id),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                      ],
                       if (effective.isEmpty)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -1009,6 +1092,10 @@ class _TeacherAddGradeScreenState
                               gradeCtrl: ctrl,
                               noteCtrl: note,
                               maxGrade: inherited.maxGrade,
+                              scale: _activeScale,
+                              selectedLabel: _labelByStudent[s.studentId],
+                              onLabelChanged: (v) =>
+                                  setState(() => _labelByStudent[s.studentId] = v),
                             ),
                           );
                         }),
@@ -1043,9 +1130,11 @@ class _TeacherAddGradeScreenState
 }
 
 class _PendingEntry {
-  _PendingEntry({required this.student, required this.grade, this.comment});
+  _PendingEntry({required this.student, required this.grade, this.label, this.comment});
   final TeacherStudentWithLevel student;
   final int grade;
+  /// For custom-scale grades: the chosen label (e.g. "A+").
+  final String? label;
   final String? comment;
 }
 
@@ -1451,12 +1540,19 @@ class _StudentGradeRow extends StatelessWidget {
     required this.gradeCtrl,
     required this.noteCtrl,
     this.maxGrade,
+    this.scale,
+    this.selectedLabel,
+    this.onLabelChanged,
   });
 
   final TeacherStudentWithLevel student;
   final TextEditingController gradeCtrl;
   final TextEditingController noteCtrl;
   final int? maxGrade;
+  /// When set, grade with a label from this scale instead of a number.
+  final CustomGradeScale? scale;
+  final String? selectedLabel;
+  final ValueChanged<String>? onLabelChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -1510,25 +1606,51 @@ class _StudentGradeRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            SizedBox(
-              width: maxGrade != null ? 96 : 80,
-              child: TextField(
-                controller: gradeCtrl,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w800),
-                decoration: InputDecoration(
-                  hintText: maxGrade != null ? '/ $maxGrade' : '—',
-                  hintStyle: TextStyle(
-                      color: cs.onSurfaceVariant, fontSize: 14),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 12),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14)),
+            if (scale != null)
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 110, maxWidth: 150),
+                child: DropdownButtonFormField<String>(
+                  initialValue: selectedLabel,
+                  isExpanded: true,
+                  hint: Text(AppLocalizations.of(context)!.gradeScalePickLabel,
+                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                  items: [
+                    for (final lab in scale!.labels)
+                      DropdownMenuItem<String>(
+                        value: lab.label,
+                        child: Text(
+                          lab.localized(Localizations.localeOf(context).languageCode),
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                  ],
+                  onChanged: (v) { if (v != null) onLabelChanged?.call(v); },
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              )
+            else
+              SizedBox(
+                width: maxGrade != null ? 96 : 80,
+                child: TextField(
+                  controller: gradeCtrl,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                  decoration: InputDecoration(
+                    hintText: maxGrade != null ? '/ $maxGrade' : '—',
+                    hintStyle: TextStyle(
+                        color: cs.onSurfaceVariant, fontSize: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 12),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 8),

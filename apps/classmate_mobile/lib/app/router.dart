@@ -46,6 +46,7 @@ import '../features/admin/ui/admin_import_users_screen.dart';
 import '../features/teacher_mobile/ui/teacher_exams_screen.dart';
 import '../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
+import '../features/teacher_mobile/ui/teacher_averages_screen.dart';
 import '../features/certificates/certificates_home_screen.dart';
 import '../features/certificates/student_certificates_screen.dart';
 import '../features/teacher_mobile/ui/teacher_home_screen.dart';
@@ -80,6 +81,7 @@ import '../features/admin/ui/admin_bell_schedule_screen.dart';
 import '../features/admin/ui/admin_dashboard_screen.dart';
 import '../features/admin/ui/admin_people_screen.dart';
 import '../features/admin/ui/admin_insights_screen.dart';
+import '../features/admin/ui/admin_grade_scales_screen.dart';
 import '../features/admin/ui/admin_cohorts_screen.dart';
 import '../features/admin/ui/admin_schedule_screen.dart';
 import '../features/admin/ui/admin_school_settings_screen.dart';
@@ -264,7 +266,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isParent = primaryRole == 'PARENT';
 
       if (!loggedIn && !isAuthRoute) return '/login';
-      if (loggedIn && isLoginOnly) {
+      // Multi-account: `/login?add=1` is reachable WHILE logged in so a user can
+      // add another account without signing the current one out.
+      final isAddAccount = isLoginOnly && state.uri.queryParameters['add'] == '1';
+      if (loggedIn && isLoginOnly && !isAddAccount) {
         if (isSecretary) return '/secretary/home';
         if (isParent) return '/parent/home';
         if (isAdminLike) return '/admin/dashboard';
@@ -715,6 +720,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const AdminSchoolSettingsScreen(),
           ),
           _fadeRoute(
+            path: '/admin/grade-scales',
+            builder: (context, state) => const AdminGradeScalesScreen(),
+          ),
+          _fadeRoute(
             path: '/admin/bell-schedule',
             builder: (context, state) => const AdminBellScheduleScreen(),
           ),
@@ -868,6 +877,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/teacher/grades',
             builder: (context, state) => const TeacherGradesScreen(),
+          ),
+          _fadeRoute(
+            path: '/teacher/averages',
+            builder: (context, state) => const TeacherAveragesScreen(),
           ),
           _fadeRoute(
             path: '/teacher/exams',

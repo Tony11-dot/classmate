@@ -60,6 +60,9 @@ type PracticeFilterPayload = {
   topicPath?: string[];
   topicPathText?: string;
   strictPromptSummary?: string;
+  /// The student's grade level (1..12), sent by the app so the AI calibrates
+  /// difficulty/wording to the grade. Was previously dropped on the floor.
+  grade?: number | null;
   questionCount?: number;
   count?: number;
   mode?: PracticeMode;
@@ -385,6 +388,13 @@ export class PracticeService {
       input.difficulty ?? 'medium',
     ) as PracticeDifficulty;
 
+    // Student grade level (1..12) — calibrates the AI's difficulty + wording.
+    const gradeNum = Number(input.grade);
+    const grade =
+      Number.isFinite(gradeNum) && gradeNum >= 1 && gradeNum <= 12
+        ? Math.round(gradeNum)
+        : null;
+
     const timePreferenceSeconds =
       input.timePreferenceSeconds == null
         ? null
@@ -404,6 +414,7 @@ export class PracticeService {
       topicPathText,
       strictPromptSummary,
       responseLanguageHint,
+      grade,
       questionCount,
       mode,
       difficulty,
@@ -640,53 +651,48 @@ export class PracticeService {
     }
 
     if (routing.route === 'symbolic') {
-      if (symbolic.ready && symbolic.seeds.length > 0) {
-        if (symbolic.seeds.length !== questionCount && apiKey) {
-          // Fall through to verified AI rather than returning a partial symbolic set.
-        } else {
-        const now = Date.now();
-
+      // The hard-coded symbolic seed banks emit fixed, difficulty-agnostic,
+      // plain-ASCII questions (e.g. "x^2/2 + C"). Whenever we can bill Claude,
+      // prefer AI generation instead — it respects the student's grade +
+      // difficulty and emits proper $...$ LaTeX. Seeds are now only a last
+      // resort when there is NO API key (offline / unbilled).
+      if (!apiKey) {
+        if (symbolic.ready && symbolic.seeds.length > 0) {
+          const now = Date.now();
+          return {
+            questions: this.materializeQuestions({
+              subject,
+              topicLabel: symbolic.topic,
+              mode,
+              difficulty,
+              routeTag: 'symbolic',
+              now,
+              questions: symbolic.seeds.slice(0, questionCount).map((seed) => ({
+                prompt: seed.stem,
+                options: seed.options,
+                correctIndex: seed.correctIndex,
+                explanation: seed.explanation,
+                recommendedTimeSeconds: seed.recommendedTimeSeconds ?? 35,
+              })),
+            }),
+            symbolic: { ready: true, topic: symbolic.topic, gaps: [] },
+          };
+        }
         return {
-          questions: this.materializeQuestions({
-            subject,
-            topicLabel: symbolic.topic,
-            mode,
-            difficulty,
-            routeTag: 'symbolic',
-            now,
-            questions: symbolic.seeds.slice(0, questionCount).map((seed) => ({
-              prompt: seed.stem,
-              options: seed.options,
-              correctIndex: seed.correctIndex,
-              explanation: seed.explanation,
-              recommendedTimeSeconds: seed.recommendedTimeSeconds ?? 35,
-            })),
-          }),
+          questions: [],
           symbolic: {
-            ready: true,
-            topic: symbolic.topic,
-            gaps: [],
+            ready: false,
+            topic: symbolic.topic || topicLabel,
+            gaps: Array.from(
+              new Set([
+                ...(symbolic.gaps.length ? symbolic.gaps : []),
+                routing.symbolicReason ?? 'symbolic_generation_not_ready',
+              ]),
+            ),
           },
         };
-        }
       }
-
-      if (!apiKey) {
-
-      return {
-        questions: [],
-        symbolic: {
-          ready: false,
-          topic: symbolic.topic || topicLabel,
-          gaps: Array.from(
-            new Set([
-              ...(symbolic.gaps.length ? symbolic.gaps : []),
-              routing.symbolicReason ?? 'symbolic_generation_not_ready',
-            ]),
-          ),
-        },
-      };
-      }
+      // apiKey present → fall through to AI generation below.
     }
 
     if (!apiKey) {
@@ -1461,6 +1467,8 @@ export class PracticeService {
       'If code spans multiple lines, it must still be fenced as a markdown code block. Never leave raw multi-line code unfenced.',
       'When you use fenced code blocks, prefer explicit language tags such as python, javascript, typescript, dart, java, csharp, bash, sql, html, css, or json.',
       'If a prompt or explanation contains math notation such as \\frac, \\lim, or \\sqrt, wrap inline math in $...$ and display math in $$...$$. Do not leave raw LaTeX commands outside delimiters.',
+      'CRITICAL MATH RULE: EVERY mathematical expression — even a trivial one — MUST be written as LaTeX inside $...$ delimiters. This applies to options and answers too. Never emit ASCII/plain math like "x^2/2 + C", "1/2", "sqrt(3)", "x^2", "∫ x dx", "lim(x->0)", or "pi/4". Instead write $\\frac{x^2}{2} + C$, $\\frac{1}{2}$, $\\sqrt{3}$, $x^{2}$, $\\int x\\,dx$, $\\lim_{x\\to 0}$, $\\frac{\\pi}{4}$.',
+      'Always SIMPLIFY and write fractions with \\frac: write $\\frac{x^2}{2}$, never $x^{2/2}$ or $x^{2}/2$. Use ^{ } for powers, \\sqrt{ } for roots, \\frac{ }{ } for every division, \\int, \\sum, \\lim, \\sin, \\cos, \\tan, \\log, \\ln for their symbols. Add \\, thin spaces before dx in integrals.',
       'Render symbolic math cleanly and conventionally when needed: fractions, powers, roots, trig functions, logs, limits, derivatives, integrals, summations, matrices, vectors, set notation, subscripts, and superscripts should use proper LaTeX inside math delimiters.',
       'For matrices, determinants, or vectors, prefer standard LaTeX structures such as bmatrix, pmatrix, vmatrix, or aligned inline vector notation when appropriate. For piecewise definitions, prefer LaTeX cases notation.',
       'Never fake math with plain-text approximations when proper math notation is appropriate, and never emit malformed markdown fences or malformed LaTeX delimiters.',
@@ -1477,6 +1485,9 @@ export class PracticeService {
         : '',
       this.modeInstruction(String(rp.mode ?? 'practice') as any),
       this.difficultyInstruction(String(rp.difficulty ?? 'medium') as any),
+      rp.grade != null
+        ? `Grade calibration: the student is in grade ${rp.grade} (school year ${rp.grade}). Calibrate the vocabulary, numbers, and expected techniques to what a grade-${rp.grade} student has actually been taught — never require methods from a higher grade, and don't dumb it down below grade ${rp.grade}. Difficulty ("${String(rp.difficulty ?? 'medium')}") shifts complexity WITHIN this grade band.`
+        : '',
       this.timingInstruction(
         rp.timePreferenceSeconds == null ? null : Number(rp.timePreferenceSeconds),
         Boolean(rp.useAiTiming ?? true),

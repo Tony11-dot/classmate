@@ -16,6 +16,7 @@ import '../../features/practice/providers/practice_providers.dart';
 import '../../features/parent/data/parent_repository.dart';
 import '../../features/solutions/providers/solutions_flow_provider.dart';
 import 'auth_session.dart';
+import 'accounts_store.dart';
 export 'auth_session.dart' show authSessionProvider, AuthSession;
 
 final authControllerProvider = Provider<AuthController>(
@@ -26,24 +27,16 @@ class AuthController {
   AuthController(this.ref);
   final Ref ref;
 
-  Future<void> logout(BuildContext context) async {
-    // 1. Clear all static caches that hold the previous user's data.
-    //    Without this the next user logging in on the same device sees
-    //    leaked chat previews, optimistic messages, and CDN URL caches.
+  /// Clears every cache/provider that holds the outgoing account's data.
+  /// Shared by full logout and the multi-account switch so a switch can NEVER
+  /// leak the previous account's chats/notifications/insights into the next.
+  Future<void> _resetForAccountSwap() async {
     ClassroomChatThreadController.clearAllSessionCaches();
     DmChatThreadController.clearAllSessionCaches();
-    // Module-level caches that bypass providers entirely (time-keyed, not
-    // user-keyed) — the worst offenders for cross-account leakage.
     resetStudentExamsCache();
     resetStudentFormsCache();
     await _clearUserScopedPrefs();
 
-    // 2. Invalidate every long-lived provider that holds a cached
-    //    payload keyed by user (DM inbox, DM thread details, classroom
-    //    chat lists, classroom rosters, notification inbox + counts).
-    //    Without this the next user on the same device sees the
-    //    previous user's threads, notifications, and unread counts
-    //    until each provider's internal fetch lands.
     ref.invalidate(messagesInboxProvider);
     ref.invalidate(messageThreadProvider);
     ref.invalidate(messageRequestProvider);
@@ -54,11 +47,8 @@ class AuthController {
     ref.invalidate(localNotificationsProvider);
     ref.invalidate(notificationInboxProvider);
     ref.invalidate(unreadNotificationsCountProvider);
-    // Exams / forms live feeds (back the now-reset module caches).
     ref.invalidate(examsLiveProvider);
     ref.invalidate(formsLiveProvider);
-    // Insights / analytics — non-autoDispose, so they retain the previous
-    // user's numbers until explicitly invalidated.
     ref.invalidate(serverInsightsProvider);
     ref.invalidate(effectiveAccuracyPercentProvider);
     ref.invalidate(effectiveTotalSessionsProvider);
@@ -68,20 +58,82 @@ class AuthController {
     ref.invalidate(submissionStatsProvider);
     ref.invalidate(practiceHistoryProvider);
     ref.invalidate(practiceAnalyticsProvider);
-    // Parent-scoped data + the selected-child context.
     ref.invalidate(parentChildrenProvider);
     ref.invalidate(parentNotificationsProvider);
     ref.invalidate(selectedChildProvider);
-    // Solutions feed.
     ref.invalidate(liveSolutionsPreviewProvider);
+  }
 
-    // 3. Tell AuthSession to wipe its own state (token, name, school…).
+  /// Snapshot the currently-signed-in account into the on-device account list
+  /// and mark it active. Call right after a successful login (first login OR
+  /// "add account") so the switcher always knows about it.
+  Future<void> rememberCurrentAccount() async {
+    final session = ref.read(authSessionProvider);
+    final id = session.userId;
+    final token = session.token;
+    if (id.isEmpty || token == null || token.isEmpty) return;
+    final store = ref.read(accountsStoreProvider);
+    await store.upsert(StoredAccount(
+      userId: id,
+      token: token,
+      displayName: session.displayName,
+      roleLabel: session.primaryRole,
+      roles: session.roles,
+      schoolName: session.schoolName,
+    ));
+    await store.setActive(id);
+    await ref.read(accountsControllerProvider.notifier).reload();
+  }
+
+  /// Instantly switch to another remembered account (no password). The previous
+  /// account stays remembered (and still receives push — the backend keys the
+  /// device token per (user, token)).
+  Future<void> switchAccount(BuildContext context, StoredAccount account) async {
+    if (account.userId == ref.read(authSessionProvider).userId) return;
+    await _resetForAccountSwap();
+    // Optimistically adopt the cached profile so the shell flips immediately…
+    await ref.read(authSessionProvider).applyStoredAccount(
+          token: account.token,
+          displayName: account.displayName,
+          roles: account.roles,
+          schoolName: account.schoolName,
+        );
+    final store = ref.read(accountsStoreProvider);
+    await store.setActive(account.userId);
+    await ref.read(accountsControllerProvider.notifier).reload();
+    if (context.mounted) context.go('/');
+    // …then refresh from the server in the background (also re-persists a fresh
+    // token/profile). A 401 means the stored token expired → drop the account.
+    try {
+      await ref.read(authSessionProvider).reloadFromMe();
+      await rememberCurrentAccount();
+    } catch (_) {}
+  }
+
+  /// Sign the ACTIVE account out. If other accounts remain, switch to one of
+  /// them; otherwise fall back to a full logout to /login.
+  Future<void> signOutActiveAccount(BuildContext context) async {
+    final session = ref.read(authSessionProvider);
+    final store = ref.read(accountsStoreProvider);
+    final leavingId = session.userId;
+    await session.unregisterPushForCurrent();
+    if (leavingId.isNotEmpty) await store.remove(leavingId);
+    final remaining = (await store.all()).where((a) => a.userId != leavingId).toList();
+    if (remaining.isNotEmpty) {
+      await switchAccount(context, remaining.first);
+      return;
+    }
+    await logout(context);
+  }
+
+  Future<void> logout(BuildContext context) async {
+    await _resetForAccountSwap();
+    // Drop every remembered account on a full logout.
+    await ref.read(accountsStoreProvider).clear();
+    await ref.read(accountsControllerProvider.notifier).reload();
+    // Tell AuthSession to wipe its own state (token, name, school…).
     await ref.read(authSessionProvider).logout();
-
-    // 4. Navigate to login. Riverpod providers that depend on the
-    //    auth token rebuild automatically once the token flips to
-    //    empty — autoDispose ones tear down, the rest re-emit with
-    //    the new (unauth) state.
+    // Navigate to login. Token-dependent providers rebuild automatically.
     if (context.mounted) context.go('/login');
   }
 

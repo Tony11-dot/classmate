@@ -167,6 +167,9 @@ class UnifiedGradeInsight {
   final double grade;
   final String? date;
   final int? maxGrade;
+  /// For custom-scale grades: the label the teacher chose (e.g. "A+"). When
+  /// present the UI shows this instead of the numeric `grade / maxGrade`.
+  final String? label;
   final List<int> weightPercents;
   final int? semester;
 
@@ -178,6 +181,7 @@ class UnifiedGradeInsight {
     required this.grade,
     required this.date,
     this.maxGrade,
+    this.label,
     this.weightPercents = const [],
     this.semester,
   });
@@ -205,6 +209,7 @@ class UnifiedGradeInsight {
       grade: asDouble(json['grade']),
       date: json['date'] == null ? null : '${json['date']}',
       maxGrade: json['maxGrade'] == null ? null : (json['maxGrade'] is int ? json['maxGrade'] as int : int.tryParse('${json['maxGrade']}')),
+      label: (json['label'] == null || '${json['label']}'.trim().isEmpty) ? null : '${json['label']}',
       weightPercents: (json['weightPercents'] as List? ?? [])
           .map((e) => e is int ? e : int.tryParse('$e') ?? 0)
           .toList(),

@@ -259,6 +259,8 @@ class InsightsScreen extends ConsumerWidget {
                                   : g.subject,
                               detail: g.assessmentTitle,
                               grade: g.grade,
+                              maxGrade: g.maxGrade,
+                              label: g.label,
                               color: _tone(context, g.grade, 85, 70),
                             ),
                           ),
@@ -575,12 +577,16 @@ class _GradeRow extends StatelessWidget {
     required this.detail,
     required this.grade,
     required this.color,
+    this.maxGrade,
+    this.label,
   });
 
   final String subject;
   final String detail;
   final double grade;
   final Color color;
+  final int? maxGrade;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -614,7 +620,9 @@ class _GradeRow extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text(
-            grade % 1 == 0 ? grade.toInt().toString() : grade.toStringAsFixed(1),
+            label != null
+                ? label!
+                : '${grade % 1 == 0 ? grade.toInt().toString() : grade.toStringAsFixed(1)} / ${maxGrade ?? 100}',
             style: TextStyle(fontWeight: FontWeight.w900, color: color),
           ),
         ],

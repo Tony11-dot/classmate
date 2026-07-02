@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import 'teacher_averages_screen.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
@@ -359,7 +360,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
     final graded = rows.where((r) => r.grade != null).toList();
     final items = <MultiSelectItem>[
       for (final r in graded)
-        MultiSelectItem(id: r.studentId, name: nameById[r.studentId] ?? r.studentId, subtitle: '${r.grade}'),
+        MultiSelectItem(id: r.studentId, name: nameById[r.studentId] ?? r.studentId, subtitle: '${r.grade} / ${a.maxGrade}'),
     ];
     if (!mounted) return;
     if (items.isEmpty) {
@@ -432,6 +433,17 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    ),
+                    // Manage first-class subject averages (weighted formulas),
+                    // pre-filled to this subject.
+                    IconButton(
+                      tooltip: l.averagesManageTooltip,
+                      icon: const Icon(Icons.functions_rounded),
+                      onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => TeacherAveragesScreen(initialSubject: g.subject),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1039,7 +1051,10 @@ class _GradeBadge extends StatelessWidget {
   }
 }
 
-/// A tap-to-toggle published pill: filled when published, outlined when draft.
+/// An action pill that names the command it will perform. When the assessment
+/// is a draft it reads "Publish" (filled primary CTA); once published it reads
+/// "Unpublish" (outlined). The label is the ACTION, not the state, so the
+/// teacher always sees what tapping will do.
 class _PublishPill extends StatelessWidget {
   const _PublishPill({required this.published, required this.onTap});
   final bool published;
@@ -1055,19 +1070,20 @@ class _PublishPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: published ? cs.primary : Colors.transparent,
+          // Draft → prominent "Publish" CTA; Published → subdued "Unpublish".
+          color: published ? Colors.transparent : cs.primary,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: published ? cs.primary : cs.outlineVariant),
+          border: Border.all(color: published ? cs.outlineVariant : cs.primary),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(published ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-              size: 14, color: published ? cs.onPrimary : cs.onSurfaceVariant),
+          Icon(published ? Icons.visibility_off_rounded : Icons.publish_rounded,
+              size: 14, color: published ? cs.onSurfaceVariant : cs.onPrimary),
           const SizedBox(width: 4),
-          Text(published ? l.gradesPublishedShort : l.gradesDraftShort,
+          Text(published ? l.gradesUnpublishAction : l.gradesPublishAction,
               style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: published ? cs.onPrimary : cs.onSurfaceVariant)),
+                  color: published ? cs.onSurfaceVariant : cs.onPrimary)),
         ]),
       ),
     );

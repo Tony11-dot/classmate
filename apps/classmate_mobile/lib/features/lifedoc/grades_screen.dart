@@ -81,7 +81,7 @@ Future<void> showSubjectBreakdown(BuildContext context, String subject, List<Uni
                                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
                             const SizedBox(width: 10),
                           ],
-                          Text('${it.grade.round()}${it.maxGrade != null ? '/${it.maxGrade}' : ''}',
+                          Text(it.label ?? '${it.grade.round()} / ${it.maxGrade ?? 100}',
                               style: const TextStyle(fontWeight: FontWeight.w800)),
                         ],
                       ),
@@ -667,9 +667,10 @@ class _GradeRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              // Show the teacher's max for this assessment (e.g. 15/20), not a
+              // Custom-scale grades show the label (e.g. "A+"); otherwise show
+              // the teacher's max for this assessment (e.g. 15/20), not a
               // hardcoded /100. Falls back to /100 only when no max was set.
-              '$gradeText / ${item.maxGrade ?? 100}',
+              item.label ?? '$gradeText / ${item.maxGrade ?? 100}',
               style: TextStyle(
                 color: chipFg,
                 fontWeight: FontWeight.w800,

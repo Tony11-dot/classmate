@@ -60,6 +60,31 @@ model School {
   periodDefaults SchoolPeriodDefault[]
   classrooms     Classroom[]
   scheduleSlots  ScheduleSlot[]
+  gradeScales    CustomGradeScale[]
+}
+
+/// An admin-defined non-numeric grading scale (e.g. letter grades A/A+/B) that
+/// applies to a set of grade LEVELS (`gradeLevels`, matching StudentProfile.grade
+/// / Cohort.grades). When a teacher grades a student whose grade level is covered
+/// by a scale, they pick an ordered label instead of typing a 0..maxGrade number.
+/// Several scales may cover the same grade level; the teacher chooses which one
+/// applies to a given assessment. `labels` is an ordered JSON array of
+/// `{ label: string, i18n?: {<locale>: string}, value: number|null }` — `value`
+/// is the numeric equivalent (0..100) used for subject averages so the existing
+/// numeric averaging pipeline keeps working; null = excluded from averages.
+model CustomGradeScale {
+  id          String   @id @default(uuid())
+  schoolId    String
+  name        String
+  gradeLevels Int[]    @default([])
+  labels      Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  school      School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  assessments Assessment[]
+
+  @@index([schoolId])
 }
 
 model User {
@@ -89,24 +114,24 @@ model User {
   // the old per-user `displayName` override and the per-language name columns
   // (nameEn/Ar/He/Fr/Ru + displayNameLang) were removed: one full name,
   // everywhere, in every language.
-  legalName   String?
+  legalName       String?
   /// Government / national ID (e.g. تعودة / ת"ז). PII — only returned on
   /// school-scoped, role-gated reads; never exposed cross-school. NOT the DB
   /// `id`. Optional/back-compat (nullable). Auto-filled into certificates.
-  nationalId  String?
+  nationalId      String?
   /// True when this ADMIN user is a principal (مدير/ة المدرسة). Certificates
   /// auto-fill the principal name from the principal whose `principalGrades`
   /// covers the student's grade. Editable per-certificate.
-  isPrincipal   Boolean @default(false)
+  isPrincipal     Boolean       @default(false)
   /// Grades this principal is responsible for, e.g. [10,11,12]. Empty = all.
-  principalGrades Int[]  @default([])
-  phone       String?
-  status      AccountStatus @default(AUTH_ONLY)
+  principalGrades Int[]         @default([])
+  phone           String?
+  status          AccountStatus @default(AUTH_ONLY)
 
   /// The user's chosen UI language ('en'|'ar'|'he'|'fr'|'ru'|'ps'), pushed by
   /// the app whenever the locale changes. Used to localize notification copy
   /// per recipient (in-app inbox + system push). Null → English.
-  language    String?
+  language String?
 
   // optional future tzfonet fields
   tzfonetEmail      String?
@@ -249,14 +274,14 @@ model PasswordResetToken {
 }
 
 model Cohort {
-  id       String  @id @default(uuid())
-  name     String  @unique // e.g. "10th-2"
+  id                String  @id @default(uuid())
+  name              String  @unique // e.g. "10th-2"
   /// Primary/representative grade — kept in sync with grades[0] so legacy
   /// readers (announcements, schedule, teacher.service, etc.) keep working.
-  grade    Int
+  grade             Int
   /// Authoritative grade list. Multi-grade cohorts have length > 1.
-  grades   Int[]   @default([])
-  schoolId String? // null = legacy/global; non-null = school-scoped
+  grades            Int[]   @default([])
+  schoolId          String? // null = legacy/global; non-null = school-scoped
   /// Homeroom teacher (مربّي/ة الصف) for this cohort, if it's a homeroom class.
   /// Set when admin ticks "homeroom" on cohort create/edit and picks a teacher.
   /// Certificates default the homeroom teacher from here for the student's cohort.
@@ -590,13 +615,19 @@ model Assessment {
   teacherAssignmentId String?
   published           Boolean @default(true)
 
+  /// Optional custom (non-numeric) grade scale this assessment is graded on.
+  /// When set, teachers pick a label per student instead of a 0..maxGrade
+  /// number; GradeRecord.label holds the chosen label and GradeRecord.grade
+  /// holds the label's numeric equivalent (for averages).
+  gradeScaleId String?
+
   /// Optional weight (0..100) this grade contributes to the subject average.
   /// A student's subject average = %-weighted mean of the grades they have,
   /// renormalized to 100 (so students with different assessments are each
   /// averaged over their own set — replaces the old formula "variants"). Null =
   /// unweighted; if NO grade in a subject is weighted, a simple mean is used.
   /// Kept in sync with weightPercents[0] for back-compat.
-  weightPercent Int?
+  weightPercent  Int?
   /// Multiple weight "formats" for this grade (e.g. [50, 60] = 50% under format
   /// 1, 60% under format 2). Per format index, each subject grade contributes
   /// its weight; the subject average is computed under every format and the
@@ -604,12 +635,13 @@ model Assessment {
   weightPercents Int[] @default([])
   /// Which semester (1-based) this grade counts toward, for the certificate
   /// grid columns. Null → resolved from `date` against the school's semesters.
-  semester      Int?
+  semester       Int?
 
   cohort            Cohort?            @relation(fields: [cohortId], references: [id], onDelete: SetNull)
   teacher           User               @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   exam              TeacherExam?       @relation(fields: [examId], references: [id], onDelete: SetNull)
   teacherAssignment TeacherAssignment? @relation(fields: [teacherAssignmentId], references: [id], onDelete: SetNull)
+  gradeScale        CustomGradeScale?  @relation(fields: [gradeScaleId], references: [id], onDelete: SetNull)
 
   grades GradeRecord[]
 
@@ -617,20 +649,25 @@ model Assessment {
   @@index([createdBy])
   @@index([examId])
   @@index([teacherAssignmentId])
+  @@index([gradeScaleId])
 }
 
 model GradeRecord {
-  id           String  @id @default(uuid())
+  id           String   @id @default(uuid())
   assessmentId String
   studentId    String
   grade        Int
+  /// For custom-scale assessments: the chosen label (e.g. "A+"). Null for
+  /// normal numeric grades. `grade` still holds the numeric equivalent so
+  /// averages keep working regardless.
+  label        String?
   comment      String?
   /// Per-student publish flag: false hides THIS student's grade from the
   /// student/parent even if others on the same assessment are published.
   /// Defaults true so every existing/newly-entered grade is visible unless a
   /// teacher explicitly unpublishes it. Distinct from Assessment.published,
   /// which is the coarse "published to at least one student" gate.
-  published    Boolean @default(true)
+  published    Boolean  @default(true)
   /// When the grade was first recorded / last changed — the real moment, with
   /// time-of-day (Assessment.date is a date-only value stored at UTC midnight,
   /// so it can't carry the actual grading time). Surfaced to the grade detail.
@@ -1200,17 +1237,19 @@ model Notification {
 // account on the device changes. NotificationsHubService.notify() reads
 // from here to send outside-the-app pushes alongside the SSE push.
 model DeviceToken {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  platform  String   // 'ios' | 'android'
+  id         String   @id @default(cuid())
+  userId     String
+  token      String
+  platform   String // 'ios' | 'android'
   appVersion String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, token])
   @@index([userId])
+  @@index([token])
 }
 
 // ### CLASSMATE:MODELS:END
@@ -2293,6 +2332,7 @@ model GradeFormula {
   subject   String // free-text, matches ScheduleSlot/Assessment.subject
   title     String // teacher-given name, e.g. "Math 5yu final formula"
   units     Int      @default(0) // subject weight / "yehidot"; 0 = unweighted
+  semester  Int? // which semester (1-based) this average covers; null = whole year
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -2311,7 +2351,7 @@ model GradeFormulaVariant {
   label     String? // optional, e.g. "with project"
   sortOrder Int     @default(0)
 
-  formula    GradeFormula           @relation(fields: [formulaId], references: [id], onDelete: Cascade)
+  formula    GradeFormula            @relation(fields: [formulaId], references: [id], onDelete: Cascade)
   components GradeFormulaComponent[]
 
   @@index([formulaId])

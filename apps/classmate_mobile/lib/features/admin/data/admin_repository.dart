@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_session.dart';
 import '../../../core/config/env.dart';
 import '../../../core/contracts/school_subject.dart';
+import '../../../core/contracts/grade_scale.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -83,6 +84,9 @@ class AdminRepository {
     String? password,
     required String role,
     int? grade,
+    String? nationalId,
+    bool? isPrincipal,
+    List<int>? principalGrades,
   }) async {
     final raw = await _api.postJson('/admin/users', body: {
       'name': name,
@@ -92,6 +96,9 @@ class AdminRepository {
       if (password != null && password.isNotEmpty) 'password': password,
       'role': role,
       'grade': ?grade,
+      if (nationalId != null && nationalId.isNotEmpty) 'nationalId': nationalId,
+      'isPrincipal': ?isPrincipal,
+      'principalGrades': ?principalGrades,
     });
     final m = _m(raw);
     return AdminCreateResult(
@@ -233,6 +240,44 @@ class AdminRepository {
     }
     final raw = await _api.patchJson('/admin/school', body: body);
     return AdminSchool.fromJson(_m(_m(raw)['school']));
+  }
+
+  // ── Custom grade scales ──────────────────────────────────────────────────────
+
+  Future<List<CustomGradeScale>> listGradeScales() async {
+    final raw = await _api.getJson('/admin/grade-scales');
+    return _l(_m(raw)['scales']).map((e) => CustomGradeScale.fromJson(_m(e))).toList();
+  }
+
+  Future<CustomGradeScale> createGradeScale({
+    required String name,
+    required List<int> gradeLevels,
+    required List<GradeScaleLabel> labels,
+  }) async {
+    final raw = await _api.postJson('/admin/grade-scales', body: {
+      'name': name,
+      'gradeLevels': gradeLevels,
+      'labels': labels.map((e) => e.toJson()).toList(),
+    });
+    return CustomGradeScale.fromJson(_m(_m(raw)['scale']));
+  }
+
+  Future<CustomGradeScale> updateGradeScale(
+    String id, {
+    String? name,
+    List<int>? gradeLevels,
+    List<GradeScaleLabel>? labels,
+  }) async {
+    final raw = await _api.patchJson('/admin/grade-scales/$id', body: {
+      'name': ?name,
+      'gradeLevels': ?gradeLevels,
+      if (labels != null) 'labels': labels.map((e) => e.toJson()).toList(),
+    });
+    return CustomGradeScale.fromJson(_m(_m(raw)['scale']));
+  }
+
+  Future<void> deleteGradeScale(String id) async {
+    await _api.deleteJson('/admin/grade-scales/$id');
   }
 
   // ── DDL helpers (reuse existing admin endpoints) ─────────────────────────────

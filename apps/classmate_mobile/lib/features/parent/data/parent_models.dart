@@ -57,7 +57,7 @@ class ParentGrade {
   String get scoreLabel {
     if (score == null) return '—';
     if (maxScore != null && maxScore! > 0) return '$score / $maxScore';
-    return score.toString();
+    return '$score / 100';
   }
 }
 

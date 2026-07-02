@@ -1250,6 +1250,7 @@ export class TeacherService {
       weightPercent?: number | null;
       weightPercents?: number[] | null;
       semester?: number | null;
+      gradeScaleId?: string | null;
     },
   ) {
     this.ensureTeacher(user);
@@ -1263,6 +1264,17 @@ export class TeacherService {
     if (cohortId) {
       const cohort = await this.prisma.cohort.findUnique({ where: { id: cohortId } });
       if (!cohort) throw new BadRequestException('Invalid cohortId');
+    }
+
+    // Optional custom grade scale — must belong to the teacher's school.
+    let gradeScaleId: string | null = body.gradeScaleId?.trim() || null;
+    if (gradeScaleId) {
+      const schoolId = (user as any)?.schoolId;
+      const scale = await this.prisma.customGradeScale.findFirst({
+        where: { id: gradeScaleId, ...(schoolId ? { schoolId } : {}) },
+        select: { id: true },
+      });
+      if (!scale) throw new BadRequestException('Invalid gradeScaleId');
     }
 
     const dateYmd = body.date ?? ymdInJerusalem(new Date());
@@ -1280,6 +1292,7 @@ export class TeacherService {
         weightPercent: weights.length ? weights[0] : null,
         weightPercents: weights,
         semester: normSemester(body.semester),
+        gradeScaleId,
       },
     });
 
@@ -1290,7 +1303,7 @@ export class TeacherService {
     user: any,
     body: {
       assessmentId: string;
-      grades: { studentId: string; grade: number; comment?: string }[];
+      grades: { studentId: string; grade?: number; label?: string; comment?: string }[];
     },
   ) {
     this.ensureTeacher(user);
@@ -1307,6 +1320,25 @@ export class TeacherService {
     if (!assessment) throw new BadRequestException('Invalid assessmentId');
     if (assessment.createdBy !== teacherId)
       throw new ForbiddenException('Not your assessment');
+
+    // Custom-scale assessment? Build a label→numeric-equivalent map so we can
+    // validate the chosen labels and store a numeric equivalent for averages.
+    let scaleLabelValue: Map<string, number> | null = null;
+    if ((assessment as any).gradeScaleId) {
+      const scale = await this.prisma.customGradeScale.findUnique({
+        where: { id: (assessment as any).gradeScaleId },
+      });
+      if (scale) {
+        scaleLabelValue = new Map();
+        const labels = Array.isArray(scale.labels) ? (scale.labels as any[]) : [];
+        for (const it of labels) {
+          if (it && typeof it === 'object' && it.label != null) {
+            const v = Number(it.value);
+            scaleLabelValue.set(String(it.label), Number.isFinite(v) ? v : 0);
+          }
+        }
+      }
+    }
 
     const cohortId = assessment.cohortId ?? null;
 
@@ -1332,22 +1364,34 @@ export class TeacherService {
     let written = 0;
     for (const g of body.grades) {
       if (!okSet.has(g.studentId)) continue;
-      const grade = Math.round(Number(g.grade));
 
-      if (
-        assessment.maxGrade !== null &&
-        assessment.maxGrade !== undefined &&
-        grade > assessment.maxGrade
-      ) {
-        throw new BadRequestException(
-          `Grade ${grade} exceeds maxGrade ${assessment.maxGrade}`,
-        );
+      // Custom-scale grade: the teacher picked a label, not a number. Resolve
+      // the label's numeric equivalent (for averages) and store the label too.
+      let label: string | null = null;
+      let grade: number;
+      if (scaleLabelValue) {
+        label = String(g.label ?? '').trim();
+        if (!label) continue; // no label chosen for this student → skip
+        if (!scaleLabelValue.has(label)) {
+          throw new BadRequestException(`Invalid grade label "${label}" for this scale`);
+        }
+        grade = Math.round(scaleLabelValue.get(label) ?? 0);
+      } else {
+        grade = Math.round(Number(g.grade));
+        if (
+          assessment.maxGrade !== null &&
+          assessment.maxGrade !== undefined &&
+          grade > assessment.maxGrade
+        ) {
+          throw new BadRequestException(
+            `Grade ${grade} exceeds maxGrade ${assessment.maxGrade}`,
+          );
+        }
+        if (grade < 0) {
+          throw new BadRequestException('Grade cannot be negative');
+        }
+        if (!Number.isFinite(grade)) continue;
       }
-      if (grade < 0) {
-        throw new BadRequestException('Grade cannot be negative');
-      }
-
-      if (!Number.isFinite(grade)) continue;
 
       const __existing = await this.prisma.gradeRecord.findUnique({
         where: {
@@ -1365,11 +1409,12 @@ export class TeacherService {
             studentId: g.studentId,
           },
         },
-        update: { grade, comment: g.comment ?? null },
+        update: { grade, label, comment: g.comment ?? null },
         create: {
           assessmentId: assessment.id,
           studentId: g.studentId,
           grade,
+          label,
           comment: g.comment ?? null,
         },
       });
@@ -1504,6 +1549,20 @@ export class TeacherService {
    * failures silently dropped subjects/grades on refresh — this either returns
    * the whole set or throws (the client keeps its previous data on error).
    */
+  /// The custom (non-numeric) grade scales defined for this teacher's school.
+  /// The grading UI uses these to swap the numeric field for a label picker
+  /// when a student's grade level is covered by a scale.
+  async listGradeScales(user: any) {
+    this.ensureTeacher(user);
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) return { ok: true, scales: [] };
+    const scales = await this.prisma.customGradeScale.findMany({
+      where: { schoolId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { ok: true, scales };
+  }
+
   async gradesFull(user: any) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -1522,7 +1581,7 @@ export class TeacherService {
       },
       orderBy: [{ date: 'desc' }, { id: 'desc' }],
       include: {
-        grades: { select: { studentId: true, grade: true, comment: true, updatedAt: true, published: true } },
+        grades: { select: { studentId: true, grade: true, label: true, comment: true, updatedAt: true, published: true } },
       },
     });
     return { ok: true, assessments };
@@ -1544,7 +1603,7 @@ export class TeacherService {
 
     const rows = await this.prisma.gradeRecord.findMany({
       where: { assessmentId },
-      select: { studentId: true, grade: true, comment: true, updatedAt: true, createdAt: true, published: true },
+      select: { studentId: true, grade: true, label: true, comment: true, updatedAt: true, createdAt: true, published: true },
       orderBy: [{ studentId: 'asc' }],
     });
 
@@ -3801,6 +3860,28 @@ export class TeacherService {
         where: { id: asn.id },
         data: { attachments: [...cur, ...items] as any },
       });
+      // Mirror the same files onto the classroom copy. The teacher-create
+      // screen attaches materials AFTER the assignment is saved, so without
+      // this the ClassroomAssignment (which classroom-feed students read)
+      // never gets the files and shows an empty attachments section.
+      const mirror = await this.prisma.classroomAssignment.findFirst({
+        where: { teacherAssignmentId: asn.id },
+      });
+      if (mirror) {
+        const mcur = Array.isArray(mirror.attachments)
+          ? (mirror.attachments as any[])
+          : [];
+        const mHas = mcur.some(
+          (a) =>
+            a && typeof a === 'object' && a._sourceMaterialId === material.id,
+        );
+        if (!mHas) {
+          await this.prisma.classroomAssignment.update({
+            where: { id: mirror.id },
+            data: { attachments: [...mcur, ...items] as any },
+          });
+        }
+      }
     }
 
     await this._expandTeacherMaterialAudienceToTarget(material.id, {
@@ -4479,5 +4560,292 @@ export class TeacherService {
     }
     await this.prisma.teacherExam.deleteMany({ where: { id, teacherId } });
     return { ok: true };
+  }
+
+  // ── Subject averages: teacher-defined weighted grade formulas ───────────────
+
+  private readonly averageInclude = {
+    variants: { include: { components: true }, orderBy: { sortOrder: 'asc' as const } },
+  };
+
+  /// Validate + normalize the variants[] from a create/update body. Each variant
+  /// must have ≥1 component whose weights sum to EXACTLY 100. Returns the shape
+  /// ready for Prisma nested `create`.
+  private buildAverageVariants(
+    variants: { label?: string; components?: { assessmentId: string; weight: number }[] }[],
+  ) {
+    if (!Array.isArray(variants) || variants.length === 0)
+      throw new BadRequestException('At least one variant is required');
+    return variants.map((v, i) => {
+      const comps = Array.isArray(v?.components) ? v.components : [];
+      if (comps.length === 0)
+        throw new BadRequestException(`Variant ${i + 1} must have at least one component`);
+      const components = comps.map((c) => {
+        const assessmentId = String(c?.assessmentId ?? '').trim();
+        if (!assessmentId)
+          throw new BadRequestException(`Variant ${i + 1} has a component with no assessmentId`);
+        const weight = Math.max(0, Math.min(100, Math.round(Number(c?.weight ?? 0))));
+        return { assessmentId, weight };
+      });
+      const sum = components.reduce((s, c) => s + c.weight, 0);
+      if (sum !== 100)
+        throw new BadRequestException(
+          `Variant ${i + 1} weights must sum to exactly 100 (got ${sum})`,
+        );
+      const label = typeof v?.label === 'string' && v.label.trim() ? v.label.trim() : null;
+      return { label, sortOrder: i, components: { create: components } };
+    });
+  }
+
+  /// List the calling teacher's formulas, optionally filtered by cohort/subject.
+  async listAverages(user: any, query?: { cohortId?: string; subject?: string }) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+    const cohortId = query?.cohortId?.trim();
+    const subject = query?.subject?.trim();
+    const averages = await this.prisma.gradeFormula.findMany({
+      where: {
+        createdBy: teacherId,
+        schoolId,
+        ...(cohortId ? { cohortId } : {}),
+        ...(subject ? { subject } : {}),
+      },
+      include: this.averageInclude,
+      orderBy: { createdAt: 'desc' },
+    });
+    return { ok: true, averages };
+  }
+
+  /// Create one weighted formula per (cohortId, subject) for this school.
+  async createAverage(
+    user: any,
+    body: {
+      cohortId?: string;
+      subject?: string;
+      title?: string;
+      units?: number;
+      semester?: number | null;
+      variants?: { label?: string; components?: { assessmentId: string; weight: number }[] }[];
+    },
+  ) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const schoolId = (user as any)?.schoolId;
+    if (!schoolId) throw new BadRequestException('No school associated with this account');
+
+    const cohortId = String(body?.cohortId ?? '').trim();
+    const subject = String(body?.subject ?? '').trim();
+    const title = String(body?.title ?? '').trim();
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    if (!subject) throw new BadRequestException('subject is required');
+    if (!title) throw new BadRequestException('title is required');
+
+    const cohort = await this.prisma.cohort.findFirst({
+      where: { id: cohortId, OR: [{ schoolId }, { schoolId: null }] },
+      select: { id: true },
+    });
+    if (!cohort) throw new NotFoundException('Cohort not found for this school');
+
+    const variantsData = this.buildAverageVariants(body?.variants ?? []);
+
+    const existing = await this.prisma.gradeFormula.findFirst({
+      where: { schoolId, cohortId, subject },
+      select: { id: true },
+    });
+    if (existing)
+      throw new BadRequestException(
+        'An average already exists for this cohort and subject — edit the existing one instead',
+      );
+
+    const units = Math.max(0, Math.round(Number(body?.units ?? 0)) || 0);
+    const semester =
+      body?.semester === null || body?.semester === undefined
+        ? null
+        : Math.round(Number(body.semester));
+
+    const average = await this.prisma.gradeFormula.create({
+      data: {
+        schoolId,
+        createdBy: teacherId,
+        cohortId,
+        subject,
+        title,
+        units,
+        semester,
+        variants: { create: variantsData },
+      },
+      include: this.averageInclude,
+    });
+    return { ok: true, average };
+  }
+
+  /// Update a formula the calling teacher owns. If `variants` is provided the
+  /// whole set is replaced (delete + recreate) under the same sum-to-100 rule.
+  async updateAverage(
+    user: any,
+    id: string,
+    body: {
+      title?: string;
+      units?: number;
+      semester?: number | null;
+      subject?: string;
+      variants?: { label?: string; components?: { assessmentId: string; weight: number }[] }[];
+    },
+  ) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+
+    const formula = await this.prisma.gradeFormula.findUnique({
+      where: { id },
+      select: { id: true, createdBy: true },
+    });
+    if (!formula) throw new NotFoundException('Average not found');
+    if (formula.createdBy !== teacherId)
+      throw new ForbiddenException('You can only edit your own averages');
+
+    const data: any = {};
+    if (typeof body?.title === 'string') {
+      const title = body.title.trim();
+      if (!title) throw new BadRequestException('title cannot be empty');
+      data.title = title;
+    }
+    if (typeof body?.subject === 'string') {
+      const subject = body.subject.trim();
+      if (!subject) throw new BadRequestException('subject cannot be empty');
+      data.subject = subject;
+    }
+    if (body?.units !== undefined) data.units = Math.max(0, Math.round(Number(body.units)) || 0);
+    if (body?.semester !== undefined)
+      data.semester = body.semester === null ? null : Math.round(Number(body.semester));
+
+    // Validate replacement variants BEFORE any destructive write.
+    const variantsData =
+      body?.variants !== undefined ? this.buildAverageVariants(body.variants) : null;
+
+    if (variantsData) {
+      await this.prisma.gradeFormulaVariant.deleteMany({ where: { formulaId: id } });
+      data.variants = { create: variantsData };
+    }
+
+    const average = await this.prisma.gradeFormula.update({
+      where: { id },
+      data,
+      include: this.averageInclude,
+    });
+    return { ok: true, average };
+  }
+
+  /// Owner-only delete; cascade removes variants + components.
+  async deleteAverage(user: any, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    const formula = await this.prisma.gradeFormula.findUnique({
+      where: { id },
+      select: { id: true, createdBy: true },
+    });
+    if (!formula) throw new NotFoundException('Average not found');
+    if (formula.createdBy !== teacherId)
+      throw new ForbiddenException('You can only delete your own averages');
+    await this.prisma.gradeFormula.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  /// Per-student computed average for one formula. Owner-only.
+  async computeAverage(user: any, id: string) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+
+    const formula = await this.prisma.gradeFormula.findUnique({
+      where: { id },
+      include: { variants: { include: { components: true } } },
+    });
+    if (!formula) throw new NotFoundException('Average not found');
+    if (formula.createdBy !== teacherId)
+      throw new ForbiddenException('You can only compute your own averages');
+
+    // Cohort students + display names.
+    const links = await this.prisma.studentCohort.findMany({
+      where: { cohortId: formula.cohortId },
+      select: { studentId: true },
+    });
+    const studentIds = links.map((l) => l.studentId);
+    const users = studentIds.length
+      ? await this.prisma.user.findMany({
+          where: { id: { in: studentIds } },
+          select: { id: true, name: true, legalName: true, email: true },
+        })
+      : [];
+    const nameById = new Map(
+      users.map((u) => [u.id, u.name || u.legalName || u.email || u.id]),
+    );
+
+    // All assessments referenced by any variant's components.
+    const assessmentIds = Array.from(
+      new Set(
+        formula.variants.flatMap((v) => v.components.map((c) => c.assessmentId)),
+      ),
+    );
+
+    const records =
+      assessmentIds.length && studentIds.length
+        ? await this.prisma.gradeRecord.findMany({
+            where: {
+              assessmentId: { in: assessmentIds },
+              studentId: { in: studentIds },
+              published: { not: false },
+            },
+            include: { assessment: { select: { maxGrade: true } } },
+          })
+        : [];
+
+    // studentId -> assessmentId -> pct
+    const pctByStudent = new Map<string, Map<string, number>>();
+    for (const r of records) {
+      const max = r.assessment?.maxGrade || 100;
+      const pct = (r.grade / (max || 100)) * 100;
+      let m = pctByStudent.get(r.studentId);
+      if (!m) {
+        m = new Map();
+        pctByStudent.set(r.studentId, m);
+      }
+      m.set(r.assessmentId, pct);
+    }
+
+    const students = studentIds.map((studentId) => {
+      const pcts = pctByStudent.get(studentId);
+      let best: number | null = null;
+      let formatUsed: number | null = null;
+      if (pcts && pcts.size) {
+        for (let vi = 0; vi < formula.variants.length; vi++) {
+          const variant = formula.variants[vi];
+          let num = 0;
+          let den = 0;
+          for (const comp of variant.components) {
+            const pct = pcts.get(comp.assessmentId);
+            if (pct === undefined) continue; // skip components with no grade
+            const w = comp.weight;
+            if (w <= 0) continue;
+            num += pct * w;
+            den += w;
+          }
+          if (den === 0) continue; // student has none of this variant's grades
+          const avg = num / den;
+          if (best === null || avg > best) {
+            best = avg;
+            formatUsed = vi;
+          }
+        }
+      }
+      return {
+        studentId,
+        name: nameById.get(studentId) || studentId,
+        value: best === null ? null : Math.round(best * 10) / 10,
+        formatUsed,
+      };
+    });
+
+    return { ok: true, students };
   }
 }

@@ -159,6 +159,11 @@ export class TeacherController {
     return this.teacher.gradesFull(req.user);
   }
 
+  @Get('grade-scales')
+  listGradeScales(@Req() req: any) {
+    return this.teacher.listGradeScales(req.user);
+  }
+
   /// Resolve an audience selection into the concrete list of students who
   /// will see an item — powers the "students who will see this" summary.
   @Post('audience/resolve')
@@ -551,5 +556,36 @@ export class TeacherController {
   @Post('assignments/:id/attach-material')
   attachMaterialToAssignment(@Req() req: any, @Param('id') assignmentId: string, @Body() body: any) {
     return this.teacher.attachTeacherMaterialToAssignment(req.user, assignmentId, String(body?.materialId ?? ''));
+  }
+
+  // ── Subject averages: teacher-defined weighted grade formulas ─────────────
+
+  @Get('averages')
+  listAverages(
+    @Req() req: any,
+    @Query('cohortId') cohortId?: string,
+    @Query('subject') subject?: string,
+  ) {
+    return this.teacher.listAverages(req.user, { cohortId, subject });
+  }
+
+  @Post('averages')
+  createAverage(@Req() req: any, @Body() body: any) {
+    return this.teacher.createAverage(req.user, body);
+  }
+
+  @Patch('averages/:id')
+  updateAverage(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.updateAverage(req.user, id, body);
+  }
+
+  @Delete('averages/:id')
+  deleteAverage(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.deleteAverage(req.user, id);
+  }
+
+  @Get('averages/:id/compute')
+  computeAverage(@Req() req: any, @Param('id') id: string) {
+    return this.teacher.computeAverage(req.user, id);
   }
 }

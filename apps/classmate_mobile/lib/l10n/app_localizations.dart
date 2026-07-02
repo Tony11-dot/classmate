@@ -17979,6 +17979,372 @@ abstract class AppLocalizations {
   /// **'Grade unpublished — hidden from students.'**
   String get gradesUnpublishedToast;
 
+  /// No description provided for @navGradeScales.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade Scales'**
+  String get navGradeScales;
+
+  /// No description provided for @gradeScaleAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add grade scale'**
+  String get gradeScaleAdd;
+
+  /// No description provided for @gradeScaleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit grade scale'**
+  String get gradeScaleEdit;
+
+  /// No description provided for @gradeScaleDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete grade scale?'**
+  String get gradeScaleDeleteTitle;
+
+  /// No description provided for @gradeScaleDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”? Assessments already graded on it keep their labels.'**
+  String gradeScaleDeleteConfirm(Object name);
+
+  /// No description provided for @gradeScaleEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade scales yet'**
+  String get gradeScaleEmptyTitle;
+
+  /// No description provided for @gradeScaleEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.'**
+  String get gradeScaleEmptyHint;
+
+  /// No description provided for @gradeScaleAllGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to all grades'**
+  String get gradeScaleAllGrades;
+
+  /// No description provided for @gradeScaleAppliesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades {grades}'**
+  String gradeScaleAppliesTo(Object grades);
+
+  /// No description provided for @gradeScaleNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale name'**
+  String get gradeScaleNameLabel;
+
+  /// No description provided for @gradeScaleNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Letter grades'**
+  String get gradeScaleNameHint;
+
+  /// No description provided for @gradeScaleNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a scale name.'**
+  String get gradeScaleNameRequired;
+
+  /// No description provided for @gradeScaleGradeLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to grades'**
+  String get gradeScaleGradeLevels;
+
+  /// No description provided for @gradeScaleGradeLevelsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave none selected to apply to all grades.'**
+  String get gradeScaleGradeLevelsHint;
+
+  /// No description provided for @gradeScaleLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Labels'**
+  String get gradeScaleLabels;
+
+  /// No description provided for @gradeScaleLabelsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add each label (e.g. A+) with an optional number (0–100) used for averages.'**
+  String get gradeScaleLabelsHint;
+
+  /// No description provided for @gradeScaleLabelText.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get gradeScaleLabelText;
+
+  /// No description provided for @gradeScaleLabelValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get gradeScaleLabelValue;
+
+  /// No description provided for @gradeScaleAddLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add label'**
+  String get gradeScaleAddLabel;
+
+  /// No description provided for @gradeScaleNeedTwoLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least two labels.'**
+  String get gradeScaleNeedTwoLabels;
+
+  /// No description provided for @gradeScalePickLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get gradeScalePickLabel;
+
+  /// No description provided for @gradeScaleUseScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade scale'**
+  String get gradeScaleUseScale;
+
+  /// No description provided for @gradeScaleNumeric.
+  ///
+  /// In en, this message translates to:
+  /// **'Number (0–{max})'**
+  String gradeScaleNumeric(Object max);
+
+  /// No description provided for @accountSwitcherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get accountSwitcherTitle;
+
+  /// No description provided for @accountAddAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get accountAddAccount;
+
+  /// No description provided for @accountSignOutThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out this account'**
+  String get accountSignOutThis;
+
+  /// No description provided for @averagesManageTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage averages'**
+  String get averagesManageTooltip;
+
+  /// No description provided for @averagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages'**
+  String get averagesTitle;
+
+  /// No description provided for @averagesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add average'**
+  String get averagesAdd;
+
+  /// No description provided for @averagesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete average'**
+  String get averagesDeleteTitle;
+
+  /// No description provided for @averagesDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"? This cannot be undone.'**
+  String averagesDeleteConfirm(Object title);
+
+  /// No description provided for @averagesCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get averagesCancel;
+
+  /// No description provided for @averagesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No averages yet'**
+  String get averagesEmptyTitle;
+
+  /// No description provided for @averagesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Add average\" to create a weighted grade formula for a subject.'**
+  String get averagesEmptyBody;
+
+  /// No description provided for @averagesFullYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Full year'**
+  String get averagesFullYear;
+
+  /// No description provided for @averagesSemesterN.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester {n}'**
+  String averagesSemesterN(Object n);
+
+  /// No description provided for @averagesFormatChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Format {index}: {total}%'**
+  String averagesFormatChip(Object index, Object total);
+
+  /// No description provided for @averagesNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students to compute.'**
+  String get averagesNoStudents;
+
+  /// No description provided for @averagesFormatN.
+  ///
+  /// In en, this message translates to:
+  /// **'Format {n}'**
+  String averagesFormatN(Object n);
+
+  /// No description provided for @averagesErrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a title.'**
+  String get averagesErrTitle;
+
+  /// No description provided for @averagesErrSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a subject.'**
+  String get averagesErrSubject;
+
+  /// No description provided for @averagesErrCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a cohort.'**
+  String get averagesErrCohort;
+
+  /// No description provided for @averagesErrNoFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one format.'**
+  String get averagesErrNoFormat;
+
+  /// No description provided for @averagesErrFormatNoGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Format {n}: pick at least one grade.'**
+  String averagesErrFormatNoGrade(Object n);
+
+  /// No description provided for @averagesErrFormatSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Format {n}: weights must sum to 100 (now {total}%).'**
+  String averagesErrFormatSum(Object n, Object total);
+
+  /// No description provided for @averagesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New average'**
+  String get averagesNew;
+
+  /// No description provided for @averagesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit average'**
+  String get averagesEdit;
+
+  /// No description provided for @averagesLabelSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get averagesLabelSubject;
+
+  /// No description provided for @averagesHintSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a subject'**
+  String get averagesHintSubject;
+
+  /// No description provided for @averagesLabelCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohort'**
+  String get averagesLabelCohort;
+
+  /// No description provided for @averagesHintCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a cohort'**
+  String get averagesHintCohort;
+
+  /// No description provided for @averagesLabelUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units (optional)'**
+  String get averagesLabelUnits;
+
+  /// No description provided for @averagesFormats.
+  ///
+  /// In en, this message translates to:
+  /// **'Formats'**
+  String get averagesFormats;
+
+  /// No description provided for @averagesFormatsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each format\'s weights must sum to 100%. The best-scoring format is used per student.'**
+  String get averagesFormatsHelp;
+
+  /// No description provided for @averagesAddFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Add format'**
+  String get averagesAddFormat;
+
+  /// No description provided for @averagesLabelFormatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Format label (optional)'**
+  String get averagesLabelFormatLabel;
+
+  /// No description provided for @averagesAddGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Add grade'**
+  String get averagesAddGrade;
+
+  /// No description provided for @averagesTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {total}%'**
+  String averagesTotal(Object total);
+
+  /// No description provided for @averagesLabelGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get averagesLabelGrade;
+
+  /// No description provided for @averagesHintPickFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick subject & cohort first'**
+  String get averagesHintPickFirst;
+
+  /// No description provided for @averagesHintGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a grade'**
+  String get averagesHintGrade;
+
   /// No description provided for @adminInsightsSearchHint.
   ///
   /// In en, this message translates to:

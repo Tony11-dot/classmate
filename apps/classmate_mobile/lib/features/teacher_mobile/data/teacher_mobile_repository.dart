@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../core/auth/auth_session.dart';
+import '../../../core/contracts/grade_scale.dart';
 import '../../../core/http/cm_api.dart';
+import 'subject_average.dart';
 
 final teacherMobileRepositoryProvider = Provider<TeacherMobileRepository>((ref) {
   final session = ref.watch(authSessionProvider);
@@ -338,6 +340,7 @@ class TeacherMobileRepository {
     List<Map<String, dynamic>>? attachments,
     List<int>? weightPercents,
     int? semester,
+    String? gradeScaleId,
   }) async {
     final raw = await _api.postJson(
       '/teacher/grades/assessment',
@@ -351,6 +354,7 @@ class TeacherMobileRepository {
         if (attachments != null && attachments.isNotEmpty) 'attachments': attachments,
         'weightPercents': ?weightPercents,
         'semester': ?semester,
+        'gradeScaleId': ?gradeScaleId,
       },
     );
     return raw is Map ? Map<String, dynamic>.from(raw) : {};
@@ -408,6 +412,73 @@ class TeacherMobileRepository {
     await _api.deleteJson('/teacher/grades/assessment/$assessmentId/student/$studentId');
   }
 
+  // ── Subject averages (weighted grade formulas) ──────────────────────────
+
+  Future<List<SubjectAverage>> listAverages({String? cohortId, String? subject}) async {
+    final q = <String, String>{};
+    if (cohortId != null && cohortId.isNotEmpty) q['cohortId'] = cohortId;
+    if (subject != null && subject.isNotEmpty) q['subject'] = subject;
+    final raw = await _api.getJson('/teacher/averages', query: q.isEmpty ? null : q);
+    return _asList(_asMap(raw)['averages'])
+        .map((e) => SubjectAverage.fromJson(_asMap(e)))
+        .toList(growable: false);
+  }
+
+  Future<void> createAverage({
+    required String cohortId,
+    required String subject,
+    required String title,
+    int? units,
+    int? semester,
+    required List<AverageFormat> variants,
+  }) async {
+    await _api.postJson('/teacher/averages', body: {
+      'cohortId': cohortId,
+      'subject': subject,
+      'title': title,
+      'units': ?units,
+      'semester': ?semester,
+      'variants': variants.map((v) => v.toJson()).toList(),
+    });
+  }
+
+  Future<void> updateAverage(
+    String id, {
+    String? title,
+    String? subject,
+    int? units,
+    int? semester,
+    List<AverageFormat>? variants,
+  }) async {
+    await _api.patchJson('/teacher/averages/$id', body: {
+      'title': ?title,
+      'subject': ?subject,
+      'units': ?units,
+      'semester': ?semester,
+      if (variants != null) 'variants': variants.map((v) => v.toJson()).toList(),
+    });
+  }
+
+  Future<void> deleteAverage(String id) async {
+    await _api.deleteJson('/teacher/averages/$id');
+  }
+
+  Future<List<ComputedStudentAverage>> computeAverage(String id) async {
+    final raw = await _api.getJson('/teacher/averages/$id/compute');
+    return _asList(_asMap(raw)['students'])
+        .map((e) => ComputedStudentAverage.fromJson(_asMap(e)))
+        .toList(growable: false);
+  }
+
+  /// The custom (non-numeric) grade scales defined for this teacher's school.
+  Future<List<CustomGradeScale>> fetchGradeScales() async {
+    final raw = await _api.getJson('/teacher/grade-scales');
+    final map = _asMap(raw);
+    return _asList(map['scales'])
+        .map((e) => CustomGradeScale.fromJson(_asMap(e)))
+        .toList(growable: false);
+  }
+
   Future<void> saveBulkGrades({
     required String assessmentId,
     required List<TeacherGradeDraftRecord> grades,
@@ -421,6 +492,8 @@ class TeacherMobileRepository {
               (grade) => <String, dynamic>{
                 'studentId': grade.studentId,
                 'grade': grade.grade,
+                if (grade.label != null && grade.label!.trim().isNotEmpty)
+                  'label': grade.label!.trim(),
                 if (grade.comment != null && grade.comment!.trim().isNotEmpty)
                   'comment': grade.comment!.trim(),
               },
@@ -1795,11 +1868,14 @@ class TeacherGradeDraftRecord {
   const TeacherGradeDraftRecord({
     required this.studentId,
     required this.grade,
+    this.label,
     this.comment,
   });
 
   final String studentId;
   final int grade;
+  /// For custom-scale assessments: the chosen label (e.g. "A+").
+  final String? label;
   final String? comment;
 }
 

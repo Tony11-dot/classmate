@@ -29,8 +29,9 @@ export class DevicesController {
   }
 
   @Delete(':token')
-  async unregister(@Param('token') token: string) {
-    await this.push.unregisterToken(token);
+  async unregister(@Req() req: any, @Param('token') token: string) {
+    const userId = String(req.user?.sub ?? req.user?.id ?? '').trim();
+    await this.push.unregisterToken(token, userId || undefined);
     return { ok: true };
   }
 }

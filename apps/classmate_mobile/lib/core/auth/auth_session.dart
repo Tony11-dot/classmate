@@ -467,6 +467,35 @@ class AuthSession extends ChangeNotifier {
   /// state the session caches (e.g. email/phone change via verify flow).
   Future<void> reloadFromMe() => _refreshAuthMe(clearUnauthorizedToken: false);
 
+  /// Instantly adopt a remembered account's token + cached profile so the UI
+  /// (drawer header, role-gated shell) flips immediately on an account switch,
+  /// before the background `/auth/me` refresh lands. Setting the token also
+  /// re-registers this device's push under the new account.
+  Future<void> applyStoredAccount({
+    required String token,
+    String? displayName,
+    List<String>? roles,
+    String? schoolName,
+  }) async {
+    await setToken(token);
+    if (roles != null && roles.isNotEmpty) await setRoles(roles);
+    if (displayName != null && displayName.isNotEmpty) await setDisplayName(displayName);
+    if (schoolName != null) await setSchoolName(schoolName);
+  }
+
+  /// Best-effort: tell the backend to drop THIS device's push registration for
+  /// the currently-active account (used when signing one account out of the
+  /// multi-account switcher without touching the others).
+  Future<void> unregisterPushForCurrent() async {
+    try {
+      final svc = _pushService;
+      final current = _token;
+      if (svc == null || current == null || current.isEmpty || current == 'SIM_TOKEN') return;
+      // ignore: avoid_dynamic_calls
+      await (svc as dynamic).unregisterForUser(authToken: current);
+    } catch (_) {}
+  }
+
   Future<void> _refreshAuthMe({
     bool clearUnauthorizedToken = false,
     bool clearOnAnyError = false,

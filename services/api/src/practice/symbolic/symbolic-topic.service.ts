@@ -193,10 +193,10 @@ export class SymbolicTopicService {
     if (/integral|integrals/i.test(lower) && isBasicSymbolicSeedTopic(topic)) {
       const seeds: SymbolicQuestionSeed[] = [
         {
-          stem: 'What is ∫ x dx ?',
-          options: ['x^2/2 + C', 'x + C', '2x + C', '1/x + C'],
+          stem: 'What is $\\int x\\,dx$ ?',
+          options: ['$\\frac{x^2}{2} + C$', '$x + C$', '$2x + C$', '$\\frac{1}{x} + C$'],
           correctIndex: 0,
-          explanation: 'Using the reverse power rule, ∫ x dx = x^2/2 + C.',
+          explanation: 'Using the reverse power rule, $\\int x\\,dx = \\frac{x^2}{2} + C$.',
           recommendedTimeSeconds: 40,
         },
         {
@@ -213,10 +213,10 @@ export class SymbolicTopicService {
           recommendedTimeSeconds: 35,
         },
         {
-          stem: 'What is ∫ 1 dx ?',
-          options: ['x + C', '1 + C', '0', 'ln(x) + C'],
+          stem: 'What is $\\int 1\\,dx$ ?',
+          options: ['$x + C$', '$1 + C$', '$0$', '$\\ln(x) + C$'],
           correctIndex: 0,
-          explanation: 'The antiderivative of 1 is x + C.',
+          explanation: 'The antiderivative of $1$ is $x + C$.',
           recommendedTimeSeconds: 25,
         },
       ];

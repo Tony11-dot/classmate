@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
+import 'package:classmate_mobile/core/auth/accounts_store.dart';
 import 'package:classmate_mobile/features/certificates/data/certificates_repository.dart';
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
@@ -232,53 +233,70 @@ class MainDrawer extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  // Avatar circle with accent bg + proper initials
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: cs.primary,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Center(
-                      child: Text(
-                        initials,
-                        style: TextStyle(
-                          color: cs.onPrimary,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
+                  // Avatar + name — tap to open the account switcher (add /
+                  // switch / sign out this account). Instagram-style.
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          displayName.isEmpty ? 'ClassMate' : displayName,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _openAccountSwitcher(context, ref),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: cs.primary,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(
+                                initials,
+                                style: TextStyle(
+                                  color: cs.onPrimary,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 18,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          roleLabel,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: cs.onSurfaceVariant,
-                              ),
-                        ),
-                        if (isParent) ...[
-                          const SizedBox(height: 8),
-                          const _ParentChildDropdown(),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        displayName.isEmpty ? 'ClassMate' : displayName,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(Icons.unfold_more_rounded, size: 18, color: cs.onSurfaceVariant),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  roleLabel,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                ),
+                                if (isParent) ...[
+                                  const SizedBox(height: 8),
+                                  const _ParentChildDropdown(),
+                                ],
+                              ],
+                            ),
+                          ),
                         ],
-                      ],
+                      ),
                     ),
                   ),
                   // Close button — always shows the CM mark. The school logo
@@ -512,6 +530,118 @@ String _initials(String name) {
   final word = parts[0];
   if (word.length >= 2) return '${word[0]}${word[1]}'.toUpperCase();
   return word[0].toUpperCase();
+}
+
+/// Instagram-style account switcher — lists the accounts remembered on this
+/// device, lets you switch instantly, add another, or sign the current one out.
+Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
+  final l = AppLocalizations.of(context)!;
+  final controller = ref.read(authControllerProvider);
+  // Make sure the currently-signed-in account is in the list (covers sessions
+  // that predate the multi-account feature).
+  await controller.rememberCurrentAccount();
+  if (!context.mounted) return;
+  final session = ref.read(authSessionProvider);
+  final activeId = session.userId;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (sheetCtx) {
+      final cs = Theme.of(sheetCtx).colorScheme;
+      final theme = Theme.of(sheetCtx);
+      return Consumer(builder: (ctx, r, _) {
+        final state = r.watch(accountsControllerProvider);
+        final accounts = state.accounts;
+        return Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                Container(width: 40, height: 4, decoration: BoxDecoration(
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(l.accountSwitcherTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                  ),
+                ),
+                for (final acct in accounts)
+                  ListTile(
+                    leading: Container(
+                      width: 42, height: 42,
+                      decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(13)),
+                      child: Center(child: Text(_initials(acct.displayName),
+                          style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w900))),
+                    ),
+                    title: Text(acct.displayName.isEmpty ? 'ClassMate' : acct.displayName,
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text([
+                      if (acct.roleLabel.isNotEmpty) _roleLabelFor(l, acct.roleLabel),
+                      if (acct.schoolName != null && acct.schoolName!.isNotEmpty) acct.schoolName!,
+                    ].join(' · ')),
+                    trailing: acct.userId == activeId
+                        ? Icon(Icons.check_circle_rounded, color: cs.primary)
+                        : null,
+                    onTap: acct.userId == activeId
+                        ? () => Navigator.of(sheetCtx).pop()
+                        : () async {
+                            Navigator.of(sheetCtx).pop();
+                            await controller.switchAccount(context, acct);
+                          },
+                  ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.add_circle_outline_rounded, color: cs.primary),
+                  title: Text(l.accountAddAccount, style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700)),
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    // Close the drawer, then open login in add-account mode.
+                    if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+                    context.go('/login?add=1');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.logout_rounded, color: cs.error),
+                  title: Text(l.accountSignOutThis, style: TextStyle(color: cs.error)),
+                  onTap: () async {
+                    Navigator.of(sheetCtx).pop();
+                    await controller.signOutActiveAccount(context);
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      });
+    },
+  );
+}
+
+/// Localize a stored primaryRole code for the switcher subtitle.
+String _roleLabelFor(AppLocalizations l, String role) {
+  switch (role.toUpperCase()) {
+    case 'TEACHER':
+      return l.roleTeacher;
+    case 'ADMIN':
+      return l.roleAdmin;
+    case 'SECRETARY':
+      return l.roleSecretary;
+    case 'PARENT':
+      return l.roleParent;
+    default:
+      return l.roleStudent;
+  }
 }
 
 Widget _schoolLogoPlaceholder(ColorScheme cs) {

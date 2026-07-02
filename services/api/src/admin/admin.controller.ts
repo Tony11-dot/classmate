@@ -458,6 +458,32 @@ export class AdminController {
     return this.admin.updateMySchool(req.user, body);
   }
 
+  // ── Custom grade scales ───────────────────────────────────────────────────────
+
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('grade-scales')
+  listGradeScales(@Req() req: any) {
+    return this.admin.listGradeScales(req.user);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('grade-scales')
+  createGradeScale(@Req() req: any, @Body() body: any) {
+    return this.admin.createGradeScale(req.user, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('grade-scales/:id')
+  updateGradeScale(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.admin.updateGradeScale(req.user, id, body);
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete('grade-scales/:id')
+  deleteGradeScale(@Req() req: any, @Param('id') id: string) {
+    return this.admin.deleteGradeScale(req.user, id);
+  }
+
   // ── Analytics ─────────────────────────────────────────────────────────────────
 
   @Roles(Role.ADMIN, Role.SECRETARY)

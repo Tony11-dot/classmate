@@ -471,9 +471,7 @@ class _ExamDetailBody extends StatelessWidget {
                           Icon(Icons.grade_rounded, size: 28, color: cs.primary),
                           const SizedBox(width: 12),
                           Text(
-                            exam.maxGrade != null
-                                ? '${exam.grade} / ${exam.maxGrade}'
-                                : '${exam.grade}',
+                            '${exam.grade} / ${exam.maxGrade ?? 100}',
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 28,

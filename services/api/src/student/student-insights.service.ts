@@ -45,6 +45,7 @@ export class StudentInsightsService {
         grade: Number(r.grade ?? 0),
         date: this.ymd(r.assessment?.date),
         maxGrade: r.assessment?.maxGrade != null ? Number(r.assessment.maxGrade) : null,
+        label: r.label != null && String(r.label).trim() !== '' ? String(r.label) : null,
         weightPercents: wp.length ? wp : single != null ? [Number(single)] : [],
         semester: r.assessment?.semester != null ? Number(r.assessment.semester) : null,
       };

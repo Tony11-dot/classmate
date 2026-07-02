@@ -335,7 +335,7 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
             ? StudentNotificationTemplate.newGradePosted
             : StudentNotificationTemplate.newGradePostedIn,
         templateArgs: subjectLabel.isEmpty ? const {} : {'subject': subjectLabel},
-        body: '${grade.assessmentTitle.trim().isEmpty ? 'Assessment' : grade.assessmentTitle.trim()} • ${grade.grade.toStringAsFixed(grade.grade % 1 == 0 ? 0 : 1)}',
+        body: '${grade.assessmentTitle.trim().isEmpty ? 'Assessment' : grade.assessmentTitle.trim()} • ${grade.label ?? '${grade.grade.toStringAsFixed(grade.grade % 1 == 0 ? 0 : 1)} / ${grade.maxGrade ?? 100}'}',
         source: 'grades',
         createdAt: createdAt,
         severity: grade.grade < 70 ? StudentNotificationSeverity.warning : StudentNotificationSeverity.info,

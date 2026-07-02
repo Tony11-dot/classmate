@@ -139,11 +139,23 @@ class AttachmentPills extends StatelessWidget {
     return Wrap(
       spacing: 6,
       runSpacing: 6,
-      children: attachments.map((a) => AttachmentPill(
-        url: (a['url'] ?? '').toString(),
-        name: (a['name'] ?? a['fileName'] ?? '').toString(),
-        type: (a['type'] ?? 'link').toString(),
-      )).toList(),
+      children: attachments.map((a) {
+        // Attachments reach us in several shapes:
+        //  - direct uploads: { url/fileUrl, name/fileName, type }
+        //  - library-material snapshots: { title / _sourceMaterialTitle, url }
+        // Read every known key so material-attached files don't render blank
+        // and untappable (the old code only read 'url' + 'name'/'fileName').
+        final url = (a['url'] ?? a['fileUrl'] ?? '').toString();
+        final name = (a['name'] ??
+                a['fileName'] ??
+                a['title'] ??
+                a['_sourceMaterialTitle'] ??
+                '')
+            .toString();
+        // If no explicit type but we have a real file URL, style it as a file.
+        final type = (a['type'] ?? (url.isNotEmpty ? 'file' : 'link')).toString();
+        return AttachmentPill(url: url, name: name, type: type);
+      }).toList(),
     );
   }
 }

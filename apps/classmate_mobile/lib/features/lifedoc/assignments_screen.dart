@@ -626,6 +626,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
   String _statusValue = '';
   String _feedback = '';
   num? _grade;
+  num? _gradeMax;
 
   void _initFromAssignment(Map<String, dynamic> assignment) {
     if (_initializedFromData) return;
@@ -641,6 +642,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
     final note = (subMap['note'] ?? '').toString();
     final feedback = (subMap['feedback'] ?? assignment['feedback'] ?? '').toString();
     final grade = subMap['grade'] ?? assignment['grade'];
+    final gradeMax = subMap['maxGrade'] ?? assignment['maxGrade'];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() {
@@ -650,6 +652,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
         _statusValue = status;
         _feedback = feedback;
         _grade = grade is num ? grade : num.tryParse('${grade ?? ''}');
+        _gradeMax = gradeMax is num ? gradeMax : num.tryParse('${gradeMax ?? ''}');
         // If the teacher returned it for re-solution, pre-fill the prior note
         // so the student can revise rather than retype from scratch.
         if (status == 'RETURNED' && note.isNotEmpty && _noteCtrl.text.isEmpty) {
@@ -1039,7 +1042,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                         const Icon(Icons.grade_rounded,
                                             size: 18, color: Color(0xFF6366F1)),
                                         const SizedBox(width: 8),
-                                        Text(l.assignmentsScreenGradeLabel('${_grade! % 1 == 0 ? _grade!.toInt() : _grade!}'),
+                                        Text(l.assignmentsScreenGradeLabel('${_grade! % 1 == 0 ? _grade!.toInt() : _grade!} / ${_gradeMax ?? 100}'),
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.w800)),
                                       ]),
