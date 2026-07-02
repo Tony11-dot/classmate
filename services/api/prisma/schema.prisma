@@ -2342,10 +2342,13 @@ model SchoolCertificate {
   schoolYear         String // e.g. "2025/2026"
   semesterWeights    Json     @default("[]") // e.g. [50,50] — must sum to 100
   snapshot           Json // computed averages/attendance frozen at issue time
-  pdfUrl             String? // stored PDF (R2/uploads) if persisted
+  pdfUrl             String? // stored PDF (R2/uploads) — students download this
+  published          Boolean  @default(false) // visible to the student in-app when true
   issuedAt           DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
 
   @@index([schoolId])
   @@index([cohortId])
   @@index([studentId])
+  @@index([studentId, published])
 }

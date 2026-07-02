@@ -1,6 +1,12 @@
-import { IsArray, IsInt, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateCertificateDto {
+  /// When true the certificate is published and becomes visible/downloadable to
+  /// the student in-app. Draft (false) is only visible to staff.
+  @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+
   @IsOptional()
   @IsString()
   @MaxLength(64)

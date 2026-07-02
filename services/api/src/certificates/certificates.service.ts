@@ -8,6 +8,7 @@ import {
   SemesterWindow,
 } from '../common/semester';
 import { CreateCertificateDto } from './dto/certificate.dto';
+import { hasAnyRole } from '../auth/permissions';
 
 /** Round to 2 decimals, keeping the client free to round-half-up or show 2dp. */
 function round2(n: number): number {
@@ -27,10 +28,53 @@ export class CertificatesService {
     return s;
   }
 
+  private isAdmin(user: any): boolean {
+    return hasAnyRole(user, ['ADMIN'] as any);
+  }
+  /// A teacher who is NOT also an admin — the homeroom-scoped case.
+  private isTeacherScoped(user: any): boolean {
+    return hasAnyRole(user, ['TEACHER'] as any) && !this.isAdmin(user);
+  }
+  /// Secretary who is neither admin nor teacher — read-only.
+  private isSecretaryReadOnly(user: any): boolean {
+    return hasAnyRole(user, ['SECRETARY'] as any) && !this.isAdmin(user) && !hasAnyRole(user, ['TEACHER'] as any);
+  }
+
+  /// Cohort ids the current user may act on. Admin/secretary → every homeroom
+  /// cohort in the school (only homerooms carry certificates). Teacher → only
+  /// the cohorts where THEY are the homeroom teacher.
+  private async accessibleCohortIds(user: any): Promise<string[]> {
+    const schoolId = this.schoolId(user);
+    const where: any = { schoolId, homeroomTeacherId: { not: null } };
+    if (this.isTeacherScoped(user)) where.homeroomTeacherId = this.userId(user);
+    const rows = await this.prisma.cohort.findMany({ where, select: { id: true } });
+    return rows.map((c) => c.id);
+  }
+
+  /// Guard a single cohort. Cross-school + homeroom-teacher scoping, and blocks
+  /// writes for read-only secretaries.
+  private async assertCohortAccess(user: any, cohortId: string, opts: { write?: boolean } = {}) {
+    const schoolId = this.schoolId(user);
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: cohortId },
+      select: { schoolId: true, homeroomTeacherId: true },
+    });
+    if (!cohort) throw new NotFoundException('Cohort not found');
+    if (cohort.schoolId && cohort.schoolId !== schoolId) throw new ForbiddenException('Cross-school access denied');
+    if (opts.write && this.isSecretaryReadOnly(user)) {
+      throw new ForbiddenException('Secretaries have read-only access to certificates.');
+    }
+    if (this.isTeacherScoped(user) && cohort.homeroomTeacherId !== this.userId(user)) {
+      throw new ForbiddenException('You can only manage certificates for your homeroom class.');
+    }
+    return cohort;
+  }
+
   // ── Prefill — everything the certificate form needs, computed server-side ──
   async prefill(user: any, cohortId: string, studentId?: string, semesterWeightsRaw?: string) {
     const schoolId = this.schoolId(user);
     if (!cohortId) throw new BadRequestException('cohortId is required');
+    await this.assertCohortAccess(user, cohortId);
 
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: cohortId },
@@ -352,18 +396,15 @@ export class CertificatesService {
   }
 
   // ── Create / list ──────────────────────────────────────────────────────────
-  async create(user: any, dto: CreateCertificateDto) {
-    const schoolId = this.schoolId(user);
-    const weights = dto.semesterWeights ?? [];
+  private validateWeights(weights: number[]) {
     if (weights.length) {
       const sum = weights.reduce((a, b) => a + b, 0);
       if (sum !== 100) throw new BadRequestException(`Semester weights must sum to 100 (got ${sum}).`);
     }
+  }
 
-    const cohort = await this.prisma.cohort.findUnique({ where: { id: dto.cohortId }, select: { schoolId: true } });
-    if (!cohort) throw new NotFoundException('Cohort not found');
-    if (cohort.schoolId && cohort.schoolId !== schoolId) throw new ForbiddenException('Cross-school access denied');
-
+  /// Build the frozen snapshot for a student (subjects/averages/attendance).
+  private async buildSnapshot(user: any, dto: CreateCertificateDto, weights: number[]) {
     let snapshot: any = dto.snapshot ?? {};
     if (dto.studentId) {
       const pre = await this.prefill(user, dto.cohortId, dto.studentId, weights.length ? weights.join(',') : undefined);
@@ -376,6 +417,16 @@ export class CertificatesService {
         ...(dto.snapshot ?? {}),
       };
     }
+    return snapshot;
+  }
+
+  async create(user: any, dto: CreateCertificateDto) {
+    const schoolId = this.schoolId(user);
+    const weights = dto.semesterWeights ?? [];
+    this.validateWeights(weights);
+    await this.assertCohortAccess(user, dto.cohortId, { write: true });
+
+    const snapshot = await this.buildSnapshot(user, dto, weights);
 
     const created = await this.prisma.schoolCertificate.create({
       data: {
@@ -393,24 +444,103 @@ export class CertificatesService {
         semesterWeights: weights,
         snapshot,
         pdfUrl: dto.pdfUrl ?? null,
+        published: dto.published ?? false,
       },
     });
     return { ok: true, certificate: created };
   }
 
+  /// Edit an existing certificate. Admin can edit any; a homeroom teacher only
+  /// their own class's. Re-freezes the snapshot from the (possibly new) weights.
+  async update(user: any, id: string, dto: CreateCertificateDto) {
+    const schoolId = this.schoolId(user);
+    const existing = await this.prisma.schoolCertificate.findUnique({ where: { id } });
+    if (!existing || existing.schoolId !== schoolId) throw new NotFoundException('Certificate not found');
+    const cohortId = dto.cohortId || existing.cohortId;
+    await this.assertCohortAccess(user, cohortId, { write: true });
+
+    const weights = dto.semesterWeights ?? (existing.semesterWeights as number[]) ?? [];
+    this.validateWeights(weights);
+    const snapshot = await this.buildSnapshot(user, { ...dto, cohortId }, weights);
+
+    const updated = await this.prisma.schoolCertificate.update({
+      where: { id },
+      data: {
+        studentId: dto.studentId ?? existing.studentId,
+        studentDisplayName: dto.studentDisplayName,
+        nationalId: dto.nationalId ?? null,
+        cohortId,
+        homeroomTeacher: dto.homeroomTeacher,
+        principalName: dto.principalName,
+        language: dto.language,
+        publisherNote: dto.publisherNote ?? null,
+        schoolYear: dto.schoolYear,
+        semesterWeights: weights,
+        snapshot,
+        pdfUrl: dto.pdfUrl ?? existing.pdfUrl,
+        published: dto.published ?? existing.published,
+      },
+    });
+    return { ok: true, certificate: updated };
+  }
+
+  /// One certificate for the edit form (admin / owner teacher).
+  async getOne(user: any, id: string) {
+    const schoolId = this.schoolId(user);
+    const cert = await this.prisma.schoolCertificate.findUnique({ where: { id } });
+    if (!cert || cert.schoolId !== schoolId) throw new NotFoundException('Certificate not found');
+    await this.assertCohortAccess(user, cert.cohortId); // read scope (teacher → own class)
+    return { ok: true, certificate: cert };
+  }
+
   async list(user: any, cohortId?: string) {
     const schoolId = this.schoolId(user);
+    // Admin/secretary see all; a homeroom teacher only their own class(es).
+    let where: any = { schoolId };
+    if (this.isTeacherScoped(user)) {
+      const ids = await this.accessibleCohortIds(user);
+      where.cohortId = cohortId && ids.includes(cohortId) ? cohortId : { in: ids };
+    } else if (cohortId) {
+      where.cohortId = cohortId;
+    }
     const certificates = await this.prisma.schoolCertificate.findMany({
-      where: { schoolId, ...(cohortId ? { cohortId } : {}) },
+      where,
+      orderBy: { issuedAt: 'desc' },
+    });
+    return { ok: true, certificates };
+  }
+
+  /// Published certificates for a cohort, for the secretary/admin "print all"
+  /// action (each carries its pdfUrl).
+  async byCohortForPrint(user: any, cohortId: string) {
+    if (!cohortId) throw new BadRequestException('cohortId is required');
+    await this.assertCohortAccess(user, cohortId);
+    const certificates = await this.prisma.schoolCertificate.findMany({
+      where: { schoolId: this.schoolId(user), cohortId, published: true },
+      orderBy: { studentDisplayName: 'asc' },
+    });
+    return { ok: true, certificates };
+  }
+
+  /// The logged-in student's own PUBLISHED certificates (downloadable).
+  async studentCertificates(user: any) {
+    const schoolId = this.schoolId(user);
+    const studentId = this.userId(user);
+    const certificates = await this.prisma.schoolCertificate.findMany({
+      where: { schoolId, studentId, published: true },
       orderBy: { issuedAt: 'desc' },
     });
     return { ok: true, certificates };
   }
 
   async cohorts(user: any) {
+    // Only homeroom cohorts carry certificates. Teachers see just their own
+    // homeroom(s); admin/secretary see every homeroom cohort in the school.
     const schoolId = this.schoolId(user);
+    const where: any = { schoolId, homeroomTeacherId: { not: null } };
+    if (this.isTeacherScoped(user)) where.homeroomTeacherId = this.userId(user);
     const cohorts = await this.prisma.cohort.findMany({
-      where: { schoolId },
+      where,
       select: { id: true, name: true, grade: true },
       orderBy: { name: 'asc' },
     });
@@ -420,6 +550,7 @@ export class CertificatesService {
   async studentsInCohort(user: any, cohortId: string) {
     const schoolId = this.schoolId(user);
     if (!cohortId) throw new BadRequestException('cohortId is required');
+    await this.assertCohortAccess(user, cohortId);
     const links = await this.prisma.studentCohort.findMany({
       where: { cohortId },
       select: { student: { select: { userId: true, user: { select: { name: true, schoolId: true } } } } },
