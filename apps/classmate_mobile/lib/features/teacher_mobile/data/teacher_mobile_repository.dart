@@ -363,6 +363,7 @@ class TeacherMobileRepository {
     int? maxGrade,
     List<int>? weightPercents,
     int? semester,
+    bool? published,
   }) async {
     await _api.patchJson(
       '/teacher/grades/assessment/$assessmentId',
@@ -372,7 +373,17 @@ class TeacherMobileRepository {
         'maxGrade': maxGrade,
         'weightPercents': ?weightPercents,
         'semester': ?semester,
+        if (published != null) 'published': published,
       },
+    );
+  }
+
+  /// Flip only the published flag on an assessment (publish ↔ unpublish),
+  /// without touching title/date/weights.
+  Future<void> setAssessmentPublished(String assessmentId, bool published) async {
+    await _api.patchJson(
+      '/teacher/grades/assessment/$assessmentId',
+      body: <String, dynamic>{'published': published},
     );
   }
 
@@ -1270,8 +1281,17 @@ class TeacherMobileRepository {
   }
 
   // Returns all students at the teacher's school.
+  //
+  // Rock-solid contract: this THROWS when both the primary and fallback
+  // sources fail — it never silently returns an empty list on a transient
+  // network/auth error. Returning `[]` on failure used to make the grades hub
+  // drop every subject (grades keyed on a student map that came back empty),
+  // so data "vanished" until a later refresh. A thrown error instead surfaces
+  // to the caller, which keeps the last-good data on screen.
   Future<List<TeacherStudentWithLevel>> fetchAllStudents() async {
     final byId = <String, TeacherStudentWithLevel>{};
+    Object? primaryError;
+    Object? fallbackError;
 
     // Primary: school-wide student list
     try {
@@ -1294,7 +1314,9 @@ class TeacherMobileRepository {
           coursesBySubject: const {},
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      primaryError = e;
+    }
 
     // Fallback: school-wide directory (works even when cohort linkage is missing)
     if (byId.isEmpty) {
@@ -1318,7 +1340,15 @@ class TeacherMobileRepository {
             coursesBySubject: const {},
           );
         }
-      } catch (_) {}
+      } catch (e) {
+        fallbackError = e;
+      }
+    }
+
+    // Both sources failed to produce anyone → surface the error instead of
+    // pretending the school has no students.
+    if (byId.isEmpty && (primaryError != null || fallbackError != null)) {
+      throw primaryError ?? fallbackError!;
     }
 
     final list = byId.values.toList();

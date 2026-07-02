@@ -189,6 +189,17 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     return false;
   }
 
+  /// Mean of the grades currently entered for this exam (null if none).
+  double? get _classAverage {
+    final vals = <int>[];
+    for (final s in _students) {
+      final v = int.tryParse(_ctrls[s.studentId]?.text.trim() ?? '');
+      if (v != null) vals.add(v);
+    }
+    if (vals.isEmpty) return null;
+    return vals.reduce((a, b) => a + b) / vals.length;
+  }
+
   List<Widget> _buildAttachmentPills(Map<String, dynamic> exam) {
     final raw = exam['attachments'];
     if (raw is! List || raw.isEmpty) return const [];
@@ -480,7 +491,35 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                             ),
                           );
                         }),
-                        const SizedBox(height: 8),
+                        // Class average for this exam (mean of entered grades).
+                        Builder(builder: (_) {
+                          final avg = _classAverage;
+                          return Container(
+                            margin: const EdgeInsets.only(top: 2, bottom: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.bar_chart_rounded, color: cs.onPrimaryContainer, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(l.teacherExamClassAverage,
+                                      style: theme.textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+                                ),
+                                Text(
+                                  avg == null ? '—' : (avg == avg.roundToDouble() ? avg.toInt().toString() : avg.toStringAsFixed(1)),
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w900, color: cs.onPrimaryContainer),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             Expanded(

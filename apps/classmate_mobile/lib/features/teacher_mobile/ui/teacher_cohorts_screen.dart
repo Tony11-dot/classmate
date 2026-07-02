@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/grade_multi_select_field.dart';
+import '../../../ui/widgets/student_multi_select_sheet.dart';
 import '../data/teacher_mobile_repository.dart';
 
 /// Teacher-facing cohort management — create cohorts, expand to see the
@@ -133,7 +134,12 @@ class _CohortTile extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
+      clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
+        // Drop the default top/bottom divider lines that make the expanded
+        // block look boxed-in — keep it clean.
+        shape: const Border(),
+        collapsedShape: const Border(),
         title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text('${TeacherCohortsScreen.gradeLabel(l, cohort)} · ${l.teacherCohortsScreenStudentsCount(count)}',
             style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
@@ -260,54 +266,36 @@ class _CohortTile extends ConsumerWidget {
 
   Future<void> _addStudents(BuildContext context, WidgetRef ref, String id, TeacherMobileRepository repo) async {
     final l = AppLocalizations.of(context)!;
-    List<Map<String, dynamic>> students;
+    List<MultiSelectItem> items;
     try {
       final all = await repo.fetchSchoolStudents();
       // Exclude students already in this cohort — only offer ones not yet added.
       final existing = await repo.fetchCohortStudents(id);
       final existingIds = existing.map((s) => s.studentId).toSet();
-      students = all.where((s) => !existingIds.contains('${s['id']}')).toList();
+      // The school-students endpoint keys each row as `studentId` (not `id`);
+      // using `id` made every row share the same empty key → tapping one
+      // selected all, and the Add call sent null ids → server rejected it.
+      String sid(Map<String, dynamic> s) => '${s['studentId'] ?? s['id'] ?? ''}';
+      items = [
+        for (final s in all)
+          if (sid(s).isNotEmpty && !existingIds.contains(sid(s)))
+            MultiSelectItem(id: sid(s), name: '${s['name'] ?? s['nameEn'] ?? '—'}'),
+      ];
     } catch (e) {
       TeacherCohortsScreen._toast(context, '${l.teacherCohortsScreenLoadStudentsError}: $e');
       return;
     }
-    if (students.isEmpty) {
+    if (items.isEmpty) {
       TeacherCohortsScreen._toast(context, l.teacherCohortsScreenNoStudentsToAdd);
       return;
     }
-    final selected = <String>{};
-    final picked = await showModalBottomSheet<bool>(
+    if (!context.mounted) return;
+    final selected = await showStudentMultiSelectSheet(
       context: context,
-      isScrollControlled: true,
-      builder: (ctx) => StatefulBuilder(builder: (ctx, setSheet) {
-        return DraggableScrollableSheet(
-          expand: false, initialChildSize: 0.7, maxChildSize: 0.95,
-          builder: (ctx, scroll) => Column(children: [
-            Padding(padding: const EdgeInsets.all(16),
-                child: Text(l.teacherCohortsScreenAddStudents, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
-            Expanded(child: ListView(controller: scroll, children: [
-              for (final s in students)
-                CheckboxListTile(
-                  value: selected.contains('${s['id']}'),
-                  title: Text('${s['name'] ?? s['nameEn'] ?? '—'}'),
-                  onChanged: (v) => setSheet(() {
-                    final sid = '${s['id']}';
-                    if (v == true) { selected.add(sid); } else { selected.remove(sid); }
-                  }),
-                ),
-            ])),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: SizedBox(width: double.infinity, child: FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l.teacherCohortsScreenAddNStudents(selected.length)),
-              )),
-            ),
-          ]),
-        );
-      }),
+      title: l.teacherCohortsScreenAddStudents,
+      items: items,
     );
-    if (picked != true || selected.isEmpty) return;
+    if (selected == null || selected.isEmpty) return;
     try {
       await repo.addStudentsToManagedCohort(id, selected.toList());
       ref.invalidate(_cohortsProvider);

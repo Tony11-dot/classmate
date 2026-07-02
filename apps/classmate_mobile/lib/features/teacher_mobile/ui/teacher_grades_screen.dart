@@ -8,6 +8,7 @@ import '../../../core/semester/school_semester.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/student_multi_select_sheet.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
 import '../../../ui/widgets/semester_select_field.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -147,7 +148,9 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
   }
 
   Future<void> _openSubject(_SubjectGroup g) async {
-    await Navigator.of(context, rootNavigator: true).push(
+    // Push on the SHELL navigator (not root) so the persistent left nav rail
+    // stays visible on web/desktop when drilling into a subject.
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => _SubjectGradesScreen(group: g)),
     );
     if (mounted) _load();
@@ -284,13 +287,6 @@ class _SubjectCard extends StatelessWidget {
                               ?.copyWith(fontWeight: FontWeight.w800, color: cs.onPrimaryContainer),
                         ),
                       ),
-                      if (group.average != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(999)),
-                          child: Text('${group.average}',
-                              style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w900, color: cs.primary)),
-                        ),
                     ],
                   ),
                 ),
@@ -334,6 +330,67 @@ class _SubjectGradesScreen extends ConsumerStatefulWidget {
 
 class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
   int _avgSem = 1;
+  // Local publish overrides so a publish/unpublish reflects instantly without
+  // reloading the whole hub (the group is an immutable snapshot).
+  final Map<String, bool> _publishOverride = {};
+
+  bool _pub(TeacherAssessment a) => _publishOverride[a.id] ?? a.published;
+
+  /// Publish flow for an assessment: shows the liquid-glass list of every
+  /// student who has a grade on it (all auto-selected, select-all/unselect),
+  /// then publishes or unpublishes it. Publishing controls whether students
+  /// can see the grade.
+  Future<void> _openPublishSheet(TeacherAssessment a) async {
+    final l = AppLocalizations.of(context)!;
+    final repo = ref.read(teacherMobileRepositoryProvider);
+    final currentlyPublished = _pub(a);
+
+    // Who did this grade — resolve names from the subject roster snapshot.
+    final nameById = {for (final gs in widget.group.students) gs.student.studentId: gs.student.name};
+    List<TeacherAssessmentGrade> rows;
+    try {
+      rows = await repo.fetchAssessmentGrades(a.id);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l.teacherCohortsScreenFailed}: $e')));
+      return;
+    }
+    final items = <MultiSelectItem>[
+      for (final r in rows)
+        if (r.grade != null)
+          MultiSelectItem(
+            id: r.studentId,
+            name: nameById[r.studentId] ?? r.studentId,
+            subtitle: '${r.grade}',
+          ),
+    ];
+    if (!mounted) return;
+    if (items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.gradesSubjectNoGrades)));
+      return;
+    }
+
+    final confirmed = await showStudentMultiSelectSheet(
+      context: context,
+      title: currentlyPublished ? l.gradesUnpublishTitle(a.title) : l.gradesPublishTitle(a.title),
+      items: items,
+      confirmLabel: currentlyPublished ? l.gradesUnpublishAction : l.gradesPublishAction,
+    );
+    if (confirmed == null) return; // dismissed → no change
+
+    final next = !currentlyPublished;
+    try {
+      await repo.setAssessmentPublished(a.id, next);
+      if (!mounted) return;
+      setState(() => _publishOverride[a.id] = next);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(next ? l.gradesPublishedToast : l.gradesUnpublishedToast),
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l.teacherCohortsScreenFailed}: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -387,7 +444,8 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: InkWell(
                       onTap: () async {
-                        await Navigator.of(context, rootNavigator: true).push(
+                        // Shell navigator (not root) → keep the left nav rail on web.
+                        await Navigator.of(context).push(
                           MaterialPageRoute<void>(
                             builder: (_) => TeacherStudentGradeDetailScreen(
                               student: gs.student,
@@ -477,6 +535,11 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                                   ],
                                 ),
                               ),
+                              _PublishPill(
+                                published: _pub(a),
+                                onTap: () => _openPublishSheet(a),
+                              ),
+                              const SizedBox(width: 8),
                               Icon(Icons.tune_rounded, size: 18, color: cs.primary),
                             ],
                           ),
@@ -663,8 +726,6 @@ class _AddToAverageSheet extends ConsumerStatefulWidget {
 
 class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
   final _searchCtrl = TextEditingController();
-  // 'all' | 'grade:<n>' | 'cohort:<id>' | 'student:<id>'
-  String _filter = 'all';
 
   @override
   void initState() {
@@ -681,33 +742,6 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
   bool _weighted(TeacherAssessment a) =>
       a.weightPercents.isNotEmpty || a.weightPercent != null;
 
-  bool _matchesFilter(TeacherAssessment a) {
-    // An assessment with no cohort is visible to any audience → always shown.
-    final noCohort = a.cohortId.isEmpty;
-    if (_filter == 'all') return true;
-    if (_filter.startsWith('cohort:')) {
-      return noCohort || a.cohortId == _filter.substring(7);
-    }
-    if (_filter.startsWith('grade:')) {
-      final n = int.tryParse(_filter.substring(6));
-      final ids = widget.group.students
-          .where((s) => s.student.gradeLevel == n)
-          .map((s) => s.student.cohortId)
-          .where((c) => c.isNotEmpty)
-          .toSet();
-      return noCohort || ids.contains(a.cohortId);
-    }
-    if (_filter.startsWith('student:')) {
-      final sid = _filter.substring(8);
-      final cid = widget.group.students
-              .where((s) => s.student.studentId == sid)
-              .map((s) => s.student.cohortId)
-              .firstWhere((_) => true, orElse: () => '');
-      return noCohort || (cid.isNotEmpty && a.cohortId == cid);
-    }
-    return true;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -715,35 +749,11 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
     final theme = Theme.of(context);
     final g = widget.group;
 
-    // Distinct cohorts and grades present among the graded students.
-    final cohortNames = <String, String>{}; // id → name
-    final grades = <int>{};
-    for (final s in g.students) {
-      if (s.student.cohortId.isNotEmpty) {
-        cohortNames[s.student.cohortId] =
-            s.student.cohortName.isNotEmpty ? s.student.cohortName : s.student.cohortId;
-      }
-      if (s.student.gradeLevel != null) grades.add(s.student.gradeLevel!);
-    }
-    final sortedGrades = grades.toList()..sort();
-    final students = [...g.students]
-      ..sort((a, b) => a.student.name.compareTo(b.student.name));
-
     final query = _searchCtrl.text.trim().toLowerCase();
     final results = g.assessments
-        .where(_matchesFilter)
         .where((a) => query.isEmpty || a.title.toLowerCase().contains(query))
         .toList()
       ..sort((a, b) => b.date.compareTo(a.date));
-
-    Widget chip(String id, String label) => Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: ChoiceChip(
-            label: Text(label),
-            selected: _filter == id,
-            onSelected: (_) => setState(() => _filter = id),
-          ),
-        );
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -776,20 +786,6 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
                       ),
               ),
             ),
-            const SizedBox(height: 10),
-            // ── Filters: All / by grade / by cohort / by student ──────────
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(children: [
-                chip('all', l.gradesAvgFilterAll),
-                for (final n in sortedGrades)
-                  chip('grade:$n', l.adminCohortGradeFormat('$n')),
-                for (final e in cohortNames.entries)
-                  chip('cohort:${e.key}', l.gradesAvgFilterCohort(e.value)),
-                for (final s in students)
-                  chip('student:${s.student.studentId}', s.student.name),
-              ]),
-            ),
             const SizedBox(height: 12),
             Flexible(
               child: results.isEmpty
@@ -803,7 +799,7 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
                   : ListView.separated(
                       shrinkWrap: true,
                       itemCount: results.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (_, i) {
                         final a = results[i];
                         return InkWell(
@@ -1023,6 +1019,41 @@ class _GradeBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Text('$value', style: TextStyle(color: fg, fontWeight: FontWeight.w900, fontSize: 15)),
+    );
+  }
+}
+
+/// A tap-to-toggle published pill: filled when published, outlined when draft.
+class _PublishPill extends StatelessWidget {
+  const _PublishPill({required this.published, required this.onTap});
+  final bool published;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: published ? cs.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: published ? cs.primary : cs.outlineVariant),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(published ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+              size: 14, color: published ? cs.onPrimary : cs.onSurfaceVariant),
+          const SizedBox(width: 4),
+          Text(published ? l.gradesPublishedShort : l.gradesDraftShort,
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: published ? cs.onPrimary : cs.onSurfaceVariant)),
+        ]),
+      ),
     );
   }
 }

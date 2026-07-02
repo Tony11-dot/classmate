@@ -183,7 +183,9 @@ export class StudentService {
     if (!sp.cohortId) return { ok: true, assessments: [] };
 
     const assessments = await this.prisma.assessment.findMany({
-      where: { cohortId: sp.cohortId },
+      // Only published grades are visible to students; drafts stay hidden until
+      // the teacher publishes them. `not: false` keeps legacy/null rows visible.
+      where: { cohortId: sp.cohortId, published: { not: false } },
       orderBy: [{ date: 'desc' }, { id: 'desc' }],
     });
 
@@ -221,7 +223,8 @@ export class StudentService {
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     const rows = await this.prisma.gradeRecord.findMany({
-      where: { studentId },
+      // Hide grades on unpublished (draft) assessments from the student.
+      where: { studentId, assessment: { is: { published: { not: false } } } },
       orderBy: { id: 'desc' },
       include: { assessment: true },
     });

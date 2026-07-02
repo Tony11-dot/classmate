@@ -8793,6 +8793,12 @@ abstract class AppLocalizations {
   /// **'Enter grades'**
   String get teacherExamGradesEnterGrades;
 
+  /// No description provided for @teacherExamClassAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Class average'**
+  String get teacherExamClassAverage;
+
   /// No description provided for @teacherDeleteExamTitle.
   ///
   /// In en, this message translates to:
@@ -12908,6 +12914,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select grades'**
   String get pickerSelectGrades;
+
+  /// No description provided for @pickerSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get pickerSelectAll;
+
+  /// No description provided for @pickerUnselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Unselect all'**
+  String get pickerUnselectAll;
 
   /// No description provided for @pickerSelectClassroom.
   ///
@@ -17912,6 +17930,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No grades in this subject yet.'**
   String get gradesSubjectNoGrades;
+
+  /// No description provided for @gradesPublishedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get gradesPublishedShort;
+
+  /// No description provided for @gradesDraftShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get gradesDraftShort;
+
+  /// No description provided for @gradesPublishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish “{title}”'**
+  String gradesPublishTitle(Object title);
+
+  /// No description provided for @gradesUnpublishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish “{title}”'**
+  String gradesUnpublishTitle(Object title);
+
+  /// No description provided for @gradesPublishAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get gradesPublishAction;
+
+  /// No description provided for @gradesUnpublishAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish'**
+  String get gradesUnpublishAction;
+
+  /// No description provided for @gradesPublishedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade published — students can now see it.'**
+  String get gradesPublishedToast;
+
+  /// No description provided for @gradesUnpublishedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade unpublished — hidden from students.'**
+  String get gradesUnpublishedToast;
+
+  /// No description provided for @adminInsightsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students by name…'**
+  String get adminInsightsSearchHint;
+
+  /// No description provided for @adminInsightsNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found.'**
+  String get adminInsightsNoStudents;
+
+  /// No description provided for @adminInsightsNoGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades recorded yet.'**
+  String get adminInsightsNoGrades;
 
   /// No description provided for @gradesEditGradeTitle.
   ///

@@ -243,6 +243,14 @@ class AdminRepository {
     return _l(_m(raw)['students']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
   }
 
+  /// Every grade for one student, grouped by subject with per-subject average —
+  /// powers the admin Insights per-student view. Returns the raw payload
+  /// `{ student: {...}, subjects: [{ subject, average, grades: [...] }] }`.
+  Future<Map<String, dynamic>> getStudentGrades(String studentId) async {
+    final raw = await _api.getJson('/admin/students/$studentId/grades');
+    return _m(raw);
+  }
+
   Future<List<Map<String, dynamic>>> getDdlCohorts() async {
     final raw = await _api.getJson('/admin/ddl/cohorts');
     return _l(_m(raw)['cohorts']).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();

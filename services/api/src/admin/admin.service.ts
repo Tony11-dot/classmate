@@ -537,6 +537,78 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     };
   }
 
+  /// Every grade a student has, grouped by subject with a per-subject average —
+  /// the admin Insights per-student view. School-scoped: the student must
+  /// belong to the admin's school.
+  async studentGrades(user: any, studentId: string) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId ?? null;
+    if (!studentId) throw new BadRequestException('studentId is required');
+
+    const student = await this.prisma.user.findFirst({
+      where: {
+        id: studentId,
+        ...(schoolId ? { schoolId } : {}),
+        roles: { some: { role: 'STUDENT' } },
+      },
+      select: {
+        id: true,
+        name: true,
+        studentProfile: {
+          select: { grade: true, cohort: { select: { name: true, grade: true } } },
+        },
+      },
+    });
+    if (!student) throw new NotFoundException('Student not found');
+
+    const records = await this.prisma.gradeRecord.findMany({
+      where: { studentId },
+      include: { assessment: true },
+      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
+    });
+
+    const bySubject = new Map<string, { grades: any[]; sum: number; count: number }>();
+    for (const r of records) {
+      const a = r.assessment;
+      const subject = a.subject && a.subject.trim() ? a.subject : a.title;
+      const bucket = bySubject.get(subject) ?? { grades: [], sum: 0, count: 0 };
+      bucket.grades.push({
+        assessmentId: a.id,
+        title: a.title,
+        grade: r.grade,
+        maxGrade: a.maxGrade,
+        date: a.date.toISOString(),
+        published: a.published,
+        comment: r.comment ?? null,
+      });
+      bucket.sum += r.grade;
+      bucket.count += 1;
+      bySubject.set(subject, bucket);
+    }
+
+    const subjects = Array.from(bySubject.entries())
+      .map(([subject, b]) => ({
+        subject,
+        average: b.count ? Math.round(b.sum / b.count) : null,
+        grades: b.grades,
+      }))
+      .sort((x, y) => x.subject.localeCompare(y.subject));
+
+    return {
+      ok: true,
+      student: {
+        id: student.id,
+        name: student.name,
+        cohortName: student.studentProfile?.cohort?.name ?? null,
+        grade:
+          student.studentProfile?.cohort?.grade ??
+          (student.studentProfile as any)?.grade ??
+          null,
+      },
+      subjects,
+    };
+  }
+
   async listTeachersForDDL(user: any) {
     this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId ?? null;

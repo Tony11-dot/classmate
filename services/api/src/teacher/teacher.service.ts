@@ -1510,9 +1510,11 @@ export class TeacherService {
     });
     const cohortIds = Array.from(new Set(slotCohorts.map((sc) => sc.cohortId)));
 
+    // Include DRAFTS too (no `published` filter): the teacher's own Grades hub
+    // shows every assessment so they can publish/unpublish it. Students only
+    // ever see published ones (filtered separately in student.service).
     const assessments = await this.prisma.assessment.findMany({
       where: {
-        published: true,
         OR: [{ cohortId: { in: cohortIds } }, { createdBy: teacherId }],
       },
       orderBy: [{ date: 'desc' }, { id: 'desc' }],
@@ -1556,6 +1558,7 @@ export class TeacherService {
       weightPercents?: number[] | null;
       semester?: number | null;
       maxGrade?: number;
+      published?: boolean;
     },
   ) {
     this.ensureTeacher(user);
@@ -1569,7 +1572,8 @@ export class TeacherService {
         body.weightPercent === undefined &&
         body.weightPercents === undefined &&
         body.semester === undefined &&
-        body.maxGrade === undefined)
+        body.maxGrade === undefined &&
+        body.published === undefined)
     )
       throw new BadRequestException('Nothing to update');
 
@@ -1606,6 +1610,7 @@ export class TeacherService {
       const mg = Math.round(Number(body.maxGrade));
       if (Number.isFinite(mg) && mg > 0) data.maxGrade = mg;
     }
+    if (body.published !== undefined) data.published = body.published === true;
 
     const updated = await this.prisma.assessment.update({
       where: { id },

@@ -218,6 +218,7 @@ class AppShell extends ConsumerWidget {
   static const _adminPrefixes = <String>[
     '/admin/dashboard',
     '/admin/people',
+    '/admin/insights',
     '/admin/cohorts',
     '/admin/schedule',
     '/admin/school',
@@ -302,6 +303,7 @@ class AppShell extends ConsumerWidget {
   String _adminTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/admin/dashboard' => l.navDashboard,
     '/admin/people' => l.navPeople,
+    '/admin/insights' => l.navInsights,
     '/admin/cohorts' => l.navCohorts,
     '/admin/schedule' => l.adminScheduleTitle,
     '/admin/school' => l.adminSchoolSettingsTitle,

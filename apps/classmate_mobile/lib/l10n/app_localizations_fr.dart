@@ -5015,6 +5015,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherExamGradesEnterGrades => 'Saisir les notes';
 
   @override
+  String get teacherExamClassAverage => 'Class average';
+
+  @override
   String get teacherDeleteExamTitle => 'Supprimer l\'examen ?';
 
   @override
@@ -7379,6 +7382,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pickerSelectGrades => 'Sélectionner les niveaux';
+
+  @override
+  String get pickerSelectAll => 'Select all';
+
+  @override
+  String get pickerUnselectAll => 'Unselect all';
 
   @override
   String get pickerSelectClassroom => 'Sélectionner la classe';
@@ -10508,6 +10517,45 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get gradesSubjectNoGrades => 'Aucune note dans cette matière.';
+
+  @override
+  String get gradesPublishedShort => 'Published';
+
+  @override
+  String get gradesDraftShort => 'Draft';
+
+  @override
+  String gradesPublishTitle(Object title) {
+    return 'Publish “$title”';
+  }
+
+  @override
+  String gradesUnpublishTitle(Object title) {
+    return 'Unpublish “$title”';
+  }
+
+  @override
+  String get gradesPublishAction => 'Publish';
+
+  @override
+  String get gradesUnpublishAction => 'Unpublish';
+
+  @override
+  String get gradesPublishedToast =>
+      'Grade published — students can now see it.';
+
+  @override
+  String get gradesUnpublishedToast =>
+      'Grade unpublished — hidden from students.';
+
+  @override
+  String get adminInsightsSearchHint => 'Search students by name…';
+
+  @override
+  String get adminInsightsNoStudents => 'No students found.';
+
+  @override
+  String get adminInsightsNoGrades => 'No grades recorded yet.';
 
   @override
   String get gradesEditGradeTitle => 'Modifier la note';

@@ -16,10 +16,15 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SkipThrottle } from '@nestjs/throttler';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminService } from './admin.service';
 
+// Admin dashboards fan out many /admin/* reads at once (rosters, DDLs, analytics);
+// the shared per-IP default bucket tripped ThrottleException while loading the
+// add-students picker. Auth routes keep their own strict `auth` throttle.
+@SkipThrottle()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin')
 export class AdminController {
@@ -93,6 +98,13 @@ export class AdminController {
   @Get('ddl/students')
   ddlStudents(@Req() req: any, @Query('q') q?: string, @Query('cohortId') cohortId?: string) {
     return this.admin.listStudentsForDDL(req.user, { q, cohortId });
+  }
+
+  // Admin Insights: every grade for one student, grouped by subject.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @Get('students/:id/grades')
+  studentGrades(@Req() req: any, @Param('id') id: string) {
+    return this.admin.studentGrades(req.user, id);
   }
 
   @Roles(Role.ADMIN, Role.SECRETARY)

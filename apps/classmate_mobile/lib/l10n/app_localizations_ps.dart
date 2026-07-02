@@ -4948,6 +4948,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherExamGradesEnterGrades => 'نمرې دننه کول';
 
   @override
+  String get teacherExamClassAverage => 'Class average';
+
+  @override
   String get teacherDeleteExamTitle => 'ازموینه ړنګه کړئ؟';
 
   @override
@@ -7290,6 +7293,12 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get pickerSelectGrades => 'ټولګيونه وټاکئ';
+
+  @override
+  String get pickerSelectAll => 'Select all';
+
+  @override
+  String get pickerUnselectAll => 'Unselect all';
 
   @override
   String get pickerSelectClassroom => 'ټولګی وټاکئ';
@@ -10379,6 +10388,45 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get gradesSubjectNoGrades => 'په دې مضمون کې تر اوسه نمرې نشته.';
+
+  @override
+  String get gradesPublishedShort => 'Published';
+
+  @override
+  String get gradesDraftShort => 'Draft';
+
+  @override
+  String gradesPublishTitle(Object title) {
+    return 'Publish “$title”';
+  }
+
+  @override
+  String gradesUnpublishTitle(Object title) {
+    return 'Unpublish “$title”';
+  }
+
+  @override
+  String get gradesPublishAction => 'Publish';
+
+  @override
+  String get gradesUnpublishAction => 'Unpublish';
+
+  @override
+  String get gradesPublishedToast =>
+      'Grade published — students can now see it.';
+
+  @override
+  String get gradesUnpublishedToast =>
+      'Grade unpublished — hidden from students.';
+
+  @override
+  String get adminInsightsSearchHint => 'Search students by name…';
+
+  @override
+  String get adminInsightsNoStudents => 'No students found.';
+
+  @override
+  String get adminInsightsNoGrades => 'No grades recorded yet.';
 
   @override
   String get gradesEditGradeTitle => 'د نمرې سمون';

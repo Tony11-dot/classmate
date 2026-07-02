@@ -230,6 +230,42 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
     ),
+    // ── Liquid-glass menus everywhere ────────────────────────────────────
+    // Every PopupMenuButton (three-dots), DropdownButton and Menu shares one
+    // rounded, hairline-bordered, tint-free surface so lists look consistent.
+    popupMenuTheme: PopupMenuThemeData(
+      color: scheme.surfaceContainerHigh,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.18),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      textStyle: TextStyle(color: on, fontWeight: FontWeight.w600),
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerHigh),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(8),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+        )),
+      ),
+    ),
+    menuTheme: MenuThemeData(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerHigh),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(8),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+        )),
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
