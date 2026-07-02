@@ -578,7 +578,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         grade: r.grade,
         maxGrade: a.maxGrade,
         date: a.date.toISOString(),
-        published: a.published,
+        // Per-student publish flag (whether THIS student sees the grade).
+        published: r.published !== false,
         comment: r.comment ?? null,
       });
       bucket.sum += r.grade;

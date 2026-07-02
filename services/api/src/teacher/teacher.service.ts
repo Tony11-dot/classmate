@@ -1519,7 +1519,7 @@ export class TeacherService {
       },
       orderBy: [{ date: 'desc' }, { id: 'desc' }],
       include: {
-        grades: { select: { studentId: true, grade: true, comment: true, updatedAt: true } },
+        grades: { select: { studentId: true, grade: true, comment: true, updatedAt: true, published: true } },
       },
     });
     return { ok: true, assessments };
@@ -1541,7 +1541,7 @@ export class TeacherService {
 
     const rows = await this.prisma.gradeRecord.findMany({
       where: { assessmentId },
-      select: { studentId: true, grade: true, comment: true, updatedAt: true, createdAt: true },
+      select: { studentId: true, grade: true, comment: true, updatedAt: true, createdAt: true, published: true },
       orderBy: [{ studentId: 'asc' }],
     });
 
@@ -1618,6 +1618,40 @@ export class TeacherService {
     });
 
     return { ok: true, assessment: updated };
+  }
+
+  /// Per-student publish: `studentIds` are the students whose grade on this
+  /// assessment should be VISIBLE; everyone else with a grade on it is
+  /// unpublished. `Assessment.published` is kept as the coarse "published to at
+  /// least one student" gate so draft assessments (nobody published) stay hidden.
+  async publishAssessmentForStudents(user: any, id: string, studentIds: string[]) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    if (!id) throw new BadRequestException('id is required');
+
+    const existing = await this.prisma.assessment.findUnique({ where: { id } });
+    if (!existing) throw new BadRequestException('Invalid assessment id');
+    if (existing.createdBy !== teacherId)
+      throw new ForbiddenException('Not your assessment');
+
+    const ids = Array.isArray(studentIds) ? studentIds.filter((s) => !!s) : [];
+
+    // Publish the selected students' grades, unpublish the rest on this assessment.
+    if (ids.length) {
+      await this.prisma.gradeRecord.updateMany({
+        where: { assessmentId: id, studentId: { in: ids } },
+        data: { published: true },
+      });
+    }
+    await this.prisma.gradeRecord.updateMany({
+      where: { assessmentId: id, studentId: { notIn: ids } },
+      data: { published: false },
+    });
+
+    const published = ids.length > 0;
+    await this.prisma.assessment.update({ where: { id }, data: { published } });
+
+    return { ok: true, published };
   }
 
   async deleteAssessment(user: any, id: string) {

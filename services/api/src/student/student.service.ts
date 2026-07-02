@@ -190,7 +190,13 @@ export class StudentService {
     });
 
     const grades = await this.prisma.gradeRecord.findMany({
-      where: { studentId, assessmentId: { in: assessments.map((a) => a.id) } },
+      // Per-student publish: hide this student's grade if it was unpublished,
+      // even when the assessment is published to others.
+      where: {
+        studentId,
+        assessmentId: { in: assessments.map((a) => a.id) },
+        published: { not: false },
+      },
       select: { assessmentId: true, grade: true, comment: true },
     });
     const gradeMap = new Map(grades.map((g) => [g.assessmentId, g]));
@@ -223,8 +229,9 @@ export class StudentService {
     if (!sp) throw new BadRequestException('Student not onboarded');
 
     const rows = await this.prisma.gradeRecord.findMany({
-      // Hide grades on unpublished (draft) assessments from the student.
-      where: { studentId, assessment: { is: { published: { not: false } } } },
+      // Per-student publish: only this student's PUBLISHED grades. `not: false`
+      // keeps legacy rows (before the column existed) visible.
+      where: { studentId, published: { not: false } },
       orderBy: { id: 'desc' },
       include: { assessment: true },
     });
@@ -566,7 +573,7 @@ export class StudentService {
     // the exam. This is what made saved exam grades fail to show for students.
     const items = await Promise.all(exams.map(async (exam) => {
       const grade = await this.prisma.gradeRecord.findFirst({
-        where: { studentId, assessment: { is: { examId: exam.id } } },
+        where: { studentId, published: { not: false }, assessment: { is: { examId: exam.id } } },
         select: { grade: true },
       });
       return {

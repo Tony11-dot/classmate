@@ -336,14 +336,14 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
 
   bool _pub(TeacherAssessment a) => _publishOverride[a.id] ?? a.published;
 
-  /// Publish flow for an assessment: shows the liquid-glass list of every
-  /// student who has a grade on it (all auto-selected, select-all/unselect),
-  /// then publishes or unpublishes it. Publishing controls whether students
-  /// can see the grade.
+  /// Per-student publish flow for an assessment: shows the liquid-glass list of
+  /// every student who has a grade on it, with the currently-published ones
+  /// pre-selected (select-all/unselect, individual toggles). Confirming
+  /// publishes exactly the selected students and unpublishes the rest — each
+  /// student only sees their own grade once it's published.
   Future<void> _openPublishSheet(TeacherAssessment a) async {
     final l = AppLocalizations.of(context)!;
     final repo = ref.read(teacherMobileRepositoryProvider);
-    final currentlyPublished = _pub(a);
 
     // Who did this grade — resolve names from the subject roster snapshot.
     final nameById = {for (final gs in widget.group.students) gs.student.studentId: gs.student.name};
@@ -355,36 +355,34 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l.teacherCohortsScreenFailed}: $e')));
       return;
     }
+    final graded = rows.where((r) => r.grade != null).toList();
     final items = <MultiSelectItem>[
-      for (final r in rows)
-        if (r.grade != null)
-          MultiSelectItem(
-            id: r.studentId,
-            name: nameById[r.studentId] ?? r.studentId,
-            subtitle: '${r.grade}',
-          ),
+      for (final r in graded)
+        MultiSelectItem(id: r.studentId, name: nameById[r.studentId] ?? r.studentId, subtitle: '${r.grade}'),
     ];
     if (!mounted) return;
     if (items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.gradesSubjectNoGrades)));
       return;
     }
+    // Pre-select the students whose grade is currently published.
+    final initial = {for (final r in graded) if (r.published) r.studentId};
 
     final confirmed = await showStudentMultiSelectSheet(
       context: context,
-      title: currentlyPublished ? l.gradesUnpublishTitle(a.title) : l.gradesPublishTitle(a.title),
+      title: l.gradesPublishTitle(a.title),
       items: items,
-      confirmLabel: currentlyPublished ? l.gradesUnpublishAction : l.gradesPublishAction,
+      initiallySelected: initial,
+      confirmLabel: l.gradesPublishAction,
     );
     if (confirmed == null) return; // dismissed → no change
 
-    final next = !currentlyPublished;
     try {
-      await repo.setAssessmentPublished(a.id, next);
+      final nowPublished = await repo.publishAssessmentForStudents(a.id, confirmed.toList());
       if (!mounted) return;
-      setState(() => _publishOverride[a.id] = next);
+      setState(() => _publishOverride[a.id] = nowPublished);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(next ? l.gradesPublishedToast : l.gradesUnpublishedToast),
+        content: Text(confirmed.isNotEmpty ? l.gradesPublishedToast : l.gradesUnpublishedToast),
       ));
     } catch (e) {
       if (!mounted) return;

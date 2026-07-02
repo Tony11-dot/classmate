@@ -213,7 +213,8 @@ export class ParentService {
 
     const rows = await this.prisma.gradeRecord.findMany({
       take,
-      where: { studentId: { in: childIds } },
+      // Only PUBLISHED grades are visible to parents (per-student publish).
+      where: { studentId: { in: childIds }, published: { not: false } },
       orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
       include: { assessment: true },
     });
@@ -249,7 +250,7 @@ export class ParentService {
 
     const records = await this.prisma.gradeRecord.findMany({
       take: 20,
-      where: { studentId },
+      where: { studentId, published: { not: false } },
       orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
       include: { assessment: true },
     });
@@ -705,7 +706,7 @@ export class ParentService {
         select: { id: true },
       });
       const childGrade = assessment ? await this.prisma.gradeRecord.findFirst({
-        where: { assessmentId: assessment.id, studentId },
+        where: { assessmentId: assessment.id, studentId, published: { not: false } },
         select: { grade: true },
       }) : null;
       return {

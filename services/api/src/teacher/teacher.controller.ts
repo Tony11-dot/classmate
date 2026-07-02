@@ -180,6 +180,16 @@ export class TeacherController {
     return this.teacher.updateAssessment(req.user, id, body);
   }
 
+  // Per-student publish: `studentIds` = whose grade should be visible.
+  @Post('grades/assessment/:id/publish')
+  publishAssessment(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { studentIds?: string[] },
+  ) {
+    return this.teacher.publishAssessmentForStudents(req.user, id, body?.studentIds ?? []);
+  }
+
   @Delete('grades/assessment/:id')
   deleteAssessment(@Req() req: any, @Param('id') id: string) {
     return this.teacher.deleteAssessment(req.user, id);

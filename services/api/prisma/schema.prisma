@@ -625,6 +625,12 @@ model GradeRecord {
   studentId    String
   grade        Int
   comment      String?
+  /// Per-student publish flag: false hides THIS student's grade from the
+  /// student/parent even if others on the same assessment are published.
+  /// Defaults true so every existing/newly-entered grade is visible unless a
+  /// teacher explicitly unpublishes it. Distinct from Assessment.published,
+  /// which is the coarse "published to at least one student" gate.
+  published    Boolean @default(true)
   /// When the grade was first recorded / last changed — the real moment, with
   /// time-of-day (Assessment.date is a date-only value stored at UTC midnight,
   /// so it can't carry the actual grading time). Surfaced to the grade detail.

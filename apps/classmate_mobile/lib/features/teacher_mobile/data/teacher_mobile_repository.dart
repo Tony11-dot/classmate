@@ -387,6 +387,18 @@ class TeacherMobileRepository {
     );
   }
 
+  /// Per-student publish: [studentIds] are the students whose grade on this
+  /// assessment should be VISIBLE; every other student with a grade on it is
+  /// unpublished (hidden). Returns whether the assessment is now published to
+  /// anyone.
+  Future<bool> publishAssessmentForStudents(String assessmentId, List<String> studentIds) async {
+    final raw = await _api.postJson(
+      '/teacher/grades/assessment/$assessmentId/publish',
+      body: <String, dynamic>{'studentIds': studentIds},
+    );
+    return raw is Map ? raw['published'] == true : studentIds.isNotEmpty;
+  }
+
   Future<void> deleteAssessment(String assessmentId) async {
     await _api.deleteJson('/teacher/grades/assessment/$assessmentId');
   }
@@ -1759,13 +1771,15 @@ class TeacherJoinCode {
 }
 
 class TeacherAssessmentGrade {
-  const TeacherAssessmentGrade({required this.studentId, required this.grade, this.updatedAt});
+  const TeacherAssessmentGrade({required this.studentId, required this.grade, this.updatedAt, this.published = true});
 
   factory TeacherAssessmentGrade.fromJson(Map<String, dynamic> json) {
     return TeacherAssessmentGrade(
       studentId: _asString(json['studentId']),
       grade: json['grade'] == null ? null : _asInt(json['grade']),
       updatedAt: json['updatedAt']?.toString() ?? json['createdAt']?.toString(),
+      // Per-student publish flag (defaults visible when absent).
+      published: json['published'] != false,
     );
   }
 
@@ -1773,6 +1787,8 @@ class TeacherAssessmentGrade {
   final int? grade;
   /// When the grade was recorded / last changed (ISO-8601 with time).
   final String? updatedAt;
+  /// Whether THIS student's grade is published (visible to them).
+  final bool published;
 }
 
 class TeacherGradeDraftRecord {
