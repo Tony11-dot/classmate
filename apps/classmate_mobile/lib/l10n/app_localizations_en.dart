@@ -4793,7 +4793,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Search students…';
 
   @override
-  String get navDiplomas => 'Certificates';
+  String get navDiplomas => 'Diplomas';
 
   @override
   String get diplomasComingSoon => 'Diploma management is coming soon.';
@@ -4848,7 +4848,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherFormsNoResponses => 'No responses yet.';
 
   @override
-  String get diplomasTitle => 'Certificates';
+  String get diplomasTitle => 'Diplomas';
 
   @override
   String get diplomasEmpty => 'No certificates issued yet. Tap + to issue one.';

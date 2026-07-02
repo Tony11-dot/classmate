@@ -48,6 +48,19 @@ class CMAiMessage extends StatelessWidget {
 
     var cursor = 0;
     for (final m in re.allMatches(src)) {
+      // A $$...$$ match that sits inside a Markdown table row (its line
+      // contains a `|`) must NOT be pulled out as a standalone display-math
+      // block — doing so shreds the table (the "Sum" cell bug). Leave it in
+      // the prose; _ProseWidget renders $$...$$ inline within the cell.
+      if (m.group(4) != null) {
+        final lineStart = src.lastIndexOf('\n', m.start) + 1;
+        var lineEnd = src.indexOf('\n', m.end);
+        if (lineEnd < 0) lineEnd = src.length;
+        if (src.substring(lineStart, lineEnd).contains('|')) {
+          continue; // keep cursor where it is → table stays whole in prose
+        }
+      }
+
       if (m.start > cursor) {
         final prose = src.substring(cursor, m.start).trim();
         if (prose.isNotEmpty) out.add(_Block.prose(prose));
@@ -96,8 +109,10 @@ class CMAiMessage extends StatelessWidget {
     final theme = Theme.of(context);
     final baseStyle = textStyle ??
         theme.textTheme.bodyLarge?.copyWith(
-          height: compact ? 1.4 : 1.6,
-          fontSize: compact ? 14 : 15,
+          // Roomier line-height + size for a calm, Claude-like reading rhythm.
+          height: compact ? 1.45 : 1.62,
+          fontSize: compact ? 14 : 16,
+          letterSpacing: 0.05,
         );
 
     final blocks = _parse(text);
@@ -202,24 +217,26 @@ class _ProseWidget extends StatelessWidget {
     final cs = theme.colorScheme;
     final textDirection = _inferTextDirection(text);
 
+    // Headers: one notch smaller than before + a touch of negative tracking so
+    // Cabinet Grotesk reads refined, not blocky (closer to Claude's headings).
     final styleSheet = MarkdownStyleSheet(
       p: baseStyle,
-      h1: theme.textTheme.headlineMedium
+      h1: theme.textTheme.headlineSmall
+          ?.copyWith(fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.3),
+      h2: theme.textTheme.titleLarge
+          ?.copyWith(fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.2),
+      h3: theme.textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.w700, height: 1.3, letterSpacing: -0.1),
+      h4: theme.textTheme.titleSmall
           ?.copyWith(fontWeight: FontWeight.w700, height: 1.3),
-      h2: theme.textTheme.headlineSmall
-          ?.copyWith(fontWeight: FontWeight.w700, height: 1.3),
-      h3: theme.textTheme.titleLarge
-          ?.copyWith(fontWeight: FontWeight.w700, height: 1.3),
-      h4: theme.textTheme.titleMedium
-          ?.copyWith(fontWeight: FontWeight.w600, height: 1.3),
       h5: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
       h6: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
       strong: baseStyle?.copyWith(fontWeight: FontWeight.w700),
       em: baseStyle?.copyWith(fontStyle: FontStyle.italic),
       listBullet: baseStyle,
-      tableBody: baseStyle?.copyWith(fontSize: 13),
+      tableBody: baseStyle?.copyWith(fontSize: 14, height: 1.35),
       tableHead:
-          baseStyle?.copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+          baseStyle?.copyWith(fontSize: 14, fontWeight: FontWeight.w700),
       blockquote: baseStyle?.copyWith(
         color: cs.onSurfaceVariant,
         fontStyle: FontStyle.italic,
@@ -246,17 +263,18 @@ class _ProseWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       codeblockPadding: const EdgeInsets.all(14),
+      // Subtle hairline rule (was a harsh full-black line that looked heavy).
       horizontalRuleDecoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: cs.onSurface,
+            color: cs.outlineVariant.withValues(alpha: 0.7),
             width: 1,
           ),
         ),
       ),
-      h1Padding: EdgeInsets.only(top: compact ? 6 : 12, bottom: 4),
-      h2Padding: EdgeInsets.only(top: compact ? 4 : 10, bottom: 4),
-      h3Padding: EdgeInsets.only(top: compact ? 4 : 8, bottom: 2),
+      h1Padding: EdgeInsets.only(top: compact ? 8 : 18, bottom: 6),
+      h2Padding: EdgeInsets.only(top: compact ? 6 : 16, bottom: 6),
+      h3Padding: EdgeInsets.only(top: compact ? 4 : 12, bottom: 4),
       pPadding: EdgeInsets.zero,
       listIndent: 20,
       listBulletPadding: const EdgeInsets.only(right: 6),
@@ -280,7 +298,21 @@ class _ProseWidget extends StatelessWidget {
     // The regex matches inline math: $ not preceded or followed by $,
     // content may span multiple tokens but NOT multiple lines.
     final mathExprs = <String>[];
-    final safeText = text.replaceAllMapped(
+    // First pull out any $$...$$ that survived into prose (e.g. inside a table
+    // cell, where it can't be a standalone block). Render it inline within the
+    // cell. Done BEFORE the $...$ pass so the inner single-$ logic never sees
+    // these delimiters.
+    final withBlock = text.replaceAllMapped(
+      RegExp(r'\$\$([\s\S]+?)\$\$'),
+      (m) {
+        final raw = (m.group(1) ?? '').trim();
+        if (raw.isEmpty) return m.group(0)!;
+        final idx = mathExprs.length;
+        mathExprs.add(sanitizeMathLatex(raw));
+        return '\x02M$idx\x02';
+      },
+    );
+    final safeText = withBlock.replaceAllMapped(
       RegExp(r'(?<!\$)\$(?!\$)((?:[^$\n\\]|\\.)+?)(?<!\$)\$(?!\$)'),
       (m) {
         final raw = (m.group(1) ?? '').trim();

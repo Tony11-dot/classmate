@@ -4802,7 +4802,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherInsightsSearchHint => 'زده‌کوونکي ولټوئ…';
 
   @override
-  String get navDiplomas => 'سندونه';
+  String get navDiplomas => 'ډیپلومونه';
 
   @override
   String get diplomasComingSoon => 'د سندونو مدیریت ډېر ژر راروان دی.';

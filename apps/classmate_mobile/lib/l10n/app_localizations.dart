@@ -8526,7 +8526,7 @@ abstract class AppLocalizations {
   /// No description provided for @navDiplomas.
   ///
   /// In en, this message translates to:
-  /// **'Certificates'**
+  /// **'Diplomas'**
   String get navDiplomas;
 
   /// No description provided for @diplomasComingSoon.
@@ -8628,7 +8628,7 @@ abstract class AppLocalizations {
   /// No description provided for @diplomasTitle.
   ///
   /// In en, this message translates to:
-  /// **'Certificates'**
+  /// **'Diplomas'**
   String get diplomasTitle;
 
   /// No description provided for @diplomasEmpty.

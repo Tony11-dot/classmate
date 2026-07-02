@@ -10,8 +10,10 @@ export const HEIGHT = 1080;
 /** Native resolution of the app screenshots in public/screens. */
 export const SHOT = { w: 1206, h: 2622 } as const;
 
-/** Master switch for the background music hook (see README "Music"). */
-export const MUSIC_ENABLED = true;
+/** Master switch for the background music hook (see README "Music").
+ *  Off until a track is dropped at public/music/hook.mp3 (the old one was
+ *  removed — re-enable once the new score/bed is in place). */
+export const MUSIC_ENABLED = false;
 /** Path under public/ for the royalty-free track when MUSIC_ENABLED is true. */
 export const MUSIC_SRC = "music/hook.mp3";
 

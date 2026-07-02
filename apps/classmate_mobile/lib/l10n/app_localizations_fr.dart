@@ -4869,7 +4869,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Rechercher des élèves…';
 
   @override
-  String get navDiplomas => 'Certificats';
+  String get navDiplomas => 'Diplômes';
 
   @override
   String get diplomasComingSoon => 'La gestion des diplômes arrive bientôt.';

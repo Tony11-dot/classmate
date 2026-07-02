@@ -229,7 +229,9 @@ export class StudentInsightsService {
       await Promise.all([
         this.prisma.gradeRecord
           .findMany({
-            where: { studentId },
+            // Per-student publish: only show grades published to this student
+            // (drafts stay hidden). `not: false` keeps legacy rows visible.
+            where: { studentId, published: { not: false } },
             orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
             include: { assessment: true },
           })

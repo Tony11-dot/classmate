@@ -991,9 +991,9 @@ export class TutorService {
     const total = att.length;
     const attendancePct = total ? Math.round((present / total) * 100) : null;
 
-    // Grades (recent)
+    // Grades (recent) — only published-to-this-student (hide drafts from NOVA).
     const grades = await this.prisma.gradeRecord.findMany({
-      where: { studentId },
+      where: { studentId, published: { not: false } },
       select: {
         grade: true,
         assessment: { select: { date: true, maxGrade: true, subject: true } },

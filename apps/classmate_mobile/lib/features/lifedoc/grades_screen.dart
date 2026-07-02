@@ -667,7 +667,9 @@ class _GradeRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              AppLocalizations.of(context)!.gradesScreenScoreOutOf100(gradeText),
+              // Show the teacher's max for this assessment (e.g. 15/20), not a
+              // hardcoded /100. Falls back to /100 only when no max was set.
+              '$gradeText / ${item.maxGrade ?? 100}',
               style: TextStyle(
                 color: chipFg,
                 fontWeight: FontWeight.w800,

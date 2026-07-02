@@ -4771,7 +4771,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherInsightsSearchHint => 'البحث عن طلاب…';
 
   @override
-  String get navDiplomas => 'الشهادات';
+  String get navDiplomas => 'الدبلومات';
 
   @override
   String get diplomasComingSoon => 'إدارة الشهادات قادمة قريباً.';

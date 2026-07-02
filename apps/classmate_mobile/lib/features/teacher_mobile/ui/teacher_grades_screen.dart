@@ -148,9 +148,10 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
   }
 
   Future<void> _openSubject(_SubjectGroup g) async {
-    // Push on the SHELL navigator (not root) so the persistent left nav rail
-    // stays visible on web/desktop when drilling into a subject.
-    await Navigator.of(context).push(
+    // Full-screen (root navigator): the subject detail is immersive with no app
+    // top bar, so it must cover the shell entirely — otherwise the shell's FAB
+    // shows through and stacks on top of this screen's Add button.
+    await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute<void>(builder: (_) => _SubjectGradesScreen(group: g)),
     );
     if (mounted) _load();
@@ -401,25 +402,6 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
       length: 3,
       child: Scaffold(
         backgroundColor: cs.surface,
-        appBar: AppBar(
-          backgroundColor: cs.surface,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-          title: Text(g.subject, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-          bottom: TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: [
-              Tab(text: l.gradesSubjectStudentsTab),
-              Tab(text: l.gradesSubjectGradesTab),
-              Tab(text: l.gradesSubjectAveragesTab),
-            ],
-          ),
-        ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () async {
             await context.push('/teacher/grades/add', extra: <String, dynamic>{
@@ -431,8 +413,41 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
           icon: const Icon(Icons.add),
           label: Text(l.adminScheduleAddGrade),
         ),
-        body: TabBarView(
-          children: [
+        // Full-screen & immersive: no app top bar — a slim inline header (back +
+        // subject) and the tab strip live inside the body instead.
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    ),
+                    Expanded(
+                      child: Text(g.subject,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    ),
+                  ],
+                ),
+              ),
+              TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                tabs: [
+                  Tab(text: l.gradesSubjectStudentsTab),
+                  Tab(text: l.gradesSubjectGradesTab),
+                  Tab(text: l.gradesSubjectAveragesTab),
+                ],
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
             // ── Students ─────────────────────────────────────────────────
             ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
@@ -442,8 +457,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: InkWell(
                       onTap: () async {
-                        // Shell navigator (not root) → keep the left nav rail on web.
-                        await Navigator.of(context).push(
+                        await Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute<void>(
                             builder: (_) => TeacherStudentGradeDetailScreen(
                               student: gs.student,
@@ -548,7 +562,11 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
             ),
             // ── Averages by semester ──────────────────────────────────────
             _buildAveragesTab(context, l, cs, theme, g),
-          ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

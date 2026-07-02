@@ -10,6 +10,13 @@ out/
 # Optional local music drop (see README — royalty-free, not committed)
 public/music/
 
+# Secrets — API keys for TTS (never commit)
+.env
+.env.local
+
+# Generated voiceover audio (regenerated from the script)
+public/vo/
+
 # Logs / OS
 *.log
 .DS_Store
