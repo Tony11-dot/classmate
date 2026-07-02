@@ -8483,7 +8483,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminExportNoteChangePw =>
-      'د لومړي ننوتلو وروسته خپل پټنوم له تنظیمات ← حساب څخه بدل کړئ.';
+      'د لومړي ننوتلو وروسته خپل پټنوم له تنظیمات → حساب څخه بدل کړئ.';
 
   @override
   String get adminExportNoteLegal =>
@@ -8491,7 +8491,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminExportNoteHelp(String email) {
-    return 'مرستې ته اړتیا لرئ؟ له خپل ښوونځي مدیر یا $email سره اړیکه ونیسئ.';
+    return 'مرستې ته اړتیا لرئ؟ له خپل ښوونځي مدیر یا $email سره اړیکه ونیسئ.';
   }
 
   @override

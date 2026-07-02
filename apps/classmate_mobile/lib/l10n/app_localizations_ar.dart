@@ -8417,7 +8417,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminExportNoteChangePw =>
-      'غيّر كلمة المرور بعد أول تسجيل دخول من الإعدادات ← الحساب.';
+      'غيّر كلمة المرور بعد أول تسجيل دخول من الإعدادات → الحساب.';
 
   @override
   String get adminExportNoteLegal =>
@@ -8425,7 +8425,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminExportNoteHelp(String email) {
-    return 'بحاجة إلى مساعدة؟ تواصل مع مسؤول مدرستك أو عبر $email.';
+    return 'بحاجة إلى مساعدة؟ تواصل مع مسؤول مدرستك أو عبر $email.';
   }
 
   @override

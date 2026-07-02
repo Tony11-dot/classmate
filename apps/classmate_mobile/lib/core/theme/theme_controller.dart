@@ -156,6 +156,9 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
+    // App-wide UI typeface: Cabinet Grotesk (bundled). Arabic/Hebrew have no
+    // Cabinet glyphs and fall back to the platform / CanvasKit Noto fonts.
+    fontFamily: 'CabinetGrotesk',
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
   );
 

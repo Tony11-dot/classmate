@@ -8379,7 +8379,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminExportNoteChangePw =>
-      'שנה את הסיסמה לאחר הכניסה הראשונה דרך הגדרות ← חשבון.';
+      'שנה את הסיסמה לאחר הכניסה הראשונה דרך הגדרות → חשבון.';
 
   @override
   String get adminExportNoteLegal =>
@@ -8387,7 +8387,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String adminExportNoteHelp(String email) {
-    return 'צריך עזרה? פנה למנהל בית הספר או אל $email.';
+    return 'צריך עזרה? פנה למנהל בית הספר או אל $email.';
   }
 
   @override

@@ -376,7 +376,9 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
           mainAxisAlignment: pw.MainAxisAlignment.center,
           crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
-            pw.Text(l.certPdfGeneratedBy, style: pw.TextStyle(fontSize: 8, color: brandBlue, fontStyle: pw.FontStyle.italic)),
+            // No italic: IBM Plex Sans Arabic has no italic face, so italic
+            // Arabic renders as tofu boxes. Keep it upright.
+            pw.Text(l.certPdfGeneratedBy, style: pw.TextStyle(fontSize: 8, color: brandBlue)),
             pw.SizedBox(width: 6),
             pw.SizedBox(width: 13, height: 13, child: pw.Image(cmLogo, fit: pw.BoxFit.contain)),
             pw.SizedBox(width: 4),

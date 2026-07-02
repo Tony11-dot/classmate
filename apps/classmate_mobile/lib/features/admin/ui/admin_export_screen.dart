@@ -1291,16 +1291,6 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     }
   }
 
-  /// Replace Unicode arrow glyphs with ASCII equivalents. The Noto font
-  /// subsets embedded in the PDF (Latin / Arabic / Hebrew) don't include
-  /// arrows like → ← ⇒, so they render as a tofu box / "X". ASCII > and <
-  /// exist in every font, so navigation hints ("Settings → Account") stay
-  /// readable in every language. Direction is preserved so RTL strings that
-  /// use ← still point the right way.
-  String _pdfSafe(String s) => s
-      .replaceAll(RegExp(r'[→⇒⇨➔➜↦⟶»]'), '>')
-      .replaceAll(RegExp(r'[←⇐⟵«]'), '<');
-
   /// Builds a PDF where each user occupies a full A4 portrait page. The
   /// layout is data-forward (large name, badge row, info cards) rather
   /// than the compact landscape table the legacy export uses.
@@ -1327,7 +1317,6 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     final cmLogo = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );
-    const supportEmail = 'support@classmateapp.org';
 
     late final pw.Font base;
     late final pw.Font boldFont;
@@ -1356,11 +1345,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     const brandBlue = PdfColor.fromInt(0xFF2563EB);
     const brandDeep = PdfColor.fromInt(0xFF1E3A5F);
     const fieldBg = PdfColor.fromInt(0xFFF1F5F9);
-    const pwBg = PdfColor.fromInt(0xFFFAF5FF);
     const pwBorder = PdfColor.fromInt(0xFF7C3AED);
     const fieldLabel = PdfColor.fromInt(0xFF64748B);
-    const noteBg = PdfColor.fromInt(0xFFFFF7ED);
-    const noteBorder = PdfColor.fromInt(0xFFEA580C);
 
     final now = DateTime.now();
     final dateStr = _localizedExportDate(now, _lang);
@@ -1435,7 +1421,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             // blue band at the very top, monogram on a white disc + wordmark.
             pw.Container(
               width: double.infinity,
-              padding: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              padding: const pw.EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               decoration: pw.BoxDecoration(
                 color: brandBlue,
                 borderRadius: pw.BorderRadius.circular(18),
@@ -1446,16 +1432,16 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
                   pw.Container(
-                    width: 78,
-                    height: 78,
-                    padding: const pw.EdgeInsets.all(12),
+                    width: 58,
+                    height: 58,
+                    padding: const pw.EdgeInsets.all(9),
                     decoration: const pw.BoxDecoration(
                       color: PdfColors.white,
                       shape: pw.BoxShape.circle,
                     ),
                     child: pw.Image(cmLogo, fit: pw.BoxFit.contain),
                   ),
-                  pw.SizedBox(height: 12),
+                  pw.SizedBox(height: 10),
                   // LTR-locked so the Latin wordmark never reverses under an
                   // Arabic/Hebrew base font on an RTL page.
                   pw.Directionality(
@@ -1464,7 +1450,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                       'ClassMate',
                       textAlign: pw.TextAlign.center,
                       style: pw.TextStyle(
-                        fontSize: 26,
+                        fontSize: 22,
                         fontWeight: pw.FontWeight.bold,
                         color: PdfColors.white,
                         letterSpacing: 0.5,
@@ -1474,11 +1460,17 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 ],
               ),
             ),
-            pw.SizedBox(height: 16),
+            pw.SizedBox(height: 14),
             if (schoolName.isNotEmpty)
-              pw.Center(
+              // Direction from the school-name script so a Latin name (e.g.
+              // "Harvard") doesn't reverse on an RTL page.
+              pw.Directionality(
+                textDirection: _isRtlText(schoolName)
+                    ? pw.TextDirection.rtl
+                    : pw.TextDirection.ltr,
                 child: pw.Text(
                   schoolName,
+                  textAlign: pw.TextAlign.center,
                   style: pw.TextStyle(
                     fontSize: 12,
                     color: brandDeep,
@@ -1493,46 +1485,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
               ),
             ),
-            pw.SizedBox(height: 20),
-            // ── Welcome intro text ───────────────────────────────────────
-            pw.Container(
-              padding: const pw.EdgeInsets.fromLTRB(18, 14, 18, 14),
-              decoration: pw.BoxDecoration(
-                color: const PdfColor.fromInt(0xFFEFF6FF),
-                borderRadius: pw.BorderRadius.circular(12),
-                border: pw.Border.all(color: brandBlue, width: 0.5),
-              ),
-              child: pw.Directionality(
-                textDirection: _isRtlText(l.adminWelcomeHeading)
-                    ? pw.TextDirection.rtl
-                    : pw.TextDirection.ltr,
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      _pdfSafe(l.adminWelcomeHeading),
-                      style: pw.TextStyle(
-                        fontSize: 14,
-                        fontWeight: pw.FontWeight.bold,
-                        color: brandDeep,
-                      ),
-                    ),
-                    pw.SizedBox(height: 4),
-                    pw.Text(
-                      _pdfSafe(withPasswords
-                          ? l.adminExportWelcomeBodyWithPw
-                          : l.adminExportWelcomeBodyNoPw),
-                      style: const pw.TextStyle(
-                        fontSize: 10,
-                        color: brandDeep,
-                        lineSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            pw.SizedBox(height: 18),
+            pw.SizedBox(height: 16),
             // ── BIG name + role chip ─────────────────────────────────────
             pw.Directionality(
               textDirection: isRtlName
@@ -1542,7 +1495,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 displayName.isEmpty ? (u['username']?.toString() ?? '—') : displayName,
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
-                  fontSize: 30,
+                  fontSize: 26,
                   fontWeight: pw.FontWeight.bold,
                   color: brandDeep,
                   height: 1.1,
@@ -1575,125 +1528,38 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 ),
               ],
             ),
-            pw.SizedBox(height: 18),
-            // ── Field cards ──────────────────────────────────────────────
-            ...fields.map((f) {
-              final isRtl = _isRtlText(f.value);
-              return pw.Container(
-                margin: const pw.EdgeInsets.only(bottom: 8),
-                padding: const pw.EdgeInsets.fromLTRB(14, 10, 14, 10),
-                decoration: pw.BoxDecoration(
-                  color: fieldBg,
-                  borderRadius: pw.BorderRadius.circular(14),
-                ),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      f.label.toUpperCase(),
-                      style: pw.TextStyle(
-                        fontSize: 8,
-                        color: fieldLabel,
-                        fontWeight: pw.FontWeight.bold,
-                        letterSpacing: 0.6,
-                      ),
-                    ),
-                    pw.SizedBox(height: 3),
-                    pw.Directionality(
-                      textDirection: isRtl
-                          ? pw.TextDirection.rtl
-                          : pw.TextDirection.ltr,
-                      child: pw.Text(
-                        f.value,
-                        style: pw.TextStyle(
-                          fontSize: 13,
-                          color: brandDeep,
-                          fontWeight: pw.FontWeight.bold,
-                          letterSpacing: f.mono ? 0.5 : 0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-            if (withPasswords && (u['tempPassword'] ?? '').toString().isNotEmpty) ...[
-              pw.SizedBox(height: 4),
-              pw.Container(
-                padding: const pw.EdgeInsets.fromLTRB(14, 12, 14, 12),
-                decoration: pw.BoxDecoration(
-                  color: pwBg,
-                  borderRadius: pw.BorderRadius.circular(14),
-                  border: pw.Border.all(color: pwBorder, width: 1),
-                ),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      l.adminExportColumnPassword.toUpperCase(),
-                      style: pw.TextStyle(
-                        fontSize: 8,
-                        color: pwBorder,
-                        fontWeight: pw.FontWeight.bold,
-                        letterSpacing: 0.6,
-                      ),
-                    ),
-                    pw.SizedBox(height: 4),
-                    pw.Text(
-                      u['tempPassword'].toString(),
-                      style: pw.TextStyle(
-                        fontSize: 20,
-                        color: pwBorder,
-                        fontWeight: pw.FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            pw.SizedBox(height: 10),
-            // ── Important / privacy notice ──────────────────────────────
+            pw.SizedBox(height: 16),
+            // ── One centred info card: every field + password as compact
+            // label→value rows, so the whole thing fits on a single page. ────
             pw.Container(
-              padding: const pw.EdgeInsets.fromLTRB(14, 10, 14, 10),
+              width: double.infinity,
+              padding: const pw.EdgeInsets.symmetric(horizontal: 16),
               decoration: pw.BoxDecoration(
-                color: noteBg,
-                borderRadius: pw.BorderRadius.circular(14),
-                border: pw.Border.all(color: noteBorder, width: 0.6),
+                color: fieldBg,
+                borderRadius: pw.BorderRadius.circular(16),
+                border: pw.Border.all(color: const PdfColor.fromInt(0xFFE2E8F0), width: 0.6),
               ),
               child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                mainAxisSize: pw.MainAxisSize.min,
                 children: [
-                  pw.Text(
-                    l.adminExportImportantHeading.toUpperCase(),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      color: noteBorder,
-                      fontWeight: pw.FontWeight.bold,
-                      letterSpacing: 0.8,
+                  for (var i = 0; i < fields.length; i++)
+                    _pdfInfoRow(
+                      label: fields[i].label,
+                      value: fields[i].value,
+                      labelColor: fieldLabel,
+                      valueColor: brandDeep,
+                      mono: fields[i].mono,
+                      topBorder: i != 0,
                     ),
-                  ),
-                  pw.SizedBox(height: 5),
-                  for (final note in <String>[
-                    l.adminExportNotePrivate,
-                    if (withPasswords) l.adminExportNoteChangePw,
-                    l.adminExportNoteLegal,
-                    l.adminExportNoteHelp(supportEmail),
-                  ])
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(bottom: 3),
-                      child: pw.Directionality(
-                        textDirection: _isRtlText(note)
-                            ? pw.TextDirection.rtl
-                            : pw.TextDirection.ltr,
-                        child: pw.Text(
-                          _pdfSafe(note),
-                          textAlign: _isRtlText(note)
-                              ? pw.TextAlign.right
-                              : pw.TextAlign.left,
-                          style: const pw.TextStyle(fontSize: 9, color: brandDeep, lineSpacing: 2),
-                        ),
-                      ),
+                  if (withPasswords && (u['tempPassword'] ?? '').toString().isNotEmpty)
+                    _pdfInfoRow(
+                      label: l.adminExportColumnPassword,
+                      value: u['tempPassword'].toString(),
+                      labelColor: pwBorder,
+                      valueColor: pwBorder,
+                      mono: true,
+                      big: true,
+                      topBorder: fields.isNotEmpty,
                     ),
                 ],
               ),
@@ -2123,6 +1989,47 @@ String _esc(String v) {
     return '"${v.replaceAll('"', '""')}"';
   }
   return v;
+}
+
+// One compact label→value row inside the single info card on the per-user PDF.
+// crossAxisAlignment.start follows the page direction (right for RTL Arabic),
+// and the value gets its own directionality so its glyphs shape/order correctly.
+pw.Widget _pdfInfoRow({
+  required String label,
+  required String value,
+  required PdfColor labelColor,
+  required PdfColor valueColor,
+  bool mono = false,
+  bool topBorder = false,
+  bool big = false,
+}) {
+  final isRtl = _isRtlText(value);
+  return pw.Container(
+    decoration: topBorder
+        ? const pw.BoxDecoration(
+            border: pw.Border(top: pw.BorderSide(color: PdfColor.fromInt(0xFFE9EEF5), width: 0.6)))
+        : null,
+    padding: const pw.EdgeInsets.symmetric(vertical: 8),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(label, style: pw.TextStyle(fontSize: 8.5, color: labelColor)),
+        pw.SizedBox(height: 2),
+        pw.Directionality(
+          textDirection: isRtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+          child: pw.Text(
+            value,
+            style: pw.TextStyle(
+              fontSize: big ? 16 : 12.5,
+              color: valueColor,
+              fontWeight: pw.FontWeight.bold,
+              letterSpacing: mono ? (big ? 1.5 : 0.4) : 0,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 // Returns true if the string's strong characters are predominantly

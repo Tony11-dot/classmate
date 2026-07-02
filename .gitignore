@@ -93,3 +93,4 @@ apps/classmate_mobile/fastlane/profiles/
 *.p12
 *.cer
 *.mobileprovision
+graphify-out/

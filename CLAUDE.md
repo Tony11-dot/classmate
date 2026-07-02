@@ -4,10 +4,7 @@ Monorepo: `services/api` (NestJS + Prisma + Postgres, on Railway) · `apps/class
 
 ## Playbooks
 
-The full runbooks below are auto-imported into context every session:
-
-@docs/SHIPPING.md
-@docs/SECURITY.md
+Full runbooks live in `docs/SHIPPING.md` and `docs/SECURITY.md` — **read the relevant one only when doing that work** (shipping a release, or a security/auth pass). They are NOT auto-loaded, to keep each session lean; the TL;DR below is enough for everyday work.
 
 TL;DR pointers:
 
