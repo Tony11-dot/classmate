@@ -18,6 +18,8 @@ export const HeroPhone: React.FC<{
   rim?: string;
   /** Show the mirrored floor reflection. */
   reflection?: boolean;
+  /** Custom screen content (typing, dual-scroll, crossfade). Overrides `src`. */
+  screenContent?: React.ReactNode;
 }> = ({
   src,
   screenWidth = 300,
@@ -25,6 +27,7 @@ export const HeroPhone: React.FC<{
   zoom = 1,
   rim = COLORS.sky,
   reflection = true,
+  screenContent,
 }) => {
   const bezel = Math.round(screenWidth * 0.035);
   const screenH = Math.round((screenWidth * SHOT.h) / SHOT.w);
@@ -63,7 +66,7 @@ export const HeroPhone: React.FC<{
           boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)",
         }}
       >
-        <Shot src={src} scroll={scroll} zoom={zoom} />
+        {screenContent ?? <Shot src={src} scroll={scroll} zoom={zoom} />}
         {/* Dynamic island */}
         <div
           style={{

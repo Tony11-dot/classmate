@@ -3,203 +3,152 @@ import { AbsoluteFill, Audio, interpolate, Sequence, staticFile } from "remotion
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
-import { wipe } from "@remotion/transitions/wipe";
 
 import { loadFonts } from "./fonts";
-import { Grade } from "./components/Grade";
-import { TitleCard } from "./components/TitleCard";
-import {
-  COLORS,
-  MUSIC_ENABLED,
-  MUSIC_SRC,
-  SCENES,
-  SCREENS,
-  TOTAL_FRAMES,
-  TRANSITION,
-} from "./theme";
+import { COLORS, MUSIC_ENABLED, MUSIC_SRC, SCENES, SCREENS, TOTAL_FRAMES, TRANSITION } from "./theme";
 
-import { ColdOpen } from "./scenes/ColdOpen";
-import { Interaction } from "./scenes/Interaction";
-import { GradesInsights } from "./scenes/GradesInsights";
-import { Montage } from "./scenes/Montage";
-import { CTA } from "./scenes/CTA";
+import { DisconnectedApps } from "./scenes/DisconnectedApps";
+import { ExplodeHero } from "./scenes/ExplodeHero";
+import { FeatureScene, CardCfg } from "./scenes/FeatureScene";
+import { RolesFan } from "./scenes/RolesFan";
+import { CTALight } from "./scenes/CTALight";
 
 loadFonts();
 
-const t = () => linearTiming({ durationInFrames: TRANSITION });
+const cut = () => linearTiming({ durationInFrames: TRANSITION });
 
-// Scene start frames (accounting for the transition overlap), used to time SFX.
-const _durs = [
-  SCENES.coldOpen, SCENES.title, SCENES.attendance, SCENES.nova,
-  SCENES.classroom, SCENES.practice, SCENES.gradesInsights, SCENES.montage, SCENES.cta,
-];
-const _starts: number[] = [];
-_durs.reduce((acc, d, i) => { _starts[i] = acc; return acc + d - TRANSITION; }, 0);
-const CTA_FRAME = _starts[8];
-const _MONTAGE = _starts[7];
-// Whooshes ride every cut, plus the two internal montage cuts (CUT = 66).
-const CUT_FRAMES = [
-  _starts[1], _starts[2], _starts[3], _starts[4], _starts[5], _starts[6],
-  _starts[7], _MONTAGE + 66, _MONTAGE + 132, _starts[8],
-];
-// Tap impacts land on each interaction's tapFrame.
-const TAP_FRAMES = [_starts[2] + 60, _starts[3] + 62, _starts[4] + 58, _starts[5] + 68];
+// Two small support cards hugging the phone (never cross the text zone).
+const support = (side: "left" | "right", a: string, b: string, t1: string, t2: string): CardCfg[] => {
+  const s = side === "right" ? 1 : -1;
+  return [
+    { src: a, x: s * 285, y: -185, z: 25, w: 170, crop: 0.4, scroll: -80, rot: s * 6, delay: 26, tint: t1 },
+    { src: b, x: s * 245, y: 205, z: -45, w: 165, crop: 0.38, scroll: -40, rot: -s * 5, delay: 34, tint: t2 },
+  ];
+};
 
-/**
- * ClassMate product demo v3 — cinematic "trailer" cut. Real app UI animated
- * with finger taps (before → after), 3D camera, lens flares, beat-synced
- * pacing. ~71s.
- */
+/** ClassMate demo v4 @60fps — punchy ref1 cut with ElevenLabs narration. */
 export const ClassMateDemo: React.FC = () => {
+  const durs = Object.values(SCENES);
+  const starts: number[] = [];
+  durs.reduce((acc, d, i) => { starts[i] = acc; return acc + d - TRANSITION; }, 0);
+  const [S_DISC, , S_NOVA, S_PRACTICE, S_GRADES, S_SCHEDULE, S_EXAM, S_SOLUTIONS, S_TEACHER, , S_CTA] = starts;
+  const IMPACT = S_DISC + Math.round(SCENES.disconnected * 0.52) + 66;
+
+  const vo: Array<[string, number]> = [
+    ["vo/01-disconnected.mp3", S_DISC + 20],
+    ["vo/02-one.mp3", IMPACT + 24],
+    ["vo/03-nova.mp3", S_NOVA + 14],
+    ["vo/04-practice.mp3", S_PRACTICE + 12],
+    ["vo/05-grades.mp3", S_GRADES + 12],
+    ["vo/06-schedule.mp3", S_SCHEDULE + 12],
+    ["vo/07-exam.mp3", S_EXAM + 12],
+    ["vo/08-solutions.mp3", S_SOLUTIONS + 12],
+    ["vo/09-teacher.mp3", S_TEACHER + 12],
+    ["vo/10-cta.mp3", S_CTA + 26],
+  ];
+
   return (
-    <AbsoluteFill style={{ backgroundColor: "#05080f" }}>
+    <AbsoluteFill style={{ backgroundColor: "#eef3fc" }}>
       <TransitionSeries>
-        <TransitionSeries.Sequence durationInFrames={SCENES.coldOpen}>
-          <ColdOpen />
+        <TransitionSeries.Sequence durationInFrames={SCENES.disconnected}>
+          <DisconnectedApps />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t()} />
+        <TransitionSeries.Transition presentation={fade()} timing={cut()} />
 
-        <TransitionSeries.Sequence durationInFrames={SCENES.title}>
-          <TitleCard line="Your whole school." gradient />
+        <TransitionSeries.Sequence durationInFrames={SCENES.explode}>
+          <ExplodeHero heroSrc={SCREENS.grades} title={"Your whole school,\nin one app."} />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({ direction: "from-bottom" })} timing={t()} />
+        <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={cut()} />
 
-        {/* Attendance — mark the room, 75% → 100% */}
-        <TransitionSeries.Sequence durationInFrames={SCENES.attendance}>
-          <Interaction
-            beforeSrc={SCREENS.attendanceBefore}
-            afterSrc={SCREENS.attendanceAfter}
-            kicker="Attendance"
-            title="Mark the room in seconds"
-            sub="Tap down the roster — present, absent, late. Saved instantly."
-            side="right"
-            tapXFrac={0.5}
-            tapYFrac={0.85}
-            tapFrame={60}
-            tint={COLORS.indigoSoft}
-            leakHue={COLORS.gold}
-            variant="indigo"
-          />
-        </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={t()} />
-
-        {/* NOVA — ask → answer */}
         <TransitionSeries.Sequence durationInFrames={SCENES.nova}>
-          <Interaction
-            beforeSrc={SCREENS.novaBefore}
-            afterSrc={SCREENS.novaAfter}
-            kicker="AI tutor"
-            title="Ask NOVA anything"
-            sub="Type a question — get a step-by-step answer, with real math."
-            side="left"
-            tapXFrac={0.9}
-            tapYFrac={0.57}
-            tapFrame={62}
-            afterScroll={-90}
-            tint={COLORS.sky}
-            leakHue={COLORS.emerald}
-            variant="night"
+          <FeatureScene
+            kicker="AI Tutor" title={"Ask NOVA \n anything."}
+            screens={[SCREENS.nova1, SCREENS.nova2]} mode="scroll"
+            typeText="Explain integrals step by step"
+            accent={COLORS.sky} side="right"
+            cards={support("right", SCREENS.practice, SCREENS.exam, COLORS.sky, COLORS.emerald)}
           />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({ direction: "from-left" })} timing={t()} />
+        <TransitionSeries.Transition presentation={slide({ direction: "from-left" })} timing={cut()} />
 
-        {/* Classrooms — tab switch */}
-        <TransitionSeries.Sequence durationInFrames={SCENES.classroom}>
-          <Interaction
-            beforeSrc={SCREENS.classroomBefore}
-            afterSrc={SCREENS.classroomAssignments}
-            kicker="Classrooms"
-            title="Your class, organized"
-            sub="Chat, assignments, materials and meetings — one tap apart."
-            side="right"
-            tapXFrac={0.36}
-            tapYFrac={0.2}
-            tapFrame={58}
-            tint={COLORS.emerald}
-            leakHue={COLORS.gold}
-            variant="indigo"
-          />
-        </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t()} />
-
-        {/* Practice — tap the answer (the money shot) */}
         <TransitionSeries.Sequence durationInFrames={SCENES.practice}>
-          <Interaction
-            beforeSrc={SCREENS.practiceBefore}
-            afterSrc={SCREENS.practiceAfter}
-            kicker="Practice"
-            title="Learn by doing"
-            sub="Tap an answer — instant feedback, streaks and a worked explanation."
-            side="left"
-            tapXFrac={0.5}
-            tapYFrac={0.8}
-            tapFrame={68}
-            tint={COLORS.gold}
-            leakHue={COLORS.emerald}
-            variant="warm"
-          />
+          <FeatureScene kicker="Practice" title={"Learn by \n doing."}
+            screens={[SCREENS.practice]} accent={COLORS.goldDeep} side="left"
+            hues={[COLORS.gold, COLORS.emerald, COLORS.sky, COLORS.indigoSoft]}
+            cards={support("left", SCREENS.grades, SCREENS.solutions, COLORS.gold, COLORS.emerald)} />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={wipe({ direction: "from-right" })} timing={t()} />
+        <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={cut()} />
 
-        <TransitionSeries.Sequence durationInFrames={SCENES.gradesInsights}>
-          <GradesInsights />
+        <TransitionSeries.Sequence durationInFrames={SCENES.grades}>
+          <FeatureScene kicker="Grades" title={"Live results, \n by semester."}
+            screens={[SCREENS.grades]} accent={COLORS.emerald} side="right"
+            cards={support("right", SCREENS.schedule, SCREENS.practice, COLORS.emerald, COLORS.sky)} />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={fade()} timing={t()} />
+        <TransitionSeries.Transition presentation={slide({ direction: "from-left" })} timing={cut()} />
 
-        <TransitionSeries.Sequence durationInFrames={SCENES.montage}>
-          <Montage />
+        <TransitionSeries.Sequence durationInFrames={SCENES.schedule}>
+          <FeatureScene kicker="Schedule" title={"The week, \n at a glance."}
+            screens={[SCREENS.schedule]} accent={COLORS.sky} side="left"
+            cards={support("left", SCREENS.exam, SCREENS.grades, COLORS.sky, COLORS.gold)} />
         </TransitionSeries.Sequence>
-        <TransitionSeries.Transition presentation={slide({ direction: "from-bottom" })} timing={t()} />
+        <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={cut()} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENES.exam}>
+          <FeatureScene kicker="Exam Prep" title={"Every exam, \n a study plan."}
+            screens={[SCREENS.exam]} accent={COLORS.indigoSoft} side="right"
+            hues={[COLORS.indigoSoft, COLORS.sky, COLORS.gold, COLORS.emerald]}
+            cards={support("right", SCREENS.nova1, SCREENS.schedule, COLORS.indigoSoft, COLORS.sky)} />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({ direction: "from-left" })} timing={cut()} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENES.solutions}>
+          <FeatureScene kicker="Solutions" title={"A library \n of answers."}
+            screens={[SCREENS.solutions]} accent={COLORS.goldDeep} side="left"
+            cards={support("left", SCREENS.classroom, SCREENS.grades, COLORS.gold, COLORS.indigoSoft)} />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={cut()} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENES.teacher}>
+          <FeatureScene kicker="Teachers & Admins" title={"Built for \n every role."}
+            screens={[SCREENS.attendance, SCREENS.admin]} mode="switch"
+            accent={COLORS.emerald} side="right"
+            cards={support("right", SCREENS.classroom, SCREENS.classroom2, COLORS.emerald, COLORS.sky)} />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={cut()} />
+
+        <TransitionSeries.Sequence durationInFrames={SCENES.roles}>
+          <RolesFan />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition presentation={fade()} timing={cut()} />
 
         <TransitionSeries.Sequence durationInFrames={SCENES.cta}>
-          <CTA />
+          <CTALight />
         </TransitionSeries.Sequence>
       </TransitionSeries>
 
-      {/* Cinematic color grade on top of everything. */}
-      <Grade />
-
-      {/* ── Sound design ─────────────────────────────────────────────────
-          Procedurally-synthesized SFX (see public/sfx). Whooshes ride the
-          scene cuts, taps/booms hit the UI interactions, a riser builds the
-          CTA. These play regardless of MUSIC_ENABLED. */}
-      {CUT_FRAMES.map((f, i) => (
-        <Sequence key={`w${i}`} from={Math.max(0, f - 4)} durationInFrames={16} name={`whoosh-${i}`}>
-          <Audio src={staticFile("sfx/whoosh.wav")} volume={0.5} />
+      {/* ── Narration ── */}
+      {vo.map(([src, from], i) => (
+        <Sequence key={`vo${i}`} from={from} name={`vo-${src}`}>
+          <Audio src={staticFile(src)} volume={1} />
         </Sequence>
       ))}
-      {TAP_FRAMES.map((f, i) => (
-        <React.Fragment key={`tap${i}`}>
-          <Sequence from={f} durationInFrames={4} name={`tap-${i}`}>
-            <Audio src={staticFile("sfx/tap.wav")} volume={0.7} />
-          </Sequence>
-          <Sequence from={f} durationInFrames={18} name={`thud-${i}`}>
-            <Audio src={staticFile("sfx/boom.wav")} volume={0.38} />
-          </Sequence>
-        </React.Fragment>
-      ))}
-      {/* Riser + boom landing the CTA */}
-      <Sequence from={CTA_FRAME - 36} durationInFrames={40} name="riser">
-        <Audio src={staticFile("sfx/riser.wav")} volume={0.5} />
-      </Sequence>
-      <Sequence from={CTA_FRAME} durationInFrames={22} name="cta-impact">
-        <Audio src={staticFile("sfx/boom.wav")} volume={0.85} />
-      </Sequence>
 
-      {/* Royalty-free music hook — fades in at the open, out under the CTA. */}
+      {/* Whoosh on each cut. */}
+      {starts.slice(1).map((f, i) => (
+        <Sequence key={`w${i}`} from={Math.max(0, f - 6)} durationInFrames={30} name={`whoosh-${i}`}>
+          <Audio src={staticFile("sfx/whoosh.wav")} volume={0.3} />
+        </Sequence>
+      ))}
+
+      {/* Music bed (drop a track at public/music/bed.mp3 + enable in theme). */}
       {MUSIC_ENABLED ? (
         <Audio
           src={staticFile(MUSIC_SRC)}
-          // Trim the dead intro so a downbeat lands on the title card and full
-          // energy rides from NOVA through the montage + CTA.
-          trimBefore={150}
           volume={(f) =>
-            interpolate(
-              f,
-              [0, 14, TOTAL_FRAMES - 30, TOTAL_FRAMES - 1],
-              [0, 0.62, 0.62, 0],
-              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-            )
+            interpolate(f, [0, 30, TOTAL_FRAMES - 60, TOTAL_FRAMES - 1], [0, 0.16, 0.16, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            })
           }
         />
       ) : null}

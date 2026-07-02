@@ -3,7 +3,7 @@
  * Keep every magic colour / timing number here so scenes stay declarative.
  */
 
-export const FPS = 30;
+export const FPS = 60;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
 
@@ -14,8 +14,8 @@ export const SHOT = { w: 1206, h: 2622 } as const;
  *  Off until a track is dropped at public/music/hook.mp3 (the old one was
  *  removed — re-enable once the new score/bed is in place). */
 export const MUSIC_ENABLED = false;
-/** Path under public/ for the royalty-free track when MUSIC_ENABLED is true. */
-export const MUSIC_SRC = "music/hook.mp3";
+/** Path under public/ for the track when MUSIC_ENABLED is true. */
+export const MUSIC_SRC = "music/bed.mp3";
 
 export const COLORS = {
   // Brand
@@ -56,27 +56,19 @@ export const FONTS = {
  * morphs (tap → state change). The bare names are the original hi-res shots.
  */
 export const SCREENS = {
-  // hi-res originals
-  nova: "screens/nova.png",
-  schedule: "screens/schedule.png",
-  classroom: "screens/classroom.png",
-  grades: "screens/grades.png",
+  // Fresh 2026 captures (1206×2622). nova1→nova2 are one conversation at two
+  // scroll positions — stacked, they read as a single continuous scroll.
+  nova1: "screens/nova1.PNG",
+  nova2: "screens/nova2.PNG",
   practice: "screens/practice.png",
+  grades: "screens/grades.png",
+  schedule: "screens/schedule.png",
+  exam: "screens/exam.png",
   solutions: "screens/solutions.png",
-  menu: "screens/menu.png",
-  // real before/after interaction pairs
-  attendanceBefore: "screens/attendance-before.png",
-  attendanceAfter: "screens/attendance-after.png",
-  novaBefore: "screens/nova-before.png",
-  novaAfter: "screens/nova-after.png",
-  practiceBefore: "screens/practice-before.png",
-  practiceAfter: "screens/practice-after.png",
-  classroomBefore: "screens/classroom-before.png",
-  classroomAssignments: "screens/classroom-assignments.png",
-  scheduleBefore: "screens/schedule-before.png",
-  scheduleDetail: "screens/schedule-detail.png",
-  gradesScrolled: "screens/grades-scrolled.png",
-  solutionsBooks: "screens/solutions-books.png",
+  attendance: "screens/attendance.png",
+  classroom: "screens/classroom1.png",
+  classroom2: "screens/classroom2.png",
+  admin: "screens/admin.png",
 } as const;
 
 /**
@@ -84,21 +76,24 @@ export const SCREENS = {
  * scenes overlap by TRANSITION frames inside the TransitionSeries, so the
  * composition's true length is sum(scenes) - (n-1) * TRANSITION.
  */
-export const TRANSITION = 11;
+export const TRANSITION = 14;
 
+/** v4 "ref1" timeline @ 60fps — disconnected apps → one app → tour → CTA. */
 export const SCENES = {
-  coldOpen: 100,
-  title: 80,
-  attendance: 150,
-  nova: 165,
-  classroom: 150,
-  practice: 170,
-  gradesInsights: 150,
-  montage: 200,
-  cta: 150,
+  disconnected: 580,
+  explode: 320,
+  nova: 470,
+  practice: 300,
+  grades: 300,
+  schedule: 280,
+  exam: 280,
+  solutions: 280,
+  teacher: 320,
+  roles: 250,
+  cta: 300,
 } as const;
 
 const sceneList = Object.values(SCENES);
 export const TOTAL_FRAMES =
   sceneList.reduce((a, b) => a + b, 0) - (sceneList.length - 1) * TRANSITION;
-// 1315 - 8*11 = 1227 frames = 40.9s @ 30fps
+// 3680 - 10*14 = 3540 frames = 59s @ 60fps
