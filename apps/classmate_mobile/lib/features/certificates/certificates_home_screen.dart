@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/auth/auth_controller.dart';
@@ -9,6 +10,7 @@ import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
+import 'certificate_pdf.dart';
 import 'certificates_screen.dart';
 import 'data/certificates_repository.dart';
 
@@ -81,16 +83,68 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  /// Build ONE combined PDF of every published certificate in the cohort (each
+  /// as its own page, in color) from their frozen snapshots, and open the print
+  /// dialog.
   Future<void> _printAll() async {
     if (_cohortFilter == null) return;
+    final l = AppLocalizations.of(context)!;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final certs = await _repo.printList(_cohortFilter!);
-      for (final c in certs) {
-        final url = (c['pdfUrl'] ?? '').toString();
-        if (url.isNotEmpty) await _openPdf(url);
+      if (certs.isEmpty) {
+        if (mounted) {
+          setState(() => _loading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.certNoneYet)));
+        }
+        return;
       }
+      final session = ref.read(authSessionProvider);
+      final cohortName = _cohorts.firstWhere((c) => c.id == _cohortFilter, orElse: () => const CertCohort(id: '', name: '')).name;
+      final list = <CertificatePdfData>[];
+      for (final c in certs) {
+        final snap = c['snapshot'] is Map ? Map<String, dynamic>.from(c['snapshot'] as Map) : <String, dynamic>{};
+        final subjects = (snap['subjects'] as List? ?? [])
+            .map((e) => CertSubjectRow.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+        final att = snap['attendance'] is Map ? Map<String, dynamic>.from(snap['attendance'] as Map) : const {};
+        final weights = (c['semesterWeights'] as List? ?? []).map((e) => e is int ? e : int.tryParse('$e') ?? 0).toList();
+        final semCount = subjects.isNotEmpty ? subjects.first.semesters.length : (weights.isNotEmpty ? weights.length : 2);
+        final issued = DateTime.tryParse((c['issuedAt'] ?? '').toString());
+        final dateLabel = issued != null
+            ? '${issued.day.toString().padLeft(2, '0')}/${issued.month.toString().padLeft(2, '0')}/${issued.year}'
+            : '';
+        list.add(CertificatePdfData(
+          language: (c['language'] ?? 'en').toString(),
+          schoolName: (snap['schoolName'] ?? session.schoolName).toString(),
+          schoolLogoUrl: session.schoolLogoUrl,
+          schoolYear: (c['schoolYear'] ?? snap['schoolYear'] ?? '').toString(),
+          studentName: (c['studentDisplayName'] ?? '').toString(),
+          nationalId: (c['nationalId'] ?? '').toString(),
+          cohortName: cohortName,
+          homeroomTeacher: (c['homeroomTeacher'] ?? '').toString(),
+          principalName: (c['principalName'] ?? '').toString(),
+          publisherNote: (c['publisherNote'] ?? '').toString(),
+          subjects: subjects,
+          overall: snap['overall'] is num ? (snap['overall'] as num).toDouble() : null,
+          absences: att['absences'] is num ? (att['absences'] as num).toInt() : 0,
+          lates: att['lates'] is num ? (att['lates'] as num).toInt() : 0,
+          semesterCount: semCount,
+          dateLabel: dateLabel,
+        ));
+      }
+      final bytes = await buildCertificatesBundlePdf(list);
+      if (!mounted) return;
+      setState(() => _loading = false);
+      await Printing.layoutPdf(onLayout: (_) async => bytes);
     } catch (e) {
-      if (mounted) setState(() => _error = '$e');
+      if (mounted) setState(() {
+        _error = '$e';
+        _loading = false;
+      });
     }
   }
 

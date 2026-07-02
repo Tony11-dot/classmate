@@ -24,7 +24,12 @@ function ymdInJerusalem(date = new Date()): string {
 }
 
 function parseYmdToUtcMidnight(ymd: string): Date {
-  const dt = new Date(`${ymd}T00:00:00.000Z`);
+  // Accept a bare "YYYY-MM-DD" OR a full ISO datetime (e.g. the assessment's
+  // stored "2026-06-19T00:00:00.000Z") — take just the date part so editing an
+  // existing grade's weight/% doesn't fail with "Invalid date".
+  const s = String(ymd).trim();
+  const datePart = s.includes('T') ? s.split('T')[0] : s;
+  const dt = new Date(`${datePart}T00:00:00.000Z`);
   if (Number.isNaN(dt.getTime()))
     throw new BadRequestException('Invalid date (YYYY-MM-DD)');
   return dt;
@@ -4313,8 +4318,10 @@ export class TeacherService {
     }
 
     // Find all assessments linked to this exam
-    const assessments = await this.prisma.assessment.findMany({ where: { examId }, select: { id: true } });
+    const assessments = await this.prisma.assessment.findMany({ where: { examId }, select: { id: true, published: true } });
     const assessmentIds = assessments.map((a) => a.id);
+    // Published once ANY linked assessment is published (grades visible to students).
+    const published = assessments.length > 0 && assessments.some((a) => a.published);
     const grades = assessmentIds.length
       ? await this.prisma.gradeRecord.findMany({ where: { assessmentId: { in: assessmentIds } }, select: { studentId: true, grade: true, comment: true } })
       : [];
@@ -4323,6 +4330,7 @@ export class TeacherService {
     return {
       ok: true,
       exam,
+      published,
       students: students.map((s) => ({
         studentId: s.id,
         name: s.name,
@@ -4338,8 +4346,19 @@ export class TeacherService {
     const exam = await this.prisma.teacherExam.findFirst({ where: { id: examId, teacherId } });
     if (!exam) throw new NotFoundException('Exam not found');
 
+    // published: false = save a DRAFT (grades not visible to students yet);
+    // true = publish. Undefined keeps a new assessment as a draft (the default
+    // now is draft — publishing is a separate explicit action).
+    const publishFlag: boolean | undefined = typeof body?.published === 'boolean' ? body.published : undefined;
+
     let grades: { studentId: string; grade: number }[] = Array.isArray(body?.grades) ? body.grades : [];
-    if (!grades.length) return { ok: true, saved: 0 };
+    if (!grades.length) {
+      // Publish/unpublish-only (no new grades): flip the exam's assessments.
+      if (publishFlag !== undefined) {
+        await this.prisma.assessment.updateMany({ where: { examId }, data: { published: publishFlag } });
+      }
+      return { ok: true, saved: 0, published: publishFlag ?? false };
+    }
 
     // School isolation: only grade students from the teacher's school
     const allowedIds = new Set(await this.filterToSchool(user, grades.map((g) => g.studentId)));
@@ -4385,9 +4404,11 @@ export class TeacherService {
             weightPercent: (exam as any).weightPercent ?? null,
             weightPercents: (exam as any).weightPercents ?? [],
             semester: (exam as any).semester ?? null,
-            published: true,
+            published: publishFlag ?? false,
           },
         });
+      } else if (publishFlag !== undefined) {
+        await this.prisma.assessment.update({ where: { id: assessment.id }, data: { published: publishFlag } });
       }
       for (const g of cohortGrades) {
         await this.prisma.gradeRecord.upsert({
@@ -4399,7 +4420,7 @@ export class TeacherService {
         this.realtime.emitToUser(g.studentId, { type: 'grade_updated', studentId: g.studentId });
       }
     }
-    return { ok: true, saved, requested: grades.length, dropped: [] as string[] };
+    return { ok: true, saved, requested: grades.length, dropped: [] as string[], published: publishFlag ?? false };
   }
 
   async deleteTeacherExam(user: any, id: string) {

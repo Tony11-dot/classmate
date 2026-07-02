@@ -17601,6 +17601,24 @@ abstract class AppLocalizations {
   /// **'Save as draft'**
   String get certSaveDraft;
 
+  /// No description provided for @examGradesPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades published to students.'**
+  String get examGradesPublished;
+
+  /// No description provided for @examGradesPublishedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get examGradesPublishedShort;
+
+  /// No description provided for @examRepublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Republish'**
+  String get examRepublish;
+
   /// No description provided for @certPreview.
   ///
   /// In en, this message translates to:

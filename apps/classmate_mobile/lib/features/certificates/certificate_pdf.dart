@@ -77,52 +77,69 @@ Locale _localeFor(String lang) {
 /// Build the certificate PDF bytes. Renders fully in [data.language] with the
 /// correct direction, multi-script glyph shaping, embedded logos and a rounded,
 /// modern layout that spotlights the school.
-Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
+/// Shared fonts + CM logo, loaded once and reused across a whole bundle.
+class _CertFonts {
+  _CertFonts({
+    required this.latin,
+    required this.latinSemi,
+    required this.arabicReg,
+    required this.arabicSemi,
+    required this.hebrewReg,
+    required this.hebrewBold,
+    required this.cmLogo,
+  });
+  final pw.Font latin, latinSemi, arabicReg, arabicSemi, hebrewReg, hebrewBold;
+  final pw.MemoryImage cmLogo;
+}
+
+Future<_CertFonts> _loadCertFonts() async {
+  return _CertFonts(
+    latin: await PdfGoogleFonts.iBMPlexSansRegular(),
+    latinSemi: await PdfGoogleFonts.iBMPlexSansSemiBold(),
+    arabicReg: await PdfGoogleFonts.iBMPlexSansArabicRegular(),
+    arabicSemi: await PdfGoogleFonts.iBMPlexSansArabicSemiBold(),
+    hebrewReg: await PdfGoogleFonts.notoSansHebrewRegular(),
+    hebrewBold: await PdfGoogleFonts.notoSansHebrewBold(),
+    cmLogo: pw.MemoryImage((await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List()),
+  );
+}
+
+Future<pw.MemoryImage?> _loadSchoolLogo(String? url) async {
+  final logoUrl = (url ?? '').trim();
+  if (logoUrl.isEmpty) return null;
+  try {
+    final res = await http.get(Uri.parse(logoUrl)).timeout(const Duration(seconds: 12));
+    if (res.statusCode >= 200 && res.statusCode < 300 && res.bodyBytes.isNotEmpty) {
+      return pw.MemoryImage(res.bodyBytes);
+    }
+  } catch (_) {}
+  return null;
+}
+
+/// Build one certificate's page(s). Shared by the single + bundle builders so
+/// their output is identical (the single path is unchanged).
+pw.MultiPage _buildCertMultiPage(CertificatePdfData data, _CertFonts f, pw.MemoryImage? schoolLogo) {
   final l = lookupAppLocalizations(_localeFor(data.language));
   final rtl = _isRtlLang(data.language);
+  final cmLogo = f.cmLogo;
 
-  // Premium, modern type: IBM Plex Sans (Latin) + IBM Plex Sans Arabic, with a
-  // lighter SemiBold used as the "bold" weight so headings read clean, not heavy.
-  // The base font follows the certificate language so the primary script SHAPES
-  // correctly (a fallback-only Arabic font renders detached/reversed glyphs).
-  final latin = await PdfGoogleFonts.iBMPlexSansRegular();
-  final latinSemi = await PdfGoogleFonts.iBMPlexSansSemiBold();
-  final arabicReg = await PdfGoogleFonts.iBMPlexSansArabicRegular();
-  final arabicSemi = await PdfGoogleFonts.iBMPlexSansArabicSemiBold();
-  final hebrewReg = await PdfGoogleFonts.notoSansHebrewRegular();
-  final hebrewBold = await PdfGoogleFonts.notoSansHebrewBold();
-
-  final cmLogo = pw.MemoryImage(
-    (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
-  );
-
-  pw.MemoryImage? schoolLogo;
-  final logoUrl = (data.schoolLogoUrl ?? '').trim();
-  if (logoUrl.isNotEmpty) {
-    try {
-      final res = await http.get(Uri.parse(logoUrl)).timeout(const Duration(seconds: 12));
-      if (res.statusCode >= 200 && res.statusCode < 300 && res.bodyBytes.isNotEmpty) {
-        schoolLogo = pw.MemoryImage(res.bodyBytes);
-      }
-    } catch (_) {
-      schoolLogo = null;
-    }
-  }
-
+  // Premium, modern type: IBM Plex Sans (Latin) + IBM Plex Sans Arabic. The base
+  // font follows the language so the primary script SHAPES correctly (a
+  // fallback-only Arabic font renders detached/reversed glyphs).
   final pw.Font baseFont, boldFont;
   final List<pw.Font> fontFallback;
   if (data.language == 'ar') {
-    baseFont = arabicReg;
-    boldFont = arabicSemi;
-    fontFallback = [latin, latinSemi, hebrewReg, hebrewBold];
+    baseFont = f.arabicReg;
+    boldFont = f.arabicSemi;
+    fontFallback = [f.latin, f.latinSemi, f.hebrewReg, f.hebrewBold];
   } else if (data.language == 'he') {
-    baseFont = hebrewReg;
-    boldFont = hebrewBold;
-    fontFallback = [latin, latinSemi, arabicReg, arabicSemi];
+    baseFont = f.hebrewReg;
+    boldFont = f.hebrewBold;
+    fontFallback = [f.latin, f.latinSemi, f.arabicReg, f.arabicSemi];
   } else {
-    baseFont = latin;
-    boldFont = latinSemi;
-    fontFallback = [arabicReg, arabicSemi, hebrewReg, hebrewBold];
+    baseFont = f.latin;
+    boldFont = f.latinSemi;
+    fontFallback = [f.arabicReg, f.arabicSemi, f.hebrewReg, f.hebrewBold];
   }
 
   final theme = pw.ThemeData.withFont(
@@ -130,7 +147,6 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
     bold: boldFont,
     fontFallback: fontFallback,
   );
-  final doc = pw.Document(theme: theme);
 
   const brandBlue = PdfColor.fromInt(0xFF2563EB);
   const brandDeep = PdfColor.fromInt(0xFF1E3A5F);
@@ -387,8 +403,7 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
         ),
       );
 
-  doc.addPage(
-    pw.MultiPage(
+  return pw.MultiPage(
       pageTheme: pw.PageTheme(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.fromLTRB(38, 34, 38, 34),
@@ -417,9 +432,28 @@ Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
         signatures(),
         footer(),
       ],
-    ),
   );
+}
 
+Future<Uint8List> buildCertificatePdf(CertificatePdfData data) async {
+  final fonts = await _loadCertFonts();
+  final schoolLogo = await _loadSchoolLogo(data.schoolLogoUrl);
+  final doc = pw.Document();
+  doc.addPage(_buildCertMultiPage(data, fonts, schoolLogo));
+  return doc.save();
+}
+
+/// One combined PDF with every certificate as its own page(s) — the secretary
+/// "print all" for a cohort. Fonts load once; school logos are cached by URL.
+Future<Uint8List> buildCertificatesBundlePdf(List<CertificatePdfData> items) async {
+  final fonts = await _loadCertFonts();
+  final doc = pw.Document();
+  final logoCache = <String, pw.MemoryImage?>{};
+  for (final data in items) {
+    final key = (data.schoolLogoUrl ?? '').trim();
+    if (!logoCache.containsKey(key)) logoCache[key] = await _loadSchoolLogo(key);
+    doc.addPage(_buildCertMultiPage(data, fonts, logoCache[key]));
+  }
   return doc.save();
 }
 

@@ -24,6 +24,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
   Map<String, int?> _savedGrades = {};
   bool _loading = true;
   bool _saving = false;
+  bool _published = false; // are this exam's grades visible to students?
   String? _error;
 
   @override
@@ -60,28 +61,39 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
       final allStudents = results[0] as List<TeacherStudentWithLevel>;
       final gradeData = results[1] as Map<String, dynamic>;
 
-      // Resolve targeted students
-      List<TeacherStudentWithLevel> targeted;
-      if (targetType == 'STUDENTS' && studentIds.isNotEmpty) {
-        targeted = allStudents.where((s) => studentIds.contains(s.studentId)).toList();
-      } else if (targetType == 'COHORT' && cohortIds.isNotEmpty) {
-        targeted = allStudents.where((s) => cohortIds.contains(s.cohortId)).toList();
-      } else {
-        targeted = allStudents;
-      }
-
-      // Build grade map from existing grades. The backend returns the
-      // per-student rows under `students` (each with `grade`); `grades` is kept
-      // as a fallback in case of a future rename. Reading the wrong key here is
-      // what made every cell render the empty "/ maxGrade" hint.
+      // The backend already resolves EVERY targeted student for this exam (under
+      // `students`); use that so a student not in the teacher's own list is still
+      // shown and gradeable. Fall back to the local target filter only if empty.
       final gradeList =
           (gradeData['students'] as List?) ?? (gradeData['grades'] as List?) ?? [];
+      final byId = {for (final s in allStudents) s.studentId: s};
       final saved = <String, int?>{};
+      List<TeacherStudentWithLevel> targeted = [];
       for (final g in gradeList) {
-        if (g is Map) {
-          final sid = (g['studentId'] ?? '').toString();
-          final val = g['grade'];
-          if (sid.isNotEmpty) saved[sid] = val is int ? val : int.tryParse(val.toString());
+        if (g is! Map) continue;
+        final sid = (g['studentId'] ?? '').toString();
+        if (sid.isEmpty) continue;
+        final val = g['grade'];
+        saved[sid] = val is int ? val : int.tryParse('${val ?? ''}');
+        targeted.add(byId[sid] ??
+            TeacherStudentWithLevel(
+              studentId: sid,
+              name: (g['name'] ?? '').toString(),
+              email: '',
+              gradeLevel: null,
+              cohortId: '',
+              cohortName: '',
+              subjects: const [],
+              coursesBySubject: const {},
+            ));
+      }
+      if (targeted.isEmpty) {
+        if (targetType == 'STUDENTS' && studentIds.isNotEmpty) {
+          targeted = allStudents.where((s) => studentIds.contains(s.studentId)).toList();
+        } else if (targetType == 'COHORT' && cohortIds.isNotEmpty) {
+          targeted = allStudents.where((s) => cohortIds.contains(s.cohortId)).toList();
+        } else {
+          targeted = allStudents;
         }
       }
 
@@ -101,6 +113,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
       setState(() {
         _students = targeted;
         _savedGrades = Map.from(saved);
+        _published = gradeData['published'] == true;
         _loading = false;
       });
     } catch (e) {
@@ -112,7 +125,10 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     }
   }
 
-  Future<void> _save() async {
+  /// [publish] null = save grades as a draft (no publish-state change; a new
+  /// exam's grades stay hidden from students). true = save + publish (make the
+  /// grades visible to students).
+  Future<void> _save({bool? publish}) async {
     final l = AppLocalizations.of(context)!;
     final dirtyGrades = <TeacherGradeDraftRecord>[];
     for (final s in _students) {
@@ -122,7 +138,8 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
         dirtyGrades.add(TeacherGradeDraftRecord(studentId: s.studentId, grade: val));
       }
     }
-    if (dirtyGrades.isEmpty) {
+    // Nothing to do only when there are no edits AND we're not publishing.
+    if (dirtyGrades.isEmpty && publish != true) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.teacherGradesNothingToSave)));
       return;
     }
@@ -132,6 +149,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
       final res = await ref.read(teacherMobileRepositoryProvider).saveExamGrades(
             examId: widget.exam['id'] as String? ?? '',
             grades: dirtyGrades,
+            published: publish,
           );
       if (!mounted) return;
       final saved = (res['saved'] is num) ? (res['saved'] as num).toInt() : dirtyGrades.length;
@@ -150,7 +168,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
           ),
         );
       } else {
-        messenger.showSnackBar(SnackBar(content: Text(l.teacherGradesSaved)));
+        messenger.showSnackBar(SnackBar(content: Text(publish == true ? l.examGradesPublished : l.teacherGradesSaved)));
       }
     } catch (e) {
       if (!mounted) return;
@@ -261,17 +279,23 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
           ],
         ),
         actions: [
+          if (_published)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Chip(
+                visualDensity: VisualDensity.compact,
+                avatar: Icon(Icons.check_circle_rounded, size: 16, color: cs.primary),
+                label: Text(l.examGradesPublishedShort),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: FilledButton.icon(
-              onPressed: (_saving || _loading) ? null : _save,
+            child: OutlinedButton.icon(
+              onPressed: (_saving || _loading) ? null : () => _save(),
               icon: _saving
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.save_rounded, size: 18),
-              label: Text(l.teacherGradesSaveAction),
+                  ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.save_outlined, size: 18),
+              label: Text(l.certSaveDraft),
             ),
           ),
         ],
@@ -457,16 +481,28 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                           );
                         }),
                         const SizedBox(height: 8),
-                        FilledButton.icon(
-                          onPressed: (_saving || !_hasDirty) ? null : _save,
-                          icon: _saving
-                              ? const SizedBox.square(
-                                  dimension: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.save_rounded),
-                          label: Text(_saving ? l.teacherGradesSaving : l.teacherGradesSaveAction),
-                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: (_saving || !_hasDirty) ? null : () => _save(),
+                                icon: const Icon(Icons.save_outlined, size: 18),
+                                label: Text(l.certSaveDraft),
+                                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: _saving ? null : () => _save(publish: true),
+                                icon: _saving
+                                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                    : const Icon(Icons.publish_rounded),
+                                label: Text(_published ? l.examRepublish : l.certSaveAndPublish),
+                                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ],

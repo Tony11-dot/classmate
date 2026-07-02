@@ -1086,9 +1086,12 @@ class TeacherMobileRepository {
     return raw is Map ? Map<String, dynamic>.from(raw) : {};
   }
 
+  /// Save exam grades. [published] false = draft (hidden from students),
+  /// true = publish. Null = save without changing the publish state.
   Future<Map<String, dynamic>> saveExamGrades({
     required String examId,
     required List<TeacherGradeDraftRecord> grades,
+    bool? published,
   }) async {
     final res = await _api.postJson(
       '/teacher/exams/$examId/grades',
@@ -1096,6 +1099,7 @@ class TeacherMobileRepository {
         'grades': grades
             .map((g) => <String, dynamic>{'studentId': g.studentId, 'grade': g.grade})
             .toList(growable: false),
+        if (published != null) 'published': published,
       },
     );
     return res is Map ? Map<String, dynamic>.from(res) : <String, dynamic>{};

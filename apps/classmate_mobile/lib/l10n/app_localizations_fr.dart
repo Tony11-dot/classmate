@@ -10335,6 +10335,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get certSaveDraft => 'Save as draft';
 
   @override
+  String get examGradesPublished => 'Grades published to students.';
+
+  @override
+  String get examGradesPublishedShort => 'Published';
+
+  @override
+  String get examRepublish => 'Republish';
+
+  @override
   String get certPreview => 'Preview PDF';
 
   @override
