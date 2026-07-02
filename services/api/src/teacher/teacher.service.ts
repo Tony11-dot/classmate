@@ -437,7 +437,10 @@ export class TeacherService {
           user: { schoolId: (slotForTeacher as any).schoolId },
           OR: [
             { cohort: { grade: audienceGrade } },
-            { user: { grade: audienceGrade } as any },
+            // The student's OWN grade lives on StudentProfile — NOT on User
+            // (User has no `grade` field). The old `user: { grade }` filter
+            // threw PrismaClientValidationError on every by-grade slot.
+            { grade: audienceGrade },
           ],
         },
         select: { userId: true, user: { select: { name: true } } },

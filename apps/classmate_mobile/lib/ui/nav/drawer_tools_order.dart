@@ -53,7 +53,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/teacher/exams', icon: Icons.quiz_rounded, label: l.navExams),
         DrawerTool(route: '/teacher/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/teacher/forms', icon: Icons.assignment_turned_in_rounded, label: l.navForms),
-        DrawerTool(route: '/diplomas', icon: Icons.military_tech_rounded, label: l.navDiplomas),
       ];
     case 'parent':
       return [
