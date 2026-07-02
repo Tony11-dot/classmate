@@ -911,53 +911,106 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
   }
 
   Future<void> _showRenameSheet(BuildContext ctx) async {
-    final nameCtrl = TextEditingController(text: _cohort.name);
+    final l = AppLocalizations.of(ctx)!;
     final cs = Theme.of(ctx).colorScheme;
+    final nameCtrl = TextEditingController(text: _cohort.name);
+    final grades = <int>{..._cohort.grades};
+    final availableGrades = ref.read(authSessionProvider).schoolGrades;
+    String? homeroomTeacherId; // null = leave unchanged
+    // Load teachers for the homeroom picker (best-effort).
+    List<Map<String, dynamic>> teachers = const [];
+    try {
+      teachers = await ref.read(adminRepositoryProvider).getDdlTeachers();
+    } catch (_) {}
+    if (!ctx.mounted) return;
+
     final updated = await showModalBottomSheet<bool>(
       context: ctx,
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (bCtx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(bCtx).viewInsets.bottom + 24, left: 20, right: 20, top: 0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppLocalizations.of(bCtx)!.adminRenameCohort, style: Theme.of(bCtx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: nameCtrl,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(bCtx)!.adminCohortName,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
+      builder: (bCtx) => StatefulBuilder(
+        builder: (bCtx, setSheet) => Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(bCtx).viewInsets.bottom + 24, left: 20, right: 20, top: 0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l.adminRenameCohort, style: Theme.of(bCtx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: l.adminCohortName,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(l.navGrades, style: Theme.of(bCtx).textTheme.labelLarge),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: availableGrades
+                      .map((g) => FilterChip(
+                            label: Text(l.adminCohortGradeFormat(g.toString())),
+                            selected: grades.contains(g),
+                            onSelected: (sel) => setSheet(() => sel ? grades.add(g) : grades.remove(g)),
+                          ))
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
+                // Homeroom teacher (مربّي/ة الصف) — drives the certificates access.
+                LiquidGlassSelectField<String>(
+                  label: l.cohortHomeroomTeacher,
+                  hint: l.cohortHomeroomTeacher,
+                  value: homeroomTeacherId,
+                  items: teachers
+                      .map((t) => LiquidGlassDropdownItem(value: '${t['id']}', label: '${t['name'] ?? ''}'))
+                      .toList(),
+                  onChanged: (id) => setSheet(() => homeroomTeacherId = id),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () async {
+                      try {
+                        await ref.read(adminRepositoryProvider).updateCohort(
+                              _cohort.id,
+                              name: nameCtrl.text.trim().isEmpty ? null : nameCtrl.text.trim(),
+                              grades: grades.isEmpty ? null : (grades.toList()..sort()),
+                              homeroomTeacherId: homeroomTeacherId,
+                            );
+                        Navigator.pop(bCtx, true);
+                      } catch (e) {
+                        ScaffoldMessenger.of(bCtx).showSnackBar(SnackBar(content: Text(l.commonErrorWith(e))));
+                      }
+                    },
+                    child: Text(l.commonSave),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () async {
-                  try {
-                    await ref.read(adminRepositoryProvider).updateCohort(_cohort.id, name: nameCtrl.text.trim());
-                    Navigator.pop(bCtx, true);
-                  } catch (e) {
-                    ScaffoldMessenger.of(bCtx).showSnackBar(SnackBar(content: Text(AppLocalizations.of(bCtx)!.commonErrorWith(e))));
-                  }
-                },
-                child: Text(AppLocalizations.of(context)!.commonSave),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
-    final newName = nameCtrl.text.trim();
-    if (updated == true && newName.isNotEmpty) {
-      setState(() => _cohort = AdminCohort(id: _cohort.id, name: newName, grade: _cohort.grade, grades: _cohort.grades, studentCount: _cohort.studentCount));
+
+    if (updated == true) {
+      final newName = nameCtrl.text.trim().isEmpty ? _cohort.name : nameCtrl.text.trim();
+      final gl = grades.toList()..sort();
+      setState(() => _cohort = AdminCohort(
+            id: _cohort.id,
+            name: newName,
+            grade: gl.isNotEmpty ? gl.first : _cohort.grade,
+            grades: gl.isNotEmpty ? gl : _cohort.grades,
+            studentCount: _cohort.studentCount,
+          ));
     }
+    nameCtrl.dispose();
   }
 }
 

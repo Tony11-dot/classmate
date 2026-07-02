@@ -51,7 +51,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/solutions', icon: Icons.lightbulb_rounded, label: l.titleSolutions),
         DrawerTool(route: '/teacher/students', icon: Icons.people_rounded, label: l.teacherStudentsLabel),
         DrawerTool(route: '/teacher/exams', icon: Icons.quiz_rounded, label: l.navExams),
-        DrawerTool(route: '/admin/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
+        DrawerTool(route: '/teacher/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/teacher/forms', icon: Icons.assignment_turned_in_rounded, label: l.navForms),
         DrawerTool(route: '/diplomas', icon: Icons.workspace_premium_rounded, label: l.navDiplomas),
       ];
@@ -84,6 +84,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/secretary/schedule', icon: Icons.manage_history_rounded, label: l.adminScheduleTitle),
         DrawerTool(route: '/secretary/people', icon: Icons.people_rounded, label: l.navPeople),
         DrawerTool(route: '/secretary/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
+        DrawerTool(route: '/secretary/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/announcements', icon: Icons.campaign_rounded, label: l.navAnnouncements),
         DrawerTool(route: '/messages', icon: Icons.chat_bubble_rounded, label: l.navMessages),
         DrawerTool(route: '/secretary/export', icon: Icons.download_rounded, label: l.navExportData),
@@ -102,6 +103,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/exams', icon: Icons.quiz_rounded, label: l.navExams),
         DrawerTool(route: '/forms', icon: Icons.assignment_turned_in_rounded, label: l.navForms),
         DrawerTool(route: '/saved-questions', icon: Icons.bookmark_rounded, label: l.navSavedQuestions),
+        DrawerTool(route: '/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/diplomas', icon: Icons.workspace_premium_rounded, label: l.navDiplomas),
       ];
   }

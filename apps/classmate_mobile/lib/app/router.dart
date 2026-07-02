@@ -46,7 +46,8 @@ import '../features/admin/ui/admin_import_users_screen.dart';
 import '../features/teacher_mobile/ui/teacher_exams_screen.dart';
 import '../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../features/teacher_mobile/ui/teacher_grades_screen.dart';
-import '../features/certificates/certificates_screen.dart';
+import '../features/certificates/certificates_home_screen.dart';
+import '../features/certificates/student_certificates_screen.dart';
 import '../features/teacher_mobile/ui/teacher_home_screen.dart';
 import '../features/teacher_mobile/ui/teacher_insights_screen.dart';
 import '../features/teacher_mobile/ui/teacher_new_announcement_screen.dart';
@@ -236,6 +237,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == '/teacher/students' ||
           loc == '/diplomas' ||
           loc.startsWith('/diplomas/') ||
+          loc == '/certificates' ||
           loc == '/materials' ||
           loc == '/dev/animation-demo' ||
           loc == '/solutions' ||
@@ -717,7 +719,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           _fadeRoute(
             path: '/admin/certificates',
-            builder: (context, state) => const CertificatesScreen(),
+            builder: (context, state) => const CertificatesHomeScreen(),
+          ),
+          _fadeRoute(
+            path: '/teacher/certificates',
+            builder: (context, state) => const CertificatesHomeScreen(),
+          ),
+          _fadeRoute(
+            path: '/secretary/certificates',
+            builder: (context, state) => const CertificatesHomeScreen(),
+          ),
+          _fadeRoute(
+            path: '/certificates',
+            builder: (context, state) => const StudentCertificatesScreen(),
           ),
           _fadeRoute(
             path: '/admin/reports',

@@ -10129,6 +10129,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certSaved => 'تم إنشاء الشهادة.';
 
   @override
+  String get certSaveAndPublish => 'Save & publish';
+
+  @override
+  String get certSaveDraft => 'Save as draft';
+
+  @override
+  String get certPreview => 'Preview PDF';
+
+  @override
+  String get certPublished => 'Published to the student.';
+
+  @override
+  String get certDraftSaved => 'Saved as draft.';
+
+  @override
+  String get certPublishing => 'Publishing…';
+
+  @override
+  String get certDownload => 'Download';
+
+  @override
+  String get certNoneYet => 'No certificates yet.';
+
+  @override
+  String get certMine => 'My certificates';
+
+  @override
+  String get certNoHomeroom =>
+      'You are not a homeroom teacher of any class yet.';
+
+  @override
+  String get certGrin => 'Grades';
+
+  @override
+  String get certPrintAll => 'Print all';
+
+  @override
+  String get certSelectCohortToPrint =>
+      'Select a class to print all its certificates.';
+
+  @override
+  String get certEditTitle => 'Edit certificate';
+
+  @override
   String get certPdfAnnualCertificate => 'شهادة سنوية';
 
   @override

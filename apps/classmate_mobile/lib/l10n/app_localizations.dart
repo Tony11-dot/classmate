@@ -17589,6 +17589,90 @@ abstract class AppLocalizations {
   /// **'Certificate generated.'**
   String get certSaved;
 
+  /// No description provided for @certSaveAndPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & publish'**
+  String get certSaveAndPublish;
+
+  /// No description provided for @certSaveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as draft'**
+  String get certSaveDraft;
+
+  /// No description provided for @certPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview PDF'**
+  String get certPreview;
+
+  /// No description provided for @certPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published to the student.'**
+  String get certPublished;
+
+  /// No description provided for @certDraftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as draft.'**
+  String get certDraftSaved;
+
+  /// No description provided for @certPublishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get certPublishing;
+
+  /// No description provided for @certDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get certDownload;
+
+  /// No description provided for @certNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No certificates yet.'**
+  String get certNoneYet;
+
+  /// No description provided for @certMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My certificates'**
+  String get certMine;
+
+  /// No description provided for @certNoHomeroom.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not a homeroom teacher of any class yet.'**
+  String get certNoHomeroom;
+
+  /// No description provided for @certGrin.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get certGrin;
+
+  /// No description provided for @certPrintAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Print all'**
+  String get certPrintAll;
+
+  /// No description provided for @certSelectCohortToPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a class to print all its certificates.'**
+  String get certSelectCohortToPrint;
+
+  /// No description provided for @certEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit certificate'**
+  String get certEditTitle;
+
   /// No description provided for @certPdfAnnualCertificate.
   ///
   /// In en, this message translates to:

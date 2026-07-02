@@ -1,6 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/env.dart';
 import '../../../core/http/cm_api.dart';
 
 // ── Models ────────────────────────────────────────────────────────────────────
@@ -173,12 +178,54 @@ class CertificatesRepository {
     return CertPrefill.fromJson(_m(raw));
   }
 
-  Future<void> create(Map<String, dynamic> body) async {
-    await _api.postJson('/certificates', body: body);
+  Future<Map<String, dynamic>> create(Map<String, dynamic> body) async {
+    final raw = await _api.postJson('/certificates', body: body);
+    return _m(_m(raw)['certificate']);
+  }
+
+  Future<Map<String, dynamic>> update(String id, Map<String, dynamic> body) async {
+    final raw = await _api.patchJson('/certificates/$id', body: body);
+    return _m(_m(raw)['certificate']);
+  }
+
+  /// One certificate (for the edit form).
+  Future<Map<String, dynamic>> getOne(String id) async {
+    final raw = await _api.getJson('/certificates/$id');
+    return _m(_m(raw)['certificate']);
   }
 
   Future<List<Map<String, dynamic>>> list({String? cohortId}) async {
     final raw = await _api.getJson('/certificates', query: {'cohortId': ?cohortId});
     return _l(_m(raw)['certificates']).map((e) => _m(e)).toList();
+  }
+
+  /// Published certificates for a cohort — secretary/admin "print all".
+  Future<List<Map<String, dynamic>>> printList(String cohortId) async {
+    final raw = await _api.getJson('/certificates/print', query: {'cohortId': cohortId});
+    return _l(_m(raw)['certificates']).map((e) => _m(e)).toList();
+  }
+
+  /// The logged-in student's own published certificates.
+  Future<List<Map<String, dynamic>>> mine() async {
+    final raw = await _api.getJson('/certificates/mine');
+    return _l(_m(raw)['certificates']).map((e) => _m(e)).toList();
+  }
+
+  /// Upload a generated certificate PDF and return its absolute URL (for
+  /// students to download). Uses the generic /uploads/attachment endpoint.
+  Future<String?> uploadPdf(Uint8List bytes, String filename) async {
+    final dir = await getTemporaryDirectory();
+    final f = File('${dir.path}/$filename');
+    await f.writeAsBytes(bytes);
+    final base = Env.stripApiSuffix(Env.apiBaseUrl).trim().replaceAll(RegExp(r'/+$'), '');
+    final res = await _api.multipartUpload(
+      Uri.parse('$base/uploads/attachment'),
+      f.path,
+      mimeType: 'application/pdf',
+    );
+    var url = (res['url'] ?? res['fileUrl'] ?? '').toString();
+    if (url.isEmpty) return null;
+    if (!url.startsWith('http')) url = '$base$url';
+    return url;
   }
 }
