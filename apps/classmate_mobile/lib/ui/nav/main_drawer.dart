@@ -463,7 +463,7 @@ class MainDrawer extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(14),
                         onTap: () async {
                           closeDrawer();
-                          await ref.read(authControllerProvider).logout(context);
+                          await ref.read(authControllerProvider).logout();
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -596,7 +596,7 @@ Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
                         ? () => Navigator.of(sheetCtx).pop()
                         : () async {
                             Navigator.of(sheetCtx).pop();
-                            await controller.switchAccount(context, acct);
+                            await controller.switchAccount(acct);
                           },
                   ),
                 const Divider(height: 1),
@@ -615,7 +615,7 @@ Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
                   title: Text(l.accountSignOutThis, style: TextStyle(color: cs.error)),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
-                    await controller.signOutActiveAccount(context);
+                    await controller.signOutActiveAccount();
                   },
                 ),
                 const SizedBox(height: 8),

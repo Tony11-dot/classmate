@@ -356,10 +356,10 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
         ? attendance.subject!.trim()
         : (attendance.courseName ?? '').trim();
     final title = switch (normalizedStatus) {
-      'absent' => 'New absence recorded',
-      'late' => 'Late attendance recorded',
-      'justified' => 'Attendance updated as justified',
-      _ => 'Attendance updated',
+      'absent' => '🚩 New absence recorded',
+      'late' => '⏰ Late attendance recorded',
+      'justified' => '✅ Attendance updated as justified',
+      _ => '📋 Attendance updated',
     };
     final bodyParts = <String>[];
     if (subjectLabel.isNotEmpty) bodyParts.add(subjectLabel);

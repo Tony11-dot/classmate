@@ -13770,13 +13770,13 @@ abstract class AppLocalizations {
   /// No description provided for @notificationNewGradePosted.
   ///
   /// In en, this message translates to:
-  /// **'New grade posted'**
+  /// **'📊 New grade posted'**
   String get notificationNewGradePosted;
 
   /// No description provided for @notificationNewGradePostedIn.
   ///
   /// In en, this message translates to:
-  /// **'New grade posted in {subject}'**
+  /// **'📊 New grade posted in {subject}'**
   String notificationNewGradePostedIn(String subject);
 
   /// No description provided for @messagesAddParticipants.

@@ -7736,11 +7736,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileUnverified => 'غير موثق';
 
   @override
-  String get notificationNewGradePosted => 'تم نشر درجة جديدة';
+  String get notificationNewGradePosted => '📊 تم نشر درجة جديدة';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return 'تم نشر درجة جديدة في $subject';
+    return '📊 تم نشر درجة جديدة في $subject';
   }
 
   @override

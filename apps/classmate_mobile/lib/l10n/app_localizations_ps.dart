@@ -7792,11 +7792,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get profileUnverified => 'نه‌تایید شوی';
 
   @override
-  String get notificationNewGradePosted => 'نوې نمره خپره شوه';
+  String get notificationNewGradePosted => '📊 نوې نمره خپره شوه';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return 'په $subject کې نوې نمره خپره شوه';
+    return '📊 په $subject کې نوې نمره خپره شوه';
   }
 
   @override

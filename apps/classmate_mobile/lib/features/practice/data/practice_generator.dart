@@ -360,6 +360,10 @@ class PracticeGenerator {
   static final Map<String, List<String>> _recentPrompts = {};
   static const _maxRecentPrompts = 30;
 
+  /// Clear the recent-prompt cache — called on account switch/logout so one
+  /// account's practice history can't seed another's question generation.
+  static void resetRecentPrompts() => _recentPrompts.clear();
+
   static String _recentKey(PracticeFilter f) =>
       '${f.subject}:${f.topicLabel}:${f.mode.name}';
 

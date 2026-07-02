@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONTS, SHOT } from "../theme";
-import { AuroraLight } from "../components/AuroraLight";
+import { GlassBG, LiquidPanel } from "../components/Glass";
 import { HeroPhone } from "../components/HeroPhone";
 import { FloatCard } from "../components/FloatCard";
 import { TypeOn } from "../components/TypeOn";
@@ -38,10 +38,10 @@ export const FeatureScene: React.FC<{
   const screenH = Math.round((screenWidth * SHOT.h) / SHOT.w);
   const dir = side === "right" ? 1 : -1;
 
-  // ── phone whip-in ────────────────────────────────────────────────
-  const entry = spring({ frame, fps, config: { damping: 16, mass: 0.8, stiffness: 140 } });
+  // ── phone whip-in (fast) ─────────────────────────────────────────
+  const entry = spring({ frame, fps, config: { damping: 15, mass: 0.7, stiffness: 210 } });
   const entryXAt = (f: number) =>
-    interpolate(spring({ frame: f, fps, config: { damping: 16, mass: 0.8, stiffness: 140 } }), [0, 1], [dir * 760, 0]);
+    interpolate(spring({ frame: f, fps, config: { damping: 15, mass: 0.7, stiffness: 210 } }), [0, 1], [dir * 760, 0]);
   const entryX = entryXAt(frame);
   const entryBlur = motionBlur(velocity(entryXAt, frame), 0.045);
   const entryRot = interpolate(entry, [0, 1], [dir * 16, 0]);
@@ -58,9 +58,9 @@ export const FeatureScene: React.FC<{
 
   const flicks = [
     { at: scrollStart, to: -screenH * 0.5 },
-    { at: scrollStart + 85, to: -screenH * 1.05 },
-    { at: scrollStart + 175, to: -screenH * 1.55 },
-  ].filter((f) => f.at < dur - 30);
+    { at: scrollStart + 70, to: -screenH * 1.05 },
+    { at: scrollStart + 145, to: -screenH * 1.55 },
+  ].filter((f) => f.at < dur - 26);
 
   const scrollAt = (f: number) => flickScroll(f, fps, flicks);
   const scrollAmt = mode === "scroll" ? scrollAt(frame) : 0;

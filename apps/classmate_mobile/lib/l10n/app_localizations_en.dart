@@ -7777,11 +7777,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileUnverified => 'Unverified';
 
   @override
-  String get notificationNewGradePosted => 'New grade posted';
+  String get notificationNewGradePosted => '📊 New grade posted';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return 'New grade posted in $subject';
+    return '📊 New grade posted in $subject';
   }
 
   @override

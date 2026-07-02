@@ -265,6 +265,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isSecretary = primaryRole == 'SECRETARY';
       final isParent = primaryRole == 'PARENT';
 
+      // Bare '/' (and empty) has no page of its own — an account switch or a
+      // stray deep link can land here. Route to the signed-in user's role home
+      // instead of throwing "no routes for location: /".
+      if (loc == '/' || loc.isEmpty) {
+        if (!loggedIn) return '/login';
+        if (isSecretary) return '/secretary/home';
+        if (isParent) return '/parent/home';
+        if (isAdminLike) return '/admin/dashboard';
+        return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
+      }
+
       if (!loggedIn && !isAuthRoute) return '/login';
       // Multi-account: `/login?add=1` is reachable WHILE logged in so a user can
       // add another account without signing the current one out.

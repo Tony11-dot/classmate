@@ -2570,6 +2570,16 @@ typedef AudienceEditCallback = void Function(Set<String> effective, {required bo
 // both widgets benefit from any roster the other has already pulled.
 final Map<String, List<Map<String, String>>> _cohortRosterCache = {};
 
+/// Clear the admin schedule's static/top-level caches (cohort rosters +
+/// school subject list) on account switch/logout, so student rosters and
+/// school config from one admin account never leak into another on the same
+/// device.
+void resetAdminScheduleCaches() {
+  _cohortRosterCache.clear();
+  _PeriodColorRowState._cachedSubjects = null;
+  _PeriodColorRowState._inFlight = null;
+}
+
 bool _setEq(Set<String> a, Set<String> b) =>
     a.length == b.length && a.containsAll(b);
 

@@ -7751,11 +7751,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileUnverified => 'Не подтверждено';
 
   @override
-  String get notificationNewGradePosted => 'Опубликована новая оценка';
+  String get notificationNewGradePosted => '📊 Опубликована новая оценка';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return 'Опубликована новая оценка по $subject';
+    return '📊 Опубликована новая оценка по $subject';
   }
 
   @override

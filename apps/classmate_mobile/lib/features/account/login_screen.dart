@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../core/app_restart.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/biometric_service.dart';
 import '../../ui/widgets/classmate_logo.dart';
@@ -100,10 +101,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       }
       setState(() => _loading = true);
       final session = ref.read(authSessionProvider);
+      final previousUserId = session.userId;
       await session.login(identifier: creds.identifier, password: creds.password);
       // Remember this account for the multi-account switcher.
       await ref.read(authControllerProvider).rememberCurrentAccount();
       if (!mounted) return;
+      if (previousUserId.isNotEmpty && previousUserId != session.userId) {
+        // "Add account" on a live session — restart into a fresh world so the
+        // previous account's cached data can never bleed into this one.
+        AppRestart.restart();
+        return;
+      }
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
       // Stored credentials are stale (e.g. password changed) — forget this
@@ -137,10 +145,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     setState(() { _loading = true; _error = null; });
     try {
       final session = ref.read(authSessionProvider);
+      final previousUserId = session.userId;
       await session.login(identifier: identifier, password: password);
       // Remember this account for the multi-account switcher.
       await ref.read(authControllerProvider).rememberCurrentAccount();
       if (!mounted) return;
+      if (previousUserId.isNotEmpty && previousUserId != session.userId) {
+        // "Add account" on a live session — restart into a fresh world so the
+        // previous account's cached data can never bleed into this one.
+        AppRestart.restart();
+        return;
+      }
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
       if (!mounted) return;

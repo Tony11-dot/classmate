@@ -7891,11 +7891,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileUnverified => 'Non vérifié';
 
   @override
-  String get notificationNewGradePosted => 'Nouvelle note publiée';
+  String get notificationNewGradePosted => '📊 Nouvelle note publiée';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return 'Nouvelle note publiée en $subject';
+    return '📊 Nouvelle note publiée en $subject';
   }
 
   @override

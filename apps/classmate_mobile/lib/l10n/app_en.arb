@@ -3591,8 +3591,8 @@
   "formAccepting": "Accepting",
   "profileVerifiedShort": "Verified",
   "profileUnverified": "Unverified",
-  "notificationNewGradePosted": "New grade posted",
-  "notificationNewGradePostedIn": "New grade posted in {subject}",
+  "notificationNewGradePosted": "📊 New grade posted",
+  "notificationNewGradePostedIn": "📊 New grade posted in {subject}",
   "@notificationNewGradePostedIn": {
     "placeholders": {
       "subject": {

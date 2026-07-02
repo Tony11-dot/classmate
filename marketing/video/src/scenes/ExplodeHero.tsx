@@ -14,7 +14,8 @@ export const ExplodeHero: React.FC<{
   heroSrc?: string;
   title?: string;
   sub?: string;
-}> = ({ heroSrc = SCREENS.grades, title = "Your whole school,\nin one app.", sub }) => {
+  bg?: boolean;
+}> = ({ heroSrc = SCREENS.grades, title = "Your whole school,\nin one app.", sub, bg = true }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames: dur } = useVideoConfig();
 
@@ -41,7 +42,7 @@ export const ExplodeHero: React.FC<{
 
   return (
     <AbsoluteFill>
-      <AuroraLight />
+      {bg ? <AuroraLight /> : null}
 
       <AbsoluteFill style={{ perspective: 1800 }}>
         <div
@@ -102,11 +103,11 @@ export const ExplodeHero: React.FC<{
               fontWeight: 800,
               letterSpacing: -1.6,
               whiteSpace: "pre-line",
-              background: `linear-gradient(120deg, ${COLORS.indigo}, ${COLORS.sky})`,
+              background: "linear-gradient(120deg, #9DBBFF, #F2F5FF)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               color: "transparent",
-              textShadow: "0 2px 20px rgba(34,48,200,0.10)",
+              textShadow: "0 2px 30px rgba(91,141,239,0.25)",
             }}
           >
             {title}

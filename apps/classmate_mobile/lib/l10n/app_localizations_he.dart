@@ -7703,11 +7703,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileUnverified => 'לא מאומת';
 
   @override
-  String get notificationNewGradePosted => 'פורסם ציון חדש';
+  String get notificationNewGradePosted => '📊 פורסם ציון חדש';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return 'פורסם ציון חדש ב$subject';
+    return '📊 פורסם ציון חדש ב$subject';
   }
 
   @override

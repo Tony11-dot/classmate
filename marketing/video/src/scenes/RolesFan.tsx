@@ -1,7 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONTS } from "../theme";
-import { AuroraLight } from "../components/AuroraLight";
 
 /** "One platform, every role" — role chips fan out from the ClassMate mark. */
 export const RolesFan: React.FC = () => {
@@ -22,7 +21,6 @@ export const RolesFan: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <AuroraLight hues={[COLORS.sky, COLORS.emerald, COLORS.gold, COLORS.indigoSoft]} />
 
       <AbsoluteFill style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* connectors */}
@@ -52,12 +50,15 @@ export const RolesFan: React.FC = () => {
                 left: "50%", top: "50%",
                 transform: `translate(-50%,-50%) translate(${x}px, ${y}px) scale(${t})`,
                 opacity: t,
-                background: "#fff",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06))",
+                border: "1px solid rgba(255,255,255,0.2)",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
                 borderRadius: 999,
                 padding: "14px 26px 14px 16px",
                 display: "flex", alignItems: "center", gap: 12,
                 boxShadow: "0 20px 44px -14px rgba(20,30,80,0.34), inset 0 0 0 1px rgba(0,0,0,0.04)",
-                fontFamily: FONTS.body, fontSize: 26, fontWeight: 700, color: COLORS.ink,
+                fontFamily: FONTS.body, fontSize: 26, fontWeight: 700, color: "#F2F5FF",
               }}
             >
               <span style={{ width: 30, height: 30, borderRadius: 99, background: `linear-gradient(150deg, ${r.c}, ${r.c}bb)` }} />
@@ -83,10 +84,10 @@ export const RolesFan: React.FC = () => {
 
       <div
         style={{
-          position: "absolute", top: "13%", left: 0, right: 0, textAlign: "center",
+          position: "absolute", top: "8.5%", left: 0, right: 0, textAlign: "center",
           opacity: titleIn, transform: `translateY(${interpolate(titleIn, [0, 1], [20, 0])}px)`,
           fontFamily: FONTS.display, fontSize: 66, fontWeight: 800, letterSpacing: -1.4,
-          background: `linear-gradient(120deg, ${COLORS.indigo}, ${COLORS.sky})`,
+          background: "linear-gradient(120deg, #9DBBFF, #F2F5FF)",
           WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
         }}
       >

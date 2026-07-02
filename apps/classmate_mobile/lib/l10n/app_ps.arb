@@ -3545,8 +3545,8 @@
   "formAccepting": "منل کیږي",
   "profileVerifiedShort": "تایید شوی",
   "profileUnverified": "نه‌تایید شوی",
-  "notificationNewGradePosted": "نوې نمره خپره شوه",
-  "notificationNewGradePostedIn": "په {subject} کې نوې نمره خپره شوه",
+  "notificationNewGradePosted": "📊 نوې نمره خپره شوه",
+  "notificationNewGradePostedIn": "📊 په {subject} کې نوې نمره خپره شوه",
   "@notificationNewGradePostedIn": {
     "placeholders": {
       "subject": {

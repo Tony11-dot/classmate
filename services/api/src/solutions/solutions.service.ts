@@ -375,7 +375,7 @@ export class SolutionsService {
       await this.hub.notify({
         recipientUserIds: adminIds,
         type: 'SOLUTION_REPORT',
-        title: 'Solution reported',
+        title: '🚩 Solution reported',
         body: `A solution by ${poster?.name ?? 'a student'} was reported and needs review.`,
         data: { reportId: report.id, uploadId, route: '/admin/solution-reports' },
         fanOutToParents: false,

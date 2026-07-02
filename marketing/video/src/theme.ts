@@ -76,24 +76,15 @@ export const SCREENS = {
  * scenes overlap by TRANSITION frames inside the TransitionSeries, so the
  * composition's true length is sum(scenes) - (n-1) * TRANSITION.
  */
-export const TRANSITION = 14;
+export const TRANSITION = 10;
 
-/** v4 "ref1" timeline @ 60fps — disconnected apps → one app → tour → CTA. */
+/** v9 timeline @ 60fps — Act 1 (ref2-style problem) → Act 2 (ref4-style product). */
 export const SCENES = {
-  disconnected: 580,
-  explode: 320,
-  nova: 470,
-  practice: 300,
-  grades: 300,
-  schedule: 280,
-  exam: 280,
-  solutions: 280,
-  teacher: 320,
-  roles: 250,
-  cta: 300,
+  act1: 1260,
+  act2: 1500,
 } as const;
 
 const sceneList = Object.values(SCENES);
 export const TOTAL_FRAMES =
   sceneList.reduce((a, b) => a + b, 0) - (sceneList.length - 1) * TRANSITION;
-// 3680 - 10*14 = 3540 frames = 59s @ 60fps
+// 2760 - 10 = 2750 frames ≈ 45.8s @ 60fps

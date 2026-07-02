@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app/app.dart';
+import 'core/app_restart.dart';
 import 'core/auth/auth_session.dart';
 import 'core/config/env.dart';
 import 'core/push/push_notifications_service.dart';
@@ -67,7 +68,7 @@ Future<void> main() async {
   // the device's bound user on the backend.
   AuthSession.registerPushService(PushNotificationsService.instance);
 
-  void runRoot() => runApp(const ProviderScope(child: _RootApp()));
+  void runRoot() => runApp(const _Bootstrap());
 
   // Release builds only — never report from local debug `flutter run`.
   if (_sentryDsn.isEmpty || !kReleaseMode) {
@@ -85,6 +86,41 @@ Future<void> main() async {
       },
       appRunner: runRoot,
     );
+  }
+}
+
+/// Holds the root [ProviderScope] under a swappable key so [AppRestart] can
+/// tear the whole tree down and rebuild it (a true account-switch "fresh
+/// world"). Lives ABOVE the scope, so it itself survives the restart.
+class _Bootstrap extends StatefulWidget {
+  const _Bootstrap();
+
+  @override
+  State<_Bootstrap> createState() => _BootstrapState();
+}
+
+class _BootstrapState extends State<_Bootstrap> {
+  Key _scopeKey = UniqueKey();
+
+  @override
+  void initState() {
+    super.initState();
+    AppRestart.register(_restart);
+  }
+
+  @override
+  void dispose() {
+    AppRestart.unregister(_restart);
+    super.dispose();
+  }
+
+  void _restart() {
+    if (mounted) setState(() => _scopeKey = UniqueKey());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ProviderScope(key: _scopeKey, child: const _RootApp());
   }
 }
 

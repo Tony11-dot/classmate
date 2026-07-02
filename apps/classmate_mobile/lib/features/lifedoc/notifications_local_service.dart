@@ -90,6 +90,11 @@ class LocalNotificationsService {
     if (kIsWeb) return;
     await initialize();
 
+    // A clean, minimal title with a leading category emoji — and NO ugly
+    // machine-code subtitle line ("new_message", "grade_posted", …). The
+    // title already says what happened; the emoji makes the type scannable.
+    final title = _titleWithEmoji(item.title, item.source);
+
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
         'classmate_updates',
@@ -100,24 +105,22 @@ class LocalNotificationsService {
         category: AndroidNotificationCategory.status,
         styleInformation: BigTextStyleInformation(item.body),
       ),
-      iOS: DarwinNotificationDetails(
+      iOS: const DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
-        subtitle: _sourceLabel(item.source),
       ),
-      macOS: DarwinNotificationDetails(
+      macOS: const DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
-        subtitle: _sourceLabel(item.source),
       ),
     );
 
     // Payload encodes both source and id so we can deep-link on tap.
     await _plugin.show(
       id: _stableId(item.id),
-      title: item.title,
+      title: title,
       body: item.body,
       notificationDetails: details,
       payload: '${item.source}|${item.id}',
@@ -174,20 +177,93 @@ class LocalNotificationsService {
     return raw.hashCode & 0x7fffffff;
   }
 
-  String _sourceLabel(String source) {
-    switch (source.trim().toLowerCase()) {
+  /// Prepend a category emoji to the title unless it already starts with one
+  /// (the backend's localized copy already carries the emoji, so we must not
+  /// double it). Language-neutral: works for every locale.
+  String _titleWithEmoji(String rawTitle, String source) {
+    final title = rawTitle.trim();
+    if (title.isEmpty) return _emojiForSource(source);
+    if (_startsWithEmoji(title)) return title;
+    return '${_emojiForSource(source)} $title';
+  }
+
+  /// Maps a notification source/type (curated key OR raw server enum, in any
+  /// case, with '-' or '_' separators) to a single leading emoji.
+  String _emojiForSource(String source) {
+    final s = source.trim().toLowerCase().replaceAll('-', '_');
+    switch (s) {
+      case 'grade':
       case 'grades':
-        return 'Grades';
+      case 'grade_posted':
+        return '📊';
+      case 'message':
+      case 'messages':
+      case 'new_message':
+      case 'chat':
+      case 'dm':
+      case 'dm_message':
+      case 'classroom_message':
+        return '💬';
+      case 'assignment':
+      case 'assignments':
+      case 'new_assignment':
+        return '📝';
+      case 'material':
+      case 'materials':
+      case 'new_material':
+        return '📚';
+      case 'meeting':
+      case 'meetings':
+      case 'new_meeting':
+        return '📹';
+      case 'exam':
+      case 'exams':
+      case 'new_exam':
+        return '🎯';
+      case 'form':
+      case 'forms':
+      case 'new_form':
+        return '📋';
+      case 'diploma':
+      case 'diplomas':
+      case 'certificate':
+      case 'new_diploma':
+        return '🏆';
+      case 'announcement':
+      case 'announcements':
+        return '📣';
       case 'attendance':
-        return 'Attendance';
-      case 'practice':
-        return 'Practice';
+      case 'attendance_alert':
+      case 'attendance_marked':
+        return '🚩';
+      case 'classroom_invite':
+      case 'classroom_update':
+      case 'classrooms':
+      case 'classroom':
+        return '🎓';
+      case 'solution':
       case 'solutions':
-        return 'Solutions';
-      case 'system':
-        return 'System';
+      case 'solution_report':
+        return '💡';
+      case 'practice':
+      case 'practice_completed':
+        return '🧠';
+      case 'nova':
+      case 'tutor':
+        return '✨';
       default:
-        return source.trim().isEmpty ? 'ClassMate' : source.trim();
+        return '🔔';
     }
+  }
+
+  /// True when the string's first character is in a common emoji range, so we
+  /// don't prepend a second emoji to backend copy that already has one.
+  bool _startsWithEmoji(String s) {
+    if (s.isEmpty) return false;
+    final r = s.runes.first;
+    return (r >= 0x1F300 && r <= 0x1FAFF) || // symbols & pictographs, emoji
+        (r >= 0x2600 && r <= 0x27BF) || // misc symbols + dingbats
+        r == 0x2728 || // sparkles
+        (r >= 0x1F1E6 && r <= 0x1F1FF); // regional indicators
   }
 }

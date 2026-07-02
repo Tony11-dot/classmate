@@ -1,7 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { COLORS, FONTS } from "../theme";
-import { AuroraLight } from "../components/AuroraLight";
 
 /** Closing card — mark, wordmark, tagline, CTA button, URL. */
 export const CTALight: React.FC = () => {
@@ -12,16 +11,15 @@ export const CTALight: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <AuroraLight hues={[COLORS.indigoSoft, COLORS.sky, COLORS.gold, COLORS.emerald]} />
       <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 22, transform: `scale(${interpolate(pop, [0, 1], [0.7, 1])})`, opacity: pop }}>
           <div style={{ width: 118, height: 118, borderRadius: 30, background: `linear-gradient(150deg, ${COLORS.indigo}, ${COLORS.indigoDeep})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 30px 66px -18px ${COLORS.indigo}aa` }}>
             <Img src={staticFile("brand/cm-icon.png")} style={{ width: 78, height: 78, objectFit: "contain" }} />
           </div>
-          <div style={{ fontFamily: FONTS.display, fontSize: 96, fontWeight: 800, color: COLORS.ink, letterSpacing: -2 }}>ClassMate</div>
+          <div style={{ fontFamily: FONTS.display, fontSize: 96, fontWeight: 800, color: "#F2F5FF", letterSpacing: -2 }}>ClassMate</div>
         </div>
 
-        <div style={{ fontFamily: FONTS.body, fontSize: 32, color: COLORS.ink, opacity: interpolate(up(8), [0, 1], [0, 0.62]), transform: `translateY(${interpolate(up(8), [0, 1], [16, 0])}px)`, marginTop: 14 }}>
+        <div style={{ fontFamily: FONTS.body, fontSize: 32, color: "#A8B2D0", opacity: interpolate(up(8), [0, 1], [0, 0.62]), transform: `translateY(${interpolate(up(8), [0, 1], [16, 0])}px)`, marginTop: 14 }}>
           Your whole school — in one app.
         </div>
 
@@ -37,7 +35,7 @@ export const CTALight: React.FC = () => {
           Get the app →
         </div>
 
-        <div style={{ marginTop: 26, opacity: up(24), fontFamily: FONTS.mono, fontSize: 26, letterSpacing: 2, color: COLORS.indigo, fontWeight: 600 }}>
+        <div style={{ marginTop: 26, opacity: up(24), fontFamily: FONTS.mono, fontSize: 26, letterSpacing: 2, color: "#9DBBFF", fontWeight: 600 }}>
           classmateapp.org
         </div>
       </AbsoluteFill>

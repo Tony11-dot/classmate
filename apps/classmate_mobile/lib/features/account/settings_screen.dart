@@ -325,7 +325,7 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: l.settingsLogoutSubtitle,
                 iconColor: cs.error,
                 titleColor: cs.error,
-                onTap: () => ref.read(authControllerProvider).logout(context),
+                onTap: () => ref.read(authControllerProvider).logout(),
                 trailing: Icon(Icons.chevron_right_rounded, color: cs.error),
               ),
             ),
