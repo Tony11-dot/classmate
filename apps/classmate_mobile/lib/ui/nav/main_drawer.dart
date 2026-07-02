@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
+import 'package:classmate_mobile/features/certificates/data/certificates_repository.dart';
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
 import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
@@ -33,6 +34,8 @@ class MainDrawer extends ConsumerWidget {
     // teachers/parents/staff bring no NOVA revenue, so they don't get the
     // tutor in their nav or a plan to buy tokens they can't spend.
     final isStudent = session.primaryRole == 'STUDENT';
+    // The Certificates tool is only for teachers who are a homeroom teacher.
+    final isHomeroomTeacher = ref.watch(isHomeroomTeacherProvider).value ?? false;
     final displayName = session.displayName.trim();
     final initials = _initials(displayName);
     final schoolName = session.schoolName.trim();
@@ -339,7 +342,8 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     sectionHeader(l.sectionSchoolTools),
                     for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                      if (t.route != '/teacher/certificates' || isHomeroomTeacher)
+                        navItem(icon: t.icon, label: t.label, route: t.route),
                     sectionHeader(l.sectionAccount),
                   // ── Student drawer ────────────────────────────────────────
                   ] else ...[

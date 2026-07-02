@@ -151,6 +151,18 @@ final certificatesRepositoryProvider = Provider<CertificatesRepository>((ref) {
   return CertificatesRepository(token: token);
 });
 
+/// True when the signed-in teacher is the homeroom teacher of at least one
+/// cohort — the certificates backend returns only their homeroom cohorts, so a
+/// non-empty list means they should see the Certificates tab.
+final isHomeroomTeacherProvider = FutureProvider<bool>((ref) async {
+  try {
+    final cohorts = await ref.watch(certificatesRepositoryProvider).cohorts();
+    return cohorts.isNotEmpty;
+  } catch (_) {
+    return false;
+  }
+});
+
 class CertificatesRepository {
   CertificatesRepository({required this.token});
   final String token;

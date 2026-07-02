@@ -112,6 +112,11 @@ export class TeacherController {
     return this.teacher.teacherUpdateCohort(req.user, id, body);
   }
 
+  @Get('school-teachers')
+  schoolTeachers(@Req() req: any) {
+    return this.teacher.schoolTeachers(req.user);
+  }
+
   @Delete('cohorts/:id')
   deleteManagedCohort(@Req() req: any, @Param('id') id: string) {
     return this.teacher.teacherDeleteCohort(req.user, id);

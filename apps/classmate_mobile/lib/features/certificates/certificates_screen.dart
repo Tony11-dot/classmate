@@ -36,6 +36,21 @@ const _certLanguages = <(String, String)>[
   ('ps', 'پښتو'),
 ];
 
+/// One editable grades row: the subject + a per-semester grade box + an editable
+/// teacher field (comma/،-separated for multi-teacher subjects).
+class _EditableSubject {
+  _EditableSubject({required this.base, required this.semCtrls, required this.teacherCtrl});
+  final CertSubjectRow base;
+  final List<TextEditingController> semCtrls;
+  final TextEditingController teacherCtrl;
+  void dispose() {
+    for (final c in semCtrls) {
+      c.dispose();
+    }
+    teacherCtrl.dispose();
+  }
+}
+
 class CertificatesScreen extends ConsumerStatefulWidget {
   const CertificatesScreen({super.key, this.certId});
 
@@ -58,6 +73,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
   List<CertCohort> _cohorts = [];
   List<CertStudent> _students = [];
   CertPrefill? _prefill;
+  List<_EditableSubject> _subjects = [];
 
   String? _cohortId;
   String? _studentId;
@@ -89,8 +105,74 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
     for (final c in _weightCtrls) {
       c.dispose();
     }
+    for (final s in _subjects) {
+      s.dispose();
+    }
     super.dispose();
   }
+
+  String _trimNum(double v) {
+    final s = v.toStringAsFixed(2);
+    return s.replaceAll(RegExp(r'\.?0+$'), '');
+  }
+
+  /// Weighted final for a subject from its per-semester values + weights.
+  double? _weightedFinal(List<double?> sems, List<int> weights) {
+    double num = 0, den = 0;
+    for (int i = 0; i < sems.length; i++) {
+      final v = sems[i];
+      if (v == null) continue;
+      final w = (i < weights.length ? weights[i] : 0).toDouble();
+      if (w <= 0) continue;
+      num += v * w;
+      den += w;
+    }
+    if (den == 0) {
+      final vals = sems.whereType<double>().toList();
+      return vals.isEmpty ? null : vals.reduce((a, b) => a + b) / vals.length;
+    }
+    return num / den;
+  }
+
+  /// The edited subjects → CertSubjectRow list used for the PDF + snapshot.
+  List<CertSubjectRow> _editedSubjects() {
+    final weights = _weights;
+    return _subjects.map((es) {
+      final sems = es.semCtrls.map((c) {
+        final t = c.text.trim();
+        return t.isEmpty ? null : double.tryParse(t);
+      }).toList();
+      final teachers = es.teacherCtrl.text
+          .split(RegExp(r'[،,]'))
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      return CertSubjectRow(
+        subject: es.base.subject,
+        i18n: es.base.i18n,
+        units: es.base.units,
+        semesters: sems,
+        finalAvg: _weightedFinal(sems, weights),
+        teachers: teachers,
+      );
+    }).toList();
+  }
+
+  double? _overallOf(List<CertSubjectRow> subs) {
+    final finals = subs.map((s) => s.finalAvg).whereType<double>().toList();
+    return finals.isEmpty ? null : finals.reduce((a, b) => a + b) / finals.length;
+  }
+
+  List<Map<String, dynamic>> _subjectsJson(List<CertSubjectRow> subs) => subs
+      .map((s) => <String, dynamic>{
+            'subject': s.subject,
+            'i18n': s.i18n,
+            'units': s.units,
+            'semesters': s.semesters,
+            'final': s.finalAvg,
+            'teachers': s.teachers,
+          })
+      .toList();
 
   CertificatesRepository get _repo => ref.read(certificatesRepositoryProvider);
 
@@ -191,8 +273,9 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
       final p = await _repo.prefill(_cohortId!, studentId: _studentId, semesterWeights: weights);
       setState(() {
         _prefill = p;
-        _displayNameCtrl.text = p.student?.name ?? '';
-        _nationalIdCtrl.text = p.studentNationalId ?? '';
+        // Only fill blanks so an edit-mode / hand-edited value isn't clobbered.
+        if (_displayNameCtrl.text.trim().isEmpty) _displayNameCtrl.text = p.student?.name ?? '';
+        if (_nationalIdCtrl.text.trim().isEmpty) _nationalIdCtrl.text = p.studentNationalId ?? '';
         if (_homeroomCtrl.text.trim().isEmpty && p.defaultHomeroomTeacher.isNotEmpty) {
           _homeroomCtrl.text = p.defaultHomeroomTeacher;
         }
@@ -202,6 +285,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         _syncWeightControllers(p.semesterWeights.isNotEmpty
             ? p.semesterWeights
             : List.filled(p.semesterCount, (100 / p.semesterCount).round()));
+        _syncSubjects(p);
         _loadingPrefill = false;
       });
     } catch (e) {
@@ -221,36 +305,55 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
       ..addAll(weights.map((w) => TextEditingController(text: '$w')));
   }
 
+  /// Build the editable grade rows from the prefill's computed subjects.
+  void _syncSubjects(CertPrefill p) {
+    for (final s in _subjects) {
+      s.dispose();
+    }
+    _subjects = p.subjects.map((s) {
+      final sem = List.generate(
+        p.semesterCount,
+        (i) => TextEditingController(
+          text: i < s.semesters.length && s.semesters[i] != null ? _trimNum(s.semesters[i]!) : '',
+        ),
+      );
+      return _EditableSubject(base: s, semCtrls: sem, teacherCtrl: TextEditingController(text: s.teachers.join('، ')));
+    }).toList();
+  }
+
   List<int> get _weights => _weightCtrls.map((c) => int.tryParse(c.text.trim()) ?? 0).toList();
 
-  /// Recompute with the chosen weights, then render the certificate PDF bytes.
-  Future<({Uint8List bytes, String name, CertPrefill fresh})?> _buildBytes(List<int> weights) async {
-    final fresh = await _repo.prefill(_cohortId!, studentId: _studentId, semesterWeights: weights);
-    final displayName = _displayNameCtrl.text.trim().isEmpty ? (fresh.student?.name ?? '') : _displayNameCtrl.text.trim();
+  /// Render the certificate PDF from the (teacher-edited) grade rows.
+  Future<({Uint8List bytes, String name, List<CertSubjectRow> subjects, double? overall})?> _buildBytes() async {
+    final p = _prefill;
+    if (p == null) return null;
+    final subjects = _editedSubjects();
+    final overall = _overallOf(subjects);
+    final displayName = _displayNameCtrl.text.trim().isEmpty ? (p.student?.name ?? '') : _displayNameCtrl.text.trim();
     final now = DateTime.now();
     final dateLabel = '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
     final pdfData = CertificatePdfData(
       language: _language,
-      schoolName: fresh.schoolName,
-      schoolLogoUrl: fresh.schoolLogoUrl,
-      schoolYear: fresh.schoolYear,
+      schoolName: p.schoolName,
+      schoolLogoUrl: p.schoolLogoUrl,
+      schoolYear: p.schoolYear,
       studentName: displayName,
       nationalId: _nationalIdCtrl.text.trim(),
       cohortName: _cohorts.firstWhere((c) => c.id == _cohortId, orElse: () => const CertCohort(id: '', name: '')).name,
-      homeroomTeacher: _homeroomCtrl.text.trim().isEmpty ? fresh.defaultHomeroomTeacher : _homeroomCtrl.text.trim(),
+      homeroomTeacher: _homeroomCtrl.text.trim().isEmpty ? p.defaultHomeroomTeacher : _homeroomCtrl.text.trim(),
       principalName: _principalCtrl.text.trim(),
       publisherNote: _noteCtrl.text.trim(),
-      subjects: fresh.subjects,
-      overall: fresh.overall,
-      absences: fresh.absences,
-      lates: fresh.lates,
-      semesterCount: fresh.semesterCount,
+      subjects: subjects,
+      overall: overall,
+      absences: p.absences,
+      lates: p.lates,
+      semesterCount: p.semesterCount,
       semesterOnly: _semesterOnly,
       roundWhole: _roundWhole,
       dateLabel: dateLabel,
     );
     final bytes = await buildCertificatePdf(pdfData);
-    return (bytes: bytes, name: displayName, fresh: fresh);
+    return (bytes: bytes, name: displayName, subjects: subjects, overall: overall);
   }
 
   bool? _validateForSave() {
@@ -277,10 +380,10 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
       _error = null;
     });
     try {
-      final built = await _buildBytes(weights);
+      final built = await _buildBytes();
       if (built == null) return;
       final displayName = built.name;
-      final fresh = built.fresh;
+      final p = _prefill!;
       String? pdfUrl;
       if (publish) {
         pdfUrl = await _repo.uploadPdf(built.bytes, 'certificate_${displayName.replaceAll(' ', '_')}.pdf');
@@ -290,12 +393,17 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         'studentDisplayName': displayName,
         if (_nationalIdCtrl.text.trim().isNotEmpty) 'nationalId': _nationalIdCtrl.text.trim(),
         'cohortId': _cohortId,
-        'homeroomTeacher': _homeroomCtrl.text.trim().isEmpty ? fresh.defaultHomeroomTeacher : _homeroomCtrl.text.trim(),
+        'homeroomTeacher': _homeroomCtrl.text.trim().isEmpty ? p.defaultHomeroomTeacher : _homeroomCtrl.text.trim(),
         'principalName': _principalCtrl.text.trim(),
         'language': _language,
         if (_noteCtrl.text.trim().isNotEmpty) 'publisherNote': _noteCtrl.text.trim(),
-        'schoolYear': fresh.schoolYear,
+        'schoolYear': p.schoolYear,
         'semesterWeights': weights,
+        // Freeze the teacher-edited grades so the stored snapshot matches the PDF.
+        'snapshot': {
+          'subjects': _subjectsJson(built.subjects),
+          'overall': built.overall,
+        },
         if (pdfUrl != null) 'pdfUrl': pdfUrl,
         'published': publish,
       };
@@ -326,7 +434,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
       _error = null;
     });
     try {
-      final built = await _buildBytes(_weights);
+      final built = await _buildBytes();
       if (built != null) {
         await shareCertificatePdf(built.bytes, 'certificate_${built.name.replaceAll(' ', '_')}.pdf');
       }
@@ -462,53 +570,73 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
               onChanged: (v) => setState(() => _language = v),
             ),
             const SizedBox(height: 18),
-            // Grades preview — the subjects/teachers/final that will print.
-            if (p.subjects.isNotEmpty) ...[
+            // Editable grades — per-semester grade boxes + teacher field per
+            // subject (comma/،-separated for multi-teacher). The final column
+            // recomputes live from the boxes × the semester weights.
+            if (_subjects.isNotEmpty) ...[
               Text(l.certGrin, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
-              Container(
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: cs.outlineVariant),
-                ),
-                child: Column(
-                  children: [
-                    for (int i = 0; i < p.subjects.length; i++)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: i == 0
-                            ? null
-                            : BoxDecoration(
-                                border: Border(top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)))),
-                        child: Row(
-                          children: [
+              for (int i = 0; i < _subjects.length; i++)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: cs.outlineVariant),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(_subjects[i].base.display(_language),
+                                style: const TextStyle(fontWeight: FontWeight.w800)),
+                          ),
+                          Builder(builder: (_) {
+                            final sems = _subjects[i]
+                                .semCtrls
+                                .map((c) => c.text.trim().isEmpty ? null : double.tryParse(c.text.trim()))
+                                .toList();
+                            final f = _weightedFinal(sems, _weights);
+                            return Text(
+                              f == null ? '—' : (_roundWhole ? (f + 0.5).floor().toString() : f.toStringAsFixed(2)),
+                              style: TextStyle(fontWeight: FontWeight.w800, color: cs.primary, fontSize: 16),
+                            );
+                          }),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          for (int s = 0; s < _subjects[i].semCtrls.length; s++) ...[
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(p.subjects[i].display(_language),
-                                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                                  if (p.subjects[i].teachers.isNotEmpty)
-                                    Text(p.subjects[i].teachers.join('، '),
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                                ],
+                              child: TextField(
+                                controller: _subjects[i].semCtrls[s],
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                textAlign: TextAlign.center,
+                                onChanged: (_) => setState(() {}),
+                                decoration: InputDecoration(
+                                  labelText: l.adminSchoolSemesterN('${s + 1}'),
+                                  isDense: true,
+                                  border: const OutlineInputBorder(),
+                                ),
                               ),
                             ),
-                            Text(
-                              p.subjects[i].finalAvg == null
-                                  ? '—'
-                                  : (_roundWhole
-                                      ? (p.subjects[i].finalAvg! + 0.5).floor().toString()
-                                      : p.subjects[i].finalAvg!.toStringAsFixed(2)),
-                              style: TextStyle(fontWeight: FontWeight.w800, color: cs.primary),
-                            ),
+                            if (s < _subjects[i].semCtrls.length - 1) const SizedBox(width: 8),
                           ],
-                        ),
+                        ],
                       ),
-                  ],
+                      const SizedBox(height: 8),
+                      LiquidGlassNameField(
+                        controller: _subjects[i].teacherCtrl,
+                        label: l.certPdfTeacher,
+                        options: p.teacherNames,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
             const SizedBox(height: 20),
             // Save & publish (uploads the PDF → student can download it).

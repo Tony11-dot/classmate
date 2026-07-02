@@ -1100,8 +1100,25 @@ export class TeacherService {
       data.grade = grades[0];
       data.grades = grades;
     }
+    // Homeroom teacher assignment (مربّي/ة الصف) — drives certificate access.
+    if (body?.homeroomTeacherId !== undefined) {
+      data.homeroomTeacherId = body.homeroomTeacherId ? String(body.homeroomTeacherId).trim() : null;
+    }
     const row = await this.prisma.cohort.update({ where: { id }, data });
     return { ok: true, cohort: row };
+  }
+
+  /// School's teachers (id + name) for a homeroom-teacher picker.
+  async schoolTeachers(user: any) {
+    this.ensureTeacher(user);
+    const schoolId = user?.schoolId ?? null;
+    if (!schoolId) return { ok: true, teachers: [] };
+    const teachers = await this.prisma.user.findMany({
+      where: { schoolId, roles: { some: { role: 'TEACHER' as any } } },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+    return { ok: true, teachers };
   }
 
   async teacherDeleteCohort(user: any, id: string) {

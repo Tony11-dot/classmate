@@ -178,22 +178,41 @@ class _CohortTile extends ConsumerWidget {
       grades.add((c['grade'] as num).toInt());
     }
     final available = ref.read(authSessionProvider).schoolGrades;
+    String? homeroomTeacherId = (c['homeroomTeacherId'] ?? '').toString().isEmpty ? null : c['homeroomTeacherId'].toString();
+    List<Map<String, dynamic>> teachers = const [];
+    try {
+      teachers = await ref.read(teacherMobileRepositoryProvider).schoolTeachers();
+    } catch (_) {}
+    if (!context.mounted) return;
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => StatefulBuilder(
         builder: (d, setSheet) => AlertDialog(
           title: Text(l.teacherCohortsScreenEditCohort),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel)),
-            const SizedBox(height: 12),
-            GradeMultiSelectField(
-              label: l.teacherCohortsScreenGradesLabel,
-              hint: l.pickerSelectGrades,
-              availableGrades: available,
-              selected: grades,
-              onChanged: (next) => setSheet(() => grades..clear()..addAll(next)),
-            ),
-          ]),
+          content: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l.teacherCohortsScreenCohortNameLabel)),
+              const SizedBox(height: 12),
+              GradeMultiSelectField(
+                label: l.teacherCohortsScreenGradesLabel,
+                hint: l.pickerSelectGrades,
+                availableGrades: available,
+                selected: grades,
+                onChanged: (next) => setSheet(() => grades..clear()..addAll(next)),
+              ),
+              const SizedBox(height: 12),
+              // Homeroom teacher (مربّي/ة الصف) — drives the certificates access.
+              DropdownButtonFormField<String>(
+                initialValue: homeroomTeacherId,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: l.cohortHomeroomTeacher, border: const OutlineInputBorder()),
+                items: teachers
+                    .map((t) => DropdownMenuItem(value: '${t['id']}', child: Text('${t['name'] ?? ''}', overflow: TextOverflow.ellipsis)))
+                    .toList(),
+                onChanged: (v) => setSheet(() => homeroomTeacherId = v),
+              ),
+            ]),
+          ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
             FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenSave)),
@@ -205,7 +224,7 @@ class _CohortTile extends ConsumerWidget {
     final gradeList = grades.toList()..sort();
     try {
       await ref.read(teacherMobileRepositoryProvider).updateManagedCohort(
-            id, name: nameCtrl.text.trim(), grades: gradeList.isEmpty ? null : gradeList);
+            id, name: nameCtrl.text.trim(), grades: gradeList.isEmpty ? null : gradeList, homeroomTeacherId: homeroomTeacherId);
       ref.invalidate(_cohortsProvider);
       TeacherCohortsScreen._toast(context, l.teacherCohortsScreenSaved);
     } catch (e) {

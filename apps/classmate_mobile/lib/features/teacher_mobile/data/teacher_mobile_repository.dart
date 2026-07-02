@@ -264,12 +264,19 @@ class TeacherMobileRepository {
     });
   }
 
-  Future<void> updateManagedCohort(String id, {String? name, List<int>? grades}) async {
+  Future<void> updateManagedCohort(String id, {String? name, List<int>? grades, String? homeroomTeacherId}) async {
     await _api.patchJson('/teacher/cohorts/$id', body: {
       if (name != null) 'name': name,
       if (grades != null) 'grades': grades,
       if (grades != null) 'grade': grades.first,
+      if (homeroomTeacherId != null) 'homeroomTeacherId': homeroomTeacherId,
     });
+  }
+
+  /// School's teachers (id + name) — for the homeroom-teacher picker.
+  Future<List<Map<String, dynamic>>> schoolTeachers() async {
+    final raw = await _api.getJson('/teacher/school-teachers');
+    return _asList(_asMap(raw)['teachers']).map(_asMap).toList();
   }
 
   Future<void> deleteManagedCohort(String id) async {
