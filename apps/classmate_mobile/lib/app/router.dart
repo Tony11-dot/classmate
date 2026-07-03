@@ -31,7 +31,6 @@ import '../features/lifedoc/notifications_screen.dart';
 import '../features/messages/ui/message_request_screen.dart';
 import '../features/messages/ui/message_thread_screen.dart';
 import '../features/messages/ui/messages_inbox_screen.dart';
-import '../features/student_notes/ui/notes_students_screen.dart';
 import '../features/cmail/ui/cmail_screen.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
@@ -57,7 +56,7 @@ import '../features/teacher_mobile/ui/teacher_schedule_screen.dart';
 import '../features/teacher_mobile/ui/teacher_slot_attachments_screen.dart';
 import '../features/teacher_mobile/ui/admin_periods_screen.dart';
 import '../features/teacher_mobile/ui/teacher_student_profile_screen.dart';
-import '../features/teacher_mobile/ui/teacher_students_screen.dart';
+import '../features/students_hub/ui/students_hub_screen.dart';
 import '../features/teacher_mobile/ui/teacher_add_assignment_screen.dart';
 import '../features/teacher_mobile/ui/teacher_assignment_detail_screen.dart';
 import '../features/teacher_mobile/ui/teacher_add_grade_screen.dart';
@@ -687,11 +686,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const MessagesInboxScreen(),
           ),
           _fadeRoute(
-            path: '/notes',
-            name: 'student_notes',
-            builder: (context, state) => const NotesStudentsScreen(),
-          ),
-          _fadeRoute(
             path: '/cmail',
             name: 'cmail',
             builder: (context, state) => const CMailScreen(),
@@ -921,7 +915,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           _fadeRoute(
             path: '/teacher/students',
-            builder: (context, state) => const TeacherStudentsScreen(),
+            builder: (context, state) => const StudentsHubScreen(),
           ),
           _fadeRoute(
             path: '/practice',

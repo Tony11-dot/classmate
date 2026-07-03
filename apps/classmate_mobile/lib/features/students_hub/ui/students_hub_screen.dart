@@ -4,21 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../data/notes_api.dart';
-import 'student_notes_screen.dart';
+import '../data/students_hub_api.dart';
+import 'student_detail_screen.dart';
 
-/// Notes home — the searchable student browser (name + grade + note count).
-/// Staff-only; the route is only wired into teacher/admin navigation and the
-/// backend rejects any other role anyway.
-class NotesStudentsScreen extends ConsumerStatefulWidget {
-  const NotesStudentsScreen({super.key});
+/// Students hub home (teacher + admin): searchable roster with the grade next
+/// to each name; tapping opens the full-screen 4-tab student page
+/// (Insights / Grades / Notes / Profile).
+class StudentsHubScreen extends ConsumerStatefulWidget {
+  const StudentsHubScreen({super.key});
 
   @override
-  ConsumerState<NotesStudentsScreen> createState() =>
-      _NotesStudentsScreenState();
+  ConsumerState<StudentsHubScreen> createState() => _StudentsHubScreenState();
 }
 
-class _NotesStudentsScreenState extends ConsumerState<NotesStudentsScreen> {
+class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
   final TextEditingController _searchCtl = TextEditingController();
 
   @override
@@ -27,28 +26,24 @@ class _NotesStudentsScreenState extends ConsumerState<NotesStudentsScreen> {
     super.dispose();
   }
 
-  Future<void> _refresh() async {
-    ref.invalidate(notesStudentsProvider);
-    await ref.read(notesStudentsProvider.future);
-  }
-
-  void _openStudent(NoteStudent s) {
-    Navigator.of(context, rootNavigator: true)
-        .push(CupertinoPageRoute(
-          builder: (_) => StudentNotesScreen(
-            studentId: s.studentId,
-            studentName: s.name,
-          ),
-        ))
-        .then((_) => ref.invalidate(notesStudentsProvider));
+  void _open(HubStudent s) {
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoPageRoute(
+        builder: (_) => StudentDetailScreen(
+          studentId: s.studentId,
+          studentName: s.name,
+          grade: s.grade,
+          cohortName: s.cohortName,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final students = ref.watch(notesStudentsProvider);
+    final students = ref.watch(hubStudentsProvider);
     final query = _searchCtl.text.trim().toLowerCase();
 
     return Scaffold(
@@ -69,7 +64,10 @@ class _NotesStudentsScreenState extends ConsumerState<NotesStudentsScreen> {
                     .where((s) => s.name.toLowerCase().contains(query))
                     .toList();
             return RefreshIndicator(
-              onRefresh: _refresh,
+              onRefresh: () async {
+                ref.invalidate(hubStudentsProvider);
+                await ref.read(hubStudentsProvider.future);
+              },
               child: ListView(
                 physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics(),
@@ -81,7 +79,7 @@ class _NotesStudentsScreenState extends ConsumerState<NotesStudentsScreen> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
                     child: Text(
-                      l.notesTitle,
+                      l.teacherStudentsLabel,
                       style: theme.textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w900),
                     ),
@@ -108,11 +106,7 @@ class _NotesStudentsScreenState extends ConsumerState<NotesStudentsScreen> {
                       child: Center(child: Text(l.notesNoStudents)),
                     )
                   else
-                    ...filtered.map((s) => _StudentRow(
-                          student: s,
-                          onTap: () => _openStudent(s),
-                          colorScheme: cs,
-                        )),
+                    ...filtered.map((s) => _Row(student: s, onTap: () => _open(s))),
                 ],
               ),
             );
@@ -123,26 +117,17 @@ class _NotesStudentsScreenState extends ConsumerState<NotesStudentsScreen> {
   }
 }
 
-class _StudentRow extends StatelessWidget {
-  const _StudentRow({
-    required this.student,
-    required this.onTap,
-    required this.colorScheme,
-  });
+class _Row extends StatelessWidget {
+  const _Row({required this.student, required this.onTap});
 
-  final NoteStudent student;
+  final HubStudent student;
   final VoidCallback onTap;
-  final ColorScheme colorScheme;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final cs = colorScheme;
-    final gradeBits = <String>[
-      if (student.grade != null) l.solutionsGradeLabel(student.grade!),
-      if ((student.cohortName ?? '').isNotEmpty) student.cohortName!,
-    ];
+    final cs = theme.colorScheme;
     final initial =
         student.name.isNotEmpty ? student.name.characters.first : '?';
 
@@ -159,7 +144,7 @@ class _StudentRow extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 22,
+                  radius: 21,
                   backgroundColor: cs.primaryContainer,
                   child: Text(
                     initial.toUpperCase(),
@@ -181,9 +166,9 @@ class _StudentRow extends StatelessWidget {
                         style: theme.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      if (gradeBits.isNotEmpty)
+                      if ((student.cohortName ?? '').isNotEmpty)
                         Text(
-                          gradeBits.join(' · '),
+                          student.cohortName!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall
@@ -192,26 +177,24 @@ class _StudentRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: student.noteCount > 0
-                        ? cs.primary.withValues(alpha: 0.12)
-                        : cs.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    l.notesCount(student.noteCount),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: student.noteCount > 0
-                          ? cs.primary
-                          : cs.onSurfaceVariant,
+                if (student.grade != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      l.solutionsGradeLabel(student.grade!),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.primary,
+                      ),
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(width: 4),
                 Icon(Icons.chevron_right_rounded,
                     color: cs.onSurfaceVariant, size: 22),

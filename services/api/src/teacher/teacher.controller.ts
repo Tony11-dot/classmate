@@ -331,6 +331,22 @@ export class TeacherController {
     return this.teacher.classroomAnalytics(req.user, id);
   }
 
+  // ── Students hub: per-student tabs (insights / grades / parents) ─────────
+  @Get('students/:studentId/insights')
+  studentInsights(@Req() req: any, @Param('studentId') studentId: string) {
+    return this.teacher.studentInsightsFor(req.user, studentId);
+  }
+
+  @Get('students/:studentId/grades')
+  studentGradesFull(@Req() req: any, @Param('studentId') studentId: string) {
+    return this.teacher.studentGradesFor(req.user, studentId);
+  }
+
+  @Get('students/:studentId/parents')
+  studentParents(@Req() req: any, @Param('studentId') studentId: string) {
+    return this.teacher.studentParentsFor(req.user, studentId);
+  }
+
   @Get('student/:studentId/profile')
   studentProfile(@Req() req: any, @Param('studentId') studentId: string) {
     return this.teacher.getStudentProfile(req.user, studentId);

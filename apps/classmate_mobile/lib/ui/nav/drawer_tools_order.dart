@@ -53,7 +53,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/teacher/exams', icon: Icons.quiz_rounded, label: l.navExams),
         DrawerTool(route: '/teacher/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/teacher/forms', icon: Icons.assignment_turned_in_rounded, label: l.navForms),
-        DrawerTool(route: '/notes', icon: Icons.sticky_note_2_rounded, label: l.notesTitle),
         DrawerTool(route: '/cmail', icon: Icons.alternate_email_rounded, label: l.cmailTitle),
       ];
     case 'parent':
@@ -81,7 +80,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/admin/reports', icon: Icons.flag_outlined, label: l.navReports),
         DrawerTool(route: '/admin/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/admin/export', icon: Icons.download_rounded, label: l.navExportData),
-        DrawerTool(route: '/notes', icon: Icons.sticky_note_2_rounded, label: l.notesTitle),
+        DrawerTool(route: '/teacher/students', icon: Icons.people_rounded, label: l.teacherStudentsLabel),
         DrawerTool(route: '/cmail', icon: Icons.alternate_email_rounded, label: l.cmailTitle),
       ];
     case 'secretary':

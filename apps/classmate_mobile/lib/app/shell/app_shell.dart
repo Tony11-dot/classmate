@@ -820,7 +820,7 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
                   children: [
                     if (!widget.hideTopBar)
                       SizedBox(
-                        height: 88,
+                        height: 60,
                         child: _TopBar(title: widget.pageTitle, showMenuButton: false),
                       ),
                     Expanded(
@@ -1523,15 +1523,14 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showMenuButton;
 
   @override
-  Size get preferredSize => const Size.fromHeight(88);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final logoW = (MediaQuery.sizeOf(context).width - 52 - 120).clamp(120.0, 300.0);
 
     return AppBar(
-      toolbarHeight: 88,
+      toolbarHeight: 60,
       titleSpacing: 0,
       centerTitle: true,
       leadingWidth: showMenuButton ? 52 : 0,
@@ -1551,7 +1550,7 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: ClassMateLogo(width: logoW),
+      title: const ClassMateLogo(height: 24),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 14),

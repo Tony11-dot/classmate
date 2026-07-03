@@ -10870,4 +10870,79 @@ class AppLocalizationsRu extends AppLocalizations {
   String cmailFrom(String name) {
     return 'From $name';
   }
+
+  @override
+  String get phoneLinkTitle => 'Add your phone';
+
+  @override
+  String get phoneLinkSubtitle =>
+      'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.';
+
+  @override
+  String get phoneLinkFieldLabel => 'Phone number';
+
+  @override
+  String get phoneLinkSend => 'Send code';
+
+  @override
+  String get phoneLinkCodeLabel => '6-digit code';
+
+  @override
+  String phoneLinkCodeSent(String phone) {
+    return 'Code sent to $phone';
+  }
+
+  @override
+  String get phoneLinkVerify => 'Verify & link';
+
+  @override
+  String get phoneLinkLater => 'Later';
+
+  @override
+  String get phoneLinkDone => 'Phone linked!';
+
+  @override
+  String get phoneLinkResend => 'Resend code';
+
+  @override
+  String get phoneLinkInvalid => 'Enter a valid phone number';
+
+  @override
+  String get hubParentsSection => 'Parents';
+
+  @override
+  String get hubNoParents => 'No linked parents yet';
+
+  @override
+  String get hubStudentSection => 'Student';
+
+  @override
+  String get hubAverageLabel => 'Average';
+
+  @override
+  String get hubAccuracyLabel => 'Practice accuracy';
+
+  @override
+  String get hubBestSubject => 'Best subject';
+
+  @override
+  String get hubWeakestSubject => 'Weakest subject';
+
+  @override
+  String get hubWeakTopics => 'Weak topics';
+
+  @override
+  String get hubStrongTopics => 'Strong topics';
+
+  @override
+  String get hubNoInsights => 'No insights yet';
+
+  @override
+  String get hubNoGrades => 'No grades yet';
+
+  @override
+  String get hubUnpublished => 'Draft';
+
+  @override
+  String get hubClass => 'Class';
 }

@@ -18800,6 +18800,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From {name}'**
   String cmailFrom(String name);
+
+  /// No description provided for @phoneLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your phone'**
+  String get phoneLinkTitle;
+
+  /// No description provided for @phoneLinkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.'**
+  String get phoneLinkSubtitle;
+
+  /// No description provided for @phoneLinkFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get phoneLinkFieldLabel;
+
+  /// No description provided for @phoneLinkSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get phoneLinkSend;
+
+  /// No description provided for @phoneLinkCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get phoneLinkCodeLabel;
+
+  /// No description provided for @phoneLinkCodeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Code sent to {phone}'**
+  String phoneLinkCodeSent(String phone);
+
+  /// No description provided for @phoneLinkVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & link'**
+  String get phoneLinkVerify;
+
+  /// No description provided for @phoneLinkLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get phoneLinkLater;
+
+  /// No description provided for @phoneLinkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone linked!'**
+  String get phoneLinkDone;
+
+  /// No description provided for @phoneLinkResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get phoneLinkResend;
+
+  /// No description provided for @phoneLinkInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get phoneLinkInvalid;
+
+  /// No description provided for @hubParentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get hubParentsSection;
+
+  /// No description provided for @hubNoParents.
+  ///
+  /// In en, this message translates to:
+  /// **'No linked parents yet'**
+  String get hubNoParents;
+
+  /// No description provided for @hubStudentSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get hubStudentSection;
+
+  /// No description provided for @hubAverageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get hubAverageLabel;
+
+  /// No description provided for @hubAccuracyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice accuracy'**
+  String get hubAccuracyLabel;
+
+  /// No description provided for @hubBestSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Best subject'**
+  String get hubBestSubject;
+
+  /// No description provided for @hubWeakestSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Weakest subject'**
+  String get hubWeakestSubject;
+
+  /// No description provided for @hubWeakTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak topics'**
+  String get hubWeakTopics;
+
+  /// No description provided for @hubStrongTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong topics'**
+  String get hubStrongTopics;
+
+  /// No description provided for @hubNoInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'No insights yet'**
+  String get hubNoInsights;
+
+  /// No description provided for @hubNoGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'No grades yet'**
+  String get hubNoGrades;
+
+  /// No description provided for @hubUnpublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get hubUnpublished;
+
+  /// No description provided for @hubClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get hubClass;
 }
 
 class _AppLocalizationsDelegate

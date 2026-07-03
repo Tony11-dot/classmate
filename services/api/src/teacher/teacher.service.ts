@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { BadRequestException, ForbiddenException, Injectable, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import { StudentInsightsService } from '../student/student-insights.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
 import { RealtimeService } from '../realtime/realtime.service';
@@ -156,6 +157,7 @@ export class TeacherService {
     private readonly realtime: RealtimeService,
     private readonly hub: NotificationsHubService,
     private readonly parentEvents: ParentNotificationsEvents,
+    private readonly studentInsights: StudentInsightsService,
   ) {}
 
   /// Resolve a teacher-level audience (the targetType + targetStudentIds
@@ -2354,6 +2356,106 @@ export class TeacherService {
       totalStudents: memberIds.length,
       totalAssignments: assignments,
       attendanceRate: total > 0 ? Math.round((present / total) * 100) : null,
+    };
+  }
+
+  // ── Students hub (teacher/admin) — per-student tabs ─────────────────────
+
+  /// Rich single-student insights for the Students hub. Same payload the
+  /// student sees on their own Insights tab; gated to staff of the
+  /// student's school via assertInSchool.
+  async studentInsightsFor(user: any, studentId: string) {
+    this.ensureTeacher(user);
+    await this.assertInSchool(user, studentId);
+    return this.studentInsights.getStudentInsights(user, studentId);
+  }
+
+  /// Subject-grouped grades for one student (mirrors /admin/students/:id/
+  /// grades so teachers get the same view admins already had).
+  async studentGradesFor(user: any, studentId: string) {
+    this.ensureTeacher(user);
+    await this.assertInSchool(user, studentId);
+
+    const student = await this.prisma.user.findFirst({
+      where: { id: studentId, roles: { some: { role: 'STUDENT' } } },
+      select: {
+        id: true,
+        name: true,
+        studentProfile: {
+          select: { grade: true, cohort: { select: { name: true, grade: true } } },
+        },
+      },
+    });
+    if (!student) throw new NotFoundException('Student not found');
+
+    const records = await this.prisma.gradeRecord.findMany({
+      where: { studentId },
+      include: { assessment: true },
+      orderBy: [{ assessment: { date: 'desc' } }, { id: 'desc' }],
+    });
+
+    const bySubject = new Map<string, { grades: any[]; sum: number; count: number }>();
+    for (const r of records) {
+      const a = r.assessment;
+      const subject = a.subject && a.subject.trim() ? a.subject : a.title;
+      const bucket = bySubject.get(subject) ?? { grades: [], sum: 0, count: 0 };
+      bucket.grades.push({
+        assessmentId: a.id,
+        title: a.title,
+        grade: r.grade,
+        maxGrade: a.maxGrade,
+        date: a.date.toISOString(),
+        published: r.published !== false,
+        comment: r.comment ?? null,
+      });
+      bucket.sum += r.grade;
+      bucket.count += 1;
+      bySubject.set(subject, bucket);
+    }
+
+    const subjects = Array.from(bySubject.entries())
+      .map(([subject, b]) => ({
+        subject,
+        average: b.count ? Math.round(b.sum / b.count) : null,
+        grades: b.grades,
+      }))
+      .sort((x, y) => x.subject.localeCompare(y.subject));
+
+    return {
+      ok: true,
+      student: {
+        id: student.id,
+        name: student.name,
+        cohortName: student.studentProfile?.cohort?.name ?? null,
+        grade:
+          student.studentProfile?.grade ??
+          student.studentProfile?.cohort?.grade ??
+          null,
+      },
+      subjects,
+    };
+  }
+
+  /// The student's APPROVED parents with their contact details, for the
+  /// hub's Profile tab. Contact PII is only reachable by staff of the
+  /// student's own school (assertInSchool above every read here).
+  async studentParentsFor(user: any, studentId: string) {
+    this.ensureTeacher(user);
+    await this.assertInSchool(user, studentId);
+    const links = await this.prisma.parentChild.findMany({
+      where: { childId: studentId, status: 'APPROVED' },
+      include: {
+        parent: { select: { id: true, name: true, email: true, phone: true } },
+      },
+    });
+    return {
+      ok: true,
+      parents: links.map((l) => ({
+        id: l.parent.id,
+        name: l.parent.name,
+        email: l.parent.email,
+        phone: l.parent.phone,
+      })),
     };
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'phone_link_screen.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../core/app_restart.dart';
@@ -112,6 +113,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         AppRestart.restart();
         return;
       }
+      // 2FA linking: an account with no phone on file gets one extra step —
+      // verify a number by SMS so it's usable for password reset. Skippable
+      // (Later) so an SMS outage can never lock anyone out of the app.
+      if (await PhoneLinkScreen.needsLink(session.token ?? '')) {
+        if (!mounted) return;
+        await Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(builder: (_) => const PhoneLinkScreen()),
+        );
+        if (!mounted) return;
+      }
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
       // Stored credentials are stale (e.g. password changed) — forget this
@@ -155,6 +166,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         // previous account's cached data can never bleed into this one.
         AppRestart.restart();
         return;
+      }
+      // 2FA linking: an account with no phone on file gets one extra step —
+      // verify a number by SMS so it's usable for password reset. Skippable
+      // (Later) so an SMS outage can never lock anyone out of the app.
+      if (await PhoneLinkScreen.needsLink(session.token ?? '')) {
+        if (!mounted) return;
+        await Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(builder: (_) => const PhoneLinkScreen()),
+        );
+        if (!mounted) return;
       }
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {

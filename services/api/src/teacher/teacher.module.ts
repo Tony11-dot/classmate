@@ -4,6 +4,7 @@ import { TeacherService } from './teacher.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { ParentNotificationsEventsModule } from '../parent/parent-notifications-events.module';
+import { StudentModule } from '../student/student.module';
 
 // NotificationsHubService is provided by @Global() NotificationsModule.
 // ParentNotificationsEventsModule is imported explicitly because the
@@ -11,7 +12,7 @@ import { ParentNotificationsEventsModule } from '../parent/parent-notifications-
 // or grade write needs to ping parents WITHOUT going through the hub
 // (the existing inline path has its own dedup that we want to keep).
 @Module({
-  imports: [PrismaModule, RealtimeModule, ParentNotificationsEventsModule],
+  imports: [PrismaModule, RealtimeModule, ParentNotificationsEventsModule, StudentModule],
   controllers: [TeacherController],
   providers: [TeacherService],
 })
