@@ -357,6 +357,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.groups_rounded, label: l.navClassrooms, route: '/teacher/classrooms'),
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
+                    navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     sectionHeader(l.sectionSchoolTools),
                     for (final t in orderedTools)

@@ -118,7 +118,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
 
     return PopScope(
       canPop: false,
@@ -172,19 +171,6 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   ),
                 ),
               ),
-              if (widget.note != null &&
-                  widget.note!.authorName.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      l.notesEditedBy(widget.note!.authorName),
-                      style: theme.textTheme.labelSmall
-                          ?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  ),
-                ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),

@@ -9,12 +9,11 @@ import { hasAnyRole } from '../auth/roles';
 import { CreateNoteDto, UpdateNoteDto } from './dto/note.dto';
 
 /// Staff notes about students (Apple-Notes-like, but per student).
-/// Access model: TEACHER + ADMIN of the student's school see all of that
-/// student's notes (shared staff record, author shown on each note); a note
-/// is editable/deletable by its author or any ADMIN. Students, parents and
-/// secretaries never reach these routes (controller @Roles) and every query
-/// below is school-scoped — cross-school reads are impossible by
-/// construction.
+/// Access model: PRIVATE per author — a teacher/admin only ever sees, edits
+/// and deletes the notes THEY wrote (admins get no bypass into another
+/// teacher's notes). Students, parents and secretaries never reach these
+/// routes (controller @Roles) and every query below is school-scoped —
+/// cross-school reads are impossible by construction.
 @Injectable()
 export class NotesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -31,9 +30,10 @@ export class NotesService {
   }
 
   /// The student browser: every student in the caller's school with their
-  /// grade/cohort and how many notes exist for them. `q` filters by name.
+  /// grade/cohort and how many of the CALLER'S OWN notes exist for them.
+  /// `q` filters by name.
   async listStudents(user: any, q?: string) {
-    const { schoolId } = this.staff(user);
+    const { schoolId, userId } = this.staff(user);
     const query = (q ?? '').trim();
     const students = await this.prisma.user.findMany({
       where: {
@@ -55,7 +55,7 @@ export class NotesService {
 
     const counts = await this.prisma.studentNote.groupBy({
       by: ['studentId'],
-      where: { schoolId },
+      where: { schoolId, authorId: userId },
       _count: { _all: true },
     });
     const countMap = new Map(counts.map((c) => [c.studentId, c._count._all]));
@@ -94,22 +94,14 @@ export class NotesService {
   }
 
   async listNotes(user: any, studentId: string) {
-    const { schoolId, userId, isAdmin } = this.staff(user);
+    const { schoolId, userId } = this.staff(user);
     const student = await this.requireStudent(schoolId, studentId);
 
+    // Private notes: only the caller's own writing ever leaves the DB.
     const notes = await this.prisma.studentNote.findMany({
-      where: { schoolId, studentId },
+      where: { schoolId, studentId, authorId: userId },
       orderBy: { updatedAt: 'desc' },
     });
-
-    const authorIds = [...new Set(notes.map((n) => n.authorId))];
-    const authors = authorIds.length
-      ? await this.prisma.user.findMany({
-          where: { id: { in: authorIds } },
-          select: { id: true, name: true },
-        })
-      : [];
-    const authorMap = new Map(authors.map((a) => [a.id, a.name]));
 
     return {
       ok: true,
@@ -127,8 +119,8 @@ export class NotesService {
         title: n.title,
         body: n.body,
         authorId: n.authorId,
-        authorName: authorMap.get(n.authorId) ?? '',
-        canEdit: isAdmin || n.authorId === userId,
+        authorName: '',
+        canEdit: true,
         createdAt: n.createdAt.toISOString(),
         updatedAt: n.updatedAt.toISOString(),
       })),
@@ -150,16 +142,15 @@ export class NotesService {
     return { ok: true, noteId: note.id };
   }
 
-  /// Load a note the caller may MODIFY: same school AND (author or ADMIN).
+  /// Load a note the caller may MODIFY: same school AND their own. Notes
+  /// are private per author — a 404 (not 403) for someone else's note, so
+  /// the route never even confirms it exists.
   private async requireEditableNote(user: any, noteId: string) {
-    const { schoolId, userId, isAdmin } = this.staff(user);
+    const { schoolId, userId } = this.staff(user);
     const note = await this.prisma.studentNote.findFirst({
-      where: { id: noteId, schoolId },
+      where: { id: noteId, schoolId, authorId: userId },
     });
     if (!note) throw new NotFoundException('Note not found');
-    if (!isAdmin && note.authorId !== userId) {
-      throw new ForbiddenException('Only the author or an admin can change this note');
-    }
     return note;
   }
 

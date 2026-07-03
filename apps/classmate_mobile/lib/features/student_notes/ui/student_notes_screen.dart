@@ -214,9 +214,7 @@ class _NoteRow extends StatelessWidget {
                 ],
                 const SizedBox(height: 6),
                 Text(
-                  note.authorName.isEmpty
-                      ? date
-                      : '$date · ${l.notesEditedBy(note.authorName)}',
+                  date,
                   style: theme.textTheme.labelSmall
                       ?.copyWith(color: cs.onSurfaceVariant),
                 ),
