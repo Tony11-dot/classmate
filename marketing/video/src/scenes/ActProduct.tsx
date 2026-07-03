@@ -20,24 +20,27 @@ import { pop } from "../anim";
  */
 export const PBEATS = {
   chat: 0,
-  options: 300,
-  button: 540,
-  panels: 660,
-  orb: 990,
-  future: 1120,
-  end: 1310,
-  out: 1500,
+  options: 420,
+  button: 600,
+  panels: 700,
+  orb: 980,
+  future: 1070,
+  end: 1230,
+  out: 1410,
 } as const;
 
-const OVERLAP = 12;
+const OVERLAP = 10;
 
 const useCam = (local: number, dur: number, fps: number) => {
-  const enter = spring({ frame: local, fps, config: { damping: 16, mass: 0.75, stiffness: 150 } });
-  const exitT = interpolate(local, [dur - OVERLAP, dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // speed-ramp: FAST in → slow-motion drift → FAST out (tab-swipe feel)
+  const enter = spring({ frame: local, fps, config: { damping: 15, mass: 0.6, stiffness: 280 } });
+  const exitT = interpolate(local, [dur - 9, dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const drift = 1 + (local / dur) * 0.05; // the slow-mo push
   return {
-    scale: interpolate(enter, [0, 1], [0.92, 1]) * interpolate(exitT, [0, 1], [1, 1.22]),
-    blur: (1 - enter) * 5 + exitT * 8,
-    opacity: interpolate(exitT, [0.55, 1], [1, 0], { extrapolateLeft: "clamp" }),
+    scale: interpolate(enter, [0, 1], [0.72, 1]) * drift * interpolate(exitT, [0, 1], [1, 1.45]),
+    x: (1 - enter) * 340 + exitT * -420,
+    blur: (1 - enter) * 7 + exitT * 14,
+    opacity: interpolate(exitT, [0.5, 1], [1, 0], { extrapolateLeft: "clamp" }),
   };
 };
 const Beat: React.FC<{ from: number; to: number; children: React.ReactNode }> = ({ from, to, children }) => (
@@ -51,7 +54,7 @@ const BeatInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const cam = useCam(local, dur, fps);
   return (
     <AbsoluteFill style={{ opacity: cam.opacity }}>
-      <div style={{ position: "absolute", inset: 0, transform: `scale(${cam.scale})`, filter: cam.blur > 0.6 ? `blur(${cam.blur}px)` : undefined }}>{children}</div>
+      <div style={{ position: "absolute", inset: 0, transform: `translateX(${cam.x}px) scale(${cam.scale})`, filter: cam.blur > 0.6 ? `blur(${cam.blur}px)` : undefined }}>{children}</div>
     </AbsoluteFill>
   );
 };
@@ -119,41 +122,80 @@ const GlowText: React.FC<{ size?: number; children: React.ReactNode; weight?: nu
 const Chat: React.FC = () => {
   const local = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const TEXT = "How can I get ready for my math exam?";
+  const F = 34;
+  const TYPE_START = 96, CPS = 30;
+  const typeFrames = Math.ceil((TEXT.length / CPS) * fps);
+  const SEND = TYPE_START + typeFrames + 10; // ≈182
+  const ZOOM_OUT = SEND + 14;
+
+  // star flies in on an arc, spinning, then docks as the header orb
+  const starIn = spring({ frame: local - 4, fps, config: { damping: 13, mass: 0.7, stiffness: 170 } });
+  const dock = spring({ frame: local - 66, fps, config: { damping: 15, mass: 0.7, stiffness: 190 } });
+  const starX = interpolate(starIn, [0, 1], [900, 0]) ;
+  const starY = interpolate(starIn, [0, 1], [-560, 0]) + interpolate(dock, [0, 1], [0, -250]);
+  const starScale = interpolate(starIn, [0, 1], [0.3, 1.6]) * interpolate(dock, [0, 1], [1, 0.45]);
+
+  // camera: zoomed into the pill while typing, follows the caret, zooms out fast on send
+  const typed = Math.max(0, Math.min(TEXT.length, Math.floor(((local - TYPE_START) / fps) * CPS)));
+  const caretX = interpolate(local, [TYPE_START, TYPE_START + typeFrames], [0, TEXT.length * F * 0.47], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const zoomOut = spring({ frame: local - ZOOM_OUT, fps, config: { damping: 15, mass: 0.7, stiffness: 200 } });
+  const zoomIn = spring({ frame: local - 78, fps, config: { damping: 16, mass: 0.8, stiffness: 150 } });
+  const zoom = 1 + zoomIn * 0.55 * (1 - zoomOut);
+  const followX = -Math.max(0, caretX - 260) * 0.75 * (zoom - 1);
+  const sendPop = pop(local, fps, SEND);
+
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
       <Deep />
-      {/* header */}
-      <div style={{ position: "absolute", top: "12%", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-        <div style={{ opacity: pop(local, fps, 4) }}><Orb size={56} local={local} /></div>
-        <div style={{ opacity: pop(local, fps, 10), fontFamily: FONTS.body, fontWeight: 700, fontSize: 24, color: "#93A3D8", letterSpacing: 2 }}>ClassMate</div>
-        <div style={{ opacity: pop(local, fps, 16), fontFamily: FONTS.display, fontWeight: 800, fontSize: 62, letterSpacing: -1, color: "#EEF2FF", textShadow: "0 0 34px rgba(150,180,255,0.7)" }}>NOVA AI</div>
+      {/* flying star → docks into header */}
+      <div style={{ position: "absolute", transform: `translate(${starX}px, ${starY}px) scale(${starScale}) rotate(${local * 4}deg)`, zIndex: 6, filter: "drop-shadow(0 0 26px rgba(150,180,255,0.9))" }}>
+        <div style={{ fontSize: 64, color: "#DCE6FF" }}>✦</div>
       </div>
-      <div style={{ position: "absolute", top: "44%", width: 760 }}>
-        {/* prompt pill */}
-        <Glow at={22} local={local} style={{ padding: "18px 18px 18px 28px", borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <GlowText size={29}>How can I help?</GlowText>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, borderRadius: 999, padding: "10px 22px", background: "rgba(200,215,255,0.92)", color: "#1a2244", fontFamily: FONTS.body, fontWeight: 800, fontSize: 22, boxShadow: `0 0 ${24 + 10 * Math.sin(local / 12)}px rgba(170,195,255,0.8)` }}>
-            <Orb size={22} local={local} /> Ask NOVA
+      {/* Meet NOVA */}
+      <div style={{ position: "absolute", top: "17%", opacity: (1 - dock) * interpolate(starIn, [0.5, 1], [0, 1], { extrapolateLeft: "clamp" }) }}>
+        <WordPop text="Meet |NOVA" offsets={[26, 40]} size={110} color="#EEF2FF" highlight="#9DBBFF" />
+      </div>
+      {/* docked header */}
+      <div style={{ position: "absolute", top: "13%", opacity: dock, display: "flex", alignItems: "center", gap: 16 }}>
+        <Orb size={44} local={local} />
+        <span style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 46, color: "#EEF2FF", textShadow: "0 0 30px rgba(150,180,255,0.7)" }}>NOVA AI</span>
+      </div>
+
+      {/* camera-tracked stage */}
+      <div style={{ position: "absolute", top: "40%", width: 780, transform: `scale(${zoom}) translateX(${followX}px)` }}>
+        {/* prompt pill with typing + send */}
+        <Glow at={70} local={local} style={{ padding: "18px 16px 18px 28px", borderRadius: 999, display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ flex: 1, fontFamily: FONTS.body, fontWeight: 600, fontSize: F, color: "#EEF2FF", whiteSpace: "nowrap", overflow: "hidden" }}>
+            {typed === 0 ? <span style={{ opacity: 0.4 }}>Message NOVA</span> : TEXT.slice(0, typed)}
+            <span style={{ opacity: local > SEND ? 0 : 1, fontWeight: 300, color: "#9DBBFF" }}>|</span>
           </div>
+          <div style={{ width: 56, height: 56, borderRadius: 99, background: "rgba(205,220,255,0.95)", display: "flex", alignItems: "center", justifyContent: "center", color: "#141c3c", fontWeight: 900, fontSize: 26, flexShrink: 0, transform: `scale(${1 + 0.25 * sendPop})`, boxShadow: `0 0 ${20 + 34 * sendPop}px rgba(170,195,255,0.9)` }}>↑</div>
         </Glow>
-        {/* typed question bubble */}
-        {local >= 60 ? (
+
+        {/* convo revealed after zoom-out */}
+        {local >= ZOOM_OUT + 4 ? (
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 18 }}>
-            <div style={{ transform: `scale(${pop(local, fps, 60)})`, transformOrigin: "right", borderRadius: "20px 20px 6px 20px", padding: "14px 22px", background: "linear-gradient(140deg, rgba(90,125,240,0.9), rgba(60,80,200,0.9))", boxShadow: "0 0 30px rgba(100,130,255,0.5)", fontFamily: FONTS.body, fontWeight: 600, fontSize: 25, color: "#fff" }}>
-              <TypeOn text="How can I get ready for my math exam?" start={64} cps={30} caret={local < 150} />
-            </div>
+            <div style={{ transform: `scale(${pop(local, fps, ZOOM_OUT + 4)})`, transformOrigin: "right", borderRadius: "20px 20px 6px 20px", padding: "13px 20px", background: "linear-gradient(140deg, rgba(90,125,240,0.9), rgba(60,80,200,0.9))", boxShadow: "0 0 30px rgba(100,130,255,0.5)", fontFamily: FONTS.body, fontWeight: 600, fontSize: 23, color: "#fff" }}>{TEXT}</div>
           </div>
         ) : null}
-        {/* NOVA reply */}
-        {local >= 160 ? (
-          <Glow at={160} local={local} style={{ marginTop: 18, padding: "18px 24px" }}>
+        {local >= ZOOM_OUT + 16 ? (
+          <Glow at={ZOOM_OUT + 16} local={local} style={{ marginTop: 16, padding: "16px 22px" }}>
             <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <Orb size={30} local={local} />
+              <Orb size={28} local={local} />
               <div style={{ flex: 1, fontFamily: FONTS.body, fontWeight: 500, fontSize: 22, lineHeight: 1.45, color: "#C9D4F5" }}>
-                <TypeOn text="Let's build a plan — I'll explain every step, in your language." start={168} cps={34} caret={local < 250} />
+                <TypeOn text="Let's build a plan — I'll explain every step, in your language." start={ZOOM_OUT + 22} cps={36} caret={local < ZOOM_OUT + 130} />
               </div>
             </div>
           </Glow>
+        ) : null}
+        {/* suggestion chips keep the scene alive */}
+        {local >= ZOOM_OUT + 120 ? (
+          <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+            {["Study plan", "5 practice Qs", "Explain again"].map((c, i) => (
+              <div key={i} style={{ transform: `scale(${pop(local, fps, ZOOM_OUT + 120 + i * 8)}) translateY(${Math.sin(local / 24 + i * 2) * 3}px)`, borderRadius: 999, padding: "10px 20px", border: "1.5px solid rgba(150,180,255,0.45)", background: "rgba(30,40,72,0.6)", fontFamily: FONTS.body, fontWeight: 700, fontSize: 20, color: "#C9D4F5", boxShadow: "0 0 18px rgba(110,140,255,0.2)" }}>{c}</div>
+            ))}
+          </div>
         ) : null}
       </div>
     </AbsoluteFill>

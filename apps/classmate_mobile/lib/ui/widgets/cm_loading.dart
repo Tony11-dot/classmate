@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  CmLoading — uses the real icon PNG so it matches the drawer exactly.
-//  Falls back to a drawn version only when the asset is unavailable.
+//  CmLoading — the branded loading indicator.
+//  Renders the Lottie dots spinner (light/dark variants) when bundled;
+//  falls back to the spinning icon PNG, then to a drawn version.
+//  A `color` tint forces the PNG path (Lotties can't be tinted).
 // ─────────────────────────────────────────────────────────────────────────────
 
 class CmLoading extends StatefulWidget {
@@ -20,6 +23,7 @@ class _CmLoadingState extends State<CmLoading>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   bool _assetFailed = false;
+  bool _lottieFailed = false;
 
   @override
   void initState() {
@@ -49,6 +53,39 @@ class _CmLoadingState extends State<CmLoading>
           painter: _CmSpinPainter(
             turns: _ctrl.value,
             color: tint ?? (isDark ? Colors.white : Colors.black),
+          ),
+        ),
+      );
+    }
+
+    if (tint == null && !_lottieFailed) {
+      // Lottie dots spinner. The artwork lives on an 800x600 canvas with the
+      // dots occupying only ~200x200 at its center, so BoxFit.contain in a
+      // `size` box would render them microscopically. Instead render the
+      // canvas at 4x/3x the target size and center-crop to `size` — the dots'
+      // center coincides with the canvas center, so the crop stays centered.
+      final s = widget.size;
+      return SizedBox(
+        width: s,
+        height: s,
+        child: ClipRect(
+          child: OverflowBox(
+            maxWidth: s * 4,
+            maxHeight: s * 3,
+            child: Lottie.asset(
+              isDark
+                  ? 'assets/animations/loading-dark.json'
+                  : 'assets/animations/loading-light.json',
+              width: s * 4,
+              height: s * 3,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) setState(() => _lottieFailed = true);
+                });
+                return SizedBox(width: s, height: s);
+              },
+            ),
           ),
         ),
       );

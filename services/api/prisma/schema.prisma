@@ -2398,3 +2398,83 @@ model SchoolCertificate {
   @@index([studentId])
   @@index([studentId, published])
 }
+
+// ── Student Notes: internal staff notes about a student (Apple-Notes-like) ───
+// TEACHER/ADMIN only. Each note is about ONE student, school-scoped, visible
+// to the school's staff; editable/deletable by its author or an ADMIN. NEVER
+// exposed to students or parents — internal pedagogical records. Scalar IDs +
+// indexes (SchoolCertificate precedent); authz lives in NotesService.
+model StudentNote {
+  id        String   @id @default(uuid())
+  schoolId  String
+  studentId String // User.id of the student the note is about
+  authorId  String // staff User.id who wrote it
+  title     String   @default("")
+  body      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([schoolId, studentId, updatedAt])
+  @@index([authorId])
+}
+
+// ── CMail: school-internal mail (not chat) ───────────────────────────────────
+// Staff (ADMIN/TEACHER/SECRETARY) compose subject + body + attachments to an
+// audience (whole school, role groups, grades, cohorts, specific people).
+// Send-time fan-out materializes one CMailRecipient row per person, so inbox
+// reads are one indexed query and read/delete state is per-recipient.
+enum CMailAudience {
+  SCHOOL
+  STUDENTS
+  TEACHERS
+  PARENTS
+  STAFF
+  GRADES
+  COHORTS
+  USERS
+}
+
+model CMailMessage {
+  id           String        @id @default(uuid())
+  schoolId     String
+  senderId     String
+  subject      String
+  body         String        @default("")
+  audience     CMailAudience
+  /// Frozen human-readable audience descriptor (grades / cohort names /
+  /// people count) so the detail view can render "To:" without re-resolving.
+  audienceMeta Json          @default("{}")
+  createdAt    DateTime      @default(now())
+
+  attachments CMailAttachment[]
+  recipients  CMailRecipient[]
+
+  @@index([schoolId, senderId, createdAt])
+}
+
+model CMailAttachment {
+  id       String  @id @default(uuid())
+  mailId   String
+  url      String
+  mimeType String?
+  fileName String?
+  fileSize Int?
+
+  mail CMailMessage @relation(fields: [mailId], references: [id], onDelete: Cascade)
+
+  @@index([mailId])
+}
+
+model CMailRecipient {
+  id        String    @id @default(uuid())
+  mailId    String
+  userId    String
+  readAt    DateTime?
+  /// Soft delete of this recipient's copy — the mail stays for everyone else.
+  deletedAt DateTime?
+
+  mail CMailMessage @relation(fields: [mailId], references: [id], onDelete: Cascade)
+
+  @@unique([mailId, userId])
+  @@index([userId, deletedAt, readAt])
+}

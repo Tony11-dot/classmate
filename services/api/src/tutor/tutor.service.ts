@@ -1122,13 +1122,7 @@ export class TutorService {
     }
 
     const session = await this.prisma.tutorSession.findFirst({
-      where: {
-        id: sessionId,
-        OR: [
-          { userId: studentId },
-          { studentProfile: { userId: studentId } },
-        ],
-      } as any,
+      where: { id: sessionId, userId: studentId },
       select: { id: true },
     });
 

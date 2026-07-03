@@ -18524,6 +18524,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In average'**
   String get gradesAvgInAverage;
+
+  /// No description provided for @notesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
+
+  /// No description provided for @notesSearchStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students'**
+  String get notesSearchStudents;
+
+  /// No description provided for @notesNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found'**
+  String get notesNoStudents;
+
+  /// No description provided for @notesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No notes} =1{1 note} other{{count} notes}}'**
+  String notesCount(num count);
+
+  /// No description provided for @notesNewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'New note'**
+  String get notesNewNote;
+
+  /// No description provided for @notesNoNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet'**
+  String get notesNoNotes;
+
+  /// No description provided for @notesNoNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to write the first note about this student.'**
+  String get notesNoNotesHint;
+
+  /// No description provided for @notesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note?'**
+  String get notesDeleteTitle;
+
+  /// No description provided for @notesDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This note will be permanently deleted.'**
+  String get notesDeleteBody;
+
+  /// No description provided for @notesUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled'**
+  String get notesUntitled;
+
+  /// No description provided for @notesTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get notesTitleHint;
+
+  /// No description provided for @notesBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start writing…'**
+  String get notesBodyHint;
+
+  /// No description provided for @notesEditedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'By {name}'**
+  String notesEditedBy(String name);
+
+  /// No description provided for @cmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CMail'**
+  String get cmailTitle;
+
+  /// No description provided for @cmailInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get cmailInbox;
+
+  /// No description provided for @cmailSentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get cmailSentTab;
+
+  /// No description provided for @cmailCompose.
+  ///
+  /// In en, this message translates to:
+  /// **'New mail'**
+  String get cmailCompose;
+
+  /// No description provided for @cmailEmptyInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'No mail yet'**
+  String get cmailEmptyInbox;
+
+  /// No description provided for @cmailEmptyInboxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mail from your school will appear here.'**
+  String get cmailEmptyInboxHint;
+
+  /// No description provided for @cmailEmptySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing sent yet'**
+  String get cmailEmptySent;
+
+  /// No description provided for @cmailSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get cmailSubject;
+
+  /// No description provided for @cmailBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your message…'**
+  String get cmailBodyHint;
+
+  /// No description provided for @cmailAudience.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get cmailAudience;
+
+  /// No description provided for @cmailAudienceSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get cmailAudienceSchool;
+
+  /// No description provided for @cmailAudienceStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'All students'**
+  String get cmailAudienceStudents;
+
+  /// No description provided for @cmailAudienceTeachers.
+  ///
+  /// In en, this message translates to:
+  /// **'All teachers'**
+  String get cmailAudienceTeachers;
+
+  /// No description provided for @cmailAudienceParents.
+  ///
+  /// In en, this message translates to:
+  /// **'All parents'**
+  String get cmailAudienceParents;
+
+  /// No description provided for @cmailAudienceStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get cmailAudienceStaff;
+
+  /// No description provided for @cmailAudienceGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'By grade'**
+  String get cmailAudienceGrades;
+
+  /// No description provided for @cmailAudienceCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'By class'**
+  String get cmailAudienceCohorts;
+
+  /// No description provided for @cmailAudienceUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Specific people'**
+  String get cmailAudienceUsers;
+
+  /// No description provided for @cmailPickGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick grades'**
+  String get cmailPickGrades;
+
+  /// No description provided for @cmailPickCohorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick classes'**
+  String get cmailPickCohorts;
+
+  /// No description provided for @cmailPickPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick people'**
+  String get cmailPickPeople;
+
+  /// No description provided for @cmailAttach.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach files'**
+  String get cmailAttach;
+
+  /// No description provided for @cmailSendAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get cmailSendAction;
+
+  /// No description provided for @cmailSentOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Mail sent'**
+  String get cmailSentOk;
+
+  /// No description provided for @cmailDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete mail?'**
+  String get cmailDeleteTitle;
+
+  /// No description provided for @cmailDeleteForAll.
+  ///
+  /// In en, this message translates to:
+  /// **'This deletes the mail for everyone.'**
+  String get cmailDeleteForAll;
+
+  /// No description provided for @cmailDeleteForMe.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the mail from your inbox.'**
+  String get cmailDeleteForMe;
+
+  /// No description provided for @cmailRecipients.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recipients'**
+  String cmailRecipients(num count);
+
+  /// No description provided for @cmailReadStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{read} of {total} read'**
+  String cmailReadStats(num read, num total);
+
+  /// No description provided for @cmailSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject is required'**
+  String get cmailSubjectRequired;
+
+  /// No description provided for @cmailAudienceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick who this mail goes to'**
+  String get cmailAudienceRequired;
+
+  /// No description provided for @cmailAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get cmailAttachments;
+
+  /// No description provided for @cmailFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String cmailFrom(String name);
 }
 
 class _AppLocalizationsDelegate

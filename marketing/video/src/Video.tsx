@@ -24,16 +24,16 @@ export const ClassMateDemo: React.FC = () => {
   const vo: Array<[string, number]> = [
     ["vo/o1.mp3", a("these") + 8],
     ["vo/o2.mp3", a("note") + 0],
-    ["vo/o3.mp3", a("cards") - 17],
+    ["vo/o3.mp3", a("cards") - 25],
     ["vo/p1.mp3", a("slows") + 14],
-    ["vo/p2.mp3", a("dark") + 30],
-    ["vo/p3.mp3", a("logo") + 18],
-    ["vo/03-nova.mp3", p("chat") + 20],
-    ["vo/p4.mp3", p("options") + 24],
-    ["vo/05-grades.mp3", p("panels") + 20],
-    ["vo/09-teacher.mp3", p("panels") + 170],
+    ["vo/p2.mp3", a("dark") + 40],
+    ["vo/p3.mp3", a("logo") + 16],
+    ["vo/03-nova.mp3", p("chat") + 24],
+    ["vo/p4.mp3", p("options") + 20],
+    ["vo/05-grades.mp3", p("panels") + 16],
+    ["vo/09-teacher.mp3", p("panels") + 160],
     ["vo/p5.mp3", p("future") + 6],
-    ["vo/10-cta.mp3", p("end") + 26],
+    ["vo/10-cta.mp3", p("end") + 22],
   ];
 
   const beatStarts = [
@@ -47,10 +47,10 @@ export const ClassMateDemo: React.FC = () => {
     [a("logo") + 8, 0.6],
     ...[26, 40, 54].map((d): [number, number] => [p("options") + d, 0.2]),
     [p("button") + 8, 0.5],
-    [p("panels") + 20, 0.3],
+    [p("panels") + 20, 0.3], [p("chat") + 182, 0.35],
     [p("end") + 10, 0.5],
   ];
-  const taps: number[] = [p("chat") + 64, p("chat") + 168, p("options") + 100, a("thread") + 10];
+  const taps: number[] = [p("chat") + 100, p("chat") + 196, p("options") + 100, a("thread") + 10];
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#04060d" }}>
@@ -93,7 +93,7 @@ export const ClassMateDemo: React.FC = () => {
         <Audio src={staticFile("sfx/riser.wav")} volume={0.6} />
       </Sequence>
 
-      {/* composed track — drop at 18.7s = the Act-1 logo reveal */}
+      {/* composed track — drop at 15.7s = the Act-1 logo reveal */}
       <Audio
         src={staticFile("music/track.wav")}
         volume={(f) =>

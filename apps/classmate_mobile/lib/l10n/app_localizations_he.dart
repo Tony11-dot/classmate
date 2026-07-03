@@ -10607,4 +10607,160 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get gradesAvgInAverage => 'In average';
+
+  @override
+  String get notesTitle => 'Notes';
+
+  @override
+  String get notesSearchStudents => 'Search students';
+
+  @override
+  String get notesNoStudents => 'No students found';
+
+  @override
+  String notesCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes',
+      one: '1 note',
+      zero: 'No notes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notesNewNote => 'New note';
+
+  @override
+  String get notesNoNotes => 'No notes yet';
+
+  @override
+  String get notesNoNotesHint =>
+      'Tap + to write the first note about this student.';
+
+  @override
+  String get notesDeleteTitle => 'Delete note?';
+
+  @override
+  String get notesDeleteBody => 'This note will be permanently deleted.';
+
+  @override
+  String get notesUntitled => 'Untitled';
+
+  @override
+  String get notesTitleHint => 'Title';
+
+  @override
+  String get notesBodyHint => 'Start writing…';
+
+  @override
+  String notesEditedBy(String name) {
+    return 'By $name';
+  }
+
+  @override
+  String get cmailTitle => 'CMail';
+
+  @override
+  String get cmailInbox => 'Inbox';
+
+  @override
+  String get cmailSentTab => 'Sent';
+
+  @override
+  String get cmailCompose => 'New mail';
+
+  @override
+  String get cmailEmptyInbox => 'No mail yet';
+
+  @override
+  String get cmailEmptyInboxHint => 'Mail from your school will appear here.';
+
+  @override
+  String get cmailEmptySent => 'Nothing sent yet';
+
+  @override
+  String get cmailSubject => 'Subject';
+
+  @override
+  String get cmailBodyHint => 'Write your message…';
+
+  @override
+  String get cmailAudience => 'To';
+
+  @override
+  String get cmailAudienceSchool => 'Everyone';
+
+  @override
+  String get cmailAudienceStudents => 'All students';
+
+  @override
+  String get cmailAudienceTeachers => 'All teachers';
+
+  @override
+  String get cmailAudienceParents => 'All parents';
+
+  @override
+  String get cmailAudienceStaff => 'Staff';
+
+  @override
+  String get cmailAudienceGrades => 'By grade';
+
+  @override
+  String get cmailAudienceCohorts => 'By class';
+
+  @override
+  String get cmailAudienceUsers => 'Specific people';
+
+  @override
+  String get cmailPickGrades => 'Pick grades';
+
+  @override
+  String get cmailPickCohorts => 'Pick classes';
+
+  @override
+  String get cmailPickPeople => 'Pick people';
+
+  @override
+  String get cmailAttach => 'Attach files';
+
+  @override
+  String get cmailSendAction => 'Send';
+
+  @override
+  String get cmailSentOk => 'Mail sent';
+
+  @override
+  String get cmailDeleteTitle => 'Delete mail?';
+
+  @override
+  String get cmailDeleteForAll => 'This deletes the mail for everyone.';
+
+  @override
+  String get cmailDeleteForMe => 'This removes the mail from your inbox.';
+
+  @override
+  String cmailRecipients(num count) {
+    return '$count recipients';
+  }
+
+  @override
+  String cmailReadStats(num read, num total) {
+    return '$read of $total read';
+  }
+
+  @override
+  String get cmailSubjectRequired => 'Subject is required';
+
+  @override
+  String get cmailAudienceRequired => 'Pick who this mail goes to';
+
+  @override
+  String get cmailAttachments => 'Attachments';
+
+  @override
+  String cmailFrom(String name) {
+    return 'From $name';
+  }
 }

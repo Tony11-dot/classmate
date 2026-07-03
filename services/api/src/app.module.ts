@@ -54,6 +54,8 @@ import { FormsModule } from './forms/forms.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { GradeBumpModule } from './grade-bump/grade-bump.module';
 import { SlotSharedMaterialsModule } from './slot-shared-materials/slot-shared-materials.module';
+import { NotesModule } from './notes/notes.module';
+import { CMailModule } from './cmail/cmail.module';
 
 const env = loadEnv();
 
@@ -149,6 +151,8 @@ const seedControllers = [
     PracticeModule,
     GradeBumpModule,
     SlotSharedMaterialsModule,
+    NotesModule,
+    CMailModule,
     BillingModule,
     UsersModule,
   ],

@@ -26,12 +26,13 @@ import '../features/lifedoc/form_detail_screen.dart';
 import '../features/lifedoc/grades_screen.dart';
 import '../features/lifedoc/meetings_screen.dart';
 import '../features/lifedoc/student_materials_screen.dart';
-import '../screens/animation_demo_screen.dart';
 import '../features/lifedoc/notifications_models.dart';
 import '../features/lifedoc/notifications_screen.dart';
 import '../features/messages/ui/message_request_screen.dart';
 import '../features/messages/ui/message_thread_screen.dart';
 import '../features/messages/ui/messages_inbox_screen.dart';
+import '../features/student_notes/ui/notes_students_screen.dart';
+import '../features/cmail/ui/cmail_screen.dart';
 import '../features/practice/ui/practice_session_screen.dart';
 import '../features/practice/ui/practice_setup_screen.dart';
 import '../features/practice/ui/saved_questions_screen.dart';
@@ -242,7 +243,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc.startsWith('/diplomas/') ||
           loc == '/certificates' ||
           loc == '/materials' ||
-          loc == '/dev/animation-demo' ||
           loc == '/solutions' ||
           loc.startsWith('/solutions/') ||
           loc == '/profile' ||
@@ -687,6 +687,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const MessagesInboxScreen(),
           ),
           _fadeRoute(
+            path: '/notes',
+            name: 'student_notes',
+            builder: (context, state) => const NotesStudentsScreen(),
+          ),
+          _fadeRoute(
+            path: '/cmail',
+            name: 'cmail',
+            builder: (context, state) => const CMailScreen(),
+          ),
+          _fadeRoute(
             path: '/teacher/assignments',
             builder: (context, state) => const TeacherAssignmentsScreen(),
           ),
@@ -988,10 +998,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/settings',
             builder: (context, state) => const SettingsScreen(),
-          ),
-          _fadeRoute(
-            path: '/dev/animation-demo',
-            builder: (context, state) => const AnimationDemoScreen(),
           ),
         ],
       ),

@@ -10,13 +10,6 @@ export const HEIGHT = 1080;
 /** Native resolution of the app screenshots in public/screens. */
 export const SHOT = { w: 1206, h: 2622 } as const;
 
-/** Master switch for the background music hook (see README "Music").
- *  Off until a track is dropped at public/music/hook.mp3 (the old one was
- *  removed — re-enable once the new score/bed is in place). */
-export const MUSIC_ENABLED = false;
-/** Path under public/ for the track when MUSIC_ENABLED is true. */
-export const MUSIC_SRC = "music/bed.mp3";
-
 export const COLORS = {
   // Brand
   indigo: "#2230C8",
@@ -80,11 +73,11 @@ export const TRANSITION = 10;
 
 /** v9 timeline @ 60fps — Act 1 (ref2-style problem) → Act 2 (ref4-style product). */
 export const SCENES = {
-  act1: 1260,
-  act2: 1500,
+  act1: 1070,
+  act2: 1410,
 } as const;
 
 const sceneList = Object.values(SCENES);
 export const TOTAL_FRAMES =
   sceneList.reduce((a, b) => a + b, 0) - (sceneList.length - 1) * TRANSITION;
-// 2760 - 10 = 2750 frames ≈ 45.8s @ 60fps
+// 2480 - 10 = 2470 frames ≈ 41.2s @ 60fps

@@ -23,28 +23,31 @@ import { motionBlur, pop } from "../anim";
  */
 export const ABEATS = {
   these: 0,
-  everywhere: 85,
-  note: 220,
-  thread: 320,
-  cards: 425,
-  slows: 575,
-  dark: 690,
-  phone: 850,
-  pills: 990,
-  logo: 1115,
-  end: 1260,
+  everywhere: 70,
+  note: 185,
+  thread: 270,
+  cards: 355,
+  slows: 485,
+  dark: 585,
+  phone: 715,
+  pills: 835,
+  logo: 940,
+  end: 1070,
 } as const;
 
-const OVERLAP = 12;
+const OVERLAP = 10;
 const BG = "#F4F3F6";
 
 const useCam = (local: number, dur: number, fps: number) => {
-  const enter = spring({ frame: local, fps, config: { damping: 16, mass: 0.75, stiffness: 150 } });
-  const exitT = interpolate(local, [dur - OVERLAP, dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // speed-ramp: FAST in → slow-motion drift → FAST out (tab-swipe feel)
+  const enter = spring({ frame: local, fps, config: { damping: 15, mass: 0.6, stiffness: 280 } });
+  const exitT = interpolate(local, [dur - 9, dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const drift = 1 + (local / dur) * 0.05; // the slow-mo push
   return {
-    scale: interpolate(enter, [0, 1], [0.9, 1]) * interpolate(exitT, [0, 1], [1, 1.24]),
-    blur: (1 - enter) * 5 + exitT * 8,
-    opacity: interpolate(exitT, [0.55, 1], [1, 0], { extrapolateLeft: "clamp" }),
+    scale: interpolate(enter, [0, 1], [0.72, 1]) * drift * interpolate(exitT, [0, 1], [1, 1.45]),
+    x: (1 - enter) * 340 + exitT * -420,
+    blur: (1 - enter) * 7 + exitT * 14,
+    opacity: interpolate(exitT, [0.5, 1], [1, 0], { extrapolateLeft: "clamp" }),
   };
 };
 
@@ -59,7 +62,7 @@ const BeatInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const cam = useCam(local, dur, fps);
   return (
     <AbsoluteFill style={{ opacity: cam.opacity }}>
-      <div style={{ position: "absolute", inset: 0, transform: `scale(${cam.scale})`, filter: cam.blur > 0.6 ? `blur(${cam.blur}px)` : undefined }}>{children}</div>
+      <div style={{ position: "absolute", inset: 0, transform: `translateX(${cam.x}px) scale(${cam.scale})`, filter: cam.blur > 0.6 ? `blur(${cam.blur}px)` : undefined }}>{children}</div>
     </AbsoluteFill>
   );
 };

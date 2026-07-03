@@ -118,6 +118,11 @@
   <script>
     (function () {
       function show(msg) {
+        // Only surface STARTUP errors — while the static splash is still up
+        // (flutter_native_splash removes #splash on the first Flutter frame).
+        // After that, an uncaught async error must not white-out a running
+        // app; Sentry captures those.
+        if (!document.getElementById('splash')) return;
         var d = document.getElementById('cm-err');
         if (!d) {
           d = document.createElement('pre');
