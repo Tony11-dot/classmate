@@ -11,7 +11,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_session.dart';
-import '../../core/util/friendly_date.dart';
 import '../../core/realtime/realtime_listener.dart';
 import '../../features/lifedoc/assignments_screen.dart';
 import '../../features/lifedoc/data/exams_repository.dart';
@@ -22,15 +21,12 @@ import '../../features/parent/data/parent_models.dart';
 import '../../features/parent/data/parent_repository.dart';
 import '../../features/lifedoc/student_materials_screen.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
-import '../../features/teacher_mobile/data/teacher_mobile_repository.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
-import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/classmate_logo.dart';
 import '../../ui/widgets/in_app_notification_banner.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/widgets/cm_loading.dart';
 
 const _coreBottomNavPaths = <String>{
   '/schedule',
@@ -1433,92 +1429,6 @@ class _NavItem {
   final int badge;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Teacher FAB — expandable speed-dial
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _TeacherFab extends StatefulWidget {
-  const _TeacherFab();
-  @override
-  State<_TeacherFab> createState() => _TeacherFabState();
-}
-
-class _TeacherFabState extends State<_TeacherFab> with SingleTickerProviderStateMixin {
-  bool _open = false;
-
-  void _toggle() => setState(() => _open = !_open);
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final l = AppLocalizations.of(context)!;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        if (_open) ...[
-          _FabAction(icon: Icons.campaign_rounded, label: l.navAnnouncements, color: cs.tertiary,
-              onTap: () { _toggle(); context.push('/teacher/announcements/new'); }),
-          const SizedBox(height: 10),
-          _FabAction(icon: Icons.assignment_rounded, label: l.navAssignments, color: cs.secondary,
-              onTap: () { _toggle(); context.go('/teacher/classrooms'); }),
-          const SizedBox(height: 10),
-          _FabAction(icon: Icons.fact_check_rounded, label: l.navAttendance, color: cs.primary,
-              onTap: () { _toggle(); context.go('/teacher/attendance'); }),
-          const SizedBox(height: 10),
-          _FabAction(icon: Icons.grade_rounded, label: l.navGrades, color: cs.secondary,
-              onTap: () { _toggle(); context.go('/teacher/grades'); }),
-          const SizedBox(height: 12),
-        ],
-        FloatingActionButton(
-          onPressed: _toggle,
-          backgroundColor: cs.primaryContainer,
-          foregroundColor: cs.onPrimaryContainer,
-          elevation: 6,
-          child: AnimatedRotation(
-            turns: _open ? 0.125 : 0,
-            duration: const Duration(milliseconds: 200),
-            child: const Icon(Icons.add_rounded, size: 28),
-          ),
-        ),
-        const SizedBox(height: 80), // clear bottom nav pill
-      ],
-    );
-  }
-}
-
-class _FabAction extends StatelessWidget {
-  const _FabAction({required this.icon, required this.label, required this.color, required this.onTap});
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: 10),
-            Text(label, style: TextStyle(fontWeight: FontWeight.w700, color: color, fontSize: 14)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _TopBar extends StatelessWidget implements PreferredSizeWidget {
   const _TopBar({required this.title, this.showMenuButton = true});
 
@@ -1576,181 +1486,6 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Create Exam / Assessment sheet
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _CreateExamSheet extends ConsumerStatefulWidget {
-  const _CreateExamSheet({required this.ref, required this.l});
-  final WidgetRef ref;
-  final AppLocalizations l;
-
-  @override
-  ConsumerState<_CreateExamSheet> createState() => _CreateExamSheetState();
-}
-
-class _CreateExamSheetState extends ConsumerState<_CreateExamSheet> {
-  final _titleCtrl = TextEditingController();
-  final _maxGradeCtrl = TextEditingController();
-  String? _selectedCourseId;
-  DateTime? _selectedDate;
-  List<TeacherCourse> _courses = [];
-  bool _loadingCourses = true;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future<void>.microtask(_loadCourses);
-  }
-
-  Future<void> _loadCourses() async {
-    try {
-      final bundle = await widget.ref.read(teacherMobileRepositoryProvider).fetchAssessments();
-      if (!mounted) return;
-      setState(() {
-        _courses = bundle.courses;
-        _selectedCourseId = bundle.courses.isNotEmpty ? bundle.courses.first.id : null;
-        _loadingCourses = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _loadingCourses = false);
-    }
-  }
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _maxGradeCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final title = _titleCtrl.text.trim();
-    final courseId = _selectedCourseId;
-    if (title.isEmpty || courseId == null) return;
-    setState(() => _saving = true);
-    try {
-      final dateStr = _selectedDate != null
-          ? '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'
-          : '';
-      await widget.ref.read(teacherMobileRepositoryProvider).createAssessment(
-        cohortId: courseId,
-        title: title,
-        date: dateStr,
-        maxGrade: int.tryParse(_maxGradeCtrl.text.trim()),
-      );
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.shellAssessmentCreated)),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).toString();
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).viewInsets.bottom + 24),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.l.teacherGradesCreateAssessmentTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: 16),
-            if (_loadingCourses)
-              const Center(child: CmLoading())
-            else
-              LiquidGlassDropdown<String>(
-                label: widget.l.teacherGradesFieldCourse,
-                value: _selectedCourseId ?? '',
-                items: _courses.map((c) => LiquidGlassDropdownItem(value: c.id, label: c.name)).toList(),
-                onChanged: (v) => setState(() => _selectedCourseId = v.isEmpty ? null : v),
-              ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _titleCtrl,
-              decoration: InputDecoration(labelText: '${widget.l.teacherGradesFieldTitle} *', border: const OutlineInputBorder()),
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate ?? DateTime.now(),
-                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                  lastDate: DateTime.now().add(const Duration(days: 365)),
-                );
-                if (picked != null) setState(() => _selectedDate = picked);
-              },
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                decoration: BoxDecoration(
-                  border: Border.all(color: cs.outlineVariant),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today_rounded, size: 18, color: cs.primary),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        _selectedDate == null
-                            ? widget.l.teacherGradesFieldDate
-                            : FriendlyDate.date(_selectedDate!, locale),
-                        style: TextStyle(color: _selectedDate == null ? cs.onSurfaceVariant : cs.onSurface),
-                      ),
-                    ),
-                    if (_selectedDate != null)
-                      GestureDetector(
-                        onTap: () => setState(() => _selectedDate = null),
-                        child: Icon(Icons.close_rounded, size: 16, color: cs.onSurfaceVariant),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _maxGradeCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: widget.l.teacherGradesFieldMaxGrade, border: const OutlineInputBorder()),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _saving ? null : _save,
-                icon: _saving
-                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.add_rounded),
-                label: Text(widget.l.teacherGradesCreateAction),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

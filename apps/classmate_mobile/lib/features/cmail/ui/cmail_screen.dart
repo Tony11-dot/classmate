@@ -98,7 +98,9 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return SafeArea(
-          child: Column(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 10),
@@ -176,6 +178,7 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
               ),
               const SizedBox(height: 8),
             ],
+            ),
           ),
         );
       },

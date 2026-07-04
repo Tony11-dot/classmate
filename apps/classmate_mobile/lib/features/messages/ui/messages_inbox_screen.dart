@@ -315,10 +315,15 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
     await showModalBottomSheet<void>(
       context: context,
       useRootNavigator: false,
+      // The sheet holds up to 7 rows — without this the default half-screen
+      // cap clipped the last action (Block) behind the home indicator.
+      isScrollControlled: true,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return SafeArea(
-          child: Column(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 10),
@@ -416,6 +421,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                 ),
               const SizedBox(height: 8),
             ],
+            ),
           ),
         );
       },

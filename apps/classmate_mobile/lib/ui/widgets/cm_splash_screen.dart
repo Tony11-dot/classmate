@@ -207,33 +207,3 @@ class _CmSplashScreenState extends State<CmSplashScreen>
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Helper — overlay widget for use inside MaterialApp.builder
-// ─────────────────────────────────────────────────────────────────────────────
-
-class CmSplashOverlay extends StatefulWidget {
-  const CmSplashOverlay({super.key, required this.child});
-  final Widget child;
-
-  @override
-  State<CmSplashOverlay> createState() => _CmSplashOverlayState();
-}
-
-class _CmSplashOverlayState extends State<CmSplashOverlay> {
-  bool _splashDone = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        widget.child,
-        if (!_splashDone)
-          CmSplashScreen(
-            onDone: () {
-              if (mounted) setState(() => _splashDone = true);
-            },
-          ),
-      ],
-    );
-  }
-}
