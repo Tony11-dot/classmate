@@ -39,6 +39,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
   switch (roleKey) {
     case 'teacher':
       return [
+        DrawerTool(route: '/messages', icon: Icons.chat_bubble_rounded, label: l.navMessages),
         DrawerTool(route: '/teacher/home', icon: Icons.dashboard_rounded, label: l.navTeacherWorkspace),
         DrawerTool(route: '/teacher/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/teacher/attendance', icon: Icons.fact_check_rounded, label: l.navAttendance),
@@ -116,7 +117,9 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
 }
 
 /// Reorders [items] by the saved [order] (list of routes). Any tool not in the
-/// saved order (e.g. a newly-shipped item) keeps its default position at the end.
+/// saved order (e.g. a newly-shipped item) slots in at its DEFAULT index, so a
+/// tool we ship at the top of the list (Messages for teachers) appears there
+/// even for users with an older saved order.
 List<DrawerTool> applyDrawerToolsOrder(List<DrawerTool> items, List<String> order) {
   if (order.isEmpty) return items;
   final byRoute = {for (final t in items) t.route: t};
@@ -129,8 +132,11 @@ List<DrawerTool> applyDrawerToolsOrder(List<DrawerTool> items, List<String> orde
       used.add(r);
     }
   }
-  for (final t in items) {
-    if (!used.contains(t.route)) out.add(t);
+  for (var i = 0; i < items.length; i++) {
+    final t = items[i];
+    if (!used.contains(t.route)) {
+      out.insert(i < out.length ? i : out.length, t);
+    }
   }
   return out;
 }

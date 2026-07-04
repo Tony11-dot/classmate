@@ -43,13 +43,21 @@ class NativeGlassView extends StatelessWidget {
         child: Stack(
           fit: StackFit.passthrough,
           children: [
-            // Native UIVisualEffectView fills the bounds
+            // Native UIVisualEffectView fills the bounds. The system materials
+            // resolve against the view's trait collection — i.e. the OS
+            // appearance, NOT the Flutter theme — so we pass the app's
+            // brightness down and the Swift side overrides the interface
+            // style. Without this, dark-mode-in-app on a light-mode phone
+            // rendered a white glass bar. Keyed by brightness so an in-app
+            // theme flip recreates the platform view with the right style.
             Positioned.fill(
               child: UiKitView(
+                key: ValueKey('cm_glass_${isDark ? 'dark' : 'light'}'),
                 viewType: 'cm_native_glass_view',
                 creationParams: {
                   'cornerRadius': borderRadius,
                   'style': style.name,
+                  'dark': isDark,
                 },
                 creationParamsCodec: const StandardMessageCodec(),
               ),

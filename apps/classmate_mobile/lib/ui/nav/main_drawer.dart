@@ -352,13 +352,14 @@ class MainDrawer extends ConsumerWidget {
                     sectionHeader(l.sectionAccount),
                   // ── Teacher drawer ────────────────────────────────────────
                   ] else if (isTeacherLike) ...[
+                    // Core mirrors the teacher bottom nav (NOVA holds the last
+                    // tab); Messages lives in School Tools below, first item.
                     sectionHeader(l.sectionCore),
                     navItem(icon: Icons.event_note_rounded, label: l.navSchedule, route: '/teacher/schedule'),
                     navItem(icon: Icons.groups_rounded, label: l.navClassrooms, route: '/teacher/classrooms'),
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
-                    navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     sectionHeader(l.sectionSchoolTools),
                     for (final t in orderedTools)
                       if (t.route != '/teacher/certificates' || isHomeroomTeacher)
@@ -606,9 +607,13 @@ Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
                   title: Text(l.accountAddAccount, style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700)),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
-                    // Close the drawer, then open login in add-account mode.
-                    if (Navigator.of(context).canPop()) Navigator.of(context).pop();
-                    context.go('/login?add=1');
+                    // Close the drawer if one is actually open (on desktop the
+                    // menu is a permanent sidebar — blindly popping would close
+                    // whatever page is on top), then PUSH login in add-account
+                    // mode so backing out returns to the current account.
+                    final scaffold = Scaffold.maybeOf(context);
+                    if (scaffold?.isDrawerOpen ?? false) Navigator.of(context).pop();
+                    context.push('/login?add=1');
                   },
                 ),
                 ListTile(

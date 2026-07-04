@@ -125,9 +125,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       }
       GoRouter.of(context).go(_routeFor(session));
     } catch (e) {
-      // Stored credentials are stale (e.g. password changed) — forget this
-      // account's biometric so the user re-enrolls in Profile.
-      await bio.clearLogin();
+      // NEVER wipe the stored biometric enrollment here. This catch fires on
+      // network errors and timeouts too, and clearing meant a bad connection
+      // silently "turned off" Face ID until the user re-enrolled in Profile.
+      // If the password really changed, each attempt fails with this message
+      // and the user updates it in Profile — the enrollment itself stays.
       if (!mounted) return;
       setState(() => _error = l.biometricLoginFailed);
     } finally {
@@ -188,39 +190,63 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Add-account mode (/login?add=1): the user is still signed in, so give
+    // them a way OUT — a close button that returns to the current account.
+    final isAddMode =
+        GoRouterState.of(context).uri.queryParameters['add'] == '1';
     return Scaffold(
       body: AnimatedAuroraBackground(
         child: SafeArea(
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
-            child: Center(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
-                child: FadeTransition(
-                  opacity: _fade,
-                  child: SlideTransition(
-                    position: _slide,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: _LoginCard(
-                        emailCtrl: _emailCtrl,
-                        passwordCtrl: _passwordCtrl,
-                        emailFocus: _emailFocus,
-                        passwordFocus: _passwordFocus,
-                        loading: _loading,
-                        obscure: _obscure,
-                        error: _error,
-                        scanningMethod: _scanning,
-                        onToggleObscure: () => setState(() => _obscure = !_obscure),
-                        onSubmit: _submit,
-                        onBiometricSignIn: _biometricSignIn,
+            child: Stack(children: [
+              if (isAddMode)
+                PositionedDirectional(
+                  top: 8,
+                  start: 8,
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        // Deep-linked with no stack — '/' resolves to the
+                        // signed-in user's role home via the router redirect.
+                        context.go('/');
+                      }
+                    },
+                  ),
+                ),
+              Center(
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+                  child: FadeTransition(
+                    opacity: _fade,
+                    child: SlideTransition(
+                      position: _slide,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: _LoginCard(
+                          emailCtrl: _emailCtrl,
+                          passwordCtrl: _passwordCtrl,
+                          emailFocus: _emailFocus,
+                          passwordFocus: _passwordFocus,
+                          loading: _loading,
+                          obscure: _obscure,
+                          error: _error,
+                          scanningMethod: _scanning,
+                          onToggleObscure: () => setState(() => _obscure = !_obscure),
+                          onSubmit: _submit,
+                          onBiometricSignIn: _biometricSignIn,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ]),
           ),
         ),
       ),

@@ -81,6 +81,18 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
+      // Compose lives at the bottom as a FAB — the top-bar pill already names
+      // the screen, so no in-page "CMail" header.
+      floatingActionButton: isStaff
+          ? FloatingActionButton.extended(
+              heroTag: 'fab_cmail_compose',
+              backgroundColor: cs.primaryContainer,
+              foregroundColor: cs.onPrimaryContainer,
+              onPressed: _compose,
+              icon: const Icon(Icons.edit_rounded),
+              label: Text(l.cmailCompose),
+            )
+          : null,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -90,29 +102,9 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
             ),
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l.cmailTitle,
-                        style: theme.textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                    if (isStaff)
-                      FilledButton.icon(
-                        onPressed: _compose,
-                        icon: const Icon(Icons.edit_rounded, size: 18),
-                        label: Text(l.cmailCompose),
-                      ),
-                  ],
-                ),
-              ),
               if (isStaff)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                  padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
                   child: SegmentedButton<int>(
                     segments: [
                       ButtonSegment(

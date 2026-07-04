@@ -274,8 +274,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (!loggedIn && !isAuthRoute) return '/login';
       // Multi-account: `/login?add=1` is reachable WHILE logged in so a user can
-      // add another account without signing the current one out.
+      // add another account without signing the current one out. Return early —
+      // the role-based redirects below don't list /login as a safe route, so
+      // without this teachers/admins/secretaries got bounced straight back to
+      // their home and the switcher's "Add account" silently did nothing.
       final isAddAccount = isLoginOnly && state.uri.queryParameters['add'] == '1';
+      if (loggedIn && isAddAccount) return null;
       if (loggedIn && isLoginOnly && !isAddAccount) {
         if (isSecretary) return '/secretary/home';
         if (isParent) return '/parent/home';

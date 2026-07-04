@@ -22,6 +22,7 @@ import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/animated_aurora_background.dart';
+import '../../../ui/widgets/nova_avatar.dart';
 import 'chatgpt_chat_components.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
@@ -2393,24 +2394,11 @@ class _NovaAvatarState extends State<_NovaAvatar>
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    // Shared NOVA identity (gradient orb + sparkle) — the pulse wrapper here
+    // just animates it while she's thinking.
     return ScaleTransition(
       scale: _pulse,
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: cs.primaryContainer,
-        ),
-        child: Center(
-          child: Icon(
-            Icons.auto_awesome_rounded,
-            size: widget.size * 0.5,
-            color: cs.onPrimaryContainer,
-          ),
-        ),
-      ),
+      child: NovaAvatar(size: widget.size),
     );
   }
 }

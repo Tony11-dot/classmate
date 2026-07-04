@@ -112,9 +112,15 @@ class _CmSplashScreenState extends State<CmSplashScreen>
     final fontSize = iconSize * 0.42;
     final cursorWidth = 3.0;
     final cursorHeight = fontSize * 0.92;
+    // Follow the OS appearance — the splash runs before the themed app
+    // mounts, so platform brightness is the source of truth here.
+    final isDark =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final bg = isDark ? Colors.black : Colors.white;
+    final fg = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bg,
       body: AnimatedBuilder(
         animation: Listenable.merge([_ctrl, _cursorBlink]),
         builder: (context, _) {
@@ -150,7 +156,9 @@ class _CmSplashScreenState extends State<CmSplashScreen>
                         width: iconSize,
                         height: iconSize,
                         child: Image.asset(
-                          'assets/images/icon_light.png',
+                          isDark
+                              ? 'assets/images/icon_dark.png'
+                              : 'assets/images/icon_light.png',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -170,7 +178,7 @@ class _CmSplashScreenState extends State<CmSplashScreen>
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         letterSpacing: -0.5,
-                        color: Colors.black,
+                        color: fg,
                         fontSize: fontSize,
                         height: 1.0,
                       ),
@@ -184,7 +192,7 @@ class _CmSplashScreenState extends State<CmSplashScreen>
                         child: Container(
                           width: cursorWidth,
                           height: cursorHeight,
-                          color: Colors.black,
+                          color: fg,
                         ),
                       ),
                     ),

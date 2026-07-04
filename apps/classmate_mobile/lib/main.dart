@@ -172,14 +172,24 @@ class _RootAppState extends ConsumerState<_RootApp> {
         // Wrap splash in a minimal MaterialApp so Directionality,
         // DefaultTextStyle, MediaQuery, etc. are all available — avoids
         // "No Directionality widget found".
+        // Follow the OS light/dark here (no MediaQuery exists above this
+        // MaterialApp, so read the platform dispatcher directly). The splash
+        // itself already picks the matching light/dark animation + colors —
+        // this keeps the surrounding scaffold from flashing white in dark
+        // mode on launch AND on the account-switch restart.
+        final platformDark =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                Brightness.dark;
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(brightness: Brightness.light),
+          theme: ThemeData(
+            brightness: platformDark ? Brightness.dark : Brightness.light,
+          ),
           home: Scaffold(
-            // White all the way through — matches native splash, matches
-            // Dart splash, matches the icon's white-baked background. No
-            // more black flashes at any boundary.
-            backgroundColor: Colors.white,
+            // Match the splash content's background end-to-end (native splash
+            // → Dart splash → first app frame) so there is no color flash at
+            // any boundary, in either appearance.
+            backgroundColor: platformDark ? Colors.black : Colors.white,
             body: SplashScreen(
               onComplete: () {
                 if (mounted) setState(() => _animationDone = true);

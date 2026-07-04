@@ -40,16 +40,15 @@ const _coreBottomNavPaths = <String>{
   '/tutor',
 };
 
-// NOVA used to sit at tab 3 here. It's demoted to the drawer for teachers
-// (they bring no NOVA revenue, so we don't give the AI tutor prime bottom-nav
-// real estate) and replaced with Announcements — a daily-use, zero-AI-cost
-// feature teachers post to constantly.
+// Teacher tabs: Schedule | Classrooms | Announcements | Insights | NOVA.
+// NOVA holds the last slot (teachers got tutor access in build 184);
+// Messages moved to the drawer as the first School Tool.
 const _teacherBottomNavPaths = <String>{
   '/teacher/schedule',
   '/teacher/classrooms',
   '/announcements',
   '/teacher/insights',
-  '/messages',
+  '/tutor',
 };
 
 /// Routes where the parent bottom nav stays visible. The 5 tabs are:
@@ -115,7 +114,7 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/teacher/classrooms') || loc.startsWith('/teacher/classroom/')) return 1;
     if (loc.startsWith('/announcements')) return 2;
     if (loc.startsWith('/teacher/insights')) return 3;
-    if (loc.startsWith('/messages')) return 4;
+    if (loc.startsWith('/tutor')) return 4;
     return 0; // /teacher/schedule
   }
 
@@ -124,7 +123,7 @@ class AppShell extends ConsumerWidget {
     1 => '/teacher/classrooms',
     2 => '/announcements',
     3 => '/teacher/insights',
-    4 => '/messages',
+    4 => '/tutor',
     _ => '/teacher/schedule',
   };
 
@@ -889,14 +888,14 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       ];
     }
     if (widget.isTeacherLike) {
-      // Schedule | Classrooms | Announcements | Insights | Messages
-      // (NOVA moved to the drawer — see _teacherBottomNavPaths.)
+      // Schedule | Classrooms | Announcements | Insights | NOVA
+      // (Messages moved to the drawer — first School Tool.)
       return <_NavItem>[
         _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
         _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
         _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
         _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
-        _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
+        _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
       ];
     }
     // Student
@@ -1064,7 +1063,8 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     final isDark = brightness == Brightness.dark;
     // Translucent tint so the native blur reads through as real glass — a
     // fully-opaque surface here would make the pill look like a solid chip.
-    final pillTint = cs.surface.withValues(alpha: isDark ? 0.38 : 0.52);
+    // Dark gets a touch more tint so the pill stays legible over dark pages.
+    final pillTint = cs.surface.withValues(alpha: isDark ? 0.45 : 0.52);
 
     // ── Android Material-3 fallback ──────────────────────────────────────
     // The iOS 26 liquid-glass aesthetic is platform-specific; on Android
@@ -1135,7 +1135,19 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                     ),
                   ],
                 ),
-                child: NativeGlassView(
+                // Hairline edge on top of the glass — in dark mode the blur
+                // alone can melt into a dark page; this keeps the capsule
+                // outline crisp in both appearances.
+                child: Container(
+                  foregroundDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(34),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.12)
+                          : Colors.black.withValues(alpha: 0.06),
+                    ),
+                  ),
+                  child: NativeGlassView(
                   // Pill-style — half the bar height for a true capsule.
                   borderRadius: 34,
                   style: NativeGlassStyle.regular,
@@ -1170,6 +1182,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                       ],
                     ),
                   ),
+                ),
                 ),
               ),
             ),

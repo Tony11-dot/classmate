@@ -25,7 +25,8 @@ class NativeGlassViewFactory: NSObject, FlutterPlatformViewFactory {
         let params = args as? [String: Any]
         let radius = CGFloat((params?["cornerRadius"] as? Double) ?? 0.0)
         let style = (params?["style"] as? String) ?? "thin"
-        return NativeGlassView(frame: frame, cornerRadius: radius, style: style)
+        let dark = params?["dark"] as? Bool
+        return NativeGlassView(frame: frame, cornerRadius: radius, style: style, dark: dark)
     }
 
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
@@ -36,9 +37,16 @@ class NativeGlassViewFactory: NSObject, FlutterPlatformViewFactory {
 class NativeGlassView: NSObject, FlutterPlatformView {
     private let container: UIView
 
-    init(frame: CGRect, cornerRadius: CGFloat, style: String) {
+    init(frame: CGRect, cornerRadius: CGFloat, style: String, dark: Bool? = nil) {
         container = UIView(frame: frame)
         container.backgroundColor = .clear
+
+        // The system blur materials resolve against the trait collection, so
+        // pin it to the APP's light/dark mode (passed from Flutter). Left nil
+        // for callers that want to keep following the OS appearance.
+        if let dark = dark {
+            container.overrideUserInterfaceStyle = dark ? .dark : .light
+        }
 
         // Choose the best available material for the requested style.
         let blurStyle: UIBlurEffect.Style

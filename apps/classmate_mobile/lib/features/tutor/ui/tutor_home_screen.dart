@@ -10,6 +10,7 @@ import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
 import 'nova_chat_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/nova_avatar.dart';
 
 class TutorHomeScreen extends ConsumerStatefulWidget {
   const TutorHomeScreen({
@@ -438,25 +439,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: cs.outlineVariant,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'N',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: cs.onSurface,
-                              ),
-                        ),
-                      ),
-                    ),
+                    const NovaAvatar(size: 56),
                     const SizedBox(height: 12),
                     Text(
                       'NOVA',
