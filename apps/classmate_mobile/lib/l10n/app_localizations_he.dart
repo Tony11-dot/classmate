@@ -6538,7 +6538,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminExportNoStudents => 'לא נמצאו תלמידים';
 
   @override
-  String get adminExportIncludesPasswords => 'הייצוא יכלול סיסמאות';
+  String get adminExportIncludesPasswords =>
+      'Export will reset & include passwords';
 
   @override
   String get adminExportAnyway => 'ייצא בכל זאת';
@@ -7240,9 +7241,9 @@ class AppLocalizationsHe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'הקובץ יכיל את פרטי הכניסה של $count תלמידים, כולל סיסמאות נוכחיות. כל מי שיש לו גישה לקובץ יכול להתחבר כאחד התלמידים — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שכל משתמש יתחבר שוב או יאפס.',
+          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'הקובץ יכיל את פרטי הכניסה של תלמיד אחד, כולל הסיסמה הנוכחית. כל מי שיש לו גישה לקובץ יכול להתחבר כתלמיד הזה — שתף בזהירות ומחק את הקובץ בסיום. שורות של חשבונות שנוצרו לפני העדכון האחרון עשויות להציג סיסמה ריקה עד שהמשתמש יתחבר שוב או יאפס.',
+          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '$_temp0';
   }
@@ -7895,7 +7896,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'סיסמאות יופיעו בייצוא — טפל בקובץ בזהירות.';
+      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
 
   @override
   String get adminExportPasswordsOff => 'הייצוא לא יכיל סיסמאות.';

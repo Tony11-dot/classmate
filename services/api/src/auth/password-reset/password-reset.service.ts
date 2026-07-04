@@ -5,7 +5,6 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from './email.service';
 import { SmsService } from './sms.service';
-import { encryptPassword } from '../../common/password-vault';
 
 export type ResetChannel = 'email' | 'sms';
 
@@ -265,7 +264,7 @@ export class PasswordResetService {
 
     const hash = await bcrypt.hash(pw, 10);
     await this.prisma.$transaction([
-      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash, passwordEnc: encryptPassword(pw) } }),
+      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash } }),
       this.prisma.passwordResetToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
       // Invalidate any sibling tokens so they can't be redeemed either.
       this.prisma.passwordResetToken.updateMany({

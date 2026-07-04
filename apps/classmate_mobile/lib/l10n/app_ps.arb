@@ -2883,7 +2883,6 @@
     }
   },
   "adminExportNoStudents": "هيڅ زده‌کوونکی ونه موندل شو",
-  "adminExportIncludesPasswords": "صادرول به پټنومونه شامل کړي",
   "adminExportAnyway": "بيا هم صادر کړئ",
   "adminExportPdfStudentDirectory": "د زده‌کوونکو لارښود",
   "adminExportPdfBy": "لخوا: {name}",
@@ -3304,7 +3303,6 @@
   "forwardSearchChatsAndClassrooms": "خبرې اترې او ټولګيونه ولټوئ…",
   "profileNewPhone": "نوی ټيليفون",
   "profileNewEmail": "نوی ايميل",
-  "adminExportPasswordsWarning": "{count, plural, one{فايل به د {count} زده‌کوونکي د ننوتلو معلومات ولري، د اوسني پټنوم په ګډون. هر څوک چې فايل ولري کولی شي د دې زده‌کوونکي په توګه ننوځي — په پاملرنه يې شريک کړئ او بشپړيدو وروسته يې حذف کړئ. د هغو حسابونو کرښې چې د وروستي تازه کولو دمخه جوړ شوي وي، تر هغه وخته به تش پټنوم وښيي چې کاروونکی بيا ننوځي يا بياځلي تنظيم وکړي.} other{فايل به د {count} زده‌کوونکو د ننوتلو معلومات ولري، د اوسنيو پټنومونو په ګډون. هر څوک چې فايل ولري کولی شي د دغو زده‌کوونکو په توګه ننوځي — په پاملرنه يې شريک کړئ او بشپړيدو وروسته يې حذف کړئ. د هغو حسابونو کرښې چې د وروستي تازه کولو دمخه جوړ شوي وي، تر هغه وخته به تش پټنوم وښيي چې هر کاروونکی بيا ننوځي يا بياځلي تنظيم وکړي.}}",
   "@adminExportPasswordsWarning": {
     "placeholders": {
       "count": {
@@ -3645,7 +3643,6 @@
       }
     }
   },
-  "adminExportPasswordsOn": "پټنومونه به په صادراتو کې ښکاره وي — فایل په خوندي ډول وساتئ.",
   "adminExportPasswordsOff": "صادرات به هیڅ پټنوم نه لري.",
   "adminExportPdfUserDirectory": "د کاروونکو لارښود",
   "adminExportPdfUsersCount": "{count, plural, one{{count} کاروونکی} other{{count} کاروونکي}}",

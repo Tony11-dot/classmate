@@ -6614,7 +6614,8 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminExportNoStudents => 'هيڅ زده‌کوونکی ونه موندل شو';
 
   @override
-  String get adminExportIncludesPasswords => 'صادرول به پټنومونه شامل کړي';
+  String get adminExportIncludesPasswords =>
+      'Export will reset & include passwords';
 
   @override
   String get adminExportAnyway => 'بيا هم صادر کړئ';
@@ -7326,9 +7327,9 @@ class AppLocalizationsPs extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'فايل به د $count زده‌کوونکو د ننوتلو معلومات ولري، د اوسنيو پټنومونو په ګډون. هر څوک چې فايل ولري کولی شي د دغو زده‌کوونکو په توګه ننوځي — په پاملرنه يې شريک کړئ او بشپړيدو وروسته يې حذف کړئ. د هغو حسابونو کرښې چې د وروستي تازه کولو دمخه جوړ شوي وي، تر هغه وخته به تش پټنوم وښيي چې هر کاروونکی بيا ننوځي يا بياځلي تنظيم وکړي.',
+          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'فايل به د $count زده‌کوونکي د ننوتلو معلومات ولري، د اوسني پټنوم په ګډون. هر څوک چې فايل ولري کولی شي د دې زده‌کوونکي په توګه ننوځي — په پاملرنه يې شريک کړئ او بشپړيدو وروسته يې حذف کړئ. د هغو حسابونو کرښې چې د وروستي تازه کولو دمخه جوړ شوي وي، تر هغه وخته به تش پټنوم وښيي چې کاروونکی بيا ننوځي يا بياځلي تنظيم وکړي.',
+          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '$_temp0';
   }
@@ -7985,7 +7986,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'پټنومونه به په صادراتو کې ښکاره وي — فایل په خوندي ډول وساتئ.';
+      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
 
   @override
   String get adminExportPasswordsOff => 'صادرات به هیڅ پټنوم نه لري.';

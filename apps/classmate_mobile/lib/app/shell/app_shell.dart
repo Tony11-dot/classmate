@@ -1465,7 +1465,7 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: const ClassMateLogo(height: 24),
+      title: const ClassMateLogo(height: 38),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 14),

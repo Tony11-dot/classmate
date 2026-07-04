@@ -11796,7 +11796,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminExportIncludesPasswords.
   ///
   /// In en, this message translates to:
-  /// **'Export will include passwords'**
+  /// **'Export will reset & include passwords'**
   String get adminExportIncludesPasswords;
 
   /// No description provided for @adminExportAnyway.
@@ -12984,7 +12984,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminExportPasswordsWarning.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{The file will contain {count} student\'s login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students\' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}'**
+  /// **'{count, plural, one{This resets {count} student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.} other{This resets {count} students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.}}'**
   String adminExportPasswordsWarning(int count);
 
   /// No description provided for @pickerSelectStudents.
@@ -14046,7 +14046,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminExportPasswordsOn.
   ///
   /// In en, this message translates to:
-  /// **'Passwords will be visible in the export — handle the file securely.'**
+  /// **'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.'**
   String get adminExportPasswordsOn;
 
   /// No description provided for @adminExportPasswordsOff.

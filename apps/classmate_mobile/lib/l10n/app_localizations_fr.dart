@@ -6698,7 +6698,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminExportIncludesPasswords =>
-      'L\'exportation inclura les mots de passe';
+      'Export will reset & include passwords';
 
   @override
   String get adminExportAnyway => 'Exporter quand même';
@@ -7415,9 +7415,9 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Le fichier contiendra les identifiants de connexion de $count élèves, y compris les mots de passe actuels. Toute personne ayant le fichier peut se connecter en tant que l\'un de ces élèves — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu\'à la prochaine connexion ou réinitialisation de chaque utilisateur.',
+          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'Le fichier contiendra les identifiants de connexion d\'$count élève, y compris le mot de passe actuel. Toute personne ayant le fichier peut se connecter en tant que cet élève — partagez avec précaution et supprimez après usage. Les lignes des comptes créés avant la dernière mise à jour peuvent afficher un mot de passe vide jusqu\'à la prochaine connexion ou réinitialisation de l\'utilisateur.',
+          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '$_temp0';
   }
@@ -8084,7 +8084,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Les mots de passe seront visibles dans l\'export — manipulez le fichier avec précaution.';
+      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
 
   @override
   String get adminExportPasswordsOff =>

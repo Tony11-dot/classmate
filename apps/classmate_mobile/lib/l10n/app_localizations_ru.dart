@@ -6539,7 +6539,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminExportNoStudents => 'Ученики не найдены';
 
   @override
-  String get adminExportIncludesPasswords => 'Экспорт будет включать пароли';
+  String get adminExportIncludesPasswords =>
+      'Export will reset & include passwords';
 
   @override
   String get adminExportAnyway => 'Всё равно экспортировать';
@@ -7269,13 +7270,9 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Файл будет содержать данные входа $count учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.',
-      many:
-          'Файл будет содержать данные входа $count учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.',
-      few:
-          'Файл будет содержать данные входа $count учеников, включая текущие пароли. Любой, у кого есть файл, может войти как один из этих учеников — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока каждый пользователь не войдёт снова или не сбросит его.',
+          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'Файл будет содержать данные входа $count ученика, включая текущий пароль. Любой, у кого есть файл, может войти как этот ученик — делитесь осторожно и удаляйте после использования. Строки для аккаунтов, созданных до последнего обновления, могут показывать пустой пароль, пока пользователь не войдёт снова или не сбросит его.',
+          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '$_temp0';
   }
@@ -7954,7 +7951,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Пароли будут видны в экспорте — обращайтесь с файлом безопасно.';
+      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
 
   @override
   String get adminExportPasswordsOff => 'Экспорт не будет содержать паролей.';

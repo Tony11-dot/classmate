@@ -42,14 +42,23 @@ async function bootstrap() {
   // the browser-served Flutter SPA (classmateapp.org/app, plus the
   // localhost:8765 preview during development) can call the API.
   //
-  // CORS_ORIGINS is a comma-separated list. When unset, `origin: true`
-  // reflects whatever origin made the request — fine for a not-yet-
-  // public environment. Set CORS_ORIGINS in production to tighten this
-  // to known surfaces only (e.g. https://classmateapp.org).
+  // CORS_ORIGINS is a comma-separated allowlist. In production it MUST be set
+  // (fail closed) — reflecting an arbitrary origin together with
+  // credentials: true is exactly what a security review flags. Outside
+  // production, an empty list reflects the request origin for local dev.
   const corsOrigins = (process.env.CORS_ORIGINS ?? '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+  const isProd = (process.env.NODE_ENV ?? '') === 'production';
+  if (isProd && corsOrigins.length === 0) {
+    // A sane built-in allowlist so a missing env var can't silently open CORS
+    // to the world. Extend via CORS_ORIGINS.
+    corsOrigins.push(
+      'https://classmateapp.org',
+      'https://classmate-f17d6.web.app',
+    );
+  }
   app.enableCors({
     origin: corsOrigins.length === 0 ? true : corsOrigins,
     credentials: true,

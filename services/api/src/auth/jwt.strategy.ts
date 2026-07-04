@@ -45,26 +45,14 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     let payload: any;
     try {
       payload = await this.jwt.verifyAsync(token);
-    } catch (err: any) {
-      // Diagnostic: hunt the "schedule empty until logout+relogin" bug.
-      // If the persisted JWT fails verification (expired, signature
-      // mismatch from a rotated JWT_SECRET, etc.), every downstream
-      // protected request 401s before reaching its service — which
-      // matches the user's symptom of "no schedule log lines until
-      // logout+relogin".
-      // eslint-disable-next-line no-console
-      console.log('[jwt.tryRealJwt.verifyFailed]', JSON.stringify({
-        tokenLen: token.length,
-        tokenHead: token.slice(0, 12),
-        err: err?.name ?? null,
-        msg: err?.message ?? null,
-      }));
+    } catch {
+      // JWT failed verification (expired, or signed with a rotated secret).
+      // Never log the token or its payload — that's credential material. The
+      // client simply re-authenticates on a 401.
       return null;
     }
     const userId = String(payload?.sub ?? '').trim();
     if (!userId) {
-      // eslint-disable-next-line no-console
-      console.log('[jwt.tryRealJwt.noSub]', JSON.stringify({ payload }));
       return null;
     }
 
@@ -73,19 +61,10 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       include: { roles: true, studentProfile: { select: { cohortId: true } } } as any,
     }) as any;
     if (!user) {
-      // eslint-disable-next-line no-console
-      console.log('[jwt.tryRealJwt.userMissing]', JSON.stringify({ userId }));
       throw new UnauthorizedException('Account no longer exists');
     }
 
     const roles: Role[] = (user.roles ?? []).map((r: any) => r.role);
-    // eslint-disable-next-line no-console
-    console.log('[jwt.tryRealJwt.success]', JSON.stringify({
-      userId,
-      roles,
-      schoolId: user.schoolId ?? null,
-      cohortId: user.studentProfile?.cohortId ?? null,
-    }));
     const displayName = user.name ?? user.email?.split('@')[0] ?? '';
     const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
     const resolvedSchoolId = user.schoolId ?? schoolId ?? null;
@@ -265,7 +244,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
 
     if (process.env.JWT_VALIDATE_DEBUG === '1') {
       console.error('JWT_VALIDATE_DEBUG', {
-        authHeader: (req as any)?.headers?.authorization,
+        // Never log the raw Authorization header (it's the bearer token).
         tokenLen: String(((req as any)?.headers?.authorization || '')).length,
         nodeEnv: process.env.NODE_ENV,
         allowDevToken: process.env.ALLOW_DEV_TOKEN,

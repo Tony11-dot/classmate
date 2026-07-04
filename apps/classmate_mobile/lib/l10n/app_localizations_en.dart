@@ -6601,7 +6601,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminExportNoStudents => 'No students found';
 
   @override
-  String get adminExportIncludesPasswords => 'Export will include passwords';
+  String get adminExportIncludesPasswords =>
+      'Export will reset & include passwords';
 
   @override
   String get adminExportAnyway => 'Export anyway';
@@ -7311,9 +7312,9 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'The file will contain $count students\' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.',
+          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'The file will contain $count student\'s login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.',
+          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '$_temp0';
   }
@@ -7970,7 +7971,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Passwords will be visible in the export — handle the file securely.';
+      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
 
   @override
   String get adminExportPasswordsOff =>

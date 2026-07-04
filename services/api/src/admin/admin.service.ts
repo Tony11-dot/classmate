@@ -4,8 +4,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { subjectDefaultsBySchoolGrade, studentSubjectOverrides, defaultsKey, normalizeSubjects, normalizeSubjectsI18n } from '../subjects/subjects.store';
 import { PasswordResetService } from '../auth/password-reset/password-reset.service';
 import { hasAnyRole } from '../auth/permissions';
+import { isDevAuthBypassEnabled } from '../auth/dev-bypass';
 import { mapCsvToRows } from './csv-import.util';
-import { encryptPassword, decryptPassword } from '../common/password-vault';
 
 function randomDigits(len = 6) {
   const digits = '0123456789';
@@ -803,26 +803,20 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   private requireAdminOrSecretary(user: any) {
-    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
-    const isDev = appEnv.toLowerCase().includes('dev') || appEnv.toLowerCase().includes('test');
-    if (isDev) return; // matches RolesGuard dev bypass
-
+    if (isDevAuthBypassEnabled()) return; // matches RolesGuard dev bypass
     const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
-    console.log('[ADMIN_AUTH] roles:', roles, 'user.id:', user?.id);
     if (!roles.includes('ADMIN') && !roles.includes('SECRETARY')) {
       throw new ForbiddenException('Admin/Secretary only');
     }
   }
 
-  /// Exporting real passwords (generatePasswords=true) hands over recoverable
-  /// credentials, so it is ADMIN-only. Secretaries may export data but never
-  /// passwords — otherwise a secretary could export an ADMIN's current password
-  /// and escalate to admin. No-op when passwords aren't requested.
+  /// A password export RESETS the selected users' passwords, so it is
+  /// ADMIN-only. Secretaries may export data but never reset passwords —
+  /// otherwise a secretary could reset an ADMIN's login and take over the
+  /// account. No-op when passwords aren't requested.
   private requireAdminForPasswordExport(user: any, includePasswords: boolean) {
     if (!includePasswords) return;
-    const appEnv = process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production';
-    const isDev = appEnv.toLowerCase().includes('dev') || appEnv.toLowerCase().includes('test');
-    if (isDev) return;
+    if (isDevAuthBypassEnabled()) return;
     const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
     if (!roles.includes('ADMIN')) {
       throw new ForbiddenException('Only admins can export passwords');
@@ -1206,30 +1200,22 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       );
     }
 
-    // The bcrypt `password` hash can never be read back, so we keep a reversible
-    // AES copy in `passwordEnc` (written whenever a password is set). On export
-    // we DECRYPT that copy and return the user's CURRENT password unchanged.
-    // Only legacy users with no stored copy get a one-time reset, after which
-    // the new value is saved (encrypted) for future exports.
+    // Password sheets: the bcrypt `password` hash is one-way and can NEVER be
+    // read back — by design, and because storing a recoverable copy of a
+    // minor's password fails a privacy/security review. So "include passwords"
+    // RESETS each selected student to a fresh generated password and prints
+    // that on the sheet. The teacher hands out the new card; the student logs
+    // in with it. Same paper workflow, zero recoverable credentials at rest.
     const includePasswords = query?.generatePasswords === 'true';
     this.requireAdminForPasswordExport(user, includePasswords);
     const resetPasswords = new Map<string, string>();
     if (includePasswords) {
       for (const r of filtered) {
-        const row = await this.prisma.user.findUnique({
-          where: { id: r.id },
-          select: { passwordEnc: true },
-        });
-        const current = decryptPassword(row?.passwordEnc);
-        if (current) {
-          resetPasswords.set(r.id, current);
-          continue;
-        }
         const fresh = `Classmate${randomDigits(6)}!`;
         const hash = await bcrypt.hash(fresh, 10);
         await this.prisma.user.update({
           where: { id: r.id },
-          data: { password: hash, passwordEnc: encryptPassword(fresh) },
+          data: { password: hash },
         });
         resetPasswords.set(r.id, fresh);
       }
@@ -1419,27 +1405,18 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     const schoolName = school?.name ?? '';
 
-    // "Include passwords" returns each user's CURRENT credential by decrypting
-    // the reversible `passwordEnc` copy — no reset, the login keeps working.
-    // Legacy users with no stored copy get a one-time reset, then we persist
-    // the new value (encrypted) so later exports stay non-destructive.
+    // "Include passwords" RESETS each user to a fresh generated password and
+    // prints it once (see exportStudents for the rationale — no recoverable
+    // credential is ever stored). The old password stops working; the printed
+    // sheet carries the new one.
     const backfilledPasswords = new Map<string, string>();
     if (includePasswords) {
       for (const r of rows) {
-        const row = await this.prisma.user.findUnique({
-          where: { id: r.id },
-          select: { passwordEnc: true },
-        });
-        const current = decryptPassword(row?.passwordEnc);
-        if (current) {
-          backfilledPasswords.set(r.id, current);
-          continue;
-        }
         const fresh = `Classmate${randomDigits(6)}!`;
         const hash = await bcrypt.hash(fresh, 10);
         await this.prisma.user.update({
           where: { id: r.id },
-          data: { password: hash, passwordEnc: encryptPassword(fresh) },
+          data: { password: hash },
         });
         backfilledPasswords.set(r.id, fresh);
       }
@@ -1777,7 +1754,6 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
         ...(rawPhone ? { phone: rawPhone } : {}),
         username,
         password: hash,
-        passwordEnc: encryptPassword(tempPassword),
         schoolId,
         status: 'ACTIVE',
         roles: { create: [{ role: role as any }] },
@@ -1945,7 +1921,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const hash = await bcrypt.hash(newPassword, 10);
     await this.prisma.user.update({
       where: { id },
-      data: { password: hash, passwordEnc: encryptPassword(newPassword) },
+      data: { password: hash },
     });
 
     // Invalidate any pending password-reset tokens for this user — the admin

@@ -6566,7 +6566,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminExportNoStudents => 'لم يتم العثور على طلاب';
 
   @override
-  String get adminExportIncludesPasswords => 'سيتضمن التصدير كلمات المرور';
+  String get adminExportIncludesPasswords =>
+      'Export will reset & include passwords';
 
   @override
   String get adminExportAnyway => 'تصدير على أي حال';
@@ -7272,9 +7273,9 @@ class AppLocalizationsAr extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'سيحتوي الملف على معلومات تسجيل الدخول لـ $count طلاب، بما في ذلك كلمات المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كأحد هؤلاء الطلاب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم كل مستخدم بتسجيل الدخول التالي أو إعادة التعيين.',
+          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'سيحتوي الملف على معلومات تسجيل الدخول لطالب واحد، بما في ذلك كلمة المرور الحالية. يمكن لأي شخص لديه الملف تسجيل الدخول كهذا الطالب — شارك بحذر واحذف الملف عند الانتهاء. قد تظهر صفوف الحسابات المنشأة قبل آخر تحديث فارغة من كلمة المرور حتى يقوم المستخدم بتسجيل الدخول التالي أو إعادة التعيين.',
+          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '$_temp0';
   }
@@ -7928,7 +7929,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'ستظهر كلمات المرور في التصدير — تعامل مع الملف بأمان.';
+      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
 
   @override
   String get adminExportPasswordsOff => 'لن يحتوي التصدير على أي كلمات مرور.';

@@ -98,11 +98,6 @@ model User {
   /// migration runner that respects the 20260527_username_required SQL.
   username                String?                  @unique
   password                String
-  /// Reversible (AES-256-GCM) copy of the user's current credential, kept ONLY
-  /// so admins can re-export the same password without resetting the login.
-  /// `password` above remains the one-way bcrypt hash used for auth. Written
-  /// whenever a password is set/changed; see common/password-vault.ts.
-  passwordEnc             String?
   name                    String
   parentNotificationState ParentNotificationState?
 
@@ -1803,13 +1798,13 @@ model DmThread {
 }
 
 model DmParticipant {
-  id         String             @id @default(cuid())
-  threadId   String
-  userId     String
-  role       DmParticipantRole  @default(MEMBER)
-  state      DmParticipantState @default(ACCEPTED)
-  isMuted    Boolean            @default(false)
-  lastSeenAt DateTime?
+  id             String             @id @default(cuid())
+  threadId       String
+  userId         String
+  role           DmParticipantRole  @default(MEMBER)
+  state          DmParticipantState @default(ACCEPTED)
+  isMuted        Boolean            @default(false)
+  lastSeenAt     DateTime?
   // Per-user inbox state (WhatsApp-style long-press actions).
   // pinnedAt: thread pinned to the top of MY inbox.
   // markedUnreadAt: manually marked unread — cleared on next markThreadRead.
@@ -1819,9 +1814,9 @@ model DmParticipant {
   markedUnreadAt DateTime?
   clearedAt      DateTime?
   hiddenAt       DateTime?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  thread     DmThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  thread         DmThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@unique([threadId, userId])
   @@index([userId, state])

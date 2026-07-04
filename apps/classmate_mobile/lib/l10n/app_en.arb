@@ -2935,7 +2935,7 @@
     }
   },
   "adminExportNoStudents": "No students found",
-  "adminExportIncludesPasswords": "Export will include passwords",
+  "adminExportIncludesPasswords": "Export will reset & include passwords",
   "adminExportAnyway": "Export anyway",
   "adminExportPdfStudentDirectory": "Student Directory",
   "adminExportPdfBy": "By: {name}",
@@ -3363,7 +3363,7 @@
   "forwardSearchChatsAndClassrooms": "Search chats and classrooms…",
   "profileNewPhone": "New phone",
   "profileNewEmail": "New email",
-  "adminExportPasswordsWarning": "{count, plural, one{The file will contain {count} student's login info, including the current password. Anyone with the file can sign in as that student — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until the user next signs in or resets.} other{The file will contain {count} students' login info, including current passwords. Anyone with the file can sign in as those students — share carefully and delete when done. Rows for accounts created before the latest update may show an empty password until each user next signs in or resets.}}",
+  "adminExportPasswordsWarning": "{count, plural, one{This resets {count} student's password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.} other{This resets {count} students' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.}}",
   "@adminExportPasswordsWarning": {
     "placeholders": {
       "count": {
@@ -3706,7 +3706,7 @@
       }
     }
   },
-  "adminExportPasswordsOn": "Passwords will be visible in the export — handle the file securely.",
+  "adminExportPasswordsOn": "Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.",
   "adminExportPasswordsOff": "Export will not contain any passwords.",
   "adminExportPdfUserDirectory": "User Directory",
   "adminExportPdfUsersCount": "{count, plural, one{{count} user} other{{count} users}}",
