@@ -183,7 +183,7 @@
   <section class="section showcase" id="screens">
     <div class="section-head reveal">
       <h2>Beautiful on every screen</h2>
-      <p>Scroll — watch the phone flip through the app.</p>
+      <p><span class="only-desktop">Scroll — watch the phone flip through the app.</span><span class="only-mobile">Swipe — flip through the app.</span></p>
     </div>
     <div class="sc-wrap">
       <!-- Sticky 3D phone (real thickness + dynamic island), spins + dribbles. -->
@@ -227,6 +227,37 @@
         <div class="sc-copy" data-i="5" data-side="left"><span class="step-kicker">Practice</span><h3>Adaptive practice &amp; Bagrut prep</h3><p>Questions that adjust to each student.</p></div>
       </div>
     </div>
+    <!-- Phone layout: the scroll-driven 3D phone above needs a tall desktop
+         viewport, so on small screens it's replaced by this swipeable gallery
+         where every app page appears. Hidden on desktop via CSS. -->
+    <div class="sc-mobile" aria-label="App screens gallery">
+      <div class="sc-mobile-scroller">
+        <div class="sc-mobile-card">
+          <div class="sc-mobile-phone"><img src="assets/shot-nova-light.png" alt="NOVA AI tutor screen" loading="lazy" /><span class="sc-mobile-island"></span></div>
+          <span class="step-kicker">AI tutor</span><h3>Ask NOVA anything</h3><p>Step-by-step help with real math &amp; code rendering, in your language.</p>
+        </div>
+        <div class="sc-mobile-card">
+          <div class="sc-mobile-phone"><img src="assets/shot-schedule-light.png" alt="Schedule screen" loading="lazy" /><span class="sc-mobile-island"></span></div>
+          <span class="step-kicker">Schedule</span><h3>Your whole day, at a glance</h3><p>Every period, time and teacher — tap a class for students &amp; materials.</p>
+        </div>
+        <div class="sc-mobile-card">
+          <div class="sc-mobile-phone"><img src="assets/shot-classroom-light.png" alt="Classrooms screen" loading="lazy" /><span class="sc-mobile-island"></span></div>
+          <span class="step-kicker">Classrooms</span><h3>Everything in one place</h3><p>Announcements, assignments, materials and real-time chat per class.</p>
+        </div>
+        <div class="sc-mobile-card">
+          <div class="sc-mobile-phone"><img src="assets/shot-solutions-light.png" alt="Solutions library screen" loading="lazy" /><span class="sc-mobile-island"></span></div>
+          <span class="step-kicker">Solutions</span><h3>A library of worked answers</h3><p>Searchable solutions by subject &amp; book — shared across schools.</p>
+        </div>
+        <div class="sc-mobile-card">
+          <div class="sc-mobile-phone"><img src="assets/shot-grades-light.png" alt="Grades screen" loading="lazy" /><span class="sc-mobile-island"></span></div>
+          <span class="step-kicker">Grades</span><h3>Track every result</h3><p>Grades, attendance and progress in clean dashboards.</p>
+        </div>
+        <div class="sc-mobile-card">
+          <div class="sc-mobile-phone"><img src="assets/shot-practice-light.png" alt="Practice screen" loading="lazy" /><span class="sc-mobile-island"></span></div>
+          <span class="step-kicker">Practice</span><h3>Adaptive practice &amp; Bagrut prep</h3><p>Questions that adjust to each student.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- DEMO VIDEO -->
@@ -242,15 +273,15 @@
         controls
         playsinline
         preload="metadata"
-        poster="assets/classmate-demo-v2-poster.png"
+        poster="assets/classmate-demo-v3-poster.png"
       >
-        <source src="assets/classmate-demo-v2.mp4" type="video/mp4" />
+        <source src="assets/classmate-demo-v3.mp4" type="video/mp4" />
         Your browser doesn't support embedded video.
-        <a href="assets/classmate-demo-v2.mp4">Download the demo</a> instead.
+        <a href="assets/classmate-demo-v3.mp4">Download the demo</a> instead.
       </video>
     </div>
     <div class="demo-actions reveal">
-      <a class="btn btn-ghost btn-sm" href="downloads/classmate-demo-v2.mp4" download data-cta="download_video" data-cta-loc="demo">
+      <a class="btn btn-ghost btn-sm" href="downloads/classmate-demo-v3.mp4" download data-cta="download_video" data-cta-loc="demo">
         ⬇ Download the video
       </a>
     </div>

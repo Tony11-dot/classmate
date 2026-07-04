@@ -168,17 +168,38 @@
 .sc-body-15 { transform: translateZ(-6.5px); }
 .sc-body-16 { transform: translateZ(-7.5px); }
 
-/* Mobile — static phone on top, all texts stacked & visible. */
+/* ── Responsive visibility helpers ── */
+.only-mobile { display: none; }
+
+/* ── Mobile (≤768px): the scroll-driven 3D phone is a desktop experience — on
+   phones it collapsed to one static screenshot and the section looked empty.
+   Replace it with a swipeable snap gallery where EVERY app page appears, each
+   in its own phone frame with its caption. ── */
+.sc-mobile { display: none; }
 @media (max-width: 768px) {
-  .sc-phone-wrap { position: relative; height: auto; perspective: none; padding: 8px 0 18px; }
-  .sc-texts { margin-top: 0; }
-  .sc-phone-3d { --w: min(228px, 60vw); transform: none !important; margin: 0 auto; }
-  .sc-edge, .sc-back { display: none; }
-  .sc-front { transform: none; }
-  .sc-copy { min-height: 0; opacity: 1; transform: none; align-items: center !important; text-align: center !important; padding: 0 clamp(16px,6vw,28px) 28px !important; }
-  /* The desktop ch caps (11ch / 26ch) leave centered phone text in a cramped,
-     awkwardly-wrapped column — let it use the full width on phones. */
-  .sc-copy h3, .sc-copy p { max-width: 100% !important; }
-  .sc-copy h3 { font-size: clamp(26px, 7vw, 34px); }
-  .sc-copy p { font-size: clamp(15px, 4.2vw, 18px); margin-top: 12px; }
+  .only-desktop { display: none; }
+  .only-mobile { display: inline; }
+  .sc-wrap { display: none; }
+  .sc-mobile { display: block; padding: 4px 0 10px; }
+  .sc-mobile-scroller {
+    display: flex; gap: 16px; overflow-x: auto; padding: 10px 24px 20px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .sc-mobile-scroller::-webkit-scrollbar { display: none; }
+  .sc-mobile-card {
+    flex: 0 0 66vw; max-width: 290px; scroll-snap-align: center;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .sc-mobile-phone {
+    position: relative; width: 100%; aspect-ratio: 9 / 19.3;
+    border-radius: 34px; overflow: hidden;
+    background: #0a0e16; border: 6px solid #0c121c;
+    box-shadow: var(--shadow), var(--shadow-glow);
+  }
+  .sc-mobile-phone img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .sc-mobile-island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 30%; height: 16px; background: #000; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+  .sc-mobile-card .step-kicker { margin: 16px 0 10px; font-size: 12px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); background: color-mix(in srgb, var(--primary) 14%, transparent); padding: 6px 12px; border-radius: 999px; }
+  .sc-mobile-card h3 { font-size: 20px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.12; }
+  .sc-mobile-card p { color: var(--muted); margin-top: 7px; font-size: 14px; line-height: 1.45; }
 }
