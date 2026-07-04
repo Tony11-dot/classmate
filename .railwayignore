@@ -10,3 +10,7 @@ apps/classmate_mobile/macos/
 apps/classmate_mobile/windows/
 apps/classmate_mobile/linux/
 **/.firebase/
+marketing/
+services/api/uploads/
+services/api/dist/
+*.pptx
