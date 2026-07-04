@@ -9441,6 +9441,96 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get commonShare;
 
+  /// No description provided for @inboxActionPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin chat'**
+  String get inboxActionPin;
+
+  /// No description provided for @inboxActionUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin chat'**
+  String get inboxActionUnpin;
+
+  /// No description provided for @inboxActionMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get inboxActionMute;
+
+  /// No description provided for @inboxActionUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get inboxActionUnmute;
+
+  /// No description provided for @inboxActionMarkRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get inboxActionMarkRead;
+
+  /// No description provided for @inboxActionMarkUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as unread'**
+  String get inboxActionMarkUnread;
+
+  /// No description provided for @inboxActionClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear messages'**
+  String get inboxActionClear;
+
+  /// No description provided for @inboxActionClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.'**
+  String get inboxActionClearConfirm;
+
+  /// No description provided for @inboxActionDeleteChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete chat'**
+  String get inboxActionDeleteChat;
+
+  /// No description provided for @inboxActionDeleteChatConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this chat? It disappears from your list and history; it comes back if they message you again.'**
+  String get inboxActionDeleteChatConfirm;
+
+  /// No description provided for @inboxActionBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block contact'**
+  String get inboxActionBlock;
+
+  /// No description provided for @inboxActionBlockConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this contact? They won\'t be able to message you anymore.'**
+  String get inboxActionBlockConfirm;
+
+  /// No description provided for @cmailActionMarkRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get cmailActionMarkRead;
+
+  /// No description provided for @cmailActionMarkUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as unread'**
+  String get cmailActionMarkUnread;
+
+  /// No description provided for @cmailDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this mail from your mailbox?'**
+  String get cmailDeleteConfirm;
+
   /// No description provided for @commonLoading.
   ///
   /// In en, this message translates to:

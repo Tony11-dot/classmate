@@ -456,7 +456,14 @@ export class MessagesService {
     userId: string,
     opts?: { limit?: number; beforeId?: string },
   ) {
-    await this.loadParticipantOrThrow(threadId, userId);
+    const viewer = await this.loadParticipantOrThrow(threadId, userId);
+    // "Clear messages" / "delete chat": the viewer's copy of the history
+    // starts after their clearedAt — older rows stay for everyone else.
+    const clearedAt = (viewer as any)?.clearedAt as Date | null | undefined;
+    const messageWhere = {
+      threadId,
+      ...(clearedAt ? { createdAt: { gt: clearedAt } } : {}),
+    };
 
     const base = await this.prisma.dmThread.findUnique({
       where: { id: threadId },
@@ -484,7 +491,7 @@ export class MessagesService {
       // Newest-first window. Fetch one extra to detect whether older pages
       // exist, then reverse to chronological (ascending) for the client.
       const rows = await this.prisma.dmMessage.findMany({
-        where: { threadId },
+        where: messageWhere,
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: limit + 1,
         ...(opts?.beforeId ? { cursor: { id: opts.beforeId }, skip: 1 } : {}),
@@ -495,7 +502,7 @@ export class MessagesService {
     } else {
       // Legacy / no-pagination path: full history, ascending.
       messages = await this.prisma.dmMessage.findMany({
-        where: { threadId },
+        where: messageWhere,
         orderBy: { createdAt: 'asc' },
         include: reactionInclude,
       });
@@ -545,9 +552,19 @@ export class MessagesService {
     userId: string;
     state: DmParticipantState;
     lastSeenAt: Date | null;
+    isMuted?: boolean;
+    pinnedAt?: Date | null;
+    markedUnreadAt?: Date | null;
+    clearedAt?: Date | null;
   }) {
     const thread = participant.thread;
     const viewerId = participant.userId;
+    // "Clear messages": anything at/before clearedAt no longer exists for ME.
+    if (participant.clearedAt) {
+      thread.messages = thread.messages.filter(
+        (m) => m.createdAt > participant.clearedAt!,
+      );
+    }
     const otherIds = thread.participants
       .filter((p) => p.userId !== viewerId)
       .map((p) => p.userId);
@@ -608,8 +625,10 @@ export class MessagesService {
       title,
       subtitle,
       isGroup: thread.type === DmThreadType.GROUP,
-      isUnread: unreadCount > 0,
+      isUnread: unreadCount > 0 || participant.markedUnreadAt != null,
       unreadCount,
+      isPinned: participant.pinnedAt != null,
+      isMuted: participant.isMuted === true,
       lastMessageAt: this.formatTime(
         latestMessage?.createdAt ?? thread.updatedAt ?? thread.createdAt,
       ),
@@ -757,14 +776,26 @@ export class MessagesService {
       orderBy: { updatedAt: 'desc' },
     });
 
+    // "Delete chat" (hiddenAt) removes the thread from MY inbox until someone
+    // sends something newer — then it reappears with only the new history.
+    const visible = participants.filter((p: any) => {
+      if (!p.hiddenAt) return true;
+      const latest = p.thread.messages[0];
+      return !!latest && latest.createdAt > p.hiddenAt;
+    });
+
     const items = await Promise.all(
-      participants.map((p) => this.threadToSummary(p)),
+      visible.map((p) => this.threadToSummary(p)),
     );
-    items.sort(
-      (a, b) =>
+    // Pinned chats float to the top (newest-first within each section).
+    items.sort((a, b) => {
+      const pin = (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+      if (pin !== 0) return pin;
+      return (
         new Date(String(b.lastMessageAtRaw || 0)).getTime() -
-        new Date(String(a.lastMessageAtRaw || 0)).getTime(),
-    );
+        new Date(String(a.lastMessageAtRaw || 0)).getTime()
+      );
+    });
     return { items };
   }
 
@@ -1838,6 +1869,8 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
       data: {
         lastSeenAt: new Date(),
+        // Opening the thread cancels a manual "mark as unread".
+        markedUnreadAt: null,
       },
     });
 
@@ -2023,6 +2056,74 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       data: { isMuted },
     });
     return { ok: true, isMuted };
+  }
+
+  // ── Inbox long-press actions (all per-participant — never touch the other
+  //    side's copy of the thread) ────────────────────────────────────────────
+
+  async togglePinThread(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    await this._assertDmMember(threadId, userId);
+    const current = await this.prisma.dmParticipant.findUnique({
+      where: { threadId_userId: { threadId, userId } },
+      select: { pinnedAt: true },
+    });
+    const pinnedAt = current?.pinnedAt ? null : new Date();
+    await this.prisma.dmParticipant.update({
+      where: { threadId_userId: { threadId, userId } },
+      data: { pinnedAt },
+    });
+    return { ok: true, isPinned: pinnedAt != null };
+  }
+
+  async markThreadUnread(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    await this._assertDmMember(threadId, userId);
+    await this.prisma.dmParticipant.update({
+      where: { threadId_userId: { threadId, userId } },
+      data: { markedUnreadAt: new Date() },
+    });
+    return { ok: true };
+  }
+
+  /** "Clear messages" hides everything at/before now from MY view only.
+   *  With hide=true the thread also leaves my inbox ("delete chat") until a
+   *  newer message arrives — the other side keeps their full history. */
+  async clearThread(user: AppUser, threadId: string, hide: boolean) {
+    const userId = this.viewerId(user);
+    await this._assertDmMember(threadId, userId);
+    const now = new Date();
+    await this.prisma.dmParticipant.update({
+      where: { threadId_userId: { threadId, userId } },
+      data: {
+        clearedAt: now,
+        markedUnreadAt: null,
+        ...(hide ? { hiddenAt: now } : {}),
+      },
+    });
+    return { ok: true };
+  }
+
+  /** Push a typing signal to the other participants. Deliberately does not
+   *  persist anything — pure SSE fan-out, throttled client-side. */
+  async notifyTyping(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    await this._assertDmMember(threadId, userId);
+    const others = await this.prisma.dmParticipant.findMany({
+      where: {
+        threadId,
+        userId: { not: userId },
+        state: DmParticipantState.ACCEPTED,
+      },
+      select: { userId: true },
+    });
+    if (others.length) {
+      this.realtime.emitToUsers(
+        others.map((p) => p.userId),
+        { type: 'dm_typing', threadId, userId },
+      );
+    }
+    return { ok: true };
   }
 
   async blockGroupMember(user: AppUser, threadId: string, targetUserId: string) {

@@ -1085,6 +1085,25 @@ class DmChatThreadController extends ChatThreadController {
     try { ref.invalidate(messagesInboxProvider); } catch (_) {}
   }
 
+  // ── Typing ────────────────────────────────────────────────────────────────
+
+  @override
+  AsyncValue<bool> watchTyping(WidgetRef ref) =>
+      ref.watch(dmPeerTypingProvider(_threadId));
+
+  DateTime _lastTypingSignal = DateTime.fromMillisecondsSinceEpoch(0);
+
+  @override
+  void notifyTyping() {
+    // The peer-side indicator stays lit 4s per signal, so one ping every
+    // 2.5s of continuous typing keeps it on without hammering the API.
+    final now = DateTime.now();
+    if (now.difference(_lastTypingSignal).inMilliseconds < 2500) return;
+    _lastTypingSignal = now;
+    // Fire-and-forget; the repo already swallows network errors.
+    _repo.notifyTyping(threadId: _threadId);
+  }
+
   @override
   Future<void> markVoicePlayed(String messageId) async {
     try {

@@ -269,6 +269,15 @@ class CMailApi {
     await _api.deleteJson('/cmail/$id');
   }
 
+  /// Toggle MY read state without opening the mail (inbox long-press).
+  Future<void> markRead(String id) async {
+    await _api.postJson('/cmail/$id/read', body: const {});
+  }
+
+  Future<void> markUnread(String id) async {
+    await _api.postJson('/cmail/$id/unread', body: const {});
+  }
+
   /// Uploads one file to the shared attachment store and returns its
   /// attachment descriptor (server-relative /uploads/... URL). Pass [bytes]
   /// on web, where the picker exposes no real file path.

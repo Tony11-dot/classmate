@@ -59,6 +59,11 @@ abstract class ChatThreadController {
 
   AsyncValue<bool> watchTyping(WidgetRef ref) => const AsyncValue.data(false);
 
+  /// Called (already debounced by the view) while the user is typing in the
+  /// composer. Default no-op; the DM controller pushes a typing signal so the
+  /// other side's thread shows the live "typing…" bubble.
+  void notifyTyping() {}
+
   Future<List<ForwardTarget>?> showForwardPicker(
     BuildContext context,
     WidgetRef ref,

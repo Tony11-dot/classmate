@@ -13,12 +13,15 @@ class RealtimeEvent {
     this.classroomId,
     this.threadId,
     this.studentId,
+    this.userId,
     this.targetUserIds,
   });
   final String type;
   final String? classroomId;
   final String? threadId;
   final String? studentId;
+  /// Actor of the event where relevant (e.g. who is typing in `dm_typing`).
+  final String? userId;
   final List<String>? targetUserIds;
 
   factory RealtimeEvent.fromJson(Map<String, dynamic> j) => RealtimeEvent(
@@ -26,6 +29,7 @@ class RealtimeEvent {
     classroomId: j['classroomId']?.toString(),
     threadId: j['threadId']?.toString(),
     studentId: j['studentId']?.toString(),
+    userId: j['userId']?.toString(),
     targetUserIds: j['targetUserIds'] is List
         ? List<String>.from((j['targetUserIds'] as List).map((e) => e.toString()))
         : null,

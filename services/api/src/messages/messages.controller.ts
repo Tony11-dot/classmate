@@ -180,6 +180,35 @@ export class MessagesController {
     return this.service.toggleMuteThread(req.user, threadId);
   }
 
+  // ── Inbox long-press actions (per-user, WhatsApp-style) ──────────────────
+
+  @Post('threads/:threadId/pin')
+  pinThread(@Req() req: any, @Param('threadId') threadId: string) {
+    return this.service.togglePinThread(req.user, threadId);
+  }
+
+  @Post('threads/:threadId/unread')
+  markThreadUnread(@Req() req: any, @Param('threadId') threadId: string) {
+    return this.service.markThreadUnread(req.user, threadId);
+  }
+
+  /** Clear my copy of the history; body {hide:true} also removes the thread
+   *  from my inbox until a newer message arrives ("delete chat"). */
+  @Post('threads/:threadId/clear')
+  clearThread(
+    @Req() req: any,
+    @Param('threadId') threadId: string,
+    @Body() body: any,
+  ) {
+    return this.service.clearThread(req.user, threadId, body?.hide === true);
+  }
+
+  /** Fire-and-forget "I am typing" signal → SSE to the other participants. */
+  @Post('threads/:threadId/typing')
+  typing(@Req() req: any, @Param('threadId') threadId: string) {
+    return this.service.notifyTyping(req.user, threadId);
+  }
+
   @Patch('threads/:threadId/title')
   updateTitle(@Req() req: any, @Param('threadId') threadId: string, @Body() body: any) {
     return this.service.updateGroupTitle(req.user, threadId, body);

@@ -302,6 +302,22 @@ export class CMailService {
     return { ok: true, count };
   }
 
+  /// Toggle MY read state for a mail without opening it (inbox long-press).
+  /// Recipient-scoped: only affects the caller's row, never the sender stats
+  /// beyond the natural read-count change.
+  async setRead(user: any, mailId: string, read: boolean) {
+    const { userId } = this.me(user);
+    const row = await this.prisma.cMailRecipient.findFirst({
+      where: { mailId, userId, deletedAt: null },
+    });
+    if (!row) throw new NotFoundException('Mail not found');
+    await this.prisma.cMailRecipient.update({
+      where: { id: row.id },
+      data: { readAt: read ? (row.readAt ?? new Date()) : null },
+    });
+    return { ok: true };
+  }
+
   /// Full mail. Allowed for the sender and any (non-deleted) recipient —
   /// nobody else, including same-school users outside the audience.
   async detail(user: any, mailId: string) {

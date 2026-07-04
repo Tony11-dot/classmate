@@ -15,6 +15,8 @@ class MessageThreadSummary {
   final ChatRequestState requestState;
   final String initials;
   final String? groupAvatarUrl;
+  final bool isPinned;
+  final bool isMuted;
 
   DateTime? get lastMessageDate =>
       parseFirstChatTimestamp([lastMessageAtRaw, lastMessageAt]);
@@ -32,6 +34,8 @@ class MessageThreadSummary {
     required this.requestState,
     required this.initials,
     this.groupAvatarUrl,
+    this.isPinned = false,
+    this.isMuted = false,
   });
 }
 

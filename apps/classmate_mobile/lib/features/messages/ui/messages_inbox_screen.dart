@@ -210,6 +210,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
     final indexed = items.asMap().entries.toList();
 
     indexed.sort((a, b) {
+      // Pinned chats stay on top (newest-first within each section) — the
+      // server orders them this way too; keep the client sort in agreement.
+      final pin = (b.value.isPinned ? 1 : 0) - (a.value.isPinned ? 1 : 0);
+      if (pin != 0) return pin;
       final ad = _parseInboxTimestamp(_threadTimestamp(a.value));
       final bd = _parseInboxTimestamp(_threadTimestamp(b.value));
 
@@ -238,6 +242,183 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       item.lastMessageDate,
       fallback: item.lastMessageAt.trim(),
       yesterday: l.yesterday,
+    );
+  }
+
+  // ── Long-press chat actions (WhatsApp-style) ──────────────────────────────
+
+  Future<bool> _confirm(String title, String message, String actionLabel,
+      {bool destructive = true}) async {
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l.commonCancel),
+          ),
+          FilledButton(
+            style: destructive
+                ? FilledButton.styleFrom(
+                    backgroundColor: cs.error, foregroundColor: cs.onError)
+                : null,
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(actionLabel),
+          ),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
+  Future<void> _runInboxAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) {
+        ref.invalidate(messagesInboxProvider);
+      }
+    }
+  }
+
+  Future<void> _showThreadActions(MessageThreadSummary item) async {
+    final l = AppLocalizations.of(context)!;
+    final repo = ref.read(messagesRepositoryProvider);
+    final api = repo as ApiMessagesRepository;
+
+    Widget action({
+      required IconData icon,
+      required String label,
+      required VoidCallback onTap,
+      Color? color,
+    }) {
+      return ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(label,
+            style: TextStyle(fontWeight: FontWeight.w600, color: color)),
+        onTap: () {
+          Navigator.of(context).pop();
+          onTap();
+        },
+      );
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: false,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+              action(
+                icon: item.isPinned
+                    ? Icons.push_pin_outlined
+                    : Icons.push_pin_rounded,
+                label: item.isPinned ? l.inboxActionUnpin : l.inboxActionPin,
+                onTap: () => _runInboxAction(
+                    () => repo.togglePinThread(threadId: item.id)),
+              ),
+              action(
+                icon: item.isMuted
+                    ? Icons.volume_up_rounded
+                    : Icons.volume_off_rounded,
+                label: item.isMuted ? l.inboxActionUnmute : l.inboxActionMute,
+                onTap: () => _runInboxAction(
+                    () => api.toggleMuteThread(threadId: item.id)),
+              ),
+              action(
+                icon: item.isUnread
+                    ? Icons.mark_chat_read_rounded
+                    : Icons.mark_chat_unread_rounded,
+                label: item.isUnread
+                    ? l.inboxActionMarkRead
+                    : l.inboxActionMarkUnread,
+                onTap: () => _runInboxAction(() => item.isUnread
+                    ? repo.markThreadRead(threadId: item.id)
+                    : repo.markThreadUnread(threadId: item.id)),
+              ),
+              const Divider(height: 1),
+              action(
+                icon: Icons.cleaning_services_rounded,
+                label: l.inboxActionClear,
+                color: Theme.of(ctx).colorScheme.error,
+                onTap: () async {
+                  if (await _confirm(l.inboxActionClear,
+                      l.inboxActionClearConfirm, l.inboxActionClear)) {
+                    await _runInboxAction(
+                        () => repo.clearThread(threadId: item.id));
+                    ref.invalidate(messageThreadProvider(item.id));
+                  }
+                },
+              ),
+              action(
+                icon: Icons.delete_outline_rounded,
+                label: l.inboxActionDeleteChat,
+                color: Theme.of(ctx).colorScheme.error,
+                onTap: () async {
+                  if (await _confirm(
+                      l.inboxActionDeleteChat,
+                      l.inboxActionDeleteChatConfirm,
+                      l.inboxActionDeleteChat)) {
+                    await _runInboxAction(
+                        () => repo.clearThread(threadId: item.id, hide: true));
+                    ref.invalidate(messageThreadProvider(item.id));
+                  }
+                },
+              ),
+              if (!item.isGroup)
+                action(
+                  icon: Icons.block_rounded,
+                  label: l.inboxActionBlock,
+                  color: Theme.of(ctx).colorScheme.error,
+                  onTap: () async {
+                    if (await _confirm(l.inboxActionBlock,
+                        l.inboxActionBlockConfirm, l.inboxActionBlock)) {
+                      await _runInboxAction(
+                          () => repo.blockDirectThread(threadId: item.id));
+                    }
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -359,6 +540,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                           (item) => _InboxRow(
                             item: item,
                             trailingLabel: _formatInboxTrailingLabel(item),
+                            onLongPress: () => _showThreadActions(item),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -374,6 +556,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                           (item) => _InboxRow(
                             item: item,
                             trailingLabel: _formatInboxTrailingLabel(item),
+                            onLongPress: () => _showThreadActions(item),
                           ),
                         ),
                       ],
@@ -423,17 +606,24 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _InboxRow extends StatelessWidget {
-  const _InboxRow({required this.item, required this.trailingLabel});
+  const _InboxRow({
+    required this.item,
+    required this.trailingLabel,
+    this.onLongPress,
+  });
 
   final MessageThreadSummary item;
   final String trailingLabel;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final isRequest = item.requestState.name == 'pendingIncoming';
-    final showUnread = item.unreadCount > 0;
+    // isUnread covers both real unread messages AND a manual "mark as unread"
+    // (unreadCount is 0 there — the badge falls back to a dot).
+    final showUnread = item.isUnread;
     final trailingText = trailingLabel.trim().isEmpty
         ? item.lastMessageAt.trim()
         : trailingLabel.trim();
@@ -447,6 +637,7 @@ class _InboxRow extends StatelessWidget {
         color: scheme.surface,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
+          onLongPress: onLongPress,
           onTap: () {
             if (isRequest) {
               context.pushNamed(
@@ -508,6 +699,16 @@ class _InboxRow extends StatelessWidget {
                                   ),
                             ),
                           ),
+                          if (item.isMuted) ...[
+                            const SizedBox(width: 6),
+                            Icon(Icons.volume_off_rounded,
+                                size: 15, color: scheme.onSurfaceVariant),
+                          ],
+                          if (item.isPinned) ...[
+                            const SizedBox(width: 6),
+                            Icon(Icons.push_pin_rounded,
+                                size: 15, color: scheme.onSurfaceVariant),
+                          ],
                           if (item.isGroup) ...[
                             const SizedBox(width: 8),
                             Container(
@@ -582,7 +783,7 @@ class _InboxRow extends StatelessWidget {
                           ),
                         ),
                       )
-                    else if (showUnread)
+                    else if (showUnread && item.unreadCount > 0)
                       Container(
                         constraints: const BoxConstraints(minWidth: 22),
                         height: 22,
@@ -599,6 +800,17 @@ class _InboxRow extends StatelessWidget {
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                           ),
+                        ),
+                      )
+                    else if (showUnread)
+                      // Manual "mark as unread" — no count, WhatsApp-style dot.
+                      Container(
+                        width: 12,
+                        height: 12,
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                          color: scheme.primary,
+                          shape: BoxShape.circle,
                         ),
                       )
                     else

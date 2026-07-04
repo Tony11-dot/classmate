@@ -5268,6 +5268,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonShare => 'مشاركة';
 
   @override
+  String get inboxActionPin => 'Pin chat';
+
+  @override
+  String get inboxActionUnpin => 'Unpin chat';
+
+  @override
+  String get inboxActionMute => 'Mute';
+
+  @override
+  String get inboxActionUnmute => 'Unmute';
+
+  @override
+  String get inboxActionMarkRead => 'Mark as read';
+
+  @override
+  String get inboxActionMarkUnread => 'Mark as unread';
+
+  @override
+  String get inboxActionClear => 'Clear messages';
+
+  @override
+  String get inboxActionClearConfirm =>
+      'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.';
+
+  @override
+  String get inboxActionDeleteChat => 'Delete chat';
+
+  @override
+  String get inboxActionDeleteChatConfirm =>
+      'Delete this chat? It disappears from your list and history; it comes back if they message you again.';
+
+  @override
+  String get inboxActionBlock => 'Block contact';
+
+  @override
+  String get inboxActionBlockConfirm =>
+      'Block this contact? They won\'t be able to message you anymore.';
+
+  @override
+  String get cmailActionMarkRead => 'Mark as read';
+
+  @override
+  String get cmailActionMarkUnread => 'Mark as unread';
+
+  @override
+  String get cmailDeleteConfirm => 'Delete this mail from your mailbox?';
+
+  @override
   String get commonLoading => 'جارٍ التحميل…';
 
   @override

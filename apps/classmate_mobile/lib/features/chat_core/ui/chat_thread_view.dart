@@ -228,7 +228,14 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     setState(() => _showScrollToBottom = shouldShow);
   }
 
-  void _handleTextChange() => setState(() {});
+  void _handleTextChange() {
+    // Push a typing signal while the user actually has content in flight.
+    // The controller throttles the network ping; DM-only (base is a no-op).
+    if (_textController.text.trim().isNotEmpty) {
+      widget.controller.notifyTyping();
+    }
+    setState(() {});
+  }
 
   void _onMessagesRendered(List<ChatMessage> messages) {
     _lastMessages = messages;
@@ -1667,12 +1674,24 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
 
-    // Real-time push: invalidate when SSE fires a relevant event
+    // Real-time push: invalidate when SSE fires a relevant event.
     ref.listen(realtimeEventProvider, (_, event) {
       if (event == null) return;
       final tid = widget.controller.threadId;
-      if ((event.type == 'classroom_message' && event.classroomId == tid) ||
-          (event.type == 'dm_message' && event.threadId == tid)) {
+      final isIncomingHere =
+          (event.type == 'classroom_message' && event.classroomId == tid) ||
+              (event.type == 'dm_message' && event.threadId == tid);
+      if (isIncomingHere) {
+        widget.controller.invalidate();
+        // The user is LOOKING at this thread, so the arriving message is seen
+        // the moment it renders — advance my read cursor immediately. This is
+        // what makes the sender's ticks flip to blue in real time (the server
+        // pushes them a `dm_read` in response). Without it, lastSeenAt only
+        // moved on thread ENTRY, so ticks froze while both sides sat in chat.
+        widget.controller.markRead().catchError((_) {});
+      }
+      // The other side read the thread → refetch so my ticks light up live.
+      if (event.type == 'dm_read' && event.threadId == tid) {
         widget.controller.invalidate();
       }
     });

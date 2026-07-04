@@ -72,6 +72,116 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
     ref.invalidate(cmailSentProvider);
   }
 
+  // ── Long-press actions (Gmail-style) ──────────────────────────────────────
+
+  Future<void> _runMailAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) {
+        ref.invalidate(cmailInboxProvider);
+        ref.invalidate(cmailSentProvider);
+      }
+    }
+  }
+
+  Future<void> _showMailActions(CMailSummary mail, {required bool inInbox}) async {
+    final l = AppLocalizations.of(context)!;
+    final api = ref.read(cmailApiProvider);
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    mail.subject,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(ctx)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+              if (inInbox)
+                ListTile(
+                  leading: Icon(mail.read
+                      ? Icons.mark_email_unread_rounded
+                      : Icons.mark_email_read_rounded),
+                  title: Text(
+                    mail.read ? l.cmailActionMarkUnread : l.cmailActionMarkRead,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _runMailAction(() =>
+                        mail.read ? api.markUnread(mail.id) : api.markRead(mail.id));
+                  },
+                ),
+              ListTile(
+                leading: Icon(Icons.delete_outline_rounded, color: cs.error),
+                title: Text(
+                  l.commonDelete,
+                  style: TextStyle(fontWeight: FontWeight.w600, color: cs.error),
+                ),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  final ok = await showDialog<bool>(
+                    context: context,
+                    builder: (dctx) => AlertDialog(
+                      title: Text(l.commonDelete),
+                      content: Text(l.cmailDeleteConfirm),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dctx).pop(false),
+                          child: Text(l.commonCancel),
+                        ),
+                        FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(dctx).colorScheme.error,
+                            foregroundColor: Theme.of(dctx).colorScheme.onError,
+                          ),
+                          onPressed: () => Navigator.of(dctx).pop(true),
+                          child: Text(l.commonDelete),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (ok == true) {
+                    await _runMailAction(() => api.delete(mail.id));
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -125,9 +235,17 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
                   ),
                 ),
               if (_tab == 0)
-                _InboxList(onOpen: _open, colorScheme: cs)
+                _InboxList(
+                  onOpen: _open,
+                  onLongPress: (m) => _showMailActions(m, inInbox: true),
+                  colorScheme: cs,
+                )
               else
-                _SentList(onOpen: _open, colorScheme: cs),
+                _SentList(
+                  onOpen: _open,
+                  onLongPress: (m) => _showMailActions(m, inInbox: false),
+                  colorScheme: cs,
+                ),
             ],
           ),
         ),
@@ -137,9 +255,14 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
 }
 
 class _InboxList extends ConsumerWidget {
-  const _InboxList({required this.onOpen, required this.colorScheme});
+  const _InboxList({
+    required this.onOpen,
+    required this.onLongPress,
+    required this.colorScheme,
+  });
 
   final void Function(CMailSummary) onOpen;
+  final void Function(CMailSummary) onLongPress;
   final ColorScheme colorScheme;
 
   @override
@@ -172,6 +295,7 @@ class _InboxList extends ConsumerWidget {
                 colorScheme: colorScheme,
                 theme: theme,
                 onTap: () => onOpen(m),
+                onLongPress: () => onLongPress(m),
                 leadingName: m.senderName,
                 unread: !m.read,
               ),
@@ -183,9 +307,14 @@ class _InboxList extends ConsumerWidget {
 }
 
 class _SentList extends ConsumerWidget {
-  const _SentList({required this.onOpen, required this.colorScheme});
+  const _SentList({
+    required this.onOpen,
+    required this.onLongPress,
+    required this.colorScheme,
+  });
 
   final void Function(CMailSummary) onOpen;
+  final void Function(CMailSummary) onLongPress;
   final ColorScheme colorScheme;
 
   @override
@@ -218,6 +347,7 @@ class _SentList extends ConsumerWidget {
                 colorScheme: colorScheme,
                 theme: theme,
                 onTap: () => onOpen(m),
+                onLongPress: () => onLongPress(m),
                 leadingName: cmailAudienceLabel(l, m.audience),
                 unread: false,
                 stats: (m.recipientCount != null)
@@ -271,6 +401,7 @@ class _MailRow extends StatelessWidget {
     required this.onTap,
     required this.leadingName,
     required this.unread,
+    this.onLongPress,
     this.stats,
   });
 
@@ -278,6 +409,7 @@ class _MailRow extends StatelessWidget {
   final ColorScheme colorScheme;
   final ThemeData theme;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final String leadingName;
   final bool unread;
   final String? stats;
@@ -300,6 +432,7 @@ class _MailRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(18),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

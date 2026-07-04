@@ -90,6 +90,15 @@ abstract class MessagesRepository {
   });
 
   Future<void> markThreadRead({required String threadId});
+
+  // ── Inbox long-press actions ──────────────────────────────────────────────
+  Future<bool> togglePinThread({required String threadId});
+  Future<void> markThreadUnread({required String threadId});
+  /// Clears my copy of the history. With [hide] the thread also leaves my
+  /// inbox ("delete chat") until a newer message arrives.
+  Future<void> clearThread({required String threadId, bool hide = false});
+  /// Fire-and-forget typing signal to the other participants.
+  Future<void> notifyTyping({required String threadId});
 }
 
 // NOTE: The group management methods (fetchThreadInfo, addGroupMember, etc.)
@@ -339,6 +348,8 @@ class ApiMessagesRepository implements MessagesRepository {
       groupAvatarUrl: (json['groupAvatarUrl'] ?? '').toString().trim().isEmpty
           ? null
           : (json['groupAvatarUrl'] ?? '').toString().trim(),
+      isPinned: (json['isPinned'] ?? false) == true,
+      isMuted: (json['isMuted'] ?? false) == true,
     );
   }
 
@@ -804,6 +815,34 @@ class ApiMessagesRepository implements MessagesRepository {
   Future<void> markThreadRead({required String threadId}) async {
     final r = await _post('/messages/read', {'threadId': threadId});
     if (!_ok(r)) _fail('messages.markThreadRead', r);
+  }
+
+  @override
+  Future<bool> togglePinThread({required String threadId}) async {
+    final r = await _post('/messages/threads/$threadId/pin', {});
+    if (!_ok(r)) _fail('messages.togglePinThread', r);
+    final body = jsonDecode(r.body);
+    return body is Map ? (body['isPinned'] == true) : false;
+  }
+
+  @override
+  Future<void> markThreadUnread({required String threadId}) async {
+    final r = await _post('/messages/threads/$threadId/unread', {});
+    if (!_ok(r)) _fail('messages.markThreadUnread', r);
+  }
+
+  @override
+  Future<void> clearThread({required String threadId, bool hide = false}) async {
+    final r = await _post('/messages/threads/$threadId/clear', {'hide': hide});
+    if (!_ok(r)) _fail('messages.clearThread', r);
+  }
+
+  @override
+  Future<void> notifyTyping({required String threadId}) async {
+    // Best-effort: a lost typing ping must never surface as an error.
+    try {
+      await _post('/messages/threads/$threadId/typing', {});
+    } catch (_) {}
   }
 
   // ── Group management ────────────────────────────────────────────────────

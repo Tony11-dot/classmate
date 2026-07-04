@@ -63,4 +63,18 @@ export class CMailController {
   delete(@Req() req: any, @Param('id') id: string) {
     return this.cmail.delete(req.user, id);
   }
+
+  // Gmail-style long-press actions: toggle a mail's read state without
+  // opening it (detail() already marks read on open).
+  @Post(':id/read')
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT, Role.SECRETARY)
+  markRead(@Req() req: any, @Param('id') id: string) {
+    return this.cmail.setRead(req.user, id, true);
+  }
+
+  @Post(':id/unread')
+  @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT, Role.SECRETARY)
+  markUnread(@Req() req: any, @Param('id') id: string) {
+    return this.cmail.setRead(req.user, id, false);
+  }
 }

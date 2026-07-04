@@ -1810,6 +1810,15 @@ model DmParticipant {
   state      DmParticipantState @default(ACCEPTED)
   isMuted    Boolean            @default(false)
   lastSeenAt DateTime?
+  // Per-user inbox state (WhatsApp-style long-press actions).
+  // pinnedAt: thread pinned to the top of MY inbox.
+  // markedUnreadAt: manually marked unread — cleared on next markThreadRead.
+  // clearedAt: messages at/before this instant are hidden from ME ("clear messages").
+  // hiddenAt: thread hidden from MY inbox ("delete chat") until a newer message arrives.
+  pinnedAt       DateTime?
+  markedUnreadAt DateTime?
+  clearedAt      DateTime?
+  hiddenAt       DateTime?
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt
   thread     DmThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
