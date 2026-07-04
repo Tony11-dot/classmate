@@ -15,7 +15,6 @@ import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
-import '../features/lifedoc/diplomas_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
 import '../features/lifedoc/attendance_screen.dart';
 import '../features/lifedoc/exam_detail_screen.dart';
@@ -66,7 +65,6 @@ import '../features/teacher_mobile/ui/teacher_add_material_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_add_material_screen.dart';
 import '../features/teacher_mobile/ui/teacher_classroom_add_meeting_screen.dart';
 import '../features/teacher_mobile/ui/teacher_meetings_screen.dart';
-import '../features/teacher_mobile/ui/teacher_create_diploma_screen.dart';
 import '../features/teacher_mobile/ui/teacher_create_exam_screen.dart';
 import '../features/teacher_mobile/ui/teacher_exam_grades_screen.dart';
 import '../features/teacher_mobile/ui/teacher_create_form_screen.dart';
@@ -238,8 +236,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == '/teacher/announcements/new' ||
           loc.startsWith('/teacher/classroom/') ||
           loc == '/teacher/students' ||
-          loc == '/diplomas' ||
-          loc.startsWith('/diplomas/') ||
+          loc == '/cmail' ||
           loc == '/certificates' ||
           loc == '/materials' ||
           loc == '/solutions' ||
@@ -530,10 +527,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           final exam = state.extra as Map<String, dynamic>? ?? {};
           return TeacherExamGradesScreen(exam: exam);
         },
-      ),
-      _slideRoute(
-        path: '/diplomas/create',
-        builder: (context, state) => const TeacherCreateDiplomaScreen(),
       ),
       _slideRoute(
         path: '/teacher/grades/add',
@@ -848,7 +841,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           _fadeRoute(
             path: '/parent/certificates',
-            builder: (context, state) => const DiplomasScreen(),
+            builder: (context, state) => const StudentCertificatesScreen(),
           ),
           _fadeRoute(
             path: '/parent/notifications',
@@ -968,10 +961,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/notifications',
             builder: (context, state) => const NotificationsScreen(),
-          ),
-          _fadeRoute(
-            path: '/diplomas',
-            builder: (context, state) => const DiplomasScreen(),
           ),
           _fadeRoute(
             path: '/materials',

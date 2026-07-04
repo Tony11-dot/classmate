@@ -20,6 +20,13 @@ export class CertificatesController {
     return this.certificates.studentCertificates(req.user);
   }
 
+  /// A parent's read of one linked child's published certificates.
+  @Get('child/:studentId')
+  @Roles(Role.PARENT)
+  childCertificates(@Req() req: any, @Param('studentId') studentId: string) {
+    return this.certificates.childCertificates(req.user, studentId);
+  }
+
   @Get('prefill')
   prefill(
     @Req() req: any,

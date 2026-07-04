@@ -60,7 +60,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/parent/attendance', icon: Icons.how_to_reg_rounded, label: l.navAttendance),
         DrawerTool(route: '/parent/grades', icon: Icons.grade_rounded, label: l.navGrades),
         DrawerTool(route: '/parent/exams', icon: Icons.quiz_rounded, label: l.navExams),
-        DrawerTool(route: '/parent/certificates', icon: Icons.military_tech_rounded, label: l.navDiplomas),
+        DrawerTool(route: '/parent/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/parent/assignments', icon: Icons.assignment_rounded, label: l.navAssignments),
         DrawerTool(route: '/parent/meetings', icon: Icons.video_call_rounded, label: l.navMeetings),
         DrawerTool(route: '/parent/materials', icon: Icons.folder_rounded, label: l.navMaterials),
@@ -110,7 +110,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/forms', icon: Icons.assignment_turned_in_rounded, label: l.navForms),
         DrawerTool(route: '/saved-questions', icon: Icons.bookmark_rounded, label: l.navSavedQuestions),
         DrawerTool(route: '/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
-        DrawerTool(route: '/diplomas', icon: Icons.military_tech_rounded, label: l.navDiplomas),
         DrawerTool(route: '/cmail', icon: Icons.alternate_email_rounded, label: l.cmailTitle),
       ];
   }

@@ -396,17 +396,6 @@ class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
                   'prefillStudentName': widget.studentName,
                 }),
               ),
-              // Certificate
-              _ActionChip(
-                icon: Icons.workspace_premium_rounded,
-                label: l.navDiplomas,
-                color: Colors.amber.shade700,
-                onColor: Colors.white,
-                onTap: () => context.push('/diplomas/create', extra: <String, dynamic>{
-                  'prefillStudentId': widget.studentId,
-                  'prefillStudentName': widget.studentName,
-                }),
-              ),
               // Direct message
               _ActionChip(
                 icon: _dmLoading ? Icons.hourglass_top_rounded : Icons.chat_bubble_rounded,

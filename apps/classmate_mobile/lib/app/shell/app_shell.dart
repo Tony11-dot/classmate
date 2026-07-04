@@ -15,7 +15,6 @@ import '../../core/util/friendly_date.dart';
 import '../../core/realtime/realtime_listener.dart';
 import '../../features/lifedoc/assignments_screen.dart';
 import '../../features/lifedoc/data/exams_repository.dart';
-import '../../features/lifedoc/diplomas_screen.dart';
 import '../../features/lifedoc/meetings_screen.dart';
 import '../../features/lifedoc/notifications_provider.dart';
 import '../../features/insights/providers/insights_providers.dart';
@@ -194,6 +193,7 @@ class AppShell extends ConsumerWidget {
     '/admin/certificates',
     '/teacher/certificates',
     '/teacher/exams',
+    '/cmail',
     '/teacher/forms',
     '/teacher/meetings',
     '/teacher/assignments',
@@ -202,7 +202,6 @@ class AppShell extends ConsumerWidget {
     '/teacher/home',
     '/exams',
     '/forms',
-    '/diplomas',
     '/solutions',
     '/tutor',
     '/announcements',
@@ -217,6 +216,7 @@ class AppShell extends ConsumerWidget {
 
   static const _adminPrefixes = <String>[
     '/admin/dashboard',
+    '/cmail',
     '/admin/people',
     '/admin/insights',
     '/admin/cohorts',
@@ -252,6 +252,7 @@ class AppShell extends ConsumerWidget {
 
   static const _studentPrefixes = <String>[
     '/classrooms',
+    '/cmail',
     '/messages',
     '/practice',
     '/insights',
@@ -259,7 +260,6 @@ class AppShell extends ConsumerWidget {
     '/solutions',
     '/exams',
     '/forms',
-    '/diplomas',
     '/certificates',
     '/grades',
     '/attendance',
@@ -280,6 +280,7 @@ class AppShell extends ConsumerWidget {
   /// under /parent/*. Order matters — most-specific first.
   static const _parentPrefixes = <String>[
     '/parent/home',
+    '/cmail',
     '/parent/schedule',
     '/parent/overview',
     '/parent/grades',
@@ -326,6 +327,7 @@ class AppShell extends ConsumerWidget {
     '/secretary/certificates' => l.navCertificates,
     '/secretary/' => l.roleSecretary,
     '/messages' => l.titleMessages,
+    '/cmail' => l.cmailTitle,
     '/tutor' => l.titleNova,
     '/announcements' => l.navAnnouncements,
     '/notifications' => l.navNotifications,
@@ -356,12 +358,12 @@ class AppShell extends ConsumerWidget {
     '/teacher/home' => l.navTeacherWorkspace,
     '/exams' => l.titleExams,
     '/forms' => l.navForms,
-    '/diplomas' => l.diplomasTitle,
     '/solutions' => l.titleSolutions,
     '/tutor' => l.titleNova,
     '/announcements' => l.navAnnouncements,
     '/notifications' => l.navNotifications,
     '/messages' => l.titleMessages,
+    '/cmail' => l.cmailTitle,
     '/profile' => l.navProfile,
     '/plans' => l.navPlans,
     '/settings' => l.navSettings,
@@ -373,13 +375,13 @@ class AppShell extends ConsumerWidget {
   String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/classrooms' => l.titleClasses,
     '/messages' => l.titleMessages,
+    '/cmail' => l.cmailTitle,
     '/practice' => l.titlePractice,
     '/insights' => l.titleInsights,
     '/tutor' => l.titleNova,
     '/solutions' => l.titleSolutions,
     '/exams' => l.titleExams,
     '/forms' => l.navForms,
-    '/diplomas' => l.navDiplomas,
     '/certificates' => l.navCertificates,
     '/grades' => l.navGrades,
     '/attendance' => l.navAttendance,
@@ -404,13 +406,14 @@ class AppShell extends ConsumerWidget {
     '/parent/grades' => l.navGrades,
     '/parent/attendance' => l.navAttendance,
     '/parent/exams' => l.navExams,
-    '/parent/certificates' => l.navDiplomas,
+    '/parent/certificates' => l.navCertificates,
     '/parent/assignments' => l.navAssignments,
     '/parent/meetings' => l.navMeetings,
     '/parent/materials' => l.navMaterials,
     '/parent/notifications' => l.navNotifications,
     '/tutor' => l.navNova,
     '/messages' => l.titleMessages,
+    '/cmail' => l.cmailTitle,
     '/announcements' => l.navAnnouncements,
     '/notifications' => l.navNotifications,
     '/profile' => l.navProfile,
@@ -502,17 +505,6 @@ class AppShell extends ConsumerWidget {
           ref.read(teacherFormsCreateTriggerProvider.notifier).increment();
         },
         child: const Icon(Icons.add_rounded),
-      );
-    }
-    if (loc == '/diplomas') {
-      return FloatingActionButton(
-        heroTag: 'fab_diplomas',
-        backgroundColor: cs.tertiaryContainer,
-        foregroundColor: cs.onTertiaryContainer,
-        onPressed: () {
-          ref.read(diplomasCreateTriggerProvider.notifier).increment();
-        },
-        child: const Icon(Icons.workspace_premium_rounded),
       );
     }
     if (loc == '/teacher/meetings') {

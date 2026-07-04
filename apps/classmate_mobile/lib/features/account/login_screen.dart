@@ -279,7 +279,7 @@ class _LoginCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: const ClassMateLogo(height: 96)),
+          Center(child: const ClassMateLogo(height: 54)),
           const SizedBox(height: 18),
           Text(
             l.loginWelcomeTitle,

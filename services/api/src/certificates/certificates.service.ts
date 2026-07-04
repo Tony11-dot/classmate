@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { requireParentChild } from '../auth/scope';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   parseSchoolSemesters,
@@ -528,6 +529,18 @@ export class CertificatesService {
     const studentId = this.userId(user);
     const certificates = await this.prisma.schoolCertificate.findMany({
       where: { schoolId, studentId, published: true },
+      orderBy: { issuedAt: 'desc' },
+    });
+    return { ok: true, certificates };
+  }
+
+  /// A parent's view of one linked child's PUBLISHED certificates — gated
+  /// by the APPROVED ParentChild link, same guard as the rest of the
+  /// parent surface.
+  async childCertificates(user: any, studentId: string) {
+    await requireParentChild(this.prisma, this.userId(user), studentId);
+    const certificates = await this.prisma.schoolCertificate.findMany({
+      where: { studentId, published: true },
       orderBy: { issuedAt: 'desc' },
     });
     return { ok: true, certificates };

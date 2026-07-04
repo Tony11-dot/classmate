@@ -7,6 +7,7 @@ import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import 'data/certificates_repository.dart';
+import '../parent/data/viewed_student_context.dart';
 
 /// The student's own PUBLISHED certificates — a simple list they can download.
 /// Body-only: the app shell supplies the top bar / section pill.
@@ -34,7 +35,11 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
       _error = null;
     });
     try {
-      final items = await ref.read(certificatesRepositoryProvider).mine();
+      // Parent viewing a child → child endpoint; student → own.
+      final childId = ref.read(viewedStudentIdProvider);
+      final items = await ref
+          .read(certificatesRepositoryProvider)
+          .mine(childId: childId);
       if (!mounted) return;
       setState(() {
         _items = items;

@@ -218,8 +218,11 @@ class CertificatesRepository {
   }
 
   /// The logged-in student's own published certificates.
-  Future<List<Map<String, dynamic>>> mine() async {
-    final raw = await _api.getJson('/certificates/mine');
+  /// Own certificates (student) — or a linked child's when [childId] is
+  /// set (parent flow, /certificates/child/:id).
+  Future<List<Map<String, dynamic>>> mine({String? childId}) async {
+    final raw = await _api.getJson(
+        childId == null ? '/certificates/mine' : '/certificates/child/$childId');
     return _l(_m(raw)['certificates']).map((e) => _m(e)).toList();
   }
 
