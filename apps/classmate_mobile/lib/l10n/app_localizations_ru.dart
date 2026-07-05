@@ -9,6 +9,28 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get consentGateTitle => 'Прежде чем продолжить';
+
+  @override
+  String get consentGateBody =>
+      'Чтобы продолжить пользоваться ClassMate, ознакомьтесь и примите условия обработки ваших данных.';
+
+  @override
+  String get consentGateLink =>
+      'Прочитать Политику конфиденциальности и Условия';
+
+  @override
+  String get consentGateAccept =>
+      'Я принимаю Политику конфиденциальности и Условия использования';
+
+  @override
+  String get consentGateGuardian =>
+      'У меня есть разрешение родителя или опекуна на использование ClassMate';
+
+  @override
+  String get consentGateContinue => 'Принять и продолжить';
+
+  @override
   String get menu => 'Меню';
 
   @override

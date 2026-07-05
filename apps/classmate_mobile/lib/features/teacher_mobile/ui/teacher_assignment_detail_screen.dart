@@ -162,7 +162,7 @@ class _TeacherAssignmentDetailScreenState
         actions: [
           if (_submissions.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsetsDirectional.only(end: 12),
               child: FilledButton.icon(
                 onPressed: _saving ? null : _saveGrades,
                 icon: _saving
@@ -377,7 +377,7 @@ class _TeacherAssignmentDetailScreenState
                                   // the feedback note, and reopens the student's
                                   // hand-in form so they can revise & resubmit.
                                   Align(
-                                    alignment: Alignment.centerRight,
+                                    alignment: AlignmentDirectional.centerEnd,
                                     child: TextButton.icon(
                                       style: TextButton.styleFrom(
                                         foregroundColor: const Color(0xFFB45309),

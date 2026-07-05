@@ -41,6 +41,10 @@ class AuthSession extends ChangeNotifier {
   String? _schoolGradeRanges;
   String? _schoolSemesters;
   int? _grade; // the user's own current grade (students); null for staff
+  // Consent (Israel Privacy Amendment 13): true when the user hasn't yet
+  // accepted the current Privacy Policy/Terms — the shell shows a one-time
+  // consent gate. Server-driven via /auth/me.consentRequired.
+  bool _consentRequired = false;
   List<String> _roles = const <String>[];
 
   String? get token {
@@ -88,6 +92,7 @@ class AuthSession extends ChangeNotifier {
   int get schoolMaxGrade => _schoolMaxGrade ?? 12;
   /// The user's own current grade level (students); null for staff.
   int? get grade => _grade;
+  bool get consentRequired => _consentRequired;
   /// Raw multi-range string, e.g. "4-6,9-12". Empty/null = single min..max range.
   String get schoolGradeRanges => _schoolGradeRanges ?? '';
   /// Raw semester month-ranges, e.g. "9-1,2-6". Empty = school has no semesters.
@@ -540,6 +545,7 @@ class AuthSession extends ChangeNotifier {
       setSchoolGradeRange(me.schoolMinGrade, me.schoolMaxGrade, ranges: me.schoolGradeRanges);
       setSchoolSemesters(me.schoolSemesters);
       _grade = me.grade;
+      _consentRequired = raw['consentRequired'] == true;
       // Cohort display name
       final cn = (raw['cohortName'] ?? '').toString().trim();
       if (cn.isNotEmpty) {
@@ -593,6 +599,23 @@ class AuthSession extends ChangeNotifier {
       final v = name.trim();
       await api.patchJson('/auth/profile/name', body: <String, dynamic>{'name': v});
       await _setFullName(v);
+    } finally {
+      api.dispose();
+    }
+  }
+
+  /// Record the user's acceptance of the Privacy Policy + Terms (Israel Privacy
+  /// Amendment 13). Clears the one-time consent gate locally on success.
+  Future<void> acceptConsent({bool guardianConsent = false}) async {
+    final currentToken = (_token ?? '').trim();
+    if (currentToken.isEmpty) return;
+    final api = CMApi(token: currentToken);
+    try {
+      await api.postJson('/account/consent', body: <String, dynamic>{
+        'guardianConsent': guardianConsent,
+      });
+      _consentRequired = false;
+      notifyListeners();
     } finally {
       api.dispose();
     }

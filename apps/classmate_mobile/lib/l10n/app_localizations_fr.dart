@@ -9,6 +9,28 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get consentGateTitle => 'Avant de continuer';
+
+  @override
+  String get consentGateBody =>
+      'Pour continuer à utiliser ClassMate, veuillez consulter et accepter la façon dont nous traitons vos données.';
+
+  @override
+  String get consentGateLink =>
+      'Lire la politique de confidentialité et les conditions';
+
+  @override
+  String get consentGateAccept =>
+      'J\'accepte la politique de confidentialité et les conditions d\'utilisation';
+
+  @override
+  String get consentGateGuardian =>
+      'J\'ai la permission de mon parent ou tuteur pour utiliser ClassMate';
+
+  @override
+  String get consentGateContinue => 'Accepter et continuer';
+
+  @override
   String get menu => 'Menu';
 
   @override
@@ -1764,7 +1786,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get messagesCreateGroupAction => 'Créer le groupe';
 
   @override
-  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+  String get messagesGroupMinMembers =>
+      'Sélectionnez au moins 2 personnes pour un groupe';
 
   @override
   String get messagesBlockedPersonFallback => 'cette personne';
@@ -4724,7 +4747,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get novaTokenTip =>
-      'Use your tokens carefully — they\'re meant for studying.';
+      'Utilisez vos jetons avec soin — ils sont destinés à l\'étude.';
 
   @override
   String get practiceCustomDisclaimer =>
@@ -5015,7 +5038,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherExamGradesEnterGrades => 'Saisir les notes';
 
   @override
-  String get teacherExamClassAverage => 'Class average';
+  String get teacherExamClassAverage => 'Moyenne de la classe';
 
   @override
   String get teacherDeleteExamTitle => 'Supprimer l\'examen ?';
@@ -5373,52 +5396,52 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonShare => 'Partager';
 
   @override
-  String get inboxActionPin => 'Pin chat';
+  String get inboxActionPin => 'Épingler la discussion';
 
   @override
-  String get inboxActionUnpin => 'Unpin chat';
+  String get inboxActionUnpin => 'Désépingler la discussion';
 
   @override
-  String get inboxActionMute => 'Mute';
+  String get inboxActionMute => 'Muet';
 
   @override
-  String get inboxActionUnmute => 'Unmute';
+  String get inboxActionUnmute => 'Réactiver le son';
 
   @override
-  String get inboxActionMarkRead => 'Mark as read';
+  String get inboxActionMarkRead => 'Marquer comme lu';
 
   @override
-  String get inboxActionMarkUnread => 'Mark as unread';
+  String get inboxActionMarkUnread => 'Marquer comme non lu';
 
   @override
-  String get inboxActionClear => 'Clear messages';
+  String get inboxActionClear => 'Effacer les messages';
 
   @override
   String get inboxActionClearConfirm =>
-      'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.';
+      'Supprimer tous les messages de cette discussion ? Cela n\'efface que votre copie — l\'autre personne conserve la sienne.';
 
   @override
-  String get inboxActionDeleteChat => 'Delete chat';
+  String get inboxActionDeleteChat => 'Supprimer la discussion';
 
   @override
   String get inboxActionDeleteChatConfirm =>
-      'Delete this chat? It disappears from your list and history; it comes back if they message you again.';
+      'Supprimer cette discussion ? Elle disparaît de votre liste et de votre historique ; elle réapparaît si la personne vous écrit à nouveau.';
 
   @override
-  String get inboxActionBlock => 'Block contact';
+  String get inboxActionBlock => 'Bloquer le contact';
 
   @override
   String get inboxActionBlockConfirm =>
-      'Block this contact? They won\'t be able to message you anymore.';
+      'Bloquer ce contact ? Il ne pourra plus vous envoyer de messages.';
 
   @override
-  String get cmailActionMarkRead => 'Mark as read';
+  String get cmailActionMarkRead => 'Marquer comme lu';
 
   @override
-  String get cmailActionMarkUnread => 'Mark as unread';
+  String get cmailActionMarkUnread => 'Marquer comme non lu';
 
   @override
-  String get cmailDeleteConfirm => 'Delete this mail from your mailbox?';
+  String get cmailDeleteConfirm => 'Supprimer ce courrier de votre boîte ?';
 
   @override
   String get commonLoading => 'Chargement…';
@@ -6698,7 +6721,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminExportIncludesPasswords =>
-      'Export will reset & include passwords';
+      'L\'export réinitialisera et inclura les mots de passe';
 
   @override
   String get adminExportAnyway => 'Exporter quand même';
@@ -7415,9 +7438,9 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
+          'Ceci réinitialise les mots de passe de $count élèves et les ajoute au fichier, afin que vous puissiez imprimer et distribuer les cartes de connexion. Leurs anciens mots de passe cessent de fonctionner. Quiconque possède le fichier peut se connecter en tant que ces élèves — partagez avec prudence et supprimez une fois terminé.',
       one:
-          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
+          'Ceci réinitialise le mot de passe de $count élève et l\'ajoute au fichier, afin que vous puissiez imprimer et distribuer la carte de connexion. Son ancien mot de passe cesse de fonctionner. Quiconque possède le fichier peut se connecter en tant que cet élève — partagez avec prudence et supprimez une fois terminé.',
     );
     return '$_temp0';
   }
@@ -7432,10 +7455,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pickerSelectGrades => 'Sélectionner les niveaux';
 
   @override
-  String get pickerSelectAll => 'Select all';
+  String get pickerSelectAll => 'Tout sélectionner';
 
   @override
-  String get pickerUnselectAll => 'Unselect all';
+  String get pickerUnselectAll => 'Tout désélectionner';
 
   @override
   String get pickerSelectClassroom => 'Sélectionner la classe';
@@ -8084,7 +8107,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
+      'Les mots de passe seront réinitialisés et affichés dans l\'export — les anciens mots de passe cessent de fonctionner. Manipulez le fichier en toute sécurité.';
 
   @override
   String get adminExportPasswordsOff =>
@@ -10285,14 +10308,15 @@ class AppLocalizationsFr extends AppLocalizations {
       'Nom d\'utilisateur en double dans cette liste';
 
   @override
-  String get adminUsernameAvailable => 'Username is available';
+  String get adminUsernameAvailable => 'Le nom d\'utilisateur est disponible';
 
   @override
-  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+  String get adminUsernameInvalidFormat =>
+      'Utilisez au moins 3 lettres, chiffres ou . _ -';
 
   @override
   String get adminUsernameSuggestionsLabel =>
-      'Available suggestions — tap to use:';
+      'Suggestions disponibles — appuyez pour utiliser :';
 
   @override
   String adminAddManyCreateParent(String name) {
@@ -10386,57 +10410,57 @@ class AppLocalizationsFr extends AppLocalizations {
   String get certSaved => 'Certificat généré.';
 
   @override
-  String get certSaveAndPublish => 'Save & publish';
+  String get certSaveAndPublish => 'Enregistrer et publier';
 
   @override
-  String get certSaveDraft => 'Save as draft';
+  String get certSaveDraft => 'Enregistrer comme brouillon';
 
   @override
-  String get examGradesPublished => 'Grades published to students.';
+  String get examGradesPublished => 'Notes publiées aux élèves.';
 
   @override
-  String get examGradesPublishedShort => 'Published';
+  String get examGradesPublishedShort => 'Publié';
 
   @override
-  String get examRepublish => 'Republish';
+  String get examRepublish => 'Republier';
 
   @override
-  String get certPreview => 'Preview PDF';
+  String get certPreview => 'Aperçu PDF';
 
   @override
-  String get certPublished => 'Published to the student.';
+  String get certPublished => 'Publié à l\'élève.';
 
   @override
-  String get certDraftSaved => 'Saved as draft.';
+  String get certDraftSaved => 'Enregistré comme brouillon.';
 
   @override
-  String get certPublishing => 'Publishing…';
+  String get certPublishing => 'Publication…';
 
   @override
-  String get certDownload => 'Download';
+  String get certDownload => 'Télécharger';
 
   @override
-  String get certNoneYet => 'No certificates yet.';
+  String get certNoneYet => 'Aucun certificat pour l\'instant.';
 
   @override
-  String get certMine => 'My certificates';
+  String get certMine => 'Mes certificats';
 
   @override
   String get certNoHomeroom =>
-      'You are not a homeroom teacher of any class yet.';
+      'Vous n\'êtes encore professeur principal d\'aucune classe.';
 
   @override
-  String get certGrin => 'Grades';
+  String get certGrin => 'Notes';
 
   @override
-  String get certPrintAll => 'Print all';
+  String get certPrintAll => 'Tout imprimer';
 
   @override
   String get certSelectCohortToPrint =>
-      'Select a class to print all its certificates.';
+      'Sélectionnez une classe pour imprimer tous ses certificats.';
 
   @override
-  String get certEditTitle => 'Edit certificate';
+  String get certEditTitle => 'Modifier le certificat';
 
   @override
   String get certPdfAnnualCertificate => 'Certificat annuel';
@@ -10567,164 +10591,163 @@ class AppLocalizationsFr extends AppLocalizations {
   String get gradesSubjectNoGrades => 'Aucune note dans cette matière.';
 
   @override
-  String get gradesPublishedShort => 'Published';
+  String get gradesPublishedShort => 'Publié';
 
   @override
-  String get gradesDraftShort => 'Draft';
+  String get gradesDraftShort => 'Brouillon';
 
   @override
   String gradesPublishTitle(Object title) {
-    return 'Publish “$title”';
+    return 'Publier « $title »';
   }
 
   @override
   String gradesUnpublishTitle(Object title) {
-    return 'Unpublish “$title”';
+    return 'Dépublier « $title »';
   }
 
   @override
-  String get gradesPublishAction => 'Publish';
+  String get gradesPublishAction => 'Publier';
 
   @override
-  String get gradesUnpublishAction => 'Unpublish';
+  String get gradesUnpublishAction => 'Dépublier';
 
   @override
   String get gradesPublishedToast =>
-      'Grade published — students can now see it.';
+      'Note publiée — les élèves peuvent maintenant la voir.';
 
   @override
-  String get gradesUnpublishedToast =>
-      'Grade unpublished — hidden from students.';
+  String get gradesUnpublishedToast => 'Note dépubliée — masquée des élèves.';
 
   @override
-  String get navGradeScales => 'Grade Scales';
+  String get navGradeScales => 'Barèmes de notes';
 
   @override
-  String get gradeScaleAdd => 'Add grade scale';
+  String get gradeScaleAdd => 'Ajouter un barème';
 
   @override
-  String get gradeScaleEdit => 'Edit grade scale';
+  String get gradeScaleEdit => 'Modifier le barème';
 
   @override
-  String get gradeScaleDeleteTitle => 'Delete grade scale?';
+  String get gradeScaleDeleteTitle => 'Supprimer le barème ?';
 
   @override
   String gradeScaleDeleteConfirm(Object name) {
-    return 'Delete “$name”? Assessments already graded on it keep their labels.';
+    return 'Supprimer « $name » ? Les évaluations déjà notées selon ce barème conservent leurs libellés.';
   }
 
   @override
-  String get gradeScaleEmptyTitle => 'No grade scales yet';
+  String get gradeScaleEmptyTitle => 'Aucun barème pour l\'instant';
 
   @override
   String get gradeScaleEmptyHint =>
-      'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.';
+      'Créez un barème de lettres ou de mots (p. ex. A, A+, B) pour les classes plus jeunes. Les enseignants qui notent ces classes choisissent un libellé au lieu d\'un chiffre.';
 
   @override
-  String get gradeScaleAllGrades => 'Applies to all grades';
+  String get gradeScaleAllGrades => 'S\'applique à toutes les classes';
 
   @override
   String gradeScaleAppliesTo(Object grades) {
-    return 'Grades $grades';
+    return 'Classes $grades';
   }
 
   @override
-  String get gradeScaleNameLabel => 'Scale name';
+  String get gradeScaleNameLabel => 'Nom du barème';
 
   @override
-  String get gradeScaleNameHint => 'e.g. Letter grades';
+  String get gradeScaleNameHint => 'p. ex. Notes en lettres';
 
   @override
-  String get gradeScaleNameRequired => 'Enter a scale name.';
+  String get gradeScaleNameRequired => 'Saisissez un nom de barème.';
 
   @override
-  String get gradeScaleGradeLevels => 'Applies to grades';
+  String get gradeScaleGradeLevels => 'S\'applique aux classes';
 
   @override
   String get gradeScaleGradeLevelsHint =>
-      'Leave none selected to apply to all grades.';
+      'N\'en sélectionnez aucune pour l\'appliquer à toutes les classes.';
 
   @override
-  String get gradeScaleLabels => 'Labels';
+  String get gradeScaleLabels => 'Libellés';
 
   @override
   String get gradeScaleLabelsHint =>
-      'Add each label (e.g. A+) with an optional number (0–100) used for averages.';
+      'Ajoutez chaque libellé (p. ex. A+) avec un nombre facultatif (0–100) utilisé pour les moyennes.';
 
   @override
-  String get gradeScaleLabelText => 'Label';
+  String get gradeScaleLabelText => 'Libellé';
 
   @override
-  String get gradeScaleLabelValue => 'Value';
+  String get gradeScaleLabelValue => 'Valeur';
 
   @override
-  String get gradeScaleAddLabel => 'Add label';
+  String get gradeScaleAddLabel => 'Ajouter un libellé';
 
   @override
-  String get gradeScaleNeedTwoLabels => 'Add at least two labels.';
+  String get gradeScaleNeedTwoLabels => 'Ajoutez au moins deux libellés.';
 
   @override
-  String get gradeScalePickLabel => 'Grade';
+  String get gradeScalePickLabel => 'Note';
 
   @override
-  String get gradeScaleUseScale => 'Grade scale';
+  String get gradeScaleUseScale => 'Barème de notes';
 
   @override
   String gradeScaleNumeric(Object max) {
-    return 'Number (0–$max)';
+    return 'Nombre (0–$max)';
   }
 
   @override
-  String get accountSwitcherTitle => 'Accounts';
+  String get accountSwitcherTitle => 'Comptes';
 
   @override
-  String get accountAddAccount => 'Add account';
+  String get accountAddAccount => 'Ajouter un compte';
 
   @override
-  String get accountSignOutThis => 'Sign out this account';
+  String get accountSignOutThis => 'Se déconnecter de ce compte';
 
   @override
-  String get averagesManageTooltip => 'Manage averages';
+  String get averagesManageTooltip => 'Gérer les moyennes';
 
   @override
-  String get averagesTitle => 'Averages';
+  String get averagesTitle => 'Moyennes';
 
   @override
-  String get averagesAdd => 'Add average';
+  String get averagesAdd => 'Ajouter une moyenne';
 
   @override
-  String get averagesDeleteTitle => 'Delete average';
+  String get averagesDeleteTitle => 'Supprimer la moyenne';
 
   @override
   String averagesDeleteConfirm(Object title) {
-    return 'Delete \"$title\"? This cannot be undone.';
+    return 'Supprimer « $title » ? Cette action est irréversible.';
   }
 
   @override
-  String get averagesCancel => 'Cancel';
+  String get averagesCancel => 'Annuler';
 
   @override
-  String get averagesEmptyTitle => 'No averages yet';
+  String get averagesEmptyTitle => 'Aucune moyenne pour l\'instant';
 
   @override
   String get averagesEmptyBody =>
-      'Tap \"Add average\" to create a weighted grade formula for a subject.';
+      'Appuyez sur « Ajouter une moyenne » pour créer une formule de note pondérée pour une matière.';
 
   @override
-  String get averagesFullYear => 'Full year';
+  String get averagesFullYear => 'Année complète';
 
   @override
   String averagesSemesterN(Object n) {
-    return 'Semester $n';
+    return 'Semestre $n';
   }
 
   @override
   String averagesFormatChip(Object index, Object total) {
-    return 'Format $index: $total%';
+    return 'Format $index : $total %';
   }
 
   @override
-  String get averagesNoStudents => 'No students to compute.';
+  String get averagesNoStudents => 'Aucun élève à calculer.';
 
   @override
   String averagesFormatN(Object n) {
@@ -10732,86 +10755,88 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get averagesErrTitle => 'Enter a title.';
+  String get averagesErrTitle => 'Saisissez un titre.';
 
   @override
-  String get averagesErrSubject => 'Choose a subject.';
+  String get averagesErrSubject => 'Choisissez une matière.';
 
   @override
-  String get averagesErrCohort => 'Choose a cohort.';
+  String get averagesErrCohort => 'Choisissez une classe.';
 
   @override
-  String get averagesErrNoFormat => 'Add at least one format.';
+  String get averagesErrNoFormat => 'Ajoutez au moins un format.';
 
   @override
   String averagesErrFormatNoGrade(Object n) {
-    return 'Format $n: pick at least one grade.';
+    return 'Format $n : choisissez au moins une note.';
   }
 
   @override
   String averagesErrFormatSum(Object n, Object total) {
-    return 'Format $n: weights must sum to 100 (now $total%).';
+    return 'Format $n : la somme des pondérations doit être 100 (actuellement $total %).';
   }
 
   @override
-  String get averagesNew => 'New average';
+  String get averagesNew => 'Nouvelle moyenne';
 
   @override
-  String get averagesEdit => 'Edit average';
+  String get averagesEdit => 'Modifier la moyenne';
 
   @override
-  String get averagesLabelSubject => 'Subject';
+  String get averagesLabelSubject => 'Matière';
 
   @override
-  String get averagesHintSubject => 'Choose a subject';
+  String get averagesHintSubject => 'Choisissez une matière';
 
   @override
-  String get averagesLabelCohort => 'Cohort';
+  String get averagesLabelCohort => 'Classe';
 
   @override
-  String get averagesHintCohort => 'Choose a cohort';
+  String get averagesHintCohort => 'Choisissez une classe';
 
   @override
-  String get averagesLabelUnits => 'Units (optional)';
+  String get averagesLabelUnits => 'Unités (facultatif)';
 
   @override
   String get averagesFormats => 'Formats';
 
   @override
   String get averagesFormatsHelp =>
-      'Each format\'s weights must sum to 100%. The best-scoring format is used per student.';
+      'La somme des pondérations de chaque format doit être 100 %. Le format avec le meilleur score est utilisé pour chaque élève.';
 
   @override
-  String get averagesAddFormat => 'Add format';
+  String get averagesAddFormat => 'Ajouter un format';
 
   @override
-  String get averagesLabelFormatLabel => 'Format label (optional)';
+  String get averagesLabelFormatLabel => 'Libellé du format (facultatif)';
 
   @override
-  String get averagesAddGrade => 'Add grade';
+  String get averagesAddGrade => 'Ajouter une note';
 
   @override
   String averagesTotal(Object total) {
-    return 'Total: $total%';
+    return 'Total : $total %';
   }
 
   @override
-  String get averagesLabelGrade => 'Grade';
+  String get averagesLabelGrade => 'Note';
 
   @override
-  String get averagesHintPickFirst => 'Pick subject & cohort first';
+  String get averagesHintPickFirst =>
+      'Choisissez d\'abord la matière et la classe';
 
   @override
-  String get averagesHintGrade => 'Choose a grade';
+  String get averagesHintGrade => 'Choisissez une note';
 
   @override
-  String get adminInsightsSearchHint => 'Search students by name…';
+  String get adminInsightsSearchHint => 'Rechercher des élèves par nom…';
 
   @override
-  String get adminInsightsNoStudents => 'No students found.';
+  String get adminInsightsNoStudents => 'Aucun élève trouvé.';
 
   @override
-  String get adminInsightsNoGrades => 'No grades recorded yet.';
+  String get adminInsightsNoGrades =>
+      'Aucune note enregistrée pour l\'instant.';
 
   @override
   String get gradesEditGradeTitle => 'Modifier la note';
@@ -10892,38 +10917,39 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune note pondérée dans ce semestre. Ajoutez-en une ou définissez un %.';
 
   @override
-  String get gradesAvgPickTitle => 'Add a grade to the average';
+  String get gradesAvgPickTitle => 'Ajouter une note à la moyenne';
 
   @override
   String gradesAvgPickSubtitle(String subject) {
-    return 'Pick a published grade in $subject, then set its weight, semester and format.';
+    return 'Choisissez une note publiée en $subject, puis définissez sa pondération, son semestre et son format.';
   }
 
   @override
-  String get gradesAvgFilterAll => 'All';
+  String get gradesAvgFilterAll => 'Toutes';
 
   @override
   String gradesAvgFilterCohort(String name) {
-    return 'Cohort — $name';
+    return 'Classe — $name';
   }
 
   @override
-  String get gradesAvgSearchHint => 'Search grades';
+  String get gradesAvgSearchHint => 'Rechercher des notes';
 
   @override
-  String get gradesAvgNoResults => 'No matching grades in this subject.';
+  String get gradesAvgNoResults =>
+      'Aucune note correspondante dans cette matière.';
 
   @override
-  String get gradesAvgInAverage => 'In average';
+  String get gradesAvgInAverage => 'Dans la moyenne';
 
   @override
   String get notesTitle => 'Notes';
 
   @override
-  String get notesSearchStudents => 'Search students';
+  String get notesSearchStudents => 'Rechercher des élèves';
 
   @override
-  String get notesNoStudents => 'No students found';
+  String get notesNoStudents => 'Aucun élève trouvé';
 
   @override
   String notesCount(num count) {
@@ -10932,218 +10958,222 @@ class AppLocalizationsFr extends AppLocalizations {
       locale: localeName,
       other: '$count notes',
       one: '1 note',
-      zero: 'No notes',
+      zero: 'Aucune note',
     );
     return '$_temp0';
   }
 
   @override
-  String get notesNewNote => 'New note';
+  String get notesNewNote => 'Nouvelle note';
 
   @override
-  String get notesNoNotes => 'No notes yet';
+  String get notesNoNotes => 'Aucune note pour l\'instant';
 
   @override
   String get notesNoNotesHint =>
-      'Tap + to write the first note about this student.';
+      'Appuyez sur + pour écrire la première note sur cet élève.';
 
   @override
-  String get notesDeleteTitle => 'Delete note?';
+  String get notesDeleteTitle => 'Supprimer la note ?';
 
   @override
-  String get notesDeleteBody => 'This note will be permanently deleted.';
+  String get notesDeleteBody => 'Cette note sera définitivement supprimée.';
 
   @override
-  String get notesUntitled => 'Untitled';
+  String get notesUntitled => 'Sans titre';
 
   @override
-  String get notesTitleHint => 'Title';
+  String get notesTitleHint => 'Titre';
 
   @override
-  String get notesBodyHint => 'Start writing…';
+  String get notesBodyHint => 'Commencez à écrire…';
 
   @override
   String notesEditedBy(String name) {
-    return 'By $name';
+    return 'Par $name';
   }
 
   @override
   String get cmailTitle => 'CMail';
 
   @override
-  String get cmailInbox => 'Inbox';
+  String get cmailInbox => 'Boîte de réception';
 
   @override
-  String get cmailSentTab => 'Sent';
+  String get cmailSentTab => 'Envoyés';
 
   @override
-  String get cmailCompose => 'New mail';
+  String get cmailCompose => 'Nouveau courrier';
 
   @override
-  String get cmailEmptyInbox => 'No mail yet';
+  String get cmailEmptyInbox => 'Aucun courrier pour l\'instant';
 
   @override
-  String get cmailEmptyInboxHint => 'Mail from your school will appear here.';
+  String get cmailEmptyInboxHint =>
+      'Le courrier de votre école apparaîtra ici.';
 
   @override
-  String get cmailEmptySent => 'Nothing sent yet';
+  String get cmailEmptySent => 'Rien envoyé pour l\'instant';
 
   @override
-  String get cmailSubject => 'Subject';
+  String get cmailSubject => 'Objet';
 
   @override
-  String get cmailBodyHint => 'Write your message…';
+  String get cmailBodyHint => 'Rédigez votre message…';
 
   @override
-  String get cmailAudience => 'To';
+  String get cmailAudience => 'À';
 
   @override
-  String get cmailAudienceSchool => 'Everyone';
+  String get cmailAudienceSchool => 'Tout le monde';
 
   @override
-  String get cmailAudienceStudents => 'All students';
+  String get cmailAudienceStudents => 'Tous les élèves';
 
   @override
-  String get cmailAudienceTeachers => 'All teachers';
+  String get cmailAudienceTeachers => 'Tous les enseignants';
 
   @override
-  String get cmailAudienceParents => 'All parents';
+  String get cmailAudienceParents => 'Tous les parents';
 
   @override
-  String get cmailAudienceStaff => 'Staff';
+  String get cmailAudienceStaff => 'Personnel';
 
   @override
-  String get cmailAudienceGrades => 'By grade';
+  String get cmailAudienceGrades => 'Par niveau';
 
   @override
-  String get cmailAudienceCohorts => 'By class';
+  String get cmailAudienceCohorts => 'Par classe';
 
   @override
-  String get cmailAudienceUsers => 'Specific people';
+  String get cmailAudienceUsers => 'Personnes spécifiques';
 
   @override
-  String get cmailPickGrades => 'Pick grades';
+  String get cmailPickGrades => 'Choisir les niveaux';
 
   @override
-  String get cmailPickCohorts => 'Pick classes';
+  String get cmailPickCohorts => 'Choisir les classes';
 
   @override
-  String get cmailPickPeople => 'Pick people';
+  String get cmailPickPeople => 'Choisir les personnes';
 
   @override
-  String get cmailAttach => 'Attach files';
+  String get cmailAttach => 'Joindre des fichiers';
 
   @override
-  String get cmailSendAction => 'Send';
+  String get cmailSendAction => 'Envoyer';
 
   @override
-  String get cmailSentOk => 'Mail sent';
+  String get cmailSentOk => 'Courrier envoyé';
 
   @override
-  String get cmailDeleteTitle => 'Delete mail?';
+  String get cmailDeleteTitle => 'Supprimer le courrier ?';
 
   @override
-  String get cmailDeleteForAll => 'This deletes the mail for everyone.';
+  String get cmailDeleteForAll =>
+      'Ceci supprime le courrier pour tout le monde.';
 
   @override
-  String get cmailDeleteForMe => 'This removes the mail from your inbox.';
+  String get cmailDeleteForMe =>
+      'Ceci retire le courrier de votre boîte de réception.';
 
   @override
   String cmailRecipients(num count) {
-    return '$count recipients';
+    return '$count destinataires';
   }
 
   @override
   String cmailReadStats(num read, num total) {
-    return '$read of $total read';
+    return '$read sur $total lus';
   }
 
   @override
-  String get cmailSubjectRequired => 'Subject is required';
+  String get cmailSubjectRequired => 'L\'objet est requis';
 
   @override
-  String get cmailAudienceRequired => 'Pick who this mail goes to';
+  String get cmailAudienceRequired =>
+      'Choisissez les destinataires de ce courrier';
 
   @override
-  String get cmailAttachments => 'Attachments';
+  String get cmailAttachments => 'Pièces jointes';
 
   @override
   String cmailFrom(String name) {
-    return 'From $name';
+    return 'De $name';
   }
 
   @override
-  String get phoneLinkTitle => 'Add your phone';
+  String get phoneLinkTitle => 'Ajoutez votre téléphone';
 
   @override
   String get phoneLinkSubtitle =>
-      'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.';
+      'Protégez votre compte avec un numéro de téléphone. Nous vous enverrons un code de vérification par SMS — cela vous permet aussi de réinitialiser votre mot de passe par SMS.';
 
   @override
-  String get phoneLinkFieldLabel => 'Phone number';
+  String get phoneLinkFieldLabel => 'Numéro de téléphone';
 
   @override
-  String get phoneLinkSend => 'Send code';
+  String get phoneLinkSend => 'Envoyer le code';
 
   @override
-  String get phoneLinkCodeLabel => '6-digit code';
+  String get phoneLinkCodeLabel => 'Code à 6 chiffres';
 
   @override
   String phoneLinkCodeSent(String phone) {
-    return 'Code sent to $phone';
+    return 'Code envoyé au $phone';
   }
 
   @override
-  String get phoneLinkVerify => 'Verify & link';
+  String get phoneLinkVerify => 'Vérifier et lier';
 
   @override
-  String get phoneLinkLater => 'Later';
+  String get phoneLinkLater => 'Plus tard';
 
   @override
-  String get phoneLinkDone => 'Phone linked!';
+  String get phoneLinkDone => 'Téléphone lié !';
 
   @override
-  String get phoneLinkResend => 'Resend code';
+  String get phoneLinkResend => 'Renvoyer le code';
 
   @override
-  String get phoneLinkInvalid => 'Enter a valid phone number';
+  String get phoneLinkInvalid => 'Saisissez un numéro de téléphone valide';
 
   @override
   String get hubParentsSection => 'Parents';
 
   @override
-  String get hubNoParents => 'No linked parents yet';
+  String get hubNoParents => 'Aucun parent lié pour l\'instant';
 
   @override
-  String get hubStudentSection => 'Student';
+  String get hubStudentSection => 'Élève';
 
   @override
-  String get hubAverageLabel => 'Average';
+  String get hubAverageLabel => 'Moyenne';
 
   @override
-  String get hubAccuracyLabel => 'Practice accuracy';
+  String get hubAccuracyLabel => 'Précision en entraînement';
 
   @override
-  String get hubBestSubject => 'Best subject';
+  String get hubBestSubject => 'Meilleure matière';
 
   @override
-  String get hubWeakestSubject => 'Weakest subject';
+  String get hubWeakestSubject => 'Matière la plus faible';
 
   @override
-  String get hubWeakTopics => 'Weak topics';
+  String get hubWeakTopics => 'Sujets faibles';
 
   @override
-  String get hubStrongTopics => 'Strong topics';
+  String get hubStrongTopics => 'Sujets forts';
 
   @override
-  String get hubNoInsights => 'No insights yet';
+  String get hubNoInsights => 'Aucune analyse pour l\'instant';
 
   @override
-  String get hubNoGrades => 'No grades yet';
+  String get hubNoGrades => 'Aucune note pour l\'instant';
 
   @override
-  String get hubUnpublished => 'Draft';
+  String get hubUnpublished => 'Brouillon';
 
   @override
-  String get hubClass => 'Class';
+  String get hubClass => 'Classe';
 }

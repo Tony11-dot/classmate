@@ -1,11 +1,14 @@
 import { Body, Controller, Get, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../auth/roles';
 import { NotificationsService } from './notifications.service';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 export class NotificationsController {
   constructor(private readonly notifications: NotificationsService) {}
 

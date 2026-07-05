@@ -571,7 +571,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
         title: Text(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
-          Padding(padding: const EdgeInsets.only(right: 12),
+          Padding(padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))

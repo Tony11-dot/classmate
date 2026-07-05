@@ -169,6 +169,7 @@ class _GradePickerSheetState extends State<_GradePickerSheet> {
                       ),
                     ),
                     IconButton(
+                      tooltip: l.commonClose,
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close_rounded),
                     ),

@@ -140,6 +140,20 @@ model User {
   /// current phone via SMS. Same null-on-change semantics as emailVerifiedAt.
   phoneVerifiedAt DateTime?
 
+  /// Date of birth (optional). Used to know when an account belongs to a minor
+  /// and therefore requires guardian consent (Israel Privacy Amendment 13).
+  birthDate DateTime?
+  /// When the user — or, for a minor, their parent/guardian — accepted the
+  /// Privacy Policy + Terms. Null = not yet accepted. This records the lawful
+  /// basis for processing the account's data.
+  consentAcceptedAt DateTime?
+  /// Version of the Privacy Policy / Terms that was accepted, so we can prompt
+  /// for re-consent when the policy materially changes.
+  consentVersion String?
+  /// True when a parent/guardian affirmed permission for a minor's account
+  /// (self-signup), or the school attests consent was collected (roster).
+  guardianConsent Boolean @default(false)
+
   verificationCodes VerificationCode[]
 
   roles          UserRole[]

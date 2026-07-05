@@ -1194,6 +1194,10 @@ export class TutorService {
   replyToSessionStream(user: any, sessionId: string, opts?: { displayName?: string; novaSettings?: string }): Observable<MessageEvent> {
   const tokens = this.tokens;
   const billingUserId = userIdFromReq(user);
+  // Capture the authenticated display name up-front (before `user` is shadowed
+  // by a local below) so we can derive it server-side instead of trusting the
+  // client's URL query param, which would otherwise land in access logs.
+  const authName = (user as any)?.name as string | undefined;
   return new Observable((subscriber) => {
     (async () => {
       let eventId = 0;
@@ -1297,7 +1301,10 @@ const system =
           system,
           user,
           messages,
-          displayName: opts?.displayName,
+          // Prefer the server-side authenticated name so the client no longer
+          // needs to pass it in the URL (it lands in access logs there). Falls
+          // back to any client-supplied value for older app builds.
+          displayName: authName || opts?.displayName,
           novaSettings: opts?.novaSettings,
           tier: activeTier,
           onUsage: (u) => {

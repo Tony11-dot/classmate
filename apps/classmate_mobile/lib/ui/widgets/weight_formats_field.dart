@@ -98,6 +98,7 @@ class _WeightFormatsFieldState extends State<WeightFormatsField> {
                 ),
                 if (multi)
                   IconButton(
+                    tooltip: l.actionRemove,
                     icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error, size: 20),
                     onPressed: () {
                       setState(() {

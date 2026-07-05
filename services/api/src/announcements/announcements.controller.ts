@@ -8,14 +8,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role, ALL_APP_ROLES } from '../auth/roles';
 import { AnnouncementsService } from './announcements.service';
 
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 @Controller('announcements')
 export class AnnouncementsController {
   constructor(private readonly announcements: AnnouncementsService) {}
 
   @Post()
+  @Roles(Role.ADMIN, Role.SECRETARY, Role.TEACHER)
   create(
     @Req() req: any,
     @Body()
@@ -49,6 +53,7 @@ export class AnnouncementsController {
   }
 
   @Get('mine')
+  @Roles(Role.ADMIN, Role.SECRETARY, Role.TEACHER)
   mine(
     @Req() req: any,
     @Query('take') take?: string,
@@ -61,6 +66,7 @@ export class AnnouncementsController {
   }
 
   @Get('targets')
+  @Roles(Role.ADMIN, Role.SECRETARY, Role.TEACHER)
   targets(@Req() req: any) {
     return this.announcements.targets(req.user);
   }

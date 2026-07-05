@@ -1,5 +1,7 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../jwt-auth.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../roles';
 import { VerifyService, Channel } from './verify.service';
 
 function parseChannel(raw: string): Channel {
@@ -11,6 +13,7 @@ function parseChannel(raw: string): Channel {
 }
 
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 @Controller('me/verify')
 export class VerifyController {
   constructor(private readonly verify: VerifyService) {}

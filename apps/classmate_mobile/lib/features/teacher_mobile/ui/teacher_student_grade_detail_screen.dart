@@ -241,7 +241,7 @@ class _TeacherStudentGradeDetailScreenState
         actions: [
           if (hasDirty)
             Padding(
-              padding: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsetsDirectional.only(end: 12),
               child: FilledButton.icon(
                 onPressed: _saving ? null : _save,
                 icon: _saving

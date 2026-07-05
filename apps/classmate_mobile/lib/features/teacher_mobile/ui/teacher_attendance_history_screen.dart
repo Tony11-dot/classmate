@@ -371,7 +371,7 @@ class _SessionCard extends StatelessWidget {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.only(right: 12),
+                padding: EdgeInsetsDirectional.only(end: 12),
                 child: Icon(Icons.chevron_right_rounded, size: 20),
               ),
             ],

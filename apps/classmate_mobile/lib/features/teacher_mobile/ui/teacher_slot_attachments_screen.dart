@@ -136,7 +136,7 @@ class _TeacherSlotAttachmentsScreenState
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Text(
                 widget.title,
                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),

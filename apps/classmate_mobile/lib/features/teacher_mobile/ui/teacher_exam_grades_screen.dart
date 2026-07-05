@@ -292,7 +292,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
         actions: [
           if (_published)
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsetsDirectional.only(end: 8),
               child: Chip(
                 visualDensity: VisualDensity.compact,
                 avatar: Icon(Icons.check_circle_rounded, size: 16, color: cs.primary),
@@ -300,7 +300,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
               ),
             ),
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: OutlinedButton.icon(
               onPressed: (_saving || _loading) ? null : () => _save(),
               icon: _saving

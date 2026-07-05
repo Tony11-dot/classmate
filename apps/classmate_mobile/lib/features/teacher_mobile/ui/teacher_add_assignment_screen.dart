@@ -493,7 +493,7 @@ class _TeacherAddAssignmentScreenState
           ),
           const SizedBox(width: 6),
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton.icon(
               onPressed: _saving ? null : () => _save(published: true),
               icon: _saving

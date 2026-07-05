@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../auth/roles';
 import { PushService } from './push.service';
 
 /// Device-token registration. Mobile clients POST their FCM token
@@ -8,6 +10,7 @@ import { PushService } from './push.service';
 /// the token when the user signs out.
 @SkipThrottle()
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly push: PushService) {}

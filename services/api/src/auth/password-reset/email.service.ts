@@ -41,7 +41,7 @@ export class EmailService {
     expiresInMinutes: number;
   }): Promise<void> {
     if (!this.client) {
-      this.logger.warn(`Resend not configured; would have emailed ${args.to} with reset link ${args.resetUrl}`);
+      this.logger.warn('Resend not configured; would have emailed a password reset link (recipient/link redacted)');
       return;
     }
     const html = buildResetEmailHtml(args);
@@ -72,7 +72,7 @@ export class EmailService {
    */
   async sendPlatformResetCode(args: { to: string; code: string; expiresInMinutes: number }): Promise<void> {
     if (!this.client) {
-      this.logger.warn(`Resend not configured; would have emailed platform-reset code to ${args.to}`);
+      this.logger.warn('Resend not configured; would have emailed a platform-reset code (recipient/code redacted)');
       return;
     }
     try {
@@ -104,7 +104,7 @@ export class EmailService {
     expiresInMinutes: number;
   }): Promise<void> {
     if (!this.client) {
-      this.logger.warn(`Resend not configured; would have notified ${args.to} of password change by ${args.byAdminName}`);
+      this.logger.warn('Resend not configured; would have sent a password-change notification (recipient redacted)');
       return;
     }
     const html = buildPasswordChangedHtml(args);
@@ -140,7 +140,7 @@ export class EmailService {
     expiresInMinutes: number;
   }): Promise<boolean> {
     if (!this.client) {
-      this.logger.warn(`Resend not configured; would have emailed verify code ${args.code} to ${args.to}`);
+      this.logger.warn('Resend not configured; would have emailed a verification code (recipient/code redacted)');
       return false;
     }
     const label = args.schoolName ?? 'ClassMate';

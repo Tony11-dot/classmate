@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
+import { CURRENT_CONSENT_VERSION, parseBirthDate } from '../common/consent';
 
 @Injectable()
 export class AuthService {
@@ -61,12 +62,25 @@ export class AuthService {
         : deriveUsernameCandidate(email, name);
     const username = await ensureUniqueUsername(this.prisma, usernameCandidate);
 
+    // Record the lawful basis for processing this account's data. Completing
+    // signup through the app UI (which shows the explicit consent checkbox)
+    // constitutes acceptance; we stamp it here so every new account carries a
+    // consent timestamp + policy version. birthDate/guardianConsent are stored
+    // when the client supplies them.
+    const birthDate = parseBirthDate((dto as any)?.birthDate);
+    const consentVersion =
+      String((dto as any)?.consentVersion ?? '').trim() || CURRENT_CONSENT_VERSION;
+
     const user = await this.prisma.user.create({
       data: {
         email,
         username,
         name,
         password: hash,
+        birthDate: birthDate ?? undefined,
+        consentAcceptedAt: new Date(),
+        consentVersion,
+        guardianConsent: !!(dto as any)?.guardianConsent,
         roles: { create: [{ role: 'STUDENT' }] },
       } as any,
       include: { roles: true },

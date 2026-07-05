@@ -4,6 +4,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../auth/roles';
 
 // Specific document/text/archive MIMEs we accept. Anything that starts
 // with image/ audio/ video/ is accepted via the category check below —
@@ -41,6 +43,7 @@ function ensureDir() {
 
 @Controller('uploads')
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 export class DmUploadController {
   @Post('dm-media')
   @UseInterceptors(

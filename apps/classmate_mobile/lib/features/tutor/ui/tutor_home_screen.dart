@@ -544,7 +544,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                   prefixIcon: Padding(
-                    padding: const EdgeInsets.only(left: 4),
+                    padding: const EdgeInsetsDirectional.only(start: 4),
                     child: Icon(
                       Icons.search_rounded,
                       size: 18,
@@ -560,6 +560,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                   suffixIcon: _searchController.text.isEmpty
                       ? null
                       : IconButton(
+                          tooltip: l.clear,
                           visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
                           onPressed: () {
                             _searchController.clear();
@@ -814,6 +815,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       IconButton(
+                                        tooltip: l.menu,
                                         constraints: const BoxConstraints.tightFor(
                                           width: 32,
                                           height: 32,

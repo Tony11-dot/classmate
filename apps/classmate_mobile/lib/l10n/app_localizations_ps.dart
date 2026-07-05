@@ -9,6 +9,27 @@ class AppLocalizationsPs extends AppLocalizations {
   AppLocalizationsPs([String locale = 'ps']) : super(locale);
 
   @override
+  String get consentGateTitle => 'Before you continue';
+
+  @override
+  String get consentGateBody =>
+      'To keep using ClassMate, please review and accept how we handle your data.';
+
+  @override
+  String get consentGateLink => 'Read the Privacy Policy & Terms';
+
+  @override
+  String get consentGateAccept =>
+      'I accept the Privacy Policy and Terms of Use';
+
+  @override
+  String get consentGateGuardian =>
+      'I have my parent or guardian\'s permission to use ClassMate';
+
+  @override
+  String get consentGateContinue => 'Agree & Continue';
+
+  @override
   String get menu => 'مينو';
 
   @override

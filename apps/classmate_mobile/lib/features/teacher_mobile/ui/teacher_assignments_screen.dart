@@ -225,8 +225,8 @@ class _TeacherAssignmentsScreenState
                     return false;
                   },
                   background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
+                    alignment: AlignmentDirectional.centerEnd,
+                    padding: const EdgeInsetsDirectional.only(end: 20),
                     decoration: BoxDecoration(
                       color: cs.errorContainer,
                       borderRadius: BorderRadius.circular(24),

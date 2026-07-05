@@ -56,6 +56,8 @@ import { GradeBumpModule } from './grade-bump/grade-bump.module';
 import { SlotSharedMaterialsModule } from './slot-shared-materials/slot-shared-materials.module';
 import { NotesModule } from './notes/notes.module';
 import { CMailModule } from './cmail/cmail.module';
+import { AccountModule } from './account/account.module';
+import { RetentionService } from './common/retention.service';
 
 const env = loadEnv();
 
@@ -153,6 +155,7 @@ const seedControllers = [
     SlotSharedMaterialsModule,
     NotesModule,
     CMailModule,
+    AccountModule,
     BillingModule,
     UsersModule,
   ],
@@ -164,6 +167,7 @@ const seedControllers = [
     EmailService,
     SmsService,
     VerifyService,
+    RetentionService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

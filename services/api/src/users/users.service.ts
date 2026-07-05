@@ -48,11 +48,10 @@ export class UsersService {
       where: { id: viewerId },
       select: { schoolId: true, roles: { select: { role: true } } },
     });
-    if (
-      viewer?.schoolId &&
-      target.schoolId &&
-      viewer.schoolId !== target.schoolId
-    ) {
+    // Fail-closed: if the target belongs to a school, the viewer must be in
+    // that same school. (Previously this only fired when BOTH sides had a
+    // schoolId, so a null-school viewer could read any school's profiles.)
+    if (target.schoolId && viewer?.schoolId !== target.schoolId) {
       throw new ForbiddenException('Cannot view profile from another school');
     }
 

@@ -686,8 +686,8 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
                 );
               },
             ),
-          Positioned(
-            right: 16,
+          PositionedDirectional(
+            end: 16,
             bottom: MediaQuery.of(context).padding.bottom + 16,
             child: FloatingActionButton.extended(
               heroTag: 'add_assignment',
@@ -885,8 +885,8 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
                 );
               },
             ),
-          Positioned(
-            right: 16,
+          PositionedDirectional(
+            end: 16,
             bottom: MediaQuery.of(context).padding.bottom + 16,
             child: FloatingActionButton.extended(
               heroTag: 'add_material',
@@ -1068,8 +1068,8 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
                 );
               },
             ),
-          Positioned(
-            right: 16,
+          PositionedDirectional(
+            end: 16,
             bottom: MediaQuery.of(context).padding.bottom + 16,
             child: FloatingActionButton.extended(
               heroTag: 'add_meeting',

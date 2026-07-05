@@ -2022,7 +2022,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               final label = _serverTierLabel(l, tier);
               final tokenText = remaining != null ? _formatTokens(remaining) : '—';
               return Padding(
-                padding: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsetsDirectional.only(end: 10),
                 child: Center(
                   child: OutlinedButton(
                     // go (not push) so the shell resolves to /plans and shows

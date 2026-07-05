@@ -246,7 +246,7 @@ export class ScheduleService {
     // after force-quit + relaunch" should show non-zero byStudent here
     // either way.
     // eslint-disable-next-line no-console
-    console.log('[schedule.resolveTemplateSlotsForStudent]', JSON.stringify({
+    if (process.env.SCHEDULE_DEBUG === '1') console.log('[schedule.resolveTemplateSlotsForStudent]', JSON.stringify({
       studentId,
       schoolId,
       cohortId,
@@ -1037,7 +1037,7 @@ export class ScheduleService {
     // row's identifying info so we can see why a given dayYmd ends up
     // with zero items in the response even when mergedSlotIds was > 0.
     // eslint-disable-next-line no-console
-    console.log('[schedule.getWeekForStudent.templateRows]', JSON.stringify({
+    if (process.env.SCHEDULE_DEBUG === '1') console.log('[schedule.getWeekForStudent.templateRows]', JSON.stringify({
       weekOf: params.weekOf ?? null,
       weekStart: ymdUTC(start),
       rows: templateRows.map((r: any) => ({
@@ -1089,7 +1089,7 @@ export class ScheduleService {
     });
 
     // eslint-disable-next-line no-console
-    console.log('[schedule.getWeekForStudent.perDay]', JSON.stringify({
+    if (process.env.SCHEDULE_DEBUG === '1') console.log('[schedule.getWeekForStudent.perDay]', JSON.stringify({
       weekOf: params.weekOf ?? null,
       perDayCounts,
       totalItems: out.length,

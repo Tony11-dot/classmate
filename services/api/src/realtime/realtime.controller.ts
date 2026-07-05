@@ -2,11 +2,14 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { RealtimeService } from './realtime.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../auth/roles';
 import { SkipThrottle } from '@nestjs/throttler';
 
 @SkipThrottle()
 @Controller('realtime')
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 export class RealtimeController {
   constructor(private readonly realtime: RealtimeService) {}
 

@@ -4,6 +4,8 @@ import { Controller, Get, Patch, Query, Body, UseGuards, Req, Sse, MessageEvent,
 
 
 import { SseJwtGuard } from './sse-jwt.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/roles';
 import {
  ParentNotificationsService } from './parent-notifications.service';
 import {
@@ -12,6 +14,7 @@ import {
  MarkNotificationsSeenDto } from './dto/mark-notifications-seen.dto';
 
 @UseGuards(SseJwtGuard)
+@Roles(Role.PARENT, Role.ADMIN)
 @Controller('parent/notifications')
 export class ParentNotificationsController {
   constructor(private readonly svc: ParentNotificationsService,

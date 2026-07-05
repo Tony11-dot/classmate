@@ -66,9 +66,18 @@ class ClassMateApp extends ConsumerWidget {
       darkTheme: buildTheme(brightness: Brightness.dark, s: t),
       builder: (context, child) {
         final mediaQuery = MediaQuery.maybeOf(context);
+        // Accessibility (WCAG 1.4.4 / IS 5568): honor the OS / Dynamic-Type
+        // font-size setting instead of discarding it. Take the incoming OS
+        // scale factor, multiply it by the in-app preference (the Settings
+        // slider still works as a user multiplier on top), and clamp the
+        // RESULT to at most 2.0 (200%). So a user who bumps their phone's
+        // system font size is respected up to 200%, and the in-app slider
+        // continues to fine-tune on top of that.
+        final osScale = MediaQuery.textScalerOf(context).scale(1.0);
+        final combinedScale = (osScale * t.textScale).clamp(0.85, 2.0);
         final scaledChild = MediaQuery(
           data: (mediaQuery ?? const MediaQueryData()).copyWith(
-            textScaler: TextScaler.linear(t.textScale),
+            textScaler: TextScaler.linear(combinedScale),
             // Reduce-motion: flips the OS-level "disable animations" flag for
             // the whole tree. Hero flights, page transitions that honor it,
             // and our own widgets (which read MediaQuery.disableAnimations)

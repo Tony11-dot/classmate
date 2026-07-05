@@ -602,7 +602,7 @@ class _TeacherAddGradeScreenState
                 ?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton.icon(
               onPressed: (_saving || _loading) ? null : _save,
               icon: _saving

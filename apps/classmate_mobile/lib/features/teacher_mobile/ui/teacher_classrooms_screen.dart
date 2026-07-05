@@ -309,8 +309,8 @@ class _TeacherClassroomsScreenState
           // FAB positioned above the liquid-glass nav pill. Bumped from 100
           // after the iOS-26 nav polish made the pill taller and pushed it
           // up — 124px keeps a comfortable gap regardless.
-          Positioned(
-            right: 16,
+          PositionedDirectional(
+            end: 16,
             bottom: 124,
             child: FloatingActionButton(
               heroTag: 'fab_create_classroom',

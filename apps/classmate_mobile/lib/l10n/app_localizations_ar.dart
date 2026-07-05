@@ -9,6 +9,26 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get consentGateTitle => 'قبل المتابعة';
+
+  @override
+  String get consentGateBody =>
+      'لمواصلة استخدام ClassMate، يُرجى مراجعة وقبول كيفية تعاملنا مع بياناتك.';
+
+  @override
+  String get consentGateLink => 'اقرأ سياسة الخصوصية وشروط الاستخدام';
+
+  @override
+  String get consentGateAccept => 'أوافق على سياسة الخصوصية وشروط الاستخدام';
+
+  @override
+  String get consentGateGuardian =>
+      'لديّ إذن من أحد الوالدين أو الوصيّ لاستخدام ClassMate';
+
+  @override
+  String get consentGateContinue => 'الموافقة والمتابعة';
+
+  @override
   String get menu => 'القائمة';
 
   @override
@@ -1726,7 +1746,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get messagesCreateGroupAction => 'إنشاء مجموعة';
 
   @override
-  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+  String get messagesGroupMinMembers => 'اختر شخصين على الأقل للمجموعة';
 
   @override
   String get messagesBlockedPersonFallback => 'هذا الشخص';
@@ -4631,8 +4651,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get novaDisclaimer => 'قد تُخطئ NOVA. تحقق من الإجابات المهمة.';
 
   @override
-  String get novaTokenTip =>
-      'Use your tokens carefully — they\'re meant for studying.';
+  String get novaTokenTip => 'استخدم رموزك بعناية — فهي مخصصة للدراسة.';
 
   @override
   String get practiceCustomDisclaimer =>
@@ -4915,7 +4934,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherExamGradesEnterGrades => 'إدخال الدرجات';
 
   @override
-  String get teacherExamClassAverage => 'Class average';
+  String get teacherExamClassAverage => 'متوسط الصف';
 
   @override
   String get teacherDeleteExamTitle => 'حذف الامتحان؟';
@@ -5268,52 +5287,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonShare => 'مشاركة';
 
   @override
-  String get inboxActionPin => 'Pin chat';
+  String get inboxActionPin => 'تثبيت المحادثة';
 
   @override
-  String get inboxActionUnpin => 'Unpin chat';
+  String get inboxActionUnpin => 'إلغاء التثبيت';
 
   @override
-  String get inboxActionMute => 'Mute';
+  String get inboxActionMute => 'كتم';
 
   @override
-  String get inboxActionUnmute => 'Unmute';
+  String get inboxActionUnmute => 'إلغاء الكتم';
 
   @override
-  String get inboxActionMarkRead => 'Mark as read';
+  String get inboxActionMarkRead => 'تعليم كمقروء';
 
   @override
-  String get inboxActionMarkUnread => 'Mark as unread';
+  String get inboxActionMarkUnread => 'تعليم كغير مقروء';
 
   @override
-  String get inboxActionClear => 'Clear messages';
+  String get inboxActionClear => 'مسح الرسائل';
 
   @override
   String get inboxActionClearConfirm =>
-      'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.';
+      'حذف كل الرسائل في هذه المحادثة؟ هذا يمسح نسختك فقط — يحتفظ الطرف الآخر بنسخته.';
 
   @override
-  String get inboxActionDeleteChat => 'Delete chat';
+  String get inboxActionDeleteChat => 'حذف المحادثة';
 
   @override
   String get inboxActionDeleteChatConfirm =>
-      'Delete this chat? It disappears from your list and history; it comes back if they message you again.';
+      'حذف هذه المحادثة؟ ستختفي من قائمتك وسجلك؛ وتعود إذا راسلوك مرة أخرى.';
 
   @override
-  String get inboxActionBlock => 'Block contact';
+  String get inboxActionBlock => 'حظر جهة الاتصال';
 
   @override
   String get inboxActionBlockConfirm =>
-      'Block this contact? They won\'t be able to message you anymore.';
+      'حظر جهة الاتصال هذه؟ لن يتمكنوا من مراسلتك بعد الآن.';
 
   @override
-  String get cmailActionMarkRead => 'Mark as read';
+  String get cmailActionMarkRead => 'تعليم كمقروء';
 
   @override
-  String get cmailActionMarkUnread => 'Mark as unread';
+  String get cmailActionMarkUnread => 'تعليم كغير مقروء';
 
   @override
-  String get cmailDeleteConfirm => 'Delete this mail from your mailbox?';
+  String get cmailDeleteConfirm => 'حذف هذا البريد من صندوق بريدك؟';
 
   @override
   String get commonLoading => 'جارٍ التحميل…';
@@ -6567,7 +6586,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminExportIncludesPasswords =>
-      'Export will reset & include passwords';
+      'سيؤدي التصدير إلى إعادة تعيين كلمات المرور وتضمينها';
 
   @override
   String get adminExportAnyway => 'تصدير على أي حال';
@@ -7273,9 +7292,16 @@ class AppLocalizationsAr extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
+          'يعيد هذا تعيين كلمات مرور $count طالب إلى كلمات جديدة ويضعها في الملف، لتتمكن من طباعة بطاقات الدخول وتوزيعها. تتوقف كلمات المرور القديمة عن العمل. أي شخص لديه الملف يمكنه تسجيل الدخول بصفة أولئك الطلاب — شارك بحذر واحذف عند الانتهاء.',
+      many:
+          'يعيد هذا تعيين كلمات مرور $count طالبًا إلى كلمات جديدة ويضعها في الملف، لتتمكن من طباعة بطاقات الدخول وتوزيعها. تتوقف كلمات المرور القديمة عن العمل. أي شخص لديه الملف يمكنه تسجيل الدخول بصفة أولئك الطلاب — شارك بحذر واحذف عند الانتهاء.',
+      few:
+          'يعيد هذا تعيين كلمات مرور $count طلاب إلى كلمات جديدة ويضعها في الملف، لتتمكن من طباعة بطاقات الدخول وتوزيعها. تتوقف كلمات المرور القديمة عن العمل. أي شخص لديه الملف يمكنه تسجيل الدخول بصفة أولئك الطلاب — شارك بحذر واحذف عند الانتهاء.',
+      two:
+          'يعيد هذا تعيين كلمتي مرور $count طالبين إلى كلمتين جديدتين ويضعهما في الملف، لتتمكن من طباعة بطاقات الدخول وتوزيعها. تتوقف كلمات المرور القديمة عن العمل. أي شخص لديه الملف يمكنه تسجيل الدخول بصفة أولئك الطلاب — شارك بحذر واحذف عند الانتهاء.',
       one:
-          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
+          'يعيد هذا تعيين كلمة مرور الطالب إلى كلمة جديدة ويضعها في الملف، لتتمكن من طباعة بطاقة الدخول وتوزيعها. تتوقف كلمة المرور القديمة عن العمل. أي شخص لديه الملف يمكنه تسجيل الدخول بصفة ذلك الطالب — شارك بحذر واحذف عند الانتهاء.',
+      zero: 'لا يوجد طلاب',
     );
     return '$_temp0';
   }
@@ -7290,10 +7316,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pickerSelectGrades => 'اختر الصفوف';
 
   @override
-  String get pickerSelectAll => 'Select all';
+  String get pickerSelectAll => 'تحديد الكل';
 
   @override
-  String get pickerUnselectAll => 'Unselect all';
+  String get pickerUnselectAll => 'إلغاء تحديد الكل';
 
   @override
   String get pickerSelectClassroom => 'اختر الصف';
@@ -7929,7 +7955,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
+      'ستتم إعادة تعيين كلمات المرور وعرضها في التصدير — تتوقف كلمات المرور القديمة عن العمل. تعامل مع الملف بأمان.';
 
   @override
   String get adminExportPasswordsOff => 'لن يحتوي التصدير على أي كلمات مرور.';
@@ -10087,14 +10113,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminAddManyUsernameDupe => 'اسم مستخدم مكرر في هذه القائمة';
 
   @override
-  String get adminUsernameAvailable => 'Username is available';
+  String get adminUsernameAvailable => 'اسم المستخدم متاح';
 
   @override
-  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+  String get adminUsernameInvalidFormat =>
+      'استخدم 3 أحرف أو أكثر: حروف أو أرقام أو . _ -';
 
   @override
   String get adminUsernameSuggestionsLabel =>
-      'Available suggestions — tap to use:';
+      'اقتراحات متاحة — انقر للاستخدام:';
 
   @override
   String adminAddManyCreateParent(String name) {
@@ -10187,57 +10214,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certSaved => 'تم إنشاء الشهادة.';
 
   @override
-  String get certSaveAndPublish => 'Save & publish';
+  String get certSaveAndPublish => 'حفظ ونشر';
 
   @override
-  String get certSaveDraft => 'Save as draft';
+  String get certSaveDraft => 'حفظ كمسودة';
 
   @override
-  String get examGradesPublished => 'Grades published to students.';
+  String get examGradesPublished => 'تم نشر الدرجات للطلاب.';
 
   @override
-  String get examGradesPublishedShort => 'Published';
+  String get examGradesPublishedShort => 'منشور';
 
   @override
-  String get examRepublish => 'Republish';
+  String get examRepublish => 'إعادة النشر';
 
   @override
-  String get certPreview => 'Preview PDF';
+  String get certPreview => 'معاينة PDF';
 
   @override
-  String get certPublished => 'Published to the student.';
+  String get certPublished => 'تم النشر للطالب.';
 
   @override
-  String get certDraftSaved => 'Saved as draft.';
+  String get certDraftSaved => 'تم الحفظ كمسودة.';
 
   @override
-  String get certPublishing => 'Publishing…';
+  String get certPublishing => 'جارٍ النشر…';
 
   @override
-  String get certDownload => 'Download';
+  String get certDownload => 'تنزيل';
 
   @override
-  String get certNoneYet => 'No certificates yet.';
+  String get certNoneYet => 'لا توجد شهادات بعد.';
 
   @override
-  String get certMine => 'My certificates';
+  String get certMine => 'شهاداتي';
 
   @override
-  String get certNoHomeroom =>
-      'You are not a homeroom teacher of any class yet.';
+  String get certNoHomeroom => 'لست مربي صف لأي صف بعد.';
 
   @override
-  String get certGrin => 'Grades';
+  String get certGrin => 'الدرجات';
 
   @override
-  String get certPrintAll => 'Print all';
+  String get certPrintAll => 'طباعة الكل';
 
   @override
-  String get certSelectCohortToPrint =>
-      'Select a class to print all its certificates.';
+  String get certSelectCohortToPrint => 'اختر صفًا لطباعة جميع شهاداته.';
 
   @override
-  String get certEditTitle => 'Edit certificate';
+  String get certEditTitle => 'تحرير الشهادة';
 
   @override
   String get certPdfAnnualCertificate => 'شهادة سنوية';
@@ -10367,251 +10392,249 @@ class AppLocalizationsAr extends AppLocalizations {
   String get gradesSubjectNoGrades => 'لا توجد علامات في هذه المادة بعد.';
 
   @override
-  String get gradesPublishedShort => 'Published';
+  String get gradesPublishedShort => 'منشور';
 
   @override
-  String get gradesDraftShort => 'Draft';
+  String get gradesDraftShort => 'مسودة';
 
   @override
   String gradesPublishTitle(Object title) {
-    return 'Publish “$title”';
+    return 'نشر “$title”';
   }
 
   @override
   String gradesUnpublishTitle(Object title) {
-    return 'Unpublish “$title”';
+    return 'إلغاء نشر “$title”';
   }
 
   @override
-  String get gradesPublishAction => 'Publish';
+  String get gradesPublishAction => 'نشر';
 
   @override
-  String get gradesUnpublishAction => 'Unpublish';
+  String get gradesUnpublishAction => 'إلغاء النشر';
 
   @override
-  String get gradesPublishedToast =>
-      'Grade published — students can now see it.';
+  String get gradesPublishedToast => 'تم نشر الدرجة — يمكن للطلاب رؤيتها الآن.';
 
   @override
-  String get gradesUnpublishedToast =>
-      'Grade unpublished — hidden from students.';
+  String get gradesUnpublishedToast => 'تم إلغاء نشر الدرجة — مخفية عن الطلاب.';
 
   @override
-  String get navGradeScales => 'Grade Scales';
+  String get navGradeScales => 'سلالم الدرجات';
 
   @override
-  String get gradeScaleAdd => 'Add grade scale';
+  String get gradeScaleAdd => 'إضافة سلم درجات';
 
   @override
-  String get gradeScaleEdit => 'Edit grade scale';
+  String get gradeScaleEdit => 'تحرير سلم الدرجات';
 
   @override
-  String get gradeScaleDeleteTitle => 'Delete grade scale?';
+  String get gradeScaleDeleteTitle => 'حذف سلم الدرجات؟';
 
   @override
   String gradeScaleDeleteConfirm(Object name) {
-    return 'Delete “$name”? Assessments already graded on it keep their labels.';
+    return 'حذف “$name”؟ تحتفظ التقييمات التي صُححت وفقه بتسمياتها.';
   }
 
   @override
-  String get gradeScaleEmptyTitle => 'No grade scales yet';
+  String get gradeScaleEmptyTitle => 'لا توجد سلالم درجات بعد';
 
   @override
   String get gradeScaleEmptyHint =>
-      'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.';
+      'أنشئ سلم أحرف أو كلمات (مثل أ، أ+، ب) للصفوف الأصغر سنًا. يختار المعلمون الذين يقيّمون تلك الصفوف تسمية بدلاً من رقم.';
 
   @override
-  String get gradeScaleAllGrades => 'Applies to all grades';
+  String get gradeScaleAllGrades => 'ينطبق على جميع الصفوف';
 
   @override
   String gradeScaleAppliesTo(Object grades) {
-    return 'Grades $grades';
+    return 'الصفوف $grades';
   }
 
   @override
-  String get gradeScaleNameLabel => 'Scale name';
+  String get gradeScaleNameLabel => 'اسم السلم';
 
   @override
-  String get gradeScaleNameHint => 'e.g. Letter grades';
+  String get gradeScaleNameHint => 'مثل درجات الأحرف';
 
   @override
-  String get gradeScaleNameRequired => 'Enter a scale name.';
+  String get gradeScaleNameRequired => 'أدخل اسمًا للسلم.';
 
   @override
-  String get gradeScaleGradeLevels => 'Applies to grades';
+  String get gradeScaleGradeLevels => 'ينطبق على الصفوف';
 
   @override
   String get gradeScaleGradeLevelsHint =>
-      'Leave none selected to apply to all grades.';
+      'لا تحدد أيًا منها لتطبيقه على جميع الصفوف.';
 
   @override
-  String get gradeScaleLabels => 'Labels';
+  String get gradeScaleLabels => 'التسميات';
 
   @override
   String get gradeScaleLabelsHint =>
-      'Add each label (e.g. A+) with an optional number (0–100) used for averages.';
+      'أضف كل تسمية (مثل أ+) مع رقم اختياري (0–100) يُستخدم للمتوسطات.';
 
   @override
-  String get gradeScaleLabelText => 'Label';
+  String get gradeScaleLabelText => 'التسمية';
 
   @override
-  String get gradeScaleLabelValue => 'Value';
+  String get gradeScaleLabelValue => 'القيمة';
 
   @override
-  String get gradeScaleAddLabel => 'Add label';
+  String get gradeScaleAddLabel => 'إضافة تسمية';
 
   @override
-  String get gradeScaleNeedTwoLabels => 'Add at least two labels.';
+  String get gradeScaleNeedTwoLabels => 'أضف تسميتين على الأقل.';
 
   @override
-  String get gradeScalePickLabel => 'Grade';
+  String get gradeScalePickLabel => 'الدرجة';
 
   @override
-  String get gradeScaleUseScale => 'Grade scale';
+  String get gradeScaleUseScale => 'سلم الدرجات';
 
   @override
   String gradeScaleNumeric(Object max) {
-    return 'Number (0–$max)';
+    return 'رقم (0–$max)';
   }
 
   @override
-  String get accountSwitcherTitle => 'Accounts';
+  String get accountSwitcherTitle => 'الحسابات';
 
   @override
-  String get accountAddAccount => 'Add account';
+  String get accountAddAccount => 'إضافة حساب';
 
   @override
-  String get accountSignOutThis => 'Sign out this account';
+  String get accountSignOutThis => 'تسجيل الخروج من هذا الحساب';
 
   @override
-  String get averagesManageTooltip => 'Manage averages';
+  String get averagesManageTooltip => 'إدارة المتوسطات';
 
   @override
-  String get averagesTitle => 'Averages';
+  String get averagesTitle => 'المتوسطات';
 
   @override
-  String get averagesAdd => 'Add average';
+  String get averagesAdd => 'إضافة متوسط';
 
   @override
-  String get averagesDeleteTitle => 'Delete average';
+  String get averagesDeleteTitle => 'حذف المتوسط';
 
   @override
   String averagesDeleteConfirm(Object title) {
-    return 'Delete \"$title\"? This cannot be undone.';
+    return 'حذف \"$title\"؟ لا يمكن التراجع عن هذا.';
   }
 
   @override
-  String get averagesCancel => 'Cancel';
+  String get averagesCancel => 'إلغاء';
 
   @override
-  String get averagesEmptyTitle => 'No averages yet';
+  String get averagesEmptyTitle => 'لا توجد متوسطات بعد';
 
   @override
   String get averagesEmptyBody =>
-      'Tap \"Add average\" to create a weighted grade formula for a subject.';
+      'انقر على \"إضافة متوسط\" لإنشاء صيغة درجة مرجّحة لمادة.';
 
   @override
-  String get averagesFullYear => 'Full year';
+  String get averagesFullYear => 'السنة الكاملة';
 
   @override
   String averagesSemesterN(Object n) {
-    return 'Semester $n';
+    return 'الفصل $n';
   }
 
   @override
   String averagesFormatChip(Object index, Object total) {
-    return 'Format $index: $total%';
+    return 'الصيغة $index: $total%';
   }
 
   @override
-  String get averagesNoStudents => 'No students to compute.';
+  String get averagesNoStudents => 'لا يوجد طلاب للحساب.';
 
   @override
   String averagesFormatN(Object n) {
-    return 'Format $n';
+    return 'الصيغة $n';
   }
 
   @override
-  String get averagesErrTitle => 'Enter a title.';
+  String get averagesErrTitle => 'أدخل عنوانًا.';
 
   @override
-  String get averagesErrSubject => 'Choose a subject.';
+  String get averagesErrSubject => 'اختر مادة.';
 
   @override
-  String get averagesErrCohort => 'Choose a cohort.';
+  String get averagesErrCohort => 'اختر صفًا.';
 
   @override
-  String get averagesErrNoFormat => 'Add at least one format.';
+  String get averagesErrNoFormat => 'أضف صيغة واحدة على الأقل.';
 
   @override
   String averagesErrFormatNoGrade(Object n) {
-    return 'Format $n: pick at least one grade.';
+    return 'الصيغة $n: اختر درجة واحدة على الأقل.';
   }
 
   @override
   String averagesErrFormatSum(Object n, Object total) {
-    return 'Format $n: weights must sum to 100 (now $total%).';
+    return 'الصيغة $n: يجب أن يكون مجموع الأوزان 100 (الآن $total%).';
   }
 
   @override
-  String get averagesNew => 'New average';
+  String get averagesNew => 'متوسط جديد';
 
   @override
-  String get averagesEdit => 'Edit average';
+  String get averagesEdit => 'تحرير المتوسط';
 
   @override
-  String get averagesLabelSubject => 'Subject';
+  String get averagesLabelSubject => 'المادة';
 
   @override
-  String get averagesHintSubject => 'Choose a subject';
+  String get averagesHintSubject => 'اختر مادة';
 
   @override
-  String get averagesLabelCohort => 'Cohort';
+  String get averagesLabelCohort => 'الصف';
 
   @override
-  String get averagesHintCohort => 'Choose a cohort';
+  String get averagesHintCohort => 'اختر صفًا';
 
   @override
-  String get averagesLabelUnits => 'Units (optional)';
+  String get averagesLabelUnits => 'الوحدات (اختياري)';
 
   @override
-  String get averagesFormats => 'Formats';
+  String get averagesFormats => 'الصيغ';
 
   @override
   String get averagesFormatsHelp =>
-      'Each format\'s weights must sum to 100%. The best-scoring format is used per student.';
+      'يجب أن يكون مجموع أوزان كل صيغة 100%. تُستخدم الصيغة الأعلى تسجيلاً لكل طالب.';
 
   @override
-  String get averagesAddFormat => 'Add format';
+  String get averagesAddFormat => 'إضافة صيغة';
 
   @override
-  String get averagesLabelFormatLabel => 'Format label (optional)';
+  String get averagesLabelFormatLabel => 'تسمية الصيغة (اختياري)';
 
   @override
-  String get averagesAddGrade => 'Add grade';
+  String get averagesAddGrade => 'إضافة درجة';
 
   @override
   String averagesTotal(Object total) {
-    return 'Total: $total%';
+    return 'المجموع: $total%';
   }
 
   @override
-  String get averagesLabelGrade => 'Grade';
+  String get averagesLabelGrade => 'الدرجة';
 
   @override
-  String get averagesHintPickFirst => 'Pick subject & cohort first';
+  String get averagesHintPickFirst => 'اختر المادة والصف أولاً';
 
   @override
-  String get averagesHintGrade => 'Choose a grade';
+  String get averagesHintGrade => 'اختر درجة';
 
   @override
-  String get adminInsightsSearchHint => 'Search students by name…';
+  String get adminInsightsSearchHint => 'ابحث عن الطلاب بالاسم…';
 
   @override
-  String get adminInsightsNoStudents => 'No students found.';
+  String get adminInsightsNoStudents => 'لم يُعثر على طلاب.';
 
   @override
-  String get adminInsightsNoGrades => 'No grades recorded yet.';
+  String get adminInsightsNoGrades => 'لم تُسجَّل درجات بعد.';
 
   @override
   String get gradesEditGradeTitle => 'تعديل العلامة';
@@ -10691,258 +10714,260 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا توجد علامات لها وزن في هذا الفصل. أضف واحدة أو حدّد نسبة على علامة.';
 
   @override
-  String get gradesAvgPickTitle => 'Add a grade to the average';
+  String get gradesAvgPickTitle => 'أضف درجة إلى المتوسط';
 
   @override
   String gradesAvgPickSubtitle(String subject) {
-    return 'Pick a published grade in $subject, then set its weight, semester and format.';
+    return 'اختر درجة منشورة في $subject، ثم حدد وزنها وفصلها وصيغتها.';
   }
 
   @override
-  String get gradesAvgFilterAll => 'All';
+  String get gradesAvgFilterAll => 'الكل';
 
   @override
   String gradesAvgFilterCohort(String name) {
-    return 'Cohort — $name';
+    return 'الصف — $name';
   }
 
   @override
-  String get gradesAvgSearchHint => 'Search grades';
+  String get gradesAvgSearchHint => 'ابحث عن الدرجات';
 
   @override
-  String get gradesAvgNoResults => 'No matching grades in this subject.';
+  String get gradesAvgNoResults => 'لا توجد درجات مطابقة في هذه المادة.';
 
   @override
-  String get gradesAvgInAverage => 'In average';
+  String get gradesAvgInAverage => 'ضمن المتوسط';
 
   @override
-  String get notesTitle => 'Notes';
+  String get notesTitle => 'ملاحظات';
 
   @override
-  String get notesSearchStudents => 'Search students';
+  String get notesSearchStudents => 'ابحث عن الطلاب';
 
   @override
-  String get notesNoStudents => 'No students found';
+  String get notesNoStudents => 'لم يُعثر على طلاب';
 
   @override
   String notesCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count notes',
-      one: '1 note',
-      zero: 'No notes',
+      other: '$count ملاحظة',
+      many: '$count ملاحظة',
+      few: '$count ملاحظات',
+      two: 'ملاحظتان',
+      one: 'ملاحظة واحدة',
+      zero: 'لا ملاحظات',
     );
     return '$_temp0';
   }
 
   @override
-  String get notesNewNote => 'New note';
+  String get notesNewNote => 'ملاحظة جديدة';
 
   @override
-  String get notesNoNotes => 'No notes yet';
+  String get notesNoNotes => 'لا توجد ملاحظات بعد';
 
   @override
-  String get notesNoNotesHint =>
-      'Tap + to write the first note about this student.';
+  String get notesNoNotesHint => 'انقر على + لكتابة أول ملاحظة عن هذا الطالب.';
 
   @override
-  String get notesDeleteTitle => 'Delete note?';
+  String get notesDeleteTitle => 'حذف الملاحظة؟';
 
   @override
-  String get notesDeleteBody => 'This note will be permanently deleted.';
+  String get notesDeleteBody => 'ستُحذف هذه الملاحظة نهائيًا.';
 
   @override
-  String get notesUntitled => 'Untitled';
+  String get notesUntitled => 'بدون عنوان';
 
   @override
-  String get notesTitleHint => 'Title';
+  String get notesTitleHint => 'العنوان';
 
   @override
-  String get notesBodyHint => 'Start writing…';
+  String get notesBodyHint => 'ابدأ الكتابة…';
 
   @override
   String notesEditedBy(String name) {
-    return 'By $name';
+    return 'بواسطة $name';
   }
 
   @override
   String get cmailTitle => 'CMail';
 
   @override
-  String get cmailInbox => 'Inbox';
+  String get cmailInbox => 'البريد الوارد';
 
   @override
-  String get cmailSentTab => 'Sent';
+  String get cmailSentTab => 'المُرسَل';
 
   @override
-  String get cmailCompose => 'New mail';
+  String get cmailCompose => 'بريد جديد';
 
   @override
-  String get cmailEmptyInbox => 'No mail yet';
+  String get cmailEmptyInbox => 'لا بريد بعد';
 
   @override
-  String get cmailEmptyInboxHint => 'Mail from your school will appear here.';
+  String get cmailEmptyInboxHint => 'سيظهر البريد من مدرستك هنا.';
 
   @override
-  String get cmailEmptySent => 'Nothing sent yet';
+  String get cmailEmptySent => 'لم يُرسل شيء بعد';
 
   @override
-  String get cmailSubject => 'Subject';
+  String get cmailSubject => 'الموضوع';
 
   @override
-  String get cmailBodyHint => 'Write your message…';
+  String get cmailBodyHint => 'اكتب رسالتك…';
 
   @override
-  String get cmailAudience => 'To';
+  String get cmailAudience => 'إلى';
 
   @override
-  String get cmailAudienceSchool => 'Everyone';
+  String get cmailAudienceSchool => 'الجميع';
 
   @override
-  String get cmailAudienceStudents => 'All students';
+  String get cmailAudienceStudents => 'جميع الطلاب';
 
   @override
-  String get cmailAudienceTeachers => 'All teachers';
+  String get cmailAudienceTeachers => 'جميع المعلمين';
 
   @override
-  String get cmailAudienceParents => 'All parents';
+  String get cmailAudienceParents => 'جميع أولياء الأمور';
 
   @override
-  String get cmailAudienceStaff => 'Staff';
+  String get cmailAudienceStaff => 'الطاقم';
 
   @override
-  String get cmailAudienceGrades => 'By grade';
+  String get cmailAudienceGrades => 'حسب الصف';
 
   @override
-  String get cmailAudienceCohorts => 'By class';
+  String get cmailAudienceCohorts => 'حسب الشعبة';
 
   @override
-  String get cmailAudienceUsers => 'Specific people';
+  String get cmailAudienceUsers => 'أشخاص محددون';
 
   @override
-  String get cmailPickGrades => 'Pick grades';
+  String get cmailPickGrades => 'اختر الصفوف';
 
   @override
-  String get cmailPickCohorts => 'Pick classes';
+  String get cmailPickCohorts => 'اختر الشعب';
 
   @override
-  String get cmailPickPeople => 'Pick people';
+  String get cmailPickPeople => 'اختر الأشخاص';
 
   @override
-  String get cmailAttach => 'Attach files';
+  String get cmailAttach => 'إرفاق ملفات';
 
   @override
-  String get cmailSendAction => 'Send';
+  String get cmailSendAction => 'إرسال';
 
   @override
-  String get cmailSentOk => 'Mail sent';
+  String get cmailSentOk => 'تم إرسال البريد';
 
   @override
-  String get cmailDeleteTitle => 'Delete mail?';
+  String get cmailDeleteTitle => 'حذف البريد؟';
 
   @override
-  String get cmailDeleteForAll => 'This deletes the mail for everyone.';
+  String get cmailDeleteForAll => 'هذا يحذف البريد للجميع.';
 
   @override
-  String get cmailDeleteForMe => 'This removes the mail from your inbox.';
+  String get cmailDeleteForMe => 'هذا يزيل البريد من صندوق الوارد الخاص بك.';
 
   @override
   String cmailRecipients(num count) {
-    return '$count recipients';
+    return '$count مستلمين';
   }
 
   @override
   String cmailReadStats(num read, num total) {
-    return '$read of $total read';
+    return '$read من $total قرأوا';
   }
 
   @override
-  String get cmailSubjectRequired => 'Subject is required';
+  String get cmailSubjectRequired => 'الموضوع مطلوب';
 
   @override
-  String get cmailAudienceRequired => 'Pick who this mail goes to';
+  String get cmailAudienceRequired => 'اختر إلى من يذهب هذا البريد';
 
   @override
-  String get cmailAttachments => 'Attachments';
+  String get cmailAttachments => 'المرفقات';
 
   @override
   String cmailFrom(String name) {
-    return 'From $name';
+    return 'من $name';
   }
 
   @override
-  String get phoneLinkTitle => 'Add your phone';
+  String get phoneLinkTitle => 'أضف هاتفك';
 
   @override
   String get phoneLinkSubtitle =>
-      'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.';
+      'احمِ حسابك برقم هاتف. سنرسل لك رمز تحقق برسالة نصية — كما يتيح لك إعادة تعيين كلمة مرورك عبر الرسائل القصيرة.';
 
   @override
-  String get phoneLinkFieldLabel => 'Phone number';
+  String get phoneLinkFieldLabel => 'رقم الهاتف';
 
   @override
-  String get phoneLinkSend => 'Send code';
+  String get phoneLinkSend => 'إرسال الرمز';
 
   @override
-  String get phoneLinkCodeLabel => '6-digit code';
+  String get phoneLinkCodeLabel => 'رمز مكوّن من 6 أرقام';
 
   @override
   String phoneLinkCodeSent(String phone) {
-    return 'Code sent to $phone';
+    return 'أُرسل الرمز إلى $phone';
   }
 
   @override
-  String get phoneLinkVerify => 'Verify & link';
+  String get phoneLinkVerify => 'تحقق واربط';
 
   @override
-  String get phoneLinkLater => 'Later';
+  String get phoneLinkLater => 'لاحقًا';
 
   @override
-  String get phoneLinkDone => 'Phone linked!';
+  String get phoneLinkDone => 'تم ربط الهاتف!';
 
   @override
-  String get phoneLinkResend => 'Resend code';
+  String get phoneLinkResend => 'إعادة إرسال الرمز';
 
   @override
-  String get phoneLinkInvalid => 'Enter a valid phone number';
+  String get phoneLinkInvalid => 'أدخل رقم هاتف صالحًا';
 
   @override
-  String get hubParentsSection => 'Parents';
+  String get hubParentsSection => 'أولياء الأمور';
 
   @override
-  String get hubNoParents => 'No linked parents yet';
+  String get hubNoParents => 'لا يوجد أولياء أمور مرتبطون بعد';
 
   @override
-  String get hubStudentSection => 'Student';
+  String get hubStudentSection => 'الطالب';
 
   @override
-  String get hubAverageLabel => 'Average';
+  String get hubAverageLabel => 'المتوسط';
 
   @override
-  String get hubAccuracyLabel => 'Practice accuracy';
+  String get hubAccuracyLabel => 'دقة التدريب';
 
   @override
-  String get hubBestSubject => 'Best subject';
+  String get hubBestSubject => 'أفضل مادة';
 
   @override
-  String get hubWeakestSubject => 'Weakest subject';
+  String get hubWeakestSubject => 'أضعف مادة';
 
   @override
-  String get hubWeakTopics => 'Weak topics';
+  String get hubWeakTopics => 'المواضيع الضعيفة';
 
   @override
-  String get hubStrongTopics => 'Strong topics';
+  String get hubStrongTopics => 'المواضيع القوية';
 
   @override
-  String get hubNoInsights => 'No insights yet';
+  String get hubNoInsights => 'لا توجد رؤى بعد';
 
   @override
-  String get hubNoGrades => 'No grades yet';
+  String get hubNoGrades => 'لا توجد درجات بعد';
 
   @override
-  String get hubUnpublished => 'Draft';
+  String get hubUnpublished => 'مسودة';
 
   @override
-  String get hubClass => 'Class';
+  String get hubClass => 'الصف';
 }

@@ -197,7 +197,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
         actions: [
           TextButton(onPressed: _saving ? null : () => _save(published: false), child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft)),
           const SizedBox(width: 6),
-          Padding(padding: const EdgeInsets.only(right: 12),
+          Padding(padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton(
               onPressed: _saving ? null : () => _save(published: true),
               child: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(AppLocalizations.of(context)!.commonPublish))),
@@ -467,7 +467,7 @@ class _QuestionCardState extends State<_QuestionCard> {
         return _PreviewLabel(icon: Icons.calendar_today_rounded, label: AppLocalizations.of(context)!.teacherCreateFormScreenDatePickerPreview, cs: cs, theme: theme);
       case 'rating':
         return Row(children: List.generate(5, (i) => Padding(
-          padding: const EdgeInsets.only(right: 4),
+          padding: const EdgeInsetsDirectional.only(end: 4),
           child: Icon(Icons.star_rounded, size: 28, color: i < 3 ? cs.primary : cs.outlineVariant))));
       case 'multipleChoice':
       case 'checkboxes':

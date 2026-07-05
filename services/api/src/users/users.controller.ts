@@ -1,8 +1,11 @@
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../auth/roles';
 import { UsersService } from './users.service';
 
 @UseGuards(JwtAuthGuard)
+@Roles(...ALL_APP_ROLES)
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}

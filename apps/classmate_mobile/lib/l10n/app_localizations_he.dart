@@ -9,6 +9,26 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get consentGateTitle => 'לפני שממשיכים';
+
+  @override
+  String get consentGateBody =>
+      'כדי להמשיך להשתמש ב‑ClassMate, יש לעיין ולאשר את האופן שבו אנו מטפלים בנתונים שלך.';
+
+  @override
+  String get consentGateLink => 'קריאת מדיניות הפרטיות ותנאי השימוש';
+
+  @override
+  String get consentGateAccept => 'אני מאשר/ת את מדיניות הפרטיות ותנאי השימוש';
+
+  @override
+  String get consentGateGuardian =>
+      'יש לי אישור מהורה או אפוטרופוס להשתמש ב‑ClassMate';
+
+  @override
+  String get consentGateContinue => 'אישור והמשך';
+
+  @override
   String get menu => 'תפריט';
 
   @override
@@ -1717,7 +1737,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get messagesCreateGroupAction => 'יצירת קבוצה';
 
   @override
-  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+  String get messagesGroupMinMembers => 'בחר לפחות 2 אנשים לקבוצה';
 
   @override
   String get messagesBlockedPersonFallback => 'האדם הזה';
@@ -4610,8 +4630,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get novaDisclaimer => 'NOVA עלולה לטעות. בדוק תשובות חשובות.';
 
   @override
-  String get novaTokenTip =>
-      'Use your tokens carefully — they\'re meant for studying.';
+  String get novaTokenTip => 'השתמש באסימונים שלך בתבונה — הם נועדו ללימודים.';
 
   @override
   String get practiceCustomDisclaimer =>
@@ -4894,7 +4913,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherExamGradesEnterGrades => 'הזן ציונים';
 
   @override
-  String get teacherExamClassAverage => 'Class average';
+  String get teacherExamClassAverage => 'ממוצע כיתתי';
 
   @override
   String get teacherDeleteExamTitle => 'מחיקת מבחן?';
@@ -5246,52 +5265,52 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonShare => 'שתף';
 
   @override
-  String get inboxActionPin => 'Pin chat';
+  String get inboxActionPin => 'הצמד צ\'אט';
 
   @override
-  String get inboxActionUnpin => 'Unpin chat';
+  String get inboxActionUnpin => 'בטל הצמדה';
 
   @override
-  String get inboxActionMute => 'Mute';
+  String get inboxActionMute => 'השתק';
 
   @override
-  String get inboxActionUnmute => 'Unmute';
+  String get inboxActionUnmute => 'בטל השתקה';
 
   @override
-  String get inboxActionMarkRead => 'Mark as read';
+  String get inboxActionMarkRead => 'סמן כנקרא';
 
   @override
-  String get inboxActionMarkUnread => 'Mark as unread';
+  String get inboxActionMarkUnread => 'סמן כלא נקרא';
 
   @override
-  String get inboxActionClear => 'Clear messages';
+  String get inboxActionClear => 'נקה הודעות';
 
   @override
   String get inboxActionClearConfirm =>
-      'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.';
+      'למחוק את כל ההודעות בצ\'אט זה? הפעולה מנקה רק את העותק שלך — הצד השני שומר על שלו.';
 
   @override
-  String get inboxActionDeleteChat => 'Delete chat';
+  String get inboxActionDeleteChat => 'מחק צ\'אט';
 
   @override
   String get inboxActionDeleteChatConfirm =>
-      'Delete this chat? It disappears from your list and history; it comes back if they message you again.';
+      'למחוק את הצ\'אט הזה? הוא ייעלם מהרשימה ומההיסטוריה שלך; הוא יחזור אם ישלחו לך הודעה שוב.';
 
   @override
-  String get inboxActionBlock => 'Block contact';
+  String get inboxActionBlock => 'חסום איש קשר';
 
   @override
   String get inboxActionBlockConfirm =>
-      'Block this contact? They won\'t be able to message you anymore.';
+      'לחסום את איש הקשר הזה? הוא לא יוכל לשלוח לך הודעות יותר.';
 
   @override
-  String get cmailActionMarkRead => 'Mark as read';
+  String get cmailActionMarkRead => 'סמן כנקרא';
 
   @override
-  String get cmailActionMarkUnread => 'Mark as unread';
+  String get cmailActionMarkUnread => 'סמן כלא נקרא';
 
   @override
-  String get cmailDeleteConfirm => 'Delete this mail from your mailbox?';
+  String get cmailDeleteConfirm => 'למחוק את הדואר הזה מתיבת הדואר שלך?';
 
   @override
   String get commonLoading => 'טוען…';
@@ -6538,8 +6557,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminExportNoStudents => 'לא נמצאו תלמידים';
 
   @override
-  String get adminExportIncludesPasswords =>
-      'Export will reset & include passwords';
+  String get adminExportIncludesPasswords => 'הייצוא יאפס ויכלול סיסמאות';
 
   @override
   String get adminExportAnyway => 'ייצא בכל זאת';
@@ -7241,9 +7259,11 @@ class AppLocalizationsHe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
+          'פעולה זו מאפסת את הסיסמאות של $count תלמידים לסיסמאות חדשות ומוסיפה אותן לקובץ, כדי שתוכל להדפיס ולחלק את כרטיסי ההתחברות. הסיסמאות הישנות שלהם יפסיקו לפעול. כל מי שבידיו הקובץ יכול להתחבר בתור אותם תלמידים — שתף בזהירות ומחק בסיום.',
+      two:
+          'פעולה זו מאפסת את הסיסמאות של $count תלמידים לסיסמאות חדשות ומוסיפה אותן לקובץ, כדי שתוכל להדפיס ולחלק את כרטיסי ההתחברות. הסיסמאות הישנות שלהם יפסיקו לפעול. כל מי שבידיו הקובץ יכול להתחבר בתור אותם תלמידים — שתף בזהירות ומחק בסיום.',
       one:
-          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
+          'פעולה זו מאפסת את הסיסמה של תלמיד $count לסיסמה חדשה ומוסיפה אותה לקובץ, כדי שתוכל להדפיס ולחלק את כרטיס ההתחברות. הסיסמה הישנה שלו תפסיק לפעול. כל מי שבידיו הקובץ יכול להתחבר בתור אותו תלמיד — שתף בזהירות ומחק בסיום.',
     );
     return '$_temp0';
   }
@@ -7258,10 +7278,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get pickerSelectGrades => 'בחר כיתות';
 
   @override
-  String get pickerSelectAll => 'Select all';
+  String get pickerSelectAll => 'בחר הכל';
 
   @override
-  String get pickerUnselectAll => 'Unselect all';
+  String get pickerUnselectAll => 'בטל בחירת הכל';
 
   @override
   String get pickerSelectClassroom => 'בחר כיתה';
@@ -7896,7 +7916,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
+      'הסיסמאות יאופסו ויוצגו בייצוא — הסיסמאות הישנות יפסיקו לפעול. שמור על הקובץ בצורה מאובטחת.';
 
   @override
   String get adminExportPasswordsOff => 'הייצוא לא יכיל סיסמאות.';
@@ -10030,14 +10050,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminAddManyUsernameDupe => 'שם משתמש כפול ברשימה זו';
 
   @override
-  String get adminUsernameAvailable => 'Username is available';
+  String get adminUsernameAvailable => 'שם המשתמש פנוי';
 
   @override
-  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+  String get adminUsernameInvalidFormat =>
+      'השתמש ב-3 תווים או יותר: אותיות, ספרות או . _ -';
 
   @override
-  String get adminUsernameSuggestionsLabel =>
-      'Available suggestions — tap to use:';
+  String get adminUsernameSuggestionsLabel => 'הצעות פנויות — הקש כדי להשתמש:';
 
   @override
   String adminAddManyCreateParent(String name) {
@@ -10130,57 +10150,56 @@ class AppLocalizationsHe extends AppLocalizations {
   String get certSaved => 'התעודה נוצרה.';
 
   @override
-  String get certSaveAndPublish => 'Save & publish';
+  String get certSaveAndPublish => 'שמור ופרסם';
 
   @override
-  String get certSaveDraft => 'Save as draft';
+  String get certSaveDraft => 'שמור כטיוטה';
 
   @override
-  String get examGradesPublished => 'Grades published to students.';
+  String get examGradesPublished => 'הציונים פורסמו לתלמידים.';
 
   @override
-  String get examGradesPublishedShort => 'Published';
+  String get examGradesPublishedShort => 'פורסם';
 
   @override
-  String get examRepublish => 'Republish';
+  String get examRepublish => 'פרסם מחדש';
 
   @override
-  String get certPreview => 'Preview PDF';
+  String get certPreview => 'תצוגה מקדימה של PDF';
 
   @override
-  String get certPublished => 'Published to the student.';
+  String get certPublished => 'פורסם לתלמיד.';
 
   @override
-  String get certDraftSaved => 'Saved as draft.';
+  String get certDraftSaved => 'נשמר כטיוטה.';
 
   @override
-  String get certPublishing => 'Publishing…';
+  String get certPublishing => 'מפרסם…';
 
   @override
-  String get certDownload => 'Download';
+  String get certDownload => 'הורד';
 
   @override
-  String get certNoneYet => 'No certificates yet.';
+  String get certNoneYet => 'אין עדיין תעודות.';
 
   @override
-  String get certMine => 'My certificates';
+  String get certMine => 'התעודות שלי';
 
   @override
-  String get certNoHomeroom =>
-      'You are not a homeroom teacher of any class yet.';
+  String get certNoHomeroom => 'אינך עדיין מחנך של אף כיתה.';
 
   @override
-  String get certGrin => 'Grades';
+  String get certGrin => 'ציונים';
 
   @override
-  String get certPrintAll => 'Print all';
+  String get certPrintAll => 'הדפס הכל';
 
   @override
   String get certSelectCohortToPrint =>
-      'Select a class to print all its certificates.';
+      'בחר כיתה כדי להדפיס את כל התעודות שלה.';
 
   @override
-  String get certEditTitle => 'Edit certificate';
+  String get certEditTitle => 'עריכת תעודה';
 
   @override
   String get certPdfAnnualCertificate => 'תעודה שנתית';
@@ -10309,251 +10328,250 @@ class AppLocalizationsHe extends AppLocalizations {
   String get gradesSubjectNoGrades => 'אין ציונים במקצוע זה עדיין.';
 
   @override
-  String get gradesPublishedShort => 'Published';
+  String get gradesPublishedShort => 'פורסם';
 
   @override
-  String get gradesDraftShort => 'Draft';
+  String get gradesDraftShort => 'טיוטה';
 
   @override
   String gradesPublishTitle(Object title) {
-    return 'Publish “$title”';
+    return 'פרסום “$title”';
   }
 
   @override
   String gradesUnpublishTitle(Object title) {
-    return 'Unpublish “$title”';
+    return 'ביטול פרסום “$title”';
   }
 
   @override
-  String get gradesPublishAction => 'Publish';
+  String get gradesPublishAction => 'פרסם';
 
   @override
-  String get gradesUnpublishAction => 'Unpublish';
+  String get gradesUnpublishAction => 'בטל פרסום';
 
   @override
   String get gradesPublishedToast =>
-      'Grade published — students can now see it.';
+      'הציון פורסם — התלמידים יכולים לראות אותו כעת.';
 
   @override
-  String get gradesUnpublishedToast =>
-      'Grade unpublished — hidden from students.';
+  String get gradesUnpublishedToast => 'פרסום הציון בוטל — מוסתר מהתלמידים.';
 
   @override
-  String get navGradeScales => 'Grade Scales';
+  String get navGradeScales => 'סולמות ציונים';
 
   @override
-  String get gradeScaleAdd => 'Add grade scale';
+  String get gradeScaleAdd => 'הוסף סולם ציונים';
 
   @override
-  String get gradeScaleEdit => 'Edit grade scale';
+  String get gradeScaleEdit => 'ערוך סולם ציונים';
 
   @override
-  String get gradeScaleDeleteTitle => 'Delete grade scale?';
+  String get gradeScaleDeleteTitle => 'למחוק את סולם הציונים?';
 
   @override
   String gradeScaleDeleteConfirm(Object name) {
-    return 'Delete “$name”? Assessments already graded on it keep their labels.';
+    return 'למחוק את “$name”? מבחנים שכבר קיבלו ציון לפיו ישמרו על התוויות שלהם.';
   }
 
   @override
-  String get gradeScaleEmptyTitle => 'No grade scales yet';
+  String get gradeScaleEmptyTitle => 'אין עדיין סולמות ציונים';
 
   @override
   String get gradeScaleEmptyHint =>
-      'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.';
+      'צור סולם אותיות או מילים (למשל א, א+, ב) לכיתות הצעירות. מורים המעריכים כיתות אלו בוחרים תווית במקום מספר.';
 
   @override
-  String get gradeScaleAllGrades => 'Applies to all grades';
+  String get gradeScaleAllGrades => 'חל על כל השכבות';
 
   @override
   String gradeScaleAppliesTo(Object grades) {
-    return 'Grades $grades';
+    return 'שכבות $grades';
   }
 
   @override
-  String get gradeScaleNameLabel => 'Scale name';
+  String get gradeScaleNameLabel => 'שם הסולם';
 
   @override
-  String get gradeScaleNameHint => 'e.g. Letter grades';
+  String get gradeScaleNameHint => 'למשל ציוני אותיות';
 
   @override
-  String get gradeScaleNameRequired => 'Enter a scale name.';
+  String get gradeScaleNameRequired => 'הזן שם לסולם.';
 
   @override
-  String get gradeScaleGradeLevels => 'Applies to grades';
+  String get gradeScaleGradeLevels => 'חל על השכבות';
 
   @override
   String get gradeScaleGradeLevelsHint =>
-      'Leave none selected to apply to all grades.';
+      'אל תבחר אף אחת כדי להחיל על כל השכבות.';
 
   @override
-  String get gradeScaleLabels => 'Labels';
+  String get gradeScaleLabels => 'תוויות';
 
   @override
   String get gradeScaleLabelsHint =>
-      'Add each label (e.g. A+) with an optional number (0–100) used for averages.';
+      'הוסף כל תווית (למשל א+) עם מספר אופציונלי (0–100) המשמש לחישוב ממוצעים.';
 
   @override
-  String get gradeScaleLabelText => 'Label';
+  String get gradeScaleLabelText => 'תווית';
 
   @override
-  String get gradeScaleLabelValue => 'Value';
+  String get gradeScaleLabelValue => 'ערך';
 
   @override
-  String get gradeScaleAddLabel => 'Add label';
+  String get gradeScaleAddLabel => 'הוסף תווית';
 
   @override
-  String get gradeScaleNeedTwoLabels => 'Add at least two labels.';
+  String get gradeScaleNeedTwoLabels => 'הוסף לפחות שתי תוויות.';
 
   @override
-  String get gradeScalePickLabel => 'Grade';
+  String get gradeScalePickLabel => 'ציון';
 
   @override
-  String get gradeScaleUseScale => 'Grade scale';
+  String get gradeScaleUseScale => 'סולם ציונים';
 
   @override
   String gradeScaleNumeric(Object max) {
-    return 'Number (0–$max)';
+    return 'מספר (0–$max)';
   }
 
   @override
-  String get accountSwitcherTitle => 'Accounts';
+  String get accountSwitcherTitle => 'חשבונות';
 
   @override
-  String get accountAddAccount => 'Add account';
+  String get accountAddAccount => 'הוסף חשבון';
 
   @override
-  String get accountSignOutThis => 'Sign out this account';
+  String get accountSignOutThis => 'התנתק מחשבון זה';
 
   @override
-  String get averagesManageTooltip => 'Manage averages';
+  String get averagesManageTooltip => 'ניהול ממוצעים';
 
   @override
-  String get averagesTitle => 'Averages';
+  String get averagesTitle => 'ממוצעים';
 
   @override
-  String get averagesAdd => 'Add average';
+  String get averagesAdd => 'הוסף ממוצע';
 
   @override
-  String get averagesDeleteTitle => 'Delete average';
+  String get averagesDeleteTitle => 'מחק ממוצע';
 
   @override
   String averagesDeleteConfirm(Object title) {
-    return 'Delete \"$title\"? This cannot be undone.';
+    return 'למחוק את \"$title\"? לא ניתן לבטל פעולה זו.';
   }
 
   @override
-  String get averagesCancel => 'Cancel';
+  String get averagesCancel => 'ביטול';
 
   @override
-  String get averagesEmptyTitle => 'No averages yet';
+  String get averagesEmptyTitle => 'אין עדיין ממוצעים';
 
   @override
   String get averagesEmptyBody =>
-      'Tap \"Add average\" to create a weighted grade formula for a subject.';
+      'הקש על \"הוסף ממוצע\" כדי ליצור נוסחת ציון משוקללת למקצוע.';
 
   @override
-  String get averagesFullYear => 'Full year';
+  String get averagesFullYear => 'שנה מלאה';
 
   @override
   String averagesSemesterN(Object n) {
-    return 'Semester $n';
+    return 'סמסטר $n';
   }
 
   @override
   String averagesFormatChip(Object index, Object total) {
-    return 'Format $index: $total%';
+    return 'מבנה $index: $total%';
   }
 
   @override
-  String get averagesNoStudents => 'No students to compute.';
+  String get averagesNoStudents => 'אין תלמידים לחישוב.';
 
   @override
   String averagesFormatN(Object n) {
-    return 'Format $n';
+    return 'מבנה $n';
   }
 
   @override
-  String get averagesErrTitle => 'Enter a title.';
+  String get averagesErrTitle => 'הזן כותרת.';
 
   @override
-  String get averagesErrSubject => 'Choose a subject.';
+  String get averagesErrSubject => 'בחר מקצוע.';
 
   @override
-  String get averagesErrCohort => 'Choose a cohort.';
+  String get averagesErrCohort => 'בחר כיתה.';
 
   @override
-  String get averagesErrNoFormat => 'Add at least one format.';
+  String get averagesErrNoFormat => 'הוסף לפחות מבנה אחד.';
 
   @override
   String averagesErrFormatNoGrade(Object n) {
-    return 'Format $n: pick at least one grade.';
+    return 'מבנה $n: בחר לפחות ציון אחד.';
   }
 
   @override
   String averagesErrFormatSum(Object n, Object total) {
-    return 'Format $n: weights must sum to 100 (now $total%).';
+    return 'מבנה $n: סכום המשקלים חייב להיות 100 (כעת $total%).';
   }
 
   @override
-  String get averagesNew => 'New average';
+  String get averagesNew => 'ממוצע חדש';
 
   @override
-  String get averagesEdit => 'Edit average';
+  String get averagesEdit => 'ערוך ממוצע';
 
   @override
-  String get averagesLabelSubject => 'Subject';
+  String get averagesLabelSubject => 'מקצוע';
 
   @override
-  String get averagesHintSubject => 'Choose a subject';
+  String get averagesHintSubject => 'בחר מקצוע';
 
   @override
-  String get averagesLabelCohort => 'Cohort';
+  String get averagesLabelCohort => 'כיתה';
 
   @override
-  String get averagesHintCohort => 'Choose a cohort';
+  String get averagesHintCohort => 'בחר כיתה';
 
   @override
-  String get averagesLabelUnits => 'Units (optional)';
+  String get averagesLabelUnits => 'יחידות (אופציונלי)';
 
   @override
-  String get averagesFormats => 'Formats';
+  String get averagesFormats => 'מבנים';
 
   @override
   String get averagesFormatsHelp =>
-      'Each format\'s weights must sum to 100%. The best-scoring format is used per student.';
+      'סכום המשקלים בכל מבנה חייב להיות 100%. עבור כל תלמיד נעשה שימוש במבנה בעל הציון הגבוה ביותר.';
 
   @override
-  String get averagesAddFormat => 'Add format';
+  String get averagesAddFormat => 'הוסף מבנה';
 
   @override
-  String get averagesLabelFormatLabel => 'Format label (optional)';
+  String get averagesLabelFormatLabel => 'תווית מבנה (אופציונלי)';
 
   @override
-  String get averagesAddGrade => 'Add grade';
+  String get averagesAddGrade => 'הוסף ציון';
 
   @override
   String averagesTotal(Object total) {
-    return 'Total: $total%';
+    return 'סה”כ: $total%';
   }
 
   @override
-  String get averagesLabelGrade => 'Grade';
+  String get averagesLabelGrade => 'ציון';
 
   @override
-  String get averagesHintPickFirst => 'Pick subject & cohort first';
+  String get averagesHintPickFirst => 'בחר קודם מקצוע וכיתה';
 
   @override
-  String get averagesHintGrade => 'Choose a grade';
+  String get averagesHintGrade => 'בחר ציון';
 
   @override
-  String get adminInsightsSearchHint => 'Search students by name…';
+  String get adminInsightsSearchHint => 'חפש תלמידים לפי שם…';
 
   @override
-  String get adminInsightsNoStudents => 'No students found.';
+  String get adminInsightsNoStudents => 'לא נמצאו תלמידים.';
 
   @override
-  String get adminInsightsNoGrades => 'No grades recorded yet.';
+  String get adminInsightsNoGrades => 'עדיין לא נרשמו ציונים.';
 
   @override
   String get gradesEditGradeTitle => 'עריכת ציון';
@@ -10633,258 +10651,260 @@ class AppLocalizationsHe extends AppLocalizations {
       'אין ציונים עם משקל בסמסטר זה. הוסף אחד או קבע אחוז על ציון.';
 
   @override
-  String get gradesAvgPickTitle => 'Add a grade to the average';
+  String get gradesAvgPickTitle => 'הוסף ציון לממוצע';
 
   @override
   String gradesAvgPickSubtitle(String subject) {
-    return 'Pick a published grade in $subject, then set its weight, semester and format.';
+    return 'בחר ציון שפורסם ב$subject, ולאחר מכן קבע את המשקל, הסמסטר והמבנה שלו.';
   }
 
   @override
-  String get gradesAvgFilterAll => 'All';
+  String get gradesAvgFilterAll => 'הכל';
 
   @override
   String gradesAvgFilterCohort(String name) {
-    return 'Cohort — $name';
+    return 'כיתה — $name';
   }
 
   @override
-  String get gradesAvgSearchHint => 'Search grades';
+  String get gradesAvgSearchHint => 'חפש ציונים';
 
   @override
-  String get gradesAvgNoResults => 'No matching grades in this subject.';
+  String get gradesAvgNoResults => 'אין ציונים תואמים במקצוע זה.';
 
   @override
-  String get gradesAvgInAverage => 'In average';
+  String get gradesAvgInAverage => 'בממוצע';
 
   @override
-  String get notesTitle => 'Notes';
+  String get notesTitle => 'הערות';
 
   @override
-  String get notesSearchStudents => 'Search students';
+  String get notesSearchStudents => 'חפש תלמידים';
 
   @override
-  String get notesNoStudents => 'No students found';
+  String get notesNoStudents => 'לא נמצאו תלמידים';
 
   @override
   String notesCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count notes',
-      one: '1 note',
-      zero: 'No notes',
+      other: '$count הערות',
+      two: '$count הערות',
+      one: 'הערה אחת',
+      zero: 'אין הערות',
     );
     return '$_temp0';
   }
 
   @override
-  String get notesNewNote => 'New note';
+  String get notesNewNote => 'הערה חדשה';
 
   @override
-  String get notesNoNotes => 'No notes yet';
+  String get notesNoNotes => 'אין עדיין הערות';
 
   @override
   String get notesNoNotesHint =>
-      'Tap + to write the first note about this student.';
+      'הקש על + כדי לכתוב את ההערה הראשונה על תלמיד זה.';
 
   @override
-  String get notesDeleteTitle => 'Delete note?';
+  String get notesDeleteTitle => 'למחוק את ההערה?';
 
   @override
-  String get notesDeleteBody => 'This note will be permanently deleted.';
+  String get notesDeleteBody => 'הערה זו תימחק לצמיתות.';
 
   @override
-  String get notesUntitled => 'Untitled';
+  String get notesUntitled => 'ללא כותרת';
 
   @override
-  String get notesTitleHint => 'Title';
+  String get notesTitleHint => 'כותרת';
 
   @override
-  String get notesBodyHint => 'Start writing…';
+  String get notesBodyHint => 'התחל לכתוב…';
 
   @override
   String notesEditedBy(String name) {
-    return 'By $name';
+    return 'מאת $name';
   }
 
   @override
   String get cmailTitle => 'CMail';
 
   @override
-  String get cmailInbox => 'Inbox';
+  String get cmailInbox => 'דואר נכנס';
 
   @override
-  String get cmailSentTab => 'Sent';
+  String get cmailSentTab => 'נשלח';
 
   @override
-  String get cmailCompose => 'New mail';
+  String get cmailCompose => 'דואר חדש';
 
   @override
-  String get cmailEmptyInbox => 'No mail yet';
+  String get cmailEmptyInbox => 'אין עדיין דואר';
 
   @override
-  String get cmailEmptyInboxHint => 'Mail from your school will appear here.';
+  String get cmailEmptyInboxHint => 'דואר מבית הספר שלך יופיע כאן.';
 
   @override
-  String get cmailEmptySent => 'Nothing sent yet';
+  String get cmailEmptySent => 'עדיין לא נשלח דבר';
 
   @override
-  String get cmailSubject => 'Subject';
+  String get cmailSubject => 'נושא';
 
   @override
-  String get cmailBodyHint => 'Write your message…';
+  String get cmailBodyHint => 'כתוב את ההודעה שלך…';
 
   @override
-  String get cmailAudience => 'To';
+  String get cmailAudience => 'אל';
 
   @override
-  String get cmailAudienceSchool => 'Everyone';
+  String get cmailAudienceSchool => 'כולם';
 
   @override
-  String get cmailAudienceStudents => 'All students';
+  String get cmailAudienceStudents => 'כל התלמידים';
 
   @override
-  String get cmailAudienceTeachers => 'All teachers';
+  String get cmailAudienceTeachers => 'כל המורים';
 
   @override
-  String get cmailAudienceParents => 'All parents';
+  String get cmailAudienceParents => 'כל ההורים';
 
   @override
-  String get cmailAudienceStaff => 'Staff';
+  String get cmailAudienceStaff => 'צוות';
 
   @override
-  String get cmailAudienceGrades => 'By grade';
+  String get cmailAudienceGrades => 'לפי שכבה';
 
   @override
-  String get cmailAudienceCohorts => 'By class';
+  String get cmailAudienceCohorts => 'לפי כיתה';
 
   @override
-  String get cmailAudienceUsers => 'Specific people';
+  String get cmailAudienceUsers => 'אנשים מסוימים';
 
   @override
-  String get cmailPickGrades => 'Pick grades';
+  String get cmailPickGrades => 'בחר שכבות';
 
   @override
-  String get cmailPickCohorts => 'Pick classes';
+  String get cmailPickCohorts => 'בחר כיתות';
 
   @override
-  String get cmailPickPeople => 'Pick people';
+  String get cmailPickPeople => 'בחר אנשים';
 
   @override
-  String get cmailAttach => 'Attach files';
+  String get cmailAttach => 'צרף קבצים';
 
   @override
-  String get cmailSendAction => 'Send';
+  String get cmailSendAction => 'שלח';
 
   @override
-  String get cmailSentOk => 'Mail sent';
+  String get cmailSentOk => 'הדואר נשלח';
 
   @override
-  String get cmailDeleteTitle => 'Delete mail?';
+  String get cmailDeleteTitle => 'למחוק את הדואר?';
 
   @override
-  String get cmailDeleteForAll => 'This deletes the mail for everyone.';
+  String get cmailDeleteForAll => 'פעולה זו מוחקת את הדואר עבור כולם.';
 
   @override
-  String get cmailDeleteForMe => 'This removes the mail from your inbox.';
+  String get cmailDeleteForMe =>
+      'פעולה זו מסירה את הדואר מתיבת הדואר הנכנס שלך.';
 
   @override
   String cmailRecipients(num count) {
-    return '$count recipients';
+    return '$count נמענים';
   }
 
   @override
   String cmailReadStats(num read, num total) {
-    return '$read of $total read';
+    return '$read מתוך $total קראו';
   }
 
   @override
-  String get cmailSubjectRequired => 'Subject is required';
+  String get cmailSubjectRequired => 'נדרש נושא';
 
   @override
-  String get cmailAudienceRequired => 'Pick who this mail goes to';
+  String get cmailAudienceRequired => 'בחר למי מיועד הדואר';
 
   @override
-  String get cmailAttachments => 'Attachments';
+  String get cmailAttachments => 'קבצים מצורפים';
 
   @override
   String cmailFrom(String name) {
-    return 'From $name';
+    return 'מאת $name';
   }
 
   @override
-  String get phoneLinkTitle => 'Add your phone';
+  String get phoneLinkTitle => 'הוסף את הטלפון שלך';
 
   @override
   String get phoneLinkSubtitle =>
-      'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.';
+      'הגן על החשבון שלך באמצעות מספר טלפון. נשלח לך קוד אימות בהודעת טקסט — זה גם מאפשר לך לאפס את הסיסמה שלך ב-SMS.';
 
   @override
-  String get phoneLinkFieldLabel => 'Phone number';
+  String get phoneLinkFieldLabel => 'מספר טלפון';
 
   @override
-  String get phoneLinkSend => 'Send code';
+  String get phoneLinkSend => 'שלח קוד';
 
   @override
-  String get phoneLinkCodeLabel => '6-digit code';
+  String get phoneLinkCodeLabel => 'קוד בן 6 ספרות';
 
   @override
   String phoneLinkCodeSent(String phone) {
-    return 'Code sent to $phone';
+    return 'הקוד נשלח אל $phone';
   }
 
   @override
-  String get phoneLinkVerify => 'Verify & link';
+  String get phoneLinkVerify => 'אמת וקשר';
 
   @override
-  String get phoneLinkLater => 'Later';
+  String get phoneLinkLater => 'מאוחר יותר';
 
   @override
-  String get phoneLinkDone => 'Phone linked!';
+  String get phoneLinkDone => 'הטלפון קושר!';
 
   @override
-  String get phoneLinkResend => 'Resend code';
+  String get phoneLinkResend => 'שלח קוד מחדש';
 
   @override
-  String get phoneLinkInvalid => 'Enter a valid phone number';
+  String get phoneLinkInvalid => 'הזן מספר טלפון תקין';
 
   @override
-  String get hubParentsSection => 'Parents';
+  String get hubParentsSection => 'הורים';
 
   @override
-  String get hubNoParents => 'No linked parents yet';
+  String get hubNoParents => 'אין עדיין הורים מקושרים';
 
   @override
-  String get hubStudentSection => 'Student';
+  String get hubStudentSection => 'תלמיד';
 
   @override
-  String get hubAverageLabel => 'Average';
+  String get hubAverageLabel => 'ממוצע';
 
   @override
-  String get hubAccuracyLabel => 'Practice accuracy';
+  String get hubAccuracyLabel => 'דיוק בתרגול';
 
   @override
-  String get hubBestSubject => 'Best subject';
+  String get hubBestSubject => 'המקצוע החזק ביותר';
 
   @override
-  String get hubWeakestSubject => 'Weakest subject';
+  String get hubWeakestSubject => 'המקצוע החלש ביותר';
 
   @override
-  String get hubWeakTopics => 'Weak topics';
+  String get hubWeakTopics => 'נושאים חלשים';
 
   @override
-  String get hubStrongTopics => 'Strong topics';
+  String get hubStrongTopics => 'נושאים חזקים';
 
   @override
-  String get hubNoInsights => 'No insights yet';
+  String get hubNoInsights => 'אין עדיין תובנות';
 
   @override
-  String get hubNoGrades => 'No grades yet';
+  String get hubNoGrades => 'אין עדיין ציונים';
 
   @override
-  String get hubUnpublished => 'Draft';
+  String get hubUnpublished => 'טיוטה';
 
   @override
-  String get hubClass => 'Class';
+  String get hubClass => 'כיתה';
 }

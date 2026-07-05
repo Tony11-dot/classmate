@@ -163,7 +163,7 @@ class _TeacherClassroomAddMeetingScreenState
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving
@@ -233,7 +233,7 @@ class _TeacherClassroomAddMeetingScreenState
                   ),
                   const SizedBox(height: 4),
                   Padding(
-                    padding: const EdgeInsets.only(left: 4),
+                    padding: const EdgeInsetsDirectional.only(start: 4),
                     child: Text(
                       AppLocalizations.of(context)!.teacherMeetingLinkHint,
                       style: theme.textTheme.bodySmall
@@ -392,7 +392,7 @@ class _TeacherClassroomAddMeetingScreenState
                   if (_endTime != null && _endDate == null) ...[
                     const SizedBox(height: 6),
                     Padding(
-                      padding: const EdgeInsets.only(left: 4),
+                      padding: const EdgeInsetsDirectional.only(start: 4),
                       child: Text(
                         AppLocalizations.of(context)!
                             .teacherClassroomAddMeetingScreenEndDateDefault,

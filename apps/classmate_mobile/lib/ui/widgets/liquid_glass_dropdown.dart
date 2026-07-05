@@ -270,6 +270,7 @@ class LiquidGlassNameField extends StatelessWidget {
         suffixIcon: options.isEmpty
             ? null
             : IconButton(
+                tooltip: MaterialLocalizations.of(context).showMenuTooltip,
                 icon: const Icon(Icons.arrow_drop_down_rounded),
                 onPressed: () => _pick(context),
               ),
@@ -342,6 +343,7 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
                       ),
                     ),
                     IconButton(
+                      tooltip: l.commonClose,
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close_rounded),
                     ),

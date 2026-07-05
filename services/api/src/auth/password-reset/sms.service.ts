@@ -24,10 +24,27 @@ export class SmsService {
     return n && n.length > 0 ? n : null;
   }
 
+  /**
+   * Optional alphanumeric Sender ID (e.g. "ClassMate") so texts show a brand
+   * name instead of a raw number — like Instagram / Discord. Requires the ID
+   * to be registered/approved in Twilio for the destination country (Israel is
+   * supported); alphanumeric senders are one-way (fine for 2FA) and are NOT
+   * supported in the US/Canada. When unset we fall back to the phone number,
+   * so this is a safe opt-in with zero behaviour change until enabled.
+   */
+  private get alphaSender(): string | null {
+    const s = process.env.TWILIO_ALPHA_SENDER?.trim();
+    return s && s.length > 0 ? s : null;
+  }
+
+  private get fromAddress(): string | null {
+    return this.alphaSender ?? this.fromNumber;
+  }
+
   get isConfigured(): boolean {
     return !!(process.env.TWILIO_ACCOUNT_SID?.trim()
       && process.env.TWILIO_AUTH_TOKEN?.trim()
-      && process.env.TWILIO_FROM?.trim());
+      && this.fromAddress);
   }
 
   async sendPasswordResetSms(args: {
@@ -63,12 +80,12 @@ export class SmsService {
    * that to the end user.
    */
   async send(to: string, body: string): Promise<void> {
-    if (!this.client || !this.fromNumber) {
-      this.logger.warn(`Twilio not configured; would have sent SMS to ${to}: ${body.slice(0, 60)}…`);
+    if (!this.client || !this.fromAddress) {
+      this.logger.warn('Twilio not configured; would have sent an SMS (recipient/body redacted)');
       return;
     }
     try {
-      await this.client.messages.create({ from: this.fromNumber, to, body });
+      await this.client.messages.create({ from: this.fromAddress, to, body });
     } catch (err) {
       this.logger.error(`Failed to send SMS to ${to}: ${(err as Error).message}`);
       throw err;

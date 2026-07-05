@@ -317,6 +317,11 @@ export class AnnouncementsService {
 
     const announcements = await this.prisma.announcement.findMany({
       where: {
+        // School isolation: only announcements authored inside the viewer's
+        // own school. Announcement has no schoolId of its own, so we scope by
+        // the creator's school — this prevents broadcast/role/grade-targeted
+        // announcements from leaking across schools.
+        creator: { is: { schoolId: (user as any)?.schoolId ?? null } },
         publishAt: { lte: now },
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
         AND: [{ OR: orTarget }],
@@ -429,6 +434,8 @@ export class AnnouncementsService {
 
     const rows = await this.prisma.announcement.findMany({
       where: {
+        // Same school-isolation scoping as feed() — see note there.
+        creator: { is: { schoolId: (user as any)?.schoolId ?? null } },
         publishAt: { lte: now },
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
         AND: [{ OR: orTarget }],
@@ -472,9 +479,16 @@ export class AnnouncementsService {
   }
 
   async targets(user: any) {
+    // Only staff may compose announcements, so only staff may enumerate the
+    // audience picker — and it must be scoped to their own school.
+    this.ensureCanPost(user);
+    const schoolId = (user as any)?.schoolId ?? null;
+    const schoolWhere = { schoolId } as const;
+
     const roles = ['STUDENT', 'PARENT', 'TEACHER', 'SECRETARY', 'ADMIN'];
 
     const gradeRows = await this.prisma.cohort.findMany({
+      where: schoolWhere,
       select: { grade: true },
       distinct: ['grade'],
       orderBy: { grade: 'asc' },
@@ -487,6 +501,7 @@ export class AnnouncementsService {
     const gradeList = grades.length ? grades : [7, 8, 9, 10, 11, 12];
 
     const cohorts = await this.prisma.cohort.findMany({
+      where: schoolWhere,
       select: { id: true, name: true, grade: true },
       orderBy: [{ grade: 'asc' }, { name: 'asc' }],
       take: 500,

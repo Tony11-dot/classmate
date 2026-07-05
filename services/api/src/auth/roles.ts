@@ -27,6 +27,20 @@ export enum Role {
  */
 export type UserRole = Role;
 
+/**
+ * Explicit "any authenticated user" allow-list. Used to tag routes that were
+ * historically reachable by every role, now that the RolesGuard default-denies
+ * untagged routes. Prefer a narrower @Roles(...) whenever a route is really
+ * role-specific.
+ */
+export const ALL_APP_ROLES: Role[] = [
+  Role.STUDENT,
+  Role.TEACHER,
+  Role.PARENT,
+  Role.ADMIN,
+  Role.SECRETARY,
+];
+
 export function isRole(v: unknown): v is AppRole {
   return typeof v === 'string' && (APP_ROLES as readonly string[]).includes(v);
 }

@@ -1,12 +1,15 @@
 import { BadRequestException, Body, ConflictException, Controller, Get, HttpException, HttpStatus, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Public } from './decorators/public.decorator';
+import { Roles } from './decorators/roles.decorator';
+import { ALL_APP_ROLES } from './roles';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
+import { CURRENT_CONSENT_VERSION } from '../common/consent';
 
 @Controller('auth')
 export class AuthController {
@@ -77,6 +80,7 @@ export class AuthController {
    * the username (account becomes email-only).
    */
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Patch('me/username')
   async updateMyUsername(@Req() req: any, @Body() body: { username?: string | null }) {
     const userId = req.user?.sub ?? req.user?.id;
@@ -103,6 +107,7 @@ export class AuthController {
   /// per recipient (the app pushes this whenever the locale changes / on
   /// startup). Accepts one of our supported codes; anything else clears it.
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Patch('me/language')
   async updateMyLanguage(@Req() req: any, @Body() body: { language?: string | null }) {
     const userId = req.user?.sub ?? req.user?.id;
@@ -121,6 +126,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Patch('profile/name')
   async updateProfileName(@Req() req: any, @Body() body: any) {
     const userId = req.user?.sub ?? req.user?.id;
@@ -139,6 +145,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Get('me')
   async me(@Req() req: any) {
     const u = req.user ?? null;
@@ -155,6 +162,8 @@ export class AuthController {
     let phone: string | null = null;
     let emailVerifiedAt: string | null = null;
     let phoneVerifiedAt: string | null = null;
+    let consentAcceptedAt: string | null = null;
+    let consentRequired = false;
 
     // Fetch up-to-date user fields from DB (the JWT only carries the claim snapshot)
     if (userId) {
@@ -168,6 +177,8 @@ export class AuthController {
             phone: true,
             emailVerifiedAt: true,
             phoneVerifiedAt: true,
+            consentAcceptedAt: true,
+            consentVersion: true,
           } as any,
         }) as any;
         if (dbUser) {
@@ -183,6 +194,14 @@ export class AuthController {
           phoneVerifiedAt = dbUser.phoneVerifiedAt
             ? new Date(dbUser.phoneVerifiedAt).toISOString()
             : null;
+          consentAcceptedAt = dbUser.consentAcceptedAt
+            ? new Date(dbUser.consentAcceptedAt).toISOString()
+            : null;
+          // The app shows a one-time consent gate when there's no acceptance
+          // on record yet, or the accepted policy version is out of date.
+          consentRequired =
+            !dbUser.consentAcceptedAt ||
+            String(dbUser.consentVersion ?? '') !== CURRENT_CONSENT_VERSION;
         }
       } catch {}
     }
@@ -252,6 +271,8 @@ export class AuthController {
       phone,
       emailVerifiedAt,
       phoneVerifiedAt,
+      consentAcceptedAt,
+      consentRequired,
     });
   }
 
@@ -261,6 +282,7 @@ export class AuthController {
    * student-facing surfaces can render the school-owned subject selector.
    */
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Get('me/subjects')
   async meSubjects(@Req() req: any) {
     const schoolId = (req.user as any)?.schoolId;
@@ -284,6 +306,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
   @Post('me/password')
   async changePassword(@Req() req: any, @Body() body: ChangePasswordDto) {

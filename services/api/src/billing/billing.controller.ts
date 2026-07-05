@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Req, UseGuards, Headers, HttpCode } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Public } from '../auth/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_APP_ROLES } from '../auth/roles';
 import { TokensService } from './tokens.service';
 import { SUBSCRIPTION_PLANS, TOPUP_PACKS } from './plan.catalog';
 import { PrismaService } from '../prisma/prisma.service';
@@ -31,6 +33,7 @@ export class BillingController {
   /// Returns the caller's current balance + active tier. Wraps
   /// TokensService.getBalance with a thin auth check.
   @UseGuards(JwtAuthGuard)
+  @Roles(...ALL_APP_ROLES)
   @Get('me')
   async me(@Req() req: any) {
     const userId = String(req?.user?.sub ?? req?.user?.id ?? '');

@@ -20,6 +20,7 @@ import '../../features/insights/providers/insights_providers.dart';
 import '../../features/parent/data/parent_models.dart';
 import '../../features/parent/data/parent_repository.dart';
 import '../../features/lifedoc/student_materials_screen.dart';
+import '../../features/consent/consent_gate.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
@@ -108,18 +109,18 @@ class AppShell extends ConsumerWidget {
 
   int _teacherIndexFor(String loc) {
     if (loc.startsWith('/teacher/classrooms') || loc.startsWith('/teacher/classroom/')) return 1;
-    if (loc.startsWith('/announcements')) return 2;
-    if (loc.startsWith('/teacher/insights')) return 3;
-    if (loc.startsWith('/tutor')) return 4;
+    if (loc.startsWith('/teacher/insights')) return 2;
+    if (loc.startsWith('/tutor')) return 3;
+    if (loc.startsWith('/announcements')) return 4;
     return 0; // /teacher/schedule
   }
 
   String _teacherLocFor(int index) => switch (index) {
     0 => '/teacher/schedule',
     1 => '/teacher/classrooms',
-    2 => '/announcements',
-    3 => '/teacher/insights',
-    4 => '/tutor',
+    2 => '/teacher/insights',
+    3 => '/tutor',
+    4 => '/announcements',
     _ => '/teacher/schedule',
   };
 
@@ -620,7 +621,8 @@ class AppShell extends ConsumerWidget {
     // freshly-focused TextField visible above the keyboard. That instantly
     // unfocused the field, making fields "open and close" the moment you
     // tapped them in forms inside a scroll view (Add User, etc.).
-    return NotificationListener<UserScrollNotification>(
+    return ConsentGate(
+      child: NotificationListener<UserScrollNotification>(
       onNotification: (n) {
         if (n.direction != ScrollDirection.idle) {
           FocusManager.instance.primaryFocus?.unfocus();
@@ -656,6 +658,7 @@ class AppShell extends ConsumerWidget {
           if (next == loc) return;
           context.go(next);
         },
+      ),
       ),
       ),
     );
@@ -884,14 +887,16 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       ];
     }
     if (widget.isTeacherLike) {
-      // Schedule | Classrooms | Announcements | Insights | NOVA
+      // Schedule | Classrooms | Insights | NOVA | Announcements
+      // Daily tools first, flagship NOVA next, then Announcements (a broadcast
+      // utility) last instead of in the prominent middle slot.
       // (Messages moved to the drawer — first School Tool.)
       return <_NavItem>[
         _NavItem(Icons.event_note_outlined, Icons.event_note_rounded, l.navSchedule),
         _NavItem(Icons.groups_outlined, Icons.groups_rounded, l.navClassrooms),
-        _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
         _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
         _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
+        _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
       ];
     }
     // Student
@@ -1458,8 +1463,9 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
           ? null
           : Builder(
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.only(left: 4),
+          padding: const EdgeInsetsDirectional.only(start: 4),
           child: IconButton(
+            tooltip: MaterialLocalizations.of(ctx).openAppDrawerTooltip,
             icon: const Icon(Icons.menu_rounded),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
@@ -1468,7 +1474,7 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
       title: const ClassMateLogo(height: 38),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 14),
+          padding: const EdgeInsetsDirectional.only(end: 14),
           child: Center(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

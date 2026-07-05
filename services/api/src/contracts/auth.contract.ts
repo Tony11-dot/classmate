@@ -35,6 +35,10 @@ export const AuthMeResponseSchema = z.object({
   phone: z.string().nullable().optional(),
   emailVerifiedAt: z.string().nullable().optional(),
   phoneVerifiedAt: z.string().nullable().optional(),
+  // Consent (Israel Privacy Amendment 13): when the user last accepted the
+  // Privacy Policy/Terms, and whether the app should show the consent gate.
+  consentAcceptedAt: z.string().nullable().optional(),
+  consentRequired: z.boolean().optional(),
 }).passthrough();
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;

@@ -106,6 +106,42 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// Consent gate
+  ///
+  /// In en, this message translates to:
+  /// **'Before you continue'**
+  String get consentGateTitle;
+
+  /// Consent gate
+  ///
+  /// In en, this message translates to:
+  /// **'To keep using ClassMate, please review and accept how we handle your data.'**
+  String get consentGateBody;
+
+  /// Consent gate
+  ///
+  /// In en, this message translates to:
+  /// **'Read the Privacy Policy & Terms'**
+  String get consentGateLink;
+
+  /// Consent gate
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the Privacy Policy and Terms of Use'**
+  String get consentGateAccept;
+
+  /// Consent gate
+  ///
+  /// In en, this message translates to:
+  /// **'I have my parent or guardian\'s permission to use ClassMate'**
+  String get consentGateGuardian;
+
+  /// Consent gate
+  ///
+  /// In en, this message translates to:
+  /// **'Agree & Continue'**
+  String get consentGateContinue;
+
   /// No description provided for @menu.
   ///
   /// In en, this message translates to:
