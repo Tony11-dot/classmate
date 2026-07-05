@@ -282,7 +282,7 @@ export class SetupController {
     }
 
     // ── Create / update admin ────────────────────────────────────────────────
-    const hash = await bcrypt.hash(adminPassword, 10);
+    const hash = await bcrypt.hash(adminPassword, 12);
     const whereAdmin: any = adminEmail ? { email: adminEmail } : { username: adminUsername };
     let adminUser = await this.prisma.user.findFirst({ where: whereAdmin });
 

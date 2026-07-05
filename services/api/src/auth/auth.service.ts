@@ -41,6 +41,29 @@ export class AuthService {
   return { token };
 }
 
+  /**
+   * Signs a fresh session JWT for a user — same claim shape as login().
+   * Used by credential-rotating flows (change-password): the update stamps
+   * User.tokenInvalidBefore to revoke every outstanding token, then hands the
+   * caller this fresh one so their own session continues uninterrupted.
+   */
+  async signSessionToken(userId: string): Promise<string> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { roles: true },
+    });
+    if (!user) throw new BadRequestException('User not found');
+    const student = await this.prisma.studentProfile.findUnique({
+      where: { userId },
+    });
+    return this.jwt.sign({
+      sub: user.id,
+      roles: user.roles.map((r) => r.role),
+      actingStudentId: user.id,
+      cohortId: student ? student.cohortId : null,
+    });
+  }
+
   async register(dto: RegisterDto) {
     const nEmail = String((dto as any)?.email ?? '').trim();
     const nName = String((dto as any)?.name ?? '').trim();
@@ -52,7 +75,7 @@ export class AuthService {
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) return { ok: false, code: 'EMAIL_TAKEN' };
 
-    const hash = await bcrypt.hash(nPassword, 10);
+    const hash = await bcrypt.hash(nPassword, 12);
 
     // Username is the app's primary login identifier — every user must
     // have one. If the caller supplied it (web/manual signup), use that;

@@ -13,7 +13,9 @@ import { AuthService } from './auth.service';
     PrismaModule,
     // JwtService injected into AuthService.login (signs) and JwtStrategy
     // (verifies). Default 90-day expiry matches the long-lived "stay signed
-    // in" UX the mobile clients want.
+    // in" UX the mobile clients want; the long window is safe because tokens
+    // are revocable server-side — password change/reset stamps
+    // User.tokenInvalidBefore and JwtStrategy rejects older iat values.
     // env.ts (loadEnv) already refuses to boot without a >=16-char JWT_SECRET,
     // so there is no insecure literal fallback here — a missing secret is a
     // hard startup failure, never a silently-signed weak token.

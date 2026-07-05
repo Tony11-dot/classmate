@@ -6,6 +6,7 @@ import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 import { loadEnv } from './env';
+import { setUploadSafetyHeaders } from './common/upload-safety';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { JsonLogger } from './common/logging/json.logger';
 import { RequestMetricsInterceptor } from './common/interceptors/request-metrics.interceptor';
@@ -85,6 +86,9 @@ const serveStatic = [
             // compute hugely at scale, and lets a CDN/edge serve it for free.
             maxAge: 60 * 60 * 24 * 365 * 1000,
             immutable: true,
+            // Force-download + neuter anything script-capable (SVG/HTML) —
+            // uploaded content must never execute on the API origin.
+            setHeaders: setUploadSafetyHeaders,
           },
         }),
       ]

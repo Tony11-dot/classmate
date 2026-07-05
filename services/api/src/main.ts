@@ -9,12 +9,21 @@ import { json, urlencoded } from 'express';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { JsonLogger } from './common/logging/json.logger';
+import { setUploadSafetyHeaders } from './common/upload-safety';
 import { RequestMetricsInterceptor } from './common/interceptors/request-metrics.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
+
+  // Railway terminates TLS at its edge proxy. Without this, Express reports
+  // the PROXY's IP for every request, so the per-IP throttler collapses into
+  // one shared bucket — the strict 5/15min auth limit would lock out a whole
+  // school after five total login attempts. `1` trusts exactly one hop: the
+  // client IP is taken from the X-Forwarded-For entry Railway itself
+  // appended, so a client can't spoof its way out by sending its own header.
+  app.set('trust proxy', 1);
 
   // Security headers (HSTS, X-Content-Type-Options: nosniff, X-Frame-Options:
   // DENY, Referrer-Policy, etc.). CSP is disabled — this is a JSON API, not an
@@ -68,6 +77,9 @@ async function bootstrap() {
   app.useLogger(logger);
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
+    // Force-download + neuter anything script-capable (SVG/HTML) — uploaded
+    // content must never execute on the API origin. See upload-safety.ts.
+    setHeaders: setUploadSafetyHeaders,
   });
   app.useGlobalInterceptors(app.get(RequestMetricsInterceptor));
 

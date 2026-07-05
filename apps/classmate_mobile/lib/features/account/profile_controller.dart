@@ -107,10 +107,17 @@ class ProfileController extends Notifier<ProfileState> {
     if (token.isEmpty) return profilePasswordErrorNotAuthenticated;
     final api = CMApi(token: token);
     try {
-      await api.postJson(
+      final res = await api.postJson(
         '/me/password',
         body: {'currentPassword': current, 'newPassword': next},
       );
+      // Changing the password revokes every previously issued token
+      // server-side; the response carries a fresh one for THIS session.
+      // Adopt it so the user isn't bounced to login on their own device.
+      final fresh = (res is Map ? res['token'] : null)?.toString().trim() ?? '';
+      if (fresh.isNotEmpty) {
+        await session.setToken(fresh);
+      }
       return null;
     } catch (e) {
       final msg = e.toString();

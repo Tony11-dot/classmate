@@ -14,6 +14,7 @@ import { Role } from '../auth/roles';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { mkdirSync } from 'fs';
+import { ACTIVE_CONTENT_MIME, hasActiveContentExtension } from '../common/upload-safety';
 
 function ensureUploadsDir() {
   mkdirSync('uploads', { recursive: true });
@@ -78,6 +79,16 @@ export class UploadsController {
         },
       }),
       limits: { fileSize: 50 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        // Attachments stay open to docs/media of every kind, but content a
+        // browser would EXECUTE (HTML/SVG/XML/JS — a stored-XSS vector on the
+        // API origin) is refused outright. Serving additionally force-
+        // downloads these types (upload-safety.ts) in case one slips through.
+        const mime = String(file.mimetype || '').toLowerCase();
+        const name = String(file.originalname || '');
+        const active = ACTIVE_CONTENT_MIME.test(mime) || hasActiveContentExtension(name);
+        cb(active ? new BadRequestException('This file type is not allowed') : null, !active);
+      },
     }),
   )
   uploadAttachment(@UploadedFile() file: Express.Multer.File, @Req() _req: any) {

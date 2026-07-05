@@ -48,7 +48,7 @@ export class AuthController {
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) throw new ConflictException('Email already registered');
 
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(password, 12);
     // Every user must have a username (the app's primary login identifier).
     // If the caller supplied one, sanitize + uniquify it; otherwise derive
     // from the email local-part.
@@ -324,11 +324,15 @@ export class AuthController {
     const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid) throw new BadRequestException('WRONG_PASSWORD');
 
-    const hash = await bcrypt.hash(newPassword, 10);
+    const hash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({
       where: { id: userId },
-      data: { password: hash },
+      data: { password: hash, tokenInvalidBefore: new Date() } as any,
     });
-    return { ok: true };
+    // The tokenInvalidBefore stamp just revoked every outstanding token for
+    // this account (any device). Hand the caller a fresh one so THEIR session
+    // continues seamlessly; every other session must sign in again.
+    const token = await this.auth.signSessionToken(userId);
+    return { ok: true, token };
   }
 }

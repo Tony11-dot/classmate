@@ -262,9 +262,15 @@ export class PasswordResetService {
     if (row.usedAt) throw new BadRequestException('This reset link has already been used.');
     if (row.expiresAt.getTime() < Date.now()) throw new BadRequestException('This reset link has expired.');
 
-    const hash = await bcrypt.hash(pw, 10);
+    const hash = await bcrypt.hash(pw, 12);
     await this.prisma.$transaction([
-      this.prisma.user.update({ where: { id: row.userId }, data: { password: hash } }),
+      // tokenInvalidBefore revokes every outstanding JWT — a reset usually
+      // means the old credential (and any session created with it) can no
+      // longer be trusted.
+      this.prisma.user.update({
+        where: { id: row.userId },
+        data: { password: hash, tokenInvalidBefore: new Date() } as any,
+      }),
       this.prisma.passwordResetToken.update({ where: { id: row.id }, data: { usedAt: new Date() } }),
       // Invalidate any sibling tokens so they can't be redeemed either.
       this.prisma.passwordResetToken.updateMany({

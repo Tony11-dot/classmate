@@ -64,6 +64,18 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       throw new UnauthorizedException('Account no longer exists');
     }
 
+    // Server-side revocation: password change/reset stamps tokenInvalidBefore,
+    // killing every previously issued token immediately instead of waiting out
+    // the 90-day expiry. Compared at second granularity (JWT iat is seconds),
+    // so the fresh token the change-password endpoint returns in the same
+    // second stays valid.
+    if (user.tokenInvalidBefore) {
+      const iat = Number(payload?.iat ?? 0);
+      if (iat && iat < Math.floor(user.tokenInvalidBefore.getTime() / 1000)) {
+        throw new UnauthorizedException('Session expired — please sign in again');
+      }
+    }
+
     const roles: Role[] = (user.roles ?? []).map((r: any) => r.role);
     const displayName = user.name ?? user.email?.split('@')[0] ?? '';
     const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;

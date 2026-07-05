@@ -140,6 +140,12 @@ model User {
   /// current phone via SMS. Same null-on-change semantics as emailVerifiedAt.
   phoneVerifiedAt DateTime?
 
+  /// Server-side JWT revocation cutoff: tokens issued (iat) before this
+  /// moment are rejected by JwtStrategy. Stamped on password change/reset —
+  /// including admin resets — so a long-lived token can be killed without
+  /// waiting for its expiry. Null = nothing revoked.
+  tokenInvalidBefore DateTime?
+
   /// Date of birth (optional). Used to know when an account belongs to a minor
   /// and therefore requires guardian consent (Israel Privacy Amendment 13).
   birthDate DateTime?

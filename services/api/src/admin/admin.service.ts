@@ -1212,10 +1212,13 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (includePasswords) {
       for (const r of filtered) {
         const fresh = `Classmate${randomDigits(6)}!`;
+        // Cost 10 (not 12) on purpose: a whole-school sheet hashes hundreds of
+        // passwords sequentially inside one request. tokenInvalidBefore still
+        // kills each student's old sessions along with the old password.
         const hash = await bcrypt.hash(fresh, 10);
         await this.prisma.user.update({
           where: { id: r.id },
-          data: { password: hash },
+          data: { password: hash, tokenInvalidBefore: new Date() } as any,
         });
         resetPasswords.set(r.id, fresh);
       }
@@ -1413,10 +1416,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     if (includePasswords) {
       for (const r of rows) {
         const fresh = `Classmate${randomDigits(6)}!`;
+        // Cost 10 (not 12) on purpose — see exportStudents; sessions are
+        // still revoked via tokenInvalidBefore.
         const hash = await bcrypt.hash(fresh, 10);
         await this.prisma.user.update({
           where: { id: r.id },
-          data: { password: hash },
+          data: { password: hash, tokenInvalidBefore: new Date() } as any,
         });
         backfilledPasswords.set(r.id, fresh);
       }
@@ -1744,7 +1749,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     // auto-generated one. The dialog still shows the password back so the
     // admin can hand it off — whether they chose it or we generated it.
     const tempPassword = explicitPassword || `Classmate${randomDigits(6)}!`;
-    const hash = await bcrypt.hash(tempPassword, 10);
+    const hash = await bcrypt.hash(tempPassword, 12);
 
     const newUser = await this.prisma.user.create({
       data: {
@@ -1918,10 +1923,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     });
     if (!target) throw new NotFoundException('User not found');
 
-    const hash = await bcrypt.hash(newPassword, 10);
+    const hash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({
       where: { id },
-      data: { password: hash },
+      // tokenInvalidBefore kills the user's existing sessions — an admin
+      // reset means the old credential can no longer be trusted.
+      data: { password: hash, tokenInvalidBefore: new Date() } as any,
     });
 
     // Invalidate any pending password-reset tokens for this user — the admin
