@@ -19070,6 +19070,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Class'**
   String get hubClass;
+
+  /// Accessibility label for the Back button
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get a11yBack;
+
+  /// Accessibility label for the Close button
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get a11yClose;
+
+  /// Accessibility label for the Cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get a11yCancel;
+
+  /// Accessibility label for the Done button
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get a11yDone;
+
+  /// Accessibility label for the Save button
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get a11ySave;
+
+  /// Accessibility label for the Edit button
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get a11yEdit;
+
+  /// Accessibility label for the Delete button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get a11yDelete;
+
+  /// Accessibility label for the Remove button
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get a11yRemove;
+
+  /// Accessibility label for the Add button
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get a11yAdd;
+
+  /// Accessibility label for the Create button
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get a11yCreate;
+
+  /// Accessibility label for the Send button
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get a11ySend;
+
+  /// Accessibility label for the Search button
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get a11ySearch;
+
+  /// Accessibility label for the Clear button
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get a11yClear;
+
+  /// Accessibility label for the Filter button
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get a11yFilter;
+
+  /// Accessibility label for the Sort button
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get a11ySort;
+
+  /// Accessibility label for the More options button
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get a11yMore;
+
+  /// Accessibility label for the Menu button
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get a11yMenu;
+
+  /// Accessibility label for the Refresh button
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get a11yRefresh;
+
+  /// Accessibility label for the Retry button
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get a11yRetry;
+
+  /// Accessibility label for the Share button
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get a11yShare;
+
+  /// Accessibility label for the Copy button
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get a11yCopy;
+
+  /// Accessibility label for the Download button
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get a11yDownload;
+
+  /// Accessibility label for the Upload button
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get a11yUpload;
+
+  /// Accessibility label for the Attach file button
+  ///
+  /// In en, this message translates to:
+  /// **'Attach file'**
+  String get a11yAttach;
+
+  /// Accessibility label for the Add photo button
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get a11yAddPhoto;
+
+  /// Accessibility label for the Camera button
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get a11yCamera;
+
+  /// Accessibility label for the Voice input button
+  ///
+  /// In en, this message translates to:
+  /// **'Voice input'**
+  String get a11yMicrophone;
+
+  /// Accessibility label for the Play button
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get a11yPlay;
+
+  /// Accessibility label for the Pause button
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get a11yPause;
+
+  /// Accessibility label for the Next button
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get a11yNext;
+
+  /// Accessibility label for the Previous button
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get a11yPrevious;
+
+  /// Accessibility label for the Expand button
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get a11yExpand;
+
+  /// Accessibility label for the Collapse button
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get a11yCollapse;
+
+  /// Accessibility label for the Show button
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get a11yShow;
+
+  /// Accessibility label for the Hide button
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get a11yHide;
+
+  /// Accessibility label for the Settings button
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get a11ySettings;
+
+  /// Accessibility label for the Profile button
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get a11yProfile;
+
+  /// Accessibility label for the Notifications button
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get a11yNotifications;
+
+  /// Accessibility label for the Help button
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get a11yHelp;
+
+  /// Accessibility label for the Details button
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get a11yInfo;
+
+  /// Accessibility label for the Favorite button
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get a11yFavorite;
+
+  /// Accessibility label for the Pin button
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get a11yPin;
+
+  /// Accessibility label for the Unpin button
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get a11yUnpin;
+
+  /// Accessibility label for the Mute button
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get a11yMute;
+
+  /// Accessibility label for the Unmute button
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get a11yUnmute;
+
+  /// Accessibility label for the Mark as read button
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get a11yMarkRead;
+
+  /// Accessibility label for the New chat button
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get a11yNewChat;
+
+  /// Accessibility label for the New message button
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get a11yNewMessage;
+
+  /// Accessibility label for the Emoji button
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji'**
+  String get a11yEmoji;
+
+  /// Accessibility label for the Select date button
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get a11ySelectDate;
+
+  /// Accessibility label for the Log out button
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get a11yLogout;
+
+  /// Accessibility label for the Add account button
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get a11yAddAccount;
+
+  /// Accessibility label for the Show password button
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get a11yShowPassword;
+
+  /// Accessibility label for the Hide password button
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get a11yHidePassword;
+
+  /// Accessibility label for the Scroll to bottom button
+  ///
+  /// In en, this message translates to:
+  /// **'Scroll to bottom'**
+  String get a11yScrollToBottom;
+
+  /// Accessibility label for the Open button
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get a11yOpen;
 }
 
 class _AppLocalizationsDelegate

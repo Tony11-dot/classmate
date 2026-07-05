@@ -190,6 +190,7 @@ class _TeacherCreateClassroomScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final cohortStudents = _studentsFromSelectedCohorts;
@@ -202,6 +203,7 @@ class _TeacherCreateClassroomScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: l.a11yClose,
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.of(context).pop(),
         ),

@@ -76,7 +76,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     l.classroomDetailSelectedCount(_selected.length),
                     style: Theme.of(context).textTheme.bodyMedium,

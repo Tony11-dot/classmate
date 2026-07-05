@@ -260,6 +260,7 @@ class _StudentPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 5, 6, 5),
       decoration: BoxDecoration(
@@ -282,9 +283,13 @@ class _StudentPill extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: Icon(Icons.close_rounded, size: 15, color: cs.onPrimaryContainer),
+          Semantics(
+            button: true,
+            label: l.a11yRemove,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Icon(Icons.close_rounded, size: 15, color: cs.onPrimaryContainer),
+            ),
           ),
         ],
       ),

@@ -306,6 +306,7 @@ backgroundColor: cs.surface,
                           suffixIcon: _searchCtl.text.isEmpty
                               ? null
                               : IconButton(
+                                  tooltip: l.a11yClose,
                                   onPressed: () {
                                     _searchCtl.clear();
                                     setState(() {});

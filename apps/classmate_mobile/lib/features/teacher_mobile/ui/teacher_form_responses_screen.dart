@@ -65,6 +65,7 @@ class _TeacherFormResponsesScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),

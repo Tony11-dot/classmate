@@ -100,6 +100,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                       suffixIcon: _searchCtl.text.isEmpty
                           ? null
                           : IconButton(
+                              tooltip: l.a11yClear,
                               onPressed: () {
                                 _searchCtl.clear();
                                 setSheetState(() {});

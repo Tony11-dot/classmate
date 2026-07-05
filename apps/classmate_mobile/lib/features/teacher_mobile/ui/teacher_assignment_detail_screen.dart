@@ -136,6 +136,7 @@ class _TeacherAssignmentDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -151,6 +152,7 @@ class _TeacherAssignmentDetailScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),

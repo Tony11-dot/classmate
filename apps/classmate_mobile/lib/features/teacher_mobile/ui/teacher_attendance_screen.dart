@@ -374,9 +374,13 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                 Row(
                   children: [
                     // ← back button
-                    GestureDetector(
-                      onTap: () { if (context.canPop()) context.pop(); },
-                      child: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: cs.onSurface),
+                    Semantics(
+                      button: true,
+                      label: l.a11yBack,
+                      child: GestureDetector(
+                        onTap: () { if (context.canPop()) context.pop(); },
+                        child: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: cs.onSurface),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

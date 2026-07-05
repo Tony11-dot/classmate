@@ -58,6 +58,7 @@ class _TeacherClassroomAnalyticsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -77,6 +78,7 @@ class _TeacherClassroomAnalyticsScreenState
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: l.a11yBack,
                     onPressed: () { if (context.canPop()) context.pop(); },
                     icon: const Icon(Icons.arrow_back_rounded),
                     style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),

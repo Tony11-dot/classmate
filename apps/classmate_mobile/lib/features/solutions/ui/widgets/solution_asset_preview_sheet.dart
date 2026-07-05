@@ -57,6 +57,7 @@ class _GalleryScreenState extends State<_GalleryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final total = widget.assets.length;
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -81,6 +82,7 @@ class _GalleryScreenState extends State<_GalleryScreen> {
               color: Colors.black54,
               borderRadius: BorderRadius.circular(99),
               child: IconButton(
+                tooltip: l.a11yClose,
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.close_rounded, color: Colors.white),
               ),
@@ -240,7 +242,7 @@ class _SolutionMediaStripState extends State<SolutionMediaStrip> {
               return GestureDetector(
                 onTap: () => openSolutionGallery(ctx, assets: assets, initialIndex: i),
                 child: Padding(
-                  padding: EdgeInsets.only(right: i < total - 1 ? 10 : 0),
+                  padding: EdgeInsetsDirectional.only(end: i < total - 1 ? 10 : 0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: _Thumb(asset: asset),

@@ -11,7 +11,10 @@ class NovaAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
+    return Semantics(
+      label: 'NOVA',
+      image: true,
+      child: Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -63,6 +66,7 @@ class NovaAvatar extends StatelessWidget {
             color: Colors.white,
           ),
         ],
+      ),
       ),
     );
   }

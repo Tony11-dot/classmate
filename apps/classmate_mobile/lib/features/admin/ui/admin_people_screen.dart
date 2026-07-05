@@ -327,6 +327,7 @@ class _UserTile extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.more_vert_rounded),
+          tooltip: AppLocalizations.of(context)!.a11yMore,
           onPressed: () => _openUserActions(context, isAdmin: isAdmin, onEdit: onEdit, onDelete: onDelete),
         ),
       ),
@@ -768,7 +769,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
           labelText: required ? '$langLabel *' : langLabel,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: Text(
               langLabel.split(' ').last,
               style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700),
@@ -809,6 +810,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        tooltip: l.a11yBack,
                         onPressed: () => Navigator.maybePop(context),
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
@@ -948,6 +950,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                                      tooltip: l.a11yRemove,
                                       onPressed: () => setState(() => _principalRanges.removeAt(i)),
                                     ),
                                   ],

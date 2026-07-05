@@ -163,7 +163,7 @@ class SavedQuestionsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: TextButton.icon(
                         onPressed: saved.isEmpty ? null : savedController.clearAll,
                         icon: const Icon(Icons.clear_all_rounded),

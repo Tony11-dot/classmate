@@ -228,7 +228,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       ),
                       const SizedBox(height: 12),
                       Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: TextButton.icon(
                           onPressed: unreadCount == 0
                               ? null
@@ -406,7 +406,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                       Container(
                                                         width: 10,
                                                         height: 10,
-                                                        margin: const EdgeInsets.only(left: 8, top: 6),
+                                                        margin: const EdgeInsetsDirectional.only(start: 8, top: 6),
                                                         decoration: BoxDecoration(
                                                           color: cs.primary,
                                                           shape: BoxShape.circle,

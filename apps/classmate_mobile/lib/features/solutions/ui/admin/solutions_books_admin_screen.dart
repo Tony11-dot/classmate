@@ -125,6 +125,7 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
       appBar: AppBar(
         title: Text(l.solutionsManageBooksTitle),
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
@@ -213,10 +214,12 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                                   ),
                                 ),
                                 IconButton(
+                                  tooltip: l.a11yEdit,
                                   icon: const Icon(Icons.edit_rounded),
                                   onPressed: () => _openEditor(existing: b),
                                 ),
                                 IconButton(
+                                  tooltip: l.a11yDelete,
                                   icon: Icon(Icons.delete_outline_rounded, color: cs.error),
                                   onPressed: () => _delete(b),
                                 ),
@@ -397,9 +400,9 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
     final cs = Theme.of(context).colorScheme;
     final isEdit = widget.existing != null;
     return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
+      padding: EdgeInsetsDirectional.only(
+        start: 20,
+        end: 20,
         top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),

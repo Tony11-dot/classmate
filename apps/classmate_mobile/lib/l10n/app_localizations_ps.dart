@@ -11039,4 +11039,172 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get hubClass => 'Class';
+
+  @override
+  String get a11yBack => 'Back';
+
+  @override
+  String get a11yClose => 'Close';
+
+  @override
+  String get a11yCancel => 'Cancel';
+
+  @override
+  String get a11yDone => 'Done';
+
+  @override
+  String get a11ySave => 'Save';
+
+  @override
+  String get a11yEdit => 'Edit';
+
+  @override
+  String get a11yDelete => 'Delete';
+
+  @override
+  String get a11yRemove => 'Remove';
+
+  @override
+  String get a11yAdd => 'Add';
+
+  @override
+  String get a11yCreate => 'Create';
+
+  @override
+  String get a11ySend => 'Send';
+
+  @override
+  String get a11ySearch => 'Search';
+
+  @override
+  String get a11yClear => 'Clear';
+
+  @override
+  String get a11yFilter => 'Filter';
+
+  @override
+  String get a11ySort => 'Sort';
+
+  @override
+  String get a11yMore => 'More options';
+
+  @override
+  String get a11yMenu => 'Menu';
+
+  @override
+  String get a11yRefresh => 'Refresh';
+
+  @override
+  String get a11yRetry => 'Retry';
+
+  @override
+  String get a11yShare => 'Share';
+
+  @override
+  String get a11yCopy => 'Copy';
+
+  @override
+  String get a11yDownload => 'Download';
+
+  @override
+  String get a11yUpload => 'Upload';
+
+  @override
+  String get a11yAttach => 'Attach file';
+
+  @override
+  String get a11yAddPhoto => 'Add photo';
+
+  @override
+  String get a11yCamera => 'Camera';
+
+  @override
+  String get a11yMicrophone => 'Voice input';
+
+  @override
+  String get a11yPlay => 'Play';
+
+  @override
+  String get a11yPause => 'Pause';
+
+  @override
+  String get a11yNext => 'Next';
+
+  @override
+  String get a11yPrevious => 'Previous';
+
+  @override
+  String get a11yExpand => 'Expand';
+
+  @override
+  String get a11yCollapse => 'Collapse';
+
+  @override
+  String get a11yShow => 'Show';
+
+  @override
+  String get a11yHide => 'Hide';
+
+  @override
+  String get a11ySettings => 'Settings';
+
+  @override
+  String get a11yProfile => 'Profile';
+
+  @override
+  String get a11yNotifications => 'Notifications';
+
+  @override
+  String get a11yHelp => 'Help';
+
+  @override
+  String get a11yInfo => 'Details';
+
+  @override
+  String get a11yFavorite => 'Favorite';
+
+  @override
+  String get a11yPin => 'Pin';
+
+  @override
+  String get a11yUnpin => 'Unpin';
+
+  @override
+  String get a11yMute => 'Mute';
+
+  @override
+  String get a11yUnmute => 'Unmute';
+
+  @override
+  String get a11yMarkRead => 'Mark as read';
+
+  @override
+  String get a11yNewChat => 'New chat';
+
+  @override
+  String get a11yNewMessage => 'New message';
+
+  @override
+  String get a11yEmoji => 'Emoji';
+
+  @override
+  String get a11ySelectDate => 'Select date';
+
+  @override
+  String get a11yLogout => 'Log out';
+
+  @override
+  String get a11yAddAccount => 'Add account';
+
+  @override
+  String get a11yShowPassword => 'Show password';
+
+  @override
+  String get a11yHidePassword => 'Hide password';
+
+  @override
+  String get a11yScrollToBottom => 'Scroll to bottom';
+
+  @override
+  String get a11yOpen => 'Open';
 }

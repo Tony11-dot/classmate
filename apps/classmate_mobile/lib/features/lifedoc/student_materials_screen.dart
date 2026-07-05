@@ -173,7 +173,7 @@ class _SubjectHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 2),
+      padding: const EdgeInsetsDirectional.only(start: 4, bottom: 2),
       child: Row(children: [
         Container(
           width: 4, height: 16,

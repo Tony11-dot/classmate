@@ -94,12 +94,14 @@ class _AnimatedAuroraBackgroundState extends State<AnimatedAuroraBackground>
                 ),
               ),
               // Drifting colored blobs.
-              CustomPaint(
-                painter: _AuroraPainter(
-                  t: t,
-                  colors: blobs,
-                  isDark: isDark,
-                  intensity: widget.intensity,
+              ExcludeSemantics(
+                child: CustomPaint(
+                  painter: _AuroraPainter(
+                    t: t,
+                    colors: blobs,
+                    isDark: isDark,
+                    intensity: widget.intensity,
+                  ),
                 ),
               ),
               widget.child,

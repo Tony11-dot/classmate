@@ -215,6 +215,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
               suffixIcon: _searchCtrl.text.isEmpty
                   ? null
                   : IconButton(
+                      tooltip: l.a11yClear,
                       icon: const Icon(Icons.close_rounded),
                       onPressed: () {
                         _searchCtrl.clear();
@@ -425,6 +426,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                 child: Row(
                   children: [
                     IconButton(
+                      tooltip: l.a11yBack,
                       icon: const Icon(Icons.arrow_back_ios_new_rounded),
                       onPressed: () => Navigator.of(context).maybePop(),
                     ),
@@ -809,6 +811,7 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
                 suffixIcon: _searchCtrl.text.isEmpty
                     ? null
                     : IconButton(
+                        tooltip: l.a11yClear,
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () => _searchCtrl.clear(),
                       ),
@@ -982,6 +985,7 @@ class _EditAssessmentSheetState extends ConsumerState<_EditAssessmentSheet> {
                 children: [
                   Expanded(child: Text(l.gradesEditGradeTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
                   IconButton(
+                    tooltip: l.a11yDelete,
                     icon: Icon(Icons.delete_outline_rounded, color: cs.error),
                     onPressed: _busy ? null : _delete,
                   ),

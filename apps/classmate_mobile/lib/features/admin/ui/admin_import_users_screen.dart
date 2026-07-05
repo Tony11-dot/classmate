@@ -537,6 +537,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
           width: 40,
           child: IconButton(
             icon: Icon(Icons.close_rounded, color: cs.onSurfaceVariant, size: 20),
+            tooltip: AppLocalizations.of(context)!.a11yClose,
             onPressed: _rows.length <= 1 ? null : () => _removeRow(i),
           ),
         ),
@@ -569,6 +570,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
             ),
             IconButton(
               icon: Icon(Icons.close_rounded, color: cs.onSurfaceVariant),
+              tooltip: l.a11yClose,
               onPressed: _rows.length <= 1 ? null : () => _removeRow(i),
             ),
           ]),
@@ -625,7 +627,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
         return null;
       case _UStatus.checking:
         return const Padding(
-          padding: EdgeInsets.only(right: 8),
+          padding: EdgeInsetsDirectional.only(end: 8),
           child: SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
         );
       case _UStatus.available:

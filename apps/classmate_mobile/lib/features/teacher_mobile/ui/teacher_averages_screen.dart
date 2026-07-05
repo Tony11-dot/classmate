@@ -156,6 +156,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
       backgroundColor: cs.surface,
       appBar: AppBar(
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -226,10 +227,12 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                   ),
                   IconButton(
+                    tooltip: l.a11yEdit,
                     icon: const Icon(Icons.edit_rounded, size: 20),
                     onPressed: () => _openEditor(existing: a),
                   ),
                   IconButton(
+                    tooltip: l.a11yDelete,
                     icon: Icon(Icons.delete_outline_rounded, size: 20, color: cs.error),
                     onPressed: () => _delete(a),
                   ),
@@ -751,6 +754,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
                 ),
                 if (_formats.length > 1)
                   IconButton(
+                    tooltip: l.a11yRemove,
                     visualDensity: VisualDensity.compact,
                     icon: Icon(Icons.close_rounded, size: 20, color: cs.error),
                     onPressed: () => setState(() => _formats.removeAt(index).dispose()),
@@ -829,6 +833,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
             ),
           ),
           IconButton(
+            tooltip: l.a11yRemove,
             icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
             onPressed: f.components.length <= 1
                 ? null

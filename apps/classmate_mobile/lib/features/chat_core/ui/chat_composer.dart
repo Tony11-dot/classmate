@@ -388,7 +388,7 @@ class ChatComposer extends StatelessWidget {
                 ? Builder(
                     key: const ValueKey('left_add_button'),
                     builder: (buttonContext) => Padding(
-                      padding: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsetsDirectional.only(end: 6),
                       child: SizedBox(
                         width: 40,
                         height: 40,

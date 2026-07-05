@@ -649,7 +649,7 @@ class ChatMessageBubble extends StatelessWidget {
           children: [
             if (showName && !isMine)
               Padding(
-                padding: const EdgeInsets.only(bottom: 3, left: 2),
+                padding: const EdgeInsetsDirectional.only(bottom: 3, start: 2),
                 child: Text(
                   senderLabel,
                   style: TextStyle(
@@ -1420,6 +1420,7 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                       child: Row(
                         children: [
                           IconButton(
+                            tooltip: AppLocalizations.of(context)!.a11yBack,
                             icon: const Icon(Icons.arrow_back_ios_new_rounded,
                                 color: Colors.white),
                             onPressed: () => Navigator.of(context).pop(),

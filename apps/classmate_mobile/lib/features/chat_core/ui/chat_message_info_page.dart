@@ -130,6 +130,7 @@ class ChatMessageInfoPage extends StatelessWidget {
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: l.a11yBack,
                     onPressed: () {
                       final cb = onBack;
                       if (cb != null) {
@@ -162,8 +163,8 @@ class ChatMessageInfoPage extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
                     child: Align(
                       alignment: info.isMine
-                          ? Alignment.topRight
-                          : Alignment.topLeft,
+                          ? AlignmentDirectional.topEnd
+                          : AlignmentDirectional.topStart,
                       child: resolvedPreview,
                     ),
                   ),
@@ -306,7 +307,7 @@ class _ParticipantSection extends StatelessWidget {
       children: [
         // ── Section header ───────────────────────────────────────────────
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          padding: const EdgeInsetsDirectional.only(start: 4, bottom: 8),
           child: Row(
             children: [
               Icon(icon, size: 16, color: iconColor),
@@ -499,7 +500,7 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
         children: [
           if (widget.senderLabel.isNotEmpty && !widget.isMine) ...[
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Text(widget.senderLabel,
                   style: tt.labelLarge?.copyWith(
                       fontWeight: FontWeight.w800, color: cs.primary)),
@@ -508,7 +509,7 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
           ],
           Align(
             alignment:
-                widget.isMine ? Alignment.centerRight : Alignment.centerLeft,
+                widget.isMine ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
             child: Text(visibleText,
                 style: tt.bodyLarge
                     ?.copyWith(fontWeight: FontWeight.w600, color: bodyColor)),
@@ -517,7 +518,7 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
             const SizedBox(height: 8),
             Align(
               alignment:
-                  widget.isMine ? Alignment.centerRight : Alignment.centerLeft,
+                  widget.isMine ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
               child: InkWell(
                 borderRadius: BorderRadius.circular(999),
                 onTap: () => setState(() => _expanded = !_expanded),
@@ -535,7 +536,7 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
           if (widget.meta.isNotEmpty) ...[
             const SizedBox(height: 6),
             Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerEnd,
               child: Text(widget.meta,
                   style: tt.bodySmall?.copyWith(color: metaColor)),
             ),

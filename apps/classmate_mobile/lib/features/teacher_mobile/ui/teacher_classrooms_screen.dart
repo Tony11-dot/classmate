@@ -193,6 +193,7 @@ class _TeacherClassroomsScreenState
                   suffixIcon: _searchCtl.text.isEmpty
                       ? null
                       : IconButton(
+                          tooltip: l.a11yClear,
                           icon: const Icon(Icons.close_rounded),
                           onPressed: () { _searchCtl.clear(); FocusScope.of(context).unfocus(); },
                         ),

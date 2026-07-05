@@ -937,9 +937,9 @@ class _FilterChipItem extends StatelessWidget {
     return GestureDetector(
       onTap: disabled ? null : onTap,
       child: Container(
-        padding: EdgeInsets.only(
-          left: 14,
-          right: showRemove ? 8 : 14,
+        padding: EdgeInsetsDirectional.only(
+          start: 14,
+          end: showRemove ? 8 : 14,
           top: 8,
           bottom: 8,
         ),
@@ -1584,6 +1584,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  tooltip: l.a11yBack,
                   onPressed: () => Navigator.maybePop(context),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
@@ -2378,9 +2379,13 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
                       fontWeight: FontWeight.w700, color: cs.primary)),
               const Spacer(),
               if (widget.onRemove != null)
-                GestureDetector(
-                  onTap: widget.onRemove,
-                  child: Icon(Icons.close_rounded, size: 18, color: cs.onSurfaceVariant),
+                Semantics(
+                  button: true,
+                  label: l.a11yClose,
+                  child: GestureDetector(
+                    onTap: widget.onRemove,
+                    child: Icon(Icons.close_rounded, size: 18, color: cs.onSurfaceVariant),
+                  ),
                 ),
             ],
           ),
@@ -3088,7 +3093,7 @@ class _AudienceEditorState extends State<_AudienceEditor> {
             ),
           const SizedBox(height: 8),
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: TextButton.icon(
               onPressed: _openAddSheet,
               icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
@@ -3814,7 +3819,7 @@ class _PeriodColorRowState extends State<_PeriodColorRow> {
                       final hex = colorToHex(c);
                       final isSelected = hasOverride && sameRgb(parseSubjectColor(widget.colorOverride)!, c);
                       return Padding(
-                        padding: const EdgeInsets.only(right: 6),
+                        padding: const EdgeInsetsDirectional.only(end: 6),
                         child: _MiniSwatch(
                           color: c,
                           selected: isSelected,
@@ -3954,6 +3959,7 @@ class _SubjectPickerField extends StatelessWidget {
             if (hasValue)
               IconButton(
                 icon: Icon(Icons.clear_rounded, size: 18, color: cs.onSurfaceVariant),
+                tooltip: AppLocalizations.of(context)!.a11yClear,
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints.tightFor(width: 32, height: 32),

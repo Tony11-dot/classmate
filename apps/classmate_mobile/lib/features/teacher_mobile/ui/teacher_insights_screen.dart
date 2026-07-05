@@ -221,6 +221,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
+                        tooltip: l.a11yClear,
                         icon: const Icon(Icons.clear_rounded, size: 18),
                         onPressed: () {
                           _searchCtrl.clear();

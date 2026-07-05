@@ -11012,4 +11012,172 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get hubClass => 'Class';
+
+  @override
+  String get a11yBack => 'Назад';
+
+  @override
+  String get a11yClose => 'Закрыть';
+
+  @override
+  String get a11yCancel => 'Отмена';
+
+  @override
+  String get a11yDone => 'Готово';
+
+  @override
+  String get a11ySave => 'Сохранить';
+
+  @override
+  String get a11yEdit => 'Изменить';
+
+  @override
+  String get a11yDelete => 'Удалить';
+
+  @override
+  String get a11yRemove => 'Убрать';
+
+  @override
+  String get a11yAdd => 'Добавить';
+
+  @override
+  String get a11yCreate => 'Создать';
+
+  @override
+  String get a11ySend => 'Отправить';
+
+  @override
+  String get a11ySearch => 'Поиск';
+
+  @override
+  String get a11yClear => 'Очистить';
+
+  @override
+  String get a11yFilter => 'Фильтр';
+
+  @override
+  String get a11ySort => 'Сортировка';
+
+  @override
+  String get a11yMore => 'Ещё';
+
+  @override
+  String get a11yMenu => 'Меню';
+
+  @override
+  String get a11yRefresh => 'Обновить';
+
+  @override
+  String get a11yRetry => 'Повторить';
+
+  @override
+  String get a11yShare => 'Поделиться';
+
+  @override
+  String get a11yCopy => 'Копировать';
+
+  @override
+  String get a11yDownload => 'Скачать';
+
+  @override
+  String get a11yUpload => 'Загрузить';
+
+  @override
+  String get a11yAttach => 'Прикрепить файл';
+
+  @override
+  String get a11yAddPhoto => 'Добавить фото';
+
+  @override
+  String get a11yCamera => 'Камера';
+
+  @override
+  String get a11yMicrophone => 'Голосовой ввод';
+
+  @override
+  String get a11yPlay => 'Воспроизвести';
+
+  @override
+  String get a11yPause => 'Пауза';
+
+  @override
+  String get a11yNext => 'Далее';
+
+  @override
+  String get a11yPrevious => 'Назад';
+
+  @override
+  String get a11yExpand => 'Развернуть';
+
+  @override
+  String get a11yCollapse => 'Свернуть';
+
+  @override
+  String get a11yShow => 'Показать';
+
+  @override
+  String get a11yHide => 'Скрыть';
+
+  @override
+  String get a11ySettings => 'Настройки';
+
+  @override
+  String get a11yProfile => 'Профиль';
+
+  @override
+  String get a11yNotifications => 'Уведомления';
+
+  @override
+  String get a11yHelp => 'Помощь';
+
+  @override
+  String get a11yInfo => 'Подробнее';
+
+  @override
+  String get a11yFavorite => 'В избранное';
+
+  @override
+  String get a11yPin => 'Закрепить';
+
+  @override
+  String get a11yUnpin => 'Открепить';
+
+  @override
+  String get a11yMute => 'Отключить звук';
+
+  @override
+  String get a11yUnmute => 'Включить звук';
+
+  @override
+  String get a11yMarkRead => 'Отметить как прочитанное';
+
+  @override
+  String get a11yNewChat => 'Новый чат';
+
+  @override
+  String get a11yNewMessage => 'Новое сообщение';
+
+  @override
+  String get a11yEmoji => 'Эмодзи';
+
+  @override
+  String get a11ySelectDate => 'Выбрать дату';
+
+  @override
+  String get a11yLogout => 'Выйти';
+
+  @override
+  String get a11yAddAccount => 'Добавить аккаунт';
+
+  @override
+  String get a11yShowPassword => 'Показать пароль';
+
+  @override
+  String get a11yHidePassword => 'Скрыть пароль';
+
+  @override
+  String get a11yScrollToBottom => 'Прокрутить вниз';
+
+  @override
+  String get a11yOpen => 'Открыть';
 }

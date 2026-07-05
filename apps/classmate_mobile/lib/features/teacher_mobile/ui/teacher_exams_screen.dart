@@ -265,6 +265,7 @@ class _ExamCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final accentColor = isUpcoming ? cs.primary : cs.secondary;
 
     final title = exam['title'] as String? ?? '';
@@ -350,12 +351,14 @@ class _ExamCard extends StatelessWidget {
                       constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                     ),
                   IconButton(
+                    tooltip: l.a11yEdit,
                     icon: const Icon(Icons.edit_rounded, size: 16),
                     onPressed: onEdit,
                     padding: const EdgeInsets.all(4),
                     constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                   ),
                   IconButton(
+                    tooltip: l.a11yDelete,
                     icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error),
                     onPressed: onDelete,
                     padding: const EdgeInsets.all(4),

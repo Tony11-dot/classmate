@@ -303,16 +303,20 @@ class MainDrawer extends ConsumerWidget {
                   // already appears in the dedicated branding row above, so
                   // mirroring it here just doubled the visual noise.
                   if (!permanent)
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: cs.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(14),
+                    Semantics(
+                      button: true,
+                      label: l.a11yClose,
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Center(child: ClassMateIcon(size: 32)),
                         ),
-                        child: const Center(child: ClassMateIcon(size: 32)),
                       ),
                     ),
                 ],

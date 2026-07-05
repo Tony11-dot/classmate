@@ -688,6 +688,7 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
                 if (_drillRole != null)
                   IconButton(
                     icon: const Icon(Icons.arrow_back_rounded),
+                    tooltip: l.a11yBack,
                     onPressed: () => setState(() {
                       _drillRole = null;
                       _userQuery = '';
@@ -1908,7 +1909,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   ('ru', '🇷🇺', 'RU'),
                 ])
                   Padding(
-                    padding: const EdgeInsets.only(right: 6),
+                    padding: const EdgeInsetsDirectional.only(end: 6),
                     child: ChoiceChip(
                       label: Text('${entry.$2}  ${entry.$3}'),
                       selected: _lang == entry.$1,

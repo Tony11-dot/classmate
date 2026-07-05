@@ -232,7 +232,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
                 children: chips
                     .map(
                       (subject) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsetsDirectional.only(end: 8),
                         child: ChoiceChip(
                           label: Text(
                             subject == _allSubjectsFilter

@@ -10970,4 +10970,172 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get hubClass => 'الصف';
+
+  @override
+  String get a11yBack => 'رجوع';
+
+  @override
+  String get a11yClose => 'إغلاق';
+
+  @override
+  String get a11yCancel => 'إلغاء';
+
+  @override
+  String get a11yDone => 'تم';
+
+  @override
+  String get a11ySave => 'حفظ';
+
+  @override
+  String get a11yEdit => 'تعديل';
+
+  @override
+  String get a11yDelete => 'حذف';
+
+  @override
+  String get a11yRemove => 'إزالة';
+
+  @override
+  String get a11yAdd => 'إضافة';
+
+  @override
+  String get a11yCreate => 'إنشاء';
+
+  @override
+  String get a11ySend => 'إرسال';
+
+  @override
+  String get a11ySearch => 'بحث';
+
+  @override
+  String get a11yClear => 'مسح';
+
+  @override
+  String get a11yFilter => 'تصفية';
+
+  @override
+  String get a11ySort => 'فرز';
+
+  @override
+  String get a11yMore => 'خيارات إضافية';
+
+  @override
+  String get a11yMenu => 'القائمة';
+
+  @override
+  String get a11yRefresh => 'تحديث';
+
+  @override
+  String get a11yRetry => 'إعادة المحاولة';
+
+  @override
+  String get a11yShare => 'مشاركة';
+
+  @override
+  String get a11yCopy => 'نسخ';
+
+  @override
+  String get a11yDownload => 'تنزيل';
+
+  @override
+  String get a11yUpload => 'رفع';
+
+  @override
+  String get a11yAttach => 'إرفاق ملف';
+
+  @override
+  String get a11yAddPhoto => 'إضافة صورة';
+
+  @override
+  String get a11yCamera => 'الكاميرا';
+
+  @override
+  String get a11yMicrophone => 'إدخال صوتي';
+
+  @override
+  String get a11yPlay => 'تشغيل';
+
+  @override
+  String get a11yPause => 'إيقاف مؤقت';
+
+  @override
+  String get a11yNext => 'التالي';
+
+  @override
+  String get a11yPrevious => 'السابق';
+
+  @override
+  String get a11yExpand => 'توسيع';
+
+  @override
+  String get a11yCollapse => 'طي';
+
+  @override
+  String get a11yShow => 'إظهار';
+
+  @override
+  String get a11yHide => 'إخفاء';
+
+  @override
+  String get a11ySettings => 'الإعدادات';
+
+  @override
+  String get a11yProfile => 'الملف الشخصي';
+
+  @override
+  String get a11yNotifications => 'الإشعارات';
+
+  @override
+  String get a11yHelp => 'مساعدة';
+
+  @override
+  String get a11yInfo => 'التفاصيل';
+
+  @override
+  String get a11yFavorite => 'المفضلة';
+
+  @override
+  String get a11yPin => 'تثبيت';
+
+  @override
+  String get a11yUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get a11yMute => 'كتم';
+
+  @override
+  String get a11yUnmute => 'إلغاء الكتم';
+
+  @override
+  String get a11yMarkRead => 'وضع علامة كمقروء';
+
+  @override
+  String get a11yNewChat => 'محادثة جديدة';
+
+  @override
+  String get a11yNewMessage => 'رسالة جديدة';
+
+  @override
+  String get a11yEmoji => 'رمز تعبيري';
+
+  @override
+  String get a11ySelectDate => 'اختيار التاريخ';
+
+  @override
+  String get a11yLogout => 'تسجيل الخروج';
+
+  @override
+  String get a11yAddAccount => 'إضافة حساب';
+
+  @override
+  String get a11yShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get a11yHidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get a11yScrollToBottom => 'التمرير إلى الأسفل';
+
+  @override
+  String get a11yOpen => 'فتح';
 }

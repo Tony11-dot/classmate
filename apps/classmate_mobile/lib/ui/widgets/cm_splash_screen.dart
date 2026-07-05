@@ -186,7 +186,7 @@ class _CmSplashScreenState extends State<CmSplashScreen>
                     // Cursor — blinks softly via sine-wave opacity from
                     // the independent _cursorBlink controller.
                     Padding(
-                      padding: const EdgeInsets.only(left: 2),
+                      padding: const EdgeInsetsDirectional.only(start: 2),
                       child: Opacity(
                         opacity: cursorOpacity,
                         child: Container(

@@ -1694,7 +1694,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     );
 
     return Align(
-      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: mine ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         child: ConstrainedBox(
@@ -1749,7 +1749,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final isImage = a.isImage;
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsetsDirectional.only(end: 8),
       child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         borderRadius: BorderRadius.circular(12),

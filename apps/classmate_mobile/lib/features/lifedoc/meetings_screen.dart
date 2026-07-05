@@ -1241,10 +1241,12 @@ class _DetailTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
         IconButton.filledTonal(
           onPressed: onBack,
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),
       ],

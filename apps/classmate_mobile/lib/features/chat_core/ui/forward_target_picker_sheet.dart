@@ -202,6 +202,7 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
                 suffixIcon: _searchCtrl.text.isEmpty
                     ? null
                     : IconButton(
+                        tooltip: l.a11yClear,
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () { _searchCtrl.clear(); setState(() => _query = ''); },
                       ),

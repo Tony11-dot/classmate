@@ -423,8 +423,8 @@ class _SolutionUploadSheetBodyState
       behavior: HitTestBehavior.opaque,
       onTap: () {},  // swallow stray taps
       child: Padding(
-        padding: EdgeInsets.only(
-          left: 16, right: 16, top: 8,
+        padding: EdgeInsetsDirectional.only(
+          start: 16, end: 16, top: 8,
           bottom: bottomInset + 20,
         ),
         child: ListView(
@@ -624,7 +624,7 @@ class _SolutionUploadSheetBodyState
           if (hasFailed) ...[
             const SizedBox(height: 10),
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: OutlinedButton.icon(
                 onPressed: _retryFailed,
                 icon: const Icon(Icons.refresh_rounded),

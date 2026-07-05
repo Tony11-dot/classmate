@@ -245,7 +245,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
           labelText: req ? '$label *' : label,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: Text(label.split(' ').last, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
           ),
           suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
@@ -288,6 +288,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        tooltip: l.a11yBack,
                         onPressed: () => Navigator.maybePop(context),
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
@@ -422,6 +423,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                                      tooltip: l.a11yRemove,
                                       onPressed: () => setState(() => _principalRanges.removeAt(i)),
                                     ),
                                   ],
@@ -591,6 +593,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                                         subtitle: Text(child['email']?.toString() ?? child['username']?.toString() ?? ''),
                                         trailing: IconButton(
                                           icon: Icon(Icons.link_off_rounded, size: 18, color: cs.error),
+                                          tooltip: l.a11yRemove,
                                           onPressed: () => _removeChild(childId),
                                         ),
                                       ),
@@ -662,6 +665,7 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
               labelText: l.adminEditUserNewPasswordLabel,
               suffixIcon: IconButton(
                 icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                tooltip: _obscure ? l.a11yShowPassword : l.a11yHidePassword,
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),
             ),

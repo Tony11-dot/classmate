@@ -1358,7 +1358,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -1659,9 +1659,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                   ),
             ),
           ),
-          GestureDetector(
-            onTap: _cancelEdit,
-            child: Icon(Icons.close_rounded, size: 16, color: scheme.primary),
+          Semantics(
+            button: true,
+            label: l.a11yCancel,
+            child: GestureDetector(
+              onTap: _cancelEdit,
+              child: Icon(Icons.close_rounded, size: 16, color: scheme.primary),
+            ),
           ),
         ],
       ),
@@ -1954,7 +1958,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                       Opacity(
                         opacity: (swipeDx / 44).clamp(0.0, 1.0),
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 4),
+                          padding: const EdgeInsetsDirectional.only(end: 4),
                           child: Container(
                             width: 28,
                             height: 28,

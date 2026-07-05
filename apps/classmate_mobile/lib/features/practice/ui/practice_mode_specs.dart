@@ -265,7 +265,7 @@ Widget practiceModePreview(PracticeMode mode, Color accent) {
         children: List.generate(
           3,
           (_) => Padding(
-            padding: const EdgeInsets.only(right: 3),
+            padding: const EdgeInsetsDirectional.only(end: 3),
             child: Container(
               width: 6,
               height: 6,

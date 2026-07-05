@@ -469,6 +469,7 @@ class _TeacherAddAssignmentScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -479,6 +480,7 @@ class _TeacherAddAssignmentScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
@@ -713,6 +715,7 @@ class _TeacherAddAssignmentScreenState
                             prefixIcon: const Icon(Icons.calendar_today_rounded),
                             suffixIcon: _dueDate != null
                                 ? IconButton(
+                                    tooltip: l.a11yClear,
                                     icon: const Icon(Icons.clear_rounded, size: 18),
                                     onPressed: () => setState(() => _dueDate = null),
                                   )
@@ -804,6 +807,7 @@ class _TeacherAddAssignmentScreenState
                                   ),
                                 ),
                                 IconButton(
+                                  tooltip: l.a11yRemove,
                                   icon: Icon(Icons.close_rounded, size: 16, color: cs.error),
                                   onPressed: () => setState(() => _attachments.removeAt(i)),
                                   padding: EdgeInsets.zero,

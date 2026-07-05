@@ -136,10 +136,12 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
                                           ),
                                           IconButton(
                                             icon: const Icon(Icons.edit_rounded, size: 20),
+                                            tooltip: l.a11yEdit,
                                             onPressed: () => _openEditor(existing: s),
                                           ),
                                           IconButton(
                                             icon: Icon(Icons.delete_outline_rounded, size: 20, color: cs.error),
+                                            tooltip: l.a11yDelete,
                                             onPressed: () => _delete(s),
                                           ),
                                         ],
@@ -362,6 +364,7 @@ class _GradeScaleEditorSheetState extends ConsumerState<_GradeScaleEditorSheet> 
                         ),
                         IconButton(
                           icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                          tooltip: l.a11yRemove,
                           onPressed: _labels.length <= 1 ? null : () => setState(() {
                             _labels.removeAt(i).dispose();
                           }),

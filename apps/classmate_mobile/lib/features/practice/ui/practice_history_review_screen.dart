@@ -282,6 +282,7 @@ class _PracticeHistoryReviewScreenState
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: l.a11yPrevious,
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
                     onPressed: _index > 0
                         ? () => setState(() => _index--)
@@ -296,6 +297,7 @@ class _PracticeHistoryReviewScreenState
                     ),
                   ),
                   IconButton(
+                    tooltip: l.a11yNext,
                     icon: const Icon(Icons.arrow_forward_ios_rounded),
                     onPressed: _index < questions.length - 1
                         ? () => setState(() => _index++)

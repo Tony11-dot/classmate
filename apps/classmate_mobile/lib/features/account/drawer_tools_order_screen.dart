@@ -58,6 +58,7 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),

@@ -152,7 +152,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               ),
               child: Row(
                 children: [
-                  _navBtn(context, icon: Icons.chevron_left_rounded, onTap: () => _shiftDay(-1)),
+                  Semantics(button: true, label: l.a11yPrevious, child: _navBtn(context, icon: Icons.chevron_left_rounded, onTap: () => _shiftDay(-1))),
                   const SizedBox(width: 10),
                   Expanded(
                     child: InkWell(
@@ -187,7 +187,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  _navBtn(context, icon: Icons.chevron_right_rounded, onTap: () => _shiftDay(1)),
+                  Semantics(button: true, label: l.a11yNext, child: _navBtn(context, icon: Icons.chevron_right_rounded, onTap: () => _shiftDay(1))),
                 ],
               ),
             ),

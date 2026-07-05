@@ -389,6 +389,7 @@ class _TeacherNewAnnouncementScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/announcements'),
@@ -1224,6 +1225,7 @@ class _ParentTileState extends State<_ParentTile> {
                   ),
                   if (hasChildren)
                     IconButton(
+                      tooltip: _expanded ? l.a11yCollapse : l.a11yExpand,
                       icon: Icon(
                         _expanded
                             ? Icons.expand_less_rounded
@@ -1392,6 +1394,7 @@ class _MiniChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 4, 6, 4),
       decoration: BoxDecoration(
@@ -1408,11 +1411,15 @@ class _MiniChip extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: cs.onPrimaryContainer)),
           const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: Icon(Icons.close_rounded,
-                size: 14,
-                color: cs.onPrimaryContainer),
+          Semantics(
+            button: true,
+            label: l.a11yRemove,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Icon(Icons.close_rounded,
+                  size: 14,
+                  color: cs.onPrimaryContainer),
+            ),
           ),
         ],
       ),

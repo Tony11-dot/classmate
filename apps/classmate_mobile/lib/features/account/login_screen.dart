@@ -344,6 +344,7 @@ class _LoginCard extends StatelessWidget {
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => onSubmit(),
             suffix: IconButton(
+              tooltip: obscure ? l.a11yShowPassword : l.a11yHidePassword,
               icon: Icon(
                 obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
                 size: 20,
@@ -354,7 +355,7 @@ class _LoginCard extends StatelessWidget {
           ),
 
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerEnd,
             child: TextButton(
               onPressed: loading ? null : () => GoRouter.of(context).push('/forgot-password'),
               style: TextButton.styleFrom(

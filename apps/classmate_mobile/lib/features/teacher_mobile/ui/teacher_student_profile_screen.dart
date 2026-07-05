@@ -89,6 +89,7 @@ class _TeacherStudentProfileScreenState
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: AppLocalizations.of(context)!.a11yBack,
                     onPressed: () { if (context.canPop()) context.pop(); },
                     icon: const Icon(Icons.arrow_back_rounded),
                     style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),

@@ -276,18 +276,22 @@ class _ExamDetailBody extends StatelessWidget {
             // ── back button ──
             Row(
               children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => context.pop(),
-                  child: SizedBox(
-                    width: 44,
-                    height: 44,
-                    child: LiquidGlassCard(
-                      borderRadius: BorderRadius.circular(16),
-                      color: cs.surfaceContainerHigh,
-                      padding: EdgeInsets.zero,
-                      border: Border.all(color: cs.outlineVariant),
-                      child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
+                Semantics(
+                  button: true,
+                  label: l.a11yBack,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => context.pop(),
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: LiquidGlassCard(
+                        borderRadius: BorderRadius.circular(16),
+                        color: cs.surfaceContainerHigh,
+                        padding: EdgeInsets.zero,
+                        border: Border.all(color: cs.outlineVariant),
+                        child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
+                      ),
                     ),
                   ),
                 ),

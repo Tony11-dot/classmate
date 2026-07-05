@@ -562,7 +562,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         Widget sectionHeader(String title, int count) {
           final cs = Theme.of(context).colorScheme;
           return Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4, left: 4),
+            padding: const EdgeInsetsDirectional.only(top: 12, bottom: 4, start: 4),
             child: Text(l.classroomDetailSectionHeader(title, count),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -862,6 +862,7 @@ class _SimpleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final card = LiquidGlassCard(
       padding: const EdgeInsets.all(12),
@@ -942,6 +943,7 @@ class _SimpleCard extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
               onPressed: onDelete,
+              tooltip: l.a11yDelete,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               style: IconButton.styleFrom(padding: EdgeInsets.zero),

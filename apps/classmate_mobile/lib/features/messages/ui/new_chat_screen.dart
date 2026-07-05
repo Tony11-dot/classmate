@@ -109,6 +109,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   Row(
                     children: [
                       IconButton(
+                        tooltip: l.a11yBack,
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.arrow_back_ios_new_rounded),
                         style: IconButton.styleFrom(padding: const EdgeInsets.all(8)),

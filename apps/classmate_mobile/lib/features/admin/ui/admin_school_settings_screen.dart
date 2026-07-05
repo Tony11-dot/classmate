@@ -689,7 +689,7 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
             // sees "something's happening" feedback after an action.
             if (_saving)
               const Padding(
-                padding: EdgeInsets.only(left: 8),
+                padding: EdgeInsetsDirectional.only(start: 8),
                 child: SizedBox.square(
                   dimension: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
@@ -760,6 +760,7 @@ class _SubjectSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -774,7 +775,7 @@ class _SubjectSection extends StatelessWidget {
         child: ListTile(
           dense: true,
           onTap: onTap,
-          contentPadding: const EdgeInsets.only(left: 16, right: 4),
+          contentPadding: const EdgeInsetsDirectional.only(start: 16, end: 4),
           leading: Container(
             width: 32,
             height: 32,
@@ -804,16 +805,19 @@ class _SubjectSection extends StatelessWidget {
             children: [
               IconButton(
                 icon: Icon(Icons.arrow_upward_rounded, size: 18, color: onMoveUp != null ? cs.onSurfaceVariant : cs.outlineVariant),
+                tooltip: l.a11yPrevious,
                 onPressed: onMoveUp,
                 visualDensity: VisualDensity.compact,
               ),
               IconButton(
                 icon: Icon(Icons.arrow_downward_rounded, size: 18, color: onMoveDown != null ? cs.onSurfaceVariant : cs.outlineVariant),
+                tooltip: l.a11yNext,
                 onPressed: onMoveDown,
                 visualDensity: VisualDensity.compact,
               ),
               IconButton(
                 icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
+                tooltip: l.commonDelete,
                 onPressed: onDelete,
                 visualDensity: VisualDensity.compact,
               ),
@@ -1054,9 +1058,13 @@ class _BellPeriodRow extends StatelessWidget {
           ],
           if (onDelete != null) ...[
             const SizedBox(width: 4),
-            GestureDetector(
-              onTap: onDelete,
-              child: Icon(Icons.remove_circle_outline_rounded, size: 18, color: cs.error),
+            Semantics(
+              button: true,
+              label: l.a11yRemove,
+              child: GestureDetector(
+                onTap: onDelete,
+                child: Icon(Icons.remove_circle_outline_rounded, size: 18, color: cs.error),
+              ),
             ),
           ],
         ],

@@ -386,6 +386,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
+                tooltip: AppLocalizations.of(context)!.a11yPrevious,
                 onPressed: () async {
                   final back = pos - const Duration(seconds: 10);
                   await c.seekTo(back.isNegative ? Duration.zero : back);
@@ -402,6 +403,9 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
+                  tooltip: c.value.isPlaying
+                      ? AppLocalizations.of(context)!.a11yPause
+                      : AppLocalizations.of(context)!.a11yPlay,
                   onPressed: () async {
                     if (c.value.isPlaying) {
                       await c.pause();
@@ -419,6 +423,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
               ),
               const SizedBox(width: 10),
               IconButton(
+                tooltip: AppLocalizations.of(context)!.a11yNext,
                 onPressed: () async {
                   final next = pos + const Duration(seconds: 10);
                   await c.seekTo(next > dur ? dur : next);
@@ -531,7 +536,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         actions: [
           if (_paths.isNotEmpty)
             Container(
-              margin: const EdgeInsets.only(right: 12),
+              margin: const EdgeInsetsDirectional.only(end: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white,

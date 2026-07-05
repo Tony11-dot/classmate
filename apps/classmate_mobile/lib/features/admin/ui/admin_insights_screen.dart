@@ -88,6 +88,7 @@ class _AdminInsightsScreenState extends ConsumerState<AdminInsightsScreen> {
                   ? null
                   : IconButton(
                       icon: const Icon(Icons.close_rounded),
+                      tooltip: l.a11yClear,
                       onPressed: () {
                         _searchCtrl.clear();
                         _load('');
@@ -244,6 +245,7 @@ class _AdminStudentGradesScreenState extends ConsumerState<AdminStudentGradesScr
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          tooltip: l.a11yBack,
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),

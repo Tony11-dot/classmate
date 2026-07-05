@@ -566,6 +566,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                   child: Row(
                     children: [
                       IconButton(
+                        tooltip: l.a11yPrevious,
                         icon: const Icon(Icons.arrow_back_ios_new_rounded),
                         onPressed: _reviewIndex > 0
                             ? () => setState(() => _reviewIndex--)
@@ -580,6 +581,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                         ),
                       ),
                       IconButton(
+                        tooltip: l.a11yNext,
                         icon: const Icon(Icons.arrow_forward_ios_rounded),
                         onPressed: _reviewIndex < reviewQuestions.length - 1
                             ? () => setState(() => _reviewIndex++)

@@ -1597,20 +1597,25 @@ class _DetailTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onBack,
-          child: SizedBox(
-            width: 44,
-            height: 44,
-            child: LiquidGlassCard(
-              padding: EdgeInsets.zero,
-              borderRadius: BorderRadius.circular(16),
-              color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
-              child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
+        Semantics(
+          button: true,
+          label: l.a11yBack,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onBack,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: LiquidGlassCard(
+                padding: EdgeInsets.zero,
+                borderRadius: BorderRadius.circular(16),
+                color: cs.surfaceContainerLow,
+                border: Border.all(color: cs.outlineVariant),
+                child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
+              ),
             ),
           ),
         ),

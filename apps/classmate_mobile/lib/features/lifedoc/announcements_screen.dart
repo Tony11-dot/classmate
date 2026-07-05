@@ -458,7 +458,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
                       ),
                       const SizedBox(height: 12),
                       Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: TextButton.icon(
                           onPressed: hasUnread
                               ? () => ref
@@ -1264,9 +1264,11 @@ class _DetailTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Row(
       children: [
         IconButton.filledTonal(
+          tooltip: l.a11yBack,
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),

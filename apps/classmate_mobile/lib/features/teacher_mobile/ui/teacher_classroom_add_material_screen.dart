@@ -140,6 +140,7 @@ class _TeacherClassroomAddMaterialScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
@@ -151,6 +152,7 @@ class _TeacherClassroomAddMaterialScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
@@ -282,6 +284,7 @@ class _TeacherClassroomAddMaterialScreenState
                             ),
                           ),
                           IconButton(
+                            tooltip: l.a11yRemove,
                             icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
                             onPressed: () => setState(() { _pickedFile = null; _url = null; }),
                             padding: EdgeInsets.zero,

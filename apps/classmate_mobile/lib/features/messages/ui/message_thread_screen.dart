@@ -360,6 +360,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   title: Row(
                     children: [
                       IconButton(
+                        tooltip: AppLocalizations.of(context)!.a11yBack,
                         onPressed: () => Navigator.of(context).maybePop(),
                         icon: const Icon(Icons.arrow_back_rounded),
                       ),
@@ -706,7 +707,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                   child: Text(widget.detail.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),
                 ),
                 if (isGroup && isAdmin)
-                  IconButton(onPressed: _renameGroup, icon: const Icon(Icons.edit_rounded, size: 18), visualDensity: VisualDensity.compact),
+                  IconButton(tooltip: l.a11yEdit, onPressed: _renameGroup, icon: const Icon(Icons.edit_rounded, size: 18), visualDensity: VisualDensity.compact),
               ],
             ),
             if (isGroup)
@@ -796,6 +797,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                         ),
                       ),
                       IconButton(
+                        tooltip: l.a11yCopy,
                         icon: const Icon(Icons.copy_rounded, size: 16),
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: _inviteCode!));
@@ -1085,6 +1087,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                     prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: _search.text.isNotEmpty
                         ? IconButton(
+                            tooltip: AppLocalizations.of(context)!.a11yClear,
                             icon: const Icon(Icons.clear_rounded),
                             onPressed: () => _search.clear(),
                           )

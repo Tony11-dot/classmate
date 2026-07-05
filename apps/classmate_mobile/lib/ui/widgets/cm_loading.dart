@@ -56,7 +56,8 @@ class _CmLoadingState extends State<CmLoading>
     final strokeColor =
         tint ?? (isDark ? Colors.white : const Color(0xFF1B2B9E));
 
-    return SizedBox(
+    return ExcludeSemantics(
+      child: SizedBox(
       width: widget.size,
       height: widget.size,
       child: AnimatedBuilder(
@@ -108,6 +109,7 @@ class _CmLoadingState extends State<CmLoading>
           );
         },
       ),
+    ),
     );
   }
 }

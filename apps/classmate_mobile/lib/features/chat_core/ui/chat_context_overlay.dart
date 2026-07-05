@@ -138,8 +138,8 @@ class ChatContextOverlay extends StatelessWidget {
                           // ── 2. Message bubble preview ─────────────
                           Align(
                             alignment: isMine
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
+                                ? AlignmentDirectional.centerEnd
+                                : AlignmentDirectional.centerStart,
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 270),
                               // IgnorePointer: bubble is visual-only in overlay

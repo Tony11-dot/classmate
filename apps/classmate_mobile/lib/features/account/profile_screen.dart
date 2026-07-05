@@ -1565,6 +1565,7 @@ class _PasswordFieldState extends State<_PasswordField> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     return TextField(
       controller: widget.controller,
       autofocus: widget.autofocus,
@@ -1579,6 +1580,7 @@ class _PasswordFieldState extends State<_PasswordField> {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         suffixIcon: IconButton(
+          tooltip: _obscure ? l.a11yShowPassword : l.a11yHidePassword,
           icon: Icon(
             _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
             size: 20,

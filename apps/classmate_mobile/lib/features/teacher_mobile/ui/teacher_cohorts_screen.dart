@@ -351,6 +351,7 @@ class _RosterState extends ConsumerState<_Roster> {
               contentPadding: EdgeInsets.zero,
               title: Text('${s['name'] ?? '—'}'),
               trailing: IconButton(
+                tooltip: l.a11yRemove,
                 icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
                 onPressed: () async {
                   try {

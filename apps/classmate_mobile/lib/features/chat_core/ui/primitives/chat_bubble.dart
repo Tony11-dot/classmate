@@ -17,11 +17,11 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(
+      margin: EdgeInsetsDirectional.only(
         top: isFirst ? 6 : 2,
         bottom: isLast ? 6 : 2,
-        left: isMe ? 48 : 8,
-        right: isMe ? 8 : 48,
+        start: isMe ? 48 : 8,
+        end: isMe ? 8 : 48,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(

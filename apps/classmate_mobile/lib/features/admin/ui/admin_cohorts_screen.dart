@@ -483,6 +483,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    tooltip: l.a11yBack,
                     onPressed: widget.onBack,
                   ),
                   Expanded(
@@ -742,6 +743,7 @@ class _CohortCard extends StatelessWidget {
             if (isAdmin)
               IconButton(
                 icon: Icon(Icons.delete_outline_rounded, color: cs.error, size: 20),
+                tooltip: l.a11yDelete,
                 onPressed: onDelete,
               ),
           ],
@@ -786,6 +788,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          tooltip: AppLocalizations.of(context)!.a11yBack,
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(
@@ -1046,6 +1049,7 @@ class _RosterTile extends StatelessWidget {
         subtitle: Text(user.email, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
         trailing: IconButton(
           icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error, size: 20),
+          tooltip: AppLocalizations.of(context)!.a11yRemove,
           onPressed: onRemove,
         ),
       ),

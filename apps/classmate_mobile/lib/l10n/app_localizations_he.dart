@@ -10907,4 +10907,172 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get hubClass => 'כיתה';
+
+  @override
+  String get a11yBack => 'חזרה';
+
+  @override
+  String get a11yClose => 'סגירה';
+
+  @override
+  String get a11yCancel => 'ביטול';
+
+  @override
+  String get a11yDone => 'סיום';
+
+  @override
+  String get a11ySave => 'שמירה';
+
+  @override
+  String get a11yEdit => 'עריכה';
+
+  @override
+  String get a11yDelete => 'מחיקה';
+
+  @override
+  String get a11yRemove => 'הסרה';
+
+  @override
+  String get a11yAdd => 'הוספה';
+
+  @override
+  String get a11yCreate => 'יצירה';
+
+  @override
+  String get a11ySend => 'שליחה';
+
+  @override
+  String get a11ySearch => 'חיפוש';
+
+  @override
+  String get a11yClear => 'ניקוי';
+
+  @override
+  String get a11yFilter => 'סינון';
+
+  @override
+  String get a11ySort => 'מיון';
+
+  @override
+  String get a11yMore => 'אפשרויות נוספות';
+
+  @override
+  String get a11yMenu => 'תפריט';
+
+  @override
+  String get a11yRefresh => 'רענון';
+
+  @override
+  String get a11yRetry => 'נסה שוב';
+
+  @override
+  String get a11yShare => 'שיתוף';
+
+  @override
+  String get a11yCopy => 'העתקה';
+
+  @override
+  String get a11yDownload => 'הורדה';
+
+  @override
+  String get a11yUpload => 'העלאה';
+
+  @override
+  String get a11yAttach => 'צירוף קובץ';
+
+  @override
+  String get a11yAddPhoto => 'הוספת תמונה';
+
+  @override
+  String get a11yCamera => 'מצלמה';
+
+  @override
+  String get a11yMicrophone => 'קלט קולי';
+
+  @override
+  String get a11yPlay => 'הפעלה';
+
+  @override
+  String get a11yPause => 'השהיה';
+
+  @override
+  String get a11yNext => 'הבא';
+
+  @override
+  String get a11yPrevious => 'הקודם';
+
+  @override
+  String get a11yExpand => 'הרחבה';
+
+  @override
+  String get a11yCollapse => 'כיווץ';
+
+  @override
+  String get a11yShow => 'הצגה';
+
+  @override
+  String get a11yHide => 'הסתרה';
+
+  @override
+  String get a11ySettings => 'הגדרות';
+
+  @override
+  String get a11yProfile => 'פרופיל';
+
+  @override
+  String get a11yNotifications => 'התראות';
+
+  @override
+  String get a11yHelp => 'עזרה';
+
+  @override
+  String get a11yInfo => 'פרטים';
+
+  @override
+  String get a11yFavorite => 'מועדף';
+
+  @override
+  String get a11yPin => 'הצמדה';
+
+  @override
+  String get a11yUnpin => 'ביטול הצמדה';
+
+  @override
+  String get a11yMute => 'השתקה';
+
+  @override
+  String get a11yUnmute => 'ביטול השתקה';
+
+  @override
+  String get a11yMarkRead => 'סמן כנקרא';
+
+  @override
+  String get a11yNewChat => 'צ\'אט חדש';
+
+  @override
+  String get a11yNewMessage => 'הודעה חדשה';
+
+  @override
+  String get a11yEmoji => 'אימוג\'י';
+
+  @override
+  String get a11ySelectDate => 'בחירת תאריך';
+
+  @override
+  String get a11yLogout => 'התנתקות';
+
+  @override
+  String get a11yAddAccount => 'הוספת חשבון';
+
+  @override
+  String get a11yShowPassword => 'הצג סיסמה';
+
+  @override
+  String get a11yHidePassword => 'הסתר סיסמה';
+
+  @override
+  String get a11yScrollToBottom => 'גלול למטה';
+
+  @override
+  String get a11yOpen => 'פתיחה';
 }

@@ -187,12 +187,13 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () { if (context.canPop()) context.pop(); }),
+        leading: IconButton(tooltip: l.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () { if (context.canPop()) context.pop(); }),
         title: Text(AppLocalizations.of(context)!.teacherCreateFormTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
           TextButton(onPressed: _saving ? null : () => _save(published: false), child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft)),
@@ -399,6 +400,7 @@ class _QuestionCardState extends State<_QuestionCard> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final q = widget.question;
 
     return LiquidGlassCard(
@@ -435,6 +437,7 @@ class _QuestionCardState extends State<_QuestionCard> {
           const Icon(Icons.drag_handle_rounded, size: 20),
           const SizedBox(width: 4),
           IconButton(
+            tooltip: l.a11yDelete,
             icon: Icon(Icons.delete_outline_rounded, color: cs.error, size: 18),
             visualDensity: VisualDensity.compact,
             onPressed: widget.onDelete,
@@ -489,7 +492,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                 decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                 onChanged: (v) => setState(() => q.options[oi] = v))),
               if (q.options.length > 1)
-                IconButton(icon: const Icon(Icons.close, size: 14), visualDensity: VisualDensity.compact,
+                IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close, size: 14), visualDensity: VisualDensity.compact,
                   onPressed: () => setState(() => q.options.removeAt(oi)), padding: EdgeInsets.zero),
             ]);
           }),

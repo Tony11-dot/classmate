@@ -181,6 +181,7 @@ class _MeetingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final title = meeting['title'] as String? ?? '';
     final link = meeting['link'] as String? ?? '';
     final subject = meeting['subject'] as String? ?? '';
@@ -236,9 +237,9 @@ class _MeetingCard extends StatelessWidget {
             ],
           ])),
           Column(mainAxisSize: MainAxisSize.min, children: [
-            IconButton(icon: const Icon(Icons.edit_rounded, size: 16), onPressed: onEdit,
+            IconButton(tooltip: l.a11yEdit, icon: const Icon(Icons.edit_rounded, size: 16), onPressed: onEdit,
               padding: const EdgeInsets.all(4), constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-            IconButton(icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error), onPressed: onDelete,
+            IconButton(tooltip: l.a11yDelete, icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error), onPressed: onDelete,
               padding: const EdgeInsets.all(4), constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
           ]),
         ]),
@@ -567,7 +568,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => context.pop()),
+        leading: IconButton(tooltip: AppLocalizations.of(context)!.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => context.pop()),
         title: Text(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
@@ -658,7 +659,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     child: InputDecorator(
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context)!.teacherMeetingStartTime, border: const OutlineInputBorder(),
-                        suffixIcon: _startsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
+                        suffixIcon: _startsAt != null ? IconButton(tooltip: AppLocalizations.of(context)!.a11yClear, icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
                         _startsAt != null ? FriendlyDate.dateTime(_startsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickStartTime,
                         style: TextStyle(color: _startsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
@@ -669,7 +670,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     child: InputDecorator(
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context)!.teacherMeetingEndTime, border: const OutlineInputBorder(),
-                        suffixIcon: _endsAt != null ? IconButton(icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
+                        suffixIcon: _endsAt != null ? IconButton(tooltip: AppLocalizations.of(context)!.a11yClear, icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
                         _endsAt != null ? FriendlyDate.dateTime(_endsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickEndTime,
                         style: TextStyle(color: _endsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),

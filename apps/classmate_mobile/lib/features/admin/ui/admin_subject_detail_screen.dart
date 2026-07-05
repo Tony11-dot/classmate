@@ -104,6 +104,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  tooltip: AppLocalizations.of(context)!.a11yBack,
                   onPressed: () => Navigator.maybePop(context),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,

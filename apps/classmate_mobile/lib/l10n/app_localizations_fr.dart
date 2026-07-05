@@ -11176,4 +11176,172 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get hubClass => 'Classe';
+
+  @override
+  String get a11yBack => 'Retour';
+
+  @override
+  String get a11yClose => 'Fermer';
+
+  @override
+  String get a11yCancel => 'Annuler';
+
+  @override
+  String get a11yDone => 'Terminé';
+
+  @override
+  String get a11ySave => 'Enregistrer';
+
+  @override
+  String get a11yEdit => 'Modifier';
+
+  @override
+  String get a11yDelete => 'Supprimer';
+
+  @override
+  String get a11yRemove => 'Retirer';
+
+  @override
+  String get a11yAdd => 'Ajouter';
+
+  @override
+  String get a11yCreate => 'Créer';
+
+  @override
+  String get a11ySend => 'Envoyer';
+
+  @override
+  String get a11ySearch => 'Rechercher';
+
+  @override
+  String get a11yClear => 'Effacer';
+
+  @override
+  String get a11yFilter => 'Filtrer';
+
+  @override
+  String get a11ySort => 'Trier';
+
+  @override
+  String get a11yMore => 'Plus d\'options';
+
+  @override
+  String get a11yMenu => 'Menu';
+
+  @override
+  String get a11yRefresh => 'Actualiser';
+
+  @override
+  String get a11yRetry => 'Réessayer';
+
+  @override
+  String get a11yShare => 'Partager';
+
+  @override
+  String get a11yCopy => 'Copier';
+
+  @override
+  String get a11yDownload => 'Télécharger';
+
+  @override
+  String get a11yUpload => 'Envoyer';
+
+  @override
+  String get a11yAttach => 'Joindre un fichier';
+
+  @override
+  String get a11yAddPhoto => 'Ajouter une photo';
+
+  @override
+  String get a11yCamera => 'Appareil photo';
+
+  @override
+  String get a11yMicrophone => 'Saisie vocale';
+
+  @override
+  String get a11yPlay => 'Lire';
+
+  @override
+  String get a11yPause => 'Pause';
+
+  @override
+  String get a11yNext => 'Suivant';
+
+  @override
+  String get a11yPrevious => 'Précédent';
+
+  @override
+  String get a11yExpand => 'Développer';
+
+  @override
+  String get a11yCollapse => 'Réduire';
+
+  @override
+  String get a11yShow => 'Afficher';
+
+  @override
+  String get a11yHide => 'Masquer';
+
+  @override
+  String get a11ySettings => 'Paramètres';
+
+  @override
+  String get a11yProfile => 'Profil';
+
+  @override
+  String get a11yNotifications => 'Notifications';
+
+  @override
+  String get a11yHelp => 'Aide';
+
+  @override
+  String get a11yInfo => 'Détails';
+
+  @override
+  String get a11yFavorite => 'Favori';
+
+  @override
+  String get a11yPin => 'Épingler';
+
+  @override
+  String get a11yUnpin => 'Détacher';
+
+  @override
+  String get a11yMute => 'Muet';
+
+  @override
+  String get a11yUnmute => 'Réactiver le son';
+
+  @override
+  String get a11yMarkRead => 'Marquer comme lu';
+
+  @override
+  String get a11yNewChat => 'Nouvelle discussion';
+
+  @override
+  String get a11yNewMessage => 'Nouveau message';
+
+  @override
+  String get a11yEmoji => 'Émoji';
+
+  @override
+  String get a11ySelectDate => 'Sélectionner une date';
+
+  @override
+  String get a11yLogout => 'Se déconnecter';
+
+  @override
+  String get a11yAddAccount => 'Ajouter un compte';
+
+  @override
+  String get a11yShowPassword => 'Afficher le mot de passe';
+
+  @override
+  String get a11yHidePassword => 'Masquer le mot de passe';
+
+  @override
+  String get a11yScrollToBottom => 'Aller en bas';
+
+  @override
+  String get a11yOpen => 'Ouvrir';
 }

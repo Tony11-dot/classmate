@@ -193,6 +193,7 @@ class _SolutionsQuestionsScreenState
           overflow: TextOverflow.ellipsis,
         ),
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),

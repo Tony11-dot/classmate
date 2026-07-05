@@ -443,6 +443,7 @@ class _TeacherAddMaterialScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
@@ -588,6 +589,7 @@ class _TeacherAddMaterialScreenState
                             Expanded(child: Text(e.value, overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600))),
                             IconButton(
+                              tooltip: l.a11yRemove,
                               icon: Icon(Icons.close_rounded, size: 14, color: cs.error),
                               onPressed: () => setState(() => _links.removeAt(e.key)),
                               padding: EdgeInsets.zero,
@@ -612,6 +614,7 @@ class _TeacherAddMaterialScreenState
                             Expanded(child: Text(e.value.name, overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600))),
                             IconButton(
+                              tooltip: l.a11yRemove,
                               icon: Icon(Icons.close_rounded, size: 14, color: cs.error),
                               onPressed: () => setState(() => _files.removeAt(e.key)),
                               padding: EdgeInsets.zero,
@@ -647,6 +650,7 @@ class _TeacherAddMaterialScreenState
                           ),
                           const SizedBox(width: 4),
                           IconButton(
+                            tooltip: l.a11yClose,
                             onPressed: () { _linkCtrl.clear(); setState(() => _showLinkInput = false); },
                             icon: Icon(Icons.close_rounded, size: 16, color: cs.onSurfaceVariant),
                             padding: EdgeInsets.zero,

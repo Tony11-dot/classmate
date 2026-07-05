@@ -238,6 +238,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       ),
                     ),
                     IconButton(
+                      tooltip: l.a11yClose,
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close_rounded),
                     ),
@@ -307,7 +308,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             ),
                             children: [
                               Align(
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: Text(
                                   _modeHelpText(context, mode),
                                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -439,7 +440,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               child: Column(
                 children: [
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -599,14 +600,18 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: l.practiceSetupSectionMode,
-              trailing: GestureDetector(
-                onTap: () => _showModeInfoSheet(context),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.help_outline_rounded,
-                    size: 16,
-                    color: cs.onSurfaceVariant,
+              trailing: Semantics(
+                button: true,
+                label: l.a11yInfo,
+                child: GestureDetector(
+                  onTap: () => _showModeInfoSheet(context),
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8),
+                    child: Icon(
+                      Icons.help_outline_rounded,
+                      size: 16,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -1736,7 +1741,7 @@ class _ModeTile extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 Align(
-                  alignment: Alignment.bottomLeft,
+                  alignment: AlignmentDirectional.bottomStart,
                   child: Container(
                     height: 3,
                     width: selected ? 52 : 28,
@@ -1871,6 +1876,7 @@ class _StepperRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 7),
@@ -1892,6 +1898,7 @@ class _StepperRow extends StatelessWidget {
                 ),
               ),
               IconButton(
+                tooltip: l.a11yRemove,
                 onPressed: onMinus,
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.remove_rounded),
@@ -1926,6 +1933,7 @@ class _StepperRow extends StatelessWidget {
                 ),
               ),
               IconButton(
+                tooltip: l.a11yAdd,
                 onPressed: onPlus,
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.add_rounded),
@@ -1934,7 +1942,7 @@ class _StepperRow extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: Text(
               caption,
               style: Theme.of(

@@ -348,6 +348,7 @@ class _TeacherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final card = LiquidGlassCard(
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
@@ -370,6 +371,7 @@ class _TeacherCard extends StatelessWidget {
               if (onDelete != null) ...[
                 const SizedBox(width: 4),
                 IconButton(
+                  tooltip: l.a11yDelete,
                   icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
                   onPressed: onDelete,
                   style: IconButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(32, 32)),

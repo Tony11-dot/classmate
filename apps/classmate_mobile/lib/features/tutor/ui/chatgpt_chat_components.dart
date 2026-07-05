@@ -122,7 +122,7 @@ class ChatGptBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Align(
-        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: isUser ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxW),
           child: Padding(

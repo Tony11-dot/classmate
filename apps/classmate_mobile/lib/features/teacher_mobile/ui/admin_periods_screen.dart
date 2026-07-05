@@ -186,6 +186,7 @@ class _PeriodTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final period = (slot['period'] as num?)?.toInt() ?? 0;
@@ -234,6 +235,7 @@ class _PeriodTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
+          tooltip: l.a11yDelete,
           icon: Icon(Icons.delete_outline_rounded, color: cs.error),
           onPressed: onDelete,
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../features/lifedoc/notifications_models.dart';
+import '../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Route helper — maps notification source → app route
@@ -127,6 +128,7 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = _accentForSeverity(cs, widget.item.severity);
     final icon = _iconForSource(widget.item.source);
+    final l = AppLocalizations.of(context)!;
 
     return SlideTransition(
       position: _slide,
@@ -200,14 +202,18 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: _dismiss,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 16,
-                        color: cs.onSurfaceVariant,
+                  Semantics(
+                    button: true,
+                    label: l.a11yClose,
+                    child: GestureDetector(
+                      onTap: _dismiss,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ),

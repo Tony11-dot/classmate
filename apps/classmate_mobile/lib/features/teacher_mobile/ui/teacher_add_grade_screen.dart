@@ -586,6 +586,7 @@ class _TeacherAddGradeScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final effective = _effectiveStudents;
@@ -594,6 +595,7 @@ class _TeacherAddGradeScreenState
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
@@ -1729,6 +1731,7 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 5, 6, 5),
@@ -1749,10 +1752,14 @@ class _Chip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: Icon(Icons.close_rounded,
-                size: 15, color: cs.onPrimaryContainer),
+          Semantics(
+            button: true,
+            label: l.a11yRemove,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Icon(Icons.close_rounded,
+                  size: 15, color: cs.onPrimaryContainer),
+            ),
           ),
         ],
       ),

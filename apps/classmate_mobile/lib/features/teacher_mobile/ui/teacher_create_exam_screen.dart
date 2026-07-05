@@ -322,6 +322,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -332,6 +333,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
+          tooltip: l.a11yBack,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
@@ -500,6 +502,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                                 const SizedBox(width: 10),
                                 Expanded(child: Text(mat['title'] as String? ?? '', overflow: TextOverflow.ellipsis)),
                                 IconButton(
+                                  tooltip: l.a11yRemove,
                                   icon: Icon(Icons.close_rounded, size: 16, color: cs.error),
                                   onPressed: () => setState(() => _attachments.removeAt(i)),
                                   padding: EdgeInsets.zero,
