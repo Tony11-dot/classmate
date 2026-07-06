@@ -151,6 +151,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   Timer? _recordTicker;
   Duration _recordElapsed = Duration.zero;
   String? _recordingPath;
+  // Set in dispose() so async recorder work started before teardown never
+  // touches the disposed platform recorder (would throw "Recorder has not
+  // yet been created or has already been disposed" → fatal).
+  bool _disposed = false;
 
   // Drafts
   final List<File> _draftAttachments = <File>[];
@@ -183,6 +187,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   @override
   void dispose() {
+    _disposed = true;
     _pollTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
@@ -842,8 +847,15 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   // ─── voice recording ─────────────────────────────────────────────────────
 
   Future<void> _startRecording() async {
-    if (_recording) return;
-    final hasPermission = await _recorder.hasPermission();
+    if (_recording || _disposed) return;
+    final bool hasPermission;
+    try {
+      hasPermission = await _recorder.hasPermission();
+    } catch (_) {
+      // Recorder disposed mid-check (widget torn down) or platform denied — bail.
+      return;
+    }
+    if (_disposed) return;
     if (!hasPermission) {
       if (!mounted) return;
       await showDialog<void>(
@@ -869,10 +881,18 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     }
 
     final dir = await getTemporaryDirectory();
+    if (_disposed || !mounted) return;
     final path =
         '${dir.path}/chat-voice-${DateTime.now().millisecondsSinceEpoch}.m4a';
-    await _recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc),
-        path: path);
+    try {
+      await _recorder.start(const RecordConfig(encoder: AudioEncoder.aacLc),
+          path: path);
+    } catch (_) {
+      // Recorder was disposed (widget torn down) or the platform failed to
+      // start — never surface this as a fatal unhandled error. Reset state.
+      if (mounted) setState(() => _recording = false);
+      return;
+    }
 
     if (!mounted) return;
     _recordingPath = path;
@@ -894,7 +914,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   Future<void> _stopRecordingAndSend() async {
     if (!_recording) return;
-    final path = await _recorder.stop();
+    String? path;
+    try {
+      path = await _recorder.stop();
+    } catch (_) {
+      // Recorder disposed/failed — fall back to the tracked path below.
+    }
     _recordTicker?.cancel();
     _recordTicker = null;
     final elapsed = _recordElapsed;
