@@ -9,6 +9,83 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get commonShowPassword => 'Afficher le mot de passe';
+
+  @override
+  String get commonHidePassword => 'Masquer le mot de passe';
+
+  @override
+  String get adminEmailInvalid => 'Saisissez une adresse e-mail valide';
+
+  @override
+  String get adminPhoneInvalid => 'Saisissez un numéro de téléphone valide';
+
+  @override
+  String get adminFullNameLabel => 'Nom complet';
+
+  @override
+  String get adminHomeroomLabel => 'Classe principale';
+
+  @override
+  String get adminHomeroomNone => 'Aucune classe principale';
+
+  @override
+  String get adminHomeroomNoneAvailable =>
+      'Aucune classe disponible à attribuer';
+
+  @override
+  String get adminHomeroomHint =>
+      'Cet enseignant deviendra le professeur principal de la classe sélectionnée.';
+
+  @override
+  String get logoutConfirmTitle => 'Se déconnecter ?';
+
+  @override
+  String get logoutConfirmBody =>
+      'Vous devrez vous reconnecter pour utiliser ClassMate.';
+
+  @override
+  String get pressBackAgainToExit =>
+      'Appuyez à nouveau sur Retour pour quitter';
+
+  @override
+  String get onboardingSkip => 'Passer';
+
+  @override
+  String get onboardingNext => 'Suivant';
+
+  @override
+  String get onboardingGetStarted => 'Commencer';
+
+  @override
+  String get onboardingSlide1Title => 'Bienvenue sur ClassMate';
+
+  @override
+  String get onboardingSlide1Body =>
+      'Votre compagnon scolaire intelligent — tout pour l\'école, au même endroit.';
+
+  @override
+  String get onboardingSlide2Title => 'Découvrez NOVA';
+
+  @override
+  String get onboardingSlide2Body =>
+      'Votre tuteur IA, prêt à expliquer n\'importe quel sujet et à vous faire réviser, à tout moment.';
+
+  @override
+  String get onboardingSlide3Title => 'Gardez tout sous contrôle';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Emploi du temps, notes, présence et devoirs — toujours à jour.';
+
+  @override
+  String get onboardingSlide4Title => 'Restez connecté';
+
+  @override
+  String get onboardingSlide4Body =>
+      'Les messages et les annonces gardent élèves, enseignants et parents synchronisés.';
+
+  @override
   String get consentGateTitle => 'Avant de continuer';
 
   @override

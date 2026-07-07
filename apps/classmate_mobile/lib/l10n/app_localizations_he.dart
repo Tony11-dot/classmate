@@ -9,6 +9,78 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get commonShowPassword => 'הצגת סיסמה';
+
+  @override
+  String get commonHidePassword => 'הסתרת סיסמה';
+
+  @override
+  String get adminEmailInvalid => 'הזינו כתובת אימייל תקינה';
+
+  @override
+  String get adminPhoneInvalid => 'הזינו מספר טלפון תקין';
+
+  @override
+  String get adminFullNameLabel => 'שם מלא';
+
+  @override
+  String get adminHomeroomLabel => 'כיתת אם';
+
+  @override
+  String get adminHomeroomNone => 'ללא כיתת אם';
+
+  @override
+  String get adminHomeroomNoneAvailable => 'אין כיתות פנויות לשיוך';
+
+  @override
+  String get adminHomeroomHint => 'המורה יהפוך למחנך/ת של הכיתה שנבחרה.';
+
+  @override
+  String get logoutConfirmTitle => 'להתנתק?';
+
+  @override
+  String get logoutConfirmBody => 'תצטרכו להתחבר שוב כדי להשתמש ב-ClassMate.';
+
+  @override
+  String get pressBackAgainToExit => 'לחצו שוב על חזרה כדי לצאת';
+
+  @override
+  String get onboardingSkip => 'דילוג';
+
+  @override
+  String get onboardingNext => 'הבא';
+
+  @override
+  String get onboardingGetStarted => 'בואו נתחיל';
+
+  @override
+  String get onboardingSlide1Title => 'ברוכים הבאים ל-ClassMate';
+
+  @override
+  String get onboardingSlide1Body => 'המלווה החכם לבית הספר — הכול במקום אחד.';
+
+  @override
+  String get onboardingSlide2Title => 'הכירו את NOVA';
+
+  @override
+  String get onboardingSlide2Body =>
+      'המורה הפרטי מבוסס ה-AI שלכם, מוכן להסביר כל נושא ולתרגל אתכם בכל רגע.';
+
+  @override
+  String get onboardingSlide3Title => 'תמיד בעניינים';
+
+  @override
+  String get onboardingSlide3Body =>
+      'מערכת שעות, ציונים, נוכחות ומטלות — תמיד מעודכן.';
+
+  @override
+  String get onboardingSlide4Title => 'נשארים מחוברים';
+
+  @override
+  String get onboardingSlide4Body =>
+      'הודעות ועדכונים שומרים על תלמידים, מורים והורים מסונכרנים.';
+
+  @override
   String get consentGateTitle => 'לפני שממשיכים';
 
   @override

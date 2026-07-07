@@ -7,6 +7,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/locale/locale_controller.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/dialogs/confirm_logout.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 
@@ -325,7 +326,11 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: l.settingsLogoutSubtitle,
                 iconColor: cs.error,
                 titleColor: cs.error,
-                onTap: () => ref.read(authControllerProvider).logout(),
+                onTap: () async {
+                  if (!await confirmLogout(context)) return;
+                  if (!context.mounted) return;
+                  ref.read(authControllerProvider).logout();
+                },
                 trailing: Icon(Icons.chevron_right_rounded, color: cs.error),
               ),
             ),

@@ -9,6 +9,80 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get commonShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get commonHidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get adminEmailInvalid => 'أدخل عنوان بريد إلكتروني صالحًا';
+
+  @override
+  String get adminPhoneInvalid => 'أدخل رقم هاتف صالحًا';
+
+  @override
+  String get adminFullNameLabel => 'الاسم الكامل';
+
+  @override
+  String get adminHomeroomLabel => 'صف التربية';
+
+  @override
+  String get adminHomeroomNone => 'بدون صف تربية';
+
+  @override
+  String get adminHomeroomNoneAvailable => 'لا توجد صفوف غير مُعيَّنة متاحة';
+
+  @override
+  String get adminHomeroomHint => 'سيصبح هذا المعلّم مربّي الصف المحدَّد.';
+
+  @override
+  String get logoutConfirmTitle => 'تسجيل الخروج؟';
+
+  @override
+  String get logoutConfirmBody =>
+      'ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام ClassMate.';
+
+  @override
+  String get pressBackAgainToExit => 'اضغط رجوع مرة أخرى للخروج';
+
+  @override
+  String get onboardingSkip => 'تخطّي';
+
+  @override
+  String get onboardingNext => 'التالي';
+
+  @override
+  String get onboardingGetStarted => 'لنبدأ';
+
+  @override
+  String get onboardingSlide1Title => 'مرحبًا بك في ClassMate';
+
+  @override
+  String get onboardingSlide1Body =>
+      'رفيقك المدرسي الذكي — كل ما يخص المدرسة في مكان واحد.';
+
+  @override
+  String get onboardingSlide2Title => 'تعرّف على NOVA';
+
+  @override
+  String get onboardingSlide2Body =>
+      'معلّمك بالذكاء الاصطناعي، جاهز لشرح أي موضوع ومساعدتك على التدرّب في أي وقت.';
+
+  @override
+  String get onboardingSlide3Title => 'تابِع كل شيء أولًا بأول';
+
+  @override
+  String get onboardingSlide3Body =>
+      'الجدول والعلامات والحضور والوظائف — محدَّثة دائمًا.';
+
+  @override
+  String get onboardingSlide4Title => 'ابقَ على تواصل';
+
+  @override
+  String get onboardingSlide4Body =>
+      'الرسائل والإعلانات تُبقي الطلاب والمعلمين وأولياء الأمور على تناغم.';
+
+  @override
   String get consentGateTitle => 'قبل المتابعة';
 
   @override

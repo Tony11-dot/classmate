@@ -9,6 +9,7 @@ import 'package:classmate_mobile/core/auth/accounts_store.dart';
 import 'package:classmate_mobile/features/certificates/data/certificates_repository.dart';
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
+import 'package:classmate_mobile/ui/dialogs/confirm_logout.dart';
 import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
 import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
 import 'package:classmate_mobile/ui/nav/drawer_tools_order.dart';
@@ -468,6 +469,8 @@ class MainDrawer extends ConsumerWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () async {
+                          if (!await confirmLogout(context)) return;
+                          if (!context.mounted) return;
                           closeDrawer();
                           await ref.read(authControllerProvider).logout();
                         },

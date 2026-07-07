@@ -119,6 +119,15 @@ export class AdminController {
     return this.admin.listCohortsForDDL(req.user);
   }
 
+  // Classes that don't yet have a homeroom teacher — drives the "assign
+  // homeroom class" dropdown on the create-teacher form. Admin-only (user
+  // creation is admin-only; secretaries are blocked in the service).
+  @Roles(Role.ADMIN)
+  @Get('ddl/unassigned-homeroom-cohorts')
+  ddlUnassignedHomeroomCohorts(@Req() req: any) {
+    return this.admin.listUnassignedHomeroomCohorts(req.user);
+  }
+
   // Per-role user list for the export filter sheet's role drill-down.
   // role=STUDENT|TEACHER|PARENT|SECRETARY|ADMIN.
   @Roles(Role.ADMIN, Role.SECRETARY)

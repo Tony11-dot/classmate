@@ -9,6 +9,81 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get commonShowPassword => 'Show password';
+
+  @override
+  String get commonHidePassword => 'Hide password';
+
+  @override
+  String get adminEmailInvalid => 'Enter a valid email address';
+
+  @override
+  String get adminPhoneInvalid => 'Enter a valid phone number';
+
+  @override
+  String get adminFullNameLabel => 'Full name';
+
+  @override
+  String get adminHomeroomLabel => 'Homeroom class';
+
+  @override
+  String get adminHomeroomNone => 'No homeroom class';
+
+  @override
+  String get adminHomeroomNoneAvailable => 'No unassigned classes available';
+
+  @override
+  String get adminHomeroomHint =>
+      'This teacher becomes the homeroom teacher of the selected class.';
+
+  @override
+  String get logoutConfirmTitle => 'Log out?';
+
+  @override
+  String get logoutConfirmBody =>
+      'You\'ll need to sign in again to use ClassMate.';
+
+  @override
+  String get pressBackAgainToExit => 'Press back again to exit';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboardingSlide1Title => 'Welcome to ClassMate';
+
+  @override
+  String get onboardingSlide1Body =>
+      'Your smart school companion — everything for school, all in one place.';
+
+  @override
+  String get onboardingSlide2Title => 'Meet NOVA';
+
+  @override
+  String get onboardingSlide2Body =>
+      'Your AI tutor, ready to explain any topic and help you practice, anytime.';
+
+  @override
+  String get onboardingSlide3Title => 'Stay on top of everything';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Schedule, grades, attendance and assignments — always up to date.';
+
+  @override
+  String get onboardingSlide4Title => 'Stay connected';
+
+  @override
+  String get onboardingSlide4Body =>
+      'Messages and announcements keep students, teachers and parents in sync.';
+
+  @override
   String get consentGateTitle => 'Before you continue';
 
   @override

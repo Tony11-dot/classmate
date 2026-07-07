@@ -555,6 +555,15 @@ class AppShell extends ConsumerWidget {
         ? _hideBottomNavParent(loc)
         : _hideBottomNav(loc, isTeacherLike, isAdminLike, isAdmin);
     final hideTopBar = _hideTopBarForRoute(loc);
+    // The role's first/home tab (index 0). Used by the hardware-back handler
+    // to send the user home before ever allowing an app exit.
+    final homeLoc = isAdminLike
+        ? _adminLocFor(0, isAdmin)
+        : isParent
+            ? _parentLocFor(0)
+            : isTeacherLike
+                ? _teacherLocFor(0)
+                : _studentLocFor(0);
 
     final pageTitle = _pageTitle(context, loc, isTeacherLike, isAdminLike, isParent: isParent);
 
@@ -641,6 +650,7 @@ class AppShell extends ConsumerWidget {
         isParent: isParent,
         hideBottomNav: hideBottomNav,
         hideTopBar: hideTopBar,
+        homeLoc: homeLoc,
         unreadMessages: unreadMessages,
         child: child,
         buildFab: (ctx) => _buildFab(ctx, ref, loc, isTeacherLike, isAdminLike: isAdminLike),
@@ -677,6 +687,7 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
     required this.isParent,
     required this.hideBottomNav,
     required this.hideTopBar,
+    required this.homeLoc,
     required this.unreadMessages,
     required this.child,
     required this.buildFab,
@@ -693,6 +704,8 @@ class _AppShellScaffold extends ConsumerStatefulWidget {
   final bool isParent;
   final bool hideBottomNav;
   final bool hideTopBar;
+  /// The role's first/home tab location — the hardware-back target.
+  final String homeLoc;
   final int unreadMessages;
   final Widget child;
   final Widget? Function(BuildContext) buildFab;
@@ -708,6 +721,38 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
   // after scrolling settles (or the moment the user taps the pill itself).
   final ValueNotifier<bool> _navCompact = ValueNotifier<bool>(false);
   Timer? _expandTimer;
+  // Timestamp of the last hardware-back press while already on the home tab —
+  // powers the "press back again to exit" guard so a stray tap can't kill the
+  // app (the tester saw back exit ClassMate outright).
+  DateTime? _lastBackPress;
+
+  /// Handles Android hardware-back when the shell is the top route (i.e. a
+  /// bare tab, no detail page pushed on top — go_router pops those itself).
+  /// Not on the home tab → jump to it. On the home tab → require a second
+  /// back within 2s before letting the OS close the app.
+  void _handleSystemBack() {
+    final loc = GoRouterState.of(context).matchedLocation;
+    if (loc != widget.homeLoc) {
+      widget.onTap(0);
+      return;
+    }
+    final now = DateTime.now();
+    if (_lastBackPress == null ||
+        now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
+      _lastBackPress = now;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(widget.l.pressBackAgainToExit),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      return;
+    }
+    SystemNavigator.pop();
+  }
 
   @override
   void initState() {
@@ -834,26 +879,36 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       );
     }
 
-    return Scaffold(
-      extendBody: true,
-      drawerEnableOpenDragGesture: !widget.hideTopBar,
-      drawer: widget.hideTopBar ? null : const MainDrawer(),
-      appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
-      body: widget.hideBottomNav
-          ? body
-          : NotificationListener<ScrollNotification>(
-              onNotification: _onBodyScroll,
-              child: body,
-            ),
-      floatingActionButton: widget.buildFab(context),
-      bottomNavigationBar: widget.hideBottomNav
-          ? null
-          : _PlatformCoreBottomNav(
-              items: navItems,
-              index: widget.idx,
-              onTap: widget.onTap,
-              compact: _navCompact,
-            ),
+    return PopScope(
+      // On web the browser owns back/forward — don't intercept. On mobile we
+      // block the default pop (which, on a bare tab, was exiting the app) and
+      // route it through _handleSystemBack instead.
+      canPop: kIsWeb,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _handleSystemBack();
+      },
+      child: Scaffold(
+        extendBody: true,
+        drawerEnableOpenDragGesture: !widget.hideTopBar,
+        drawer: widget.hideTopBar ? null : const MainDrawer(),
+        appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
+        body: widget.hideBottomNav
+            ? body
+            : NotificationListener<ScrollNotification>(
+                onNotification: _onBodyScroll,
+                child: body,
+              ),
+        floatingActionButton: widget.buildFab(context),
+        bottomNavigationBar: widget.hideBottomNav
+            ? null
+            : _PlatformCoreBottomNav(
+                items: navItems,
+                index: widget.idx,
+                onTap: widget.onTap,
+                compact: _navCompact,
+              ),
+      ),
     );
   }
 

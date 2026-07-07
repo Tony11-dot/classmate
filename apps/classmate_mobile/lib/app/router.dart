@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/auth_controller.dart';
 import '../features/account/login_screen.dart';
 import '../features/account/forgot_password_screen.dart';
+import '../features/onboarding/onboarding_screen.dart';
+import '../features/onboarding/onboarding_controller.dart';
 import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
 import '../features/account/drawer_tools_order_screen.dart';
@@ -182,6 +184,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (!session.ready) return null;
 
       final loc = state.matchedLocation;
+
+      // First-launch onboarding: show the walkthrough once, to logged-out
+      // first-time users only. Logged-in users (returning accounts) skip it.
+      final onboardingSeen = ref.read(onboardingSeenProvider);
+      if (!onboardingSeen && !session.isLoggedIn) {
+        return loc == '/onboarding' ? null : '/onboarding';
+      }
+      // Already seen (or logged in): never strand anyone on the walkthrough.
+      if (loc == '/onboarding') {
+        return session.isLoggedIn ? '/' : '/login';
+      }
+
       if (loc.startsWith('/student/')) {
         if (loc == '/student/schedule') return '/schedule';
         if (loc == '/student/classrooms') return '/classrooms';
@@ -326,6 +340,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
 
       _slideRoute(

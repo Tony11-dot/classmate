@@ -696,6 +696,30 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     };
   }
 
+  /// Cohorts in the admin's school that don't yet have a homeroom teacher —
+  /// drives the "assign homeroom class" dropdown on the create-teacher form.
+  /// Hard school-scoped (no legacy null-school union) so one school can never
+  /// see or claim another school's classes.
+  async listUnassignedHomeroomCohorts(user: any) {
+    this.requireAdminOrSecretary(user);
+    const schoolId = (user as any)?.schoolId ?? null;
+    if (!schoolId) return { ok: true, cohorts: [] };
+    const cohorts = await this.prisma.cohort.findMany({
+      where: { schoolId, homeroomTeacherId: null } as any,
+      select: { id: true, name: true, grade: true, grades: true } as any,
+      orderBy: [{ grade: 'asc' }, { name: 'asc' }],
+    });
+    return {
+      ok: true,
+      cohorts: (cohorts as any[]).map((c) => ({
+        id: c.id,
+        name: c.name,
+        grade: c.grade,
+        grades: Array.isArray(c.grades) && c.grades.length ? c.grades : [c.grade],
+      })),
+    };
+  }
+
   async listClassroomsForTeacher(user: any, teacherId: string) {
     this.requireAdminOrSecretary(user);
     if (!teacherId) throw new BadRequestException('teacherId is required');
@@ -1720,6 +1744,22 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
       throw new BadRequestException('Grade level is required for students');
     }
 
+    // Optional: assign this new teacher as the homeroom teacher (مربّي/ة الصف)
+    // of an as-yet-unassigned cohort. Validate UP FRONT — before the user is
+    // created — so a bad/taken cohort fails cleanly with nothing half-created.
+    const homeroomCohortId =
+      role === 'TEACHER' ? String(dto?.homeroomCohortId ?? '').trim() || undefined : undefined;
+    if (homeroomCohortId) {
+      const cohort = await this.prisma.cohort.findFirst({
+        where: { id: homeroomCohortId, schoolId } as any,
+        select: { id: true, homeroomTeacherId: true } as any,
+      });
+      if (!cohort) throw new BadRequestException('Homeroom class not found in this school');
+      if ((cohort as any).homeroomTeacherId) {
+        throw new BadRequestException('That class already has a homeroom teacher');
+      }
+    }
+
     // Resolve the username: honor an explicit one (verifying uniqueness), or
     // auto-generate a unique one from the name for bulk/CSV imports.
     let username: string;
@@ -1783,6 +1823,17 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
           mathLevel: 5,
           ...(grade ? { grade } : {}),
         } as any,
+      });
+    }
+
+    if (homeroomCohortId) {
+      // Guarded update (homeroomTeacherId must still be null) so a concurrent
+      // assignment can't be silently clobbered. Best-effort: the teacher is
+      // created regardless — if the class was claimed in the meantime the
+      // account still succeeds, just without the homeroom link.
+      await this.prisma.cohort.updateMany({
+        where: { id: homeroomCohortId, schoolId, homeroomTeacherId: null } as any,
+        data: { homeroomTeacherId: newUser.id } as any,
       });
     }
 

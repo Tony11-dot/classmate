@@ -480,6 +480,17 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
   // e.g. [[4,6],[9,12]]. Empty = principal over all grades.
   bool   _isPrincipal = false;
   final List<List<int>> _principalRanges = <List<int>>[];
+  // Password visibility toggle — admins couldn't see what they typed before.
+  bool   _obscurePassword = true;
+  // Live email/phone validation flags (drive the inline error text).
+  bool   _emailTouched = false;
+  bool   _phoneTouched = false;
+  // Optional homeroom class for a new TEACHER. Loaded lazily (only the
+  // school's not-yet-assigned cohorts) the first time TEACHER is selected.
+  String? _homeroomCohortId;
+  List<AdminHomeroomCohort> _homeroomCohorts = const [];
+  bool   _homeroomLoading = false;
+  bool   _homeroomLoaded = false;
 
   /// Expand [lo,hi] ranges into a sorted unique grade list.
   static List<int> _rangesToGrades(List<List<int>> ranges) {
@@ -530,6 +541,43 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     // Suggestions follow the name too, so a typed name surfaces ideas even
     // before a username is entered.
     _nameEnCtrl.addListener(_onUsernameChanged);
+    // Pre-load the homeroom-class options if we open straight onto TEACHER.
+    if (_role == 'TEACHER') _loadHomeroomCohorts();
+  }
+
+  // ── Homeroom class options (teacher role) ─────────────────────────────────
+  Future<void> _loadHomeroomCohorts() async {
+    if (_homeroomLoaded || _homeroomLoading) return;
+    setState(() => _homeroomLoading = true);
+    try {
+      final cohorts = await widget.repo.fetchUnassignedHomeroomCohorts();
+      if (!mounted) return;
+      setState(() {
+        _homeroomCohorts = cohorts;
+        _homeroomLoaded = true;
+        _homeroomLoading = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _homeroomLoading = false);
+    }
+  }
+
+  // ── Field validation ──────────────────────────────────────────────────────
+  static final _emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  bool get _emailIsInvalid {
+    final v = _emailCtrl.text.trim();
+    return v.isNotEmpty && !_emailRe.hasMatch(v);
+  }
+
+  /// True when a phone number has been entered but isn't a plausible length
+  /// (6–12 national digits after normalization). Empty is fine — phone is
+  /// optional.
+  bool get _phoneIsInvalid {
+    final e164 = joinE164(_dialCode, _phoneCtrl.text);
+    if (e164 == null) return false;
+    final cc = _dialCode.replaceAll(RegExp(r'[^0-9]'), '');
+    final national = e164.replaceFirst('+$cc', '');
+    return national.length < 6 || national.length > 12;
   }
 
   @override
@@ -665,6 +713,18 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminPasswordMinLength)));
       return;
     }
+    // Reject a malformed email / phone before hitting the server, and surface
+    // the inline error so the field turns red too.
+    if (_emailIsInvalid) {
+      setState(() => _emailTouched = true);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEmailInvalid)));
+      return;
+    }
+    if (_phoneIsInvalid) {
+      setState(() => _phoneTouched = true);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminPhoneInvalid)));
+      return;
+    }
     // Students must have a grade level so cohort/grade-scoped features
     // (exams, assignments, grade lists) place them correctly from day 1.
     if (_role == 'STUDENT' && _grade == null) {
@@ -691,6 +751,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         nationalId: nationalId.isEmpty ? null : nationalId,
         isPrincipal: isPrincipal ? true : null,
         principalGrades: isPrincipal ? _rangesToGrades(_principalRanges) : null,
+        homeroomCohortId: _role == 'TEACHER' ? _homeroomCohortId : null,
       );
       if (!mounted) return;
       final createdUsername = result.username ?? username;
@@ -754,31 +815,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
-  }
-
-  Widget _langField(TextEditingController ctrl, String langLabel, {bool required = false, bool autofocus = false}) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: ctrl,
-        autofocus: autofocus,
-        textInputAction: TextInputAction.next,
-        textCapitalization: TextCapitalization.words,
-        decoration: InputDecoration(
-          labelText: required ? '$langLabel *' : langLabel,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          suffixIcon: Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8),
-            child: Text(
-              langLabel.split(' ').last,
-              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700),
-            ),
-          ),
-          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        ),
-      ),
-    );
   }
 
   @override
@@ -848,9 +884,11 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
+                    onChanged: (_) => setState(() => _emailTouched = true),
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.commonEmail,
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
+                      errorText: (_emailTouched && _emailIsInvalid) ? l.adminEmailInvalid : null,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
@@ -860,16 +898,28 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     controller: _phoneCtrl,
                     dialCode: _dialCode,
                     onDialCodeChanged: (v) => setState(() => _dialCode = v),
+                    onChanged: (_) => setState(() => _phoneTouched = true),
+                    errorText: (_phoneTouched && _phoneIsInvalid) ? l.adminPhoneInvalid : null,
                   ),
                   const SizedBox(height: 10),
-                  // ── Optional password ─────────────────────────────────────
+                  // ── Optional password (with show/hide toggle) ─────────────
                   TextField(
                     controller: _passwordCtrl,
                     autocorrect: false,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.commonPassword,
                       prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                          size: 20,
+                        ),
+                        tooltip: _obscurePassword ? l.commonShowPassword : l.commonHidePassword,
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
@@ -887,7 +937,17 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                   ),
                   const SizedBox(height: 16),
                   // ── Name ───────────────────────────────────────────────────
-                  _langField(_nameEnCtrl, 'Full name *', required: true, autofocus: true),
+                  TextField(
+                    controller: _nameEnCtrl,
+                    autofocus: true,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: '${l.adminFullNameLabel} *',
+                      prefixIcon: const Icon(Icons.person_outline_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   // ── Role ───────────────────────────────────────────────────
                   Text(l.adminRoleLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
@@ -898,9 +958,51 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     children: List.generate(_roles.length, (i) => ChoiceChip(
                       label: Text(_roleLabels(l)[i]),
                       selected: _role == _roles[i],
-                      onSelected: (_) => setState(() { _role = _roles[i]; if (_role != 'STUDENT') _grade = null; }),
+                      onSelected: (_) => setState(() {
+                        _role = _roles[i];
+                        if (_role != 'STUDENT') _grade = null;
+                        // Homeroom assignment only applies to teachers.
+                        if (_role == 'TEACHER') {
+                          _loadHomeroomCohorts();
+                        } else {
+                          _homeroomCohortId = null;
+                        }
+                      }),
                     )),
                   ),
+                  // ── Homeroom class (teachers only) ─────────────────────────
+                  if (_role == 'TEACHER') ...[
+                    const SizedBox(height: 16),
+                    Text(l.adminHomeroomLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                    const SizedBox(height: 8),
+                    if (_homeroomLoading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                      )
+                    else if (_homeroomCohorts.isEmpty)
+                      Text(l.adminHomeroomNoneAvailable,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))
+                    else ...[
+                      LiquidGlassSelectField<String>(
+                        label: l.adminHomeroomLabel,
+                        hint: l.adminHomeroomNone,
+                        value: _homeroomCohortId ?? '',
+                        items: [
+                          LiquidGlassDropdownItem(value: '', label: l.adminHomeroomNone),
+                          for (final c in _homeroomCohorts)
+                            LiquidGlassDropdownItem(
+                              value: c.id,
+                              label: '${c.name} · ${l.adminCohortGradeFormat('${c.grade}')}',
+                            ),
+                        ],
+                        onChanged: (v) => setState(() => _homeroomCohortId = v.isEmpty ? null : v),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(l.adminHomeroomHint,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    ],
+                  ],
                   // ── Principal (admins only) ────────────────────────────────
                   if (_role == 'ADMIN') ...[
                     const SizedBox(height: 20),

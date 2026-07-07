@@ -9,6 +9,82 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get commonShowPassword => 'Показать пароль';
+
+  @override
+  String get commonHidePassword => 'Скрыть пароль';
+
+  @override
+  String get adminEmailInvalid => 'Введите корректный адрес эл. почты';
+
+  @override
+  String get adminPhoneInvalid => 'Введите корректный номер телефона';
+
+  @override
+  String get adminFullNameLabel => 'Полное имя';
+
+  @override
+  String get adminHomeroomLabel => 'Классное руководство';
+
+  @override
+  String get adminHomeroomNone => 'Без классного руководства';
+
+  @override
+  String get adminHomeroomNoneAvailable =>
+      'Нет свободных классов для назначения';
+
+  @override
+  String get adminHomeroomHint =>
+      'Этот учитель станет классным руководителем выбранного класса.';
+
+  @override
+  String get logoutConfirmTitle => 'Выйти?';
+
+  @override
+  String get logoutConfirmBody =>
+      'Чтобы пользоваться ClassMate, потребуется войти снова.';
+
+  @override
+  String get pressBackAgainToExit => 'Нажмите «Назад» ещё раз, чтобы выйти';
+
+  @override
+  String get onboardingSkip => 'Пропустить';
+
+  @override
+  String get onboardingNext => 'Далее';
+
+  @override
+  String get onboardingGetStarted => 'Начать';
+
+  @override
+  String get onboardingSlide1Title => 'Добро пожаловать в ClassMate';
+
+  @override
+  String get onboardingSlide1Body =>
+      'Ваш умный помощник в учёбе — всё для школы в одном месте.';
+
+  @override
+  String get onboardingSlide2Title => 'Знакомьтесь: NOVA';
+
+  @override
+  String get onboardingSlide2Body =>
+      'Ваш ИИ-репетитор готов объяснить любую тему и помочь с практикой в любое время.';
+
+  @override
+  String get onboardingSlide3Title => 'Держите всё под контролем';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Расписание, оценки, посещаемость и задания — всегда актуально.';
+
+  @override
+  String get onboardingSlide4Title => 'Оставайтесь на связи';
+
+  @override
+  String get onboardingSlide4Body =>
+      'Сообщения и объявления синхронизируют учеников, учителей и родителей.';
+
+  @override
   String get consentGateTitle => 'Прежде чем продолжить';
 
   @override

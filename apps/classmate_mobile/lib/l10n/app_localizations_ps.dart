@@ -9,152 +9,228 @@ class AppLocalizationsPs extends AppLocalizations {
   AppLocalizationsPs([String locale = 'ps']) : super(locale);
 
   @override
-  String get consentGateTitle => 'Before you continue';
+  String get commonShowPassword => '‹‹Show password››';
+
+  @override
+  String get commonHidePassword => '‹‹Hide password››';
+
+  @override
+  String get adminEmailInvalid => '‹‹Enter a valid email address››';
+
+  @override
+  String get adminPhoneInvalid => '‹‹Enter a valid phone number››';
+
+  @override
+  String get adminFullNameLabel => '‹‹Full name››';
+
+  @override
+  String get adminHomeroomLabel => '‹‹Homeroom class››';
+
+  @override
+  String get adminHomeroomNone => '‹‹No homeroom class››';
+
+  @override
+  String get adminHomeroomNoneAvailable =>
+      '‹‹No unassigned classes available››';
+
+  @override
+  String get adminHomeroomHint =>
+      '‹‹This teacher becomes the homeroom teacher of the selected class.››';
+
+  @override
+  String get logoutConfirmTitle => '‹‹Log out?››';
+
+  @override
+  String get logoutConfirmBody =>
+      '‹‹You\'ll need to sign in again to use ClassMate.››';
+
+  @override
+  String get pressBackAgainToExit => '‹‹Press back again to exit››';
+
+  @override
+  String get onboardingSkip => '‹‹Skip››';
+
+  @override
+  String get onboardingNext => '‹‹Next››';
+
+  @override
+  String get onboardingGetStarted => '‹‹Get started››';
+
+  @override
+  String get onboardingSlide1Title => '‹‹Welcome to ClassMate››';
+
+  @override
+  String get onboardingSlide1Body =>
+      '‹‹Your smart school companion — everything for school, all in one place.››';
+
+  @override
+  String get onboardingSlide2Title => '‹‹Meet NOVA››';
+
+  @override
+  String get onboardingSlide2Body =>
+      '‹‹Your AI tutor, ready to explain any topic and help you practice, anytime.››';
+
+  @override
+  String get onboardingSlide3Title => '‹‹Stay on top of everything››';
+
+  @override
+  String get onboardingSlide3Body =>
+      '‹‹Schedule, grades, attendance and assignments — always up to date.››';
+
+  @override
+  String get onboardingSlide4Title => '‹‹Stay connected››';
+
+  @override
+  String get onboardingSlide4Body =>
+      '‹‹Messages and announcements keep students, teachers and parents in sync.››';
+
+  @override
+  String get consentGateTitle => '‹‹Before you continue››';
 
   @override
   String get consentGateBody =>
-      'To keep using ClassMate, please review and accept how we handle your data.';
+      '‹‹To keep using ClassMate, please review and accept how we handle your data.››';
 
   @override
-  String get consentGateLink => 'Read the Privacy Policy & Terms';
+  String get consentGateLink => '‹‹Read the Privacy Policy & Terms››';
 
   @override
   String get consentGateAccept =>
-      'I accept the Privacy Policy and Terms of Use';
+      '‹‹I accept the Privacy Policy and Terms of Use››';
 
   @override
   String get consentGateGuardian =>
-      'I have my parent or guardian\'s permission to use ClassMate';
+      '‹‹I have my parent or guardian\'s permission to use ClassMate››';
 
   @override
-  String get consentGateContinue => 'Agree & Continue';
+  String get consentGateContinue => '‹‹Agree & Continue››';
 
   @override
-  String get menu => 'مينو';
+  String get menu => '‹‹Menu››';
 
   @override
-  String get sectionCore => 'اصلي';
+  String get sectionCore => '‹‹Core››';
 
   @override
-  String get sectionSchoolTools => 'د ښوونځي وسايل';
+  String get sectionSchoolTools => '‹‹School Tools››';
 
   @override
-  String get sectionAccount => 'حساب';
+  String get sectionAccount => '‹‹Account››';
 
   @override
-  String get navSchedule => 'مهالويش';
+  String get navSchedule => '‹‹Schedule››';
 
   @override
-  String get navClassrooms => 'ټولګيونه';
+  String get navClassrooms => '‹‹Classrooms››';
 
   @override
-  String get navPractice => 'تمرين';
+  String get navPractice => '‹‹Practice››';
 
   @override
-  String get navInsights => 'کتنې';
+  String get navInsights => '‹‹Insights››';
 
   @override
-  String get navNova => 'NOVA';
+  String get navNova => '‹‹NOVA››';
 
   @override
-  String get navMessages => 'پيغامونه';
+  String get navMessages => '‹‹Messages››';
 
   @override
-  String get navAttendance => 'حاضري';
+  String get navAttendance => '‹‹Attendance››';
 
   @override
-  String get navGrades => 'نمرې';
+  String get navGrades => '‹‹Grades››';
 
   @override
-  String get navAssignments => 'دندې';
+  String get navAssignments => '‹‹Assignments››';
 
   @override
-  String get navMeetings => 'غونډې';
+  String get navMeetings => '‹‹Meetings››';
 
   @override
-  String get navAnnouncements => 'اعلانونه';
+  String get navAnnouncements => '‹‹Announcements››';
 
   @override
-  String get navNotifications => 'خبرتیاوې';
+  String get navNotifications => '‹‹Notifications››';
 
   @override
-  String get navSolutions => 'حلونه';
+  String get navSolutions => '‹‹Solutions››';
 
   @override
-  String get navExams => 'ازموینې';
+  String get navExams => '‹‹Exams››';
 
   @override
-  String get navForms => 'فورمې';
+  String get navForms => '‹‹Forms››';
 
   @override
-  String get navHome => 'کور';
+  String get navHome => '‹‹Home››';
 
   @override
-  String get navTeacherWorkspace => 'د ښوونکي کاري ځای';
+  String get navTeacherWorkspace => '‹‹Teacher Workspace››';
 
   @override
-  String get navTeacherAssessments => 'ارزونې او نمرې';
+  String get navTeacherAssessments => '‹‹Assessments & Grades››';
 
   @override
-  String get navSavedQuestions => 'خوندي شوي پوښتنې';
+  String get navSavedQuestions => '‹‹Saved Questions››';
 
   @override
-  String get navProfile => 'پروفايل';
+  String get navProfile => '‹‹Profile››';
 
   @override
-  String get navSettings => 'تنظیمات';
+  String get navSettings => '‹‹Settings››';
 
   @override
-  String get navLogout => 'وتل';
+  String get navLogout => '‹‹Log out››';
 
   @override
-  String get roleTeacher => 'ښوونکی';
+  String get roleTeacher => '‹‹Teacher››';
 
   @override
-  String get roleAdmin => 'مدير';
+  String get roleAdmin => '‹‹Admin››';
 
   @override
-  String get roleSecretary => 'منشي';
+  String get roleSecretary => '‹‹Secretary››';
 
   @override
-  String get roleParent => 'والدين';
+  String get roleParent => '‹‹Parent››';
 
   @override
-  String get roleStudent => 'زده‌کوونکی';
+  String get roleStudent => '‹‹Student››';
 
   @override
-  String get titleSchedule => 'مهالويش';
+  String get titleSchedule => '‹‹Schedule››';
 
   @override
-  String get titleClasses => 'ټولګيونه';
+  String get titleClasses => '‹‹Classes››';
 
   @override
-  String get titlePractice => 'تمرين';
+  String get titlePractice => '‹‹Practice››';
 
   @override
-  String get titleInsights => 'کتنې';
+  String get titleInsights => '‹‹Insights››';
 
   @override
-  String get titleNova => 'NOVA';
+  String get titleNova => '‹‹NOVA››';
 
   @override
-  String get titleMessages => 'پيغامونه';
+  String get titleMessages => '‹‹Messages››';
 
   @override
-  String get titleSolutions => 'حلونه';
+  String get titleSolutions => '‹‹Solutions››';
 
   @override
-  String get titleExams => 'ازموینې';
+  String get titleExams => '‹‹Exams››';
 
   @override
-  String get solutionsUploadAction => 'پورته کول';
+  String get solutionsUploadAction => '‹‹Upload››';
 
   @override
-  String get solutionsNoSubjectsAvailable => 'هیڅ مضمون شتون نلري.';
+  String get solutionsNoSubjectsAvailable => '‹‹No subjects available.››';
 
   @override
   String solutionsNoSubjectsMatch(Object query) {
-    return 'هیڅ مضمون له \"$query\" سره سمون نه خوري.';
+    return '‹‹No subjects match \"$query\".››';
   }
 
   @override
@@ -162,355 +238,355 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count کتابونه',
-      one: '۱ کتاب',
+      other: '$count books',
+      one: '1 book',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get solutionsBooksTitle => 'کتابونه';
+  String get solutionsBooksTitle => '‹‹Books››';
 
   @override
-  String get solutionsAddBookTitle => 'یو کتاب اضافه کړئ';
+  String get solutionsAddBookTitle => '‹‹Add a book››';
 
   @override
-  String get solutionsBookTitleHint => 'د کتاب نوم...';
+  String get solutionsBookTitleHint => '‹‹Book title...››';
 
   @override
-  String get solutionsAddBookAction => 'یو کتاب اضافه کړئ';
+  String get solutionsAddBookAction => '‹‹Add a book››';
 
   @override
-  String get solutionsSearchBooks => 'کتابونه ولټوئ';
+  String get solutionsSearchBooks => '‹‹Search books››';
 
   @override
-  String get solutionsChooseSubjectFirst => 'لومړی یو مضمون وټاکئ.';
+  String get solutionsChooseSubjectFirst => '‹‹Choose a subject first.››';
 
   @override
   String solutionsNoBooksYetBody(Object action) {
-    return 'تر اوسه هیڅ کتاب نشته.\nد لومړي کتاب د اضافه کولو لپاره \"$action\" کېکاږئ.';
+    return '‹‹No books yet.\nTap \"$action\" to add the first one.››';
   }
 
   @override
   String solutionsNoBooksMatch(Object query) {
-    return 'هیڅ کتاب له \"$query\" سره سمون نه خوري.';
+    return '‹‹No books match \"$query\".››';
   }
 
   @override
-  String get solutionsBookLabel => 'کتاب';
+  String get solutionsBookLabel => '‹‹Book››';
 
   @override
   String get solutionsPagesFilterHint =>
-      'د فلټر کولو لپاره د پاڼې او پوښتنې شمېره دننه کړئ، یا د ټولو لیدلو لپاره یې خالي پرېږدئ.';
+      '‹‹Enter a page and question number to filter, or leave blank to see all.››';
 
   @override
-  String get solutionsPageNumberLabel => 'د پاڼې شمېره';
+  String get solutionsPageNumberLabel => '‹‹Page number››';
 
   @override
-  String get solutionsPageNumberHint => 'لکه ۴۲';
+  String get solutionsPageNumberHint => '‹‹e.g. 42››';
 
   @override
-  String get solutionsQuestionNumberLabel => 'د پوښتنې شمېره';
+  String get solutionsQuestionNumberLabel => '‹‹Question number››';
 
   @override
-  String get solutionsQuestionNumberHint => 'لکه ۳a یا ۷';
+  String get solutionsQuestionNumberHint => '‹‹e.g. 3a or 7››';
 
   @override
-  String get solutionsViewSolutionsAction => 'حلونه وګورئ';
+  String get solutionsViewSolutionsAction => '‹‹View solutions››';
 
   @override
   String solutionsPageQuestionSummary(Object page, Object question) {
-    return 'پاڼه $page • پوښتنه $question';
+    return '‹‹Page $page • Question $question››';
   }
 
   @override
-  String get solutionsExactQuestionTitle => 'د همدې دقیقې پوښتنې حلونه';
+  String get solutionsExactQuestionTitle =>
+      '‹‹Solutions for this exact question››';
 
   @override
   String get solutionsExactQuestionEmptySubtitle =>
-      'تر اوسه د دې دقیقې پوښتنې لپاره هیڅ شی نه دی پورته شوی. لومړی شئ چې خپلو همصنفانو سره مرسته وکړئ.';
+      '‹‹Nothing has been uploaded for this exact question yet. Be the first to help your classmates.››';
 
   @override
   String solutionsUploadsFound(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count پورته شوي موندل شول',
-      one: '۱ پورته شوی موندل شو',
+      other: '$count uploads found',
+      one: '1 upload found',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
   String get solutionsExactQuestionEmptyBody =>
-      'تر اوسه دقیق سمون نشته. تاسو کولی شئ همدا اوس یو پورته کړئ، یا وګورئ چې همصنفانو په همدې پاڼه کې څه حل کړي دي.';
+      '‹‹No exact match yet. You can upload one now, or check what classmates solved on this same page.››';
 
   @override
-  String get solutionsLoadMoreAction => 'نور بار کړئ';
+  String get solutionsLoadMoreAction => '‹‹Load more››';
 
   @override
-  String get solutionsSamePageTitle => 'په دې پاڼه کې حل شوي نورې پوښتنې';
+  String get solutionsSamePageTitle =>
+      '‹‹Other questions solved on this page››';
 
   @override
   String get solutionsSamePageEmptySubtitle =>
-      'تر اوسه د دې پاڼې څخه هیڅ ګاونډۍ پوښتنه نه ده پورته شوې.';
+      '‹‹No neighboring questions were uploaded from this page yet.››';
 
   @override
   String get solutionsSamePageFallbackSubtitle =>
-      'ګټور بدیل کله چې ستاسو دقیقې پوښتنې ته هیڅ پورته شوی نه وي.';
+      '‹‹Useful fallback when your exact question has no upload yet.››';
 
   @override
   String get solutionsSamePageEmptyBody =>
-      'تر اوسه په دې پاڼه کې هیڅ نږدې پورته شوی نشته. دلته یو نوی پورته کول به ډېره مرسته وکړي.';
+      '‹‹No nearby uploads on this page yet. A fresh upload here would really help.››';
 
   @override
-  String get solutionsVerifiedByNova => 'د NOVA لخوا تصدیق شوی';
+  String get solutionsVerifiedByNova => '‹‹Verified by NOVA››';
 
   @override
-  String get solutionsUploadFileLimitReached => 'د ۱۰ فايلونو حد ته ورسېد.';
+  String get solutionsUploadFileLimitReached => '‹‹10-file limit reached.››';
 
   @override
   String solutionsUploadFilesAddedLimit(int count) {
-    return '$count اضافه شول — د ۱۰ فايلونو حد.';
+    return '‹‹Added $count — 10-file limit.››';
   }
 
   @override
   String get solutionsUploadCompleteFields =>
-      'مضمون، کتاب، پاڼه او پوښتنه بشپړ کړئ.';
+      '‹‹Complete subject, book, page, and question.››';
 
   @override
-  String get solutionsUploadAddOneFile =>
-      'لږ تر لږه یو انځور یا PDF اضافه کړئ.';
+  String get solutionsUploadAddOneFile => '‹‹Add at least one image or PDF.››';
 
   @override
   String solutionsUploadFileFailed(Object error) {
-    return 'د فايل پورته کول ناکام شول: $error';
+    return '‹‹File upload failed: $error››';
   }
 
   @override
   String solutionsUploadCreateFailed(Object error) {
-    return 'د حل جوړول ناکام شول: $error';
+    return '‹‹Failed to create solution: $error››';
   }
 
   @override
-  String get solutionsUploadSuccess => 'حل پورته شو!';
+  String get solutionsUploadSuccess => '‹‹Solution uploaded!››';
 
   @override
-  String get solutionsUploadAddNewBookOption => '+ نوی کتاب اضافه کړئ...';
+  String get solutionsUploadAddNewBookOption => '‹‹+ Add a new book...››';
 
   @override
-  String get solutionsUploadAddBookShortAction => 'اضافه کول';
+  String get solutionsUploadAddBookShortAction => '‹‹Add››';
 
   @override
-  String get solutionsUploadTitle => 'یو حل پورته کړئ';
+  String get solutionsUploadTitle => '‹‹Upload a solution››';
 
   @override
   String get solutionsUploadSubtitle =>
-      'یوازې ریښتیني انځورونه یا PDF. د NOVA تصدیق او څارنه د پورته کولو وروسته پلي کېږي.';
+      '‹‹Real images or PDFs only. NOVA verification and moderation are applied after upload.››';
 
   @override
-  String get solutionsUploadNoBooksAbove =>
-      'هیڅ کتاب نشته — پورته یو اضافه کړئ';
+  String get solutionsUploadNoBooksAbove => '‹‹No books — add one above››';
 
   @override
-  String get solutionsUploadCaptionOptional => 'سرليک (اختیاري)';
+  String get solutionsUploadCaptionOptional => '‹‹Caption (optional)››';
 
   @override
-  String get solutionsUploadImagesAction => 'انځورونه';
+  String get solutionsUploadImagesAction => '‹‹Images››';
 
   @override
-  String get solutionsUploadPdfAction => 'PDF';
+  String get solutionsUploadPdfAction => '‹‹PDF››';
 
   @override
   String solutionsUploadFileCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'فايلونه وټاکل شول',
-      one: 'فايل وټاکل شو',
+      other: 'files selected',
+      one: 'file selected',
     );
-    return '$count / ۱۰ $_temp0';
+    return '‹‹$count / 10 $_temp0››';
   }
 
   @override
-  String get solutionsUploadSomeFilesFailed => 'ځینې فايلونه پورته نشول.';
+  String get solutionsUploadSomeFilesFailed =>
+      '‹‹Some files failed to upload.››';
 
   @override
-  String get solutionsUploadRetryFailedFiles => 'ناکام فايلونه بیا هڅه کړئ';
+  String get solutionsUploadRetryFailedFiles => '‹‹Retry failed files››';
 
   @override
-  String get solutionsUploadSubmittingAction => 'پورته کول...';
+  String get solutionsUploadSubmittingAction => '‹‹Uploading...››';
 
   @override
-  String get solutionsUploadSubmitAction => 'حل پورته کړئ';
+  String get solutionsUploadSubmitAction => '‹‹Upload solution››';
 
   @override
-  String get settingsTitle => 'تنظیمات';
+  String get settingsTitle => '‹‹Settings››';
 
   @override
-  String get settingsSubtitle => 'بڼه، ژبه او حساب';
+  String get settingsSubtitle => '‹‹Appearance, language & account››';
 
   @override
-  String get settingsAppearance => 'بڼه';
+  String get settingsAppearance => '‹‹Appearance››';
 
   @override
-  String get settingsTheme => 'تيم';
+  String get settingsTheme => '‹‹Theme››';
 
   @override
-  String get settingsLanguage => 'ژبه';
+  String get settingsLanguage => '‹‹Language››';
 
   @override
-  String get settingsLanguageSystem => 'د سیسټم اصلي';
+  String get settingsLanguageSystem => '‹‹System default››';
 
   @override
-  String get settingsAccentColour => 'د تاکيد رنګ';
+  String get settingsAccentColour => '‹‹Accent colour››';
 
   @override
-  String get settingsAccentSubtitle =>
-      'هغه رنګ چې په ټوله اپلیکیشن کې کارول کېږي';
+  String get settingsAccentSubtitle => '‹‹Tint used across the whole app››';
 
   @override
-  String get settingsReduceMotion => 'حرکت کمول';
+  String get settingsReduceMotion => '‹‹Reduce motion››';
 
   @override
   String get settingsReduceMotionSubtitle =>
-      'په ټوله اپلیکیشن کې لږ انیمیشنونه';
+      '‹‹Fewer animations throughout the app››';
 
   @override
-  String get settingsAccount => 'حساب';
+  String get settingsAccount => '‹‹Account››';
 
   @override
-  String get settingsLogout => 'وتل';
+  String get settingsLogout => '‹‹Log out››';
 
   @override
-  String get settingsLogoutSubtitle => 'له دې وسیلې وتل';
+  String get settingsLogoutSubtitle => '‹‹Sign out of this device››';
 
   @override
-  String get settingsThemeSystem => 'د سیسټم اصلي';
+  String get settingsThemeSystem => '‹‹System default››';
 
   @override
-  String get settingsThemeLight => 'روښانه';
+  String get settingsThemeLight => '‹‹Light››';
 
   @override
-  String get settingsThemeDark => 'تياره';
+  String get settingsThemeDark => '‹‹Dark››';
 
   @override
-  String get settingsLanguageSearchHint => 'ژبه ولټوئ...';
+  String get settingsLanguageSearchHint => '‹‹Search language...››';
 
   @override
   String get teacherWorkspaceSubtitle =>
-      'له موبایل اپلیکیشن څخه حاضري، نومليکونه او نمرې اداره کړئ.';
+      '‹‹Run attendance, rosters, and grading from the mobile app.››';
 
   @override
-  String get teacherMetricSessionsToday => 'د نن ورځې ناستې';
+  String get teacherMetricSessionsToday => '‹‹Sessions today››';
 
   @override
-  String get teacherMetricTeachingGroups => 'د تدریس ډلې';
+  String get teacherMetricTeachingGroups => '‹‹Teaching groups››';
 
   @override
-  String get teacherMetricAssessments => 'ارزونې';
+  String get teacherMetricAssessments => '‹‹Assessments››';
 
   @override
-  String get teacherQuickActions => 'چټک کارونه';
+  String get teacherQuickActions => '‹‹Quick actions››';
 
   @override
-  String get teacherNoDateAvailable => 'هیڅ نېټه شتون نلري';
+  String get teacherNoDateAvailable => '‹‹No date available››';
 
   @override
   String get teacherNoTeachingSlotsToday =>
-      'د نن ورځې لپاره د تدریس هیڅ وخت ندی ټاکل شوی.';
+      '‹‹No teaching slots scheduled today.››';
 
   @override
-  String get teacherUpcomingAssessments => 'راتلونکې ارزونې';
+  String get teacherUpcomingAssessments => '‹‹Upcoming assessments››';
 
   @override
   String get teacherUpcomingAssessmentsSubtitle =>
-      'د ښوونکي د نمرو ورکولو سیسټم څخه ژوندۍ';
+      '‹‹Live from the teacher grading system››';
 
   @override
-  String get teacherNoAssessmentsYet => 'تر اوسه هیڅ ارزونه نه ده جوړه شوې.';
+  String get teacherNoAssessmentsYet => '‹‹No assessments created yet.››';
 
   @override
-  String get teacherUnassignedSlot => 'نه ټاکل شوی وخت';
+  String get teacherUnassignedSlot => '‹‹Unassigned slot››';
 
   @override
-  String get teacherNoCohort => 'هیڅ ډله نشته';
+  String get teacherNoCohort => '‹‹No cohort››';
 
   @override
-  String get teacherCourseFallback => 'کورس';
+  String get teacherCourseFallback => '‹‹Course››';
 
   @override
   String teacherPeriod(Object number) {
-    return 'وخت $number';
+    return '‹‹Period $number››';
   }
 
   @override
-  String get teacherLoadErrorTitle => 'د ښوونکي کاري ځای بار نشو';
+  String get teacherLoadErrorTitle => '‹‹Could not load teacher workspace››';
 
   @override
   String get teacherClassroomsLoadError =>
-      'موږ همدا اوس ټولګيونه بار کولی نشو. د تازه کولو لپاره راکش کړئ یا بیا هڅه وکړئ.';
+      '‹‹We could not load classrooms right now. Pull to refresh or try again.››';
 
   @override
   String get teacherClassroomsLoadTimeout =>
-      'ټولګيونه د بار کېدو لپاره ډیر وخت نیسي. د تازه کولو لپاره راکش کړئ یا لږ وروسته بیا هڅه وکړئ.';
+      '‹‹Classrooms are taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get teacherClassroomsLoadNetwork =>
-      'ټولګيونه همدا اوس نشي نښلېدلی. خپله اړیکه وګورئ او بیا هڅه وکړئ.';
+      '‹‹Classrooms could not connect right now. Check your connection and try again.››';
 
   @override
   String get teacherClassroomsSubtitle =>
-      'نومليک پرانیزئ او د زده‌کوونکو د ننوتلو لپاره ژوندی کوډ جوړ کړئ.';
+      '‹‹Open the roster and generate a live join code for student entry.››';
 
   @override
   String get teacherClassroomsNoCohorts =>
-      'تر اوسه له دې ښوونکي سره هیڅ د ټولګي ډله نه ده تړل شوې.';
+      '‹‹No classroom cohorts are linked to this teacher yet.››';
 
   @override
   String teacherClassroomsCohort(Object cohortId) {
-    return 'ډله $cohortId';
+    return '‹‹Cohort $cohortId››';
   }
 
   @override
-  String get teacherClassroomsGeneratingJoinCode => 'جوړول…';
+  String get teacherClassroomsGeneratingJoinCode => '‹‹Generating…››';
 
   @override
-  String get teacherClassroomsCreateJoinCode => 'د یوځای کېدو کوډ جوړ کړئ';
+  String get teacherClassroomsCreateJoinCode => '‹‹Create join code››';
 
   @override
-  String get teacherClassroomsLiveJoinCode => 'ژوندی د یوځای کېدو کوډ';
+  String get teacherClassroomsLiveJoinCode => '‹‹Live join code››';
 
   @override
   String teacherClassroomsExpiresAt(Object value) {
-    return 'نېټه پای ته رسېږي $value';
+    return '‹‹Expires $value››';
   }
 
   @override
-  String get teacherClassroomsRoster => 'نومليک';
+  String get teacherClassroomsRoster => '‹‹Roster››';
 
   @override
   String get teacherClassroomsNoStudents =>
-      'تر اوسه په دې ټولګي کې هیڅ زده‌کوونکی نه دی نوم لیکلی.';
+      '‹‹No students are enrolled in this classroom yet.››';
 
   @override
   String get teacherAttendanceLoadError =>
-      'موږ همدا اوس حاضري بار کولی نشو. د تازه کولو لپاره راکش کړئ یا بیا هڅه وکړئ.';
+      '‹‹We could not load attendance right now. Pull to refresh or try again.››';
 
   @override
   String get teacherAttendanceLoadTimeout =>
-      'حاضري د بار کېدو لپاره ډیر وخت نیسي. د تازه کولو لپاره راکش کړئ یا لږ وروسته بیا هڅه وکړئ.';
+      '‹‹Attendance is taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get teacherAttendanceLoadNetwork =>
-      'حاضري همدا اوس نشي نښلېدلی. خپله اړیکه وګورئ او بیا هڅه وکړئ.';
+      '‹‹Attendance could not connect right now. Check your connection and try again.››';
 
   @override
   String get teacherAttendanceSubtitle =>
-      'یوه ژوندۍ ناسته وټاکئ، ټولګی نښه کړئ، او یوازې بدل شوي قطارونه خوندي کړئ.';
+      '‹‹Pick a live session, mark the room, and save only changed rows.››';
 
   @override
-  String get teacherAttendanceTodaySessions => 'د نن ورځې ناستې';
+  String get teacherAttendanceTodaySessions => '‹‹Today sessions››';
 
   @override
   String teacherAttendanceSessionSummary(
@@ -519,811 +595,815 @@ class AppLocalizationsPs extends AppLocalizations {
     Object date,
     Object period,
   ) {
-    return '$cohort • ټولګی $grade • $date • وخت $period';
+    return '‹‹$cohort • Grade $grade • $date • Period $period››';
   }
 
   @override
-  String get teacherAttendanceChanged => 'بدل شو';
+  String get teacherAttendanceChanged => '‹‹Changed››';
 
   @override
-  String get teacherAttendanceNoteLabel => 'یادښت';
+  String get teacherAttendanceNoteLabel => '‹‹Note››';
 
   @override
-  String get teacherAttendanceClassNotesLabel => 'د ټولګي یادښتونه';
+  String get teacherAttendanceClassNotesLabel => '‹‹Class notes››';
 
   @override
-  String get teacherAttendanceClassNotesHint => 'په دې ناسته کې څه تدریس شول…';
+  String get teacherAttendanceClassNotesHint =>
+      '‹‹What was covered in this session…››';
 
   @override
-  String get teacherAttendanceSaving => 'خوندي کول…';
+  String get teacherAttendanceSaving => '‹‹Saving…››';
 
   @override
-  String get teacherAttendanceSaveAll => 'حاضري خوندي کړئ';
+  String get teacherAttendanceSaveAll => '‹‹Save attendance››';
 
   @override
   String teacherAttendanceSaveCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count بدلونونه',
-      one: '۱ بدلون',
+      other: '$count changes',
+      one: '1 change',
     );
-    return '$_temp0 خوندي کړئ';
+    return '‹‹Save $_temp0››';
   }
 
   @override
-  String get teacherAttendanceSaved => 'حاضري خوندي شوه';
+  String get teacherAttendanceSaved => '‹‹Attendance saved››';
 
   @override
-  String get retry => 'بیا هڅه';
+  String get retry => '‹‹Retry››';
 
   @override
   String get scheduleRefreshTooFast =>
-      'مهالويش همدا اوس ډیر ژر تازه کېږي. لږ صبر وکړئ او بیا هڅه وکړئ.';
+      '‹‹Schedule is refreshing too fast right now. Wait a moment and try again.››';
 
   @override
   String get scheduleSessionExpired =>
-      'ستاسو ناسته پای ته رسېدلې. مهرباني وکړئ بیا ننوځئ.';
+      '‹‹Your session has expired. Please sign in again.››';
 
   @override
   String get scheduleNotOnboarded =>
-      'ستاسو د زده‌کوونکي پروفايل تر اوسه په بشپړه توګه جوړ نه دی. د خپل ښوونځي مدير څخه وغواړئ چې تاسو یوې ټولګي ته وټاکي.';
+      '‹‹Your student profile is not fully set up yet. Ask your school admin to assign you to a class.››';
 
   @override
-  String get scheduleLoadError => 'تر اوسه مهالويش بار نشو.';
+  String get scheduleLoadError => '‹‹Could not load schedule yet.››';
 
   @override
-  String get scheduleSelectedDay => 'ټاکل شوې ورځ';
+  String get scheduleSelectedDay => '‹‹Selected day››';
 
   @override
   String scheduleClassCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count ټولګي',
-      one: '۱ ټولګی',
-      zero: '۰ ټولګي',
+      other: '$count classes',
+      one: '1 class',
+      zero: '0 classes',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get scheduleNextUp => 'راتلونکی';
+  String get scheduleNextUp => '‹‹Next up››';
 
   @override
-  String get scheduleNoMoreClasses => 'نور ټولګي نشته';
+  String get scheduleNoMoreClasses => '‹‹No more classes››';
 
   @override
-  String get scheduleNoClassesTitle => 'په دې ورځ کې هیڅ ټولګی نشته';
+  String get scheduleNoClassesTitle => '‹‹No classes on this day››';
 
   @override
   String scheduleNoClassesSubtitle(Object day) {
-    return '$day ازاد ښکاري.';
+    return '‹‹$day looks clear.››';
   }
 
   @override
-  String get scheduleClassFallback => 'ټولګی';
+  String get scheduleClassFallback => '‹‹Class››';
 
   @override
-  String get scheduleNoSubjectLocation => 'تر اوسه هیڅ مضمون یا ځای نشته';
+  String get scheduleNoSubjectLocation => '‹‹No subject or location yet››';
 
   @override
-  String get scheduleNotes => 'یادښتونه';
+  String get scheduleNotes => '‹‹Notes››';
 
   @override
-  String get scheduleGoToClassroom => 'ټولګي ته لاړ شئ';
+  String get scheduleGoToClassroom => '‹‹Go to Classroom››';
 
   @override
-  String get loginTitle => 'د زده‌کوونکو او ښوونکو لپاره د موبایل ننوتل';
+  String get loginTitle => '‹‹Mobile login for students and teachers››';
 
   @override
   String get loginSubtitle =>
-      'د ښوونکي حسابونه د ښوونکي کاري ځای پرانیزي. د زده‌کوونکو حسابونه د زده‌کوونکي تجربې پر کې پاتې کېږي.';
+      '‹‹Teacher accounts open the teacher workspace. Student accounts stay on the student experience.››';
 
   @override
-  String get loginSignIn => 'ننوتل';
+  String get loginSignIn => '‹‹Sign in››';
 
   @override
-  String get biometricSignIn => 'د بیومټریک سره ننوتل';
+  String get biometricSignIn => '‹‹Sign in with biometrics››';
 
   @override
-  String get biometricEnable => 'د بیومټریک ننوتل فعال کړئ';
+  String get biometricEnable => '‹‹Enable biometric sign-in››';
 
   @override
-  String get biometricReason => 'ClassMate ته د ننوتلو لپاره تصدیق وکړئ';
+  String get biometricReason => '‹‹Authenticate to sign in to ClassMate››';
 
   @override
   String get biometricEnableReason =>
-      'د بیومټریک ننوتلو د فعالولو لپاره تصدیق وکړئ';
+      '‹‹Authenticate to enable biometric sign-in››';
 
   @override
-  String get biometricSignInFaceId => 'د Face ID سره ننوتل';
+  String get biometricSignInFaceId => '‹‹Sign in with Face ID››';
 
   @override
-  String get biometricSignInFingerprint => 'د ګوتې نښې سره ننوتل';
+  String get biometricSignInFingerprint => '‹‹Sign in with fingerprint››';
 
   @override
-  String get biometricOrSignInWith => 'یا د دې سره ننوتل';
+  String get biometricOrSignInWith => '‹‹or sign in with››';
 
   @override
   String get biometricNotSetUp =>
-      'تر اوسه هیڅ بیومټریک ننوتل نه دي تنظیم شوي. په پروفایل → بیومټریک ننوتل کې Face ID یا د ګوتې نښه فعاله کړئ.';
+      '‹‹No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.››';
 
   @override
   String get biometricNotRecognized =>
-      'بیومټریک ونه پېژندل شو. بیا هڅه وکړئ یا د خپل پټنوم سره ننوځئ.';
+      '‹‹Biometric not recognized. Try again or sign in with your password.››';
 
   @override
-  String get biometricFaceUnavailable => 'Face ID پدې وسیله کې شتون نلري.';
+  String get biometricFaceUnavailable =>
+      '‹‹Face ID isn\'t available on this device.››';
 
   @override
   String get biometricFingerprintUnavailable =>
-      'د ګوتې نښه پدې وسیله کې شتون نلري.';
+      '‹‹Fingerprint isn\'t available on this device.››';
 
   @override
-  String get biometricNotAvailableOnDevice => 'پدې وسیله کې شتون نلري';
+  String get biometricNotAvailableOnDevice =>
+      '‹‹Not available on this device››';
 
   @override
-  String get biometricSectionTitle => 'بیومټریک ننوتل';
+  String get biometricSectionTitle => '‹‹Biometric sign-in››';
 
   @override
   String get biometricSectionSubtitle =>
-      'د چټک ننوتلو لپاره Face ID یا خپله د ګوتې نښه فعاله کړئ. تاسو به یو ځل خپل پټنوم تایید کړئ.';
+      '‹‹Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.››';
 
   @override
-  String get biometricFaceId => 'Face ID';
+  String get biometricFaceId => '‹‹Face ID››';
 
   @override
-  String get biometricFaceIdDesc => 'د ننوتلو لپاره Face ID وکاروئ';
+  String get biometricFaceIdDesc => '‹‹Use Face ID to sign in››';
 
   @override
-  String get biometricFingerprint => 'د ګوتې نښه';
+  String get biometricFingerprint => '‹‹Fingerprint››';
 
   @override
-  String get biometricFingerprintDesc =>
-      'د ننوتلو لپاره خپله د ګوتې نښه وکاروئ';
+  String get biometricFingerprintDesc => '‹‹Use your fingerprint to sign in››';
 
   @override
-  String get biometricConfirmPasswordTitle => 'خپل پټنوم تایید کړئ';
+  String get biometricConfirmPasswordTitle => '‹‹Confirm your password››';
 
   @override
   String get biometricConfirmPasswordBody =>
-      'د بیومټریک ننوتلو د فعالولو لپاره خپل پټنوم ولیکئ.';
+      '‹‹Enter your password to turn on biometric sign-in.››';
 
   @override
   String get biometricPasswordIncorrect =>
-      'ناسم پټنوم. مهرباني وکړئ بیا هڅه وکړئ.';
+      '‹‹Incorrect password. Please try again.››';
 
   @override
   String get biometricEnrollFailed =>
-      'ستاسو بیومټریک تایید نشو. ډاډ ترلاسه کړئ چې Face ID یا د ګوتې نښه ستاسو د وسیلې په تنظیماتو کې تنظیم شوې ده.';
+      '‹‹Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.››';
 
   @override
   String get biometricEnterCredsFirst =>
-      'لومړی خپل بریښنالیک او پټنوم ولیکئ، بیا بیومټریک ننوتل فعال کړئ.';
+      '‹‹Enter your email and password first, then enable biometric sign-in.››';
 
   @override
   String get biometricLoginFailed =>
-      'بیومټریک ننوتل ناکام شو. مهرباني وکړئ د خپل پټنوم سره ننوځئ.';
+      '‹‹Biometric sign-in failed. Please sign in with your password.››';
 
   @override
-  String get biometricEnrollTitle => 'بیومټریک ننوتل فعال کړئ؟';
+  String get biometricEnrollTitle => '‹‹Enable biometric sign-in?››';
 
   @override
   String get biometricEnrollBody =>
-      'راتلونکی ځل د چټک ننوتلو لپاره Face ID یا خپله د ګوتې نښه وکاروئ.';
+      '‹‹Use Face ID or your fingerprint to sign in faster next time.››';
 
   @override
-  String get biometricEnrollYes => 'فعال کړئ';
+  String get biometricEnrollYes => '‹‹Enable››';
 
   @override
-  String get biometricEnrollNo => 'اوس نه';
+  String get biometricEnrollNo => '‹‹Not now››';
 
   @override
-  String get loginWelcomeTitle => 'بیرته ښه راغلاست';
+  String get loginWelcomeTitle => '‹‹Welcome back››';
 
   @override
-  String get loginWelcomeSubtitle => 'خپل ClassMate حساب ته ننوځئ.';
+  String get loginWelcomeSubtitle => '‹‹Sign in to your ClassMate account.››';
 
   @override
-  String get loginSigningIn => 'ننوتل...';
+  String get loginSigningIn => '‹‹Signing in...››';
 
   @override
-  String get loginEmailLabel => 'بریښنالیک یا د کارن نوم';
+  String get loginEmailLabel => '‹‹Email or username››';
 
   @override
-  String get loginPasswordLabel => 'پټنوم';
+  String get loginPasswordLabel => '‹‹Password››';
 
   @override
-  String get profileNotAvailable => 'شتون نلري';
+  String get profileNotAvailable => '‹‹Not available››';
 
   @override
-  String get profileSchoolInfo => 'د ښوونځي معلومات';
+  String get profileSchoolInfo => '‹‹School info››';
 
   @override
-  String get profileFullName => 'بشپړ نوم';
+  String get profileFullName => '‹‹Full name››';
 
   @override
-  String get profileRole => 'رول';
+  String get profileRole => '‹‹Role››';
 
   @override
-  String get profileSchoolId => 'د ښوونځي ID';
+  String get profileSchoolId => '‹‹School ID››';
 
   @override
-  String get profileCohortId => 'د ډلې ID';
+  String get profileCohortId => '‹‹Cohort ID››';
 
   @override
-  String get profileMyCohorts => 'زما ډلې';
+  String get profileMyCohorts => '‹‹My cohorts››';
 
   @override
   String get profileMyCohortsEmpty =>
-      'تاسو تر اوسه په هیڅ ډله کې نوم نه دی لیکلی.';
+      '‹‹You\'re not enrolled in any cohorts yet.››';
 
   @override
-  String get profileAccountInfo => 'د حساب معلومات';
+  String get profileAccountInfo => '‹‹Account info››';
 
   @override
-  String get profileUsername => 'د کارن نوم';
+  String get profileUsername => '‹‹Username››';
 
   @override
-  String get profileUsernameHint => 'your_username';
+  String get profileUsernameHint => '‹‹your_username››';
 
   @override
-  String get profileContactEmail => 'د اړیکې بریښنالیک';
+  String get profileContactEmail => '‹‹Contact email››';
 
   @override
-  String get profileEmailAddress => 'د بریښنالیک پته';
+  String get profileEmailAddress => '‹‹Email address››';
 
   @override
-  String get profileEmailHint => 'you@example.com';
+  String get profileEmailHint => '‹‹you@example.com››';
 
   @override
-  String get profileBirthday => 'د زیږون ورځ';
+  String get profileBirthday => '‹‹Birthday››';
 
   @override
-  String get profileSecurity => 'امنیت';
+  String get profileSecurity => '‹‹Security››';
 
   @override
-  String get profileSelectBirthday => 'خپله د زیږون ورځ وټاکئ';
+  String get profileSelectBirthday => '‹‹Select your birthday››';
 
   @override
-  String get profilePasswordUpdated => 'پټنوم تازه شو';
+  String get profilePasswordUpdated => '‹‹Password updated››';
 
   @override
-  String get profileSave => 'خوندي کول';
+  String get profileSave => '‹‹Save››';
 
   @override
-  String get profileEmptyValue => '—';
+  String get profileEmptyValue => '‹‹—››';
 
   @override
-  String get profileChangePassword => 'پټنوم بدل کړئ';
+  String get profileChangePassword => '‹‹Change password››';
 
   @override
-  String get profileCurrentPassword => 'اوسنی پټنوم';
+  String get profileCurrentPassword => '‹‹Current password››';
 
   @override
-  String get profileNewPassword => 'نوی پټنوم';
+  String get profileNewPassword => '‹‹New password››';
 
   @override
-  String get profileConfirmNewPassword => 'نوی پټنوم تایید کړئ';
+  String get profileConfirmNewPassword => '‹‹Confirm new password››';
 
   @override
-  String get profileUpdatePassword => 'پټنوم تازه کړئ';
+  String get profileUpdatePassword => '‹‹Update password››';
 
   @override
-  String get profilePasswordAllFieldsRequired => 'ټول ساحې اړینې دي';
+  String get profilePasswordAllFieldsRequired => '‹‹All fields are required››';
 
   @override
-  String get profilePasswordMinLength => 'نوی پټنوم باید لږ تر لږه ۸ توري وي';
+  String get profilePasswordMinLength =>
+      '‹‹New password must be at least 8 characters››';
 
   @override
-  String get profilePasswordMismatch => 'پټنومونه سره سمون نه خوري';
+  String get profilePasswordMismatch => '‹‹Passwords do not match››';
 
   @override
-  String get profilePasswordNotAuthenticated => 'تصدیق شوی نه دی';
+  String get profilePasswordNotAuthenticated => '‹‹Not authenticated››';
 
   @override
-  String get profilePasswordIncorrect => 'اوسنی پټنوم سم نه دی';
+  String get profilePasswordIncorrect => '‹‹Current password is incorrect››';
 
   @override
   String get profilePasswordGenericError =>
-      'یو څه ناسم شول. مهرباني وکړئ بیا هڅه وکړئ.';
+      '‹‹Something went wrong. Please try again.››';
 
   @override
-  String get editProfileTitle => 'پروفايل سمول';
+  String get editProfileTitle => '‹‹Edit profile››';
 
   @override
-  String get editProfileSchool => 'ښوونځی';
+  String get editProfileSchool => '‹‹School››';
 
   @override
-  String get editProfileSchoolPublic => 'ښوونځی عامه';
+  String get editProfileSchoolPublic => '‹‹School public››';
 
   @override
-  String get editProfileGradePublic => 'ټولګی عامه';
+  String get editProfileGradePublic => '‹‹Grade public››';
 
   @override
-  String get editProfileMajors => 'اصلي مضامین';
+  String get editProfileMajors => '‹‹Majors››';
 
   @override
-  String get editProfileMajorsPublic => 'اصلي مضامین عامه';
+  String get editProfileMajorsPublic => '‹‹Majors public››';
 
   @override
-  String get editProfileBio => 'ژوندلیک';
+  String get editProfileBio => '‹‹Bio››';
 
   @override
-  String get editProfileBioPublic => 'ژوندلیک عامه';
+  String get editProfileBioPublic => '‹‹Bio public››';
 
   @override
-  String get editProfileStatus => 'حالت';
+  String get editProfileStatus => '‹‹Status››';
 
   @override
-  String get editProfileStatusPublic => 'حالت عامه';
+  String get editProfileStatusPublic => '‹‹Status public››';
 
   @override
-  String get classroomsYourClassrooms => 'ستاسو ټولګيونه';
+  String get classroomsYourClassrooms => '‹‹Your classrooms››';
 
   @override
-  String get classroomsReorder => 'ټولګيونه بیا ترتیب کړئ';
+  String get classroomsReorder => '‹‹Reorder classrooms››';
 
   @override
   String classroomsCount(Object count) {
-    return '$count ټولګيونه';
+    return '‹‹$count classrooms››';
   }
 
   @override
-  String get classroomsSearchHint => 'ټولګيونه ولټوئ';
+  String get classroomsSearchHint => '‹‹Search classrooms››';
 
   @override
-  String get classroomsNoSearchMatches =>
-      'هیڅ ټولګی ستاسو له لټون سره سمون نه خوري';
+  String get classroomsNoSearchMatches => '‹‹No classrooms match your search››';
 
   @override
-  String get classroomsClassroomLabel => 'ټولګی';
+  String get classroomsClassroomLabel => '‹‹Classroom››';
 
   @override
-  String get classroomsLoadingLatestMessage => 'وروستی پیغام بارېږي...';
+  String get classroomsLoadingLatestMessage => '‹‹Loading latest message...››';
 
   @override
-  String get classroomsTapToOpen => 'د ټولګي د پرانستلو لپاره کېکاږئ';
+  String get classroomsTapToOpen => '‹‹Tap to open classroom››';
 
   @override
-  String get classroomsNoMessagesYet => 'تر اوسه هیڅ پیغام نشته';
+  String get classroomsNoMessagesYet => '‹‹No messages yet››';
 
   @override
-  String get classroomsMessageFallback => 'پیغام';
+  String get classroomsMessageFallback => '‹‹Message››';
 
   @override
-  String get examsLoadError => 'ازموینې یا فورمې بار نشوې';
+  String get examsLoadError => '‹‹Could not load exams or forms››';
 
   @override
-  String get examsAllFilter => 'ټول';
+  String get examsAllFilter => '‹‹All››';
 
   @override
   String get examsFormsSubtitle =>
-      'د ټولګي فورمې، د ځوابونو وختونه، او ستاسو د ښوونځي لخوا خپاره شوي تعقیبونه وګورئ.';
+      '‹‹Review classroom forms, response windows, and follow-ups published by your school.››';
 
   @override
   String get examsOnlySubtitle =>
-      'د خپلو ټولګیو راتلونکې ارزونې، شمیرنې، او د تېرو ازموینو ریکارډونه تعقیب کړئ.';
+      '‹‹Track upcoming assessments, countdowns, and past exam records from your classes.››';
 
   @override
-  String get examsUpcomingStat => 'راتلونکې ازموینې';
+  String get examsUpcomingStat => '‹‹Upcoming exams››';
 
   @override
-  String get examsOpenFormsStat => 'خلاصې فورمې';
+  String get examsOpenFormsStat => '‹‹Open forms››';
 
   @override
-  String get examsCountdownPast => 'تېرې';
+  String get examsCountdownPast => '‹‹Past››';
 
   @override
-  String get examsCountdownTomorrow => 'سبا';
+  String get examsCountdownTomorrow => '‹‹Tomorrow››';
 
   @override
   String examsCountdownInDays(Object days) {
-    return 'په $days ورځو کې';
+    return '‹‹In $days days››';
   }
 
   @override
-  String get examsNoExamsPublished => 'تر اوسه هیڅ ازموینه نه ده خپره شوې.';
+  String get examsNoExamsPublished => '‹‹No exams have been published yet.››';
 
   @override
-  String get examsNoFormsPublished => 'تر اوسه هیڅ فورمه نه ده خپره شوې.';
+  String get examsNoFormsPublished => '‹‹No forms have been published yet.››';
 
   @override
   String examsNoExamsForFilter(Object subject) {
-    return 'همدا اوس د $subject لپاره هیڅ ازموینه شتون نلري.';
+    return '‹‹No exams are available for $subject right now.››';
   }
 
   @override
   String examsNoFormsForFilter(Object subject) {
-    return 'همدا اوس د $subject لپاره هیڅ فورمه شتون نلري.';
+    return '‹‹No forms are available for $subject right now.››';
   }
 
   @override
   String examsMaterialsCount(Object count) {
-    return '$count موادونه';
+    return '‹‹$count materials››';
   }
 
   @override
-  String get examsOpenState => 'خلاص';
+  String get examsOpenState => '‹‹Open››';
 
   @override
-  String get examsClosedState => 'تړل شوی';
+  String get examsClosedState => '‹‹Closed››';
 
   @override
   String examsQuestionsCount(Object count) {
-    return '$count پوښتنې';
+    return '‹‹$count questions››';
   }
 
   @override
   String examsResponsesCount(Object count) {
-    return '$count ځوابونه';
+    return '‹‹$count responses››';
   }
 
   @override
-  String get insightsTrendBaseline => 'بنسټ';
+  String get insightsTrendBaseline => '‹‹Baseline››';
 
   @override
-  String get insightsTrendImproving => 'ښه کېدونکی';
+  String get insightsTrendImproving => '‹‹Improving››';
 
   @override
-  String get insightsTrendDropping => 'ښکته کېدونکی';
+  String get insightsTrendDropping => '‹‹Dropping››';
 
   @override
-  String get insightsTrendStable => 'ثابت';
+  String get insightsTrendStable => '‹‹Stable››';
 
   @override
-  String get insightsHeadlineIntervention => 'د مداخلې وخت خلاص دی';
+  String get insightsHeadlineIntervention => '‹‹Intervention window is open››';
 
   @override
-  String get insightsHeadlineSignals => 'څو نښې سمولو ته اړتیا لري';
+  String get insightsHeadlineSignals => '‹‹Several signals need tightening››';
 
   @override
-  String get insightsHeadlineMomentum => 'حرکت کولی شي دا اونۍ زیات شي';
+  String get insightsHeadlineMomentum => '‹‹Momentum can compound this week››';
 
   @override
   String get insightsBodyAttendance =>
-      'لومړی حاضري وساتئ. اوس ښه شتون به هره بله نښه ژر لوړه کړي.';
+      '‹‹Protect attendance first. Better presence now will raise every other signal faster.››';
 
   @override
   String insightsBodyWeakTrend(Object subject) {
-    return '$subject او د تمرین ښکته کېدونکی روند همدا اوس ترټولو لوی خطرناک ترکیب دی. د پراختیا دمخه دا سم کړئ.';
+    return '‹‹$subject plus a falling practice trend is the biggest risk combo right now. Fix that before expanding.››';
   }
 
   @override
   String insightsBodyLeverage(Object subject) {
-    return '$subject ستاسو د قوت ټکی دی. له دې څخه ګټه واخلئ چې اعتماد جوړ کړئ پداسې حال کې چې کمزوري برخې سموئ.';
+    return '‹‹$subject is your leverage point. Use it to build confidence while you patch weaker areas.››';
   }
 
   @override
   String get insightsBodyConsistency =>
-      'لنډ متمرکز ناستې جوړوئ. راتلونکې څو ورځې له بشپړ اوږدمهاله پلان څخه ډیر مهمې دي.';
+      '‹‹Keep stacking short focused sessions. The next few days matter more than a perfect long-term plan.››';
 
   @override
-  String get insightsInterventionScoreTitle => 'د مداخلې نمره';
+  String get insightsInterventionScoreTitle => '‹‹Intervention score››';
 
   @override
   String insightsInterventionScoreBody(Object count) {
-    return '$count فعالې نښې ستاسو راتلونکی حرکت جوړوي.';
+    return '‹‹$count active signals are shaping your next move.››';
   }
 
   @override
-  String get insightsRecoveryPathTitle => 'د ژغورنې ترټولو ګړندۍ لار';
+  String get insightsRecoveryPathTitle => '‹‹Fastest recovery path››';
 
   @override
-  String get insightsRecoveryPathDefault => 'لومړی حاضري + دوام.';
+  String get insightsRecoveryPathDefault =>
+      '‹‹Attendance + consistency first.››';
 
   @override
   String insightsRecoveryPathTopic(Object topic, Object subject) {
-    return 'د نور هڅې کولو دمخه $topic په $subject کې بیا وګورئ.';
+    return '‹‹Revisit $topic in $subject before pushing harder.››';
   }
 
   @override
-  String get insightsProjectedDirectionTitle => 'اټکل شوې لوري';
+  String get insightsProjectedDirectionTitle => '‹‹Projected direction››';
 
   @override
   String insightsProjectedDirectionBody(Object trend) {
-    return '$trend د وروستي ۷ ورځو په پرتله د ۳۰ ورځو د تمرین چلند پر بنسټ.';
+    return '‹‹$trend based on recent 7d vs 30d practice behavior.››';
   }
 
   @override
-  String get insightsLoadingTitle => 'کتنې بارېږي';
+  String get insightsLoadingTitle => '‹‹Insights loading››';
 
   @override
-  String get insightsLoadingSubtitle => 'ستاسو د وړاندوینې ډشبورډ جوړېږي.';
+  String get insightsLoadingSubtitle =>
+      '‹‹Building your predictive dashboard.››';
 
   @override
-  String get insightsNotReadyTitle => 'کتنې تر اوسه چمتو نه دي';
+  String get insightsNotReadyTitle => '‹‹Insights are not ready yet››';
 
   @override
-  String get insightsEmptyTitle => 'تر اوسه هیڅ کتنه نشته';
+  String get insightsEmptyTitle => '‹‹No insights yet››';
 
   @override
   String get insightsEmptySubtitle =>
-      'تمرین او د خپل ښوونځي وسایل کارول دوام ورکړئ ترڅو ClassMate وکولی شي روښانه علمي انځور جوړ کړي.';
+      '‹‹Keep using practice and your school tools so ClassMate can build a clearer academic picture.››';
 
   @override
-  String get insightsGradeAverage => 'د نمرو منځنۍ';
+  String get insightsGradeAverage => '‹‹Grade avg››';
 
   @override
-  String get insightsAccuracy => 'دقت';
+  String get insightsAccuracy => '‹‹Accuracy››';
 
   @override
-  String get insightsOpenNova => 'NOVA پرانیزئ';
+  String get insightsOpenNova => '‹‹Open NOVA››';
 
   @override
   String get insightsOpenNovaPrompt =>
-      'زما د وروستیو ClassMate کتنو پر بنسټ زما د کمزورې برخې په سمولو کې مرسته وکړه.';
+      '‹‹Help me fix my weakest area based on my latest ClassMate insights.››';
 
   @override
-  String get insightsPredictiveRecoveryPlanTitle => 'د وړاندوینې د ژغورنې پلان';
+  String get insightsPredictiveRecoveryPlanTitle =>
+      '‹‹Predictive recovery plan››';
 
   @override
-  String get insightsPracticeNow => 'همدا اوس تمرین وکړئ';
+  String get insightsPracticeNow => '‹‹Practice now››';
 
   @override
-  String get insightsPredictiveModulesTitle => 'د وړاندوینې ماډلونه';
+  String get insightsPredictiveModulesTitle => '‹‹Predictive modules››';
 
   @override
   String get insightsPredictiveModulesSubtitle =>
-      'ستاسو د اوسني زده‌کوونکي معلوماتو څخه ترټولو پیاوړې مخکې لیدونکې نښې.';
+      '‹‹The strongest forward-looking signals from your current student data.››';
 
   @override
-  String get insightsAnnouncementsPressureTitle => 'د اعلانونو فشار';
+  String get insightsAnnouncementsPressureTitle => '‹‹Announcements pressure››';
 
   @override
   String get insightsAnnouncementsPressureSubtitle =>
-      'د اعلانونو انجن اوس مستقیماً ډشبورډ ته معلومات ورکوي.';
+      '‹‹The announcement engine is now feeding the dashboard directly.››';
 
   @override
-  String get insightsAiCoachTitle => 'د AI روزونکي لنډیز';
+  String get insightsAiCoachTitle => '‹‹AI coach summary››';
 
   @override
-  String get insightsAiCoachLoadingSubtitle => 'د AI لارښوونه بارېږي.';
+  String get insightsAiCoachLoadingSubtitle => '‹‹Loading AI guidance.››';
 
   @override
   String get insightsAiCoachUnavailableSubtitle =>
-      'د دې حساب لپاره همدا اوس د AI لارښوونه شتون نلري.';
+      '‹‹AI guidance is unavailable for this account right now.››';
 
   @override
-  String get insightsAskNova => 'له NOVA څخه وپوښتئ';
+  String get insightsAskNova => '‹‹Ask NOVA››';
 
   @override
   String get insightsAskNovaPrompt =>
-      'زما د وروستیو کتنو څخه زما لپاره د ژغورنې پلان جوړ کړه.';
+      '‹‹Build me a recovery plan from my latest insights.››';
 
   @override
-  String get insightsAiStudyCoachTitle => 'د AI زده‌کړې روزونکی';
+  String get insightsAiStudyCoachTitle => '‹‹AI study coach››';
 
   @override
-  String get insightsSchoolToolsTitle => 'د ښوونځي وسایل';
+  String get insightsSchoolToolsTitle => '‹‹School tools››';
 
   @override
   String get insightsSchoolToolsSubtitle =>
-      'مستقیماً هغو زده‌کوونکي لارو ته ورننوځئ چې اوس ترټولو مهمې دي.';
+      '‹‹Jump directly into the student routes that now matter most.››';
 
   @override
-  String get tutorUntitledChat => 'بې‌سرليکه چټ';
+  String get tutorUntitledChat => '‹‹Untitled chat››';
 
   @override
-  String get tutorNewChat => 'نوی چټ';
+  String get tutorNewChat => '‹‹New chat››';
 
   @override
   String tutorFailedToOpenSeededChat(Object error) {
-    return 'چټ پرانستل ناکام شول: $error';
+    return '‹‹Failed to open chat: $error››';
   }
 
   @override
   String tutorFailedToCreateChat(Object error) {
-    return 'د چټ جوړول ناکام شول: $error';
+    return '‹‹Failed to create chat: $error››';
   }
 
   @override
-  String get tutorRenameChatTitle => 'چټ بیا نومول';
+  String get tutorRenameChatTitle => '‹‹Rename chat››';
 
   @override
-  String get tutorChatNameHint => 'د چټ نوم';
+  String get tutorChatNameHint => '‹‹Chat name››';
 
   @override
-  String get tutorCancel => 'لغوه کول';
+  String get tutorCancel => '‹‹Cancel››';
 
   @override
-  String get tutorHide => 'پټول';
+  String get tutorHide => '‹‹Hide››';
 
   @override
-  String get tutorHideChatTitle => 'چټ پټ کړئ';
+  String get tutorHideChatTitle => '‹‹Hide chat››';
 
   @override
-  String get tutorHideChatSubtitle => 'دا چټ په دې وسیله کې پټوي.';
+  String get tutorHideChatSubtitle => '‹‹Hides this chat on this device.››';
 
   @override
-  String get tutorHideChatConfirmTitle => 'چټ پټ کړئ؟';
+  String get tutorHideChatConfirmTitle => '‹‹Hide chat?››';
 
   @override
   String get tutorHideChatConfirmBody =>
-      'دا چټ په دې وسیله کې له لیست څخه پټوي. ناسته په باطنی سیسټم کې پاتې کېږي.';
+      '‹‹This hides the chat from the list on this device. The session stays on the backend.››';
 
   @override
-  String get tutorTapToOpenHistory => 'د تاریخچې د پرانستلو لپاره کېکاږئ';
+  String get tutorTapToOpenHistory => '‹‹Tap to open history››';
 
   @override
-  String get tutorAiTutorSubtitle => 'ستاسو AI ښوونکی';
+  String get tutorAiTutorSubtitle => '‹‹Your AI tutor››';
 
   @override
-  String get tutorHeroBody => 'ریښتیني د چټ تاریخچه، پاک تارونه، چټکه لاسرسی.';
+  String get tutorHeroBody =>
+      '‹‹Real chat history, cleaner threads, faster access.››';
 
   @override
-  String get tutorStartFreshConversation => 'نوې خبرې اترې پیل کړئ';
+  String get tutorStartFreshConversation => '‹‹Start a fresh conversation››';
 
   @override
-  String get tutorSearchHistoryHint => 'د چټ تاریخچه ولټوئ';
+  String get tutorSearchHistoryHint => '‹‹Search chat history››';
 
   @override
-  String get chatComposerDefaultHint => 'پیغام';
+  String get chatComposerDefaultHint => '‹‹Message››';
 
   @override
-  String get chatComposerReplyingToMessage => 'پیغام ته ځواب ورکول';
+  String get chatComposerReplyingToMessage => '‹‹Replying to message››';
 
   @override
-  String get chatComposerReplyFallback => 'ځواب';
+  String get chatComposerReplyFallback => '‹‹Reply››';
 
   @override
   String get chatComposerMicHint =>
-      'د چټک غږیز یادښت لپاره کېکاږئ یا د ثبت لپاره ونیسئ';
+      '‹‹Tap for a quick voice note or hold to record››';
 
   @override
-  String get chatComposerRecordingTitle => 'ثبتول';
+  String get chatComposerRecordingTitle => '‹‹Recording››';
 
   @override
-  String get chatComposerReleaseToSend => 'د لېږلو لپاره خوشې کړئ';
+  String get chatComposerReleaseToSend => '‹‹Let go to send››';
 
   @override
-  String get chatComposerCancelTitle => 'لغوه کول';
+  String get chatComposerCancelTitle => '‹‹Cancel››';
 
   @override
-  String get chatComposerLockTitle => 'تړل';
+  String get chatComposerLockTitle => '‹‹Lock››';
 
   @override
-  String get chatComposerSlideLeftToCancel =>
-      'د لغوه کولو لپاره کیڼ ته ښکته کړئ';
+  String get chatComposerSlideLeftToCancel => '‹‹Slide left to cancel››';
 
   @override
-  String get chatComposerSlideUpToLock => 'د تړلو لپاره پورته ښکته کړئ';
+  String get chatComposerSlideUpToLock => '‹‹Slide up to lock››';
 
   @override
-  String get chatComposerReleaseToCancel => 'د لغوه کولو لپاره خوشې کړئ';
+  String get chatComposerReleaseToCancel => '‹‹Release to cancel››';
 
   @override
-  String get chatComposerKeepSlidingToCancel =>
-      'د لغوه کولو لپاره ښکته کول دوام ورکړئ';
+  String get chatComposerKeepSlidingToCancel => '‹‹Keep sliding to cancel››';
 
   @override
-  String get chatComposerReleaseToLock => 'د تړلو لپاره خوشې کړئ';
+  String get chatComposerReleaseToLock => '‹‹Release to lock››';
 
   @override
-  String get chatComposerRelease => 'خوشې کول';
+  String get chatComposerRelease => '‹‹Release››';
 
   @override
-  String get chatComposerLock => 'تړل';
+  String get chatComposerLock => '‹‹Lock››';
 
   @override
-  String get chatComposerRecordingPaused => 'ثبتول ودرول شول';
+  String get chatComposerRecordingPaused => '‹‹Recording paused››';
 
   @override
-  String get chatComposerRecordingLocked => 'ثبتول وتړل شول';
+  String get chatComposerRecordingLocked => '‹‹Recording locked››';
 
   @override
   String get chatComposerResumeHint =>
-      'کله چې د ثبتولو دوام ته چمتو شئ بیا پیل کړئ';
+      '‹‹Resume when you are ready to keep recording››';
 
   @override
   String get chatComposerLockedHint =>
-      'کله چې د شریکولو لپاره چمتو شئ لېږل کېکاږئ';
+      '‹‹Tap send when you are ready to share››';
 
   @override
-  String get chatContextDismiss => 'لرې کول';
+  String get chatContextDismiss => '‹‹Dismiss››';
 
   @override
-  String get chatContextCopyText => 'متن کاپي کول';
+  String get chatContextCopyText => '‹‹Copy text››';
 
   @override
-  String get chatContextDelete => 'ړنګول';
+  String get chatContextDelete => '‹‹Delete››';
 
   @override
-  String get chatMessageInfoShortTitle => 'معلومات';
+  String get chatMessageInfoShortTitle => '‹‹Info››';
 
   @override
-  String get chatMessageInfoStatus => 'حالت';
+  String get chatMessageInfoStatus => '‹‹Status››';
 
   @override
-  String get chatMessageInfoStatusTime => 'د حالت وخت';
+  String get chatMessageInfoStatusTime => '‹‹Status time››';
 
   @override
-  String get chatMessageInfoSentAt => 'لېږل شوی په';
+  String get chatMessageInfoSentAt => '‹‹Sent at››';
 
   @override
-  String get chatMessageInfoDeliveredAt => 'ورسېدلی په';
+  String get chatMessageInfoDeliveredAt => '‹‹Delivered at››';
 
   @override
-  String get chatMessageInfoSeenAt => 'لیدل شوی په';
+  String get chatMessageInfoSeenAt => '‹‹Seen at››';
 
   @override
-  String get chatMessageInfoMessageType => 'د پیغام ډول';
+  String get chatMessageInfoMessageType => '‹‹Message type››';
 
   @override
-  String get chatMessageInfoTextType => 'متن';
+  String get chatMessageInfoTextType => '‹‹Text››';
 
   @override
-  String get chatMessageInfoEdited => 'سم شوی';
+  String get chatMessageInfoEdited => '‹‹Edited››';
 
   @override
-  String get chatMessageInfoForwarded => 'لېږدول شوی';
+  String get chatMessageInfoForwarded => '‹‹Forwarded››';
 
   @override
-  String get chatMessageInfoVoiceDuration => 'د غږ موده';
+  String get chatMessageInfoVoiceDuration => '‹‹Voice duration››';
 
   @override
-  String get chatMessageInfoSeenBy => 'لیدل شوی د';
+  String get chatMessageInfoSeenBy => '‹‹Seen by››';
 
   @override
-  String get chatMessageInfoDeliveredTo => 'ورسېدلی تر';
+  String get chatMessageInfoDeliveredTo => '‹‹Delivered to››';
 
   @override
-  String get chatMessageInfoEmptyBody => '(خالي)';
+  String get chatMessageInfoEmptyBody => '‹‹(empty)››';
 
   @override
-  String get chatMessageInfoReadLess => 'لږ ولولئ';
+  String get chatMessageInfoReadLess => '‹‹Read less››';
 
   @override
-  String get chatMessageInfoReadMore => 'نور ولولئ';
+  String get chatMessageInfoReadMore => '‹‹Read more››';
 
   @override
-  String get chatMessageInfoSeen => 'لیدل شوی';
+  String get chatMessageInfoSeen => '‹‹Seen››';
 
   @override
-  String get chatMessageInfoDelivered => 'ورسېدلی';
+  String get chatMessageInfoDelivered => '‹‹Delivered››';
 
   @override
-  String get chatMessageInfoNotDelivered => 'نه دی ورسېدلی';
+  String get chatMessageInfoNotDelivered => '‹‹Not delivered››';
 
   @override
-  String get chatMessageInfoSent => 'لېږل شوی';
+  String get chatMessageInfoSent => '‹‹Sent››';
 
   @override
-  String get chatMessageInfoPending => 'په تمه';
+  String get chatMessageInfoPending => '‹‹Pending››';
 
   @override
-  String get chatMessageInfoNotSeen => 'نه دی لیدل شوی';
+  String get chatMessageInfoNotSeen => '‹‹Not seen››';
 
   @override
-  String get chatMessageInfoType => 'ډول';
+  String get chatMessageInfoType => '‹‹Type››';
 
   @override
-  String get chatMessageInfoDuration => 'موده';
+  String get chatMessageInfoDuration => '‹‹Duration››';
 
   @override
-  String get chatMessageInfoYes => 'هو';
+  String get chatMessageInfoYes => '‹‹Yes››';
 
   @override
-  String get chatMessageInfoNo => 'نه';
+  String get chatMessageInfoNo => '‹‹No››';
 
   @override
-  String get chatMessageInfoDeleteState => 'د ړنګولو حالت';
+  String get chatMessageInfoDeleteState => '‹‹Delete state››';
 
   @override
-  String get chatReactionDetailsTitle => 'غبرګونونه';
+  String get chatReactionDetailsTitle => '‹‹Reactions››';
 
   @override
-  String get chatReactionAddAction => 'غبرګون اضافه کړئ';
+  String get chatReactionAddAction => '‹‹Add reaction››';
 
   @override
-  String get chatReactionEmptyState => 'تر اوسه هیڅ غبرګون نشته';
+  String get chatReactionEmptyState => '‹‹No reactions yet››';
 
   @override
-  String get chatReactionSingle => 'غبرګون';
+  String get chatReactionSingle => '‹‹Reaction››';
 
   @override
-  String get chatReactionTapToRemove => 'د لرې کولو لپاره کېکاږئ';
+  String get chatReactionTapToRemove => '‹‹Tap to remove››';
 
   @override
   String chatReactionYouCount(int count) {
@@ -1333,7 +1413,7 @@ class AppLocalizationsPs extends AppLocalizations {
       other: ' · $count',
       one: '',
     );
-    return 'تاسو$_temp0';
+    return '‹‹You$_temp0››';
   }
 
   @override
@@ -1341,285 +1421,285 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count غبرګونونه',
-      one: 'غبرګون',
+      other: '$count reactions',
+      one: 'Reaction',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get chatEmojiPickerTitle => 'ايموجي وټاکئ';
+  String get chatEmojiPickerTitle => '‹‹Choose emoji››';
 
   @override
-  String get chatEmojiPickerSearchHint => 'د ایموجي لټون';
+  String get chatEmojiPickerSearchHint => '‹‹Search emoji››';
 
   @override
-  String get chatEmojiPickerEmptyState => 'هیڅ ایموجي ونه موندل شو';
+  String get chatEmojiPickerEmptyState => '‹‹No emoji found››';
 
   @override
-  String get chatCameraTitle => 'کامره';
+  String get chatCameraTitle => '‹‹Camera››';
 
   @override
-  String get chatCameraUseAction => 'وکاروه';
+  String get chatCameraUseAction => '‹‹Use››';
 
   @override
-  String get chatCameraGalleryAction => 'ګالري';
+  String get chatCameraGalleryAction => '‹‹Gallery››';
 
   @override
   String chatCameraSelectedCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count غوره شوي',
-      one: '۱ غوره شو',
-      zero: '۰ غوره شوي',
+      other: '$count selected',
+      one: '1 selected',
+      zero: '0 selected',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get chatMediaPreviewEmptyState => 'د کتلو لپاره هیڅ شته نه دي';
+  String get chatMediaPreviewEmptyState => '‹‹Nothing to preview››';
 
   @override
-  String get chatMediaPreviewDrawCropAction => 'انځورول او پرېکول';
+  String get chatMediaPreviewDrawCropAction => '‹‹Draw & Crop››';
 
   @override
-  String get chatMediaPreviewRotateLeftAction => 'کیڼ لور ته وګرځوه';
+  String get chatMediaPreviewRotateLeftAction => '‹‹Rotate left››';
 
   @override
-  String get chatMediaPreviewRotateRightAction => 'ښي لور ته وګرځوه';
+  String get chatMediaPreviewRotateRightAction => '‹‹Rotate right››';
 
   @override
-  String get chatMediaPreviewMirrorAction => 'هنداره';
+  String get chatMediaPreviewMirrorAction => '‹‹Mirror››';
 
   @override
-  String get chatMediaPreviewResetAction => 'بیا تنظیم';
+  String get chatMediaPreviewResetAction => '‹‹Reset››';
 
   @override
-  String get chatMediaPreviewRemoveAction => 'لرې کړه';
+  String get chatMediaPreviewRemoveAction => '‹‹Remove››';
 
   @override
-  String get chatMediaPreviewCaptionHint => 'یو شرح ورزیات کړه...';
+  String get chatMediaPreviewCaptionHint => '‹‹Add a caption...››';
 
   @override
   String tutorPlanSelectedPlaceholder(Object plan) {
-    return '$plan غوره شو. تادیات اوس مهال په آزمایشي حالت کې پاتې دي.';
+    return '‹‹$plan selected. Payments stay in placeholder mode for now.››';
   }
 
   @override
-  String get tutorFailedToLoadChats => 'خبرې اترې نه شوې پورته کېدای';
+  String get tutorFailedToLoadChats => '‹‹Failed to load chats››';
 
   @override
-  String get tutorNoChatsYet => 'تر اوسه هیڅ خبرې اترې نشته';
+  String get tutorNoChatsYet => '‹‹No chats yet››';
 
   @override
-  String get tutorNoChatsMatchSearch =>
-      'ستا د لټون سره سمه خبرې اتره ونه موندل شوه';
+  String get tutorNoChatsMatchSearch => '‹‹No chats match your search››';
 
   @override
-  String get tutorCreateFirstChat => 'لومړۍ خبرې اتره جوړه کړه';
+  String get tutorCreateFirstChat => '‹‹Create first chat››';
 
   @override
-  String get tutorPlansTitle => 'د NOVA پلانونه';
+  String get tutorPlansTitle => '‹‹NOVA plans››';
 
   @override
   String tutorPlansSubtitle(Object model) {
-    return 'د $model د لګښت اټکلونو او سختو میاشتنیو حدودو پر بنسټ ترڅو کارونه ګټوره پاتې شي.';
+    return '‹‹Based on $model cost assumptions and hard monthly caps so usage stays profitable.››';
   }
 
   @override
-  String get tutorPlanPriceFree => 'وړیا';
+  String get tutorPlanPriceFree => '‹‹Free››';
 
   @override
   String tutorPlanPriceMonthly(Object price) {
-    return '\$$price/میاشت';
+    return '‹‹\$$price/mo››';
   }
 
   @override
-  String get tutorPromptsLeft => 'پاتې پوښتنې';
+  String get tutorPromptsLeft => '‹‹Prompts left››';
 
   @override
-  String get tutorUploadsLeft => 'پاتې اپلوډونه';
+  String get tutorUploadsLeft => '‹‹Uploads left››';
 
   @override
-  String get tutorVoiceLeft => 'پاتې غږ';
+  String get tutorVoiceLeft => '‹‹Voice left››';
 
   @override
   String tutorUsageValue(Object remaining, Object total) {
-    return '$remaining/$total';
+    return '‹‹$remaining/$total››';
   }
 
   @override
   String tutorVoiceUsageValue(Object remaining, Object total) {
-    return '$remaining/$total دقیقې';
+    return '‹‹$remaining/$total min››';
   }
 
   @override
-  String get tutorPaymentMethodsTitle => 'د تادیې لارې';
+  String get tutorPaymentMethodsTitle => '‹‹Payment methods››';
 
   @override
   String tutorPaymentMethodsSubtitle(Object plan) {
-    return 'ترهغه چې د ClassMate بانکي حساب او پروسس کوونکی فعال نه شي، چک‌آوټ یوازې آزمایشي دی. غوره شوی پلان $plan دی.';
+    return '‹‹Checkout is placeholder-only until the ClassMate bank account and processor are live. The selected plan is $plan.››';
   }
 
   @override
-  String get tutorCardCheckoutTitle => 'د کارت چک‌آوټ';
+  String get tutorCardCheckoutTitle => '‹‹Card checkout››';
 
   @override
   String get tutorCardCheckoutSubtitle =>
-      'د Visa، Mastercard، AmEx آزمایشي دروازه.';
+      '‹‹Visa, Mastercard, AmEx placeholder gateway.››';
 
   @override
-  String get tutorApplePayTitle => 'Apple Pay';
+  String get tutorApplePayTitle => '‹‹Apple Pay››';
 
   @override
   String get tutorApplePaySubtitle =>
-      'د iPhone او ویب لپاره آزمایشي د والټ بهیر.';
+      '‹‹Placeholder wallet flow for iPhone and web.››';
 
   @override
-  String get tutorBankTransferTitle => 'بانکي لیږد';
+  String get tutorBankTransferTitle => '‹‹Bank transfer››';
 
   @override
   String get tutorBankTransferSubtitle =>
-      'د ClassMate بانکي حساب تر پروسې لاندې دی. تفصیلات به د پرانیستلو سره ډک شي.';
+      '‹‹ClassMate bank account pending. Details will be filled once opened.››';
 
   @override
-  String get tutorPlanStarterName => 'پیلوونکی';
+  String get tutorPlanStarterName => '‹‹Starter››';
 
   @override
   String get tutorPlanStarterTagline =>
-      'د آزموینې او سپک اوونیز تکرار لپاره بسیا.';
+      '‹‹Enough for trial and light weekly revision.››';
 
   @override
-  String get tutorPlanPlusName => 'پلس';
+  String get tutorPlanPlusName => '‹‹Plus››';
 
   @override
   String get tutorPlanPlusTagline =>
-      'د یوه جدي زده‌کوونکي لپاره غوره چې ډېرې ورځې NOVA کاروي.';
+      '‹‹Best for one serious student using NOVA most days.››';
 
   @override
-  String get tutorPlanProName => 'پرو';
+  String get tutorPlanProName => '‹‹Pro››';
 
   @override
   String get tutorPlanProTagline =>
-      'درنه ورځنۍ کارونه، بشپړ د امتحانونو موسم، او اوږدې مطالعه ناستې.';
+      '‹‹Heavy daily use, full exam season, and long study sessions.››';
 
   @override
-  String get tutorPlanSchoolSeatName => 'د ښوونځي څوکۍ';
+  String get tutorPlanSchoolSeatName => '‹‹School Seat››';
 
   @override
   String get tutorPlanSchoolSeatTagline =>
-      'د هر زده‌کوونکي یا کارمند څوکۍ لپاره د یوه ریښتیني ښوونځي دننه.';
+      '‹‹For rollout per student or staff seat inside a real school.››';
 
   @override
   String tutorPlanBulletPromptsMonthly(Object count) {
-    return 'هره میاشت $count د NOVA پوښتنې';
+    return '‹‹$count NOVA prompts each month››';
   }
 
   @override
   String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
-    return 'هرې څوکۍ ته میاشتنۍ $count د NOVA پوښتنې';
+    return '‹‹$count NOVA prompts per seat monthly››';
   }
 
   @override
   String tutorPlanBulletUploads(Object count) {
-    return '$count انځور یا فایل اپلوډونه';
+    return '‹‹$count image or file uploads››';
   }
 
   @override
   String tutorPlanBulletVoiceMinutes(Object count) {
-    return '$count د غږ لیکنې دقیقې';
+    return '‹‹$count voice transcription minutes››';
   }
 
   @override
   String tutorEstimatedCostCeilingFree(Object cost) {
-    return 'اټکل شوی د لګښت حد: \$$cost/میاشت';
+    return '‹‹Estimated cost ceiling: \$$cost/mo››';
   }
 
   @override
   String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
-    return 'اټکل شوی د لګښت حد: \$$cost/میاشت • ګټه $margin%';
+    return '‹‹Estimated cost ceiling: \$$cost/mo • margin $margin%››';
   }
 
   @override
   String tutorTimeMinutesShort(Object count) {
-    return '$countد';
+    return '‹‹${count}m››';
   }
 
   @override
   String tutorTimeHoursShort(Object count) {
-    return '$countس';
+    return '‹‹${count}h››';
   }
 
   @override
-  String get tutorVoiceMessageFallback => 'غږیز پیغام';
+  String get tutorVoiceMessageFallback => '‹‹Voice message››';
 
   @override
-  String get tutorFileFallback => 'فایل';
+  String get tutorFileFallback => '‹‹File››';
 
   @override
-  String get tutorCopy => 'کاپي';
+  String get tutorCopy => '‹‹Copy››';
 
   @override
-  String get tutorEditMessage => 'پیغام سم کړه';
+  String get tutorEditMessage => '‹‹Edit message››';
 
   @override
-  String get tutorCopied => 'کاپي شو';
+  String get tutorCopied => '‹‹Copied››';
 
   @override
-  String get tutorLoadedIntoComposer => 'په لیکونکي کې پورته شو';
+  String get tutorLoadedIntoComposer => '‹‹Loaded into composer››';
 
   @override
-  String get tutorTakePhoto => 'انځور واخله';
+  String get tutorTakePhoto => '‹‹Take photo››';
 
   @override
-  String get tutorRecordVideo => 'ویډیو ثبت کړه';
+  String get tutorRecordVideo => '‹‹Record video››';
 
   @override
-  String get tutorChooseFromGallery => 'له ګالري څخه وټاکه';
+  String get tutorChooseFromGallery => '‹‹Choose from gallery››';
 
   @override
-  String get tutorPreviewTitle => 'مخکتنه';
+  String get tutorPreviewTitle => '‹‹Preview››';
 
   @override
-  String get tutorThinking => 'فکر کوي...';
+  String get tutorThinking => '‹‹Thinking...››';
 
   @override
-  String get tutorDone => 'ترسره شو.';
+  String get tutorDone => '‹‹Done.››';
 
   @override
-  String get tutorFailedToStreamReply => 'ځواب نه شو راروان کېدای';
+  String get tutorFailedToStreamReply => '‹‹Failed to stream reply››';
 
   @override
   String get tutorUnsupportedFilesMessage =>
-      'NOVA انځورونه، اسناد او متن منلي. ویډیو او غږیز فایلونه دلته نه منل کیږي.';
+      '‹‹NOVA supports images, documents, and text. Video and audio files are not supported here.››';
 
   @override
-  String get tutorNoAudioCaptured => 'هیڅ غږ ونه نیول شو.';
+  String get tutorNoAudioCaptured => '‹‹No audio captured.››';
 
   @override
-  String get tutorVoiceLimitReachedTitle => 'د غږ حد پای ته ورسید';
+  String get tutorVoiceLimitReachedTitle => '‹‹Voice limit reached››';
 
   @override
   String get tutorVoiceLimitReachedMessage =>
-      'ستا اوسني د NOVA پلان د دې لیکنې دورې لپاره کافي پاتې د غږ دقیقې نه لري.';
+      '‹‹Your current NOVA plan does not have enough voice minutes left for this transcription cycle.››';
 
   @override
   String get tutorTranscriptionFailed =>
-      'لیکنه ناکامه شوه. مهرباني وکړه بیا هڅه وکړه.';
+      '‹‹Transcription failed. Please try again.››';
 
   @override
-  String get tutorMicrophonePermissionRequired => 'د مایکروفون اجازه اړینه ده.';
+  String get tutorMicrophonePermissionRequired =>
+      '‹‹Microphone permission is required.››';
 
   @override
-  String get tutorPlanLimitReachedTitle => 'د NOVA پلان حد پای ته ورسید';
+  String get tutorPlanLimitReachedTitle => '‹‹NOVA plan limit reached››';
 
   @override
   String get tutorPlanLimitReachedMessage =>
-      'ستا اوسني د NOVA پلان لپاره د دې میاشتې د پوښتنو یا اپلوډونو سهمیه پای ته ورسیده. د دوام لپاره د NOVA کور په پاڼه کې لوړ پلان غوره کړه.';
+      '‹‹This month\'s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.››';
 
   @override
-  String get tutorSendFailed => 'لیږل ناکام شو.';
+  String get tutorSendFailed => '‹‹Send failed.››';
 
   @override
   String tutorCurrentPlanUsageSummary(
@@ -1628,474 +1708,476 @@ class AppLocalizationsPs extends AppLocalizations {
     Object uploads,
     Object voice,
   ) {
-    return 'اوسنی پلان: $plan • $prompts پاتې پوښتنې • $uploads پاتې اپلوډونه • $voice پاتې د غږ دقیقې';
+    return '‹‹Current plan: $plan • $prompts prompts left • $uploads uploads left • $voice voice minutes left››';
   }
 
   @override
-  String get tutorReviewPlansInHome => 'په NOVA کور کې پلانونه وګوره';
+  String get tutorReviewPlansInHome => '‹‹Review plans in NOVA home››';
 
   @override
-  String get tutorCouldNotOpenAttachment => 'ضمیمه نه شوه پرانیستل کېدای.';
+  String get tutorCouldNotOpenAttachment => '‹‹Could not open attachment.››';
 
   @override
-  String get tutorAttachmentUnavailable => 'ضمیمه شتون نه لري.';
+  String get tutorAttachmentUnavailable => '‹‹Attachment unavailable.››';
 
   @override
-  String get tutorImageUnavailable => 'انځور شتون نه لري';
+  String get tutorImageUnavailable => '‹‹Image unavailable››';
 
   @override
-  String get tutorYou => 'ته';
+  String get tutorYou => '‹‹You››';
 
   @override
-  String get tutorRegenerate => 'بیا جوړ کړه';
+  String get tutorRegenerate => '‹‹Regenerate››';
 
   @override
-  String get tutorEmptyStateTitle => 'په یوې ریښتینې پوښتنې پیل وکړه';
+  String get tutorEmptyStateTitle => '‹‹Start with a real question››';
 
   @override
   String get tutorEmptyStateBody =>
-      'له NOVA څخه وغواړه چې یو مفهوم تشریح کړي، یادښتونه جدول ته واړوي، نظرونه پرتله کړي، یا له اپلوډ شوي فایل څخه ستا سره په تکرار کې مرسته وکړي.';
+      '‹‹Ask NOVA to explain a concept, turn notes into a table, compare ideas, or help you revise from an uploaded file.››';
 
   @override
   String get tutorPromptSuggestionSummarizeNotes =>
-      'زما د درس یادښتونه لنډ کړه';
+      '‹‹Summarize my lesson notes››';
 
   @override
-  String get tutorPromptSuggestionRevisionTable => 'د تکرار جدول جوړ کړه';
+  String get tutorPromptSuggestionRevisionTable => '‹‹Make a revision table››';
 
   @override
-  String get tutorPromptSuggestionQuizMe => 'په دې موضوع کې راڅخه پوښتنه وکړه';
+  String get tutorPromptSuggestionQuizMe => '‹‹Quiz me on this topic››';
 
   @override
-  String get tutorMessageNovaHint => 'NOVA ته پیغام';
+  String get tutorMessageNovaHint => '‹‹Message NOVA››';
 
   @override
   String get tutorHeaderSubtitleReady =>
-      'منظم ځوابونه، جدولونه او د مطالعې مرسته';
+      '‹‹Structured answers, tables, and study help››';
 
   @override
-  String get tutorYourNovaPlanTitle => 'ستا د NOVA پلان';
+  String get tutorYourNovaPlanTitle => '‹‹Your NOVA plan››';
 
   @override
   String get tutorYourNovaPlanMessage =>
-      'دلته د پوښتنو، اپلوډ او غږ حدود وګوره، بیا که د پلان بدلولو هیله لرې NOVA کور ته بیرته لاړ شه.';
+      '‹‹Review prompt, upload, and voice limits here, then jump back to NOVA home if you want to switch plans.››';
 
   @override
-  String get tutorExplainTitle => 'NOVA تشریح';
+  String get tutorExplainTitle => '‹‹NOVA Explain››';
 
   @override
-  String get classroomsThreadTypeClassroom => 'ټولګی';
+  String get classroomsThreadTypeClassroom => '‹‹Classroom››';
 
   @override
-  String get classroomsThreadTypeGroup => 'ګروپ';
+  String get classroomsThreadTypeGroup => '‹‹Group››';
 
   @override
-  String get classroomsThreadTypeDirectMessage => 'مستقیم پیغام';
+  String get classroomsThreadTypeDirectMessage => '‹‹Direct message››';
 
   @override
-  String get classroomsThreadTypeDirectMessageShort => 'DM';
+  String get classroomsThreadTypeDirectMessageShort => '‹‹DM››';
 
   @override
-  String get messagesBlockedPeopleTitle => 'بلاک شوي خلک';
+  String get messagesBlockedPeopleTitle => '‹‹Blocked people››';
 
   @override
-  String get messagesStartChatAction => 'خبرې اترې پیل کړه';
+  String get messagesStartChatAction => '‹‹Start chat››';
 
   @override
   String messagesLoadFailed(Object error) {
-    return 'پیغامونه نه شول پورته کېدای: $error';
+    return '‹‹Failed to load messages: $error››';
   }
 
   @override
-  String get messagesSearchHint => 'د پیغامونو لټون';
+  String get messagesSearchHint => '‹‹Search messages››';
 
   @override
-  String get messagesNoResults => 'هیڅ پیغام ونه موندل شو';
+  String get messagesNoResults => '‹‹No messages found››';
 
   @override
-  String get messagesRequestsSection => 'غوښتنې';
+  String get messagesRequestsSection => '‹‹Requests››';
 
   @override
-  String get messagesPendingApprovals => 'په تمه منظورۍ';
+  String get messagesPendingApprovals => '‹‹Pending approvals››';
 
   @override
-  String get messagesChatsSection => 'خبرې اترې';
+  String get messagesChatsSection => '‹‹Chats››';
 
   @override
-  String get messagesAllChatsSection => 'ټولې خبرې اترې';
+  String get messagesAllChatsSection => '‹‹All chats››';
 
   @override
   String messagesConversationCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count خبرې اترې',
-      one: '۱ خبرې اتره',
+      other: '$count conversations',
+      one: '1 conversation',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get messagesRequestReviewStatus => 'بیاکتنه';
+  String get messagesRequestReviewStatus => '‹‹Review››';
 
   @override
   String messagesPeopleLoadFailed(Object error) {
-    return 'خلک نه شول پورته کېدای: $error';
+    return '‹‹Failed to load people: $error››';
   }
 
   @override
-  String get messagesSearchPeopleHint => 'د خلکو لټون';
+  String get messagesSearchPeopleHint => '‹‹Search people››';
 
   @override
-  String get messagesNewGroupTitle => 'نوی ګروپ';
+  String get messagesNewGroupTitle => '‹‹New group››';
 
   @override
-  String get messagesNewGroupSubtitle => 'د ګروپ خبرې اترې جوړې کړه';
+  String get messagesNewGroupSubtitle => '‹‹Create a group chat››';
 
   @override
-  String get messagesGroupNameHint => 'د ګروپ نوم';
+  String get messagesGroupNameHint => '‹‹Group name››';
 
   @override
-  String get messagesCreateGroupAction => 'ګروپ جوړ کړه';
+  String get messagesCreateGroupAction => '‹‹Create group››';
 
   @override
-  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+  String get messagesGroupMinMembers =>
+      '‹‹Select at least 2 people for a group››';
 
   @override
-  String get messagesBlockedPersonFallback => 'دا کس';
+  String get messagesBlockedPersonFallback => '‹‹this person››';
 
   @override
-  String get messagesUnblockPersonTitle => 'کس آن‌بلاک کړو؟';
+  String get messagesUnblockPersonTitle => '‹‹Unblock person?››';
 
   @override
   String messagesUnblockPersonBody(Object name) {
-    return '$name ته اجازه ورکړو چې بیا تاته پیغام درکړي؟';
+    return '‹‹Allow $name to message you again?››';
   }
 
   @override
-  String get messagesUnblockAction => 'آن‌بلاک';
+  String get messagesUnblockAction => '‹‹Unblock››';
 
   @override
   String messagesUnblockedToast(Object name) {
-    return '$name آن‌بلاک شو';
+    return '‹‹$name unblocked››';
   }
 
   @override
   String messagesBlockedPeopleLoadFailed(Object error) {
-    return 'بلاک شوي خلک نه شول پورته کېدای: $error';
+    return '‹‹Failed to load blocked people: $error››';
   }
 
   @override
-  String get messagesNoBlockedPeople => 'هیڅ بلاک شوی کس نشته';
+  String get messagesNoBlockedPeople => '‹‹No blocked people››';
 
   @override
-  String get messagesUnknownUser => 'ناپیژندل شوی کاروونکی';
+  String get messagesUnknownUser => '‹‹Unknown user››';
 
   @override
-  String get messagesRequestTitle => 'غوښتنه';
+  String get messagesRequestTitle => '‹‹Request››';
 
   @override
   String messagesRequestLoadFailed(Object error) {
-    return 'غوښتنه نه شوه پورته کېدای: $error';
+    return '‹‹Failed to load request: $error››';
   }
 
   @override
-  String get messagesRequestBannerIncoming => 'د پیغام غوښتنه';
+  String get messagesRequestBannerIncoming => '‹‹Message request››';
 
   @override
-  String get messagesRequestBannerOutgoing => 'په تمه منظوري';
+  String get messagesRequestBannerOutgoing => '‹‹Pending approval››';
 
   @override
-  String get messagesBlockAction => 'بلاک';
+  String get messagesBlockAction => '‹‹Block››';
 
   @override
-  String get messagesApproveAction => 'منظوره کړه';
+  String get messagesApproveAction => '‹‹Approve››';
 
   @override
   String get messagesRequestUnlockHint =>
-      'خبرې اترې وروسته له هغه خلاصیږي چې اخیستونکی ستا لومړی پیغام منظور کړي.';
+      '‹‹The chat unlocks after the receiver approves your first message.››';
 
   @override
-  String get messagesThreadConversationFallback => 'خبرې اترې';
+  String get messagesThreadConversationFallback => '‹‹Conversation››';
 
   @override
-  String get messagesThreadLeaveGroupTitle => 'ګروپ پرېږدو؟';
+  String get messagesThreadLeaveGroupTitle => '‹‹Leave group?››';
 
   @override
   String get messagesThreadLeaveGroupBody =>
-      'ته به له دې ګروپ څخه نور پیغامونه ترلاسه نه کړې.';
+      '‹‹You will stop receiving messages from this group.››';
 
   @override
-  String get messagesThreadBlockPersonTitle => 'کس بلاک کړو؟';
+  String get messagesThreadBlockPersonTitle => '‹‹Block person?››';
 
   @override
   String get messagesThreadBlockPersonBody =>
-      'ته به نور د دې کس سره د پیغامونو تبادله ونه کړای شې.';
+      '‹‹You will no longer be able to exchange messages with this person.››';
 
   @override
-  String get messagesThreadPersonFallback => 'کس';
+  String get messagesThreadPersonFallback => '‹‹Person››';
 
   @override
   String get messagesThreadProfileInfoUnavailable =>
-      'د پروفایل معلومات شتون نه لري';
+      '‹‹Profile info unavailable››';
 
   @override
-  String get messagesThreadParticipants => 'ګډونوال';
+  String get messagesThreadParticipants => '‹‹Participants››';
 
   @override
-  String get messagesThreadPeople => 'خلک';
+  String get messagesThreadPeople => '‹‹People››';
 
   @override
-  String get messagesThreadDeleteForMe => 'زما لپاره یې ړنګ کړه';
+  String get messagesThreadDeleteForMe => '‹‹Delete for me››';
 
   @override
-  String get messagesThreadDeleteForEveryone => 'د ټولو لپاره یې ړنګ کړه';
+  String get messagesThreadDeleteForEveryone => '‹‹Delete for everyone››';
 
   @override
   String get messagesThreadDeleteForEveryoneSubtitle =>
-      'د ټولو ګډونوالو لپاره یې لرې کوي';
+      '‹‹Removes for all participants››';
 
   @override
-  String get messagesThreadSending => 'لیږل کیږي…';
+  String get messagesThreadSending => '‹‹Sending…››';
 
   @override
-  String get messagesThreadWaitingForApproval => 'د منظورۍ په تمه';
+  String get messagesThreadWaitingForApproval => '‹‹Waiting for approval››';
 
   @override
-  String get classroomsForwardSearchHint => 'د خبرو اترو لټون';
+  String get classroomsForwardSearchHint => '‹‹Search chats››';
 
   @override
-  String get classroomsForwardNewChat => 'نوې خبرې اترې';
+  String get classroomsForwardNewChat => '‹‹New chat››';
 
   @override
   String classroomsForwardLoadError(Object error) {
-    return 'خبرې اترې نه شوې پورته کېدای: $error';
+    return '‹‹Failed to load chats: $error››';
   }
 
   @override
-  String get classroomsForwardNoChatsFound => 'هیڅ خبرې اترې ونه موندل شوې';
+  String get classroomsForwardNoChatsFound => '‹‹No chats found››';
 
   @override
-  String get classroomsForwardSectionClassrooms => 'ټولګي';
+  String get classroomsForwardSectionClassrooms => '‹‹Classrooms››';
 
   @override
-  String get classroomsForwardSectionDirectMessages => 'مستقیم پیغامونه';
+  String get classroomsForwardSectionDirectMessages => '‹‹Direct messages››';
 
   @override
-  String get classroomsForwardCancel => 'لغوه';
+  String get classroomsForwardCancel => '‹‹Cancel››';
 
   @override
-  String get classroomsForwardAction => 'ولیږه';
+  String get classroomsForwardAction => '‹‹Forward››';
 
   @override
   String classroomsForwardCount(Object count) {
-    return 'ولیږه ($count)';
+    return '‹‹Forward ($count)››';
   }
 
   @override
-  String get markRead => 'لوستل شوی وټاکه';
+  String get markRead => '‹‹Mark read››';
 
   @override
-  String get markUnread => 'نالوستی وټاکه';
+  String get markUnread => '‹‹Mark unread››';
 
   @override
-  String get markAllRead => 'ټول لوستل شوي وټاکه';
+  String get markAllRead => '‹‹Mark all read››';
 
   @override
-  String get filters => 'فلټرونه';
+  String get filters => '‹‹Filters››';
 
   @override
-  String get source => 'سرچینه';
+  String get source => '‹‹Source››';
 
   @override
-  String get state => 'حالت';
+  String get state => '‹‹State››';
 
   @override
-  String get allSources => 'ټولې سرچینې';
+  String get allSources => '‹‹All sources››';
 
   @override
-  String get allStates => 'ټول حالتونه';
+  String get allStates => '‹‹All states››';
 
   @override
-  String get unread => 'نالوستی';
+  String get unread => '‹‹Unread››';
 
   @override
-  String get read => 'لوستل شوی';
+  String get read => '‹‹Read››';
 
   @override
-  String get clear => 'پاک کړه';
+  String get clear => '‹‹Clear››';
 
   @override
-  String get today => 'نن';
+  String get today => '‹‹Today››';
 
   @override
-  String get yesterday => 'پرون';
+  String get yesterday => '‹‹Yesterday››';
 
   @override
-  String get thisWeek => 'دا اوونۍ';
+  String get thisWeek => '‹‹This week››';
 
   @override
-  String get earlier => 'مخکې';
+  String get earlier => '‹‹Earlier››';
 
   @override
-  String get openDetails => 'تفصیلات پرانیزه';
+  String get openDetails => '‹‹Open details››';
 
   @override
-  String get total => 'ټول';
+  String get total => '‹‹Total››';
 
   @override
-  String get local => 'محلي';
+  String get local => '‹‹Local››';
 
   @override
-  String get server => 'سرور';
+  String get server => '‹‹Server››';
 
   @override
-  String get notificationsSourceSystem => 'سیسټم';
+  String get notificationsSourceSystem => '‹‹System››';
 
   @override
   String get notificationsHeroSubtitleStudent =>
-      'ستا د خبرتیاوو مرکز د اعلانونو، د سرور تازه معلوماتو، او ګټورو علمي فعالیتونو لپاره کله چې پیښیږي.';
+      '‹‹Your notification hub for announcements, server updates, and useful academic activity as it happens.››';
 
   @override
   String get notificationsHeroSubtitleTeacher =>
-      'ستا د ښوونکي د خبرتیاوو مرکز د اعلانونو، د سرور تازه معلوماتو، او د ښوونځي فعالیتونو لپاره کله چې پیښیږي.';
+      '‹‹Your teacher notification hub for announcements, server updates, and school activity as it happens.››';
 
   @override
   String get notificationsFiltersSubtitle =>
-      'د چټک تنظیم لپاره د سرچینې یا لوستلو حالت له مخې تمرکز وکړه.';
+      '‹‹Focus by source or read state to triage fast.››';
 
   @override
-  String get notificationsSearchSourcesHint => 'د سرچینو لټون';
+  String get notificationsSearchSourcesHint => '‹‹Search sources››';
 
   @override
   String notificationsShowingSummary(Object shown, Object total) {
-    return 'د $total څخه $shown خبرتیاوې ښودل کیږي.';
+    return '‹‹Showing $shown of $total notifications.››';
   }
 
   @override
   String get notificationsEmptyForAccount =>
-      'د دې حساب لپاره اوس مهال هیڅ خبرتیاوې شتون نه لري.';
+      '‹‹No notifications are available for this account right now.››';
 
   @override
   String get notificationsEmptyFiltered =>
-      'اوس مهال هیڅ خبرتیا د دې فلټرونو سره سمون نه لري. د بشپړ فید لیدلو لپاره فلټرونه پاک کړه.';
+      '‹‹No notifications match these filters right now. Clear filters to see the full feed.››';
 
   @override
-  String get notificationsEmpty => 'اوس مهال هیڅ خبرتیاوې شتون نه لري.';
+  String get notificationsEmpty =>
+      '‹‹No notifications are available right now.››';
 
   @override
-  String get notificationsNewBadge => 'نوی';
+  String get notificationsNewBadge => '‹‹New››';
 
   @override
   String get notificationsUnavailable =>
-      'دا خبرتیا نوره شتون نه لري. د انباکس تازه کولو لپاره راکش کړه او بیا هڅه وکړه.';
+      '‹‹This notification is no longer available. Pull to refresh the inbox and try again.››';
 
   @override
-  String get notificationsSeverityCritical => 'بحراني';
+  String get notificationsSeverityCritical => '‹‹Critical››';
 
   @override
-  String get notificationsSeverityWarning => 'خبرداری';
+  String get notificationsSeverityWarning => '‹‹Warning››';
 
   @override
-  String get notificationsSeverityInfo => 'معلومات';
+  String get notificationsSeverityInfo => '‹‹Info››';
 
   @override
   String get announcementsLoadError =>
-      'موږ اوس مهال اعلانونه نه شو پورته کولای. د تازه کولو لپاره راکش کړه یا بیا هڅه وکړه.';
+      '‹‹We could not load announcements right now. Pull to refresh or try again.››';
 
   @override
   String get announcementsLoadTimeout =>
-      'اعلانونه د پورته کیدو لپاره ډېر وخت نیسي. د تازه کولو لپاره راکش کړه یا یوه شیبه وروسته بیا هڅه وکړه.';
+      '‹‹Announcements are taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get announcementsLoadNetwork =>
-      'اعلانونه اوس مهال نه شول وصل کېدای. خپله اړیکه وګوره او بیا هڅه وکړه.';
+      '‹‹Announcements could not connect right now. Check your connection and try again.››';
 
   @override
-  String get teacherDeleteClassroom => 'ټولګی ړنګ کړئ';
+  String get teacherDeleteClassroom => '‹‹Delete classroom››';
 
   @override
   String get teacherDeleteClassroomConfirm =>
-      'دا ټولګی او ټول چټ، دندې، مواد، غونډې او د غړو لیست یې د تل لپاره ړنګوي. دا بیرته نه راګرځي.';
+      '‹‹This permanently deletes the classroom and all its chat, assignments, materials, meetings and member list. This cannot be undone.››';
 
   @override
-  String get teacherClassroomDeleted => 'ټولګی ړنګ شو';
+  String get teacherClassroomDeleted => '‹‹Classroom deleted››';
 
   @override
-  String get announcementsTabReceived => 'ترلاسه شوي';
+  String get announcementsTabReceived => '‹‹Received››';
 
   @override
-  String get announcementsTabPublished => 'خپاره شوي';
+  String get announcementsTabPublished => '‹‹Published››';
 
   @override
-  String get announcementsAudienceTeacher => 'ښوونکی';
+  String get announcementsAudienceTeacher => '‹‹teacher››';
 
   @override
-  String get announcementsAudienceAccount => 'حساب';
+  String get announcementsAudienceAccount => '‹‹account››';
 
   @override
-  String get announcementsAudienceTeacherWorkspace => 'د ښوونکي کاري ځای';
+  String get announcementsAudienceTeacherWorkspace => '‹‹teacher workspace››';
 
   @override
-  String get announcementsLoadFailedTitle => 'اعلانونه نه شول پورته کېدای';
+  String get announcementsLoadFailedTitle => '‹‹Could not load announcements››';
 
   @override
   String get announcementsLoadFailedHint =>
-      'وروسته له هغه چې اړیکه ثابته شي د تازه کولو لپاره راکش کړه.';
+      '‹‹Pull to refresh after the connection is stable.››';
 
   @override
   String announcementsHeroSubtitle(Object audience) {
-    return 'د دې $audience لپاره شته خپاره شوي د ښوونځي، ښوونکي او سیسټم اعلانونه.';
+    return '‹‹Published school, teacher, and system announcements available to this $audience.››';
   }
 
   @override
-  String get announcementsLatestSourceLabel => 'وروستۍ سرچینه';
+  String get announcementsLatestSourceLabel => '‹‹Latest source››';
 
   @override
-  String get announcementsNone => 'هیڅ';
+  String get announcementsNone => '‹‹None››';
 
   @override
   String announcementsUnreadCountTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count نالوستي اعلانونه',
-      one: '۱ نالوستی اعلان',
+      other: '$count unread announcements',
+      one: '1 unread announcement',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get announcementsAllReadTitle => 'هر څه لوستل شوي دي';
+  String get announcementsAllReadTitle => '‹‹Everything is read››';
 
   @override
   String announcementsEmptyForAudience(Object audience) {
-    return 'تر اوسه دې $audience ته هیڅ اعلان نه دی خپور شوی.';
+    return '‹‹No announcements have been published to this $audience yet.››';
   }
 
   @override
   String announcementsLatestBody(Object title) {
-    return 'وروستی: $title. د بشپړ منځپانګې لوستلو لپاره پرې ټک وکړه.';
+    return '‹‹Latest: $title. Tap it to read the full content.››';
   }
 
   @override
   String get announcementsFiltersSubtitle =>
-      'انباکس د سرچینې یا د لوستلو حالت له مخې محدود کړه ترڅو په هغه څه تمرکز وکړې چې لا پاملرنې ته اړتیا لري.';
+      '‹‹Narrow the inbox by source or by read state so you can focus on what still needs attention.››';
 
   @override
-  String get announcementsAllAnnouncements => 'ټول اعلانونه';
+  String get announcementsAllAnnouncements => '‹‹All announcements››';
 
   @override
-  String get announcementsSearchStatesHint => 'نالوستی / لوستل شوی';
+  String get announcementsSearchStatesHint => '‹‹Unread / Read››';
 
   @override
   String announcementsSummarySourceSegment(Object source) {
-    return ' له $source';
+    return '‹‹ from $source››';
   }
 
   @override
   String announcementsSummaryStateSegment(Object state) {
-    return ' په $state';
+    return '‹‹ in $state››';
   }
 
   @override
@@ -2105,103 +2187,103 @@ class AppLocalizationsPs extends AppLocalizations {
     Object sourceSegment,
     Object stateSegment,
   ) {
-    return 'د $total څخه $shown اعلانونه$sourceSegment$stateSegment ښودل کیږي.';
+    return '‹‹Showing $shown of $total announcements$sourceSegment$stateSegment.››';
   }
 
   @override
   String get announcementsNoMatchTitle =>
-      'هیڅ اعلان د دې فلټرونو سره سمون نه لري';
+      '‹‹No announcements match these filters››';
 
   @override
-  String get announcementsNoPublishedTitle => 'تر اوسه هیڅ خپور شوی اعلان نشته';
+  String get announcementsNoPublishedTitle =>
+      '‹‹No published announcements yet››';
 
   @override
   String get announcementsNoMatchSubtitle =>
-      'بله سرچینه هڅه وکړه یا بیرته ټولو اعلانونو ته واوړه ترڅو نور توکي راڅرګند شي.';
+      '‹‹Try a different source or switch back to all announcements to bring more items into view.››';
 
   @override
   String get announcementsClearFiltersHint =>
-      'د هر څه بیا لیدلو لپاره فلټرونه پاک کړه.';
+      '‹‹Clear filters to see everything again.››';
 
   @override
   String get announcementsPullToRefreshHint =>
-      'وروسته له هغه چې د ښوونځي نوی فعالیت خپور شي د تازه کولو لپاره راکش کړه.';
+      '‹‹Pull to refresh after new school activity is published.››';
 
   @override
-  String get announcementsInboxTitle => 'انباکس';
+  String get announcementsInboxTitle => '‹‹Inbox››';
 
   @override
   String get announcementsInboxSubtitle =>
-      'دلته یوازې سرلیکونه د چټک کتنې لپاره ښکاري. د بشپړ اعلان منځپانګې پرانیستلو لپاره پر هر توکي ټک وکړه.';
+      '‹‹Only titles appear here for quick scanning. Tap any item to open the full announcement content.››';
 
   @override
   String get meetingsLoadError =>
-      'موږ اوس مهال غونډې نه شو پورته کولای. د تازه کولو لپاره راکش کړه یا بیا هڅه وکړه.';
+      '‹‹We could not load meetings right now. Pull to refresh or try again.››';
 
   @override
   String get meetingsLoadTimeout =>
-      'غونډې د پورته کیدو لپاره ډېر وخت نیسي. د تازه کولو لپاره راکش کړه یا یوه شیبه وروسته بیا هڅه وکړه.';
+      '‹‹Meetings are taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get meetingsLoadNetwork =>
-      'غونډې اوس مهال نه شوې وصل کېدای. خپله اړیکه وګوره او بیا هڅه وکړه.';
+      '‹‹Meetings could not connect right now. Check your connection and try again.››';
 
   @override
   String get meetingsHeroSubtitle =>
-      'د ټولګي هره غونډه په یوه پاکه لیدنه کې، له ضمیمه شویو لینکونو سره او د بشپړ سکرین تفصیل پاڼه کله چې متن ته اړتیا لرې.';
+      '‹‹Every classroom meeting in one clean view, with attached links and a full-screen detail page when you need the context.››';
 
   @override
-  String get meetingsJoinReadyMetric => 'د ګډون لپاره چمتو';
+  String get meetingsJoinReadyMetric => '‹‹Join-ready››';
 
   @override
-  String get meetingsNoLinkMetric => 'هیڅ لینک نشته';
+  String get meetingsNoLinkMetric => '‹‹No link››';
 
   @override
-  String get meetingsNoPostedTitle => 'تر اوسه هیڅ غونډه نه ده خپره شوې';
+  String get meetingsNoPostedTitle => '‹‹No meetings posted yet››';
 
   @override
   String get meetingsEmptyForAccount =>
-      'اوس مهال ستا لپاره هیڅ غونډه نه ده ټاکل شوې. د بیا کتلو لپاره راکش کړه.';
+      '‹‹No meetings are scheduled for you right now. Pull down to check again.››';
 
   @override
   String meetingsLatestBody(Object title, Object updatedAt) {
-    return '$title په $updatedAt تازه شوه. د ضمیمه شوي لینک او د ټولګي متن لپاره یې پرانیزه.';
+    return '‹‹$title was updated $updatedAt. Open it for the attached link and classroom context.››';
   }
 
   @override
-  String get meetingsPullToRefreshHint => 'د بیا کتلو لپاره راکش کړه.';
+  String get meetingsPullToRefreshHint => '‹‹Pull down to check again.››';
 
   @override
   String get meetingsFiltersSubtitle =>
-      'لیست د موضوع له مخې یا د دې له مخې محدود کړه چې آیا غونډه دمخه یو لینک لري چې پرانیستلی شې.';
+      '‹‹Narrow the list by subject or by whether the meeting already includes a link you can open.››';
 
   @override
-  String get meetingsAccessLabel => 'لاسرسی';
+  String get meetingsAccessLabel => '‹‹Access››';
 
   @override
-  String get meetingsAllMeetings => 'ټولې غونډې';
+  String get meetingsAllMeetings => '‹‹All meetings››';
 
   @override
-  String get meetingsAccessReady => 'د ګډون لپاره چمتو';
+  String get meetingsAccessReady => '‹‹Ready to join››';
 
   @override
-  String get meetingsAccessNoLink => 'هیڅ لینک نشته';
+  String get meetingsAccessNoLink => '‹‹No link››';
 
   @override
-  String get meetingsAccessNoLinkYet => 'تر اوسه هیڅ لینک نشته';
+  String get meetingsAccessNoLinkYet => '‹‹No link yet››';
 
   @override
-  String get meetingsAccessSearchHint =>
-      'د ګډون لپاره چمتو / تر اوسه هیڅ لینک نشته';
+  String get meetingsAccessSearchHint => '‹‹Ready to join / No link yet››';
 
   @override
   String meetingsSummarySubjectSegment(Object subject) {
-    return ' د $subject لپاره';
+    return '‹‹ for $subject››';
   }
 
   @override
   String meetingsSummaryAccessSegment(Object state) {
-    return ' په $state';
+    return '‹‹ in $state››';
   }
 
   @override
@@ -2211,904 +2293,909 @@ class AppLocalizationsPs extends AppLocalizations {
     Object subjectSegment,
     Object accessSegment,
   ) {
-    return 'د $total څخه $shown غونډې$subjectSegment$accessSegment ښودل کیږي.';
+    return '‹‹Showing $shown of $total meetings$subjectSegment$accessSegment.››';
   }
 
   @override
-  String get meetingsNoMatchTitle => 'هیڅ غونډه د دې فلټرونو سره سمون نه لري';
+  String get meetingsNoMatchTitle => '‹‹No meetings match these filters››';
 
   @override
   String get meetingsNoMatchSubtitle =>
-      'ټولې موضوعات هڅه وکړه یا هغه غونډې شامل کړه چې لینک نه لري ترڅو نور پایلې بیرته لیست ته راشي.';
+      '‹‹Try all subjects or include meetings without links to bring more results back into the list.››';
 
   @override
   String get meetingsListSubtitle =>
-      'پر هره غونډه ټک وکړه ترڅو د بشپړ سکرین تفصیل لیدنه پرانیزې او کله چې شتون ولري د هغې ضمیمه لینک ته ودانګې.';
+      '‹‹Tap any meeting to open the full-screen detail view and jump into its attached link when available.››';
 
   @override
   String meetingsDateTimeValue(Object date, Object time) {
-    return '$date • $time';
+    return '‹‹$date • $time››';
   }
 
   @override
   String meetingsSharedByValue(Object name) {
-    return 'د $name لخوا شریک شوی';
+    return '‹‹Shared by $name››';
   }
 
   @override
   String get meetingsPreviewFallback =>
-      'دا غونډه پرانیزه ترڅو ضمیمه لینک او د ټولګي وروستي تفصیلات وګورې.';
+      '‹‹Open this meeting to see the attached link and the latest classroom details.››';
 
   @override
   String get meetingsNoValidLinkAttached =>
-      'تر اوسه هیڅ معتبر د غونډې لینک نه دی ضمیمه شوی.';
+      '‹‹No valid meeting link is attached yet.››';
 
   @override
-  String get meetingsCouldNotOpenLink => 'د غونډې لینک نه شو پرانیستل کېدای.';
+  String get meetingsCouldNotOpenLink => '‹‹Could not open the meeting link.››';
 
   @override
-  String get meetingsNoLinkToCopy =>
-      'تر اوسه د کاپي لپاره هیڅ د غونډې لینک نشته.';
+  String get meetingsNoLinkToCopy => '‹‹No meeting link to copy yet.››';
 
   @override
-  String get meetingsLinkCopied => 'د غونډې لینک کاپي شو.';
+  String get meetingsLinkCopied => '‹‹Meeting link copied.››';
 
   @override
-  String get meetingsUnavailableTitle => 'غونډه شتون نه لري';
+  String get meetingsUnavailableTitle => '‹‹Meeting unavailable››';
 
   @override
   String get meetingsUnavailableSubtitle =>
-      'دا غونډه په اوسني فید کې ونه موندل شوه. ممکن لرې شوې وي یا آفلاین شتون نه لري.';
+      '‹‹This meeting could not be found in the current feed. It may have been removed or is not available offline.››';
 
   @override
   String get meetingsUnavailableHint =>
-      'بیرته لاړ شه او د غونډو لیست تازه کړه.';
+      '‹‹Go back and refresh the meetings list.››';
 
   @override
-  String get meetingsNoLinkAttachedYet => 'تر اوسه هیڅ لینک نه دی ضمیمه شوی';
+  String get meetingsNoLinkAttachedYet => '‹‹No link attached yet››';
 
   @override
-  String get meetingsAttachedLinkTitle => 'ضمیمه شوی د غونډې لینک';
+  String get meetingsAttachedLinkTitle => '‹‹Attached meeting link››';
 
   @override
   String get meetingsAttachedLinkMissingBody =>
-      'دا غونډه ستا د ټولګي فید کې ښکاري، خو په اوسني د زده‌کوونکي پی‌لوډ کې هیڅ معتبر URL نه دی ضمیمه شوی.';
+      '‹‹This meeting is visible in your classroom feed, but no valid URL is attached in the current student payload.››';
 
   @override
-  String get meetingsDetailsTitle => 'د غونډې تفصیلات';
+  String get meetingsDetailsTitle => '‹‹Meeting details››';
 
   @override
   String get meetingsDetailsSubtitle =>
-      'هر هغه څه چې زده‌کوونکي ته اړوند دي او اوس مهال د ټولګي د غونډې پی‌لوډ کې شته دي.';
+      '‹‹Everything student-relevant that is currently available in the classroom meeting payload.››';
 
   @override
-  String get meetingsDetailClassroomLabel => 'ټولګی';
+  String get meetingsDetailClassroomLabel => '‹‹Classroom››';
 
   @override
-  String get meetingsSharedByLabel => 'شریک شوی لخوا';
+  String get meetingsSharedByLabel => '‹‹Shared by››';
 
   @override
-  String get meetingsIdLabel => 'د غونډې ID';
+  String get meetingsIdLabel => '‹‹Meeting ID››';
 
   @override
   String get meetingsAttachedLinkSubtitle =>
-      'کله چې ستا ټولګی یې وړاندې کړي د ګډون یا د غونډې لینک کاپي کولو لپاره ضمیمه URL وکاروه.';
+      '‹‹Use the attached URL to join or copy the meeting link when your classroom provides one.››';
 
   @override
-  String get meetingsOpening => 'پرانیستل کیږي';
+  String get meetingsOpening => '‹‹Opening››';
 
   @override
-  String get meetingsOpenLink => 'لینک پرانیزه';
+  String get meetingsOpenLink => '‹‹Open link››';
 
   @override
-  String get meetingsCopyLink => 'لینک کاپي کړه';
+  String get meetingsCopyLink => '‹‹Copy link››';
 
   @override
-  String get meetingsAccessPanelTitle => 'د غونډې لاسرسی';
+  String get meetingsAccessPanelTitle => '‹‹Meeting access››';
 
   @override
   String get meetingsAccessPanelReadyBody =>
-      'ضمیمه URL خپل براوزر یا د غونډې اپ کې پرانیزه.';
+      '‹‹Open the attached URL in your browser or meeting app.››';
 
   @override
-  String get meetingsJoinAction => 'ګډون وکړه';
+  String get meetingsJoinAction => '‹‹Join››';
 
   @override
   String get announcementsDetailLoadFailedHint =>
-      'بیرته لاړ شه او د اعلانونو انباکس تازه کولو هڅه وکړه.';
+      '‹‹Go back and try refreshing the announcements inbox.››';
 
   @override
-  String get announcementsUnavailableTitle => 'اعلان شتون نه لري';
+  String get announcementsUnavailableTitle => '‹‹Announcement unavailable››';
 
   @override
   String announcementsUnavailableSubtitle(Object audience) {
-    return 'دا اعلان نور د دې $audience لپاره په خپور شوي فید کې شتون نه لري.';
+    return '‹‹This announcement is no longer available in the published feed for this $audience.››';
   }
 
   @override
   String get announcementsUnavailableHint =>
-      'د دوام لپاره بیرته انباکس ته لاړ شه.';
+      '‹‹Go back to the inbox to continue.››';
 
   @override
   String announcementsPublishedReadStateBody(Object audience) {
-    return 'دا اعلان دې $audience ته خپور شوی و او ستا د لوستلو حالت په دې وسیله کې په محلي توګه ساتل کیږي.';
+    return '‹‹This announcement was published to this $audience and your read state is stored locally on this device.››';
   }
 
   @override
-  String get announcementsDetailsTitle => 'د اعلان تفصیلات';
+  String get announcementsDetailsTitle => '‹‹Announcement details››';
 
   @override
   String get announcementsDetailsSubtitle =>
-      'د دې اعلان خپره شوې میټاډیټا او د هغې اوسنی د لوستلو حالت.';
+      '‹‹Published metadata for this announcement and its current read state.››';
 
   @override
-  String get announcementsSeverityLabel => 'شدت';
+  String get announcementsSeverityLabel => '‹‹Severity››';
 
   @override
-  String get announcementsCreatedLabel => 'جوړ شو';
+  String get announcementsCreatedLabel => '‹‹Created››';
 
   @override
-  String get announcementsIdLabel => 'د اعلان ID';
+  String get announcementsIdLabel => '‹‹Announcement ID››';
 
   @override
-  String get announcementsFullContentTitle => 'بشپړه منځپانګه';
+  String get announcementsFullContentTitle => '‹‹Full content››';
 
   @override
   String get announcementsFullContentSubtitle =>
-      'بشپړ د اعلان متن دلته ښکاري وروسته له هغه چې توکی له انباکس څخه پرانیزې.';
+      '‹‹The complete announcement text appears here after you open the item from the inbox.››';
 
   @override
-  String get announcementsReadStateTitle => 'د لوستلو حالت';
+  String get announcementsReadStateTitle => '‹‹Read state››';
 
   @override
   String get announcementsReadStateBodyRead =>
-      'دا اعلان په دې وسیله کې لوستل شوی په نښه شوی دی.';
+      '‹‹This announcement is marked as read on this device.››';
 
   @override
   String get announcementsReadStateBodyUnread =>
-      'دا اعلان لا تر اوسه په دې وسیله کې نالوستی دی.';
+      '‹‹This announcement is still unread on this device.››';
 
   @override
-  String get alertsTitle => 'خبرتیاوې';
+  String get alertsTitle => '‹‹Alerts››';
 
   @override
   String get alertsSubtitle =>
-      'دا د هغو شیانو پاڼه ده چې اوس پاملرنې ته اړتیا لري، نه یوازې عمومي تازه معلومات.';
+      '‹‹This is the page for things that need attention now, not just general updates.››';
 
   @override
-  String get alertsAttendanceTitle => 'حاضري پاملرنې ته اړتیا لري';
+  String get alertsAttendanceTitle => '‹‹Attendance needs attention››';
 
   @override
   String alertsAttendanceBody(Object rate) {
-    return 'ستا د حاضرۍ کچه $rate% ده. څو پرېښودل شوي درسونه ژر زیاتیدلی شي.';
+    return '‹‹Your attendance rate is $rate%. A couple of missed lessons can snowball fast.››';
   }
 
   @override
-  String get alertsWeakestSubjectTitle => 'د کمزوري مضمون نښه';
+  String get alertsWeakestSubjectTitle => '‹‹Weakest subject signal››';
 
   @override
   String alertsWeakestSubjectBody(Object subject) {
-    return '$subject اوس مهال ستا د وروستیو نمرو پر بنسټ ډېرې پاملرنې ته اړتیا لري.';
+    return '‹‹$subject currently needs the most attention based on your latest grades.››';
   }
 
   @override
-  String get alertsPracticeWeakAreaTitle => 'د تمرین کمزورې برخه';
+  String get alertsPracticeWeakAreaTitle => '‹‹Practice weak area››';
 
   @override
   String alertsPracticeWeakAreaBody(Object topic, Object subject) {
-    return 'په $subject کې $topic اوس مهال ترټولو څرګنده کمزورې موضوع ده.';
+    return '‹‹$topic in $subject is the clearest weak topic right now.››';
   }
 
   @override
-  String get alertsPracticeTrendDroppedTitle => 'د تمرین روند راټیټ شو';
+  String get alertsPracticeTrendDroppedTitle => '‹‹Practice trend dropped››';
 
   @override
   String get alertsPracticeTrendDroppedBody =>
-      'ستا د ۷ ورځو فعالیت ستا د ۳۰ ورځو معیار څخه ښکته دی. ورو شه او مخکې له دې چې سختي زیاته کړې بنسټیزو شیانو ته بیا وګوره.';
+      '‹‹Your 7d performance is below your 30d baseline. Slow down and revisit fundamentals before pushing harder.››';
 
   @override
   String get alertsEmpty =>
-      'ته اوس مهال پاک یې. کله چې یو څه بیړنۍ پاملرنې ته اړتیا ولري، دلته به راڅرګند شي.';
+      '‹‹You\'re clear right now. When something needs urgent attention, it\'ll show up here.››';
 
   @override
-  String get student => 'زده‌کوونکی';
+  String get student => '‹‹Student››';
 
   @override
-  String get classroomDetailPhoto => 'انځور';
+  String get classroomDetailPhoto => '‹‹Photo››';
 
   @override
-  String get classroomDetailVoiceNote => 'غږیز یادښت';
+  String get classroomDetailVoiceNote => '‹‹Voice note››';
 
   @override
-  String get classroomDetailVideo => 'ویډیو';
+  String get classroomDetailVideo => '‹‹Video››';
 
   @override
-  String get classroomDetailFile => 'فایل';
+  String get classroomDetailFile => '‹‹File››';
 
   @override
-  String get classroomDetailEmptyValue => '(تش)';
+  String get classroomDetailEmptyValue => '‹‹(empty)››';
 
   @override
-  String get classroomDetailAttachmentUnavailable => 'ضمیمه شتون نه لري.';
+  String get classroomDetailAttachmentUnavailable =>
+      '‹‹Attachment unavailable.››';
 
   @override
-  String get classroomDetailAudioUnavailable => 'غږ شتون نه لري.';
+  String get classroomDetailAudioUnavailable => '‹‹Audio unavailable.››';
 
   @override
   String get classroomDetailCouldNotOpenAttachment =>
-      'ضمیمه نه شوه پرانیستل کېدای.';
+      '‹‹Could not open attachment.››';
 
   @override
-  String get classroomDetailVoiceMessage => 'غږیز پیغام';
+  String get classroomDetailVoiceMessage => '‹‹Voice message››';
 
   @override
-  String get classroomDetailVideoFile => 'ویډیو فایل';
+  String get classroomDetailVideoFile => '‹‹Video file››';
 
   @override
-  String get classroomDetailAttachedFile => 'ضمیمه شوی فایل';
+  String get classroomDetailAttachedFile => '‹‹Attached file››';
 
   @override
-  String get classroomDetailAttachment => 'ضمیمه';
+  String get classroomDetailAttachment => '‹‹Attachment››';
 
   @override
-  String get classroomDetailPinAction => 'نښلول';
+  String get classroomDetailPinAction => '‹‹Pin››';
 
   @override
-  String get classroomDetailUnpinAction => 'بې‌نښلول';
+  String get classroomDetailUnpinAction => '‹‹Unpin››';
 
   @override
-  String get classroomDetailMessageInfoTitle => 'د پیغام معلومات';
+  String get classroomDetailMessageInfoTitle => '‹‹Message info››';
 
   @override
-  String get classroomDetailForwardedSingle => 'لیږل شوی';
+  String get classroomDetailForwardedSingle => '‹‹Forwarded››';
 
   @override
   String classroomDetailForwardedMultiple(Object count) {
-    return '$count پیغامونه لیږل شوي';
+    return '‹‹Forwarded $count messages››';
   }
 
   @override
   String get classroomDetailCannotForwardPending =>
-      'د غوښتنې خبرو اترو ته نه شي لیږل کېدای ترڅو منظوره نه شي';
+      '‹‹Cannot forward into a request chat until it is approved››';
 
   @override
   String get classroomDetailCouldNotForwardSelected =>
-      'غوره شوي پیغامونه نه شول لیږل کېدای';
+      '‹‹Could not forward selected messages››';
 
   @override
   String classroomDetailSelectedCount(Object count) {
-    return '$count غوره شوي';
+    return '‹‹$count selected››';
   }
 
   @override
   String classroomDetailDeleteCount(Object count) {
-    return 'ړنګ کړه ($count)';
+    return '‹‹Delete ($count)››';
   }
 
   @override
-  String get classroomDetailSelectAllTooltip => 'ټول وټاکه';
+  String get classroomDetailSelectAllTooltip => '‹‹Select all››';
 
   @override
-  String get classroomDetailCancelTooltip => 'لغوه';
+  String get classroomDetailCancelTooltip => '‹‹Cancel››';
 
   @override
   String get classroomDetailMicrophoneAccessTitle =>
-      'د مایکروفون لاسرسي ته اړتیا ده';
+      '‹‹Microphone access needed››';
 
   @override
   String get classroomDetailMicrophoneAccessBody =>
-      'د غږیزو یادښتونو لیږلو لپاره مهرباني وکړه په Settings -> ClassMate کې د مایکروفون لاسرسي ته اجازه ورکړه.';
+      '‹‹Please allow microphone access in Settings -> ClassMate to send voice notes.››';
 
   @override
-  String get classroomDetailOpenSettingsAction => 'Settings پرانیزه';
+  String get classroomDetailOpenSettingsAction => '‹‹Open Settings››';
 
   @override
   String classroomDetailForwardTargetNext(Object label) {
-    return 'د لیږلو هدف ټاکونکی بل: $label';
+    return '‹‹Forward target picker next: $label››';
   }
 
   @override
-  String get classroomDetailEditMessageTitle => 'پیغام سم کړه';
+  String get classroomDetailEditMessageTitle => '‹‹Edit message››';
 
   @override
-  String get classroomDetailEditMessageHint => 'خپل پیغام سم کړه...';
+  String get classroomDetailEditMessageHint => '‹‹Edit your message...››';
 
   @override
-  String get classroomDetailLeaveClassroomTitle => 'ټولګی پرېږدو؟';
+  String get classroomDetailLeaveClassroomTitle => '‹‹Leave classroom?››';
 
   @override
   String get classroomDetailLeaveClassroomBody =>
-      'ته به له دې ټولګي څخه لرې شې.';
+      '‹‹You will be removed from this classroom.››';
 
   @override
-  String get classroomDetailLeaveAction => 'پرېږده';
+  String get classroomDetailLeaveAction => '‹‹Leave››';
 
   @override
-  String get classroomDetailNoAssignmentsTitle => 'تر اوسه هیڅ دندې نشته';
+  String get classroomDetailNoAssignmentsTitle => '‹‹No assignments yet››';
 
   @override
   String get classroomDetailNoAssignmentsSubtitle =>
-      'دې ټولګي ته اوس مهال هیڅ دندې نشته.';
+      '‹‹This classroom has no assignments right now.››';
 
   @override
-  String get classroomDetailAssignmentFallback => 'دنده';
+  String get classroomDetailAssignmentFallback => '‹‹Assignment››';
 
   @override
-  String get classroomDetailNoMaterialsTitle => 'تر اوسه هیڅ مواد نشته';
+  String get classroomDetailNoMaterialsTitle => '‹‹No materials yet››';
 
   @override
   String get classroomDetailNoMaterialsSubtitle =>
-      'دې ټولګي ته اوس مهال هیڅ مواد نشته.';
+      '‹‹This classroom has no materials right now.››';
 
   @override
-  String get classroomDetailMaterialFallback => 'ماده';
+  String get classroomDetailMaterialFallback => '‹‹Material››';
 
   @override
-  String get classroomDetailNoMeetingsTitle => 'تر اوسه هیڅ غونډې نشته';
+  String get classroomDetailNoMeetingsTitle => '‹‹No meetings yet››';
 
   @override
   String get classroomDetailNoMeetingsSubtitle =>
-      'دې ټولګي ته اوس مهال هیڅ غونډې نشته.';
+      '‹‹This classroom has no meetings right now.››';
 
   @override
-  String get classroomDetailMeetingFallback => 'غونډه';
+  String get classroomDetailMeetingFallback => '‹‹Meeting››';
 
   @override
-  String get classroomDetailCouldNotLoadPeople => 'خلک نه شول پورته کېدای';
+  String get classroomDetailCouldNotLoadPeople => '‹‹Could not load people››';
 
   @override
-  String get classroomDetailNoPeopleTitle => 'تر اوسه هیڅ خلک نشته';
+  String get classroomDetailNoPeopleTitle => '‹‹No people yet››';
 
   @override
   String get classroomDetailNoPeopleSubtitle =>
-      'تر اوسه په دې ټولګي کې هیڅوک نه ښکاري.';
+      '‹‹Nobody is visible in this classroom yet.››';
 
   @override
-  String get classroomDetailTabChat => 'خبرې اترې';
+  String get classroomDetailTabChat => '‹‹Chat››';
 
   @override
-  String get classroomDetailTabMaterials => 'مواد';
+  String get classroomDetailTabMaterials => '‹‹Materials››';
 
   @override
-  String get classroomDetailTabPeople => 'خلک';
+  String get classroomDetailTabPeople => '‹‹People››';
 
   @override
-  String get classroomChatMediaSendPhoto => 'انځور ولیږه';
+  String get classroomChatMediaSendPhoto => '‹‹Send photo››';
 
   @override
   String get classroomChatMediaSendPhotoSubtitle =>
-      'د ټولګي خبرو اترو کې یو انځور شریک کړه';
+      '‹‹Share an image in the classroom chat››';
 
   @override
-  String get classroomChatMediaSendVoiceMessage => 'غږیز پیغام ولیږه';
+  String get classroomChatMediaSendVoiceMessage => '‹‹Send voice message››';
 
   @override
   String get classroomChatMediaSendVoiceMessageSubtitle =>
-      'غږیز یادښت ثبت او ولیږه';
+      '‹‹Record and send a voice note››';
 
   @override
-  String get classroomDetailCouldNotLoadTab => 'ټوب نه شو پورته کېدای';
+  String get classroomDetailCouldNotLoadTab => '‹‹Could not load tab››';
 
   @override
-  String get classroomDetailDeletedByYou => 'تا دا پیغام ړنګ کړ';
+  String get classroomDetailDeletedByYou => '‹‹You deleted this message››';
 
   @override
-  String get classroomDetailDeletedMessage => 'دا پیغام ړنګ شو';
+  String get classroomDetailDeletedMessage => '‹‹This message was deleted››';
 
   @override
-  String get practiceSetupDifficultyEasy => 'اسانه';
+  String get practiceSetupDifficultyEasy => '‹‹Easy››';
 
   @override
-  String get practiceSetupDifficultyMedium => 'منځنی';
+  String get practiceSetupDifficultyMedium => '‹‹Medium››';
 
   @override
-  String get practiceSetupDifficultyHard => 'ګران';
+  String get practiceSetupDifficultyHard => '‹‹Hard››';
 
   @override
-  String get practiceSetupDifficultyOlympiad => 'اولمپیاد';
+  String get practiceSetupDifficultyOlympiad => '‹‹Olympiad››';
 
   @override
-  String get practiceSetupDifficultyAdaptive => 'تطبیقي';
+  String get practiceSetupDifficultyAdaptive => '‹‹Adaptive››';
 
   @override
-  String get practiceSetupModeLabelPractice => 'تمرین';
+  String get practiceSetupModeLabelPractice => '‹‹Practice››';
 
   @override
-  String get practiceSetupModeLabelFlashcards => 'فلش‌کارتونه';
+  String get practiceSetupModeLabelFlashcards => '‹‹Flashcards››';
 
   @override
-  String get practiceSetupModeLabelSpeedRound => 'د چټکۍ پړاو';
+  String get practiceSetupModeLabelSpeedRound => '‹‹Speed round››';
 
   @override
-  String get practiceSetupModeLabelExamPrep => 'د امتحان چمتووالی';
+  String get practiceSetupModeLabelExamPrep => '‹‹Exam prep››';
 
   @override
-  String get practiceSetupModeLabelConceptBuilder => 'د مفهوم جوړونکی';
+  String get practiceSetupModeLabelConceptBuilder => '‹‹Concept builder››';
 
   @override
-  String get practiceSetupModeLabelAdaptive => 'تطبیقي';
+  String get practiceSetupModeLabelAdaptive => '‹‹Adaptive››';
 
   @override
-  String get practiceSetupModeLabelBagrut => 'Bagrut';
+  String get practiceSetupModeLabelBagrut => '‹‹Bagrut››';
 
   @override
-  String get practiceSetupModeSubtitlePractice => 'متوازن ورځنی تمرین';
+  String get practiceSetupModeSubtitlePractice => '‹‹Balanced daily practice››';
 
   @override
-  String get practiceSetupModeSubtitleFlashcards => 'ښکاره کول او خپله یادول';
+  String get practiceSetupModeSubtitleFlashcards =>
+      '‹‹Reveal and self-recall››';
 
   @override
-  String get practiceSetupModeSubtitleSpeedRound => 'د چټک فشار تمرین';
+  String get practiceSetupModeSubtitleSpeedRound => '‹‹Fast pressure drill››';
 
   @override
-  String get practiceSetupModeSubtitleExamPrep =>
-      'د ازموینې په سبک کې آرام بهیر';
+  String get practiceSetupModeSubtitleExamPrep => '‹‹Calm exam-style flow››';
 
   @override
-  String get practiceSetupModeSubtitleConceptBuilder => 'لومړی مفهوم، بیا حل';
+  String get practiceSetupModeSubtitleConceptBuilder =>
+      '‹‹Concept first, solve later››';
 
   @override
-  String get practiceSetupModeSubtitleAdaptive => 'ستونزمنتیا ژوندۍ بدلیږي';
+  String get practiceSetupModeSubtitleAdaptive => '‹‹Difficulty shifts live››';
 
   @override
-  String get practiceSetupModeSubtitleBagrut => 'دقیق رسمي سبک';
+  String get practiceSetupModeSubtitleBagrut => '‹‹Strict official style››';
 
   @override
   String get practiceSetupModeHelpPractice =>
-      'متوازن حالت: حل کړه، وګوره، تشریح کړه، بیا مخکې لاړ شه.';
+      '‹‹Balanced mode: solve, check, explain, then keep moving.››';
 
   @override
   String get practiceSetupModeHelpFlashcards =>
-      'فلش کارتونه هغه وخت ښه کار کوي چې له ښودلو مخکې هڅه وکړې ترې یاد کړې.';
+      '‹‹Flashcards work best when you try to recall before revealing.››';
 
   @override
   String get practiceSetupModeHelpSpeedRound =>
-      'د سرعت پړاو چټک یادونه روزي. ګړندی حرکت وکړه او په پیاوړو دریځونو باور وکړه.';
+      '‹‹Speed Round trains fast recall. Move quickly and trust strong instincts.››';
 
   @override
   String get practiceSetupModeHelpExamPrep =>
-      'د ازموینې چمتووالی آرامه او رسمي دی، لکه د ښوونځي اصلي ناسته.';
+      '‹‹Exam Prep is calmer and more formal, like a real school session.››';
 
   @override
   String get practiceSetupModeHelpConceptBuilder =>
-      'مفهوم جوړونکی لومړی نظریه ښوونه کوي، بیا غواړي چې هغه پلي کړې.';
+      '‹‹Concept Builder teaches the idea first, then asks you to apply it.››';
 
   @override
   String get practiceSetupModeHelpAdaptive =>
-      'تطبیقي حالت ستا د کړنو پر بنسټ د ننګونې کچه بدلوي.';
+      '‹‹Adaptive mode changes the challenge level based on your performance.››';
 
   @override
   String get practiceSetupModeHelpBagrut =>
-      'د بګروت حالت په دقیقه ازموینه‌یي ډول پر حل او بیاکتنه تمرکز کوي.';
+      '‹‹Bagrut mode focuses on strict exam-style solving and review.››';
 
   @override
-  String get practiceSetupModeInfoTitle => 'هر حالت څنګه کار کوي';
+  String get practiceSetupModeInfoTitle => '‹‹How each mode works››';
 
   @override
-  String get practiceSetupHeroTitle => 'یوه ناسته پیل کړه';
+  String get practiceSetupHeroTitle => '‹‹Start a session››';
 
   @override
   String get practiceSetupHeroSubtitle =>
-      'یو حالت، وخت او ستونزمنتیا غوره کړه.';
+      '‹‹Choose a mode, timing, and difficulty.››';
 
   @override
-  String get practiceSetupInfiniteLives => 'بې شمېره ژوندونه';
+  String get practiceSetupInfiniteLives => '‹‹Infinite lives››';
 
   @override
   String practiceSetupLivesCount(Object count) {
-    return '$count ژوندونه';
+    return '‹‹$count lives››';
   }
 
   @override
-  String get practiceSetupAiTiming => 'د AI وخت';
+  String get practiceSetupAiTiming => '‹‹AI timing››';
 
   @override
   String practiceSetupSecondsShort(Object seconds) {
-    return '$secondsث';
+    return '‹‹${seconds}s››';
   }
 
   @override
   String practiceSetupQuestionsCount(Object count) {
-    return '$count پوښتنې';
+    return '‹‹$count questions››';
   }
 
   @override
   String practiceSetupSummarySubject(Object subject) {
-    return 'مضمون: $subject';
+    return '‹‹Subject: $subject››';
   }
 
   @override
   String practiceSetupSummaryTopic(Object topic) {
-    return 'موضوع: $topic';
+    return '‹‹Topic: $topic››';
   }
 
   @override
   String practiceSetupSummaryMode(Object mode) {
-    return 'حالت: $mode';
+    return '‹‹Mode: $mode››';
   }
 
   @override
   String practiceSetupSummaryDifficulty(Object difficulty) {
-    return 'ستونزمنتیا: $difficulty';
+    return '‹‹Difficulty: $difficulty››';
   }
 
   @override
   String practiceSetupSummaryQuestions(Object count) {
-    return 'پوښتنې: $count';
+    return '‹‹Questions: $count››';
   }
 
   @override
   String practiceSetupSummaryTiming(Object timing) {
-    return 'وخت: $timing';
+    return '‹‹Timing: $timing››';
   }
 
   @override
   String practiceSetupSummaryLives(Object lives) {
-    return 'ژوندونه: $lives';
+    return '‹‹Lives: $lives››';
   }
 
   @override
-  String get practiceSetupSectionSubjectTopic => 'مضمون او موضوع';
+  String get practiceSetupSectionSubjectTopic => '‹‹Subject & topic››';
 
   @override
-  String get practiceSetupFieldSubject => 'مضمون';
+  String get practiceSetupFieldSubject => '‹‹Subject››';
 
   @override
-  String get practiceSetupFieldSubjectHint => 'مضمون وټاکه';
+  String get practiceSetupFieldSubjectHint => '‹‹Pick the subject››';
 
   @override
-  String get practiceSetupChooseSubject => 'مضمون غوره کړه';
+  String get practiceSetupChooseSubject => '‹‹Choose subject››';
 
   @override
-  String get practiceSetupFieldCustomSubject => 'خپل مضمون';
+  String get practiceSetupFieldCustomSubject => '‹‹Custom subject››';
 
   @override
-  String get practiceSetupFieldCustomSubjectHint => 'خپل مضمون ولیکه';
+  String get practiceSetupFieldCustomSubjectHint => '‹‹Type your own subject››';
 
   @override
-  String get practiceSetupDialogCustomSubjectTitle => 'خپل مضمون';
+  String get practiceSetupDialogCustomSubjectTitle => '‹‹Custom subject››';
 
   @override
-  String get practiceSetupDialogEnterSubject => 'مضمون دننه کړه';
+  String get practiceSetupDialogEnterSubject => '‹‹Enter subject››';
 
   @override
-  String get practiceSetupUseAction => 'وکاروه';
+  String get practiceSetupUseAction => '‹‹Use››';
 
   @override
-  String get practiceSetupFieldTopic => 'موضوع';
+  String get practiceSetupFieldTopic => '‹‹Topic››';
 
   @override
-  String get practiceSetupFieldTopicHint => 'فرعي موضوع وټاکه';
+  String get practiceSetupFieldTopicHint => '‹‹Pick sub-topic››';
 
   @override
-  String get practiceSetupChooseTopic => 'موضوع غوره کړه';
+  String get practiceSetupChooseTopic => '‹‹Choose topic››';
 
   @override
-  String get practiceSetupFieldCustomTopic => 'خپله موضوع';
+  String get practiceSetupFieldCustomTopic => '‹‹Custom topic››';
 
   @override
-  String get practiceSetupFieldCustomTopicHint => 'خپله موضوع ولیکه';
+  String get practiceSetupFieldCustomTopicHint => '‹‹Type your own topic››';
 
   @override
-  String get practiceSetupDialogCustomTopicTitle => 'خپله موضوع';
+  String get practiceSetupDialogCustomTopicTitle => '‹‹Custom topic››';
 
   @override
-  String get practiceSetupDialogEnterTopic => 'موضوع دننه کړه';
+  String get practiceSetupDialogEnterTopic => '‹‹Enter topic››';
 
   @override
-  String get practiceSubjectMath => 'ریاضي';
+  String get practiceSubjectMath => '‹‹Math››';
 
   @override
-  String get practiceSubjectPhysics => 'فزیک';
+  String get practiceSubjectPhysics => '‹‹Physics››';
 
   @override
-  String get practiceSubjectComputerScience => 'کمپیوټر ساینس';
+  String get practiceSubjectComputerScience => '‹‹Computer Science››';
 
   @override
-  String get practiceSubjectChemistry => 'کیمیا';
+  String get practiceSubjectChemistry => '‹‹Chemistry››';
 
   @override
-  String get practiceSubjectBiology => 'بیولوژي';
+  String get practiceSubjectBiology => '‹‹Biology››';
 
   @override
-  String get practiceSubjectEnglish => 'انګلیسي';
+  String get practiceSubjectEnglish => '‹‹English››';
 
   @override
-  String get practiceSubjectArabic => 'عربي';
+  String get practiceSubjectArabic => '‹‹Arabic››';
 
   @override
-  String get practiceSubjectHebrew => 'عبري';
+  String get practiceSubjectHebrew => '‹‹Hebrew››';
 
   @override
-  String get practiceSubjectGeneralKnowledge => 'عمومي پوهه';
+  String get practiceSubjectGeneralKnowledge => '‹‹General Knowledge››';
 
   @override
-  String get practiceTopicAllTopics => 'ټولې موضوعات';
+  String get practiceTopicAllTopics => '‹‹All topics››';
 
   @override
-  String get practiceTopicAlgebra => 'الجبر';
+  String get practiceTopicAlgebra => '‹‹Algebra››';
 
   @override
-  String get practiceTopicLinearEquations => 'خطي معادلې';
+  String get practiceTopicLinearEquations => '‹‹Linear equations››';
 
   @override
-  String get practiceTopicQuadraticEquations => 'تربیعي معادلې';
+  String get practiceTopicQuadraticEquations => '‹‹Quadratic equations››';
 
   @override
-  String get practiceTopicFunctions => 'فنکشنونه';
+  String get practiceTopicFunctions => '‹‹Functions››';
 
   @override
-  String get practiceTopicGeometry => 'هندسه';
+  String get practiceTopicGeometry => '‹‹Geometry››';
 
   @override
-  String get practiceTopicTriangles => 'مثلثونه';
+  String get practiceTopicTriangles => '‹‹Triangles››';
 
   @override
-  String get practiceTopicCircles => 'دایرې';
+  String get practiceTopicCircles => '‹‹Circles››';
 
   @override
-  String get practiceTopicAnalyticGeometry => 'تحلیلي هندسه';
+  String get practiceTopicAnalyticGeometry => '‹‹Analytic geometry››';
 
   @override
-  String get practiceTopicTrigonometry => 'مثلثات';
+  String get practiceTopicTrigonometry => '‹‹Trigonometry››';
 
   @override
-  String get practiceTopicProbability => 'احتمال';
+  String get practiceTopicProbability => '‹‹Probability››';
 
   @override
-  String get practiceTopicStatistics => 'احصایه';
+  String get practiceTopicStatistics => '‹‹Statistics››';
 
   @override
-  String get practiceTopicSequences => 'ترتیبونه';
+  String get practiceTopicSequences => '‹‹Sequences››';
 
   @override
-  String get practiceTopicCalculus => 'حساب التفاضل';
+  String get practiceTopicCalculus => '‹‹Calculus››';
 
   @override
-  String get practiceTopicLimits => 'حدونه';
+  String get practiceTopicLimits => '‹‹Limits››';
 
   @override
-  String get practiceTopicDerivatives => 'مشتقات';
+  String get practiceTopicDerivatives => '‹‹Derivatives››';
 
   @override
-  String get practiceTopicMechanics => 'میخانیک';
+  String get practiceTopicMechanics => '‹‹Mechanics››';
 
   @override
-  String get practiceTopicKinematics => 'سینماتیک';
+  String get practiceTopicKinematics => '‹‹Kinematics››';
 
   @override
-  String get practiceTopicNewtonLaws => 'د نیوټن قوانین';
+  String get practiceTopicNewtonLaws => '‹‹Newton laws››';
 
   @override
-  String get practiceTopicForces => 'قوې';
+  String get practiceTopicForces => '‹‹Forces››';
 
   @override
-  String get practiceTopicEnergy => 'انرژي';
+  String get practiceTopicEnergy => '‹‹Energy››';
 
   @override
-  String get practiceTopicMomentum => 'اندازه حرکت';
+  String get practiceTopicMomentum => '‹‹Momentum››';
 
   @override
-  String get practiceTopicElectricity => 'برق';
+  String get practiceTopicElectricity => '‹‹Electricity››';
 
   @override
-  String get practiceTopicElectricField => 'برقي ساحه';
+  String get practiceTopicElectricField => '‹‹Electric field››';
 
   @override
-  String get practiceTopicCircuits => 'برقي دورې';
+  String get practiceTopicCircuits => '‹‹Circuits››';
 
   @override
-  String get practiceTopicWaves => 'څپې';
+  String get practiceTopicWaves => '‹‹Waves››';
 
   @override
-  String get practiceTopicOptics => 'بصریات';
+  String get practiceTopicOptics => '‹‹Optics››';
 
   @override
-  String get practiceTopicThermodynamics => 'ترمودینامیک';
+  String get practiceTopicThermodynamics => '‹‹Thermodynamics››';
 
   @override
-  String get practiceTopicConditions => 'شرطونه';
+  String get practiceTopicConditions => '‹‹Conditions››';
 
   @override
-  String get practiceTopicBooleanLogic => 'بولین منطق';
+  String get practiceTopicBooleanLogic => '‹‹Boolean logic››';
 
   @override
-  String get practiceTopicIfElse => 'که / نه';
+  String get practiceTopicIfElse => '‹‹If / Else››';
 
   @override
-  String get practiceTopicNestedConditions => 'ځاله‌یي شرطونه';
+  String get practiceTopicNestedConditions => '‹‹Nested conditions››';
 
   @override
-  String get practiceTopicLoops => 'لوپونه';
+  String get practiceTopicLoops => '‹‹Loops››';
 
   @override
-  String get practiceTopicVariables => 'متغیرونه';
+  String get practiceTopicVariables => '‹‹Variables››';
 
   @override
-  String get practiceTopicArrays => 'ارې‌ګانې';
+  String get practiceTopicArrays => '‹‹Arrays››';
 
   @override
-  String get practiceTopicStrings => 'تارونه';
+  String get practiceTopicStrings => '‹‹Strings››';
 
   @override
-  String get practiceTopicAlgorithms => 'الګوریتمونه';
+  String get practiceTopicAlgorithms => '‹‹Algorithms››';
 
   @override
-  String get practiceTopicComplexity => 'پېچلتیا';
+  String get practiceTopicComplexity => '‹‹Complexity››';
 
   @override
-  String get practiceTopicRecursion => 'تکراري بلنه';
+  String get practiceTopicRecursion => '‹‹Recursion››';
 
   @override
-  String get practiceTopicAtoms => 'اتومونه';
+  String get practiceTopicAtoms => '‹‹Atoms››';
 
   @override
-  String get practiceTopicPeriodicTable => 'دوریز جدول';
+  String get practiceTopicPeriodicTable => '‹‹Periodic table››';
 
   @override
-  String get practiceTopicChemicalBonds => 'کیمیاوي بندونه';
+  String get practiceTopicChemicalBonds => '‹‹Chemical bonds››';
 
   @override
-  String get practiceTopicReactions => 'تعاملات';
+  String get practiceTopicReactions => '‹‹Reactions››';
 
   @override
-  String get practiceTopicStoichiometry => 'ستوکیومتري';
+  String get practiceTopicStoichiometry => '‹‹Stoichiometry››';
 
   @override
-  String get practiceTopicAcidsAndBases => 'تېزابونه او بنسټونه';
+  String get practiceTopicAcidsAndBases => '‹‹Acids and bases››';
 
   @override
-  String get practiceTopicOrganicChemistry => 'عضوي کیمیا';
+  String get practiceTopicOrganicChemistry => '‹‹Organic chemistry››';
 
   @override
-  String get practiceTopicCells => 'حجرې';
+  String get practiceTopicCells => '‹‹Cells››';
 
   @override
-  String get practiceTopicGenetics => 'جنیتیک';
+  String get practiceTopicGenetics => '‹‹Genetics››';
 
   @override
-  String get practiceTopicHumanBody => 'د انسان بدن';
+  String get practiceTopicHumanBody => '‹‹Human body››';
 
   @override
-  String get practiceTopicEcology => 'چاپېریال پوهنه';
+  String get practiceTopicEcology => '‹‹Ecology››';
 
   @override
-  String get practiceTopicEvolution => 'تکامل';
+  String get practiceTopicEvolution => '‹‹Evolution››';
 
   @override
-  String get practiceTopicSystems => 'سیستمونه';
+  String get practiceTopicSystems => '‹‹Systems››';
 
   @override
-  String get practiceTopicGrammar => 'ګرامر';
+  String get practiceTopicGrammar => '‹‹Grammar››';
 
   @override
-  String get practiceTopicReadingComprehension => 'د لوستلو درک';
+  String get practiceTopicReadingComprehension => '‹‹Reading comprehension››';
 
   @override
-  String get practiceTopicVocabulary => 'لغتونه';
+  String get practiceTopicVocabulary => '‹‹Vocabulary››';
 
   @override
-  String get practiceTopicTenses => 'زمانې';
+  String get practiceTopicTenses => '‹‹Tenses››';
 
   @override
-  String get practiceTopicWriting => 'لیکنه';
+  String get practiceTopicWriting => '‹‹Writing››';
 
   @override
-  String get practiceTopicRhetoric => 'بلاغت';
+  String get practiceTopicRhetoric => '‹‹Rhetoric››';
 
   @override
-  String get practiceSetupSectionMode => 'حالت';
+  String get practiceSetupSectionMode => '‹‹Mode››';
 
   @override
-  String get practiceSetupSectionDifficulty => 'ستونزمنتیا';
+  String get practiceSetupSectionDifficulty => '‹‹Difficulty››';
 
   @override
-  String get practiceSetupSectionControls => 'د ناستې کنټرولونه';
+  String get practiceSetupSectionControls => '‹‹Session controls››';
 
   @override
-  String get practiceSetupQuestionsTitle => 'پوښتنې';
+  String get practiceSetupQuestionsTitle => '‹‹Questions››';
 
   @override
-  String get practiceSetupQuestionsCaption => 'څومره جوړې شوې پوښتنې شاملې شي';
+  String get practiceSetupQuestionsCaption =>
+      '‹‹How many generated questions to include››';
 
   @override
-  String get practiceSetupTimingTitle => 'وخت';
+  String get practiceSetupTimingTitle => '‹‹Timing››';
 
   @override
   String get practiceSetupTimingCaption =>
-      'لومړی ساحه وټاکه، بیا AI، خپل وخت، یا بې شمېره.';
+      '‹‹Choose scope first, then AI, your own time, or infinite.››';
 
   @override
-  String get practiceSetupTimingScopePerQuestion => 'هرې پوښتنې لپاره';
+  String get practiceSetupTimingScopePerQuestion => '‹‹Per question››';
 
   @override
-  String get practiceSetupTimingScopeWholeQuiz => 'ټوله ازموینه';
+  String get practiceSetupTimingScopeWholeQuiz => '‹‹Whole quiz››';
 
   @override
-  String get practiceSetupTimingModeAi => 'AI';
+  String get practiceSetupTimingModeAi => '‹‹AI››';
 
   @override
-  String get practiceSetupTimingModeMyTime => 'زما وخت';
+  String get practiceSetupTimingModeMyTime => '‹‹My time››';
 
   @override
-  String get practiceSetupTimingModeInfinite => 'بې شمېره';
+  String get practiceSetupTimingModeInfinite => '‹‹Infinite››';
 
   @override
-  String get practiceSetupTimingCustomPerQuestionTitle => 'د هرې پوښتنې ثانیې';
+  String get practiceSetupTimingCustomPerQuestionTitle =>
+      '‹‹Seconds per question››';
 
   @override
   String get practiceSetupTimingCustomPerQuestionCaption =>
-      'د هرې پوښتنې لپاره خپل ټایمر';
+      '‹‹Your own timer for each question››';
 
   @override
-  String get practiceSetupTimingCustomQuizMinutesTitle => 'د ازموینې دقیقې';
+  String get practiceSetupTimingCustomQuizMinutesTitle => '‹‹Quiz minutes››';
 
   @override
   String get practiceSetupTimingCustomQuizMinutesCaption =>
-      'د ټولې ازموینې لپاره خپل ټایمر';
+      '‹‹Your own timer for the whole quiz››';
 
   @override
-  String get practiceSetupInfiniteLivesTitle => 'بې شمېره ژوندونه';
+  String get practiceSetupInfiniteLivesTitle => '‹‹Infinite lives››';
 
   @override
   String get practiceSetupInfiniteLivesSubtitle =>
-      'ناسته به د غلطو ځوابونو له امله هیڅکله پای ته ونه رسیږي';
+      '‹‹Never end the session because of wrong answers››';
 
   @override
-  String get practiceSetupLivesTitle => 'ژوندونه';
+  String get practiceSetupLivesTitle => '‹‹Lives››';
 
   @override
-  String get practiceSetupLivesCaption => 'د ناستې له پای کېدو مخکې جوازې غلطۍ';
+  String get practiceSetupLivesCaption =>
+      '‹‹Mistakes allowed before the session ends››';
 
   @override
-  String get practiceSetupTooltipHistory => 'د تمرین تاریخچه';
+  String get practiceSetupTooltipHistory => '‹‹Practice history››';
 
   @override
-  String get practiceHistoryTitle => 'د تمرین تاریخچه';
+  String get practiceHistoryTitle => '‹‹Practice history››';
 
   @override
-  String get practiceHistoryClearTooltip => 'تاریخچه پاکه کړه';
+  String get practiceHistoryClearTooltip => '‹‹Clear history››';
 
   @override
-  String get practiceHistoryClearConfirmTitle => 'د تمرین تاریخچه پاکه شي؟';
+  String get practiceHistoryClearConfirmTitle => '‹‹Clear practice history?››';
 
   @override
   String get practiceHistoryClearConfirmBody =>
-      'دا به له دې وسیلې څخه ټولې خوندي شوې تمریني ناستې لرې کړي.';
+      '‹‹This removes all saved practice sessions from this device.››';
 
   @override
-  String get practiceHistoryLoadError => 'اوس د تمرین تاریخچه نشي پورته کیدی.';
+  String get practiceHistoryLoadError =>
+      '‹‹Could not load practice history right now.››';
 
   @override
-  String get practiceHistoryErrorPrefix => 'تېروتنه:';
+  String get practiceHistoryErrorPrefix => '‹‹Error:››';
 
   @override
-  String get practiceHistoryEmpty => 'تر اوسه هیڅ تمریني ناسته نشته.';
+  String get practiceHistoryEmpty => '‹‹No practice sessions yet.››';
 
   @override
-  String get practiceHistoryDeleteConfirmTitle => 'دا ناسته ړنګه شي؟';
+  String get practiceHistoryDeleteConfirmTitle => '‹‹Delete this session?››';
 
   @override
   String get practiceHistoryDeleteConfirmBody =>
-      'دا یوازې همدا خوندي شوې تمریني ناسته لرې کوي.';
+      '‹‹This removes only this saved practice session.››';
 
   @override
-  String get practiceHistoryOpenReview => 'بیاکتنه پرانیزه';
+  String get practiceHistoryOpenReview => '‹‹Open review››';
 
   @override
-  String get practiceHistoryDeleteSession => 'ناسته ړنګه کړه';
+  String get practiceHistoryDeleteSession => '‹‹Delete session››';
 
   @override
-  String get practiceHistoryDebugTitle => 'د تمرین تاریخچې ډیبګ';
+  String get practiceHistoryDebugTitle => '‹‹Practice history debug››';
 
   @override
-  String get practiceAnalyticsTitle => 'د تمرین تحلیلونه';
+  String get practiceAnalyticsTitle => '‹‹Practice analytics››';
 
   @override
-  String get practiceAnalyticsSectionOverall => 'ټولیز';
+  String get practiceAnalyticsSectionOverall => '‹‹Overall››';
 
   @override
-  String get practiceAnalyticsRecentSessionsTitle => 'وروستۍ ناستې';
+  String get practiceAnalyticsRecentSessionsTitle => '‹‹Recent sessions››';
 
   @override
   String practiceAnalyticsRecentSessionsSummary(
@@ -3118,730 +3205,737 @@ class AppLocalizationsPs extends AppLocalizations {
     Object accuracy,
     Object xp,
   ) {
-    return '$sessions ناستې • $correct/$answered سم • $accuracy% • XP $xp';
+    return '‹‹$sessions sessions • $correct/$answered correct • $accuracy% • XP $xp››';
   }
 
   @override
-  String get practiceAnalyticsSectionWeakestTopics => 'تر ټولو کمزورې موضوعات';
+  String get practiceAnalyticsSectionWeakestTopics => '‹‹Weakest topics››';
 
   @override
-  String get practiceAnalyticsSectionStrongestTopics =>
-      'تر ټولو پیاوړې موضوعات';
+  String get practiceAnalyticsSectionStrongestTopics => '‹‹Strongest topics››';
 
   @override
-  String get practiceAnalyticsSectionModePerformance => 'د حالت کړنه';
+  String get practiceAnalyticsSectionModePerformance => '‹‹Mode performance››';
 
   @override
-  String get practiceAnalyticsNoTopicData => 'تر اوسه د موضوع معلومات نشته';
+  String get practiceAnalyticsNoTopicData => '‹‹No topic data yet››';
 
   @override
-  String get practiceAnalyticsNoModeData => 'تر اوسه د حالت معلومات نشته';
+  String get practiceAnalyticsNoModeData => '‹‹No mode data yet››';
 
   @override
-  String get savedQuestionsTopSubjectNone => 'تر اوسه هیڅ';
+  String get savedQuestionsTopSubjectNone => '‹‹None yet››';
 
   @override
   String get savedQuestionsHeroSubtitle =>
-      'هغه پوښتنې چې د تمرین پر مهال دې خوندي کړې باید بیا کتل یې اسانه وي. دا مخ د هغوی لپاره پاک د بیا هڅې مرکز دی.';
+      '‹‹Questions you saved during practice should feel easy to revisit. This page is the clean retry hub for them.››';
 
   @override
-  String get savedQuestionsSavedMetric => 'خوندي شوې';
+  String get savedQuestionsSavedMetric => '‹‹Saved››';
 
   @override
-  String get savedQuestionsTopSubjectMetric => 'غوره مضمون';
+  String get savedQuestionsTopSubjectMetric => '‹‹Top subject››';
 
   @override
   String get savedQuestionsQuickActionsSubtitle =>
-      'مستقیماً بیرته تمرین ته لاړ شه یا د ټولنې حلونه وګوره.';
+      '‹‹Jump straight back into practice or browse community solutions.››';
 
   @override
-  String get savedQuestionsOpenPractice => 'تمرین پرانیزه';
+  String get savedQuestionsOpenPractice => '‹‹Open practice››';
 
   @override
   String get savedQuestionsOpenPracticeSubtitle =>
-      'نوې ناسته پیل کړه او خپل حرکت دوام ورکړه';
+      '‹‹Start a fresh session and keep building momentum››';
 
   @override
-  String get savedQuestionsOpenSolutions => 'حلونه پرانیزه';
+  String get savedQuestionsOpenSolutions => '‹‹Open solutions››';
 
   @override
   String get savedQuestionsOpenSolutionsSubtitle =>
-      'اپلوډ شوي حلونه د مضمون، کتاب، مخ او پوښتنې له مخې وګوره';
+      '‹‹Browse uploaded solutions by subject, book, page, and question››';
 
   @override
-  String get savedQuestionsQueueTitle => 'ستا خوندي شوې قطار';
+  String get savedQuestionsQueueTitle => '‹‹Your saved queue››';
 
   @override
   String get savedQuestionsQueueSubtitle =>
-      'هغه پوښتنې چې په تمرین کې یې خوندي کوې دلته ښکاري ترڅو ژر یې بیا پرانیزې او خپلې کمزورې برخې کار کوې.';
+      '‹‹Questions you save in practice appear here so you can reopen them quickly and keep working your weak spots.››';
 
   @override
-  String get savedQuestionsEmptyTitle => 'تر اوسه هیڅ خوندي شوې پوښتنه نشته';
+  String get savedQuestionsEmptyTitle => '‹‹No saved questions yet››';
 
   @override
   String get savedQuestionsEmptySubtitle =>
-      'له تمرین څخه یوه پوښتنه خوندي کړه ترڅو وروسته یې بیا وګورې، اړوند حلونه پرانیزې، او هغه موضوعات تعقیب کړې چې لا کار ته اړتیا لري.';
+      '‹‹Save a question from practice to revisit it later, open related solutions, and track the topics that still need work.››';
 
   @override
-  String get savedQuestionsClearAction => 'خوندي شوې پوښتنې پاکې کړه';
+  String get savedQuestionsClearAction => '‹‹Clear saved questions››';
 
   @override
-  String get savedQuestionsWhyItWorks => 'ولې کار کوي';
+  String get savedQuestionsWhyItWorks => '‹‹Why it works››';
 
   @override
   String savedQuestionsHoursTarget(Object count) {
-    return '$count ساعت موخه';
+    return '‹‹$count h target››';
   }
 
   @override
   String savedQuestionsMinutesTarget(Object count) {
-    return '$count دقیقه موخه';
+    return '‹‹$count min target››';
   }
 
   @override
   String savedQuestionsSecondsTarget(Object count) {
-    return '$count ثانیه موخه';
+    return '‹‹$count sec target››';
   }
 
   @override
-  String get practiceSetupTooltipAnalytics => 'د تمرین تحلیلونه';
+  String get practiceSetupTooltipAnalytics => '‹‹Practice analytics››';
 
   @override
-  String get practiceSetupStopGenerating => 'جوړول ودروه';
+  String get practiceSetupStopGenerating => '‹‹Stop Generating››';
 
   @override
-  String get practiceSetupGenerating => 'جوړیږي...';
+  String get practiceSetupGenerating => '‹‹Generating...››';
 
   @override
-  String get practiceSetupStartSession => 'ناسته پیل کړه';
+  String get practiceSetupStartSession => '‹‹Start session››';
 
   @override
-  String get practiceSetupSearchHint => 'لټون...';
+  String get practiceSetupSearchHint => '‹‹Search...››';
 
   @override
   String get practiceSessionModeDescriptionPractice =>
-      'متوازن حل د سمدستي کتنې او بیاکتنې سره.';
+      '‹‹Balanced solving with instant checking and feedback.››';
 
   @override
   String get practiceSessionModeDescriptionFlashcards =>
-      'د یادښت لومړۍ حالت چې د چټک یادولو او ساتلو لپاره جوړ شوی.';
+      '‹‹Memory-first mode built for quick recall and retention.››';
 
   @override
   String get practiceSessionModeDescriptionSpeedRound =>
-      'چټک، اسان، د وخت تر فشار لاندې تکرارونه.';
+      '‹‹Fast, low-friction, timed pressure reps.››';
 
   @override
   String get practiceSessionModeDescriptionExamPrep =>
-      'د رسمي ازموینې احساس سره حل، له لږ لوبیزه سرعت سره.';
+      '‹‹Formal exam-feel solving with less gamified pacing.››';
 
   @override
   String get practiceSessionModeDescriptionConceptBuilder =>
-      'لومړی نظریه پوه شه، بیا یې په شرایطو کې حل کړه.';
+      '‹‹Understand the idea first, then solve with context.››';
 
   @override
   String get practiceSessionModeDescriptionAdaptive =>
-      'ستونزمنتیا ستا د کړنو پر بنسټ بدلیږي.';
+      '‹‹Difficulty shifts based on how you perform.››';
 
   @override
   String get practiceSessionModeDescriptionBagrut =>
-      'د رسمي سبک یوه‌پوښتنیزه رسمي بګروت بهیر.';
+      '‹‹Official-style single-question formal Bagrut flow.››';
 
   @override
-  String get practiceSessionLoadingPractice => 'ستا تمریني ناسته جوړیږي';
+  String get practiceSessionLoadingPractice =>
+      '‹‹Building your practice session››';
 
   @override
-  String get practiceSessionLoadingFlashcards => 'ستا فلش کارتونه ګډوډیږي';
+  String get practiceSessionLoadingFlashcards =>
+      '‹‹Shuffling your flashcards››';
 
   @override
-  String get practiceSessionLoadingSpeedRound => 'د سرعت پړاو پیلیږي';
+  String get practiceSessionLoadingSpeedRound => '‹‹Starting the speed round››';
 
   @override
-  String get practiceSessionLoadingExamPrep => 'ستا د ازموینې ناسته چمتو کیږي';
+  String get practiceSessionLoadingExamPrep =>
+      '‹‹Preparing your exam session››';
 
   @override
   String get practiceSessionLoadingConceptBuilder =>
-      'د مفهوم روزونکی پورته کیږي';
+      '‹‹Loading concept coach››';
 
   @override
-  String get practiceSessionLoadingAdaptive => 'ستا ننګونه شخصي کیږي';
+  String get practiceSessionLoadingAdaptive =>
+      '‹‹Personalizing your challenge››';
 
   @override
-  String get practiceSessionLoadingBagrut => 'ستا د بګروت ټولګه چمتو کیږي';
+  String get practiceSessionLoadingBagrut => '‹‹Preparing your Bagrut set››';
 
   @override
-  String get practiceSessionLoadingDefault => 'ستا ناسته چمتو کیږي';
+  String get practiceSessionLoadingDefault => '‹‹Preparing your session››';
 
   @override
   String practiceSessionCompleteTitle(Object mode) {
-    return '$mode بشپړ شو';
+    return '‹‹$mode complete››';
   }
 
   @override
-  String get practiceSessionMetricAnswered => 'ځواب شوي';
+  String get practiceSessionMetricAnswered => '‹‹Answered››';
 
   @override
-  String get practiceSessionMetricCorrect => 'سم';
+  String get practiceSessionMetricCorrect => '‹‹Correct››';
 
   @override
-  String get practiceSessionMetricWrong => 'غلط';
+  String get practiceSessionMetricWrong => '‹‹Wrong››';
 
   @override
-  String get practiceSessionMetricAccuracy => 'دقت';
+  String get practiceSessionMetricAccuracy => '‹‹Accuracy››';
 
   @override
-  String get practiceSessionMetricTotal => 'ټول';
+  String get practiceSessionMetricTotal => '‹‹Total››';
 
   @override
-  String get practiceSessionMetricXp => 'XP';
+  String get practiceSessionMetricXp => '‹‹XP››';
 
   @override
-  String get practiceSessionMetricStreak => 'پرله‌پسې';
+  String get practiceSessionMetricStreak => '‹‹Streak››';
 
   @override
-  String get practiceSessionReviewLayoutStacked => 'پرسره';
+  String get practiceSessionReviewLayoutStacked => '‹‹Stacked››';
 
   @override
-  String get practiceSessionReviewLayoutFocus => 'تمرکز';
+  String get practiceSessionReviewLayoutFocus => '‹‹Focus››';
 
   @override
-  String get practiceSessionFilterAll => 'ټول';
+  String get practiceSessionFilterAll => '‹‹All››';
 
   @override
-  String get practiceSessionFilterWrong => 'غلط';
+  String get practiceSessionFilterWrong => '‹‹Wrong››';
 
   @override
-  String get practiceSessionFilterCorrect => 'سم';
+  String get practiceSessionFilterCorrect => '‹‹Correct››';
 
   @override
-  String get practiceSessionReviewTitle => 'د ناستې بیاکتنه';
+  String get practiceSessionReviewTitle => '‹‹Session review››';
 
   @override
   String get practiceSessionNoQuestionsForFilter =>
-      'تر اوسه هیڅ پوښتنه له دې فلټر سره سمون نه خوري.';
+      '‹‹No questions match this filter yet.››';
 
   @override
-  String get practiceSessionNoAnswer => 'ځواب نشته';
+  String get practiceSessionNoAnswer => '‹‹No answer››';
 
   @override
-  String get practiceSessionUnknownAnswer => 'نامعلوم';
+  String get practiceSessionUnknownAnswer => '‹‹Unknown››';
 
   @override
-  String get practiceSessionReflectionTitle => 'ځان‌ارزونه';
+  String get practiceSessionReflectionTitle => '‹‹Reflection››';
 
   @override
-  String get practiceSessionReflectionKnewIt => 'پوه وم';
+  String get practiceSessionReflectionKnewIt => '‹‹Knew it››';
 
   @override
-  String get practiceSessionReflectionReviewAgain => 'بیا یې وګوره';
+  String get practiceSessionReflectionReviewAgain => '‹‹Review again››';
 
   @override
-  String get practiceSessionBackOfCard => 'د کارت شاته';
+  String get practiceSessionBackOfCard => '‹‹Back of card››';
 
   @override
-  String get practiceSessionYourAnswer => 'ستا ځواب';
+  String get practiceSessionYourAnswer => '‹‹Your answer››';
 
   @override
-  String get practiceSessionCorrectAnswer => 'سم ځواب';
+  String get practiceSessionCorrectAnswer => '‹‹Correct answer››';
 
   @override
-  String get practiceSessionExplanation => 'تشریح';
+  String get practiceSessionExplanation => '‹‹Explanation››';
 
   @override
-  String get practiceSessionBackToSetup => 'بیرته تنظیمولو ته';
+  String get practiceSessionBackToSetup => '‹‹Back to setup››';
 
   @override
-  String get practiceSessionGeneralTopic => 'عمومي';
+  String get practiceSessionGeneralTopic => '‹‹General››';
 
   @override
   String practiceSessionQuestionProgress(Object current, Object total) {
-    return 'پوښتنه $current له $total';
+    return '‹‹Question $current of $total››';
   }
 
   @override
-  String get practiceSessionMetricTime => 'وخت';
+  String get practiceSessionMetricTime => '‹‹Time››';
 
   @override
   String practiceSessionMatchmakingDifficulty(Object difficulty) {
-    return 'ستونزمنتیا: $difficulty';
+    return '‹‹Difficulty: $difficulty››';
   }
 
   @override
-  String get practiceModeActionPrevious => 'مخکنی';
+  String get practiceModeActionPrevious => '‹‹Previous››';
 
   @override
-  String get practiceModeActionCheckAnswer => 'ځواب وګوره';
+  String get practiceModeActionCheckAnswer => '‹‹Check answer››';
 
   @override
-  String get practiceModeActionNext => 'بل';
+  String get practiceModeActionNext => '‹‹Next››';
 
   @override
-  String get practiceModeActionNextQuestion => 'بله پوښتنه';
+  String get practiceModeActionNextQuestion => '‹‹Next question››';
 
   @override
-  String get practiceModeActionEndSession => 'ناسته پای ته ورسوه';
+  String get practiceModeActionEndSession => '‹‹End session››';
 
   @override
-  String get practiceModeActionEndQuestion => 'پوښتنه پای ته ورسوه';
+  String get practiceModeActionEndQuestion => '‹‹End question››';
 
   @override
-  String get practiceModeActionEndExam => 'ازموینه پای ته ورسوه';
+  String get practiceModeActionEndExam => '‹‹End exam››';
 
   @override
-  String get practiceModeActionNovaHint => 'د NOVA لارښوونه';
+  String get practiceModeActionNovaHint => '‹‹NOVA hint››';
 
   @override
-  String get practiceModeActionSaveQuestion => 'پوښتنه خوندي کړه';
+  String get practiceModeActionSaveQuestion => '‹‹Save question››';
 
   @override
-  String get practiceModeActionSavedQuestion => 'خوندي شوه';
+  String get practiceModeActionSavedQuestion => '‹‹Saved››';
 
   @override
-  String get practiceModeQuestionSavedToast => 'ستا پوښتنو ته خوندي شوه';
+  String get practiceModeQuestionSavedToast => '‹‹Saved to your questions››';
 
   @override
-  String get practiceModeQuestionRemovedToast => 'له خوندي شویو پوښتنو لرې شوه';
+  String get practiceModeQuestionRemovedToast =>
+      '‹‹Removed from saved questions››';
 
   @override
-  String get practiceModeActionReveal => 'ښکاره کړه';
+  String get practiceModeActionReveal => '‹‹Reveal››';
 
   @override
-  String get practiceModeActionShowSolution => 'حل وښیه';
+  String get practiceModeActionShowSolution => '‹‹Show solution››';
 
   @override
-  String get practiceModeActionHideSolution => 'حل پټ کړه';
+  String get practiceModeActionHideSolution => '‹‹Hide solution››';
 
   @override
-  String get practiceModeActionLockIn => 'قفل کړه';
+  String get practiceModeActionLockIn => '‹‹Lock in››';
 
   @override
-  String get practiceModeActionCheckAdapt => 'وګوره او تطبیق کړه';
+  String get practiceModeActionCheckAdapt => '‹‹Check & adapt››';
 
   @override
-  String get practiceModeActionContinue => 'دوام ورکړه';
+  String get practiceModeActionContinue => '‹‹Continue››';
 
   @override
-  String get practiceModeActionSolveIt => 'حل یې کړه';
+  String get practiceModeActionSolveIt => '‹‹Solve it››';
 
   @override
-  String get practiceModeActionNextConcept => 'بل مفهوم';
+  String get practiceModeActionNextConcept => '‹‹Next concept››';
 
   @override
-  String get practiceModeCardFront => 'د کارت مخ';
+  String get practiceModeCardFront => '‹‹Front of card››';
 
   @override
-  String get practiceModeRecallSummary => 'د یادولو لنډیز';
+  String get practiceModeRecallSummary => '‹‹Recall summary››';
 
   @override
-  String get practiceModeFeelingPrompt => 'هغه څنګه احساس شو؟';
+  String get practiceModeFeelingPrompt => '‹‹How did that feel?››';
 
   @override
-  String get practiceModeFeelingAgain => 'بیا';
+  String get practiceModeFeelingAgain => '‹‹Again››';
 
   @override
-  String get practiceModeFeelingHard => 'ستونزمن';
+  String get practiceModeFeelingHard => '‹‹Hard››';
 
   @override
-  String get practiceModeFeelingGood => 'ښه';
+  String get practiceModeFeelingGood => '‹‹Good››';
 
   @override
-  String get practiceModeFeelingEasy => 'اسان';
+  String get practiceModeFeelingEasy => '‹‹Easy››';
 
   @override
   String get practiceModeSpeedRoundBanner =>
-      'د سرعت پړاو · چټک پریکړې، سمدستي حرکت';
+      '‹‹Speed round · fast decisions, instant momentum››';
 
   @override
-  String get practiceModeFastFeedback => 'چټک بیاکتنه';
+  String get practiceModeFastFeedback => '‹‹Fast feedback››';
 
   @override
   String get practiceModeExamPrepBanner =>
-      'د ازموینې چمتووالی · آرامه ترتیب، ځوابونه له مخکې تللو وروسته کتل کیږي';
+      '‹‹Exam prep · quieter layout, answers reviewed after moving forward››';
 
   @override
-  String get practiceModeReview => 'بیاکتنه';
+  String get practiceModeReview => '‹‹Review››';
 
   @override
-  String get practiceModeBagrutBanner => 'د بګروت حالت · د رسمي سبک کاغذي بهیر';
+  String get practiceModeBagrutBanner =>
+      '‹‹Bagrut mode · official-style paper flow››';
 
   @override
-  String get practiceModeOfficialSolution => 'د رسمي سبک حل';
+  String get practiceModeOfficialSolution => '‹‹Official-style solution››';
 
   @override
-  String get practiceModeAdaptiveWarmup => 'د تودوخې ستونزمنتیا';
+  String get practiceModeAdaptiveWarmup => '‹‹Warm-up difficulty››';
 
   @override
-  String get practiceModeAdaptiveTrendingUp => 'ستونزمنتیا پورته خوا روانه';
+  String get practiceModeAdaptiveTrendingUp => '‹‹Difficulty trending up››';
 
   @override
-  String get practiceModeAdaptiveEasingDown => 'ستونزمنتیا ښکته خوا روانه';
+  String get practiceModeAdaptiveEasingDown => '‹‹Difficulty easing down››';
 
   @override
-  String get practiceModeAdaptiveSteady => 'ستونزمنتیا ثابته پاتې';
+  String get practiceModeAdaptiveSteady => '‹‹Difficulty holding steady››';
 
   @override
-  String get practiceModeAdaptiveFeedback => 'تطبیقي بیاکتنه';
+  String get practiceModeAdaptiveFeedback => '‹‹Adaptive feedback››';
 
   @override
-  String get practiceModeConceptFirst => 'لومړی مفهوم';
+  String get practiceModeConceptFirst => '‹‹Concept first››';
 
   @override
-  String get practiceModeNowSolveIt => 'اوس یې حل کړه';
+  String get practiceModeNowSolveIt => '‹‹Now solve it››';
 
   @override
-  String get practiceModeConceptTitle => 'مفهوم';
+  String get practiceModeConceptTitle => '‹‹Concept››';
 
   @override
-  String get practiceModeFeedbackCorrect => 'سم';
+  String get practiceModeFeedbackCorrect => '‹‹Correct››';
 
   @override
-  String get practiceModeFeedbackNotQuite => 'بشپړ نه دی';
+  String get practiceModeFeedbackNotQuite => '‹‹Not quite››';
 
   @override
-  String get practiceModeFallbackQuestion => 'پوښتنه';
+  String get practiceModeFallbackQuestion => '‹‹Question››';
 
   @override
-  String get practiceModeNoExplanationYet => 'تر اوسه هیڅ تشریح نشته.';
+  String get practiceModeNoExplanationYet =>
+      '‹‹No explanation available yet.››';
 
   @override
-  String get teacherGradesAssessmentCreated => 'ارزونه جوړه شوه';
+  String get teacherGradesAssessmentCreated => '‹‹Assessment created››';
 
   @override
-  String get teacherGradesEditAssessmentTitle => 'ارزونه سمه کړه';
+  String get teacherGradesEditAssessmentTitle => '‹‹Edit assessment››';
 
   @override
-  String get teacherGradesFieldTitle => 'سرلیک';
+  String get teacherGradesFieldTitle => '‹‹Title››';
 
   @override
-  String get teacherGradesFieldDate => 'نېټه (YYYY-MM-DD)';
+  String get teacherGradesFieldDate => '‹‹Date (YYYY-MM-DD)››';
 
   @override
-  String get teacherGradesFieldMaxGrade => 'اعظمي نمره';
+  String get teacherGradesFieldMaxGrade => '‹‹Max grade››';
 
   @override
-  String get teacherGradesAssessmentUpdated => 'ارزونه تازه شوه';
+  String get teacherGradesAssessmentUpdated => '‹‹Assessment updated››';
 
   @override
-  String get teacherGradesDeleteAssessmentTitle => 'ارزونه ړنګه شي؟';
+  String get teacherGradesDeleteAssessmentTitle => '‹‹Delete assessment?››';
 
   @override
   String teacherGradesDeleteAssessmentBody(Object title) {
-    return 'دا به $title او د هغې د نمرې اساس له ښوونکي کاري ځای څخه لرې کړي.';
+    return '‹‹This will remove $title and its grading entry from the teacher workspace.››';
   }
 
   @override
-  String get teacherGradesDeleteAction => 'ړنګ کړه';
+  String get teacherGradesDeleteAction => '‹‹Delete››';
 
   @override
-  String get teacherGradesAssessmentDeleted => 'ارزونه ړنګه شوه';
+  String get teacherGradesAssessmentDeleted => '‹‹Assessment deleted››';
 
   @override
   String get teacherGradesRosterLinkError =>
-      'دا ارزونه له کوم ټولګي لیست سره تړل شوې نه ده.';
+      '‹‹This assessment is not linked to a classroom roster.››';
 
   @override
-  String get teacherGradesSaved => 'نمرې خوندي شوې';
+  String get teacherGradesSaved => '‹‹Grades saved››';
 
   @override
   String get teacherGradesSubtitle =>
-      'ارزونې جوړې کړه او نمرې د ژوندي ټولګي لیست پر وړاندې خوندي کړه.';
+      '‹‹Create assessments and save grades against the live classroom roster.››';
 
   @override
-  String get teacherGradesCreateAssessmentTitle => 'ارزونه جوړه کړه';
+  String get teacherGradesCreateAssessmentTitle => '‹‹Create assessment››';
 
   @override
-  String get teacherGradesFieldCourse => 'کورس';
+  String get teacherGradesFieldCourse => '‹‹Course››';
 
   @override
-  String get teacherGradesCreateAction => 'جوړ کړه';
+  String get teacherGradesCreateAction => '‹‹Create››';
 
   @override
   String get teacherGradesNoStudentsLoaded =>
-      'د دې ارزونې لپاره هیڅ زده‌کوونکی نه دی پورته شوی.';
+      '‹‹No students loaded for this assessment.››';
 
   @override
-  String get teacherGradesFieldGrade => 'نمره';
+  String get teacherGradesFieldGrade => '‹‹Grade››';
 
   @override
   String teacherGradesMaxHint(Object grade) {
-    return 'اعظمي $grade';
+    return '‹‹Max $grade››';
   }
 
   @override
-  String get teacherGradesSaving => 'خوندي کیږي…';
+  String get teacherGradesSaving => '‹‹Saving…››';
 
   @override
   String teacherGradesSaveCount(Object count) {
-    return '$count نمرې خوندي کړه';
+    return '‹‹Save $count grades››';
   }
 
   @override
-  String get assignmentsNoDueDate => 'د سپارلو نېټه نشته';
+  String get assignmentsNoDueDate => '‹‹No due date››';
 
   @override
   String get assignmentsLoadError =>
-      'اوس مهال موږ دندې نشو پورته کولی. د تازه کولو لپاره ښکته راکاږه یا بیا هڅه وکړه.';
+      '‹‹We could not load assignments right now. Pull to refresh or try again.››';
 
   @override
   String get assignmentsLoadTimeout =>
-      'دندې د پورته کیدو لپاره ډېر وخت اخلي. د تازه کولو لپاره ښکته راکاږه یا یو شیبه وروسته بیا هڅه وکړه.';
+      '‹‹Assignments are taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get assignmentsLoadNetwork =>
-      'اوس مهال دندې نشي وصل کیدی. خپله اړیکه وګوره او بیا هڅه وکړه.';
+      '‹‹Assignments could not connect right now. Check your connection and try again.››';
 
   @override
-  String get assignmentsStatusOverdue => 'ناوخته';
+  String get assignmentsStatusOverdue => '‹‹Overdue››';
 
   @override
-  String get assignmentsStatusGraded => 'درجه بندي شوی';
+  String get assignmentsStatusGraded => '‹‹Graded››';
 
   @override
-  String get assignmentsStatusDueSoon => 'ژر سپارل کیږي';
+  String get assignmentsStatusDueSoon => '‹‹Due soon››';
 
   @override
-  String get assignmentsStatusUpcoming => 'راتلونکی';
+  String get assignmentsStatusUpcoming => '‹‹Upcoming››';
 
   @override
   String get assignmentsPreviewFallback =>
-      'دا دنده پرانیزه ترڅو بشپړې لارښوونې وګورې او خپل کار چمتو کړې.';
+      '‹‹Open this assignment to see the full instructions and prepare your work.››';
 
   @override
   String get assignmentsSubmissionPrepEmpty =>
-      'خپله یادښت یا فایلونه دلته کېږده.';
+      '‹‹Stage your note or files here.››';
 
   @override
   String assignmentsSubmissionPrepCount(Object count) {
-    return '$count فایل(ونه) محلي ضمیمه شوي.';
+    return '‹‹$count file(s) attached locally.››';
   }
 
   @override
   String get assignmentsHeroSubtitle =>
-      'هره ټولګي دنده په یوه پاک لید کې، له بشپړ پردې تفصیلي مخ او د خپل کار چمتو کولو لپاره ځانګړي ځای سره.';
+      '‹‹Every classroom assignment in one clean view, with a full-screen detail page and a dedicated place to prepare your work.››';
 
   @override
-  String get assignmentsSubjectsMetric => 'مضامین';
+  String get assignmentsSubjectsMetric => '‹‹Subjects››';
 
   @override
-  String get assignmentsNothingAssignedYet => 'تر اوسه هیڅ نه دی سپارل شوی';
+  String get assignmentsNothingAssignedYet => '‹‹Nothing assigned yet››';
 
   @override
   String get assignmentsNoAssignmentsForAccount =>
-      'اوس مهال د دې زده‌کوونکي حساب لپاره هیڅ ټولګي دنده شته نه ده.';
+      '‹‹No classroom assignments are available for this student account right now.››';
 
   @override
   String assignmentsNextThingBody(Object title, Object due) {
-    return '$title هغه بل شی دی چې وګورې یې. $due.';
+    return '‹‹$title is the next thing to look at. $due.››';
   }
 
   @override
-  String get assignmentsPullToCheckAgain => 'د بیا کتنې لپاره ښکته راکاږه.';
+  String get assignmentsPullToCheckAgain => '‹‹Pull down to check again.››';
 
   @override
   String get assignmentsFiltersSubtitle =>
-      'لیست د مضمون یا بیړنیتوب له مخې راکم کړه ترڅو لومړی پر مهمو شیانو تمرکز وکړې.';
+      '‹‹Narrow the list by subject or urgency to focus on what matters first.››';
 
   @override
-  String get assignmentsSubjectLabel => 'مضمون';
+  String get assignmentsSubjectLabel => '‹‹Subject››';
 
   @override
-  String get assignmentsAllSubjects => 'ټول مضامین';
+  String get assignmentsAllSubjects => '‹‹All subjects››';
 
   @override
-  String get assignmentsSearchSubjects => 'مضامین ولټوه';
+  String get assignmentsSearchSubjects => '‹‹Search subjects››';
 
   @override
-  String get assignmentsStatusLabel => 'حالت';
+  String get assignmentsStatusLabel => '‹‹Status››';
 
   @override
-  String get assignmentsAllStatuses => 'ټول حالتونه';
+  String get assignmentsAllStatuses => '‹‹All statuses››';
 
   @override
-  String get assignmentsSearchStatuses => 'حالتونه ولټوه';
+  String get assignmentsSearchStatuses => '‹‹Search statuses››';
 
   @override
   String assignmentsShowingSummary(Object shown, Object total) {
-    return 'له $total دندو څخه $shown ښودل کیږي.';
+    return '‹‹Showing $shown of $total assignments.››';
   }
 
   @override
   String get assignmentsNoFilterMatchesTitle =>
-      'هیڅ دنده له دې فلټرونو سره سمون نه خوري';
+      '‹‹No assignments match these filters››';
 
   @override
   String get assignmentsNoFilterMatchesSubtitle =>
-      'ټول مضامین یا پراخ حالت لید هڅه وکړه ترڅو نورې دندې بیرته لیست ته راشي.';
+      '‹‹Try all subjects or a wider status view to bring more assignments back into the list.››';
 
   @override
   String get assignmentsClearFiltersHint =>
-      'فلټرونه پاک کړه ترڅو بیا هرڅه وګورې.';
+      '‹‹Clear filters to see everything again.››';
 
   @override
   String get assignmentsListSubtitle =>
-      'هره دنده کېکاږه ترڅو بشپړ پردې تفصیلي لید پرانیزې او خپل کار چمتو کړې.';
+      '‹‹Tap any assignment to open the full-screen detail view and prepare your work.››';
 
   @override
   String get assignmentsAddNoteBeforePrepare =>
-      'د خپل کار له چمتو کولو مخکې یادښت ولیکه یا فایل ضمیمه کړه.';
+      '‹‹Add a note or attach a file before preparing your work.››';
 
   @override
-  String get assignmentsWorkDraftPrepared => 'د کار مسوده چمتو شوه.';
+  String get assignmentsWorkDraftPrepared => '‹‹Work draft prepared.››';
 
   @override
   String get assignmentsWorkDraftPreparedWithFiles =>
-      'د کار مسوده چمتو شوه. ضمیمه شوي فایلونه پر دې وسیله خوندي دي.';
+      '‹‹Work draft prepared. Attached files are saved on this device.››';
 
   @override
-  String get assignmentsUnavailableTitle => 'دنده شته نه ده';
+  String get assignmentsUnavailableTitle => '‹‹Assignment unavailable››';
 
   @override
   String get assignmentsUnavailableSubtitle =>
-      'دا دنده په اوسني فید کې ونه موندل شوه. کیدای شي لرې شوې وي یا آفلاین شته نه وي.';
+      '‹‹This assignment could not be found in the current feed. It may have been removed or is not available offline.››';
 
   @override
   String get assignmentsUnavailableHint =>
-      'بیرته لاړ شه او د دندو لیست تازه کړه.';
+      '‹‹Go back and refresh the assignments list.››';
 
   @override
   String get assignmentsOverdueBannerBody =>
-      'دا دنده له خپلې سپارلو نېټې تېره شوې. لاندې خپل کاري ساحه پرانیزه ترڅو هغه څه چمتو کړې چې سپارل غواړې.';
+      '‹‹This assignment is past its due date. Open your work area below to prepare what you want to turn in.››';
 
   @override
   String get assignmentsWorkAreaBannerBody =>
-      'لاندې کاري ساحه وکاروه ترڅو فایلونه کېږدې، یادښت ولیکې، او هرڅه په یو ځای کې چمتو وساتې.';
+      '‹‹Use the work area below to stage files, write a note, and keep everything ready in one place.››';
 
   @override
-  String get assignmentsDetailsSectionTitle => 'د دندې تفصیلات';
+  String get assignmentsDetailsSectionTitle => '‹‹Assignment details››';
 
   @override
   String get assignmentsDetailsSectionSubtitle =>
-      'هرڅه چې زده‌کوونکي ته اړوند دي او اوس مهال د ټولګي دندې محتوا کې شته دي.';
+      '‹‹Everything student-relevant that is currently available in the classroom assignment payload.››';
 
   @override
-  String get assignmentsDetailDueLabel => 'سپارل';
+  String get assignmentsDetailDueLabel => '‹‹Due››';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'ټولګی';
+  String get assignmentsDetailClassroomLabel => '‹‹Classroom››';
 
   @override
-  String get assignmentsDetailTeacherLabel => 'ښوونکی';
+  String get assignmentsDetailTeacherLabel => '‹‹Teacher››';
 
   @override
-  String get assignmentsDetailPostedByLabel => 'خپور کړی د';
+  String get assignmentsDetailPostedByLabel => '‹‹Posted by››';
 
   @override
-  String get assignmentsDetailPublishedLabel => 'خپور شو';
+  String get assignmentsDetailPublishedLabel => '‹‹Published››';
 
   @override
-  String get assignmentsDetailUpdatedLabel => 'تازه شو';
+  String get assignmentsDetailUpdatedLabel => '‹‹Updated››';
 
   @override
-  String get assignmentsDetailIdLabel => 'د دندې ID';
+  String get assignmentsDetailIdLabel => '‹‹Assignment ID››';
 
   @override
-  String get assignmentsInstructionsTitle => 'لارښوونې';
+  String get assignmentsInstructionsTitle => '‹‹Instructions››';
 
   @override
   String get assignmentsInstructionsSubtitle =>
-      'د ټولګي فید بشپړ د دندې متن، له اصلي ټکو ساتل سره.';
+      '‹‹Full assignment text from the classroom feed, with the original wording preserved.››';
 
   @override
-  String get assignmentsYourWorkTitle => 'ستا کار';
+  String get assignmentsYourWorkTitle => '‹‹Your work››';
 
   @override
   String get assignmentsYourWorkSubtitle =>
-      'یادښت کېږده، فایلونه یا اسناد ضمیمه کړه، او د سپارلو چمتووالی په یوه تمرکز شوي ځای کې وساته.';
+      '‹‹Stage a note, attach files or docs, and keep your submission prep in one focused space.››';
 
   @override
-  String get assignmentsPrivateNoteLabel => 'شخصي کاري یادښت';
+  String get assignmentsPrivateNoteLabel => '‹‹Private work note››';
 
   @override
   String get assignmentsPrivateNoteHint =>
-      'هغه څه ولیکه چې سپارل غواړې، د ځان لپاره یادونې، یا د سند/لینک لنډیز.';
+      '‹‹Add what you plan to submit, reminders for yourself, or a doc/link summary.››';
 
   @override
-  String get assignmentsAddFiles => 'فایلونه یا اسناد ورزیات کړه';
+  String get assignmentsAddFiles => '‹‹Add files or docs››';
 
   @override
-  String get assignmentsClearFiles => 'فایلونه پاک کړه';
+  String get assignmentsClearFiles => '‹‹Clear files››';
 
   @override
   String get assignmentsStagedDeviceHint =>
-      'فایلونه پر دې وسیله ایښودل شوي. د دندې فایل سپارل په دې اپ کې شته نه دي.';
+      '‹‹Files are staged on this device. Assignment file submission is not available in this app.››';
 
   @override
   String assignmentsLastPrepared(Object time) {
-    return 'وروستی ځل چمتو شو $time.';
+    return '‹‹Last prepared $time.››';
   }
 
   @override
-  String get assignmentsSubmissionPrepTitle => 'د سپارلو چمتووالی';
+  String get assignmentsSubmissionPrepTitle => '‹‹Submission prep››';
 
   @override
-  String get assignmentsPreparing => 'چمتو کیږي';
+  String get assignmentsPreparing => '‹‹Preparing››';
 
   @override
-  String get assignmentsPrepareWork => 'کار چمتو کړه';
+  String get assignmentsPrepareWork => '‹‹Prepare work››';
 
   @override
-  String get assignmentsLoadingSubtitle => 'ستا د ټولګي دندې پورته کیږي.';
+  String get assignmentsLoadingSubtitle =>
+      '‹‹Loading your classroom assignments.››';
 
   @override
   String get assignmentsPullToRefreshRetry =>
-      'د تازه کولو لپاره ښکته راکاږه یا لاندې بیا هڅه وکړه.';
+      '‹‹Pull to refresh or retry below.››';
 
   @override
-  String get assignmentsFileSizeUnknown => 'فایل';
+  String get assignmentsFileSizeUnknown => '‹‹File››';
 
   @override
-  String get assignmentsRemoveAttachment => 'لرې کړه';
+  String get assignmentsRemoveAttachment => '‹‹Remove››';
 
   @override
-  String get assignmentsSubmitted => 'سپارل شوه';
+  String get assignmentsSubmitted => '‹‹Submitted››';
 
   @override
-  String get attendanceUndated => 'بې نېټې';
+  String get attendanceUndated => '‹‹Undated››';
 
   @override
   String get attendanceLoadError =>
-      'اوس مهال موږ حاضري نشو پورته کولی. د تازه کولو لپاره ښکته راکاږه یا بیا هڅه وکړه.';
+      '‹‹We could not load attendance right now. Pull to refresh or try again.››';
 
   @override
   String get attendanceLoadTimeout =>
-      'حاضري د پورته کیدو لپاره ډېر وخت اخلي. د تازه کولو لپاره ښکته راکاږه یا یو شیبه وروسته بیا هڅه وکړه.';
+      '‹‹Attendance is taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get attendanceLoadNetwork =>
-      'اوس مهال حاضري نشي وصل کیدی. خپله اړیکه وګوره او بیا هڅه وکړه.';
+      '‹‹Attendance could not connect right now. Check your connection and try again.››';
 
   @override
-  String get attendanceConsistencyBuilding => 'لا جوړیږي';
+  String get attendanceConsistencyBuilding => '‹‹Still building››';
 
   @override
-  String get attendanceConsistencyExcellent => 'عالي دوام';
+  String get attendanceConsistencyExcellent => '‹‹Excellent consistency››';
 
   @override
-  String get attendanceConsistencySteady => 'ډېر باثباته';
+  String get attendanceConsistencySteady => '‹‹Mostly steady››';
 
   @override
-  String get attendanceConsistencyNeedsAttention => 'پاملرنې ته اړتیا لري';
+  String get attendanceConsistencyNeedsAttention => '‹‹Needs attention››';
 
   @override
-  String get attendanceConsistencyRisk => 'د حاضرۍ خطر';
+  String get attendanceConsistencyRisk => '‹‹Attendance risk››';
 
   @override
-  String get attendanceWatchRecentAbsences => 'وروستۍ غیرحاضرۍ';
+  String get attendanceWatchRecentAbsences => '‹‹Recent absences››';
 
   @override
-  String get attendanceWatchRepeatedLateness => 'تکراري ناوختي راتګ';
+  String get attendanceWatchRepeatedLateness => '‹‹Repeated lateness››';
 
   @override
-  String get attendanceWatchExcusedAddingUp => 'د رخصت وخت ډېرېږي';
+  String get attendanceWatchExcusedAddingUp => '‹‹Excused time adding up››';
 
   @override
-  String get attendanceWatchNoFlags => 'اوس مهال هیڅ نښه نشته';
+  String get attendanceWatchNoFlags => '‹‹No current flags››';
 
   @override
-  String get attendanceAllSubjectsLowercase => 'ټول مضامین';
+  String get attendanceAllSubjectsLowercase => '‹‹all subjects››';
 
   @override
   String attendanceShowingSummary(
@@ -3850,206 +3944,207 @@ class AppLocalizationsPs extends AppLocalizations {
     Object subject,
     Object range,
   ) {
-    return 'د $subject لپاره په $range کې له $total نښو څخه $shown ښودل کیږي.';
+    return '‹‹Showing $shown of $total marks for $subject in $range.››';
   }
 
   @override
-  String get attendanceDayToneAbsent => 'د غیرحاضرۍ ورځ';
+  String get attendanceDayToneAbsent => '‹‹Absence day››';
 
   @override
-  String get attendanceDayToneLate => 'د ناوختي راتګ نښه';
+  String get attendanceDayToneLate => '‹‹Late signal››';
 
   @override
-  String get attendanceDayToneExcused => 'رخصت شوې حاضري';
+  String get attendanceDayToneExcused => '‹‹Excused attendance››';
 
   @override
-  String get attendanceDayToneClean => 'پاکه ورځ';
+  String get attendanceDayToneClean => '‹‹Clean day››';
 
   @override
   String get attendanceLoadingSubtitle =>
-      'ستاسو د حاضرۍ وروستۍ لنډیز پورته کیږي.';
+      '‹‹Loading your latest attendance summary.››';
 
   @override
-  String get attendanceUnavailableTitle => 'حاضري شته نه ده';
+  String get attendanceUnavailableTitle => '‹‹Attendance unavailable››';
 
   @override
   String get attendanceHeroSubtitle =>
-      'ستاسو د حاضرۍ کچې، وروستیو درسونو، او هغه څه چې پاملرنې ته اړتیا لري یو روښانه لیدنه.';
+      '‹‹A clean read on your attendance rate, recent lessons, and anything that needs attention.››';
 
   @override
-  String get attendanceMetricRate => 'کچه';
+  String get attendanceMetricRate => '‹‹Rate››';
 
   @override
-  String get attendanceMetricPresent => 'حاضر نښې';
+  String get attendanceMetricPresent => '‹‹Present marks››';
 
   @override
-  String get attendanceMetricLate => 'ناوختي نښې';
+  String get attendanceMetricLate => '‹‹Late marks››';
 
   @override
-  String get attendanceMetricAbsent => 'غیرحاضر نښې';
+  String get attendanceMetricAbsent => '‹‹Absent marks››';
 
   @override
   String attendanceHeroSignalBody(Object flag) {
-    return '$flag. د حاضرۍ فشار کولی شي په خاموشۍ سره زیات شي، نو دا لیدنه پر هغه څه تمرکز کوي چې تازه بدل شوي دي.';
+    return '‹‹$flag. Attendance pressure can build quietly, so this view stays focused on what changed most recently.››';
   }
 
   @override
   String get attendanceNoSummary =>
-      'د دې زده‌کوونکي حساب لپاره لا تر اوسه د حاضرۍ هیڅ لنډیز شته نه دی.';
+      '‹‹No attendance summary is available for this student account yet.››';
 
   @override
-  String get attendanceEmptyTitle => 'لا تر اوسه د حاضرۍ ریکارډ نشته';
+  String get attendanceEmptyTitle => '‹‹No attendance records yet››';
 
   @override
   String get attendanceEmptySubtitle =>
-      'د دې زده‌کوونکي حساب لپاره لا تر اوسه د حاضرۍ هیڅ ریکارډ نه دی خپور شوی.';
+      '‹‹No attendance records have been published for this student account yet.››';
 
   @override
   String get attendanceFiltersSubtitle =>
-      'د حاضرۍ لیدنه د مضمون یا وخت له مخې راکمولو لپاره هماغه د لټون وړ ټاکونکی سټایل وکاروئ لکه په تنظیماتو کې.';
+      '‹‹Use the same searchable picker style as settings to narrow the attendance view by subject or time window.››';
 
   @override
-  String get attendanceTimeRangeLabel => 'د وخت موده';
+  String get attendanceTimeRangeLabel => '‹‹Time range››';
 
   @override
-  String get attendanceSearchRanges => 'ټول وخت / ۷ ورځې / ۳۰ ورځې / ۹۰ ورځې';
+  String get attendanceSearchRanges =>
+      '‹‹All time / 7 days / 30 days / 90 days››';
 
   @override
   String get attendanceNoFilteredMarksTitle =>
-      'هیڅ نښه له دې فلټرونو سره سمون نه خوري';
+      '‹‹No marks match these filters››';
 
   @override
   String get attendanceNoFilteredMarksSubtitle =>
-      'د حاضرۍ نورې نښې راوستلو لپاره ټول مضامین یا پراخه وخت موده هڅه وکړئ.';
+      '‹‹Try all subjects or a wider time range to bring more attendance marks back into view.››';
 
   @override
-  String get attendanceQuickReadTitle => 'چټک لنډیز';
+  String get attendanceQuickReadTitle => '‹‹Quick read››';
 
   @override
   String get attendanceQuickReadSubtitleFiltered =>
-      'لاندې ښودل شویو فلټر شویو نښو لپاره یو چټک لنډیز.';
+      '‹‹A fast summary for the filtered attendance marks shown below.››';
 
   @override
   String get attendanceQuickReadSubtitleAll =>
-      'د موجودو وروستیو حاضرۍ ریکارډونو پر بنسټ یو چټک لنډیز.';
+      '‹‹A fast summary based on the latest attendance records available.››';
 
   @override
-  String get attendanceSummaryConsistency => 'باثباتي';
+  String get attendanceSummaryConsistency => '‹‹Consistency››';
 
   @override
-  String get attendanceSummaryWatchFor => 'پاملرنه وکړئ';
+  String get attendanceSummaryWatchFor => '‹‹Watch for››';
 
   @override
-  String get attendanceSummaryExcused => 'رخصت شوې نښې';
+  String get attendanceSummaryExcused => '‹‹Excused marks››';
 
   @override
-  String get attendanceSummaryMarksInView => 'په لید کې نښې';
+  String get attendanceSummaryMarksInView => '‹‹Marks in view››';
 
   @override
-  String get attendanceSummaryRateInView => 'په لید کې کچه';
+  String get attendanceSummaryRateInView => '‹‹Rate in view››';
 
   @override
-  String get attendanceRecentDaysTitle => 'وروستۍ ورځې';
+  String get attendanceRecentDaysTitle => '‹‹Recent days››';
 
   @override
   String get attendanceRecentDaysSubtitleFiltered =>
-      'د هغو فلټر شویو نښو لپاره چې اوس په لید کې دي د ورځې له مخې ډلبندي شوي.';
+      '‹‹Grouped by day for the filtered marks currently in view.››';
 
   @override
   String get attendanceRecentDaysSubtitleAll =>
-      'د ورځې له مخې ډلبندي شوي ترڅو تاسو د غیرحاضرۍ یا ناوختي راتګ بڼې ژر ونیسئ.';
+      '‹‹Grouped by day so you can catch absence or lateness patterns faster.››';
 
   @override
-  String get attendanceLessonCountSingle => '۱ درس';
+  String get attendanceLessonCountSingle => '‹‹1 lesson››';
 
   @override
   String attendanceLessonCount(Object count) {
-    return '$count درسونه';
+    return '‹‹$count lessons››';
   }
 
   @override
-  String get attendanceStatusPresent => 'حاضر';
+  String get attendanceStatusPresent => '‹‹Present››';
 
   @override
-  String get attendanceStatusLate => 'ناوخته';
+  String get attendanceStatusLate => '‹‹Late››';
 
   @override
-  String get attendanceStatusAbsent => 'غیرحاضر';
+  String get attendanceStatusAbsent => '‹‹Absent››';
 
   @override
-  String get attendanceStatusExcused => 'رخصت';
+  String get attendanceStatusExcused => '‹‹Excused››';
 
   @override
-  String get attendanceStatusRecorded => 'ثبت شوی';
+  String get attendanceStatusRecorded => '‹‹Recorded››';
 
   @override
-  String get attendanceLessonFallback => 'درس';
+  String get attendanceLessonFallback => '‹‹Lesson››';
 
   @override
-  String get attendanceRangeAll => 'ټول وخت';
+  String get attendanceRangeAll => '‹‹All time››';
 
   @override
-  String get attendanceRange7 => 'وروستۍ ۷ ورځې';
+  String get attendanceRange7 => '‹‹Last 7 days››';
 
   @override
-  String get attendanceRange30 => 'وروستۍ ۳۰ ورځې';
+  String get attendanceRange30 => '‹‹Last 30 days››';
 
   @override
-  String get attendanceRange90 => 'وروستۍ ۹۰ ورځې';
+  String get attendanceRange90 => '‹‹Last 90 days››';
 
   @override
-  String get attendanceRangeAllShort => 'ټول وخت';
+  String get attendanceRangeAllShort => '‹‹All time››';
 
   @override
-  String get attendanceRange7Short => '۷ ورځې';
+  String get attendanceRange7Short => '‹‹7 days››';
 
   @override
-  String get attendanceRange30Short => '۳۰ ورځې';
+  String get attendanceRange30Short => '‹‹30 days››';
 
   @override
-  String get attendanceRange90Short => '۹۰ ورځې';
+  String get attendanceRange90Short => '‹‹90 days››';
 
   @override
   String get gradesLoadError =>
-      'موږ اوس مهال نمرې نشو پورته کولی. د تازه کولو لپاره راکش کړئ یا بیا هڅه وکړئ.';
+      '‹‹We could not load grades right now. Pull to refresh or try again.››';
 
   @override
   String get gradesLoadTimeout =>
-      'نمرې د پورته کیدو لپاره ډېر وخت اخلي. راکش کړئ یا یوه شیبه وروسته بیا هڅه وکړئ.';
+      '‹‹Grades are taking too long to load. Pull to refresh or try again in a moment.››';
 
   @override
   String get gradesLoadNetwork =>
-      'نمرې اوس مهال ونه نښلیدې. خپله اړیکه وګورئ او بیا هڅه وکړئ.';
+      '‹‹Grades could not connect right now. Check your connection and try again.››';
 
   @override
-  String get gradesGeneralSubject => 'عمومي';
+  String get gradesGeneralSubject => '‹‹General››';
 
   @override
-  String get gradesBandBuilding => 'لا روانه ده';
+  String get gradesBandBuilding => '‹‹Still building››';
 
   @override
-  String get gradesBandExcellent => 'عالي';
+  String get gradesBandExcellent => '‹‹Excellent››';
 
   @override
-  String get gradesBandStrong => 'قوي';
+  String get gradesBandStrong => '‹‹Strong››';
 
   @override
-  String get gradesBandOkay => 'ښه';
+  String get gradesBandOkay => '‹‹Okay››';
 
   @override
-  String get gradesBandNeedsAttention => 'پاملرنې ته اړتیا لري';
+  String get gradesBandNeedsAttention => '‹‹Needs attention››';
 
   @override
-  String get gradesBandRisk => 'په خطر کې';
+  String get gradesBandRisk => '‹‹At risk››';
 
   @override
-  String get gradesTrendRising => 'په لوړېدو';
+  String get gradesTrendRising => '‹‹Rising››';
 
   @override
-  String get gradesTrendDropping => 'په ټیټېدو';
+  String get gradesTrendDropping => '‹‹Dropping››';
 
   @override
-  String get gradesTrendStable => 'ثابت';
+  String get gradesTrendStable => '‹‹Stable››';
 
   @override
   String gradesShowingSummary(
@@ -4058,31 +4153,31 @@ class AppLocalizationsPs extends AppLocalizations {
     Object subject,
     Object range,
   ) {
-    return 'د $subject لپاره په $range کې له $total ثبت شویو نمرو څخه $shown ښودل کیږي.';
+    return '‹‹Showing $shown of $total recorded grades for $subject in $range.››';
   }
 
   @override
   String get gradesLoadingSubtitle =>
-      'ستاسو وروستۍ زده‌کړیزې پایلې پورته کیږي.';
+      '‹‹Loading your latest academic results.››';
 
   @override
-  String get gradesUnavailableTitle => 'نمرې شته نه دي';
+  String get gradesUnavailableTitle => '‹‹Grades unavailable››';
 
   @override
   String get gradesHeroSubtitle =>
-      'ستاسو د منځنۍ کچې، وروستیو ارزونو، او دا چې کوم مضامین ساتنې یا بیا روغتیا ته اړتیا لري یو روښانه لیدنه.';
+      '‹‹A clean read on your average, recent assessments, and which subjects need protection or recovery.››';
 
   @override
-  String get gradesMetricAverage => 'منځنۍ';
+  String get gradesMetricAverage => '‹‹Average››';
 
   @override
-  String get gradesMetricRecorded => 'ثبت شوي';
+  String get gradesMetricRecorded => '‹‹Recorded››';
 
   @override
-  String get gradesMetricBestSubject => 'غوره مضمون';
+  String get gradesMetricBestSubject => '‹‹Best subject››';
 
   @override
-  String get gradesMetricNeedsWork => 'کار ته اړتیا لري';
+  String get gradesMetricNeedsWork => '‹‹Needs work››';
 
   @override
   String gradesLatestSignalBody(
@@ -4091,192 +4186,192 @@ class AppLocalizationsPs extends AppLocalizations {
     Object grade,
     Object band,
   ) {
-    return 'په $subject کې $assessment په $grade پایله ته ورسیده. اوس مهال $band.';
+    return '‹‹$assessment in $subject landed at $grade. $band right now.››';
   }
 
   @override
   String get gradesSummaryAvailableNoRecent =>
-      'د نمرو لنډیز شته، خو په دې لید کې لا تر اوسه هیڅ وروستۍ ارزونه نه ښکاري.';
+      '‹‹A grade summary is available, but no recent assessments are visible in this view yet.››';
 
   @override
-  String get gradesEmptyTitle => 'لا تر اوسه نمرې نشته';
+  String get gradesEmptyTitle => '‹‹No grades yet››';
 
   @override
   String get gradesEmptySubtitle =>
-      'د دې زده‌کوونکي حساب لپاره لا تر اوسه هیڅ نمرې نه دي خپرې شوې.';
+      '‹‹No grades have been published for this student account yet.››';
 
   @override
   String get gradesFiltersSubtitle =>
-      'د نمرو د مضمون یا وخت له مخې راکمولو لپاره هماغه د لټون وړ ټاکونکی سټایل وکاروئ لکه په تنظیماتو کې.';
+      '‹‹Use the same searchable picker style as settings to narrow grades by subject or time window.››';
 
   @override
-  String get gradesNoFilteredTitle => 'هیڅ نمرې له دې فلټرونو سره سمون نه خوري';
+  String get gradesNoFilteredTitle => '‹‹No grades match these filters››';
 
   @override
   String get gradesNoFilteredSubtitle =>
-      'نورې ثبت شوې نمرې راوستلو لپاره ټول مضامین یا پراخه وخت موده هڅه وکړئ.';
+      '‹‹Try all subjects or a wider time range to bring more recorded grades back into view.››';
 
   @override
-  String get gradesQuickReadTitle => 'چټک لنډیز';
+  String get gradesQuickReadTitle => '‹‹Quick read››';
 
   @override
   String get gradesQuickReadSubtitleFiltered =>
-      'د هغو نمرو لپاره چې اوس په لید کې دي یو چټک لنډیز.';
+      '‹‹A fast summary for the grades currently in view.››';
 
   @override
   String get gradesQuickReadSubtitleAll =>
-      'د دې چې څه وساتل شي او څه بیا روغ کړل شي تر ټولو چټک لنډیز.';
+      '‹‹The fastest read on what to protect and what to recover.››';
 
   @override
-  String get gradesWeakSpotLabel => 'اوسنۍ کمزورې برخه';
+  String get gradesWeakSpotLabel => '‹‹Current weak spot››';
 
   @override
-  String get gradesNoWeakSignal => 'لا تر اوسه د کمزوري مضمون نښه نشته';
+  String get gradesNoWeakSignal => '‹‹No weak subject signal yet››';
 
   @override
   String gradesWeakSpotValue(Object subject) {
-    return '$subject د بیا روغتیا لومړي بلاک ته اړتیا لري.';
+    return '‹‹$subject needs the first recovery block.››';
   }
 
   @override
-  String get gradesStrengthLabel => 'اوسنۍ ځواکمنتیا';
+  String get gradesStrengthLabel => '‹‹Current strength››';
 
   @override
-  String get gradesNoStrengthSignal => 'لا تر اوسه د قوي مضمون نښه نشته';
+  String get gradesNoStrengthSignal => '‹‹No strong subject signal yet››';
 
   @override
   String gradesStrengthValue(Object subject) {
-    return '$subject اوس مهال ستاسو د باور لنگر دی.';
+    return '‹‹$subject is your confidence anchor right now.››';
   }
 
   @override
-  String get gradesBandLabel => 'کچه';
+  String get gradesBandLabel => '‹‹Band››';
 
   @override
-  String get gradesInViewLabel => 'په لید کې';
+  String get gradesInViewLabel => '‹‹In view››';
 
   @override
   String gradesInViewCount(Object count) {
-    return 'په دې فلټر کې $count ثبت شوې نمرې.';
+    return '‹‹$count recorded grades in this filter.››';
   }
 
   @override
   String gradesInViewAverage(Object count, Object average) {
-    return '$count ثبت شوې نمرې چې منځنۍ یې $average ده.';
+    return '‹‹$count recorded grades averaging $average.››';
   }
 
   @override
-  String get gradesLatestAssessmentsTitle => 'وروستۍ ارزونې';
+  String get gradesLatestAssessmentsTitle => '‹‹Latest assessments››';
 
   @override
   String get gradesLatestAssessmentsSubtitleFiltered =>
-      'په اوسني فلټر شوي لید کې تر ټولو وروستۍ ثبت شوې نمرې.';
+      '‹‹Most recent recorded grades in the current filtered view.››';
 
   @override
   String get gradesLatestAssessmentsSubtitleAll =>
-      'تر ټولو وروستۍ ثبت شوې نمرې په وخت ترتیب سره.';
+      '‹‹Most recent recorded grades in chronological order.››';
 
   @override
-  String get gradesSubjectDrilldownTitle => 'د مضمون تفصیل';
+  String get gradesSubjectDrilldownTitle => '‹‹Subject drilldown››';
 
   @override
   String get gradesSubjectDrilldownSubtitleFiltered =>
-      'د هغو نمرو لپاره چې اوس په لید کې دي د مضمون له مخې ډلبندي شوي.';
+      '‹‹Grouped by subject for the grades currently in view.››';
 
   @override
   String get gradesSubjectDrilldownSubtitleAll =>
-      'د مضمون له مخې ډلبندي شوي ترڅو رجحان او فشار ژر څرګند شي.';
+      '‹‹Grouped by subject so trend and pressure stand out faster.››';
 
   @override
-  String get gradesAssessmentFallback => 'ارزونه';
+  String get gradesAssessmentFallback => '‹‹Assessment››';
 
   @override
-  String get gradesChipBest => 'غوره';
+  String get gradesChipBest => '‹‹Best››';
 
   @override
-  String get gradesNoAverageYet => 'لا تر اوسه منځنۍ نشته';
+  String get gradesNoAverageYet => '‹‹No average yet››';
 
   @override
   String gradesRecentAverage(Object average) {
-    return 'وروستۍ منځنۍ: $average';
+    return '‹‹Recent average: $average››';
   }
 
   @override
-  String get actionCancel => 'لغوه کول';
+  String get actionCancel => '‹‹Cancel››';
 
   @override
-  String get actionSave => 'خوندي کول';
+  String get actionSave => '‹‹Save››';
 
   @override
-  String get actionDelete => 'ړنګول';
+  String get actionDelete => '‹‹Delete››';
 
   @override
-  String get actionRemove => 'لرې کول';
+  String get actionRemove => '‹‹Remove››';
 
   @override
-  String get actionBlock => 'بلاک';
+  String get actionBlock => '‹‹Block››';
 
   @override
-  String get actionCreate => 'جوړول';
+  String get actionCreate => '‹‹Create››';
 
   @override
-  String get actionShare => 'شریکول';
+  String get actionShare => '‹‹Share››';
 
   @override
-  String get actionScheduleVerb => 'مهال ویش';
+  String get actionScheduleVerb => '‹‹Schedule››';
 
   @override
-  String get actionAdd => 'زیاتول';
+  String get actionAdd => '‹‹Add››';
 
   @override
-  String get actionKeep => 'ساتل';
+  String get actionKeep => '‹‹Keep››';
 
   @override
-  String get actionOpen => 'خلاصول';
+  String get actionOpen => '‹‹Open››';
 
   @override
-  String get actionPublish => 'خپرول';
+  String get actionPublish => '‹‹Publish››';
 
   @override
-  String get actionPublishing => 'خپرول کیږي…';
+  String get actionPublishing => '‹‹Publishing…››';
 
   @override
-  String get actionRefresh => 'تازه کول';
+  String get actionRefresh => '‹‹Refresh››';
 
   @override
-  String get msgBlockTitle => 'دا کس بلاک کړئ؟';
+  String get msgBlockTitle => '‹‹Block this person?››';
 
   @override
   String get msgBlockContent =>
-      'هغوی به نشي کولی تاسو ته پیغام واستوي او تاسو به یې پیغامونه ونه وینئ.';
+      '‹‹They won\'t be able to message you and you won\'t see their messages.››';
 
   @override
-  String get msgRenameGroup => 'د ګروپ نوم بدلول';
+  String get msgRenameGroup => '‹‹Rename group››';
 
   @override
-  String get msgGroupName => 'د ګروپ نوم';
+  String get msgGroupName => '‹‹Group name››';
 
   @override
-  String get msgMute => 'غلي کول';
+  String get msgMute => '‹‹Mute››';
 
   @override
-  String get msgUnmute => 'غږ بیرته راوستل';
+  String get msgUnmute => '‹‹Unmute››';
 
   @override
-  String get msgInviteCode => 'د بلنې کوډ';
+  String get msgInviteCode => '‹‹Invite code››';
 
   @override
-  String get msgCopyCode => 'کوډ کاپي کول';
+  String get msgCopyCode => '‹‹Copy code››';
 
   @override
-  String get msgLeave => 'وتل';
+  String get msgLeave => '‹‹Leave››';
 
   @override
-  String get msgInviteCodeCopied => 'د بلنې کوډ کاپي شو';
+  String get msgInviteCodeCopied => '‹‹Invite code copied››';
 
   @override
   String msgCodeCopied(Object code) {
-    return 'کوډ کاپي شو: $code';
+    return '‹‹Code copied: $code››';
   }
 
   @override
@@ -4284,10 +4379,10 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count ګډونوال زیات شول',
-      one: '۱ ګډونوال زیات شو',
+      other: '$count participants added',
+      one: '1 participant added',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -4295,2495 +4390,2504 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count غړي',
-      one: '۱ غړی',
+      other: '$count members',
+      one: '1 member',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get msgAdmin => 'اډمین';
+  String get msgAdmin => '‹‹Admin››';
 
   @override
-  String get msgRemoveFromGroup => 'له ګروپه لرې کول';
+  String get msgRemoveFromGroup => '‹‹Remove from group››';
 
   @override
-  String get msgMakeAdmin => 'اډمین جوړول';
+  String get msgMakeAdmin => '‹‹Make admin››';
 
   @override
-  String get msgRemoveAdmin => 'اډمین لرې کول';
+  String get msgRemoveAdmin => '‹‹Remove admin››';
 
   @override
-  String get msgOnlyAdmin => 'یوازینی اډمین — لومړی بل ته دنده ورکړئ';
+  String get msgOnlyAdmin => '‹‹Only admin — promote another first››';
 
   @override
   String msgRemoveMemberTitle(Object name) {
-    return '$name لرې کړئ؟';
+    return '‹‹Remove $name?››';
   }
 
   @override
-  String get msgNotificationsMuted => 'خبرتیاوې غلي شوې';
+  String get msgNotificationsMuted => '‹‹Notifications muted››';
 
   @override
-  String get msgNotificationsUnmuted => 'خبرتیاوې بیرته فعالې شوې';
+  String get msgNotificationsUnmuted => '‹‹Notifications unmuted››';
 
   @override
-  String get msgJoinGroupTitle => 'یوې ډلې سره یوځای شئ';
+  String get msgJoinGroupTitle => '‹‹Join a Group››';
 
   @override
-  String get msgJoinGroupSubtitle => 'د ګروپ له اډمین څخه د بلنې کوډ دننه کړئ';
+  String get msgJoinGroupSubtitle =>
+      '‹‹Enter the invite code from the group admin››';
 
   @override
-  String get examTitle => 'ازموینه';
+  String get examTitle => '‹‹Exam››';
 
   @override
-  String get examNotFound => 'ازموینه ونه موندل شوه';
+  String get examNotFound => '‹‹Exam not found››';
 
   @override
-  String get examStudyWithNova => 'له NOVA سره مطالعه';
+  String get examStudyWithNova => '‹‹Study with NOVA››';
 
   @override
-  String get examOpenInsights => 'Insights خلاصول';
+  String get examOpenInsights => '‹‹Open Insights››';
 
   @override
-  String get examAddToCalendar => 'کلیز ته اضافه کول';
+  String get examAddToCalendar => '‹‹Add to calendar››';
 
   @override
-  String get examCouldNotOpenCalendar => 'کلیز نشو خلاصېدلی.';
+  String get examCouldNotOpenCalendar => '‹‹Could not open calendar.››';
 
   @override
-  String get formTitle => 'فورمه';
+  String get formTitle => '‹‹Form››';
 
   @override
-  String get formNotFound => 'فورمه ونه موندل شوه';
+  String get formNotFound => '‹‹Form not found››';
 
   @override
-  String get formClosed => 'تړل شوې';
+  String get formClosed => '‹‹Closed››';
 
   @override
-  String get formCompletion => 'بشپړتیا';
+  String get formCompletion => '‹‹Completion››';
 
   @override
-  String get formNoTextResponses => 'لا تر اوسه د متن ځوابونه نشته.';
+  String get formNoTextResponses => '‹‹No text responses yet.››';
 
   @override
-  String get meetingsCouldNotLoad => 'غونډې نشي پورته کیدی';
+  String get meetingsCouldNotLoad => '‹‹Could not load meetings››';
 
   @override
-  String get meetingCouldNotLoad => 'غونډه نشي پورته کیدی';
+  String get meetingCouldNotLoad => '‹‹Could not load meeting››';
 
   @override
-  String get insightsGenerateAction => 'Insights جوړول';
+  String get insightsGenerateAction => '‹‹Generate Insights››';
 
   @override
-  String get insightsRefreshAction => 'تازه کول';
+  String get insightsRefreshAction => '‹‹Refresh››';
 
   @override
-  String get teacherGoToClassroom => 'ټولګي ته ورتلل';
+  String get teacherGoToClassroom => '‹‹Go to Classroom››';
 
   @override
-  String get teacherMarkAttendance => 'حاضري نښه کول';
+  String get teacherMarkAttendance => '‹‹Mark Attendance››';
 
   @override
-  String get teacherPostAssignment => 'دنده خپرول';
+  String get teacherPostAssignment => '‹‹Post Assignment››';
 
   @override
-  String get teacherNewAnnouncementAction => 'نوې اعلامیه';
+  String get teacherNewAnnouncementAction => '‹‹New Announcement››';
 
   @override
-  String get teacherViewFullWeekSchedule => 'د بشپړې اونۍ مهال ویش وګورئ';
+  String get teacherViewFullWeekSchedule => '‹‹View full week schedule››';
 
   @override
-  String get teacherGroupsLabel => 'ګروپونه';
+  String get teacherGroupsLabel => '‹‹Groups››';
 
   @override
-  String get teacherTestsLabel => 'ازموینې';
+  String get teacherTestsLabel => '‹‹Tests››';
 
   @override
-  String get teacherAnnounceLabel => 'اعلان';
+  String get teacherAnnounceLabel => '‹‹Announce››';
 
   @override
-  String get teacherTitleAndMessageRequired => 'سرلیک او پیغام اړین دي';
+  String get teacherTitleAndMessageRequired =>
+      '‹‹Title and message are required››';
 
   @override
-  String get teacherAnnouncementPublished => 'اعلامیه خپره شوه';
+  String get teacherAnnouncementPublished => '‹‹Announcement published››';
 
   @override
   String teacherFailedToPublish(Object error) {
-    return 'خپرول ناکام شو: $error';
+    return '‹‹Failed to publish: $error››';
   }
 
   @override
-  String get teacherAnnouncementSectionTitle => 'اعلامیه';
+  String get teacherAnnouncementSectionTitle => '‹‹Announcement››';
 
   @override
-  String get teacherAudienceSectionTitle => 'اوریدونکي';
+  String get teacherAudienceSectionTitle => '‹‹Audience››';
 
   @override
-  String get teacherPinAnnouncement => 'اعلامیه پن کول';
+  String get teacherPinAnnouncement => '‹‹Pin announcement››';
 
   @override
-  String get teacherPinnedAtTop => 'پن شوې اعلامیې په سر کې ښکاري';
+  String get teacherPinnedAtTop => '‹‹Pinned announcements appear at the top››';
 
   @override
-  String get teacherPublishAction => 'خپرول';
+  String get teacherPublishAction => '‹‹Publish››';
 
   @override
-  String get teacherPublishingAction => 'خپرول کیږي…';
+  String get teacherPublishingAction => '‹‹Publishing…››';
 
   @override
-  String get teacherAnnounceTitleLabel => 'سرلیک *';
+  String get teacherAnnounceTitleLabel => '‹‹Title *››';
 
   @override
-  String get teacherAnnounceTitleHint => 'بېلګه: سبا د ښوونځي پیښه';
+  String get teacherAnnounceTitleHint => '‹‹e.g. School event tomorrow››';
 
   @override
-  String get teacherAnnounceMessageLabel => 'پیغام *';
+  String get teacherAnnounceMessageLabel => '‹‹Message *››';
 
   @override
-  String get teacherAnnounceMessageHint => 'بشپړه اعلامیه دلته ولیکئ…';
+  String get teacherAnnounceMessageHint =>
+      '‹‹Write the full announcement here…››';
 
   @override
-  String get teacherStudentsLabel => 'زده‌کوونکي';
+  String get teacherStudentsLabel => '‹‹Students››';
 
   @override
-  String get teacherSearchStudents => 'زده‌کوونکي ولټوئ…';
+  String get teacherSearchStudents => '‹‹Search students…››';
 
   @override
-  String get teacherNoStudentsLoaded =>
-      'په دې ښوونځي کې هیڅ زده‌کوونکی ونه موندل شو.';
+  String get teacherNoStudentsLoaded => '‹‹No students found in this school.››';
 
   @override
-  String get teacherActions => 'چټک کارونه';
+  String get teacherActions => '‹‹QUICK ACTIONS››';
 
   @override
-  String get teacherParentsLabel => 'مور و پلار';
+  String get teacherParentsLabel => '‹‹Parents››';
 
   @override
-  String get teacherTeachersLabel => 'ښوونکي';
+  String get teacherTeachersLabel => '‹‹Teachers››';
 
   @override
-  String get teacherWeekScheduleTitle => 'د اونۍ مهال ویش';
+  String get teacherWeekScheduleTitle => '‹‹Week Schedule››';
 
   @override
-  String get teacherCouldNotLoadSchedule => 'مهال ویش نشي پورته کیدی';
+  String get teacherCouldNotLoadSchedule => '‹‹Could not load schedule››';
 
   @override
-  String get teacherAttendanceLast30 => 'حاضري (وروستۍ ۳۰ ورځې)';
+  String get teacherAttendanceLast30 => '‹‹Attendance (last 30 days)››';
 
   @override
   String teacherAttendanceFrom(Object date) {
-    return 'له $date څخه';
+    return '‹‹From $date››';
   }
 
   @override
-  String get teacherAttendanceChangeDate => 'نېټه بدلول';
+  String get teacherAttendanceChangeDate => '‹‹Change date››';
 
   @override
   String get teacherAttendanceNoSessions =>
-      'هیڅ خوندي شوې د حاضرۍ ناسته نشته.\nله مهال ویش څخه حاضري نښه کړئ.';
+      '‹‹No saved attendance sessions.\nMark attendance from the schedule.››';
 
   @override
-  String get teacherRecentGrades => 'وروستۍ نمرې';
+  String get teacherRecentGrades => '‹‹Recent Grades››';
 
   @override
-  String get teacherNoGradesRecorded => 'لا تر اوسه نمرې نه دي ثبت شوې';
+  String get teacherNoGradesRecorded => '‹‹No grades recorded yet››';
 
   @override
-  String get teacherGradeAvg => 'د نمرو منځنۍ';
+  String get teacherGradeAvg => '‹‹Grade Avg››';
 
   @override
-  String get teacherSubmittedLabel => 'سپارل شوی';
+  String get teacherSubmittedLabel => '‹‹Submitted››';
 
   @override
-  String get teacherAnalyticsTitle => 'شننه';
+  String get teacherAnalyticsTitle => '‹‹Analytics››';
 
   @override
-  String get teacherGradeReports => 'د نمرو راپورونه';
+  String get teacherGradeReports => '‹‹Grade Reports››';
 
   @override
-  String get teacherAvgLabel => 'منځنۍ';
+  String get teacherAvgLabel => '‹‹avg››';
 
   @override
   String teacherBelow60(Object count) {
-    return '$count له ۶۰٪ ښکته';
+    return '‹‹$count below 60%››';
   }
 
   @override
   String teacherGradedFraction(Object graded, Object total) {
-    return '$graded/$total نمره شوي';
+    return '‹‹$graded/$total graded››';
   }
 
   @override
-  String get teacherNoGradesEntered => 'لا تر اوسه نمرې نه دي ننوتلې';
+  String get teacherNoGradesEntered => '‹‹No grades entered yet››';
 
   @override
-  String get teacherNewAssignment => 'نوې دنده';
+  String get teacherNewAssignment => '‹‹New Assignment››';
 
   @override
-  String get teacherDeleteAssignment => 'دنده ړنګه کړئ؟';
+  String get teacherDeleteAssignment => '‹‹Delete assignment?››';
 
   @override
   String get teacherDeleteAssignmentContent =>
-      'دا به یې د ټولو زده‌کوونکو لپاره لرې کړي.';
+      '‹‹This will remove it for all students.››';
 
   @override
-  String get teacherShareMaterialTitle => 'موادو شریکول';
+  String get teacherShareMaterialTitle => '‹‹Share Material››';
 
   @override
-  String get teacherRemoveMaterial => 'مواد لرې کړئ؟';
+  String get teacherRemoveMaterial => '‹‹Remove material?››';
 
   @override
-  String get teacherScheduleMeetingTitle => 'د غونډې مهال ویش';
+  String get teacherScheduleMeetingTitle => '‹‹Schedule Meeting››';
 
   @override
-  String get teacherCancelMeetingTitle => 'غونډه لغوه کړئ؟';
+  String get teacherCancelMeetingTitle => '‹‹Cancel meeting?››';
 
   @override
-  String get teacherCancelMeetingAction => 'غونډه لغوه کول';
+  String get teacherCancelMeetingAction => '‹‹Cancel meeting››';
 
   @override
-  String get teacherJoinMeeting => 'غونډې سره یوځای کیدل';
+  String get teacherJoinMeeting => '‹‹Join meeting››';
 
   @override
-  String get teacherAddStudentTitle => 'زده‌کوونکی زیاتول';
+  String get teacherAddStudentTitle => '‹‹Add Student››';
 
   @override
   String teacherRemoveStudentTitle(Object name) {
-    return '$name لرې کړئ؟';
+    return '‹‹Remove $name?››';
   }
 
   @override
   String get teacherRemoveStudentContent =>
-      'دا زده‌کوونکی به له دې ټولګي څخه لرې شي.';
+      '‹‹This student will be removed from this classroom.››';
 
   @override
-  String get teacherStudentAdded => 'زده‌کوونکی زیات شو';
+  String get teacherStudentAdded => '‹‹Student added››';
 
   @override
-  String get teacherClassroomAnalyticsTitle => 'د ټولګي شننه';
+  String get teacherClassroomAnalyticsTitle => '‹‹Classroom Analytics››';
 
   @override
-  String get teacherOpenAnalyticsAction => 'شننه خلاصول';
+  String get teacherOpenAnalyticsAction => '‹‹Open Analytics››';
 
   @override
   String teacherStudentsCount(Object count) {
-    return 'زده‌کوونکي ($count)';
+    return '‹‹Students ($count)››';
   }
 
   @override
-  String get teacherAssignmentLabel => 'دنده';
+  String get teacherAssignmentLabel => '‹‹Assignment››';
 
   @override
-  String get teacherShareMaterialLabel => 'موادو شریکول';
+  String get teacherShareMaterialLabel => '‹‹Share material››';
 
   @override
-  String get teacherAttendanceRateLabel => 'د حاضرۍ کچه';
+  String get teacherAttendanceRateLabel => '‹‹Attendance rate››';
 
   @override
   String get teacherSelectSessionPrompt =>
-      'د حاضرۍ نښه کولو پیلولو لپاره لاندې یوه ناسته وټاکئ';
+      '‹‹Select a session below to start marking attendance››';
 
   @override
-  String get teacherOpenAction => 'خلاصول';
+  String get teacherOpenAction => '‹‹Open››';
 
   @override
-  String get chatDeleteForMe => 'زما لپاره ړنګول';
+  String get chatDeleteForMe => '‹‹Delete for me››';
 
   @override
-  String get chatDeleteForEveryone => 'د ټولو لپاره ړنګول';
+  String get chatDeleteForEveryone => '‹‹Delete for everyone››';
 
   @override
-  String get chatMicNeeded => 'د مایکروفون لاسرسي ته اړتیا ده';
+  String get chatMicNeeded => '‹‹Microphone access needed››';
 
   @override
   String get chatMicNeededBody =>
-      'د غږیزو یادښتونو لیږلو لپاره مهرباني وکړئ په تنظیماتو کې د مایکروفون لاسرسي ته اجازه ورکړئ.';
+      '‹‹Please allow microphone access in Settings to send voice notes.››';
 
   @override
-  String get chatOpenSettings => 'تنظیمات خلاصول';
+  String get chatOpenSettings => '‹‹Open Settings››';
 
   @override
-  String get chatCopied => 'کاپي شو';
+  String get chatCopied => '‹‹Copied››';
 
   @override
-  String get chatCouldNotSendMedia => 'میډیا ونه لیږل شوه.';
+  String get chatCouldNotSendMedia => '‹‹Could not send media.››';
 
   @override
-  String get chatCouldNotSendMessage => 'پیغام ونه لیږل شو.';
+  String get chatCouldNotSendMessage => '‹‹Could not send message.››';
 
   @override
-  String get chatCouldNotForward => 'ټاکل شوي پیغامونه ونه استول شول';
+  String get chatCouldNotForward => '‹‹Could not forward selected messages››';
 
   @override
-  String get chatSelectAll => 'ټول وټاکئ';
+  String get chatSelectAll => '‹‹Select all››';
 
   @override
-  String get chatDeselectAll => 'ټول له ټاکنې وباسئ';
+  String get chatDeselectAll => '‹‹Deselect all››';
 
   @override
-  String get chatEditingMessage => 'د پیغام سمول';
+  String get chatEditingMessage => '‹‹Editing message››';
 
   @override
-  String get chatEditPlaceholder => 'پیغام سم کړئ…';
+  String get chatEditPlaceholder => '‹‹Edit message…››';
 
   @override
-  String get chatMessageHint => 'پیغام';
+  String get chatMessageHint => '‹‹Message››';
 
   @override
-  String get chatPin => 'پن کول';
+  String get chatPin => '‹‹Pin››';
 
   @override
-  String get chatUnpin => 'پن لرې کول';
+  String get chatUnpin => '‹‹Unpin››';
 
   @override
-  String get chatPhoto => 'انځور';
+  String get chatPhoto => '‹‹Photo››';
 
   @override
-  String get chatVideo => 'ویډیو';
+  String get chatVideo => '‹‹Video››';
 
   @override
-  String get chatMedia => 'میډیا';
+  String get chatMedia => '‹‹Media››';
 
   @override
-  String get chatAudioFile => 'غږیزه فایل';
+  String get chatAudioFile => '‹‹Audio file››';
 
   @override
-  String get chatVideoFile => 'ویډیو فایل';
+  String get chatVideoFile => '‹‹Video file››';
 
   @override
-  String get chatAttachedFile => 'ضمیمه شوې فایل';
+  String get chatAttachedFile => '‹‹Attached file››';
 
   @override
-  String get chatFollowUp => 'تعقیب';
+  String get chatFollowUp => '‹‹Follow-up››';
 
   @override
-  String get chatCancelTooltip => 'لغوه کول';
+  String get chatCancelTooltip => '‹‹Cancel››';
 
   @override
-  String get chatJoinGroup => 'ګروپ سره یوځای کیدل';
+  String get chatJoinGroup => '‹‹Join Group››';
 
   @override
-  String get chatJoining => 'یوځای کیږي…';
+  String get chatJoining => '‹‹Joining…››';
 
   @override
-  String get chatJoinGroupTooltip => 'د کوډ په واسطه ګروپ سره یوځای کیدل';
+  String get chatJoinGroupTooltip => '‹‹Join group by code››';
 
   @override
-  String get chatForwardNoChatAvailable => 'هیڅ منل شوې خبرې اترې شته نه دي';
+  String get chatForwardNoChatAvailable => '‹‹No approved chats available››';
 
   @override
-  String get chatFilterAll => 'ټول';
+  String get chatFilterAll => '‹‹All››';
 
   @override
   String get novaDisclaimer =>
-      'NOVA کولی شي تېروتنه وکړي. مهم ځوابونه دوه ځله وګورئ.';
+      '‹‹NOVA can make mistakes. Double-check important answers.››';
 
   @override
   String get novaTokenTip =>
-      'Use your tokens carefully — they\'re meant for studying.';
+      '‹‹Use your tokens carefully — they\'re meant for studying.››';
 
   @override
   String get practiceCustomDisclaimer =>
-      'دودیز موضوعات په همغه شیبه کې د AI لخوا جوړیږي. پوښتنې ممکن له موضوع څخه لرې شي یا د ځانګړو مضامینو لپاره ناسمې وي. ناآشنا ځوابونه په خپلواکه توګه تایید کړئ.';
+      '‹‹Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.››';
 
   @override
-  String get classroomsJoined => 'تاسو ټولګي سره یوځای شوئ!';
+  String get classroomsJoined => '‹‹You joined the classroom!››';
 
   @override
-  String get classroomsJoinAction => 'ټولګي سره یوځای کیدل';
+  String get classroomsJoinAction => '‹‹Join Classroom››';
 
   @override
-  String get classroomsJoinTooltip => 'یوه ټولګي سره یوځای کیدل';
+  String get classroomsJoinTooltip => '‹‹Join a classroom››';
 
   @override
-  String get classroomsJoinTitle => 'یوه ټولګي سره یوځای شئ';
+  String get classroomsJoinTitle => '‹‹Join a Classroom››';
 
   @override
-  String get classroomsJoinSubtitle => 'هغه کوډ دننه کړئ چې ستاسو ښوونکي درکړی';
+  String get classroomsJoinSubtitle =>
+      '‹‹Enter the code your teacher gave you››';
 
   @override
-  String get classroomsCouldNotOpenLink => 'لینک نشو خلاصېدلی';
+  String get classroomsCouldNotOpenLink => '‹‹Could not open link››';
 
   @override
-  String get classroomsReorderTitle => 'ټولګي بیا ترتیبول';
+  String get classroomsReorderTitle => '‹‹Reorder classrooms››';
 
   @override
-  String get classroomsNoClassroomsToReorder =>
-      'د بیا ترتیبولو لپاره هیڅ ټولګی نشته.';
+  String get classroomsNoClassroomsToReorder => '‹‹No classrooms to reorder.››';
 
   @override
-  String get teacherPostAnnouncementAction => 'اعلامیه خپرول';
+  String get teacherPostAnnouncementAction => '‹‹Post Announcement››';
 
   @override
-  String get announcementAudienceEveryone => 'هرڅوک';
+  String get announcementAudienceEveryone => '‹‹Everyone››';
 
   @override
-  String get teacherGreetingMorning => 'سهار مو پخیر';
+  String get teacherGreetingMorning => '‹‹Good morning››';
 
   @override
-  String get teacherGreetingAfternoon => 'ماسپښین مو پخیر';
+  String get teacherGreetingAfternoon => '‹‹Good afternoon››';
 
   @override
-  String get teacherGreetingEvening => 'ماښام مو پخیر';
+  String get teacherGreetingEvening => '‹‹Good evening››';
 
   @override
-  String get teacherTodaysClasses => 'د نن ورځې ټولګي';
+  String get teacherTodaysClasses => '‹‹Today\'s Classes››';
 
   @override
-  String get teacherNoDate => 'نېټه نشته';
+  String get teacherNoDate => '‹‹No date››';
 
   @override
-  String get teacherUpcomingTestsSubtitle => 'راتلونکې ازموینې او چټکې ازموینې';
+  String get teacherUpcomingTestsSubtitle => '‹‹Next tests & quizzes››';
 
   @override
-  String get teacherNoClassesThisWeek => 'دا اونۍ هیڅ ټولګي نشته';
+  String get teacherNoClassesThisWeek => '‹‹No classes this week››';
 
   @override
-  String get teacherNoClassesThisWeekSub => 'ستاسو د دې اونۍ مهال ویش تش دی';
+  String get teacherNoClassesThisWeekSub =>
+      '‹‹Your schedule for this week is empty››';
 
   @override
-  String get teacherTitleFieldLabel => 'سرلیک *';
+  String get teacherTitleFieldLabel => '‹‹Title *››';
 
   @override
-  String get teacherInstructionsLabel => 'لارښوونې';
+  String get teacherInstructionsLabel => '‹‹Instructions››';
 
   @override
-  String get teacherLinkUrlLabel => 'لینک / URL *';
+  String get teacherLinkUrlLabel => '‹‹Link / URL *››';
 
   @override
-  String get teacherLinkUrlHint => 'https://...';
+  String get teacherLinkUrlHint => '‹‹https://...››';
 
   @override
-  String get teacherDescriptionLabel => 'تشریح';
+  String get teacherDescriptionLabel => '‹‹Description››';
 
   @override
-  String get teacherMeetingTitleLabel => 'د غونډې سرلیک *';
+  String get teacherMeetingTitleLabel => '‹‹Meeting title *››';
 
   @override
-  String get teacherMeetingLinkLabel => 'د غونډې لینک *';
+  String get teacherMeetingLinkLabel => '‹‹Meeting link *››';
 
   @override
-  String get teacherMeetingLinkHint => 'د Zoom / Meet / Teams لینک';
+  String get teacherMeetingLinkHint => '‹‹Zoom / Meet / Teams link››';
 
   @override
-  String get teacherStudentEmailLabel => 'د زده‌کوونکي بریښنالیک یا ID';
+  String get teacherStudentEmailLabel => '‹‹Student email or ID››';
 
   @override
-  String get teacherTooltipRemoveStudent => 'له ټولګي لرې کول';
+  String get teacherTooltipRemoveStudent => '‹‹Remove from classroom››';
 
   @override
-  String get teacherCouldNotLoad => 'پورته نشو کیدی';
+  String get teacherCouldNotLoad => '‹‹Could not load››';
 
   @override
-  String get teacherNoAssignmentsYet => 'لا تر اوسه دندې نشته';
+  String get teacherNoAssignmentsYet => '‹‹No assignments yet››';
 
   @override
-  String get teacherNoAssignmentsSub => 'د لومړۍ دندې جوړولو لپاره + کېکاږئ';
+  String get teacherNoAssignmentsSub =>
+      '‹‹Tap + to create the first assignment››';
 
   @override
-  String get teacherNoMaterialsYet => 'لا تر اوسه مواد نشته';
+  String get teacherNoMaterialsYet => '‹‹No materials yet››';
 
   @override
   String get teacherNoMaterialsSub =>
-      'له خپل ټولګي سره لینکونه، اسناد، یا سرچینې شریک کړئ';
+      '‹‹Share links, documents, or resources with your class››';
 
   @override
-  String get teacherNoMeetingsScheduled => 'هیڅ غونډه مهال ویش شوې نه ده';
+  String get teacherNoMeetingsScheduled => '‹‹No meetings scheduled››';
 
   @override
-  String get teacherNoMeetingsSub => 'د ټولګي غونډې مهال ویش لپاره + کېکاږئ';
+  String get teacherNoMeetingsSub => '‹‹Tap + to schedule a class meeting››';
 
   @override
-  String get teacherAttendanceOther => 'نور';
+  String get teacherAttendanceOther => '‹‹Other››';
 
   @override
-  String get teacherTotal => 'ټول';
+  String get teacherTotal => '‹‹Total››';
 
   @override
-  String get mediaOpenExternally => 'بهر خلاصول';
+  String get mediaOpenExternally => '‹‹Open externally››';
 
   @override
-  String get mediaUnableToLoad => 'انځور نشي پورته کیدی';
+  String get mediaUnableToLoad => '‹‹Unable to load image››';
 
   @override
-  String get searchHint => 'لټون...';
+  String get searchHint => '‹‹Search...››';
 
   @override
-  String get teacherInsightsTitle => 'د زده‌کوونکي Insights';
+  String get teacherInsightsTitle => '‹‹Student Insights››';
 
   @override
   String get teacherInsightsSubtitle =>
-      'د زده‌کوونکي زده‌کړیزو Insights لیدلو لپاره یو زده‌کوونکی وټاکئ.';
+      '‹‹Select a student to view their academic insights.››';
 
   @override
-  String get teacherInsightsNoStudents => 'هیڅ زده‌کوونکی ونه موندل شو.';
+  String get teacherInsightsNoStudents => '‹‹No students found.››';
 
   @override
-  String get teacherInsightsSearchHint => 'زده‌کوونکي ولټوئ…';
+  String get teacherInsightsSearchHint => '‹‹Search students…››';
 
   @override
-  String get navDiplomas => 'ډیپلومونه';
+  String get navDiplomas => '‹‹Diplomas››';
 
   @override
-  String get diplomasComingSoon => 'د سندونو مدیریت ډېر ژر راروان دی.';
+  String get diplomasComingSoon => '‹‹Diploma management is coming soon.››';
 
   @override
-  String get teacherExamsTitle => 'ازموینې';
+  String get teacherExamsTitle => '‹‹Exams››';
 
   @override
-  String get teacherExamsUpcoming => 'راتلونکې';
+  String get teacherExamsUpcoming => '‹‹Upcoming››';
 
   @override
-  String get teacherExamsPast => 'تېرې';
+  String get teacherExamsPast => '‹‹Past››';
 
   @override
   String get teacherExamsEmpty =>
-      'لا تر اوسه ارزونې نشته. د جوړولو لپاره + کېکاږئ.';
+      '‹‹No assessments yet. Tap + to create one.››';
 
   @override
   String teacherExamsGraded(Object count) {
-    return '$count نمره شوي';
+    return '‹‹$count graded››';
   }
 
   @override
-  String get teacherFormsTitle => 'فورمې';
+  String get teacherFormsTitle => '‹‹Forms››';
 
   @override
-  String get teacherFormsEmpty =>
-      'لا تر اوسه فورمې نشته. د جوړولو لپاره + کېکاږئ.';
+  String get teacherFormsEmpty => '‹‹No forms yet. Tap + to create one.››';
 
   @override
   String teacherFormsResponses(Object count) {
-    return '$count ځوابونه';
+    return '‹‹$count responses››';
   }
 
   @override
-  String get teacherFormsPublished => 'خپور شوی';
+  String get teacherFormsPublished => '‹‹Published››';
 
   @override
-  String get teacherFormsDraft => 'مسوده';
+  String get teacherFormsDraft => '‹‹Draft››';
 
   @override
-  String get teacherFormsCreateTitle => 'فورمه جوړول';
+  String get teacherFormsCreateTitle => '‹‹Create Form››';
 
   @override
-  String get teacherFormsAddQuestion => 'پوښتنه زیاتول';
+  String get teacherFormsAddQuestion => '‹‹Add question››';
 
   @override
-  String get teacherFormsQuestionHint => 'د پوښتنې متن';
+  String get teacherFormsQuestionHint => '‹‹Question text››';
 
   @override
-  String get teacherFormsViewResponses => 'ځوابونه لیدل';
+  String get teacherFormsViewResponses => '‹‹View responses››';
 
   @override
-  String get teacherFormsNoResponses => 'لا تر اوسه ځوابونه نشته.';
+  String get teacherFormsNoResponses => '‹‹No responses yet.››';
 
   @override
-  String get diplomasTitle => 'سندونه';
+  String get diplomasTitle => '‹‹Diplomas››';
 
   @override
   String get diplomasEmpty =>
-      'لا تر اوسه هیڅ سند نه دی ورکړل شوی. د ورکولو لپاره + کېکاږئ.';
+      '‹‹No certificates issued yet. Tap + to issue one.››';
 
   @override
-  String get diplomasIssueTo => 'ورکول دې ته';
+  String get diplomasIssueTo => '‹‹Issue to››';
 
   @override
-  String get diplomasStudentName => 'د زده‌کوونکي نوم';
+  String get diplomasStudentName => '‹‹Student name››';
 
   @override
-  String get diplomasCertificateType => 'د سند ډول';
+  String get diplomasCertificateType => '‹‹Certificate type››';
 
   @override
-  String get diplomasIssueDiploma => 'سند ورکول';
+  String get diplomasIssueDiploma => '‹‹Issue Certificate››';
 
   @override
   String diplomasIssuedOn(Object date) {
-    return 'په $date ورکړل شو';
+    return '‹‹Issued on $date››';
   }
 
   @override
-  String get examDetailsSection => 'تفصیلات';
+  String get examDetailsSection => '‹‹Details››';
 
   @override
-  String get examInfoTeacher => 'ښوونکی';
+  String get examInfoTeacher => '‹‹Teacher››';
 
   @override
-  String get examInfoAudience => 'اوریدونکي';
+  String get examInfoAudience => '‹‹Audience››';
 
   @override
-  String get examInfoDate => 'نېټه';
+  String get examInfoDate => '‹‹Date››';
 
   @override
-  String get examInfoTime => 'وخت';
+  String get examInfoTime => '‹‹Time››';
 
   @override
-  String get examInfoPeriod => 'دوره';
+  String get examInfoPeriod => '‹‹Period››';
 
   @override
-  String get examInfoDuration => 'موده';
+  String get examInfoDuration => '‹‹Duration››';
 
   @override
-  String get examInfoSubject => 'مضمون';
+  String get examInfoSubject => '‹‹Subject››';
 
   @override
-  String get examMaterialsSection => 'ضمیمه شوي مواد';
+  String get examMaterialsSection => '‹‹Attached materials››';
 
   @override
-  String get examNoMaterials => 'لا تر اوسه هیڅ مواد نه دي ضمیمه شوي.';
+  String get examNoMaterials => '‹‹No materials attached yet.››';
 
   @override
-  String get examQuickActionsSection => 'چټک کارونه';
+  String get examQuickActionsSection => '‹‹Quick actions››';
 
   @override
-  String get examViewGradeTitle => 'خپله نمره وګورئ';
+  String get examViewGradeTitle => '‹‹See your grade››';
 
   @override
   String get examViewGradeBody =>
-      'دا ازموینه بشپړه شوې ده. خپلې پایلې لپاره د نمرو ټب وګورئ.';
+      '‹‹This exam is complete. Check the grades tab for your result.››';
 
   @override
-  String get examViewGradeAction => 'نمرې خلاصول';
+  String get examViewGradeAction => '‹‹Open Grades››';
 
   @override
-  String get teacherGradesSaveAction => 'خوندي کول';
+  String get teacherGradesSaveAction => '‹‹Save››';
 
   @override
-  String get teacherGradesNothingToSave => 'د خوندي کولو لپاره هیڅ بدلون نشته.';
+  String get teacherGradesNothingToSave => '‹‹No changes to save.››';
 
   @override
-  String get teacherRetry => 'بیا هڅه';
+  String get teacherRetry => '‹‹Retry››';
 
   @override
-  String get teacherExamGradesStudents => 'زده‌کوونکي';
+  String get teacherExamGradesStudents => '‹‹students››';
 
   @override
-  String get teacherExamGradesGraded => 'نمره شوي';
+  String get teacherExamGradesGraded => '‹‹graded››';
 
   @override
   String get teacherExamGradesNoStudents =>
-      'هیڅ زده‌کوونکی ونه ټاکل شو.\nد اوریدونکو زیاتولو لپاره ازموینه سم کړئ.';
+      '‹‹No students targeted.\nEdit the exam to add an audience.››';
 
   @override
-  String get teacherExamGradesEnterGrades => 'نمرې دننه کول';
+  String get teacherExamGradesEnterGrades => '‹‹Enter grades››';
 
   @override
-  String get teacherExamClassAverage => 'Class average';
+  String get teacherExamClassAverage => '‹‹Class average››';
 
   @override
-  String get teacherDeleteExamTitle => 'ازموینه ړنګه کړئ؟';
+  String get teacherDeleteExamTitle => '‹‹Delete exam?››';
 
   @override
-  String get teacherDeleteExamBody => 'دا به ازموینه د تل لپاره ړنګه کړي.';
+  String get teacherDeleteExamBody =>
+      '‹‹This will permanently delete the exam.››';
 
   @override
   String get teacherMeetingsEmpty =>
-      'لا تر اوسه غونډې نشته.\nد مهال ویش لپاره + کېکاږئ.';
+      '‹‹No meetings yet.\nTap + to schedule one.››';
 
   @override
-  String get teacherStudentsNoMatch => 'هیڅ زده‌کوونکی سمون نه خوري';
+  String get teacherStudentsNoMatch => '‹‹No students match››';
 
   @override
-  String get teacherMaterialsTitle => 'مواد';
+  String get teacherMaterialsTitle => '‹‹Materials››';
 
   @override
-  String get profileNamesTitle => 'نوم په ژبو کې';
+  String get profileNamesTitle => '‹‹Name in languages››';
 
   @override
-  String get profileDisplayNameLang => 'د ښودلو نوم ژبه';
+  String get profileDisplayNameLang => '‹‹Display name language››';
 
   @override
-  String get navDashboard => 'ډشبورډ';
+  String get navDashboard => '‹‹Dashboard››';
 
   @override
-  String get navPeople => 'کارن';
+  String get navPeople => '‹‹Users››';
 
   @override
-  String get navCohorts => 'ډلې';
+  String get navCohorts => '‹‹Cohorts››';
 
   @override
-  String get navSchool => 'ښوونځی';
+  String get navSchool => '‹‹School››';
 
   @override
-  String get adminDashboardTitle => 'د ښوونځي کتنه';
+  String get adminDashboardTitle => '‹‹School Overview››';
 
   @override
-  String get adminStudents => 'زده کوونکي';
+  String get adminStudents => '‹‹Students››';
 
   @override
-  String get adminTeachers => 'ښوونکي';
+  String get adminTeachers => '‹‹Teachers››';
 
   @override
-  String get adminParents => 'والدین';
+  String get adminParents => '‹‹Parents››';
 
   @override
-  String get adminSecretaries => 'منشيان';
+  String get adminSecretaries => '‹‹Secretaries››';
 
   @override
-  String get adminAdmins => 'مدیران';
+  String get adminAdmins => '‹‹Admins››';
 
   @override
-  String get adminTodaySessions => 'د نن ورځې ناستې';
+  String get adminTodaySessions => '‹‹Today\'s sessions››';
 
   @override
-  String get adminQuickActions => 'چټک کارونه';
+  String get adminQuickActions => '‹‹Quick Actions››';
 
   @override
-  String get adminAttendanceLast30 => 'حاضري — تېرې ۳۰ ورځې';
+  String get adminAttendanceLast30 => '‹‹Attendance — Last 30 Days››';
 
   @override
   String get adminNoAttendanceData =>
-      'د تېرو ۳۰ ورځو لپاره د حاضرۍ معلومات نشته.';
+      '‹‹No attendance data for the last 30 days.››';
 
   @override
-  String get adminAddUser => 'کاروونکی زیاتول';
+  String get adminAddUser => '‹‹Add User››';
 
   @override
-  String get adminCreateUser => 'جوړول';
+  String get adminCreateUser => '‹‹Create››';
 
   @override
-  String get adminFullName => 'بشپړ نوم';
+  String get adminFullName => '‹‹Full Name››';
 
   @override
-  String get adminEmailAddress => 'د بریښنالیک پته';
+  String get adminEmailAddress => '‹‹Email address››';
 
   @override
-  String get adminRoleLabel => 'رول';
+  String get adminRoleLabel => '‹‹Role››';
 
   @override
-  String get adminUserCreated => 'کاروونکی جوړ شو';
+  String get adminUserCreated => '‹‹User Created››';
 
   @override
-  String get adminTempPassword => 'لنډمهاله پټنوم';
+  String get adminTempPassword => '‹‹Temporary password››';
 
   @override
-  String get adminCopied => 'کلیپ‌بورډ ته کاپي شو';
+  String get adminCopied => '‹‹Copied to clipboard››';
 
   @override
-  String get adminResetPassword => 'پټنوم بیا تنظیمول';
+  String get adminResetPassword => '‹‹Reset Password››';
 
   @override
-  String get adminPasswordReset => 'پټنوم بیا تنظیم شو';
+  String get adminPasswordReset => '‹‹Password Reset››';
 
   @override
   String adminTempPasswordFor(Object name) {
-    return 'د $name لپاره لنډمهاله پټنوم';
+    return '‹‹Temporary password for $name››';
   }
 
   @override
-  String get adminDeleteUser => 'کاروونکی ړنګول';
+  String get adminDeleteUser => '‹‹Delete User››';
 
   @override
   String adminDeleteUserConfirm(Object name) {
-    return '$name ړنګ شي؟ دا بیرته نشي راګرځیدلی.';
+    return '‹‹Delete $name? This cannot be undone.››';
   }
 
   @override
-  String get adminDeleteCohort => 'ډله ړنګول';
+  String get adminDeleteCohort => '‹‹Delete Cohort››';
 
   @override
   String adminDeleteCohortConfirm(Object name) {
-    return '\"$name\" ړنګ شي؟ د ټولو زده کوونکو غړیتوب به لرې شي.';
+    return '‹‹Delete \"$name\"? All student memberships will be removed.››';
   }
 
   @override
-  String get adminAddCohort => 'ډله زیاتول';
+  String get adminAddCohort => '‹‹Add Cohort››';
 
   @override
-  String get adminNewCohort => 'نوې ډله';
+  String get adminNewCohort => '‹‹New Cohort››';
 
   @override
-  String get adminCohortName => 'د ډلې نوم (لکه ۱۰م-۲)';
+  String get adminCohortName => '‹‹Cohort Name (e.g. 10th-2)››';
 
   @override
-  String get adminCohortGrade => 'ټولګی';
+  String get adminCohortGrade => '‹‹Grade››';
 
   @override
-  String get adminRenameCohort => 'نوم بدلول';
+  String get adminRenameCohort => '‹‹Rename››';
 
   @override
-  String get adminAddStudents => 'زده کوونکي زیاتول';
+  String get adminAddStudents => '‹‹Add Students››';
 
   @override
   String adminAddTo(Object name) {
-    return '$name ته زیاتول';
+    return '‹‹Add to $name››';
   }
 
   @override
-  String get adminRemoveStudent => 'زده کوونکی لرې کول';
+  String get adminRemoveStudent => '‹‹Remove Student››';
 
   @override
   String adminRemoveStudentConfirm(Object name, Object cohort) {
-    return '$name له $cohort څخه لرې شي؟';
+    return '‹‹Remove $name from $cohort?››';
   }
 
   @override
-  String get adminNoCohortsYet => 'تر اوسه ډلې نشته';
+  String get adminNoCohortsYet => '‹‹No cohorts yet››';
 
   @override
-  String get adminNoStudentsInCohort => 'په دې ډله کې زده کوونکي نشته';
+  String get adminNoStudentsInCohort => '‹‹No students in this cohort››';
 
   @override
   String adminStudentCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count زده کوونکي',
-      one: '۱ زده کوونکی',
+      other: '$count students',
+      one: '1 student',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get adminSearchStudents => 'زده کوونکي ولټوئ…';
+  String get adminSearchStudents => '‹‹Search students…››';
 
   @override
-  String get adminScheduleTitle => 'مهالویش';
+  String get adminScheduleTitle => '‹‹Schedule››';
 
   @override
-  String get adminScheduleAddPeriod => 'وخت زیاتول';
+  String get adminScheduleAddPeriod => '‹‹Add period››';
 
   @override
-  String get adminScheduleNewPeriod => 'نوی وخت';
+  String get adminScheduleNewPeriod => '‹‹New Period››';
 
   @override
-  String get adminScheduleDayLabel => 'ورځ';
+  String get adminScheduleDayLabel => '‹‹Day››';
 
   @override
   String adminSchedulePeriodLabel(Object period) {
-    return 'د $period وخت';
+    return '‹‹P$period››';
   }
 
   @override
-  String get adminScheduleTeacherLabel => 'ښوونکی';
+  String get adminScheduleTeacherLabel => '‹‹Teacher››';
 
   @override
-  String get adminScheduleNoneTeacher => 'هیڅ ښوونکی نه دی ټاکل شوی';
+  String get adminScheduleNoneTeacher => '‹‹No teacher assigned››';
 
   @override
-  String get adminScheduleCohortLabel => 'ډله / زده کوونکي';
+  String get adminScheduleCohortLabel => '‹‹Cohort / Students››';
 
   @override
-  String get adminScheduleFrequencyLabel => 'تکرار';
+  String get adminScheduleFrequencyLabel => '‹‹Frequency››';
 
   @override
-  String get adminScheduleFreqWeekly => 'هره اونۍ';
+  String get adminScheduleFreqWeekly => '‹‹Every week››';
 
   @override
-  String get adminScheduleFreqBiweekly => 'هرې ۲ اونۍ';
+  String get adminScheduleFreqBiweekly => '‹‹Every 2 weeks››';
 
   @override
-  String get adminScheduleFreqMonthly => 'هرې ۴ اونۍ';
+  String get adminScheduleFreqMonthly => '‹‹Every 4 weeks››';
 
   @override
-  String get adminScheduleFreqCustom => 'دلخواه';
+  String get adminScheduleFreqCustom => '‹‹Custom››';
 
   @override
   String adminScheduleFreqCustomLabel(int n) {
-    return 'هرې $n اونۍ';
+    return '‹‹Every $n weeks››';
   }
 
   @override
-  String get adminScheduleAddSlot => 'ځای زیاتول';
+  String get adminScheduleAddSlot => '‹‹Add slot››';
 
   @override
-  String get adminScheduleAddAnother => 'بله ورځ / وخت زیاتول';
+  String get adminScheduleAddAnother => '‹‹Add another day / period››';
 
   @override
-  String get adminScheduleSave => 'ساتل';
+  String get adminScheduleSave => '‹‹Save››';
 
   @override
-  String get adminScheduleSearchTeacher => 'ښوونکي ولټوئ…';
+  String get adminScheduleSearchTeacher => '‹‹Search teachers…››';
 
   @override
-  String get adminScheduleSearchCohort => 'ډلې ولټوئ…';
+  String get adminScheduleSearchCohort => '‹‹Search cohorts…››';
 
   @override
-  String get adminScheduleSelectTeacher => 'ښوونکی وټاکئ';
+  String get adminScheduleSelectTeacher => '‹‹Select teacher››';
 
   @override
-  String get adminScheduleSelectCohort => 'ډله وټاکئ';
+  String get adminScheduleSelectCohort => '‹‹Select cohort››';
 
   @override
-  String get adminScheduleOrStudents => 'یا انفرادي زده کوونکي وټاکئ';
+  String get adminScheduleOrStudents => '‹‹Or pick individual students››';
 
   @override
-  String get adminScheduleNoSlots => 'تر اوسه وختونه نشته';
+  String get adminScheduleNoSlots => '‹‹No periods yet››';
 
   @override
-  String get adminScheduleNoSlotsHint => 'لومړی وخت زیاتولو لپاره + کېکاږئ';
+  String get adminScheduleNoSlotsHint => '‹‹Tap + to add the first period››';
 
   @override
-  String get adminSchoolSettingsTitle => 'د ښوونځي تنظیمات';
+  String get adminSchoolSettingsTitle => '‹‹School Settings››';
 
   @override
-  String get adminSchoolName => 'د ښوونځي نوم';
+  String get adminSchoolName => '‹‹School Name››';
 
   @override
-  String get adminSchoolLogoUrl => 'د لوگو لینک (اختیاري)';
+  String get adminSchoolLogoUrl => '‹‹Logo URL (optional)››';
 
   @override
-  String get adminSchoolLogoHint => 'https://…';
+  String get adminSchoolLogoHint => '‹‹https://…››';
 
   @override
-  String get adminSchoolSaved => 'وساتل شو';
+  String get adminSchoolSaved => '‹‹Saved››';
 
   @override
-  String get adminSubjectsTitle => 'مضامین';
+  String get adminSubjectsTitle => '‹‹Subjects››';
 
   @override
   String adminSubjectsGrade(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get adminSubjectsAddHint => 'مضمون زیاتول…';
+  String get adminSubjectsAddHint => '‹‹Add subject…››';
 
   @override
-  String get adminSubjectsNoSubjects => 'هیڅ مضمون نه دی تنظیم شوی';
+  String get adminSubjectsNoSubjects => '‹‹No subjects configured››';
 
   @override
-  String get adminSubjectsAdd => 'زیاتول';
+  String get adminSubjectsAdd => '‹‹Add››';
 
   @override
-  String get adminSubjectsRemove => 'لرې کول';
+  String get adminSubjectsRemove => '‹‹Remove››';
 
   @override
-  String get adminSettingsTitle => 'تنظیمات';
+  String get adminSettingsTitle => '‹‹Settings››';
 
   @override
-  String get adminSettingsBellSchedule => 'د زنګ مهالویش';
+  String get adminSettingsBellSchedule => '‹‹Bell Schedule››';
 
   @override
-  String get adminSettingsPeriodDefaults => 'د وخت اصلي تنظیمات';
+  String get adminSettingsPeriodDefaults => '‹‹Period Defaults››';
 
   @override
   String get adminSettingsPeriodDefaultsSubtitle =>
-      'د هر وخت لپاره د زنګ مهال وټاکئ';
+      '‹‹Set bell times for each period››';
 
   @override
-  String get adminDeleteConfirmCancel => 'لغوه';
+  String get adminDeleteConfirmCancel => '‹‹Cancel››';
 
   @override
-  String get adminDeleteConfirmDelete => 'ړنګول';
+  String get adminDeleteConfirmDelete => '‹‹Delete››';
 
   @override
-  String get adminSave => 'ساتل';
+  String get adminSave => '‹‹Save››';
 
   @override
-  String get adminCancel => 'لغوه';
+  String get adminCancel => '‹‹Cancel››';
 
   @override
-  String get adminSearchPeople => 'د نوم له مخې ولټوئ…';
+  String get adminSearchPeople => '‹‹Search by name…››';
 
   @override
   String adminNoResults(Object query) {
-    return 'د \"$query\" لپاره پایلې نشته';
+    return '‹‹No results for \"$query\"››';
   }
 
   @override
   String adminNoPeopleYet(Object role) {
-    return 'تر اوسه $role نشته';
+    return '‹‹No $role yet››';
   }
 
   @override
-  String get commonRetry => 'بیا هڅه';
+  String get commonRetry => '‹‹Retry››';
 
   @override
-  String get commonBack => 'بیرته';
+  String get commonBack => '‹‹Back››';
 
   @override
-  String get commonClose => 'بندول';
+  String get commonClose => '‹‹Close››';
 
   @override
-  String get commonDownload => 'ډاونلوډ';
+  String get commonDownload => '‹‹Download››';
 
   @override
-  String get commonOpenExternally => 'بهر پرانیستل';
+  String get commonOpenExternally => '‹‹Open externally››';
 
   @override
-  String get commonSave => 'ساتل';
+  String get commonSave => '‹‹Save››';
 
   @override
-  String get commonCancel => 'لغوه';
+  String get commonCancel => '‹‹Cancel››';
 
   @override
-  String get commonDone => 'بشپړ شو';
+  String get commonDone => '‹‹Done››';
 
   @override
-  String get commonDelete => 'ړنګول';
+  String get commonDelete => '‹‹Delete››';
 
   @override
-  String get commonEdit => 'سمول';
+  String get commonEdit => '‹‹Edit››';
 
   @override
-  String get commonSearch => 'لټون…';
+  String get commonSearch => '‹‹Search…››';
 
   @override
-  String get commonShare => 'شریکول';
+  String get commonShare => '‹‹Share››';
 
   @override
-  String get inboxActionPin => 'Pin chat';
+  String get inboxActionPin => '‹‹Pin chat››';
 
   @override
-  String get inboxActionUnpin => 'Unpin chat';
+  String get inboxActionUnpin => '‹‹Unpin chat››';
 
   @override
-  String get inboxActionMute => 'Mute';
+  String get inboxActionMute => '‹‹Mute››';
 
   @override
-  String get inboxActionUnmute => 'Unmute';
+  String get inboxActionUnmute => '‹‹Unmute››';
 
   @override
-  String get inboxActionMarkRead => 'Mark as read';
+  String get inboxActionMarkRead => '‹‹Mark as read››';
 
   @override
-  String get inboxActionMarkUnread => 'Mark as unread';
+  String get inboxActionMarkUnread => '‹‹Mark as unread››';
 
   @override
-  String get inboxActionClear => 'Clear messages';
+  String get inboxActionClear => '‹‹Clear messages››';
 
   @override
   String get inboxActionClearConfirm =>
-      'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.';
+      '‹‹Delete all messages in this chat? This only clears your copy — the other side keeps theirs.››';
 
   @override
-  String get inboxActionDeleteChat => 'Delete chat';
+  String get inboxActionDeleteChat => '‹‹Delete chat››';
 
   @override
   String get inboxActionDeleteChatConfirm =>
-      'Delete this chat? It disappears from your list and history; it comes back if they message you again.';
+      '‹‹Delete this chat? It disappears from your list and history; it comes back if they message you again.››';
 
   @override
-  String get inboxActionBlock => 'Block contact';
+  String get inboxActionBlock => '‹‹Block contact››';
 
   @override
   String get inboxActionBlockConfirm =>
-      'Block this contact? They won\'t be able to message you anymore.';
+      '‹‹Block this contact? They won\'t be able to message you anymore.››';
 
   @override
-  String get cmailActionMarkRead => 'Mark as read';
+  String get cmailActionMarkRead => '‹‹Mark as read››';
 
   @override
-  String get cmailActionMarkUnread => 'Mark as unread';
+  String get cmailActionMarkUnread => '‹‹Mark as unread››';
 
   @override
-  String get cmailDeleteConfirm => 'Delete this mail from your mailbox?';
+  String get cmailDeleteConfirm => '‹‹Delete this mail from your mailbox?››';
 
   @override
-  String get commonLoading => 'بارېږي…';
+  String get commonLoading => '‹‹Loading…››';
 
   @override
-  String get commonError => 'یوه ستونزه رامنځته شوه';
+  String get commonError => '‹‹Something went wrong››';
 
   @override
-  String get commonTryAgain => 'بیا هڅه وکړئ';
+  String get commonTryAgain => '‹‹Try again››';
 
   @override
-  String get studentMaterialsTitle => 'توکي';
+  String get studentMaterialsTitle => '‹‹Materials››';
 
   @override
-  String get studentMaterialsEmptyTitle => 'تر اوسه هیڅ توکی نه دی شریک شوی';
+  String get studentMaterialsEmptyTitle => '‹‹No materials shared yet››';
 
   @override
   String get studentMaterialsEmptyHint =>
-      'ستاسو ښوونکی به دلته سرچینې شریکې کړي.';
+      '‹‹Your teacher will share resources here.››';
 
   @override
-  String get studentMaterialsLoadError => 'توکي بار نشول';
+  String get studentMaterialsLoadError => '‹‹Could not load materials››';
 
   @override
-  String get studentAssignmentSubmittedSnackbar => 'دنده وسپارل شوه!';
+  String get studentAssignmentSubmittedSnackbar => '‹‹Assignment handed in!››';
 
   @override
   String get studentAssignmentSubmitFailed =>
-      'نه وسپارل شوه — مهرباني وکړئ بیا هڅه وکړئ.';
+      '‹‹Could not submit — please try again.››';
 
   @override
   String get studentAssignmentUploadFailed =>
-      'د فایل اپلوډ پاتې راغی — مهرباني وکړئ بیا هڅه وکړئ.';
+      '‹‹File upload failed — please try again.››';
 
   @override
-  String get studentAssignmentHandedInBadge => 'وسپارل شوه';
+  String get studentAssignmentHandedInBadge => '‹‹Handed in››';
 
   @override
-  String get studentAssignmentSubmitButton => 'سپارل';
+  String get studentAssignmentSubmitButton => '‹‹Hand in››';
 
   @override
-  String get studentAssignmentSubmitting => 'سپارل کیږي…';
+  String get studentAssignmentSubmitting => '‹‹Handing in…››';
 
   @override
-  String get studentAssignmentAttachFile => 'فایل ضمیمه کول';
+  String get studentAssignmentAttachFile => '‹‹Attach file››';
 
   @override
-  String get studentAssignmentAddMoreFiles => 'نور فایلونه زیاتول';
+  String get studentAssignmentAddMoreFiles => '‹‹Add more files››';
 
   @override
-  String get studentAssignmentYourSubmission => 'ستاسو سپارنه';
+  String get studentAssignmentYourSubmission => '‹‹Your submission››';
 
   @override
-  String get studentAssignmentTeacherAttachments => 'ضمیمې';
+  String get studentAssignmentTeacherAttachments => '‹‹Attachments››';
 
   @override
   String secretaryWelcomeGreeting(Object name) {
-    return 'سلام $name 👋';
+    return '‹‹Hi $name 👋››';
   }
 
   @override
-  String get secretaryYourTools => 'ستاسو وسایل';
+  String get secretaryYourTools => '‹‹Your tools››';
 
   @override
-  String get secretaryReports => 'راپورونه';
+  String get secretaryReports => '‹‹Reports››';
 
   @override
-  String get secretaryExportData => 'معلومات صادرول';
+  String get secretaryExportData => '‹‹Export Data››';
 
   @override
-  String get secretaryHomeTile => 'کور';
+  String get secretaryHomeTile => '‹‹Home››';
 
   @override
   String parentHomeGreeting(Object name) {
-    return 'سلام $name 👋';
+    return '‹‹Hi $name 👋››';
   }
 
   @override
-  String get parentYourTools => 'ستاسو وسایل';
+  String get parentYourTools => '‹‹Your tools››';
 
   @override
-  String get parentNoChildLinked => 'تر اوسه هیڅ ماشوم نه دی تړل شوی';
+  String get parentNoChildLinked => '‹‹No child linked yet››';
 
   @override
-  String get parentPickChildFirst => 'لومړی یو ماشوم وټاکئ';
+  String get parentPickChildFirst => '‹‹Pick a child first››';
 
   @override
   String get parentNoApprovedChildren =>
-      'تر اوسه تایید شوي ماشومان نشته. له خپل ښوونځي وغواړئ چې ستاسو حساب وتړي.';
+      '‹‹No approved children yet. Ask your school to link your account.››';
 
   @override
   String get loginEmptyFieldsError =>
-      'مهرباني وکړئ خپل بریښنالیک یا کارن‌نوم او پټنوم ولیکئ.';
+      '‹‹Please enter your email or username and password.››';
 
   @override
   String get loginConnectionError =>
-      'هیڅ اړیکه نشته. خپل انټرنیټ وګورئ او بیا هڅه وکړئ.';
+      '‹‹No connection. Check your internet and try again.››';
 
   @override
-  String get loginTimeoutError =>
-      'د غوښتنې وخت پای ته ورسید. مهرباني وکړئ بیا هڅه وکړئ.';
+  String get loginTimeoutError => '‹‹Request timed out. Please try again.››';
 
   @override
-  String get loginForgotPasswordLink => 'پټنوم مو هیر شو؟';
+  String get loginForgotPasswordLink => '‹‹Forgot password?››';
 
   @override
-  String get forgotPasswordTitle => 'خپل پټنوم بیا تنظیم کړئ';
+  String get forgotPasswordTitle => '‹‹Reset your password››';
 
   @override
-  String get forgotPasswordModeEmail => 'بریښنالیک';
+  String get forgotPasswordModeEmail => '‹‹Email››';
 
   @override
-  String get forgotPasswordModeSms => 'SMS';
+  String get forgotPasswordModeSms => '‹‹SMS››';
 
   @override
   String get forgotPasswordEmailSent =>
-      'د بیا تنظیمولو لینک ولیږل شو (که حساب سمون ولري).';
+      '‹‹Reset link sent (if an account matches).››';
 
   @override
   String get forgotPasswordEmptyError =>
-      'د دوام لپاره خپل بریښنالیک یا کارن‌نوم ولیکئ.';
+      '‹‹Enter your email or username to continue.››';
 
   @override
-  String get forgotPasswordEmailButton =>
-      'د بیا تنظیمولو لینک راته بریښنالیک کړئ';
+  String get forgotPasswordEmailButton => '‹‹Email me a reset link››';
 
   @override
-  String get forgotPasswordSmsButton => 'د بیا تنظیمولو لینک راته پیغام کړئ';
+  String get forgotPasswordSmsButton => '‹‹Text me a reset link››';
 
   @override
   String get forgotPasswordLinkExpires =>
-      'دا لینک په ۱ ساعت کې پای ته رسیږي او یوازې یو ځل کارېدلی شي.';
+      '‹‹The link expires in 1 hour and can only be used once.››';
 
   @override
-  String get pushPermissionTitle => 'خبر اوسئ';
+  String get pushPermissionTitle => '‹‹Stay in the loop››';
 
   @override
   String get pushPermissionBody =>
-      'خبرتیاوې فعالې کړئ ترڅو نمرې، پیغامونه، یا د مهالویش بدلونونه له لاسه ورنکړئ.';
+      '‹‹Turn on notifications so you don\'t miss grades, messages, or schedule changes.››';
 
   @override
   String commonRequiredField(Object field) {
-    return '$field اړین دی';
+    return '‹‹$field required››';
   }
 
   @override
-  String get commonAttachments => 'ضمیمې';
+  String get commonAttachments => '‹‹Attachments››';
 
   @override
-  String get commonAttachFile => 'فایل ضمیمه کول';
+  String get commonAttachFile => '‹‹Attach file››';
 
   @override
-  String get commonReplaceFile => 'فایل بدلول';
+  String get commonReplaceFile => '‹‹Replace file››';
 
   @override
-  String get commonTitleRequired => 'سرلیک اړین دی';
+  String get commonTitleRequired => '‹‹Title required››';
 
   @override
-  String get commonPublish => 'خپرول';
+  String get commonPublish => '‹‹Publish››';
 
   @override
-  String get commonContinue => 'دوام';
+  String get commonContinue => '‹‹Continue››';
 
   @override
-  String get commonNext => 'بل';
+  String get commonNext => '‹‹Next››';
 
   @override
-  String get commonStart => 'پیل';
+  String get commonStart => '‹‹Start››';
 
   @override
-  String get commonEnd => 'پای';
+  String get commonEnd => '‹‹End››';
 
   @override
-  String get commonRefresh => 'تازه کول';
+  String get commonRefresh => '‹‹Refresh››';
 
   @override
-  String get commonRemove => 'لرې کول';
+  String get commonRemove => '‹‹Remove››';
 
   @override
-  String get commonOpen => 'پرانیستل';
+  String get commonOpen => '‹‹Open››';
 
   @override
-  String get commonView => 'کتل';
+  String get commonView => '‹‹View››';
 
   @override
-  String get commonCopy => 'کاپي';
+  String get commonCopy => '‹‹Copy››';
 
   @override
-  String get commonAdd => 'زیاتول';
+  String get commonAdd => '‹‹Add››';
 
   @override
-  String get commonOptional => 'اختیاري';
+  String get commonOptional => '‹‹Optional››';
 
   @override
-  String get commonRequired => 'اړین';
+  String get commonRequired => '‹‹Required››';
 
   @override
-  String get commonAuto => 'اتومات';
+  String get commonAuto => '‹‹Auto››';
 
   @override
-  String get teacherShareButton => 'شریکول';
+  String get teacherShareButton => '‹‹Share››';
 
   @override
-  String get teacherMaterialDetails => 'د توکي تفصیلات';
+  String get teacherMaterialDetails => '‹‹Material Details››';
 
   @override
-  String get teacherMaterialTitleLabel => 'سرلیک *';
+  String get teacherMaterialTitleLabel => '‹‹Title *››';
 
   @override
-  String get teacherMaterialDescriptionLabel => 'تشریح (اختیاري)';
+  String get teacherMaterialDescriptionLabel => '‹‹Description (optional)››';
 
   @override
-  String get teacherMaterialContentSection => 'محتوا';
+  String get teacherMaterialContentSection => '‹‹Content››';
 
   @override
   String get teacherMaterialContentRequired =>
-      'مهرباني وکړئ یو فایل ضمیمه یا لینک زیات کړئ';
+      '‹‹Please attach a file or add a link››';
 
   @override
   String teacherFilePickError(Object error) {
-    return 'فایل نه ټاکل کیږي: $error';
+    return '‹‹Could not pick file: $error››';
   }
 
   @override
-  String get teacherScheduleButton => 'مهالویش';
+  String get teacherScheduleButton => '‹‹Schedule››';
 
   @override
-  String get teacherMeetingTitleField => 'د غونډې سرلیک *';
+  String get teacherMeetingTitleField => '‹‹Meeting title *››';
 
   @override
-  String get teacherMeetingLinkField => 'د غونډې لینک *';
+  String get teacherMeetingLinkField => '‹‹Meeting link *››';
 
   @override
-  String get teacherMeetingLinkRequired => 'د غونډې لینک اړین دی';
+  String get teacherMeetingLinkRequired => '‹‹Meeting link required››';
 
   @override
-  String get teacherMeetingTitleRequired => 'د غونډې سرلیک اړین دی';
+  String get teacherMeetingTitleRequired => '‹‹Meeting title required››';
 
   @override
-  String get teacherMeetingDateTimeRequired => 'د پیل نیټه او وخت اړین دي';
+  String get teacherMeetingDateTimeRequired =>
+      '‹‹Start date and time required››';
 
   @override
-  String get teacherMeetingStartDate => 'د پیل نیټه *';
+  String get teacherMeetingStartDate => '‹‹Start date *››';
 
   @override
-  String get teacherMeetingStartTime => 'د پیل وخت *';
+  String get teacherMeetingStartTime => '‹‹Start time *››';
 
   @override
-  String get teacherMeetingEndDate => 'د پای نیټه (اختیاري)';
+  String get teacherMeetingEndDate => '‹‹End date (optional)››';
 
   @override
-  String get teacherMeetingEndTime => 'د پای وخت (اختیاري)';
+  String get teacherMeetingEndTime => '‹‹End time (optional)››';
 
   @override
-  String get teacherClearEndTime => 'د پای وخت پاکول';
+  String get teacherClearEndTime => '‹‹Clear end time››';
 
   @override
-  String get teacherAssignmentTitleField => 'سرلیک *';
+  String get teacherAssignmentTitleField => '‹‹Title *››';
 
   @override
-  String get teacherAssignmentInstructions => 'لارښوونې (اختیاري)';
+  String get teacherAssignmentInstructions => '‹‹Instructions (optional)››';
 
   @override
-  String get teacherAssignmentDueDate => 'د سپارلو نیټه (اختیاري)';
+  String get teacherAssignmentDueDate => '‹‹Due date (optional)››';
 
   @override
-  String get teacherAssignmentClearDueDate => 'د سپارلو نیټه پاکول';
+  String get teacherAssignmentClearDueDate => '‹‹Clear due date››';
 
   @override
-  String get teacherAssignmentMaxGrade => 'اعظمي نمره (اختیاري)';
+  String get teacherAssignmentMaxGrade => '‹‹Max grade (optional)››';
 
   @override
-  String get teacherAssignmentPublished => 'دنده خپره شوه.';
+  String get teacherAssignmentPublished => '‹‹Assignment published.››';
 
   @override
-  String get teacherAssignmentDraftSaved => 'مسوده وساتل شوه.';
+  String get teacherAssignmentDraftSaved => '‹‹Draft saved.››';
 
   @override
-  String get teacherCreateAssignment => 'جوړول';
+  String get teacherCreateAssignment => '‹‹Create››';
 
   @override
-  String get teacherExamSubject => 'مضمون *';
+  String get teacherExamSubject => '‹‹Subject *››';
 
   @override
-  String get teacherExamDate => 'د ازموینې نیټه *';
+  String get teacherExamDate => '‹‹Exam date *››';
 
   @override
-  String get teacherSelectSubject => 'مضمون وټاکئ';
+  String get teacherSelectSubject => '‹‹Select subject››';
 
   @override
-  String get teacherNoSubjectOption => 'هیڅ مضمون نه';
+  String get teacherNoSubjectOption => '‹‹No subject››';
 
   @override
-  String get teacherOtherSubjectOption => 'نور';
+  String get teacherOtherSubjectOption => '‹‹Other››';
 
   @override
-  String get teacherSearchClassrooms => 'ټولګي ولټوئ…';
+  String get teacherSearchClassrooms => '‹‹Search classrooms…››';
 
   @override
-  String get teacherSearchMaterials => 'توکي ولټوئ…';
+  String get teacherSearchMaterials => '‹‹Search materials…››';
 
   @override
-  String get teacherClassroomName => 'د ټولګي نوم *';
+  String get teacherClassroomName => '‹‹Classroom name *››';
 
   @override
-  String get adminReportsOpenTab => 'پرانیستی';
+  String get adminReportsOpenTab => '‹‹Open››';
 
   @override
-  String get adminReportsResolvedTab => 'حل شوی';
+  String get adminReportsResolvedTab => '‹‹Resolved››';
 
   @override
-  String get adminReportsDismissedTab => 'رد شوی';
+  String get adminReportsDismissedTab => '‹‹Dismissed››';
 
   @override
-  String get adminReportsNoOpen => 'هیڅ پرانیستی راپور نشته';
+  String get adminReportsNoOpen => '‹‹No open reports››';
 
   @override
-  String get adminReportsNoInView => 'په دې کتنه کې راپورونه نشته';
+  String get adminReportsNoInView => '‹‹No reports in this view››';
 
   @override
-  String get adminReportsMediaAttachment => '[رسنۍ ضمیمه]';
+  String get adminReportsMediaAttachment => '‹‹[Media attachment]››';
 
   @override
-  String get adminReportsEmptyMessage => '(تش پیغام)';
+  String get adminReportsEmptyMessage => '‹‹(empty message)››';
 
   @override
-  String get adminReportsDismiss => 'ردول';
+  String get adminReportsDismiss => '‹‹Dismiss››';
 
   @override
-  String get adminReportsResolve => 'حلول';
+  String get adminReportsResolve => '‹‹Resolve››';
 
   @override
   String adminReportsReason(Object reason) {
-    return 'علت: $reason';
+    return '‹‹Reason: $reason››';
   }
 
   @override
-  String get chatReportTitle => 'پیغام راپورول';
+  String get chatReportTitle => '‹‹Report message››';
 
   @override
-  String get chatReportButton => 'راپور';
+  String get chatReportButton => '‹‹Report››';
 
   @override
-  String get chatReportSuccess => 'راپور شو. مننه — یو مدیر به یې وګوري.';
+  String get chatReportSuccess =>
+      '‹‹Reported. Thank you — an admin will review.››';
 
   @override
   String chatReportFailed(Object error) {
-    return 'راپور پاتې راغی: $error';
+    return '‹‹Report failed: $error››';
   }
 
   @override
   String chatSendError(Object message) {
-    return 'نه ولیږل شو: $message';
+    return '‹‹Couldn\'t send: $message››';
   }
 
   @override
   String chatForwardLabel(Object count) {
-    return 'لیږل $count';
+    return '‹‹Forward $count››';
   }
 
   @override
   String chatDeleteLabel(Object count) {
-    return 'ړنګول $count';
+    return '‹‹Delete $count››';
   }
 
   @override
   String chatSelectedCount(Object count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
-  String get adminSetupSchoolSetup => 'د ښوونځي تنظیمول';
+  String get adminSetupSchoolSetup => '‹‹School Setup››';
 
   @override
   String get adminSetupComplete =>
-      'هرڅه چمتو دي. د بیا کتنې یا سمون لپاره هر توکی کېکاږئ.';
+      '‹‹You\'re all set. Tap any item to revisit or refine it.››';
 
   @override
   String get adminSetupInstructions =>
-      'د خپل ښوونځي د بشپړ تنظیمولو لپاره دا ګامونه بشپړ کړئ.';
+      '‹‹Complete these steps to fully set up your school.››';
 
   @override
-  String get adminSetupLogoTitle => 'د ښوونځي لوگو اپلوډ کول';
+  String get adminSetupLogoTitle => '‹‹Upload school logo››';
 
   @override
-  String get adminSetupLogoSubtitle => 'په سرلیکونو او اړخیز پاڼه کې ښکاري';
+  String get adminSetupLogoSubtitle => '‹‹Appears in headers and the drawer››';
 
   @override
-  String get adminSetupNameTitle => 'د ښوونځي نوم ټاکل';
+  String get adminSetupNameTitle => '‹‹Set school name››';
 
   @override
-  String get adminSetupNameSubtitle => 'زده کوونکو، ښوونکو او والدینو ته ښکاري';
+  String get adminSetupNameSubtitle =>
+      '‹‹Shown to students, teachers, and parents››';
 
   @override
-  String get adminSetupSubjectsTitle => 'مضامین تعریفول';
+  String get adminSetupSubjectsTitle => '‹‹Define subjects››';
 
   @override
   String get adminSetupSubjectsSubtitle =>
-      'لږ تر لږه یو ټولګی له تنظیم شوو مضامینو سره';
+      '‹‹At least one grade with subjects configured››';
 
   @override
-  String get adminSetupBellTitle => 'د زنګ مهالویش ټاکل';
+  String get adminSetupBellTitle => '‹‹Set bell schedule››';
 
   @override
-  String get adminSetupBellSubtitle => 'د هر وخت پیل/پای وختونه';
+  String get adminSetupBellSubtitle => '‹‹Start/end times for each period››';
 
   @override
-  String get adminSetupCohortsTitle => 'ډلې جوړول';
+  String get adminSetupCohortsTitle => '‹‹Create cohorts››';
 
   @override
-  String get adminSetupCohortsSubtitle => 'خپل د ټولګي ډلې تنظیم کړئ';
+  String get adminSetupCohortsSubtitle => '‹‹Set up your class groups››';
 
   @override
-  String get adminSetupStudentsTitle => 'زده کوونکي زیاتول';
+  String get adminSetupStudentsTitle => '‹‹Add students››';
 
   @override
   String get adminSetupStudentsSubtitle =>
-      'حسابونه جوړ کړئ یا د یوځای کیدو کوډونه جوړ کړئ';
+      '‹‹Create accounts or generate join codes››';
 
   @override
-  String get adminSetupTeachersTitle => 'ښوونکي زیاتول';
+  String get adminSetupTeachersTitle => '‹‹Add teachers››';
 
   @override
-  String get adminSetupTeachersSubtitle => 'د ښوونکو حسابونه جوړ کړئ';
+  String get adminSetupTeachersSubtitle => '‹‹Create teacher accounts››';
 
   @override
-  String get supportContactTitle => 'موږ سره خبرې وکړئ';
+  String get supportContactTitle => '‹‹Talk to us››';
 
   @override
   String get supportContactDescription =>
-      'خپله ځواب لاندې نه مومئ؟ موږ سره اړیکه ونیسئ او موږ به د یوې کاري ورځې په جریان کې درته ځواب ووایو.';
+      '‹‹Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.››';
 
   @override
-  String get supportEmailLabel => 'بریښنالیک';
+  String get supportEmailLabel => '‹‹Email››';
 
   @override
-  String get supportPhoneLabel => 'تلیفون';
+  String get supportPhoneLabel => '‹‹Phone››';
 
   @override
-  String get supportSmsLabel => 'پیغام';
+  String get supportSmsLabel => '‹‹Message››';
 
   @override
-  String get aboutWhatIsClassmate => 'ClassMate څه شی دی؟';
+  String get aboutWhatIsClassmate => '‹‹What is ClassMate?››';
 
   @override
   String get aboutClassmateDescription =>
-      'ClassMate د زده کوونکو، ښوونکو، مدیرانو او والدینو لپاره د ښوونځي عملیاتي سیستم دی. یوه اپلیکیشن، څلور رولونه، د ښوونځي د ورځې هره برخه په یوه ځای کې — مهالویش، حاضري، نمرې، ټولګي، دندې، پیغامونه او د زده کړې مصنوعي هوښیار ملګری.';
+      '‹‹ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.››';
 
   @override
   String get aboutMultilingualTitle =>
-      'د هغو ښوونځیو لپاره چې له یوې څخه زیاتو ژبو خبرې کوي';
+      '‹‹Built for schools that speak more than one language››';
 
   @override
   String get aboutMultilingualDescription =>
-      'هر نوم، مضمون او اعلان تر پنځو ژبو پورې بڼې لرلی شي (انګلیسي، عربي، عبري، فرانسوي، روسي). زده کوونکي هغه ژبه ویني چې پکې راحته وي؛ ښوونکي په خپله ژبه اداره کوي.';
+      '‹‹Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.››';
 
   @override
-  String get aboutPrivacyTitle => 'محرمیت لومړی';
+  String get aboutPrivacyTitle => '‹‹Privacy first››';
 
   @override
   String get aboutPrivacyDescription =>
-      'د ښوونځي معلومات د ښوونځي دننه پاتې کیږي. رولونه پاکه سره سمون لري چې هر څوک څه لیدلی شي — ښوونکي خپل ټولګي ویني، مدیران خپل ښوونځی ویني، والدین خپل ماشومان ویني. هیڅ دریم اړخیز تعقیب کوونکی نشته، هیڅ اعلاناتي شبکه نشته.';
+      '‹‹School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.››';
 
   @override
-  String get aboutContactTitle => 'اړیکه';
+  String get aboutContactTitle => '‹‹Contact››';
 
   @override
   String get aboutContactDescription =>
-      'د ClassMate ټیم لخوا جوړ شوی.\nپوښتنې: support@classmateapp.org';
+      '‹‹Built by the ClassMate team.\nQuestions: support@classmateapp.org››';
 
   @override
   String aboutVersionLabel(Object version) {
-    return 'ClassMate · v$version';
+    return '‹‹ClassMate · v$version››';
   }
 
   @override
-  String get adminAddStudent => 'زده کوونکی زیاتول';
+  String get adminAddStudent => '‹‹Add student››';
 
   @override
-  String get adminAddTeacher => 'ښوونکی زیاتول';
+  String get adminAddTeacher => '‹‹Add teacher››';
 
   @override
-  String get adminAddParent => 'والد زیاتول';
+  String get adminAddParent => '‹‹Add parent››';
 
   @override
-  String get adminAddSecretary => 'منشي زیاتول';
+  String get adminAddSecretary => '‹‹Add secretary››';
 
   @override
-  String get adminAddAdmin => 'مدیر زیاتول';
+  String get adminAddAdmin => '‹‹Add admin››';
 
   @override
-  String get adminEditUser => 'کاروونکی سمول';
+  String get adminEditUser => '‹‹Edit user››';
 
   @override
-  String get adminNoEmailPlaceholder => '(بریښنالیک نشته)';
+  String get adminNoEmailPlaceholder => '‹‹(no email)››';
 
   @override
-  String get adminNameEnglishRequired => 'بشپړ نوم (انګلیسي) اړین دی';
+  String get adminNameEnglishRequired => '‹‹Full name (English) is required››';
 
   @override
-  String get adminUsernameRequired => 'کارن‌نوم اړین دی';
+  String get adminUsernameRequired => '‹‹Username is required››';
 
   @override
   String get adminPasswordMinLength =>
-      'پټنوم باید لږ تر لږه ۸ توري وي (یا یې تش پریږدئ ترڅو اتومات جوړ شي)';
+      '‹‹Password must be at least 8 characters (or leave blank to auto-generate)››';
 
   @override
   String adminUserCreatedMsg(Object name) {
-    return '$name جوړ شو.';
+    return '‹‹$name created.››';
   }
 
   @override
-  String get adminCredsUsername => 'کارن‌نوم';
+  String get adminCredsUsername => '‹‹Username››';
 
   @override
-  String get adminCredsEmail => 'بریښنالیک';
+  String get adminCredsEmail => '‹‹Email››';
 
   @override
-  String get adminCredsPassword => 'پټنوم';
+  String get adminCredsPassword => '‹‹Password››';
 
   @override
-  String get adminShareCredsHint => 'دا اسناد له زده کوونکي سره شریک کړئ.';
+  String get adminShareCredsHint =>
+      '‹‹Share these credentials with the student.››';
 
   @override
-  String get adminCopyCredsButton => 'ټول کاپي';
+  String get adminCopyCredsButton => '‹‹Copy All››';
 
   @override
-  String get adminGradeLabel => 'ټولګی';
+  String get adminGradeLabel => '‹‹Grade››';
 
   @override
   String adminCohortGradeFormat(Object grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get adminCreateAndAddStudents => 'جوړول او زده کوونکي زیاتول';
+  String get adminCreateAndAddStudents => '‹‹Create & Add Students››';
 
   @override
-  String get adminAddStudentsTitle => 'زده کوونکي زیاتول';
+  String get adminAddStudentsTitle => '‹‹Add Students››';
 
   @override
-  String get adminSkipAdding => 'تیریدل';
+  String get adminSkipAdding => '‹‹Skip››';
 
   @override
-  String get adminInCohortBadge => 'په ډله کې';
+  String get adminInCohortBadge => '‹‹In cohort››';
 
   @override
   String get adminNoStudentsFoundCohort =>
-      'د دې ډلې په ټولګیو کې زده کوونکي ونه موندل شول';
+      '‹‹No students found in this cohort\'s grades››';
 
   @override
-  String get adminScheduleByCohort => 'د ډلې له مخې ▾';
+  String get adminScheduleByCohort => '‹‹By Cohort ▾››';
 
   @override
-  String get adminScheduleByStudent => 'د زده کوونکي له مخې ▾';
+  String get adminScheduleByStudent => '‹‹By Student ▾››';
 
   @override
-  String get adminScheduleByGrade => 'د ټولګي له مخې ▾';
+  String get adminScheduleByGrade => '‹‹By Grade ▾››';
 
   @override
-  String get navSupport => 'ملاتړ';
+  String get navSupport => '‹‹Support››';
 
   @override
-  String get navAbout => 'په اړه';
+  String get navAbout => '‹‹About››';
 
   @override
-  String get adminScheduleAddGrade => 'ټولګی زیاتول';
+  String get adminScheduleAddGrade => '‹‹Add grade››';
 
   @override
-  String get adminScheduleAddCohort => 'ډله زیاتول';
+  String get adminScheduleAddCohort => '‹‹Add cohort››';
 
   @override
-  String get adminScheduleAddStudent => 'زده کوونکی زیاتول';
+  String get adminScheduleAddStudent => '‹‹Add student››';
 
   @override
-  String get adminScheduleClearFilters => 'پاکول';
+  String get adminScheduleClearFilters => '‹‹Clear››';
 
   @override
   String get adminSchedulePickSubjectRequired =>
-      'د وخت له ساتلو مخکې یو مضمون وټاکئ.';
+      '‹‹Pick a subject before saving the period.››';
 
   @override
-  String get adminSchedulePickDateOnce => 'د یوځلي وخت لپاره نیټه وټاکئ.';
+  String get adminSchedulePickDateOnce =>
+      '‹‹Pick a date for a one-off period.››';
 
   @override
   String adminSchedulePickDateRecurring(Object freq) {
-    return 'د هرې $freq اونۍ مهالویش لپاره د پیل نیټه وټاکئ.';
+    return '‹‹Pick a start date for the every-$freq-weeks schedule.››';
   }
 
   @override
-  String get adminSchoolLogoLabel => 'د ښوونځي لوگو';
+  String get adminSchoolLogoLabel => '‹‹School Logo››';
 
   @override
-  String get adminSchoolLogoUploaded => 'لوگو اپلوډ شو';
+  String get adminSchoolLogoUploaded => '‹‹Logo uploaded››';
 
   @override
-  String get adminSchoolNoLogoYet => 'تر اوسه لوگو نشته';
+  String get adminSchoolNoLogoYet => '‹‹No logo yet››';
 
   @override
   String get adminSchoolLogoDescription =>
-      'په اپلیکیشن اړخیز پاڼه کې ستاسو د ښوونځي نوم تر څنګ ښکاري.';
+      '‹‹Appears next to your school name in the app drawer.››';
 
   @override
-  String get adminSchoolLogoChange => 'بدلول';
+  String get adminSchoolLogoChange => '‹‹Change››';
 
   @override
-  String get adminSchoolLogoUpload => 'اپلوډ';
+  String get adminSchoolLogoUpload => '‹‹Upload››';
 
   @override
-  String get adminSchoolLogoRemove => 'لرې کول';
+  String get adminSchoolLogoRemove => '‹‹Remove››';
 
   @override
-  String get adminSchoolGradeRangeLabel => 'د ټولګیو حدود';
+  String get adminSchoolGradeRangeLabel => '‹‹Grade range››';
 
   @override
   String get adminSchoolGradeRangeDescription =>
-      'هغه ټولګي چې په ډلو، زده کوونکو او ټاکونکو کې شته.';
+      '‹‹Grades available across cohorts, students, and pickers.››';
 
   @override
-  String get adminSchoolLowestGrade => 'ټیټ';
+  String get adminSchoolLowestGrade => '‹‹Lowest››';
 
   @override
-  String get adminSchoolHighestGrade => 'لوړ';
+  String get adminSchoolHighestGrade => '‹‹Highest››';
 
   @override
-  String get adminSchoolSubjectsTitle => 'د ښوونځي مضامین';
+  String get adminSchoolSubjectsTitle => '‹‹School Subjects››';
 
   @override
   String get adminSchoolSubjectsDescription =>
-      'د دندو په جوړولو کې ټولو ښوونکو ته شته.';
+      '‹‹Available to all teachers when creating assignments.››';
 
   @override
-  String get adminSchoolNoTranslations => 'د ژباړو زیاتولو لپاره کېکاږئ';
+  String get adminSchoolNoTranslations => '‹‹Tap to add translations››';
 
   @override
   String get adminSchoolBellHint =>
-      'د هر وخت لپاره د پیل او پای وختونه وټاکئ. د اړتیا سره سم وختونه زیات یا لرې کړئ.';
+      '‹‹Set start and end times for each period. Add or remove periods as needed.››';
 
   @override
-  String get adminSchoolBellTitle => 'د زنګ مهالویش';
+  String get adminSchoolBellTitle => '‹‹Bell Schedule››';
 
   @override
   String get adminSchoolBellInfo =>
-      'د هر وخت لپاره د پیل او پای وخت وټاکئ. دا د اونۍ مهالویش جوړولو پر مهال د اصلي وختونو په توګه کارول کیږي.';
+      '‹‹Set the start and end time for each period. These become the default times used when building the weekly schedule.››';
 
   @override
-  String get adminSchoolStartTime => 'پیل';
+  String get adminSchoolStartTime => '‹‹Start››';
 
   @override
-  String get adminSchoolEndTime => 'پای';
+  String get adminSchoolEndTime => '‹‹End››';
 
   @override
-  String get adminExportStudentsTab => 'زده کوونکي';
+  String get adminExportStudentsTab => '‹‹Students››';
 
   @override
-  String get adminExportCohortsTab => 'ډلې';
+  String get adminExportCohortsTab => '‹‹Cohorts››';
 
   @override
-  String get adminExportGradesTab => 'نمرې';
+  String get adminExportGradesTab => '‹‹Grades››';
 
   @override
-  String get adminExportOptionsTitle => 'د صادرولو اختیارونه';
+  String get adminExportOptionsTitle => '‹‹Export Options››';
 
   @override
-  String get adminExportIncludePasswords => 'پټنومونه شاملول';
+  String get adminExportIncludePasswords => '‹‹Include Passwords››';
 
   @override
-  String get adminExportLanguageLabel => 'په صادرات کې د نوم ژبه';
+  String get adminExportLanguageLabel => '‹‹Name language in the export››';
 
   @override
-  String get adminExportCsvButton => 'CSV صادرول';
+  String get adminExportCsvButton => '‹‹Export CSV››';
 
   @override
-  String get adminExportPdfButton => 'PDF صادرول';
+  String get adminExportPdfButton => '‹‹Export PDF››';
 
   @override
-  String get teacherCreateClassroomTooltip => 'ټولګی جوړول';
+  String get teacherCreateClassroomTooltip => '‹‹Create classroom››';
 
   @override
-  String get teacherClassroomNameRequired => 'د ټولګي نوم *';
+  String get teacherClassroomNameRequired => '‹‹Classroom name *››';
 
   @override
-  String get teacherSubjectRequired => 'مضمون *';
+  String get teacherSubjectRequired => '‹‹Subject *››';
 
   @override
   String messagesStartChatError(Object error) {
-    return 'خبرې نه پیلیږي: $error';
+    return '‹‹Could not start chat: $error››';
   }
 
   @override
   String messagesNoPeopleMatch(Object query) {
-    return 'د \"$query\" سره هیڅ کس سمون نه لري';
+    return '‹‹No people match \"$query\"››';
   }
 
   @override
-  String get messagesNoPeopleFound => 'هیڅ کس ونه موندل شو';
+  String get messagesNoPeopleFound => '‹‹No people found››';
 
   @override
   String messagesPeopleCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count کسان',
-      one: '۱ کس',
+      other: '$count people',
+      one: '1 person',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
   String get studentAssignmentValidationRequired =>
-      'د سپارلو مخکې یوه یادښت ولیکئ یا فایل ضمیمه کړئ.';
+      '‹‹Add a note or attach a file before handing in.››';
 
   @override
-  String get studentFormSubmittedBanner => 'ستاسو سپارل شوي ځوابونه';
+  String get studentFormSubmittedBanner => '‹‹Your submitted answers››';
 
   @override
   String studentFormSubmitError(Object error) {
-    return 'نه وسپارل شو: $error';
+    return '‹‹Could not submit: $error››';
   }
 
   @override
   String studentFormFieldRequired(Object field) {
-    return 'اړین: $field';
+    return '‹‹Required: $field››';
   }
 
   @override
-  String get studentFormClosedButton => 'فورمه بنده ده';
+  String get studentFormClosedButton => '‹‹Form closed››';
 
   @override
-  String get studentFormAlreadySubmittedButton => 'مخکې سپارل شوې';
+  String get studentFormAlreadySubmittedButton => '‹‹Already submitted››';
 
   @override
-  String get studentDiplomaEditTitle => 'سند سمول';
+  String get studentDiplomaEditTitle => '‹‹Edit Certificate››';
 
   @override
-  String get studentDiplomaDeleteTitle => 'سند ړنګ شي؟';
+  String get studentDiplomaDeleteTitle => '‹‹Delete certificate?››';
 
   @override
   String studentDiplomaDeleteConfirm(Object name) {
-    return 'د \"$name\" لپاره سند لرې شي؟';
+    return '‹‹Remove certificate for \"$name\"?››';
   }
 
   @override
   String teacherDeleteItemConfirm(Object title) {
-    return '\"$title\" ړنګ شي؟';
+    return '‹‹Delete \"$title\"?››';
   }
 
   @override
-  String get teacherPublishTooltip => 'خپرول';
+  String get teacherPublishTooltip => '‹‹Publish››';
 
   @override
-  String get teacherMeetingEnterTitle => 'مهرباني وکړئ یو سرلیک ولیکئ.';
+  String get teacherMeetingEnterTitle => '‹‹Please enter a title.››';
 
   @override
-  String get teacherMeetingEnterLink => 'مهرباني وکړئ د غونډې لینک ولیکئ.';
+  String get teacherMeetingEnterLink => '‹‹Please enter a meeting link.››';
 
   @override
   String get teacherMeetingEnterValidUrl =>
-      'مهرباني وکړئ یو سم URL ولیکئ (لکه https://zoom.us/j/...)';
+      '‹‹Please enter a valid URL (e.g. https://zoom.us/j/...)››';
 
   @override
-  String get teacherMeetingPickStartTime => 'مهرباني وکړئ د پیل وخت وټاکئ.';
+  String get teacherMeetingPickStartTime => '‹‹Please pick a start time.››';
 
   @override
-  String get teacherMeetingVisibleToEveryone => 'ټولو ته ښکاري';
+  String get teacherMeetingVisibleToEveryone => '‹‹Visible to everyone››';
 
   @override
   String teacherMeetingDoneCount(int count) {
-    return 'بشپړ شو ($count ټاکل شوي)';
+    return '‹‹Done ($count selected)››';
   }
 
   @override
-  String get teacherDeleteAssignmentTitle => 'دنده ړنګه شي؟';
+  String get teacherDeleteAssignmentTitle => '‹‹Delete assignment?››';
 
   @override
   String get teacherDeleteAssignmentBody =>
-      'دا به دنده او ټولې سپارنې د تل لپاره ړنګې کړي.';
+      '‹‹This will permanently delete the assignment and all submissions.››';
 
   @override
-  String get teacherEditTooltip => 'سمول';
+  String get teacherEditTooltip => '‹‹Edit››';
 
   @override
-  String get teacherDeleteTooltip => 'ړنګول';
+  String get teacherDeleteTooltip => '‹‹Delete››';
 
   @override
-  String get teacherClassroomBackTooltip => 'بیرته';
+  String get teacherClassroomBackTooltip => '‹‹Back››';
 
   @override
   String teacherClassroomGenericError(Object error) {
-    return 'تېروتنه: $error';
+    return '‹‹Error: $error››';
   }
 
   @override
   String teacherClassroomAttachFailed(Object error) {
-    return 'ضمیمه پاتې راغله: $error';
+    return '‹‹Attach failed: $error››';
   }
 
   @override
   String get teacherClassroomFileUnavailable =>
-      'دا فایل شتون نلري — ښوونکی باید بیا یې اپلوډ کړي.';
+      '‹‹This file is not available — the teacher should re-upload it.››';
 
   @override
-  String get teacherClassroomCodeLabel => 'د ټولګي کوډ';
+  String get teacherClassroomCodeLabel => '‹‹Classroom code››';
 
   @override
-  String get teacherClassroomCodeCopied => 'کوډ کاپي شو';
+  String get teacherClassroomCodeCopied => '‹‹Code copied››';
 
   @override
-  String get teacherClassroomCopyCodeTooltip => 'کوډ کاپي';
+  String get teacherClassroomCopyCodeTooltip => '‹‹Copy code››';
 
   @override
   String teacherClassroomCouldNotAdd(Object emails) {
-    return 'نه شول زیات: $emails — د دوی بریښنالیک پته وګورئ.';
+    return '‹‹Could not add: $emails — check their email address.››';
   }
 
   @override
-  String get teacherClassroomAddStudents => 'زده کوونکي زیاتول';
+  String get teacherClassroomAddStudents => '‹‹Add students››';
 
   @override
-  String get teacherClassroomSearchNameGrade => 'د نوم یا ټولګي له مخې ولټوئ…';
+  String get teacherClassroomSearchNameGrade => '‹‹Search by name or grade…››';
 
   @override
-  String get teacherClassroomNoStudentsFound => 'هیڅ زده کوونکی ونه موندل شو';
+  String get teacherClassroomNoStudentsFound => '‹‹No students found››';
 
   @override
-  String get teacherClassroomNameSubjectRequired => 'نوم او مضمون اړین دي.';
+  String get teacherClassroomNameSubjectRequired =>
+      '‹‹Name and subject are required.››';
 
   @override
-  String get teacherClassroomCreated => 'ټولګی جوړ شو!';
+  String get teacherClassroomCreated => '‹‹Classroom created!››';
 
   @override
-  String get teacherCustomSubjectLabel => 'دلخواه مضمون *';
+  String get teacherCustomSubjectLabel => '‹‹Custom subject *››';
 
   @override
-  String get teacherCreateClassroomButton => 'ټولګی جوړول';
+  String get teacherCreateClassroomButton => '‹‹Create Classroom››';
 
   @override
-  String get teacherCreateFormTitle => 'فورمه جوړول';
+  String get teacherCreateFormTitle => '‹‹Create Form››';
 
   @override
-  String get teacherFormSaveDraft => 'مسوده ساتل';
+  String get teacherFormSaveDraft => '‹‹Save Draft››';
 
   @override
-  String get teacherFormTitleHint => 'د فورمې سرلیک *';
+  String get teacherFormTitleHint => '‹‹Form title *››';
 
   @override
-  String get teacherFormDescriptionHint => 'تشریح (اختیاري)';
+  String get teacherFormDescriptionHint => '‹‹Description (optional)››';
 
   @override
-  String get teacherFormAcceptingResponses => 'ځوابونه منل کیږي';
+  String get teacherFormAcceptingResponses => '‹‹Accepting responses››';
 
   @override
-  String get teacherFormAllowMultiple => 'ډیر ځوابونه اجازه ورکول';
+  String get teacherFormAllowMultiple => '‹‹Allow multiple responses››';
 
   @override
   String get teacherFormAllowMultipleSubtitle =>
-      'بند = هر زده کوونکي ته یو ځل (اصلي)';
+      '‹‹Off = once per student (default)››';
 
   @override
-  String get teacherFormQuestionsSection => 'پوښتنې';
+  String get teacherFormQuestionsSection => '‹‹Questions››';
 
   @override
-  String get teacherFormAddQuestionButton => 'پوښتنه زیاتول';
+  String get teacherFormAddQuestionButton => '‹‹Add question››';
 
   @override
   String teacherFormQuestionPlaceholder(Object index) {
-    return 'پوښتنه $index';
+    return '‹‹Question $index››';
   }
 
   @override
-  String get teacherFormRequiredToggle => 'اړین';
+  String get teacherFormRequiredToggle => '‹‹Required››';
 
   @override
-  String get teacherFormAddOptionButton => 'اختیار ورزیات کړئ';
+  String get teacherFormAddOptionButton => '‹‹Add option››';
 
   @override
-  String get teacherFormMinLabel => 'لږ تر لږه';
+  String get teacherFormMinLabel => '‹‹Min››';
 
   @override
-  String get teacherFormMaxLabel => 'زیات تر زیاته';
+  String get teacherFormMaxLabel => '‹‹Max››';
 
   @override
-  String get teacherFormEnterTitle => 'مهرباني وکړئ د فورمې سرليک وليکئ.';
+  String get teacherFormEnterTitle => '‹‹Please enter a form title.››';
 
   @override
   String teacherExamUploadFailedSkipped(Object name) {
-    return 'د $name پورته کول ناکام شول. فايل پرېښودل شو.';
+    return '‹‹Upload failed for $name. File skipped.››';
   }
 
   @override
-  String get teacherExamEnterTitle => 'مهرباني وکړئ سرليک وليکئ.';
+  String get teacherExamEnterTitle => '‹‹Please enter a title.››';
 
   @override
-  String get teacherExamPickDate => 'مهرباني وکړئ د ازموینې نېټه وټاکئ.';
+  String get teacherExamPickDate => '‹‹Please pick an exam date.››';
 
   @override
-  String get teacherExamSelectSubject => 'مهرباني وکړئ مضمون وټاکئ.';
+  String get teacherExamSelectSubject => '‹‹Please select a subject.››';
 
   @override
   String teacherSlotDetachFailed(Object error) {
-    return 'بېلول ناکام شول: $error';
+    return '‹‹Detach failed: $error››';
   }
 
   @override
   String teacherSlotAttachFailed(Object error) {
-    return 'نښلول ناکام شول: $error';
+    return '‹‹Attach failed: $error››';
   }
 
   @override
-  String get teacherSlotAttachMaterial => 'مواد ونښلوئ';
+  String get teacherSlotAttachMaterial => '‹‹Attach material››';
 
   @override
-  String get teacherSlotDetachTooltip => 'بېلول';
+  String get teacherSlotDetachTooltip => '‹‹Detach››';
 
   @override
-  String get teacherDiplomaSelectStudent => 'لومړی يو زده‌کوونکی وټاکئ.';
+  String get teacherDiplomaSelectStudent => '‹‹Select a student first.››';
 
   @override
   String get teacherDiplomaUploadingWait =>
-      'مهرباني وکړئ صبر وکړئ — فايلونه لا پورته کيږي.';
+      '‹‹Please wait — files are still uploading.››';
 
   @override
   String teacherDiplomaIssueFailed(Object error) {
-    return 'د سند ورکول ناکام شول: $error';
+    return '‹‹Failed to issue certificate: $error››';
   }
 
   @override
-  String get teacherDiplomaCertTitleLabel => 'د سند سرليک';
+  String get teacherDiplomaCertTitleLabel => '‹‹Certificate title››';
 
   @override
-  String get teacherDiplomaSearchStudent => 'زده‌کوونکی ولټوئ…';
+  String get teacherDiplomaSearchStudent => '‹‹Search student…››';
 
   @override
-  String get teacherProfileChatError => 'خبرې اترې پيل نه شول';
+  String get teacherProfileChatError => '‹‹Could not start chat››';
 
   @override
-  String get teacherGradeAssignmentType => 'دنده';
+  String get teacherGradeAssignmentType => '‹‹Assignment››';
 
   @override
-  String get teacherGradeExamType => 'ازموینه';
+  String get teacherGradeExamType => '‹‹Exam››';
 
   @override
-  String get teacherGradeOtherType => 'نور';
+  String get teacherGradeOtherType => '‹‹Other››';
 
   @override
-  String get teacherGradeOutOfLabel => 'له ټولو څخه (اختياري)';
+  String get teacherGradeOutOfLabel => '‹‹Out of (optional)››';
 
   @override
-  String get teacherGradePublishedTitle => 'خپور شو';
+  String get teacherGradePublishedTitle => '‹‹Published››';
 
   @override
-  String get teacherGradePublishedSubtitle => 'زده‌کوونکي دا نمره ليدلی شي';
+  String get teacherGradePublishedSubtitle => '‹‹Students can see this grade››';
 
   @override
-  String get teacherMaterialPickSubject => 'مهرباني وکړئ مضمون وټاکئ.';
+  String get teacherMaterialPickSubject => '‹‹Please select a subject.››';
 
   @override
-  String get teacherMaterialAddLink => 'لينک ورزیات کړئ';
+  String get teacherMaterialAddLink => '‹‹Add link››';
 
   @override
-  String get teacherMaterialAddFile => 'فايل ورزیات کړئ';
+  String get teacherMaterialAddFile => '‹‹Add file››';
 
   @override
   String get teacherMaterialSearchStudentsGrade =>
-      'زده‌کوونکي يا ټولګی ولټوئ...';
+      '‹‹Search students or grade...››';
 
   @override
   String teacherMaterialDoneSelected(int count) {
-    return 'بشپړ شو ($count ټاکل شوي)';
+    return '‹‹Done ($count selected)››';
   }
 
   @override
-  String get adminSubjectEnglishNameRequired => 'انګليسي نوم اړين دی';
+  String get adminSubjectEnglishNameRequired => '‹‹English name is required››';
 
   @override
   String adminSubjectNameInLang(Object language) {
-    return 'نوم په $language کې';
+    return '‹‹Name in $language››';
   }
 
   @override
-  String get adminSubjectResetButton => 'بياځلي تنظيم';
+  String get adminSubjectResetButton => '‹‹Reset››';
 
   @override
-  String get teacherAnnounceBroadcastTitle => 'ټولو ته ولېږل شي؟';
+  String get teacherAnnounceBroadcastTitle => '‹‹Broadcast to everyone?››';
 
   @override
-  String get teacherAnnounceSendToEveryone => 'ټولو ته ولېږئ';
+  String get teacherAnnounceSendToEveryone => '‹‹Send to everyone››';
 
   @override
-  String get teacherAnnounceNoCohorts => 'هيڅ ډله شته نه ده';
+  String get teacherAnnounceNoCohorts => '‹‹No cohorts available››';
 
   @override
-  String get teacherAnnounceNothingFound => 'هيڅ ونه موندل شو';
+  String get teacherAnnounceNothingFound => '‹‹Nothing found››';
 
   @override
-  String get teacherAnnounceNoParents =>
-      'په دې ښوونځي کې هيڅ مور و پلار ونه موندل شو.';
+  String get teacherAnnounceNoParents => '‹‹No parents found at this school.››';
 
   @override
-  String get teacherGradesToGrade => 'د نمرې لپاره';
+  String get teacherGradesToGrade => '‹‹To grade››';
 
   @override
-  String get teacherGradesGraded => 'نمره شوي';
+  String get teacherGradesGraded => '‹‹Graded››';
 
   @override
-  String get teacherSaveGradesButton => 'نمرې خوندي کړئ';
+  String get teacherSaveGradesButton => '‹‹Save Grades››';
 
   @override
-  String get teacherAllowResubmitLabel => 'بياځلي سپارلو ته اجازه ورکړئ';
+  String get teacherAllowResubmitLabel => '‹‹Allow re-submit››';
 
   @override
-  String get teacherAllowResubmitTitle => 'بياځلي سپارلو ته اجازه ورکړئ؟';
+  String get teacherAllowResubmitTitle => '‹‹Allow re-submit?››';
 
   @override
   String teacherAllowResubmitBody(Object name) {
-    return 'دا به د $name سپارل شوي حذف کړي ترڅو بيا يې وسپاري.';
+    return '‹‹This will delete $name\'s submission so they can hand in again.››';
   }
 
   @override
-  String get teacherAllowButton => 'اجازه ورکړئ';
+  String get teacherAllowButton => '‹‹Allow››';
 
   @override
-  String get teacherGradeFieldLabel => 'نمره';
+  String get teacherGradeFieldLabel => '‹‹Grade››';
 
   @override
-  String get teacherFeedbackOptionalLabel => 'نظر (اختياري)';
+  String get teacherFeedbackOptionalLabel => '‹‹Feedback (optional)››';
 
   @override
-  String get teacherCreateClassroomFabLabel => 'جوړول';
+  String get teacherCreateClassroomFabLabel => '‹‹Create››';
 
   @override
-  String get teacherLoadingStudents => 'زده‌کوونکي راوړل کيږي…';
+  String get teacherLoadingStudents => '‹‹Loading students…››';
 
   @override
-  String get teacherSearchHintShort => 'لټون…';
+  String get teacherSearchHintShort => '‹‹Search…››';
 
   @override
-  String get teacherCreateClassroomTitle => 'نوی ټولګی';
+  String get teacherCreateClassroomTitle => '‹‹New Classroom››';
 
   @override
   String teacherAssignmentUploadFailed(Object name) {
-    return 'د $name پورته کول ونه شول';
+    return '‹‹Could not upload $name››';
   }
 
   @override
-  String get teacherAssignmentEnterTitle => 'مهرباني وکړئ سرليک وليکئ.';
+  String get teacherAssignmentEnterTitle => '‹‹Please enter a title.››';
 
   @override
-  String get teacherAssignmentSelectSubject => 'مهرباني وکړئ مضمون وټاکئ.';
+  String get teacherAssignmentSelectSubject => '‹‹Please select a subject.››';
 
   @override
-  String get teacherAssignmentInstructionsLabel => 'لارښوونې / تشريح';
+  String get teacherAssignmentInstructionsLabel =>
+      '‹‹Instructions / Description››';
 
   @override
-  String get teacherAttachFilesButton => 'فايلونه ونښلوئ';
+  String get teacherAttachFilesButton => '‹‹Attach files››';
 
   @override
-  String get tutorDeleteConversationTitle => 'خبرې اترې حذف کړئ؟';
+  String get tutorDeleteConversationTitle => '‹‹Delete conversation?››';
 
   @override
-  String get tutorDeleteConversationButton => 'د تل لپاره حذف کړئ';
+  String get tutorDeleteConversationButton => '‹‹Delete permanently››';
 
   @override
   String tutorDeleteFailed(Object error) {
-    return 'حذف نه شو: $error';
+    return '‹‹Could not delete: $error››';
   }
 
   @override
-  String get tutorDeleteMenuTitle => 'خبرې اترې حذف کړئ';
+  String get tutorDeleteMenuTitle => '‹‹Delete conversation››';
 
   @override
-  String get tutorDeleteMenuSubtitle => 'د تل لپاره يې له سرور څخه لرې کوي';
+  String get tutorDeleteMenuSubtitle =>
+      '‹‹Permanently removes it from the server››';
 
   @override
-  String get accountVerifyButton => 'تاييد';
+  String get accountVerifyButton => '‹‹Verify››';
 
   @override
-  String get accountConfirmButton => 'تاييدول';
+  String get accountConfirmButton => '‹‹Confirm››';
 
   @override
-  String get accountResendCode => 'کوډ بيا ولېږئ';
+  String get accountResendCode => '‹‹Resend code››';
 
   @override
-  String get accountCodeResent => 'نوی کوډ ولېږل شو.';
+  String get accountCodeResent => '‹‹Sent a fresh code.››';
 
   @override
-  String get accountContinueButton => 'دوام ورکړئ';
+  String get accountContinueButton => '‹‹Continue››';
 
   @override
-  String get studentClassroomFileUnavailable => 'دا فايل لا تر اوسه شته نه دی.';
+  String get studentClassroomFileUnavailable =>
+      '‹‹This file is not yet available.››';
 
   @override
-  String get studentClassroomDeleteMaterial => 'مواد حذف کړئ؟';
+  String get studentClassroomDeleteMaterial => '‹‹Delete material?››';
 
   @override
-  String get studentClassroomCodeLabel => 'د ټولګي کوډ';
+  String get studentClassroomCodeLabel => '‹‹Classroom code››';
 
   @override
-  String get studentClassroomLeaveTooltip => 'ټولګی پرېږدئ';
+  String get studentClassroomLeaveTooltip => '‹‹Leave classroom››';
 
   @override
-  String get adminEditUserEnglishNameRequired => 'انګليسي نوم اړين دی';
+  String get adminEditUserEnglishNameRequired => '‹‹English name required››';
 
   @override
-  String get adminEditUserSaved => 'خوندي شو';
+  String get adminEditUserSaved => '‹‹Saved››';
 
   @override
   String adminEditUserPasswordChanged(Object name) {
-    return 'د $name پټنوم بدل شو.';
+    return '‹‹Password changed for $name.››';
   }
 
   @override
-  String get adminEditUserLoginSection => 'ننوتل';
+  String get adminEditUserLoginSection => '‹‹Login››';
 
   @override
-  String get adminEditUserUsernameLabel => 'د کارن نوم';
+  String get adminEditUserUsernameLabel => '‹‹Username››';
 
   @override
-  String get adminEditUserEmailOptional => 'ايميل (اختياري)';
+  String get adminEditUserEmailOptional => '‹‹Email (optional)››';
 
   @override
-  String get adminEditUserChangePassword => 'پټنوم بدل کړئ';
+  String get adminEditUserChangePassword => '‹‹Change password››';
 
   @override
-  String get adminEditUserNameSection => 'نوم';
+  String get adminEditUserNameSection => '‹‹Name››';
 
   @override
-  String get adminEditUserAtLeastEnglish => 'لږ تر لږه انګليسي اړين دی.';
+  String get adminEditUserAtLeastEnglish => '‹‹At least English required.››';
 
   @override
-  String get adminEditUserGradeSection => 'ټولګی';
+  String get adminEditUserGradeSection => '‹‹Grade››';
 
   @override
-  String get adminEditUserCohortsSection => 'ډلې';
+  String get adminEditUserCohortsSection => '‹‹Cohorts››';
 
   @override
-  String get adminEditUserLinkedChildren => 'تړل شوي ماشومان';
+  String get adminEditUserLinkedChildren => '‹‹Linked Children››';
 
   @override
-  String get adminEditUserLinkButton => 'وتړئ';
+  String get adminEditUserLinkButton => '‹‹Link››';
 
   @override
-  String get adminEditUserNoChildren => 'تر اوسه هيڅ ماشوم نه دی تړل شوی.';
+  String get adminEditUserNoChildren => '‹‹No children linked yet.››';
 
   @override
-  String get adminEditUserSetPasswordTitle => 'نوی پټنوم وټاکئ';
+  String get adminEditUserSetPasswordTitle => '‹‹Set new password››';
 
   @override
-  String get adminEditUserNewPasswordLabel => 'نوی پټنوم';
+  String get adminEditUserNewPasswordLabel => '‹‹New password››';
 
   @override
-  String get adminEditUserConfirmPasswordLabel => 'پټنوم تاييد کړئ';
+  String get adminEditUserConfirmPasswordLabel => '‹‹Confirm password››';
 
   @override
-  String get adminEditUserSetPasswordButton => 'پټنوم وټاکئ';
+  String get adminEditUserSetPasswordButton => '‹‹Set password››';
 
   @override
-  String get adminPeriodsTitle => 'د درسي ساعتونو سمبالول';
+  String get adminPeriodsTitle => '‹‹Manage Periods››';
 
   @override
-  String get adminPeriodsAddPeriod => 'درسي ساعت ورزیات کړئ';
+  String get adminPeriodsAddPeriod => '‹‹Add Period››';
 
   @override
-  String get adminPeriodsNoPeriods => 'تر اوسه هيڅ درسي ساعت نشته';
+  String get adminPeriodsNoPeriods => '‹‹No periods yet››';
 
   @override
-  String get adminPeriodsTapToAdd =>
-      'د لومړي درسي ساعت ورزياتولو لپاره + کېکاږئ';
+  String get adminPeriodsTapToAdd => '‹‹Tap + to add the first period››';
 
   @override
-  String get adminPeriodsNewPeriod => 'نوی درسي ساعت';
+  String get adminPeriodsNewPeriod => '‹‹New Period››';
 
   @override
-  String get adminPeriodsDayLabel => 'ورځ';
+  String get adminPeriodsDayLabel => '‹‹Day››';
 
   @override
-  String get adminPeriodsPeriodLabel => 'درسي ساعت';
+  String get adminPeriodsPeriodLabel => '‹‹Period››';
 
   @override
-  String get adminPeriodsTimeLabel => 'وخت';
+  String get adminPeriodsTimeLabel => '‹‹Time››';
 
   @override
-  String get adminPeriodsTeacherLabel => 'ښوونکی';
+  String get adminPeriodsTeacherLabel => '‹‹Teacher››';
 
   @override
-  String get adminPeriodsClassroomOptional => 'ټولګی (اختياري)';
+  String get adminPeriodsClassroomOptional => '‹‹Classroom (optional)››';
 
   @override
-  String get adminPeriodsCohortsLabel => 'ډلې';
+  String get adminPeriodsCohortsLabel => '‹‹Cohorts››';
 
   @override
-  String get adminPeriodsStudentsOptional => 'زده‌کوونکي (اختياري)';
+  String get adminPeriodsStudentsOptional => '‹‹Students (optional)››';
 
   @override
-  String get adminPeriodsSearchByName => 'د نوم له مخې ولټوئ…';
+  String get adminPeriodsSearchByName => '‹‹Search by name…››';
 
   @override
   String commonErrorWith(Object error) {
-    return 'تېروتنه: $error';
+    return '‹‹Error: $error››';
   }
 
   @override
   String commonAddCount(int count) {
-    return '$count ورزیات کړئ';
+    return '‹‹Add $count››';
   }
 
   @override
-  String get teacherStudentGradesSaved => 'نمرې خوندي شوې';
+  String get teacherStudentGradesSaved => '‹‹Grades saved››';
 
   @override
-  String get teacherStudentToGrade => 'د نمرې لپاره';
+  String get teacherStudentToGrade => '‹‹To grade››';
 
   @override
-  String get teacherStudentGraded => 'نمره شوي';
+  String get teacherStudentGraded => '‹‹Graded››';
 
   @override
-  String get classroomFileNotAvailable => 'دا فايل لا تر اوسه شته نه دی.';
+  String get classroomFileNotAvailable => '‹‹This file is not yet available.››';
 
   @override
-  String get classroomDeleteMaterialTitle => 'مواد حذف کړئ؟';
+  String get classroomDeleteMaterialTitle => '‹‹Delete material?››';
 
   @override
-  String get classroomCodeLabel => 'د ټولګي کوډ';
+  String get classroomCodeLabel => '‹‹Classroom code››';
 
   @override
   String get plansCouldNotOpenSubscription =>
-      'د ګډون تنظيمات نه پرانيستل کيدل.';
+      '‹‹Could not open subscription settings.››';
 
   @override
   String plansFailedToOpen(Object error) {
-    return 'پرانيستل ناکام شول: $error';
+    return '‹‹Failed to open: $error››';
   }
 
   @override
-  String get plansManageSubscription => 'ګډون سمبال يا لغوه کړئ';
+  String get plansManageSubscription => '‹‹Manage or cancel subscription››';
 
   @override
-  String get plansUpgrade => 'لوړول';
+  String get plansUpgrade => '‹‹Upgrade››';
 
   @override
-  String get plansTryAgain => 'بيا هڅه وکړئ';
+  String get plansTryAgain => '‹‹Try again››';
 
   @override
   String adminCohortsGradeOnly(String grade) {
-    return 'يوازې $grade ټولګی';
+    return '‹‹Grade $grade only››';
   }
 
   @override
   String adminCohortsGradeRangeOnly(int from, int to) {
-    return 'يوازې $from-$to ټولګی';
+    return '‹‹Grade $from-$to only››';
   }
 
   @override
   String get adminExportNeedStudents =>
-      'لومړی لږ تر لږه يو زده‌کوونکی يا ډله وټاکئ';
+      '‹‹Select at least one student or cohort first››';
 
   @override
   String adminExportButton(int count) {
-    return 'صادرول $count';
+    return '‹‹Export $count››';
   }
 
   @override
-  String get adminExportNoStudents => 'هيڅ زده‌کوونکی ونه موندل شو';
+  String get adminExportNoStudents => '‹‹No students found››';
 
   @override
   String get adminExportIncludesPasswords =>
-      'Export will reset & include passwords';
+      '‹‹Export will reset & include passwords››';
 
   @override
-  String get adminExportAnyway => 'بيا هم صادر کړئ';
+  String get adminExportAnyway => '‹‹Export anyway››';
 
   @override
-  String get adminExportPdfStudentDirectory => 'د زده‌کوونکو لارښود';
+  String get adminExportPdfStudentDirectory => '‹‹Student Directory››';
 
   @override
   String adminExportPdfBy(String name) {
-    return 'لخوا: $name';
+    return '‹‹By: $name››';
   }
 
   @override
   String adminExportPdfStudentsCount(int count) {
-    return '$count زده‌کوونکي';
+    return '‹‹$count students››';
   }
 
   @override
-  String get adminExportPdfFooter => 'د ClassMate لخوا جوړ شو';
+  String get adminExportPdfFooter => '‹‹Generated by ClassMate››';
 
   @override
-  String get adminExportColumnIndex => '#';
+  String get adminExportColumnIndex => '‹‹#››';
 
   @override
-  String get adminExportColumnName => 'نوم';
+  String get adminExportColumnName => '‹‹Name››';
 
   @override
-  String get adminExportColumnEmail => 'ايميل';
+  String get adminExportColumnEmail => '‹‹Email››';
 
   @override
-  String get adminExportColumnUsername => 'د کارن نوم';
+  String get adminExportColumnUsername => '‹‹Username››';
 
   @override
-  String get adminExportColumnPhone => 'ټيليفون';
+  String get adminExportColumnPhone => '‹‹Phone››';
 
   @override
-  String get adminExportColumnGrade => 'ټولګی';
+  String get adminExportColumnGrade => '‹‹Grade››';
 
   @override
-  String get adminExportColumnCohorts => 'ډلې';
+  String get adminExportColumnCohorts => '‹‹Cohorts››';
 
   @override
-  String get adminExportColumnSchool => 'ښوونځی';
+  String get adminExportColumnSchool => '‹‹School››';
 
   @override
-  String get adminExportColumnPassword => 'پټنوم';
+  String get adminExportColumnPassword => '‹‹Password››';
 
   @override
-  String get adminExportColumnNameEn => 'نوم (EN)';
+  String get adminExportColumnNameEn => '‹‹Name (EN)››';
 
   @override
-  String get adminExportColumnNameAr => 'نوم (AR)';
+  String get adminExportColumnNameAr => '‹‹Name (AR)››';
 
   @override
-  String get adminExportColumnNameHe => 'نوم (HE)';
+  String get adminExportColumnNameHe => '‹‹Name (HE)››';
 
   @override
-  String get adminExportColumnNameFr => 'نوم (FR)';
+  String get adminExportColumnNameFr => '‹‹Name (FR)››';
 
   @override
-  String get adminExportColumnNameRu => 'نوم (RU)';
+  String get adminExportColumnNameRu => '‹‹Name (RU)››';
 
   @override
   String adminExportStudentsSelected(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count زده‌کوونکي ټاکل شوي',
-      one: '$count زده‌کوونکی ټاکل شوی',
+      other: '$count students selected',
+      one: '$count student selected',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get teacherMaterialEditTitle => 'مواد سم کړئ';
+  String get teacherMaterialEditTitle => '‹‹Edit Material››';
 
   @override
-  String get teacherMaterialAddTitle => 'مواد ورزیات کړئ';
+  String get teacherMaterialAddTitle => '‹‹Add Material››';
 
   @override
-  String get teacherMaterialAudienceTitle => 'اورېدونکي';
+  String get teacherMaterialAudienceTitle => '‹‹Audience››';
 
   @override
-  String get teacherMaterialAudienceClassrooms => 'ټولګيونه';
+  String get teacherMaterialAudienceClassrooms => '‹‹Classrooms››';
 
   @override
-  String get teacherMaterialAudienceCohorts => 'ډلې';
+  String get teacherMaterialAudienceCohorts => '‹‹Cohorts››';
 
   @override
-  String get teacherMaterialAudienceGrades => 'ټولګيونه';
+  String get teacherMaterialAudienceGrades => '‹‹Grades››';
 
   @override
-  String get teacherMaterialAudienceStudents => 'زده‌کوونکي';
+  String get teacherMaterialAudienceStudents => '‹‹Students››';
 
   @override
-  String get teacherMaterialDetailsTitle => 'تفصيلات';
+  String get teacherMaterialDetailsTitle => '‹‹Details››';
 
   @override
-  String get teacherMaterialSubjectRequired => 'مضمون *';
+  String get teacherMaterialSubjectRequired => '‹‹Subject *››';
 
   @override
-  String get teacherMaterialSubjectSelect => 'مضمون وټاکئ';
+  String get teacherMaterialSubjectSelect => '‹‹Select subject››';
 
   @override
-  String get teacherMaterialSubjectOther => 'نور';
+  String get teacherMaterialSubjectOther => '‹‹Other››';
 
   @override
-  String get teacherMaterialSubjectSearch => 'مضمونونه ولټوئ...';
+  String get teacherMaterialSubjectSearch => '‹‹Search subjects...››';
 
   @override
-  String get teacherMaterialAttachmentsTitle => 'نښلونونه';
+  String get teacherMaterialAttachmentsTitle => '‹‹Attachments››';
 
   @override
   String teacherMaterialAttachmentsWithCount(int count) {
-    return 'نښلونونه ($count)';
+    return '‹‹Attachments ($count)››';
   }
 
   @override
-  String get teacherMaterialDeleteTitle => 'مواد حذف کړئ؟';
+  String get teacherMaterialDeleteTitle => '‹‹Delete material?››';
 
   @override
-  String get teacherMaterialListTitle => 'مواد';
+  String get teacherMaterialListTitle => '‹‹Materials››';
 
   @override
   String teacherMaterialTotalCount(int count) {
-    return '$count ټول';
+    return '‹‹$count total››';
   }
 
   @override
-  String get teacherMaterialRetry => 'بيا هڅه وکړئ';
+  String get teacherMaterialRetry => '‹‹Retry››';
 
   @override
   String get teacherMaterialNoMaterials =>
-      'تر اوسه هيڅ مواد نشته.\nد ورزياتولو لپاره + کېکاږئ.';
+      '‹‹No materials yet.\nTap + to add one.››';
 
   @override
-  String get teacherMaterialPublished => 'خپور شو';
+  String get teacherMaterialPublished => '‹‹Published››';
 
   @override
-  String get teacherMaterialDraft => 'مسوده';
+  String get teacherMaterialDraft => '‹‹Draft››';
 
   @override
-  String get teacherMaterialSearchHint => 'لټون…';
+  String get teacherMaterialSearchHint => '‹‹Search…››';
 
   @override
   String teacherMaterialSelectedCount(int count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
@@ -6791,10 +6895,10 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count غړي به دا ترلاسه کړي',
-      one: '$count غړی به دا ترلاسه کړي',
+      other: '$count members will receive this',
+      one: '$count member will receive this',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -6802,545 +6906,548 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count زده‌کوونکي',
-      one: '$count زده‌کوونکی',
+      other: '$count students',
+      one: '$count student',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get teacherMaterialPickerNone => 'هيڅ';
+  String get teacherMaterialPickerNone => '‹‹None››';
 
   @override
-  String get teacherMaterialPickerCohortsTitle => 'ډلې وټاکئ';
+  String get teacherMaterialPickerCohortsTitle => '‹‹Select cohorts››';
 
   @override
-  String get teacherMaterialPickerClassroomTitle => 'ټولګی وټاکئ';
+  String get teacherMaterialPickerClassroomTitle => '‹‹Select classroom››';
 
   @override
-  String get teacherMaterialPickerStudentsTitle => 'زده‌کوونکي وټاکئ';
+  String get teacherMaterialPickerStudentsTitle => '‹‹Select students››';
 
   @override
-  String get teacherMaterialPickerGradesTitle => 'ټولګيونه وټاکئ';
+  String get teacherMaterialPickerGradesTitle => '‹‹Select grades››';
 
   @override
-  String get adminScheduleAddNew => 'نوی ورزیات کړئ';
+  String get adminScheduleAddNew => '‹‹Add new››';
 
   @override
   String adminScheduleAddCount(int count) {
-    return 'ورزیات کړئ ($count)';
+    return '‹‹Add ($count)››';
   }
 
   @override
-  String get adminScheduleCaptionOptional => 'سرليک (اختياري)';
+  String get adminScheduleCaptionOptional => '‹‹Caption (optional)››';
 
   @override
-  String get adminScheduleCaptionHint => 'د بېلګې په توګه د ازموینې بياکتنه';
+  String get adminScheduleCaptionHint => '‹‹e.g. Exam review››';
 
   @override
-  String get adminScheduleAudienceCohorts => 'ډلې';
+  String get adminScheduleAudienceCohorts => '‹‹Cohorts››';
 
   @override
-  String get adminScheduleAudienceStudents => 'زده‌کوونکي';
+  String get adminScheduleAudienceStudents => '‹‹Students››';
 
   @override
-  String get adminScheduleAudienceGrade => 'ټولګی';
+  String get adminScheduleAudienceGrade => '‹‹Grade››';
 
   @override
-  String get adminScheduleSearchStudents => 'زده‌کوونکي ولټوئ…';
+  String get adminScheduleSearchStudents => '‹‹Search students…››';
 
   @override
-  String get adminScheduleSearchSubjects => 'د ښوونځي مضمونونه ولټوئ…';
+  String get adminScheduleSearchSubjects => '‹‹Search school subjects…››';
 
   @override
-  String get adminScheduleEveryPrefix => 'هر ';
+  String get adminScheduleEveryPrefix => '‹‹Every ››';
 
   @override
-  String get adminScheduleWeeksSuffix => ' اونۍ';
+  String get adminScheduleWeeksSuffix => '‹‹ weeks››';
 
   @override
   String adminScheduleSlotN(int index) {
-    return 'ځای $index';
+    return '‹‹Slot $index››';
   }
 
   @override
   String adminScheduleSelectedCount(int count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
-  String get adminScheduleConflictingPeriod => 'ټکر کوونکی درسي ساعت';
+  String get adminScheduleConflictingPeriod => '‹‹Conflicting period››';
 
   @override
-  String get adminScheduleKeepCurrent => 'اوسنی وساتئ';
+  String get adminScheduleKeepCurrent => '‹‹Keep current››';
 
   @override
-  String get adminScheduleOverride => 'بدلون ورکړئ';
+  String get adminScheduleOverride => '‹‹Override››';
 
   @override
-  String get adminScheduleShowBoth => 'دواړه وښيئ';
+  String get adminScheduleShowBoth => '‹‹Show both››';
 
   @override
-  String get adminScheduleDeletePeriodTitle => 'درسي ساعت حذف کړئ؟';
+  String get adminScheduleDeletePeriodTitle => '‹‹Delete period?››';
 
   @override
   String get adminScheduleDeletePeriodBody =>
-      'دا ځای له مهال ويش څخه لرې کوي. تېر حاضري پاتې کيږي.';
+      '‹‹This removes the slot from the schedule. Past attendance stays.››';
 
   @override
-  String get adminScheduleFailedToDelete => 'درسي ساعت حذف کول ناکام شول.';
+  String get adminScheduleFailedToDelete => '‹‹Failed to delete period.››';
 
   @override
   String get adminSchedulePickSubjectFirst =>
-      'د درسي ساعت له خوندي کولو مخکې يو مضمون وټاکئ.';
+      '‹‹Pick a subject before saving the period.››';
 
   @override
   String adminScheduleOverrideFailed(Object error) {
-    return 'بدلون ناکام شو: $error';
+    return '‹‹Override failed: $error››';
   }
 
   @override
-  String get adminScheduleFailedToCreateSlots => 'د ځايونو جوړول ناکام شول';
+  String get adminScheduleFailedToCreateSlots => '‹‹Failed to create slots››';
 
   @override
   String adminScheduleCreatedSlots(int created, int total, String error) {
-    return '$created/$total ځايونه جوړ شول. $error';
+    return '‹‹Created $created/$total slots. $error››';
   }
 
   @override
   String adminScheduleSavedLabelOnlyError(Object error) {
-    return 'يوازې د ځای ليبل په توګه خوندي شو — کتابتون ته يې اضافه نه شو کولی: $error';
+    return '‹‹Saved as slot label only — couldn\'t add to library: $error››';
   }
 
   @override
   String get adminScheduleSavedLabelPickAudience =>
-      'د ځای ليبل په توګه خوندي شو. د ښوونځي کتابتون ته يې هم د اضافه کولو لپاره لومړی اورېدونکي وټاکئ.';
+      '‹‹Saved as slot label. Pick an audience first to also add to the school library.››';
 
   @override
-  String get commonNothingFound => 'هيڅ ونه موندل شو';
+  String get commonNothingFound => '‹‹Nothing found››';
 
   @override
   String commonDownloadFailed(Object error) {
-    return 'ښکته کول ناکام شول: $error';
+    return '‹‹Download failed: $error››';
   }
 
   @override
   String commonFailedWith(Object error) {
-    return 'ناکام شو: $error';
+    return '‹‹Failed: $error››';
   }
 
   @override
-  String get commonCreate => 'جوړول';
+  String get commonCreate => '‹‹Create››';
 
   @override
-  String get commonAttachStudyMaterials => 'د زده‌کړې مواد ونښلوئ';
+  String get commonAttachStudyMaterials => '‹‹Attach study materials››';
 
   @override
-  String get teacherCreateClassroomNewTitle => 'نوی ټولګی';
+  String get teacherCreateClassroomNewTitle => '‹‹New Classroom››';
 
   @override
-  String get teacherCreateClassroomLoadingStudents => 'زده‌کوونکي راوړل کيږي…';
+  String get teacherCreateClassroomLoadingStudents => '‹‹Loading students…››';
 
   @override
   String get teacherExamPublishedHint =>
-      'خپور شو — زده‌کوونکي دا ازموینه ليدلی شي';
+      '‹‹Published — students can see this exam››';
 
   @override
   String teacherDoneSelected(int count) {
-    return 'بشپړ شو ($count ټاکل شوي)';
+    return '‹‹Done ($count selected)››';
   }
 
   @override
-  String get secretaryAllCohorts => 'ټولې ډلې';
+  String get secretaryAllCohorts => '‹‹All cohorts››';
 
   @override
-  String get secretaryClassrooms => 'ټولګيونه';
+  String get secretaryClassrooms => '‹‹Classrooms››';
 
   @override
-  String get adminPeopleGrade => 'ټولګی';
+  String get adminPeopleGrade => '‹‹Grade››';
 
   @override
   String get adminSchoolSettingsTapToAddTranslations =>
-      'د ژباړو اضافه کولو لپاره کېکاږئ';
+      '‹‹Tap to add translations››';
 
   @override
   String adminSchoolSettingsAddPeriodNum(int num) {
-    return 'درسي ساعت ورزیات کړئ (P$num)';
+    return '‹‹Add Period (P$num)››';
   }
 
   @override
-  String get adminVisibleToEveryone => 'ټولو ته ښکاره';
+  String get adminVisibleToEveryone => '‹‹Visible to everyone››';
 
   @override
-  String get navMaterials => 'مواد';
+  String get navMaterials => '‹‹Materials››';
 
   @override
-  String get classMaterialsAddTitle => 'مواد ورزیات کړئ';
+  String get classMaterialsAddTitle => '‹‹Add material››';
 
   @override
-  String get classMaterialsTitleLabel => 'سرليک';
+  String get classMaterialsTitleLabel => '‹‹Title››';
 
   @override
   String classMaterialsFilesCount(int count) {
-    return '$count فايلونه';
+    return '‹‹$count files››';
   }
 
   @override
-  String get classMaterialsLoadError => 'مواد نه راوړل کيدل';
+  String get classMaterialsLoadError => '‹‹Couldn\'t load materials››';
 
   @override
   String get classMaterialsEmpty =>
-      'تر اوسه هيڅ مواد نشته — د شريکولو لپاره ورزیات کېکاږئ.';
+      '‹‹No materials yet — tap Add to share one.››';
 
   @override
-  String get navPlans => 'د NOVA پلانونه';
+  String get navPlans => '‹‹NOVA Plans››';
 
   @override
-  String get navReports => 'راپورونه';
+  String get navReports => '‹‹Reports››';
 
   @override
-  String get navExportData => 'ډاټا صادرول';
+  String get navExportData => '‹‹Export Data››';
 
   @override
-  String get sectionSecretaryTools => 'د منشي وسايل';
+  String get sectionSecretaryTools => '‹‹Secretary Tools››';
 
   @override
-  String get sectionSchoolToolsLabel => 'د ښوونځي وسايل';
+  String get sectionSchoolToolsLabel => '‹‹School Tools››';
 
   @override
-  String get sectionAdminTools => 'د اډمين وسايل';
+  String get sectionAdminTools => '‹‹Admin Tools››';
 
   @override
-  String get chatVideoTrimTitle => 'ويډيو پرې کړئ';
+  String get chatVideoTrimTitle => '‹‹Trim video››';
 
   @override
-  String get chatMediaPreviewTrimAction => 'پرې کول';
+  String get chatMediaPreviewTrimAction => '‹‹Trim››';
 
   @override
-  String get commonUntitled => 'بې سرليکه';
+  String get commonUntitled => '‹‹Untitled››';
 
   @override
-  String get plansMonthlyPlans => 'مياشتني پلانونه';
+  String get plansMonthlyPlans => '‹‹Monthly plans››';
 
   @override
-  String get plansTokenTopups => 'د ټوکنو ډکول';
+  String get plansTokenTopups => '‹‹Token top-ups››';
 
   @override
   String get plansTopupsSubtitle =>
-      'يو ځلي پيرود. هيڅکله نه ختميږي. ستاسو پلان باندې ورزياتيږي.';
+      '‹‹One-time purchases. Never expire. Stack on top of your plan.››';
 
   @override
-  String get plansCouldntLoadBalance => 'ستاسو پاتې اندازه نه راوړل کيده';
+  String get plansCouldntLoadBalance => '‹‹Couldn\'t load your balance››';
 
   @override
-  String get plansFreePlan => 'وړيا پلان';
+  String get plansFreePlan => '‹‹Free plan››';
 
   @override
-  String get planTierFree => 'وړيا';
+  String get planTierFree => '‹‹Free››';
 
   @override
-  String get planTierBudget => 'بودجه';
+  String get planTierBudget => '‹‹Budget››';
 
   @override
-  String get planTierBalance => 'بيلانس';
+  String get planTierBalance => '‹‹Balance››';
 
   @override
-  String get planTierCommitment => 'ژمنه';
+  String get planTierCommitment => '‹‹Commitment››';
 
   @override
-  String get topupPackSmall => 'کوچنۍ بسته';
+  String get topupPackSmall => '‹‹Small pack››';
 
   @override
-  String get topupPackMedium => 'منځنۍ بسته';
+  String get topupPackMedium => '‹‹Medium pack››';
 
   @override
-  String get topupPackLarge => 'لويه بسته';
+  String get topupPackLarge => '‹‹Large pack››';
 
   @override
-  String get topupPackMega => 'ډيره لويه بسته';
+  String get topupPackMega => '‹‹Mega pack››';
 
   @override
-  String get planBlurbFree => 'د NOVA خوند وڅکئ. هره مياشت بياځلي تنظيميږي.';
+  String get planBlurbFree => '‹‹Get a taste of NOVA. Resets every month.››';
 
   @override
-  String get planBlurbBudget => 'د ورځني کور دندو مرسته.';
+  String get planBlurbBudget => '‹‹Daily homework help.››';
 
   @override
-  String get planBlurbBalance =>
-      'د هغو زده‌کوونکو لپاره چې هره ورځ مطالعه کوي.';
+  String get planBlurbBalance => '‹‹For students who study every day.››';
 
   @override
-  String get planBlurbCommitment => 'ډيره تمرين + بې حده پلټنه.';
+  String get planBlurbCommitment => '‹‹Heavy practice + unlimited curiosity.››';
 
   @override
   String plansTokensPerMonth(String tokens) {
-    return '$tokens ټوکن / مياشت';
+    return '‹‹$tokens tokens / month››';
   }
 
   @override
   String plansTokensOneTime(String tokens) {
-    return '$tokens ټوکن';
+    return '‹‹$tokens tokens››';
   }
 
   @override
-  String get planPriceFree => 'وړيا';
+  String get planPriceFree => '‹‹Free››';
 
   @override
-  String get plansTokensRemaining => 'پاتې ټوکنونه';
+  String get plansTokensRemaining => '‹‹tokens remaining››';
 
   @override
   String plansPlanResetsAt(String when) {
-    return 'پلان بياځلي تنظيميږي $when';
+    return '‹‹Plan resets $when››';
   }
 
   @override
   String plansTopupTokensInfo(String tokens) {
-    return '$tokens اضافي ټوکنونه (بې ختميدو)';
+    return '‹‹$tokens top-up tokens (no expiry)››';
   }
 
   @override
-  String get plansHowTokensWorkTitle => 'ټوکنونه څنګه کار کوي';
+  String get plansHowTokensWorkTitle => '‹‹How tokens work››';
 
   @override
   String get plansHowTokensWorkBody =>
-      'ټوکنونه هغه څه دي چې AI پرې خپل کار شميري.\n• يوه لنډه پوښتنه ≈ ۲٬۰۰۰ ټوکن\n• يوه اوږده تشريح يا د تمرين ناسته ≈ ۵٬۰۰۰–۱۰٬۰۰۰\n• د انځور شننه يو څه زياته لګښت لري\n\nستاسو مياشتني ټوکنونه د مياشتې په لومړۍ نېټه بياځلي تنظيميږي. اضافي ټوکنونه هيڅکله نه ختميږي.';
+      '‹‹Tokens are how AI counts its work.\n• A short question ≈ 2,000 tokens\n• A long explanation or practice session ≈ 5,000–10,000\n• Image analysis costs a bit more\n\nYour monthly tokens reset on the 1st. Top-up tokens never expire.››';
 
   @override
-  String get plansPerMonthSuffix => ' / مياشت';
+  String get plansPerMonthSuffix => '‹‹ / mo››';
 
   @override
-  String get plansCurrentBadge => 'اوسنی';
+  String get plansCurrentBadge => '‹‹CURRENT››';
 
   @override
-  String get plansCouldntLoadPlans => 'پلانونه نه راوړل کيدل';
+  String get plansCouldntLoadPlans => '‹‹Couldn\'t load plans››';
 
   @override
   String get paywallPlansUnavailable =>
-      'پلانونه شته نه دي. يوه شيبه وروسته بيا هڅه وکړئ.';
+      '‹‹Plans unavailable. Try again in a moment.››';
 
   @override
   String get paywallTopupUnavailable =>
-      'ډکول شته نه دي. پلورنځي لا د دې محصول تاييد نه دی بشپړ کړی.';
+      '‹‹Top-up unavailable. The store hasn\'t finished approving this product.››';
 
   @override
-  String get paywallRestored => 'ستاسو ګډون بيا ترلاسه شو.';
+  String get paywallRestored => '‹‹Your subscription was restored.››';
 
   @override
   String get paywallNoRestores =>
-      'په دې Apple ID کې هيڅ پخوانی پيرود ونه موندل شو.';
+      '‹‹No previous purchases found on this Apple ID.››';
 
   @override
   String paywallRestoreFailed(String error) {
-    return 'بيا ترلاسه کول ناکام شول: $error';
+    return '‹‹Restore failed: $error››';
   }
 
   @override
-  String get paywallPurchasesRestricted => 'په دې وسيله کې پيرودونه محدود دي.';
+  String get paywallPurchasesRestricted =>
+      '‹‹Purchases are restricted on this device.››';
 
   @override
   String get paywallPurchaseInvalid =>
-      'دا پيرود معتبر نه دی. بله د تادياتو لاره وآزمويئ.';
+      '‹‹This purchase isn\'t valid. Try a different payment method.››';
 
   @override
   String get paywallProductNotAvailable =>
-      'دا پلان اوس مهال شته نه دی. وروسته بيا هڅه وکړئ.';
+      '‹‹This plan isn\'t available right now. Try again later.››';
 
   @override
   String get paywallNetworkError =>
-      'د شبکې ستونزه. خپل اړيکه وګورئ او بيا هڅه وکړئ.';
+      '‹‹Network issue. Check your connection and try again.››';
 
   @override
   String get paywallPaymentPending =>
-      'تادیه د تاييد په تمه ده (د والدينو کنټرول، نور). د تاييد وروسته به فعاله شي.';
+      '‹‹Payment is pending approval (parental controls, etc.). It\'ll activate once approved.››';
 
   @override
   String get paywallStoreProblem =>
-      'د App Store سره ستونزه وه. يوه دقيقه وروسته بيا هڅه وکړئ.';
+      '‹‹The App Store had a problem. Try again in a minute.››';
 
   @override
-  String get paywallGenericError => 'يو څه خراب شول. بيا هڅه وکړئ.';
+  String get paywallGenericError => '‹‹Something went wrong. Try again.››';
 
   @override
   String paywallWelcomeMessage(String plan) {
-    return '$plan ته ښه راغلاست! ټوکنونه په لاره دي.';
+    return '‹‹Welcome to $plan! Tokens are on the way.››';
   }
 
   @override
-  String get paywallWelcomeFallback => 'ستاسو نوی پلان';
+  String get paywallWelcomeFallback => '‹‹your new plan››';
 
   @override
-  String get paywallTopupAdded => 'ډکول ورزیات شو. ټوکنونه په لاره دي.';
+  String get paywallTopupAdded => '‹‹Top-up added. Tokens are on the way.››';
 
   @override
   String get paywallPurchaseProcessed =>
-      'پيرود پروسس شو. ټوکنونه به ډير ژر ښکاره شي.';
+      '‹‹Purchase processed. Tokens will appear shortly.››';
 
   @override
   String paywallSubscribeTo(String plan) {
-    return 'په $plan کې ګډون وکړئ';
+    return '‹‹Subscribe to $plan››';
   }
 
   @override
   String paywallBuyTopupNamed(String topup) {
-    return '$topup وپيرئ';
+    return '‹‹Buy $topup››';
   }
 
   @override
-  String get paywallPlanFallback => 'پلان';
+  String get paywallPlanFallback => '‹‹plan››';
 
   @override
-  String get paywallTopupFallback => 'ډکول';
+  String get paywallTopupFallback => '‹‹top-up››';
 
   @override
   String get paywallTopupBlurb =>
-      'يو ځلي پيرود. ټوکنونه هيڅکله نه ختميږي او ستاسو پلان باندې ورزياتيږي.';
+      '‹‹One-time purchase. Tokens never expire and stack on top of your plan.››';
 
   @override
   String paywallPerMonthWithTokens(String tokens) {
-    return 'هره مياشت · $tokens';
+    return '‹‹per month · $tokens››';
   }
 
   @override
   String paywallOneTimeWithTokens(String tokens) {
-    return 'يو ځلي · $tokens';
+    return '‹‹one-time · $tokens››';
   }
 
   @override
-  String get paywallSubscribeButton => 'ګډون وکړئ';
+  String get paywallSubscribeButton => '‹‹Subscribe››';
 
   @override
-  String get paywallBuyButton => 'وپيرئ';
+  String get paywallBuyButton => '‹‹Buy››';
 
   @override
-  String get paywallRestoreButton => 'پيرودونه بيا ترلاسه کړئ';
+  String get paywallRestoreButton => '‹‹Restore purchases››';
 
   @override
-  String get paywallNotNow => 'اوس نه';
+  String get paywallNotNow => '‹‹Not now››';
 
   @override
-  String get paywallWebOnlyTitle => 'په موبايل کې وپيرئ';
+  String get paywallWebOnlyTitle => '‹‹Purchase on mobile››';
 
   @override
   String get paywallWebOnlyBody =>
-      'ګډونونه او ډکولونه د App Store يا Google Play له لارې ترسره کيږي. د ګډون لپاره ClassMate په خپل iPhone، iPad، يا Android ټيليفون کې پرانيزئ — ستاسو حساب او ټوکنونه د ټولو وسايلو ترمنځ شريک دي.';
+      '‹‹Subscriptions and top-ups go through the App Store or Google Play. Open ClassMate on your iPhone, iPad, or Android phone to subscribe — your account and tokens are shared across devices.››';
 
   @override
-  String get paywallWebOnlyDismiss => 'پوه شوم';
+  String get paywallWebOnlyDismiss => '‹‹Got it››';
 
   @override
   String get paywallTermsSubscription =>
-      'د ګډون سره تاسو د ClassMate د شرايطو او د محرميت تګلارې سره موافقه کوئ. ګډونونه تر لغوه کيدو پورې هره مياشت په اتومات ډول تازه کيږي. هر وخت يې په خپل App Store حساب کې سمبال کړئ.';
+      '‹‹By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.››';
 
   @override
   String get paywallTermsTopup =>
-      'د پيرود سره تاسو د ClassMate د شرايطو او د محرميت تګلارې سره موافقه کوئ. اضافي ټوکنونه له لګښت وروسته بيرته نه ورکول کيږي.';
+      '‹‹By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.››';
 
   @override
-  String get paywallTermsLink => 'د کارولو شرايط (EULA)';
+  String get paywallTermsLink => '‹‹Terms of Use (EULA)››';
 
   @override
-  String get paywallPrivacyLink => 'د محرميت تګلاره';
+  String get paywallPrivacyLink => '‹‹Privacy Policy››';
 
   @override
   String get paywallFeatureTokens =>
-      'ټوکنونه د NOVA خبرو اترو او تمرين ناستو کې وکاروئ';
+      '‹‹Use tokens across NOVA chat and Practice sessions››';
 
   @override
-  String get paywallFeatureImages => 'د انځور شننه او د فايل پورته کول شامل دي';
+  String get paywallFeatureImages =>
+      '‹‹Image analysis and file upload included››';
 
   @override
   String get paywallFeatureReset =>
-      'ټوکنونه د هرې مياشتې په پيل کې بياځلي تنظيميږي';
+      '‹‹Tokens reset at the start of each month››';
 
   @override
-  String get paywallFeatureCancel => 'هر وخت لغوه کړئ — هيڅ ژمنه نشته';
+  String get paywallFeatureCancel => '‹‹Cancel anytime — no commitment››';
 
   @override
-  String get studentMaterialsGeneralSubject => 'عمومي';
+  String get studentMaterialsGeneralSubject => '‹‹General››';
 
   @override
   String studentMaterialsResourceCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count سرچينې ستاسو له ښوونکو څخه',
-      one: '$count سرچينه ستاسو له ښوونکو څخه',
+      other: '$count resources from your teachers',
+      one: '$count resource from your teachers',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
   String classroomsCouldNotLoadWithError(String error) {
-    return 'ټولګيونه نه راوړل کيدل\n$error';
+    return '‹‹Could not load classrooms\n$error››';
   }
 
   @override
-  String get parentNoNotificationsYet => 'تر اوسه هيڅ خبرتيا نشته.';
+  String get parentNoNotificationsYet => '‹‹No notifications yet.››';
 
   @override
   String forwardCouldNotLoadChats(Object error) {
-    return 'خبرې اترې نه راوړل کيدل: $error';
+    return '‹‹Could not load chats: $error››';
   }
 
   @override
-  String get forwardNoChats => 'هيڅ خبرې اترې نشته';
+  String get forwardNoChats => '‹‹No chats››';
 
   @override
-  String get commonTitle => 'سرليک';
+  String get commonTitle => '‹‹Title››';
 
   @override
-  String get commonNotes => 'يادښتونه';
+  String get commonNotes => '‹‹Notes››';
 
   @override
-  String get commonEmail => 'ايميل';
+  String get commonEmail => '‹‹Email››';
 
   @override
-  String get commonPassword => 'پټنوم';
+  String get commonPassword => '‹‹Password››';
 
   @override
-  String get commonNumberOfPages => 'د پاڼو شمير';
+  String get commonNumberOfPages => '‹‹Number of pages››';
 
   @override
-  String get messagesSearchByNameOrGrade => 'د نوم يا ټولګي له مخې ولټوئ…';
+  String get messagesSearchByNameOrGrade => '‹‹Search by name or grade…››';
 
   @override
-  String get meetingStartDateRequired => 'د پيل نېټه *';
+  String get meetingStartDateRequired => '‹‹Start date *››';
 
   @override
-  String get meetingStartTimeRequired => 'د پيل وخت *';
+  String get meetingStartTimeRequired => '‹‹Start time *››';
 
   @override
-  String get meetingEndDateOptional => 'د پای نېټه (اختياري)';
+  String get meetingEndDateOptional => '‹‹End date (optional)››';
 
   @override
-  String get meetingEndTimeOptional => 'د پای وخت (اختياري)';
+  String get meetingEndTimeOptional => '‹‹End time (optional)››';
 
   @override
-  String get teacherMaterialLinkUrlOptional => 'لينک / URL (اختياري)';
+  String get teacherMaterialLinkUrlOptional => '‹‹Link / URL (optional)››';
 
   @override
-  String get teacherSearchStudentsOrGrade => 'زده‌کوونکي يا ټولګی ولټوئ…';
+  String get teacherSearchStudentsOrGrade => '‹‹Search students or grade…››';
 
   @override
-  String get teacherSearchParentsOrChildren => 'والدين يا ماشومان ولټوئ…';
+  String get teacherSearchParentsOrChildren =>
+      '‹‹Search parents or children…››';
 
   @override
-  String get studentAssignmentAddNoteOptional => 'يادښت ورزیات کړئ (اختياري)…';
+  String get studentAssignmentAddNoteOptional => '‹‹Add a note (optional)…››';
 
   @override
-  String get adminEditUserUsernameRequired => 'د کارن نوم *';
+  String get adminEditUserUsernameRequired => '‹‹Username *››';
 
   @override
-  String get reportReasonOptional => 'دليل (اختياري)';
+  String get reportReasonOptional => '‹‹Reason (optional)››';
 
   @override
-  String get forwardSearchChatsAndClassrooms => 'خبرې اترې او ټولګيونه ولټوئ…';
+  String get forwardSearchChatsAndClassrooms =>
+      '‹‹Search chats and classrooms…››';
 
   @override
-  String get profileNewPhone => 'نوی ټيليفون';
+  String get profileNewPhone => '‹‹New phone››';
 
   @override
-  String get profileNewEmail => 'نوی ايميل';
+  String get profileNewEmail => '‹‹New email››';
 
   @override
   String adminExportPasswordsWarning(int count) {
@@ -7352,460 +7459,463 @@ class AppLocalizationsPs extends AppLocalizations {
       one:
           'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get pickerSelectStudents => 'زده‌کوونکي وټاکئ';
+  String get pickerSelectStudents => '‹‹Select students››';
 
   @override
-  String get pickerSelectCohorts => 'ډلې وټاکئ';
+  String get pickerSelectCohorts => '‹‹Select cohorts››';
 
   @override
-  String get pickerSelectGrades => 'ټولګيونه وټاکئ';
+  String get pickerSelectGrades => '‹‹Select grades››';
 
   @override
-  String get pickerSelectAll => 'Select all';
+  String get pickerSelectAll => '‹‹Select all››';
 
   @override
-  String get pickerUnselectAll => 'Unselect all';
+  String get pickerUnselectAll => '‹‹Unselect all››';
 
   @override
-  String get pickerSelectClassroom => 'ټولګی وټاکئ';
+  String get pickerSelectClassroom => '‹‹Select classroom››';
 
   @override
-  String get pickerSelectClasses => 'ټولګيونه وټاکئ';
+  String get pickerSelectClasses => '‹‹Select classes››';
 
   @override
-  String get drawerLoadingChildren => 'ماشومان راوړل کيږي…';
+  String get drawerLoadingChildren => '‹‹Loading children…››';
 
   @override
-  String get drawerCouldNotLoadChildren => 'ماشومان نه راوړل کيدل';
+  String get drawerCouldNotLoadChildren => '‹‹Could not load children››';
 
   @override
-  String get drawerNoChildrenLinked => 'هيڅ ماشوم نه دی تړل شوی';
+  String get drawerNoChildrenLinked => '‹‹No children linked››';
 
   @override
-  String get drawerSwitchChild => 'ماشوم بدل کړئ';
+  String get drawerSwitchChild => '‹‹Switch child››';
 
   @override
-  String get shellAssessmentCreated => 'ارزونه جوړه شوه';
+  String get shellAssessmentCreated => '‹‹Assessment created››';
 
   @override
   String commonCouldNotOpenLink(String scheme) {
-    return 'د $scheme لينک نه پرانيستل کيده';
+    return '‹‹Couldn\'t open $scheme link››';
   }
 
   @override
   String commonCouldntSend(String error) {
-    return 'نه ولېږل شو: $error';
+    return '‹‹Couldn\'t send: $error››';
   }
 
   @override
-  String get teacherExamDetailsSection => 'د ازموینې تفصيلات';
+  String get teacherExamDetailsSection => '‹‹Exam Details››';
 
   @override
   String teacherExamStudyMaterialsWithCount(int count) {
-    return 'د زده‌کړې مواد ($count)';
+    return '‹‹Study Materials ($count)››';
   }
 
   @override
-  String get teacherMeetingDetailsSection => 'د غونډې تفصيلات';
+  String get teacherMeetingDetailsSection => '‹‹Meeting Details››';
 
   @override
-  String get teacherClassroomNameSection => 'د ټولګي نوم';
+  String get teacherClassroomNameSection => '‹‹Classroom name››';
 
   @override
-  String get teacherAddByCohortSection => 'د ډلې له مخې ورزیات کړئ';
+  String get teacherAddByCohortSection => '‹‹Add by cohort››';
 
   @override
   String get teacherAddIndividualStudentsSection =>
-      'انفرادي زده‌کوونکي ورزیات کړئ';
+      '‹‹Add individual students››';
 
   @override
-  String get teacherGradeTypeSection => 'د نمرې ډول';
+  String get teacherGradeTypeSection => '‹‹Grade type››';
 
   @override
-  String get teacherOtherGradeSection => 'بله نمره';
+  String get teacherOtherGradeSection => '‹‹Other grade››';
 
   @override
-  String get teacherEnterGradesSection => 'نمرې وليکئ';
+  String get teacherEnterGradesSection => '‹‹Enter grades››';
 
   @override
   String teacherAttachmentsWithCount(int count) {
-    return 'نښلونونه ($count)';
+    return '‹‹Attachments ($count)››';
   }
 
   @override
-  String get studentFilesSharedByTeacher =>
-      'ستاسو د ښوونکي لخوا شريک شوي فايلونه';
+  String get studentFilesSharedByTeacher => '‹‹Files shared by your teacher››';
 
   @override
-  String get studentYourSubmission => 'ستاسو سپارل شوی';
+  String get studentYourSubmission => '‹‹Your submission››';
 
   @override
   String get studentFilesSharedWithAnnouncement =>
-      'د دې اعلان سره شريک شوي فايلونه.';
+      '‹‹Files shared with this announcement.››';
 
   @override
-  String get announcementGradeRiskTitle => 'د نمرې خطر وموندل شو';
+  String get announcementGradeRiskTitle => '‹‹Grade risk detected››';
 
   @override
-  String get announcementWeakSubjectTitle => 'کمزوری مضمون وموندل شو';
+  String get announcementWeakSubjectTitle => '‹‹Weak subject detected››';
 
   @override
-  String get announcementLowAttendanceTitle => 'ټيټه حاضري';
+  String get announcementLowAttendanceTitle => '‹‹Low attendance››';
 
   @override
-  String get announcementRepeatedLatenessTitle => 'تکراري ناوختي';
+  String get announcementRepeatedLatenessTitle => '‹‹Repeated lateness››';
 
   @override
-  String get announcementPracticeWeaknessTitle => 'د تمرين کمزوري وموندل شوه';
+  String get announcementPracticeWeaknessTitle => '‹‹Practice weakness found››';
 
   @override
-  String get announcementPracticeTrendDroppedTitle => 'د تمرين روند ښکته شو';
+  String get announcementPracticeTrendDroppedTitle =>
+      '‹‹Practice trend dropped››';
 
   @override
-  String get announcementSolutionsActivityTitle => 'د حلونو فعاليت روان دی';
+  String get announcementSolutionsActivityTitle =>
+      '‹‹Solutions activity is live››';
 
   @override
-  String get announcementAllGoodTitle => 'هر څه سم دي';
+  String get announcementAllGoodTitle => '‹‹All good››';
 
   @override
-  String get supportSectionGettingStarted => 'پيلول';
+  String get supportSectionGettingStarted => '‹‹Getting started››';
 
   @override
-  String get supportSectionAccountPassword => 'حساب او پټنوم';
+  String get supportSectionAccountPassword => '‹‹Account & password››';
 
   @override
-  String get supportSectionForStudents => 'د زده‌کوونکو لپاره';
+  String get supportSectionForStudents => '‹‹For students››';
 
   @override
-  String get supportSectionForTeachers => 'د ښوونکو لپاره';
+  String get supportSectionForTeachers => '‹‹For teachers››';
 
   @override
-  String get supportSectionForAdministrators => 'د مدیرانو لپاره';
+  String get supportSectionForAdministrators => '‹‹For administrators››';
 
   @override
-  String get supportSectionForParents => 'د موروپلار لپاره';
+  String get supportSectionForParents => '‹‹For parents››';
 
   @override
-  String get supportSectionPrivacyData => 'محرمیت او معلومات';
+  String get supportSectionPrivacyData => '‹‹Privacy & data››';
 
   @override
-  String get novaDisclaimerCanMakeMistakes => 'تېروتنه کولی شي';
+  String get novaDisclaimerCanMakeMistakes => '‹‹Can make mistakes››';
 
   @override
-  String get novaDisclaimerEducationalUseOnly => 'یوازې د زده‌کړې لپاره';
+  String get novaDisclaimerEducationalUseOnly => '‹‹Educational use only››';
 
   @override
-  String get novaDisclaimerYourPrivacy => 'ستاسو محرمیت';
+  String get novaDisclaimerYourPrivacy => '‹‹Your privacy››';
 
   @override
   String profileNameInLanguage(String language) {
-    return 'په $language کې نوم';
+    return '‹‹Name in $language››';
   }
 
   @override
   String get adminSettingsScheduleSubtitle =>
-      'ښوونکي او ډلې اونیزو وختي خانو ته وټاکئ';
+      '‹‹Assign teachers and cohorts to weekly time slots››';
 
   @override
-  String get practiceModeBalancedSubtitle => 'متوازنه ورځنۍ تمرین';
+  String get practiceModeBalancedSubtitle => '‹‹Balanced daily practice››';
 
   @override
-  String get practiceModeRevealSubtitle => 'ښکاره کول او ځان‌ازموینه';
+  String get practiceModeRevealSubtitle => '‹‹Reveal and self-recall››';
 
   @override
-  String get practiceModeFastSubtitle => 'ګړندۍ فشاري تمرین';
+  String get practiceModeFastSubtitle => '‹‹Fast pressure drill››';
 
   @override
-  String get practiceModeExamSubtitle => 'د ازموینې په څېر آرام بهیر';
+  String get practiceModeExamSubtitle => '‹‹Calm exam-style flow››';
 
   @override
-  String get practiceModeConceptSubtitle => 'لومړی مفهوم، بیا حل';
+  String get practiceModeConceptSubtitle => '‹‹Concept first, solve later››';
 
   @override
-  String get practiceModeAdaptiveSubtitle => 'ستونزمنتیا ژوندۍ بدلیږي';
+  String get practiceModeAdaptiveSubtitle => '‹‹Difficulty shifts live››';
 
   @override
-  String get practiceModeStrictSubtitle => 'سخت رسمي طرز';
+  String get practiceModeStrictSubtitle => '‹‹Strict official style››';
 
   @override
-  String get commonCall => 'زنګ ووهئ';
+  String get commonCall => '‹‹Call››';
 
   @override
-  String get tooltipClearEndTime => 'د پای وخت پاک کړئ';
+  String get tooltipClearEndTime => '‹‹Clear end time››';
 
   @override
-  String get tooltipDeletePeriod => 'ساعت ړنګ کړئ';
+  String get tooltipDeletePeriod => '‹‹Delete period››';
 
   @override
-  String get tooltipLeaveClassroom => 'ټولګی پرېږدئ';
+  String get tooltipLeaveClassroom => '‹‹Leave classroom››';
 
   @override
   String get announcementGradeRiskBody =>
-      'ستاسو منځنۍ کچه له ۷۰ ښکته شوه. سمدستي اقدام سپارښتنه کیږي.';
+      '‹‹Your average dropped below 70. Immediate action recommended.››';
 
   @override
   String announcementWeakSubjectBody(String subject) {
-    return '$subject پاملرنې ته اړتیا لري.';
+    return '‹‹$subject needs attention.››';
   }
 
   @override
   String get announcementLowAttendanceBody =>
-      'ستاسو حاضري ښکته کیږي. دا به پر نمرو اغېز وکړي.';
+      '‹‹Your attendance is dropping. This will impact grades.››';
 
   @override
-  String get announcementLatenessBody => 'تاسو څو ځله ناوخته راغلي یاست.';
+  String get announcementLatenessBody => '‹‹You have multiple late arrivals.››';
 
   @override
   String announcementPracticeWeakTopicBody(String topic, String subject) {
-    return 'په $subject کې $topic ستاسو پرمختګ ورو کوي.';
+    return '‹‹$topic in $subject is dragging your momentum.››';
   }
 
   @override
   String get announcementPracticeDropBody =>
-      'ستاسو وروستۍ تمرین له معمول ښکته ده. ورو شئ او بیا یې جوړ کړئ.';
+      '‹‹Your recent practice is below your baseline. Slow down and rebuild.››';
 
   @override
   String announcementSolutionsActivityBody(int page, int question) {
-    return 'ستاسو د حلونو برخه په پاڼه $page، پوښتنه $question کې فعاله ده. د نورو کار وګورئ یا خپل اپلوډ کړئ.';
+    return '‹‹Your solution space is active on page $page, question $question. Check peer work or upload yours.››';
   }
 
   @override
-  String get announcementAllGoodBody => 'اوس مهال هیڅ لوی تحصیلي خطر نه ښکاري.';
+  String get announcementAllGoodBody =>
+      '‹‹No major academic risks detected right now.››';
 
   @override
-  String get faqStartedQ1 => 'څنګه ننوځم؟';
+  String get faqStartedQ1 => '‹‹How do I log in?››';
 
   @override
   String get faqStartedA1 =>
-      'د هرکلي پر پاڼه \"ننوتل\" کېکاږئ او هغه بریښنالیک یا کارن‌نوم ولیکئ چې ستاسو د ښوونځي مدیر درکړی، له خپل لنډمهاله پټنوم سره. لومړی ځل به څخه وغوښتل شي چې نوی پټنوم وټاکئ.';
+      '‹‹Tap \"Sign in\" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You\'ll be asked to set a new password the first time.››';
 
   @override
-  String get faqStartedQ2 => 'ما لا د ننوتلو حساب نه لري.';
+  String get faqStartedQ2 => '‹‹I don\'t have a login yet.››';
 
   @override
   String get faqStartedA2 =>
-      'ستاسو د ښوونځي مدیر حسابونه جوړوي. له هغوی وغواړئ چې تاسو په خپله مدیریتي اپلیکیشن کې اضافه کړي، یا که ستاسو ښوونځی ځان‌نوملیکنه کاروي، د ګډون کوډ درسره شریک کړي.';
+      '‹‹Your school administrator creates accounts. Ask them to add you in their admin app, or to share a join code if your school uses self-enrolment.››';
 
   @override
-  String get faqStartedQ3 => 'ایا اپلیکیشن په خپله ژبه کارولی شم؟';
+  String get faqStartedQ3 => '‹‹Can I use the app in my language?››';
 
   @override
   String get faqStartedA3 =>
-      'هو — ClassMate انګلیسي، عربي، عبري، فرانسوي او روسي ژبې ملاتړ کوي. د ژبې بدلولو لپاره تنظیمات پرانیزئ. تاسو کولی شئ په پروفایل کې د نوم لپاره غوره ژبه هم وټاکئ.';
+      '‹‹Yes — ClassMate supports English, Arabic, Hebrew, French, and Russian. Open Settings to switch language. You can also set a preferred name language in Profile.››';
 
   @override
-  String get faqStartedQ4 => 'د تور او روښانه حالت ترمنځ څنګه بدلون راولم؟';
+  String get faqStartedQ4 => '‹‹How do I switch between dark and light mode?››';
 
   @override
   String get faqStartedA4 =>
-      'له مینو څخه تنظیمات پرانیزئ او د بڼې ګمارنه بدله کړئ. اپلیکیشن په ډیفالټ ډول ستاسو د سیسټم غوره‌توب درناوی کوي.';
+      '‹‹Open Settings from the drawer and toggle the appearance switch. The app respects your system preference by default.››';
 
   @override
-  String get faqAccountQ1 => 'خپل پټنوم مې هیر کړ.';
+  String get faqAccountQ1 => '‹‹I forgot my password.››';
 
   @override
   String get faqAccountA1 =>
-      'د ننوتلو پر پاڼه \"پټنوم مو هیر دی؟\" کېکاږئ. تاسو به د بریښنالیک له لارې د بیا‌ټاکنې لینک یا د SMS له لارې کوډ ترلاسه کړئ. که دواړه لارې لا تاییدې نه وي، له خپل ښوونځي مدیر وغواړئ نوی لنډمهاله پټنوم درکړي.';
+      '‹‹Tap \"Forgot password?\" on the login screen. You\'ll get a reset link by email or a code by SMS. If neither channel is verified yet, ask your school administrator to issue you a new temporary password.››';
 
   @override
-  String get faqAccountQ2 => 'خپل پټنوم څنګه بدلوم؟';
+  String get faqAccountQ2 => '‹‹How do I change my password?››';
 
   @override
   String get faqAccountA2 =>
-      'له مینو څخه پروفایل پرانیزئ، خوندیتوب ته ښکته شئ، او د پټنوم کرښه کېکاږئ. د نوي ټاکلو لپاره به مو اوسني پټنوم ته اړتیا وي.';
+      '‹‹Open Profile from the drawer, scroll to Security, and tap the password row. You\'ll need your current password to set a new one.››';
 
   @override
-  String get faqAccountQ3 => 'خپل بریښنالیک یا د تلیفون شمیره څنګه بدلوم؟';
+  String get faqAccountQ3 => '‹‹How do I change my email or phone number?››';
 
   @override
   String get faqAccountA3 =>
-      'پروفایل پرانیزئ، هغه برخه کېکاږئ چې بدلول یې غواړئ، او د تاییدې لارښوونو پسې لاړ شئ. لومړی ستاسو اوسني بریښنالیک/تلیفون ته یو کوډ لیږل کیږي چې ډاډ ترلاسه شي ریښتیا تاسو یاست، بیا نوې ارزښت ټاکلی شئ.';
+      '‹‹Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it\'s really you, then you can set the new value.››';
 
   @override
   String get faqAccountQ4 =>
-      'زما د ښوونځي مدیر زما پټنوم بدلولی شي — دا څنګه کار کوي؟';
+      '‹‹My school administrator can change my password — how does that work?››';
 
   @override
   String get faqAccountA4 =>
-      'کله چې مدیر ستاسو پټنوم بیا‌ټاکي، تاسو به یو بریښنالیک او SMS ترلاسه کړئ چې په یوه کلیک سره خپل پټنوم وټاکئ. مدیر هیڅکله نه ویني چې تاسو څه ټاکلی.';
+      '‹‹When an administrator resets your password, you\'ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.››';
 
   @override
-  String get faqStudentsQ1 => 'خپل مهالویش چیرته ګورم؟';
+  String get faqStudentsQ1 => '‹‹Where do I see my schedule?››';
 
   @override
   String get faqStudentsA1 =>
-      'مهالویش په مینو کې لومړی توکی دی. تاسو به د دې اونۍ ساعتونه، د هر یوه ښوونکی، او هر هغه بدلون چې مدیر یې اعلان کړی وګورئ.';
+      '‹‹Schedule is the first item in the drawer. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.››';
 
   @override
-  String get faqStudentsQ2 => 'ټولګي ته څنګه ګډون کوم؟';
+  String get faqStudentsQ2 => '‹‹How do I join a classroom?››';
 
   @override
   String get faqStudentsA2 =>
-      'ښوونکی به تاسو مستقیم اضافه کړي، یا به د ګډون کوډ شریک کړي. د ګډون کوډ کارولو لپاره، له مینو څخه ټولګي پرانیزئ او \"په کوډ سره ګډون\" کېکاږئ.';
+      '‹‹A teacher will add you directly, or share a join code. To use a join code, open Classrooms from the drawer and tap \"Join with code\".››';
 
   @override
-  String get faqStudentsQ3 => 'حاضري او نمرې څنګه کار کوي؟';
+  String get faqStudentsQ3 => '‹‹How do attendance and grades work?››';
 
   @override
   String get faqStudentsA3 =>
-      'ښوونکي د درس پر مهال حاضري نښه کوي. خپل ریکارډونه لیدلو لپاره له مینو څخه حاضري یا نمرې پرانیزئ. هغه موروپلار چې ستاسو حساب سره تړل شوي همدا معلومات ویني.';
+      '‹‹Teachers mark attendance during the lesson. Open Attendance or Grades from the drawer to see your records. Parents linked to your account see the same data.››';
 
   @override
-  String get faqStudentsQ4 => 'نوا څه دی؟';
+  String get faqStudentsQ4 => '‹‹What is Nova?››';
 
   @override
   String get faqStudentsA4 =>
-      'نوا ستاسو د زده‌کړې هوښیار ملګری دی — له هغه وغواړئ یو مفهوم تشریح کړي، آزموینه جوړه کړي، یا یوه ستونزه ګام په ګام حل کړي. د پیلولو لپاره له مینو څخه نوا پرانیزئ.';
+      '‹‹Nova is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open Nova from the drawer to start a session.››';
 
   @override
-  String get faqTeachersQ1 => 'ټولګی څنګه جوړوم؟';
+  String get faqTeachersQ1 => '‹‹How do I create a classroom?››';
 
   @override
   String get faqTeachersA1 =>
-      'له مینو څخه ټولګي پرانیزئ او د + تڼۍ کېکاږئ. نوم او مضمون ورکړئ؛ زده‌کوونکي په لاس یا د ګډون کوډ له لارې اضافه کیدای شي.';
+      '‹‹Open Classrooms from the drawer and tap the + button. Give it a name and subject; students can be added by hand or via a join code.››';
 
   @override
-  String get faqTeachersQ2 => 'حاضري څنګه نښه کوم؟';
+  String get faqTeachersQ2 => '‹‹How do I mark attendance?››';
 
   @override
   String get faqTeachersA2 =>
-      'له مینو څخه حاضري پرانیزئ، نېټه او ساعت وټاکئ، بیا هر زده‌کوونکی کېکاږئ ترڅو حالت یې وټاکئ. بدلونونه په اتومات ډول خوندي کیږي.';
+      '‹‹Open Attendance from the drawer, pick the date and period, then tap each student to set their status. Changes save automatically.››';
 
   @override
-  String get faqTeachersQ3 => 'کورنۍ دنده څنګه ورکوم؟';
+  String get faqTeachersQ3 => '‹‹How do I assign homework?››';
 
   @override
   String get faqTeachersA3 =>
-      'دندې پرانیزئ، + کېکاږئ، سرلیک/د سپارلو نېټه/ضمیمې ډک کړئ، او یو هدف وټاکئ (ټول ښوونځی، ځانګړې ډلې، یا نومول شوي زده‌کوونکي). زده‌کوونکي یې سمدستي په خپله مینو کې ګوري.';
+      '‹‹Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it instantly in their drawer.››';
 
   @override
-  String get faqTeachersQ4 => 'ایا دیپلوم یا سند صادرولی شم؟';
+  String get faqTeachersQ4 => '‹‹Can I issue a diploma or certificate?››';
 
   @override
   String get faqTeachersA4 =>
-      'هو — له مینو څخه دیپلومونه پرانیزئ، + کېکاږئ، زده‌کوونکی وټاکئ، سرلیک او جزییات ډک کړئ، او خوندي کړئ. زده‌کوونکی یې په خپله د دیپلومونو برخه کې ویني.';
+      '‹‹Yes — open Diplomas from the drawer, tap +, pick the student, fill in the title and details, and save. The student sees it in their own Diplomas section.››';
 
   @override
-  String get faqAdminsQ1 => 'د ښوونځي د جوړولو لپاره له کومه پیل وکړم؟';
+  String get faqAdminsQ1 => '‹‹Where do I start setting up a school?››';
 
   @override
   String get faqAdminsA1 =>
-      'د مدیریت ډشبورډ پرانیزئ. پورته د ښوونځي د جوړولو وجیټ یو ۷-ګامیز لیست ښیي (لوګو، نوم، مضامین، د زنګ مهالویش، ډلې، زده‌کوونکي، ښوونکي). هر ګام هغه ځای ته مستقیم لینک لري چیرته یې بشپړوئ.';
+      '‹‹Open the Admin Dashboard. The School Setup widget at the top shows a 7-step checklist (logo, name, subjects, bell schedule, cohorts, students, teachers). Each step deep-links to where you complete it.››';
 
   @override
-  String get faqAdminsQ2 => 'ډلې څنګه کار کوي؟';
+  String get faqAdminsQ2 => '‹‹How do cohorts work?››';
 
   @override
   String get faqAdminsA2 =>
-      'ډله د هغو زده‌کوونکو ګروپ دی چې یو مهالویش لري. د جوړولو، زده‌کوونکو ګمارلو، او د ګډون کوډونو جوړولو لپاره له مینو څخه ډلې پرانیزئ. یوه ډله کولی شي څو ټولګۍ ولري.';
+      '‹‹A cohort is a group of students that share a schedule. Open Cohorts from the drawer to create them, assign students, and generate join codes. A single cohort can span multiple grades.››';
 
   @override
-  String get faqAdminsQ3 => 'ایا یوه ډله له یوه ټولګي زیاته رانغاړلی شي؟';
+  String get faqAdminsQ3 => '‹‹Can a cohort cover more than one grade?››';
 
   @override
   String get faqAdminsA3 =>
-      'هو — د ډلې د جوړولو پر مهال څو ټولګۍ وټاکئ. ډله بیا د هغو ټولګیو په هر فلټر او لید کې ښکاري، او هغه اعلانونه/کاپۍ چې هغو ټولګیو ته نښه شوي، دې ته رسیږي.';
+      '‹‹Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades\' filters and views, and announcements/templates targeted at any of those grades reach it.››';
 
   @override
-  String get faqAdminsQ4 => 'اونیز مهالویش څنګه جوړوم؟';
+  String get faqAdminsQ4 => '‹‹How do I build the weekly schedule?››';
 
   @override
   String get faqAdminsA4 =>
-      'له مینو څخه مهالویش پرانیزئ. د ساعت اضافه کولو لپاره هره خانه کېکاږئ — ورځ/ساعت، ښوونکی، مضمون، او اوریدونکي (ډله/زده‌کوونکی/ټولګی) وټاکئ. د زنګ وختونه له ښوونځي تنظیماتو راځي.';
+      '‹‹Open Schedule from the drawer. Tap any cell to add a period — pick the day/period, teacher, subject, and audience (cohort/student/grade). Bell-schedule times come from School Settings.››';
 
   @override
-  String get faqAdminsQ5 => 'زده‌کوونکي په ډله‌ییز ډول څنګه صادروم؟';
+  String get faqAdminsQ5 => '‹‹How do I bulk-export students?››';
 
   @override
   String get faqAdminsA5 =>
-      'له مینو څخه د معلوماتو صادرول پرانیزئ. وټاکئ چې د زده‌کوونکي یا د ډلې له مخې غوره کوئ، کرښې وټاکئ، او صادرول کېکاږئ. د خوښې له مخې د صادرولو پر مهال اوسني پټنومونه شامل کړئ.';
+      '‹‹Open Export Data from the drawer. Choose whether to select by student or by cohort, pick the rows, and tap Export. Optionally include current passwords during export.››';
 
   @override
-  String get faqAdminsQ6 => 'یو کارن وغوښتل چې پټنوم یې بیا‌وټاکم. څه وکړم؟';
+  String get faqAdminsQ6 =>
+      '‹‹A user asked me to reset their password. What do I do?››';
 
   @override
   String get faqAdminsA6 =>
-      'تاسو کولی شئ یا یې پټنوم مستقیم وټاکئ (د کارن پروفایل ← خوندیتوب) یا انتظار وکړئ چې هغوی د \"پټنوم مو هیر دی\" له لارې غوښتنه وکړي او تاسو یې له مینو کې د پټنوم غوښتنو څخه ومنئ.';
+      '‹‹You can either set their password directly (Profile of the user → Security) or wait for them to file a request via \"Forgot password\" and approve it from Password Requests in the drawer.››';
 
   @override
-  String get faqParentsQ1 => 'خپل حساب له خپل ماشوم سره څنګه وتړم؟';
+  String get faqParentsQ1 => '‹‹How do I link my account to my child?››';
 
   @override
   String get faqParentsA1 =>
-      'د خپل ماشوم له ښوونځي مدیر وغواړئ چې یا له خپلې مدیریتي اپلیکیشن لینک اضافه کړي، یا د موروپلار یو ځل‌مهاله لینک کوډ شریک کړي. پروفایل پرانیزئ او د کورنۍ لاندې کوډ ولیکئ.';
+      '‹‹Ask your child\'s school administrator to either add the link from their admin app, or share a one-time parent link code. Open Profile and enter the code under Family.››';
 
   @override
-  String get faqParentsQ2 => 'د خپل ماشوم په اړه څه لیدلی شم؟';
+  String get faqParentsQ2 => '‹‹What can I see about my child?››';
 
   @override
   String get faqParentsA2 =>
-      'حاضري، نمرې، اعلانونه، او کورنۍ دندې — دقیقاً هغه څه چې ستاسو ماشوم یې ویني، له اوږدمهاله بهیرونو سره. تاسو شخصي چټونه یا د نوا ناستې نه ګورئ.';
+      '‹‹Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or Nova sessions.››';
 
   @override
-  String get faqPrivacyQ1 => 'زما معلومات څوک لیدلی شي؟';
+  String get faqPrivacyQ1 => '‹‹Who can see my data?››';
 
   @override
   String get faqPrivacyA1 =>
-      'یوازې ستاسو په ښوونځي کې کسان. ښوونکي د خپلو ټولګیو معلومات ګوري، مدیران د ښوونځي ټول معلومات، موروپلار خپل تړل شوي ماشومان. موږ هیڅکله معلومات اعلان‌کوونکو ته نه پلوري.';
+      '‹‹Only people in your school. Teachers see their classrooms\' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.››';
 
   @override
-  String get faqPrivacyQ2 => 'خپل حساب څنګه ړنګوم؟';
+  String get faqPrivacyQ2 => '‹‹How do I delete my account?››';
 
   @override
   String get faqPrivacyA2 =>
-      'له خپل ښوونځي مدیر وغواړئ چې یې ړنګ کړي. هغوی کولی شي حساب له خپلې مدیریتي اپلیکیشن لرې کړي، چې ستاسو پروفایل، مهالویش، او چټونه پاکوي.';
+      '‹‹Ask your school administrator to delete it. They can remove the account from their admin app, which wipes your profile, schedule, and chats.››';
 
   @override
   String solutionsPagesCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count پاڼې',
-      one: '$count پاڼه',
+      other: '$count pages',
+      one: '$count page',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get teacherMeetingEditTitle => 'غونډه سمول';
+  String get teacherMeetingEditTitle => '‹‹Edit Meeting››';
 
   @override
-  String get teacherMeetingNewTitle => 'د غونډې مهالویش';
+  String get teacherMeetingNewTitle => '‹‹Schedule Meeting››';
 
   @override
-  String get teacherExamEditTitle => 'ازموینه سمول';
+  String get teacherExamEditTitle => '‹‹Edit Exam››';
 
   @override
-  String get teacherExamNewTitle => 'ازموینه جوړول';
+  String get teacherExamNewTitle => '‹‹Create Exam››';
 
   @override
-  String get teacherAssignmentEditTitle => 'دنده سمول';
+  String get teacherAssignmentEditTitle => '‹‹Edit Assignment››';
 
   @override
-  String get teacherAssignmentNewTitle => 'نوې دنده';
+  String get teacherAssignmentNewTitle => '‹‹New Assignment››';
 
   @override
-  String get tooltipShowTabs => 'ټوبونه ښکاره کړئ';
+  String get tooltipShowTabs => '‹‹Show tabs››';
 
   @override
-  String get tooltipHideTabs => 'ټوبونه پټ کړئ';
+  String get tooltipHideTabs => '‹‹Hide tabs››';
 
   @override
-  String get examsCouldNotLoadForms => 'فورمې بار نه شوې';
+  String get examsCouldNotLoadForms => '‹‹Could not load forms››';
 
   @override
-  String get examsCouldNotLoadExams => 'ازموینې بار نه شوې';
+  String get examsCouldNotLoadExams => '‹‹Could not load exams››';
 
   @override
-  String get messagesNoPeopleToAdd => 'د اضافه کولو لپاره څوک نشته';
+  String get messagesNoPeopleToAdd => '‹‹No people to add››';
 
   @override
   String commonNoResultsForQuery(String query) {
-    return 'د \"$query\" لپاره هیڅ پایله نشته';
+    return '‹‹No results for \"$query\"››';
   }
 
   @override
@@ -7813,60 +7923,60 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count چټونو ته واستول شو',
-      one: 'یوه چټ ته واستول شو',
+      other: 'Forwarded to $count chats',
+      one: 'Forwarded to 1 chat',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get commonReadMore => 'نور ولولئ';
+  String get commonReadMore => '‹‹Read more››';
 
   @override
-  String get commonReadLess => 'لږ ولولئ';
+  String get commonReadLess => '‹‹Read less››';
 
   @override
-  String get chatComposerSlideToCancel => 'د لغوه کولو لپاره وښویئ';
+  String get chatComposerSlideToCancel => '‹‹Slide to cancel››';
 
   @override
   String adminNoRoleYet(String role) {
-    return 'لا هیڅ $role نشته';
+    return '‹‹No $role yet››';
   }
 
   @override
-  String get profileVerified => 'تایید شو.';
+  String get profileVerified => '‹‹Verified.››';
 
   @override
   String get profileUpdatedPendingVerification =>
-      'تازه شو او د بیا‌تاییدې په تمه دی.';
+      '‹‹Updated and pending re-verification.››';
 
   @override
-  String get adminSearchCohorts => 'ډلې ولټوئ…';
+  String get adminSearchCohorts => '‹‹Search cohorts…››';
 
   @override
-  String get commonAdding => 'اضافه کیږي…';
+  String get commonAdding => '‹‹Adding…››';
 
   @override
-  String get teacherDiplomaIssuing => 'صادریږي…';
+  String get teacherDiplomaIssuing => '‹‹Issuing…››';
 
   @override
-  String get teacherDiplomaIssue => 'صادرول';
+  String get teacherDiplomaIssue => '‹‹Issue››';
 
   @override
-  String get formAccepting => 'منل کیږي';
+  String get formAccepting => '‹‹Accepting››';
 
   @override
-  String get profileVerifiedShort => 'تایید شوی';
+  String get profileVerifiedShort => '‹‹Verified››';
 
   @override
-  String get profileUnverified => 'نه‌تایید شوی';
+  String get profileUnverified => '‹‹Unverified››';
 
   @override
-  String get notificationNewGradePosted => '📊 نوې نمره خپره شوه';
+  String get notificationNewGradePosted => '‹‹📊 New grade posted››';
 
   @override
   String notificationNewGradePostedIn(String subject) {
-    return '📊 په $subject کې نوې نمره خپره شوه';
+    return '‹‹📊 New grade posted in $subject››';
   }
 
   @override
@@ -7874,57 +7984,57 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count ګډونوال اضافه کړئ',
-      one: 'یو ګډونوال اضافه کړئ',
+      other: 'Add $count participants',
+      one: 'Add 1 participant',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get notificationFallbackTitle => 'خبرتیا';
+  String get notificationFallbackTitle => '‹‹Notification››';
 
   @override
   String adminCohortGradeRange(int from, int to) {
-    return 'ټولګی $from-$to';
+    return '‹‹Grade $from-$to››';
   }
 
   @override
   String adminCohortGradesList(String list) {
-    return 'ټولګۍ $list';
+    return '‹‹Grades $list››';
   }
 
   @override
-  String get adminExportHeaderTitle => 'کاروونکي صادرول';
+  String get adminExportHeaderTitle => '‹‹Export users››';
 
   @override
   String get adminExportHeaderSubtitle =>
-      'فلټرونه د نښو په توګه اضافه کړئ — هره نښه کاروونکي صادرولو ته اضافه کوي. د لرې کولو لپاره نښه کېکاږئ.';
+      '‹‹Add filters as pills — every pill adds users to the export. Tap a pill to remove it.››';
 
   @override
-  String get adminExportAddFilter => 'فلټر اضافه کړئ';
+  String get adminExportAddFilter => '‹‹Add filter››';
 
   @override
   String get adminExportEmptyState =>
-      'د پیلولو لپاره فلټر اضافه کړئ: یوه دنده، ډله، ټولګی، یا ځانګړي کاروونکي وټاکئ.';
+      '‹‹Add a filter to start: pick a role, cohort, grade, or specific users.››';
 
   @override
-  String get adminExportFilterRolesTab => 'دندې';
+  String get adminExportFilterRolesTab => '‹‹Roles››';
 
   @override
-  String get adminExportFilterCohortsTab => 'ډلې';
+  String get adminExportFilterCohortsTab => '‹‹Cohorts››';
 
   @override
-  String get adminExportFilterGradesTab => 'ټولګۍ';
+  String get adminExportFilterGradesTab => '‹‹Grades››';
 
   @override
-  String get adminExportFilterUsersTab => 'کاروونکي';
+  String get adminExportFilterUsersTab => '‹‹Users››';
 
   @override
-  String get adminExportSelectAll => 'ټول وټاکئ';
+  String get adminExportSelectAll => '‹‹Select all››';
 
   @override
   String adminExportSelectedCount(int selected, int total) {
-    return 'له $total څخه $selected ټاکل شوي';
+    return '‹‹$selected of $total selected››';
   }
 
   @override
@@ -7932,1454 +8042,1461 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count ټاکل شوي',
-      one: '$count ټاکل شوی',
+      other: '$count picked',
+      one: '$count picked',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get adminExportPillRolePrefix => 'دنده:';
+  String get adminExportPillRolePrefix => '‹‹Role:››';
 
   @override
-  String get adminExportPillCohortPrefix => 'ډله:';
+  String get adminExportPillCohortPrefix => '‹‹Cohort:››';
 
   @override
   String adminExportActiveFilters(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count فعال فلټرونه',
-      one: '$count فعال فلټر',
+      other: '$count active filters',
+      one: '$count active filter',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get adminExportClearAll => 'ټول پاک کړئ';
+  String get adminExportClearAll => '‹‹Clear all››';
 
   @override
-  String get adminExportCounting => 'شمیرل کیږي…';
+  String get adminExportCounting => '‹‹Counting…››';
 
   @override
   String adminExportMatchCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count کاروونکي به صادر شي',
-      one: '$count کاروونکی به صادر شي',
+      other: '$count users will be exported',
+      one: '$count user will be exported',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
   String get adminExportNoGradesConfigured =>
-      'د دې ښوونځي لپاره هیڅ ټولګی نه دی تنظیم شوی';
+      '‹‹No grades configured for this school››';
 
   @override
-  String get adminExportColumnRole => 'دنده';
+  String get adminExportColumnRole => '‹‹Role››';
 
   @override
-  String get adminExportRoleStudent => 'زده‌کوونکی';
+  String get adminExportRoleStudent => '‹‹Student››';
 
   @override
-  String get adminExportRoleTeacher => 'ښوونکی';
+  String get adminExportRoleTeacher => '‹‹Teacher››';
 
   @override
-  String get adminExportRoleParent => 'والد';
+  String get adminExportRoleParent => '‹‹Parent››';
 
   @override
-  String get adminExportRoleSecretary => 'منشي';
+  String get adminExportRoleSecretary => '‹‹Secretary››';
 
   @override
-  String get adminExportRoleAdmin => 'مدیر';
+  String get adminExportRoleAdmin => '‹‹Admin››';
 
   @override
   String adminExportUsersSelected(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count کاروونکي ټاکل شوي',
-      one: '$count کاروونکی ټاکل شوی',
+      other: '$count users selected',
+      one: '$count user selected',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
   String get adminExportPasswordsOn =>
-      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
+      '‹‹Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.››';
 
   @override
-  String get adminExportPasswordsOff => 'صادرات به هیڅ پټنوم نه لري.';
+  String get adminExportPasswordsOff =>
+      '‹‹Export will not contain any passwords.››';
 
   @override
-  String get adminExportPdfUserDirectory => 'د کاروونکو لارښود';
+  String get adminExportPdfUserDirectory => '‹‹User Directory››';
 
   @override
   String adminExportPdfUsersCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count کاروونکي',
-      one: '$count کاروونکی',
+      other: '$count users',
+      one: '$count user',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get teacherAttachFromMaterials => 'له موادو څخه';
+  String get teacherAttachFromMaterials => '‹‹From materials››';
 
   @override
-  String get teacherUploadFiles => 'فایلونه اپلوډ کړئ';
+  String get teacherUploadFiles => '‹‹Upload files››';
 
   @override
-  String get solSubjectMathematics => 'ریاضي';
+  String get solSubjectMathematics => '‹‹Mathematics››';
 
   @override
-  String get solSubjectComputerScience => 'کمپیوټر علوم';
+  String get solSubjectComputerScience => '‹‹Computer Science››';
 
   @override
-  String get solSubjectPhysics => 'فزیک';
+  String get solSubjectPhysics => '‹‹Physics››';
 
   @override
-  String get solSubjectChemistry => 'کیمیا';
+  String get solSubjectChemistry => '‹‹Chemistry››';
 
   @override
-  String get solSubjectHebrew => 'عبري';
+  String get solSubjectHebrew => '‹‹Hebrew››';
 
   @override
-  String get solSubjectBiology => 'بیولوژي';
+  String get solSubjectBiology => '‹‹Biology››';
 
   @override
-  String get solSubjectHistory => 'تاریخ';
+  String get solSubjectHistory => '‹‹History››';
 
   @override
-  String get solSubjectArabic => 'عربي';
+  String get solSubjectArabic => '‹‹Arabic››';
 
   @override
-  String get solSubjectElectronics => 'الکترونیک';
+  String get solSubjectElectronics => '‹‹Electronics››';
 
   @override
-  String get solSubjectMechanics => 'میخانیک';
+  String get solSubjectMechanics => '‹‹Mechanics››';
 
   @override
-  String get solSubjectFrench => 'فرانسوي';
+  String get solSubjectFrench => '‹‹French››';
 
   @override
-  String get solSubjectEnvironmentalScience => 'چاپیریالي علوم';
+  String get solSubjectEnvironmentalScience => '‹‹Environmental Science››';
 
   @override
-  String get solSubjectCommunicationCinema => 'اړیکې او سینما';
+  String get solSubjectCommunicationCinema => '‹‹Communication and Cinema››';
 
   @override
-  String get solSubjectCitizenship => 'مدنیت';
+  String get solSubjectCitizenship => '‹‹Citizenship››';
 
   @override
-  String get solSubjectSociology => 'ټولنپوهنه';
+  String get solSubjectSociology => '‹‹Sociology››';
 
   @override
-  String get solSubjectReligion => 'دین';
+  String get solSubjectReligion => '‹‹Religion››';
 
   @override
-  String get solSubjectGeography => 'جغرافیه';
+  String get solSubjectGeography => '‹‹Geography››';
 
   @override
-  String get solSubjectPsychology => 'ارواپوهنه';
+  String get solSubjectPsychology => '‹‹Psychology››';
 
   @override
-  String get insightsSemesterTitle => 'دا سمسټر';
+  String get insightsSemesterTitle => '‹‹This semester››';
 
   @override
-  String get insightsOnTimeSubmissions => 'په وخت کار';
+  String get insightsOnTimeSubmissions => '‹‹On-time work››';
 
   @override
-  String get insightsSubmissionsTitle => 'سپارنې';
+  String get insightsSubmissionsTitle => '‹‹Submissions››';
 
   @override
-  String get insightsOnTime => 'په وخت';
+  String get insightsOnTime => '‹‹On time››';
 
   @override
-  String get insightsLate => 'ناوخته';
+  String get insightsLate => '‹‹Late››';
 
   @override
-  String get insightsMissing => 'ورک';
+  String get insightsMissing => '‹‹Missing››';
 
   @override
-  String get insightsPending => 'په تمه';
+  String get insightsPending => '‹‹Pending››';
 
   @override
-  String get insightsHandedInLabel => 'سپارل شوي';
+  String get insightsHandedInLabel => '‹‹handed in››';
 
   @override
-  String get insightsLatestGrades => 'وروستۍ نمرې';
+  String get insightsLatestGrades => '‹‹Latest grades››';
 
   @override
-  String get insightsReviewWithNova => 'له نوا سره کتنه';
+  String get insightsReviewWithNova => '‹‹Review with Nova››';
 
   @override
   String get insightsReviewWithNovaPrompt =>
-      'د دې سمسټر زما د کړنو لنډه او رښتیني کتنه راکړه — نمرې، حاضري، او سپارنې — او هغه یو شی چې باید بل ګام پرې تمرکز وکړم.';
+      '‹‹Give me a short, honest review of my performance this semester — grades, attendance, and submissions — and the one thing I should focus on next.››';
 
   @override
-  String get insightsPracticeTitle => 'د تمرین دقت';
+  String get insightsPracticeTitle => '‹‹Practice accuracy››';
 
   @override
-  String get commonUnknown => 'نامعلوم';
+  String get commonUnknown => '‹‹Unknown››';
 
   @override
-  String get solutionsReportTitle => 'د دې حل راپور ورکړئ';
+  String get solutionsReportTitle => '‹‹Report this solution››';
 
   @override
   String get solutionsReportBody =>
-      'مدیرانو ته ووایاست چې څه ناسم دي. د دواړو ښوونځیو مدیران به یې وڅیړي.';
+      '‹‹Tell the admins what\'s wrong. The admins of both schools will review it.››';
 
   @override
-  String get solutionsReportReasonHint => 'دلیل (اختیاري)';
+  String get solutionsReportReasonHint => '‹‹Reason (optional)››';
 
   @override
-  String get solutionsReportAction => 'راپور';
+  String get solutionsReportAction => '‹‹Report››';
 
   @override
-  String get solutionsReportSubmitted => 'مننه — مدیرانو ته راپور شو.';
+  String get solutionsReportSubmitted => '‹‹Thanks — reported to the admins.››';
 
   @override
-  String get solutionsReportAlready => 'تاسو دا مخکې راپور کړی.';
+  String get solutionsReportAlready => '‹‹You already reported this.››';
 
   @override
   String solutionsBookPagesCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count پاڼې',
-      one: '۱ پاڼه',
+      other: '$count pages',
+      one: '1 page',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
   String get solutionsNoBooksYetForStudents =>
-      'دلته لا هیڅ کتاب نشته. ستاسو ښوونکی به یې اضافه کړي.';
+      '‹‹No books here yet. Your teacher will add them.››';
 
   @override
-  String get solutionsManageBooksTitle => 'کتابونه اداره کول';
+  String get solutionsManageBooksTitle => '‹‹Manage books››';
 
   @override
   String get solutionsNoBooksManageHint =>
-      'د دې مضمون لپاره لا هیڅ کتاب نشته. د اضافه کولو لپاره + کېکاږئ.';
+      '‹‹No books for this subject yet. Tap + to add one.››';
 
   @override
-  String get solutionsDeleteBookTitle => 'کتاب ړنګ کړئ؟';
+  String get solutionsDeleteBookTitle => '‹‹Delete book?››';
 
   @override
   String solutionsDeleteBookBody(String title) {
-    return '\"$title\" ړنګ کړئ؟ دا بیرته نه راګرځي.';
+    return '‹‹Delete \"$title\"? This can\'t be undone.››';
   }
 
   @override
   String solutionsBookSaveFailed(String error) {
-    return 'خوندي نه شو: $error';
+    return '‹‹Couldn\'t save: $error››';
   }
 
   @override
   String get solutionsBookDuplicateHint =>
-      'د زياتولو دمخه، ډاد ترلاسه کړئ چې دا کتاب لا دمخه په ډيټابیس کې نشته.';
+      '‹‹Before adding, make sure this book isn’t already in the database.››';
 
   @override
-  String get solutionsBookDuplicateTitle => 'ممکن دوه ګونی کتاب';
+  String get solutionsBookDuplicateTitle => '‹‹Possible duplicate book››';
 
   @override
   String solutionsBookDuplicateBody(String title) {
-    return 'د \"$title\" په نوم کتاب لا دمخه شتون لري. د زياتولو دمخه ډاد ترلاسه کړئ چې هماغه کتاب نه دی.';
+    return '‹‹A book named \"$title\" already exists. Make sure it isn’t the same one before adding it.››';
   }
 
   @override
-  String get solutionsBookAddAnyway => 'بیا هم زيات کړئ';
+  String get solutionsBookAddAnyway => '‹‹Add anyway››';
 
   @override
-  String get solutionsBookNeedTitlePages => 'سرلیک او د پاڼو شمیر ولیکئ.';
+  String get solutionsBookNeedTitlePages => '‹‹Enter a title and page count.››';
 
   @override
-  String get solutionsEditBookTitle => 'کتاب سمول';
+  String get solutionsEditBookTitle => '‹‹Edit book››';
 
   @override
-  String get solutionsBookCoverLabel => 'پوښ';
+  String get solutionsBookCoverLabel => '‹‹Cover››';
 
   @override
   String solutionsGradeLabel(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get solutionsReportsTitle => 'راپور شوي حلونه';
+  String get solutionsReportsTitle => '‹‹Reported solutions››';
 
   @override
-  String get solutionsReportsEmpty => 'د کتنې لپاره هیڅ راپور نشته.';
+  String get solutionsReportsEmpty => '‹‹No reports to review.››';
 
   @override
-  String get solutionsReportPostedBy => 'خپروونکی';
+  String get solutionsReportPostedBy => '‹‹Posted by››';
 
   @override
-  String get solutionsReportReportedBy => 'راپور‌کوونکی';
+  String get solutionsReportReportedBy => '‹‹Reported by››';
 
   @override
-  String get solutionsReportReasonLabel => 'دلیل';
+  String get solutionsReportReasonLabel => '‹‹Reason››';
 
   @override
-  String get solutionsReportKeepAction => 'وساتئ';
+  String get solutionsReportKeepAction => '‹‹Keep››';
 
   @override
-  String get solutionsReportRemoveAction => 'لرې کړئ';
+  String get solutionsReportRemoveAction => '‹‹Remove››';
 
   @override
-  String get solutionsReportStatusPending => 'په تمه';
+  String get solutionsReportStatusPending => '‹‹Pending››';
 
   @override
-  String get solutionsReportStatusApproved => 'وساتل شو';
+  String get solutionsReportStatusApproved => '‹‹Kept››';
 
   @override
-  String get solutionsReportStatusRemoved => 'لرې شو';
+  String get solutionsReportStatusRemoved => '‹‹Removed››';
 
   @override
-  String get solutionsReportRemoved => 'حل لرې شو.';
+  String get solutionsReportRemoved => '‹‹Solution removed.››';
 
   @override
-  String get solutionsReportApproved => 'راپور رد شو — حل وساتل شو.';
+  String get solutionsReportApproved => '‹‹Report dismissed — solution kept.››';
 
   @override
   String solutionsReportFailed(String error) {
-    return 'راپور نه شو: $error';
+    return '‹‹Couldn\'t report: $error››';
   }
 
   @override
-  String get teacherAddGradeTitle => 'نمره اضافه کول';
+  String get teacherAddGradeTitle => '‹‹Add Grade››';
 
   @override
-  String get commonCohort => 'ډله';
+  String get commonCohort => '‹‹Cohort››';
 
   @override
-  String get teacherCreateNewExam => 'نوې ازموینه جوړه کړئ';
+  String get teacherCreateNewExam => '‹‹Create new exam››';
 
   @override
-  String get teacherCreateNewAssignment => 'نوې دنده جوړه کړئ';
+  String get teacherCreateNewAssignment => '‹‹Create new assignment››';
 
   @override
-  String get commonReturn => 'بیرته';
+  String get commonReturn => '‹‹Return››';
 
   @override
-  String get reorderToolsTitle => 'مینو بیا‌ترتیب کړئ';
+  String get reorderToolsTitle => '‹‹Reorder menu››';
 
   @override
   String get reorderToolsSubtitle =>
-      'د خپلو ښوونځي وسایلو د بیا‌ترتیبولو لپاره وکاږئ. د اصلي او حساب برخې پر خپل ځای پاتې کیږي.';
+      '‹‹Drag to reorder your School Tools. The Core and Account sections stay put.››';
 
   @override
-  String get reorderToolsReset => 'بیا‌تنظیم';
+  String get reorderToolsReset => '‹‹Reset››';
 
   @override
-  String get reorderToolsSettingsSection => 'مینو';
+  String get reorderToolsSettingsSection => '‹‹Menu››';
 
   @override
   String get reorderToolsSettingsSubtitle =>
-      'په خپله څنګه مینو کې وسایل بیا‌ترتیب کړئ';
+      '‹‹Reorder the tools in your side menu››';
 
   @override
   String get adminSchoolGradeRangesDescription =>
-      'وټاکئ چې ستاسو ښوونځی کوم ټولګۍ رانغاړي. که ځینې ټولګۍ پریښودل شوي، څو حدونه اضافه کړئ (لکه ۴-۶ او ۹-۱۲).';
+      '‹‹Set which grades your school covers. Add multiple ranges if some grades are skipped (e.g. 4-6 and 9-12).››';
 
   @override
-  String get adminSchoolAddGradeRange => 'حد اضافه کړئ';
+  String get adminSchoolAddGradeRange => '‹‹Add range››';
 
   @override
-  String get teacherListStudents => 'زده‌کوونکي ولیکئ';
+  String get teacherListStudents => '‹‹List students››';
 
   @override
-  String get teacherNoStudentsInvolved =>
-      'په دې ساعت کې لا هیڅ زده‌کوونکی نشته.';
+  String get teacherNoStudentsInvolved => '‹‹No students in this period yet.››';
 
   @override
-  String get messagesFilterAdmins => 'مدیران';
+  String get messagesFilterAdmins => '‹‹Admins››';
 
   @override
-  String get teacherAssignmentGradedStatus => 'نمره ورکړل شوه';
+  String get teacherAssignmentGradedStatus => '‹‹Graded››';
 
   @override
-  String get teacherAssignmentReturnedStatus => 'د بیا‌حل لپاره بیرته شو';
+  String get teacherAssignmentReturnedStatus => '‹‹Returned for re-solution››';
 
   @override
-  String get teacherAssignmentReturnAction => 'د بیا‌حل لپاره بیرته کړئ';
+  String get teacherAssignmentReturnAction => '‹‹Return for re-solution››';
 
   @override
   String teacherAssignmentReturnDialogBody(String name) {
-    return 'دا سپارنه $name ته بیرته واستوئ ترڅو یې سمه او بیا یې وسپاري؟ هر هغه نظر چې تاسو لیکلی شامل به وي.';
+    return '‹‹Send this submission back to $name to revise and hand in again? Any feedback you typed will be included.››';
   }
 
   @override
   String teacherGradesSavedOf(int saved, int total) {
-    return 'له $total څخه $saved خوندي شول.';
+    return '‹‹Saved $saved of $total.››';
   }
 
   @override
   String teacherGradesSkippedSuffix(int dropped) {
-    return '$dropped زده‌کوونکي پریښودل شول — په کومه ډله کې نه دي.';
+    return '‹‹$dropped student(s) skipped — not in a cohort.››';
   }
 
   @override
   String get adminPeopleGradeLevelRequired =>
-      'د دې زده‌کوونکي لپاره یو ټولګی وټاکئ.';
+      '‹‹Pick a grade level for this student.››';
 
   @override
   String teacherAddGradeLabel(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get teacherGradeOutOfHint => 'لکه ۲۰';
+  String get teacherGradeOutOfHint => '‹‹e.g. 20››';
 
   @override
-  String get plansDowngrade => 'ښکته کول';
+  String get plansDowngrade => '‹‹Downgrade››';
 
   @override
   String get plansDowngradeNote =>
-      'ستاسو د اوسني پلان له پای سره پیلیږي — تر هغه یې ساتئ، بیرته‌ورکونه نشته.';
+      '‹‹Starts when your current plan ends — you keep it until then, no refund.››';
 
   @override
-  String get semesterThis => 'دا سمسټر';
+  String get semesterThis => '‹‹This semester››';
 
   @override
-  String get semesterPrevious => 'تیر';
+  String get semesterPrevious => '‹‹Previous››';
 
   @override
-  String get showMore => 'نور ښکاره کړئ';
+  String get showMore => '‹‹Show more››';
 
   @override
-  String get adminSchoolSemestersLabel => 'سمسټرونه';
+  String get adminSchoolSemestersLabel => '‹‹Semesters››';
 
   @override
   String get adminSchoolSemestersDescription =>
-      'د ښوونځي کال په میاشتو سمسټرونو وویشئ. نمرې، ازموینې، غونډې او نور په اتومات ډول د سمسټر له مخې ګروپ کیږي.';
+      '‹‹Split the school year into semesters by month. Grades, exams, meetings and more are grouped by semester automatically.››';
 
   @override
   String adminSchoolSemesterN(String n) {
-    return 'سمسټر $n';
+    return '‹‹Semester $n››';
   }
 
   @override
-  String get adminSchoolAddSemester => 'سمسټر اضافه کړئ';
+  String get adminSchoolAddSemester => '‹‹Add semester››';
 
   @override
-  String get semesterStarts => 'پیلیږي';
+  String get semesterStarts => '‹‹Starts››';
 
   @override
-  String get semesterEnds => 'پای ته رسیږي';
+  String get semesterEnds => '‹‹Ends››';
 
   @override
-  String get commonWhen => 'کله';
+  String get commonWhen => '‹‹When››';
 
   @override
-  String get commonFiles => 'فایلونه';
+  String get commonFiles => '‹‹Files››';
 
   @override
-  String get commonOnce => 'یو ځل';
+  String get commonOnce => '‹‹Once››';
 
   @override
-  String get commonNoneDash => '— هیڅ —';
+  String get commonNoneDash => '‹‹— None —››';
 
   @override
-  String get commonNotesOptional => 'یادښتونه (اختیاري)';
+  String get commonNotesOptional => '‹‹Notes (optional)››';
 
   @override
-  String get commonSubjectOptional => 'مضمون (اختیاري)';
+  String get commonSubjectOptional => '‹‹Subject (optional)››';
 
   @override
-  String get colorBlue => 'آبي';
+  String get colorBlue => '‹‹Blue››';
 
   @override
-  String get colorIndigo => 'نیلي';
+  String get colorIndigo => '‹‹Indigo››';
 
   @override
-  String get colorViolet => 'بنفش';
+  String get colorViolet => '‹‹Violet››';
 
   @override
-  String get colorTeal => 'آبي‌شین';
+  String get colorTeal => '‹‹Teal››';
 
   @override
-  String get colorGreen => 'شین';
+  String get colorGreen => '‹‹Green››';
 
   @override
-  String get colorOrange => 'نارنجي';
+  String get colorOrange => '‹‹Orange››';
 
   @override
-  String get colorRose => 'ګلابي';
+  String get colorRose => '‹‹Rose››';
 
   @override
-  String get teacherAddClassNotes => 'د ټولګي یادښتونه اضافه کړئ';
+  String get teacherAddClassNotes => '‹‹Add Class Notes››';
 
   @override
-  String get teacherStudentsWithGrades => 'د نمرو لرونکي زده‌کوونکي';
+  String get teacherStudentsWithGrades => '‹‹Students with grades››';
 
   @override
   String get teacherOtherStudentsSameGrade =>
-      'په همدې ټولګي/ډله کې نور زده‌کوونکي';
+      '‹‹Other students in the same grade/cohort››';
 
   @override
-  String get teacherChooseExam => 'ازموینه وټاکئ';
+  String get teacherChooseExam => '‹‹Choose exam››';
 
   @override
-  String get teacherChooseAssignment => 'دنده وټاکئ';
+  String get teacherChooseAssignment => '‹‹Choose assignment››';
 
   @override
-  String get teacherSearchExams => 'ازموینې ولټوئ…';
+  String get teacherSearchExams => '‹‹Search exams…››';
 
   @override
-  String get teacherSearchAssignments => 'دندې ولټوئ…';
+  String get teacherSearchAssignments => '‹‹Search assignments…››';
 
   @override
-  String get teacherSearchQuestionTypes => 'د پوښتنو ډولونه ولټوئ…';
+  String get teacherSearchQuestionTypes => '‹‹Search question types…››';
 
   @override
-  String get teacherOtherCustomSubject => 'نور (په لاس ولیکئ)';
+  String get teacherOtherCustomSubject => '‹‹Other (type custom)››';
 
   @override
-  String get adminLinkChild => 'ماشوم وتړئ';
+  String get adminLinkChild => '‹‹Link Child››';
 
   @override
-  String get adminChooseStudentDash => '— زده‌کوونکی وټاکئ —';
+  String get adminChooseStudentDash => '‹‹— Choose student —››';
 
   @override
-  String get adminSelectStudentToLink => 'د تړلو لپاره زده‌کوونکی وټاکئ';
+  String get adminSelectStudentToLink => '‹‹Select student to link››';
 
   @override
-  String get adminEditPeriod => 'ساعت سمول';
+  String get adminEditPeriod => '‹‹Edit period››';
 
   @override
   String get adminNotInAnyCohort =>
-      'لا په هیڅ ډله کې نه دی — د ډلو له پاڼې وټاکئ.';
+      '‹‹Not in any cohort yet — assign from the Cohorts screen.››';
 
   @override
   String get adminPasswordChangeWarning =>
-      'کاروونکی به بل ځل چې ننوځي له دې پټنوم سره ننوځي. هر هغه د پټنوم بیا‌ټاکنې لینک چې په تمه دی باطل کیږي.';
+      '‹‹The user will be signed in with this password next time they log in. Any pending password-reset links are invalidated.››';
 
   @override
-  String get nameInEnglish => 'په انګلیسي کې نوم';
+  String get nameInEnglish => '‹‹Name in English››';
 
   @override
-  String get nameInArabic => 'په عربي کې نوم';
+  String get nameInArabic => '‹‹Name in Arabic››';
 
   @override
-  String get nameInHebrew => 'په عبري کې نوم';
+  String get nameInHebrew => '‹‹Name in Hebrew››';
 
   @override
-  String get nameInFrench => 'په فرانسوي کې نوم';
+  String get nameInFrench => '‹‹Name in French››';
 
   @override
-  String get nameInRussian => 'په روسي کې نوم';
+  String get nameInRussian => '‹‹Name in Russian››';
 
   @override
-  String get passwordMinChars => 'لږ تر لږه ۸ توري.';
+  String get passwordMinChars => '‹‹At least 8 characters.››';
 
   @override
-  String get passwordsDoNotMatch => 'پټنومونه سره برابر نه دي.';
+  String get passwordsDoNotMatch => '‹‹Passwords don\'t match.››';
 
   @override
-  String get adminWelcomeHeading => 'ClassMate ته ښه راغلاست';
+  String get adminWelcomeHeading => '‹‹Welcome to ClassMate››';
 
   @override
-  String get diplomasNoFilesAttached => 'دې سند سره هیڅ فایل نښتی نه دی.';
+  String get diplomasNoFilesAttached =>
+      '‹‹No files attached to this certificate.››';
 
   @override
   String get diplomasFilesProcessing =>
-      'فایلونه پرانیستل نه شول — کیدای شي لا پروسس کیږي.';
+      '‹‹Files could not be opened — they may still be processing.››';
 
   @override
   String get novaOutOfTokens =>
-      'تاسو د دې دورې لپاره خپل ټول ټوکنونه کارولي. د NOVA سره د دوام لپاره خپل پلان لوړ کړئ یا بیا ډک کړئ.';
+      '‹‹You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.››';
 
   @override
   String get tutorDeleteConversationWarning =>
-      'دا به خبرې اترې او ټول پیغامونه یې د سرور څخه د تل لپاره ړنګ کړي. دا بیرته نه راګرځي.';
+      '‹‹This will permanently delete the conversation and all its messages from the server. This cannot be undone.››';
 
   @override
   String get chatReportFlagWarning =>
-      'دا پیغام به د مدیر لخوا د کتنې لپاره نښه شي.';
+      '‹‹This message will be flagged for review by an admin.››';
 
   @override
   String get solutionPreviewFailFallback =>
-      'که مخکتنه پاتې راشي، له چټ ضمیمې یې پرانیزئ';
+      '‹‹Open from the chat attachment if preview fails››';
 
   @override
   String get practiceNoInternet =>
-      'د انټرنېټ اړیکه نشته. مهرباني وکړئ بیا هڅه وکړئ.';
+      '‹‹No internet connection. Please try again.››';
 
   @override
   String get practiceGenerationFailed =>
-      'پوښتنې جوړې نه شوې. مهرباني وکړئ بیا هڅه وکړئ.';
+      '‹‹Could not generate questions. Please try again.››';
 
   @override
-  String get practiceTimingSecPerQuestion => 'ثانیه / پوښتنه';
+  String get practiceTimingSecPerQuestion => '‹‹s / question››';
 
   @override
-  String get practiceTimingMinPerQuiz => 'دقیقه / آزموینه';
+  String get practiceTimingMinPerQuiz => '‹‹min / quiz››';
 
   @override
   String adminScheduleFrequencyWeeks(Object freq) {
-    return '×$freq اونۍ';
+    return '‹‹×$freq wks››';
   }
 
   @override
   String gradeLevelLabel(Object grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
   String adminPeriodOption(Object period) {
-    return 'ساعت $period';
+    return '‹‹Period $period››';
   }
 
   @override
   String cohortStudentsCount(Object count) {
-    return '$count زده‌کوونکي';
+    return '‹‹$count students››';
   }
 
   @override
   String diplomasIssuedCount(Object count) {
-    return '$count سندونه صادر شول';
+    return '‹‹$count certificates issued››';
   }
 
   @override
-  String get adminExportImportantHeading => 'مهم';
+  String get adminExportImportantHeading => '‹‹Important››';
 
   @override
   String get adminExportWelcomeBodyWithPw =>
-      'دا ستاسو د ClassMate حساب جزییات دي. د iOS یا Android په ClassMate اپلیکیشن کې د لاندې کارن‌نوم او پټنوم په کارولو ننوځئ. تاسو کولی شئ خپل پټنوم په اپلیکیشن کې بدل کړئ.';
+      '‹‹These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using the username and password below. You can change your password in the app.››';
 
   @override
   String get adminExportWelcomeBodyNoPw =>
-      'دا ستاسو د ClassMate حساب جزییات دي. د iOS یا Android په ClassMate اپلیکیشن کې د خپل کارن‌نوم په کارولو ننوځئ.';
+      '‹‹These are your ClassMate account details. Sign in to the ClassMate app on iOS or Android using your username.››';
 
   @override
   String get adminExportNotePrivate =>
-      'دا اعتبارنامې محرمې وساتئ. خپل پټنوم له بل چا سره شریک مه کوئ.';
+      '‹‹Keep these credentials private. Do not share your password.››';
 
   @override
   String get adminExportNoteChangePw =>
-      'د لومړي ننوتلو وروسته خپل پټنوم له تنظیمات → حساب څخه بدل کړئ.';
+      '‹‹Change your password after your first sign-in from Settings → Account.››';
 
   @override
   String get adminExportNoteLegal =>
-      'د ClassMate په کارولو سره تاسو زموږ د خدمت شرایط او د محرمیت تګلاره منئ.';
+      '‹‹By using ClassMate you accept our Terms of Service and Privacy Policy.››';
 
   @override
   String adminExportNoteHelp(String email) {
-    return 'مرستې ته اړتیا لرئ؟ له خپل ښوونځي مدیر یا $email سره اړیکه ونیسئ.';
+    return '‹‹Need help? Contact your school administrator or $email.››';
   }
 
   @override
-  String get teacherGradeTitleHint => 'لکه د ټولګي ګډون، آزموینه ۳';
+  String get teacherGradeTitleHint => '‹‹e.g. Class participation, Quiz 3››';
 
   @override
-  String get teacherClassroomNameHint => 'لکه ریاضي ۱۰A';
+  String get teacherClassroomNameHint => '‹‹e.g. Mathematics 10A››';
 
   @override
-  String get novaAbout => 'د NOVA په اړه';
+  String get novaAbout => '‹‹About NOVA››';
 
   @override
-  String get parentNotifForYou => 'ستاسو لپاره';
+  String get parentNotifForYou => '‹‹For you››';
 
   @override
   String parentNotifAbout(String name) {
-    return 'د $name په اړه';
+    return '‹‹About $name››';
   }
 
   @override
-  String get navPrivacyPolicy => 'د محرمیت تګلاره';
+  String get navPrivacyPolicy => '‹‹Privacy Policy››';
 
   @override
-  String get privacyPolicySubtitle => 'موږ ستاسو معلومات څنګه ساتو';
+  String get privacyPolicySubtitle => '‹‹How we protect your data››';
 
   @override
-  String get semesterAllPrevious => 'ټول تیر';
+  String get semesterAllPrevious => '‹‹All previous››';
 
   @override
-  String get semesterSelectTitle => 'سمسټر وټاکئ';
+  String get semesterSelectTitle => '‹‹Select semester››';
 
   @override
-  String get adminImportUsersScreenTitle => 'کاروونکي واردول';
+  String get adminImportUsersScreenTitle => '‹‹Import users››';
 
   @override
-  String get adminImportUsersScreenTabGrid => 'جدول';
+  String get adminImportUsersScreenTabGrid => '‹‹Grid››';
 
   @override
-  String get adminImportUsersScreenTabCsv => 'CSV';
+  String get adminImportUsersScreenTabCsv => '‹‹CSV››';
 
   @override
   String adminImportUsersScreenLoadedRows(int count) {
-    return '$count کرښې بار شوې — وګورئ او سم کړئ، بیا جوړ کړئ';
+    return '‹‹Loaded $count rows — review & edit, then Create››';
   }
 
   @override
   String get adminImportUsersScreenFillAtLeastOneName =>
-      'لږ تر لږه یو نوم ډک کړئ';
+      '‹‹Fill at least one name››';
 
   @override
   String adminImportUsersScreenFailed(String error) {
-    return 'ناکام شو: $error';
+    return '‹‹Failed: $error››';
   }
 
   @override
-  String get adminImportUsersScreenBackToGrid => 'جدول ته بیرته';
+  String get adminImportUsersScreenBackToGrid => '‹‹Back to grid››';
 
   @override
   String get adminImportUsersScreenGridIntro =>
-      'هر کس لپاره یوه کرښه ډکه کړئ، یا له CSV ټوب څخه CSV بار کړئ او دلته یې سم کړئ. کارن‌نوم اختیاري دی — که خالي وي موږ یې جوړوو. د زده‌کوونکو لپاره، ټولګی او (اختیاري) د والد کارن‌نوم وټاکئ ترڅو ویې تړئ.';
+      '‹‹Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent\'s username to link them.››';
 
   @override
-  String get adminImportUsersScreenAddRow => 'کرښه اضافه کړئ';
+  String get adminImportUsersScreenAddRow => '‹‹Add row››';
 
   @override
   String adminImportUsersScreenCreateCount(int count) {
-    return 'جوړ کړئ ($count)';
+    return '‹‹Create ($count)››';
   }
 
   @override
-  String get adminImportUsersScreenRole => 'دنده';
+  String get adminImportUsersScreenRole => '‹‹Role››';
 
   @override
-  String get adminImportUsersScreenFullName => 'بشپړ نوم *';
+  String get adminImportUsersScreenFullName => '‹‹Full name *››';
 
   @override
-  String get adminImportUsersScreenUsername => 'کارن‌نوم';
+  String get adminImportUsersScreenUsername => '‹‹Username››';
 
   @override
-  String get adminImportUsersScreenUsernameHint => '(که خالي وي اتومات)';
+  String get adminImportUsersScreenUsernameHint => '‹‹(auto if blank)››';
 
   @override
-  String get adminImportUsersScreenGrade => 'ټولګی';
+  String get adminImportUsersScreenGrade => '‹‹Grade››';
 
   @override
-  String get adminImportUsersScreenParentUsername => 'د والد کارن‌نوم';
+  String get adminImportUsersScreenParentUsername => '‹‹Parent username››';
 
   @override
-  String get adminImportUsersScreenParentUsernameHint => 'تړل (اختیاري)';
+  String get adminImportUsersScreenParentUsernameHint => '‹‹link (optional)››';
 
   @override
-  String get adminImportUsersScreenCouldNotReadFile => 'هغه فایل لوستل نه شو.';
+  String get adminImportUsersScreenCouldNotReadFile =>
+      '‹‹Could not read that file.››';
 
   @override
   String get adminImportUsersScreenCsvIntro =>
-      'د خپلو کاروونکو CSV اپلوډ کړئ. د کالمونو سرلیکونه په هره ژبه کیدای شي — ClassMate پیژني چې هر کالم څه معنا لري، بیا کرښې جدول ته بار کوي ترڅو یې د جوړولو مخکې وګورئ او سم کړئ.';
+      '‹‹Upload a CSV of your users. Column headers can be in any language — ClassMate detects what each column means, then loads the rows into the grid so you can review and fix anything before creating.››';
 
   @override
-  String get adminImportUsersScreenChooseCsv => 'د CSV فایل وټاکئ';
+  String get adminImportUsersScreenChooseCsv => '‹‹Choose CSV file››';
 
   @override
-  String get adminImportUsersScreenChooseDifferentFile => 'بل فایل وټاکئ';
+  String get adminImportUsersScreenChooseDifferentFile =>
+      '‹‹Choose a different file››';
 
   @override
   String adminImportUsersScreenSelectedFile(String fileName) {
-    return 'ټاکل شوی: $fileName';
+    return '‹‹Selected: $fileName››';
   }
 
   @override
-  String get adminImportUsersScreenRecognisedColumns => 'پیژندل شوي کالمونه';
+  String get adminImportUsersScreenRecognisedColumns =>
+      '‹‹Recognised columns››';
 
   @override
   String get adminImportUsersScreenRecognisedColumnsBody =>
-      'نوم · کارن‌نوم · پټنوم · بریښنالیک · تلیفون · دنده · ټولګی · والد (یو کارن‌نوم) · ماشومان (کارن‌نومونه)\n\nد دندې کلمې لکه \"student / طالب / תלמיד / élève / ученик\" ټولې سمې انطباق کیږي. ټولګی له \"Grade 10\"، \"الصف 10\"، \"כיתה 10\" څخه شمیره لولي. ورک کارن‌نومونه یا پټنومونه په اتومات ډول جوړیږي.';
+      '‹‹name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like \"student / طالب / תלמיד / élève / ученик\" all map correctly. Grade reads the number from \"Grade 10\", \"الصف 10\", \"כיתה 10\". Missing usernames or passwords are generated automatically.››';
 
   @override
   String adminImportUsersScreenDetectedRows(int count) {
-    return 'وپیژندل شوې — $count کرښې';
+    return '‹‹Detected — $count rows››';
   }
 
   @override
   String get adminImportUsersScreenNoColumnsDetected =>
-      'هیڅ پیژندل شوي کالمونه ونه موندل شول — د خپلې سرلیک کرښه وګورئ.';
+      '‹‹No known columns detected — check your header row.››';
 
   @override
   String get adminImportUsersScreenTruncatedNotice =>
-      'د کتنې لپاره لومړۍ ۲۰۰۰ کرښې ښودل کیږي.';
+      '‹‹Showing the first 2000 rows for review.››';
 
   @override
   String get adminImportUsersScreenReviewEditInGrid =>
-      'په جدول کې وګورئ او سم کړئ';
+      '‹‹Review & edit in grid››';
 
   @override
   String get adminImportUsersScreenReviewEditHint =>
-      'جدول ټوب له دې کرښو سره مخکې‌ډک پرانیزي ترڅو د جوړولو مخکې هره تیروتنه سمه کړئ.';
+      '‹‹Opens the Grid tab pre-filled with these rows so you can fix any mistakes before creating.››';
 
   @override
   String adminImportUsersScreenResultSummary(int count, int links) {
-    return '✓ $count کاروونکي جوړ شول · $links تړنې';
+    return '‹‹✓ Created $count users · $links links››';
   }
 
   @override
   String adminImportUsersScreenResultFailedSuffix(int failed) {
-    return ' · $failed ناکام';
+    return '‹‹ · $failed failed››';
   }
 
   @override
-  String get adminImportUsersScreenFailedRows => 'ناکامې کرښې';
+  String get adminImportUsersScreenFailedRows => '‹‹Failed rows››';
 
   @override
   String adminImportUsersScreenFailedRow(String row, String reason) {
-    return 'کرښه $row: $reason';
+    return '‹‹Row $row: $reason››';
   }
 
   @override
   String get adminImportUsersScreenCredentialsTitle =>
-      'اعتبارنامې (دا خپلو کاروونکو ته ورکړئ)';
+      '‹‹Credentials (hand these to your users)››';
 
   @override
-  String get teacherCohortsScreenTitle => 'ډلې';
+  String get teacherCohortsScreenTitle => '‹‹Cohorts››';
 
   @override
-  String get teacherCohortsScreenNewCohort => 'نوې ډله';
+  String get teacherCohortsScreenNewCohort => '‹‹New cohort››';
 
   @override
-  String get teacherCohortsScreenLoadError => 'ډلې بار نه شوې.';
+  String get teacherCohortsScreenLoadError => '‹‹Could not load cohorts.››';
 
   @override
   String get teacherCohortsScreenEmpty =>
-      'لا هیڅ ډله نشته.\nد جوړولو لپاره \"نوې ډله\" کېکاږئ.';
+      '‹‹No cohorts yet.\nTap \"New cohort\" to create one.››';
 
   @override
-  String get teacherCohortsScreenCohortNameLabel => 'د ډلې نوم';
+  String get teacherCohortsScreenCohortNameLabel => '‹‹Cohort name››';
 
   @override
-  String get teacherCohortsScreenCohortNameHint => 'لکه ۱۰-۲';
+  String get teacherCohortsScreenCohortNameHint => '‹‹e.g. 10-2››';
 
   @override
-  String get teacherCohortsScreenGradesLabel => 'ټولګی(ګان)';
+  String get teacherCohortsScreenGradesLabel => '‹‹Grade(s)››';
 
   @override
-  String get teacherCohortsScreenGradesHint => 'لکه ۱۰  یا  ۷،۸';
+  String get teacherCohortsScreenGradesHint => '‹‹e.g. 10  or  7,8››';
 
   @override
-  String get teacherCohortsScreenCancel => 'لغوه';
+  String get teacherCohortsScreenCancel => '‹‹Cancel››';
 
   @override
-  String get teacherCohortsScreenCreate => 'جوړول';
+  String get teacherCohortsScreenCreate => '‹‹Create››';
 
   @override
   String get teacherCohortsScreenEnterNameAndGrade =>
-      'نوم او لږ تر لږه یو ټولګی دننه کړئ';
+      '‹‹Enter a name and at least one grade››';
 
   @override
-  String get teacherCohortsScreenCohortCreated => 'ډله جوړه شوه';
+  String get teacherCohortsScreenCohortCreated => '‹‹Cohort created››';
 
   @override
-  String get teacherCohortsScreenFailed => 'ناکام شو';
+  String get teacherCohortsScreenFailed => '‹‹Failed››';
 
   @override
   String teacherCohortsScreenStudentsCount(int count) {
-    return '$count زده کوونکي';
+    return '‹‹$count students››';
   }
 
   @override
-  String get teacherCohortsScreenRenameGrades => 'نوم بدلول / ټولګي';
+  String get teacherCohortsScreenRenameGrades => '‹‹Rename / grades››';
 
   @override
-  String get teacherCohortsScreenDeleteCohort => 'ډله ړنګول';
+  String get teacherCohortsScreenDeleteCohort => '‹‹Delete cohort››';
 
   @override
-  String get teacherCohortsScreenAddStudents => 'زده کوونکي زیاتول';
+  String get teacherCohortsScreenAddStudents => '‹‹Add students››';
 
   @override
-  String get teacherCohortsScreenEditCohort => 'ډله سمول';
+  String get teacherCohortsScreenEditCohort => '‹‹Edit cohort››';
 
   @override
-  String get teacherCohortsScreenSave => 'خوندي کول';
+  String get teacherCohortsScreenSave => '‹‹Save››';
 
   @override
-  String get teacherCohortsScreenSaved => 'خوندي شو';
+  String get teacherCohortsScreenSaved => '‹‹Saved››';
 
   @override
   String teacherCohortsScreenDeleteConfirmTitle(String name) {
-    return '«$name» ړنګ کړئ؟';
+    return '‹‹Delete \"$name\"?››';
   }
 
   @override
   String get teacherCohortsScreenDeleteConfirmBody =>
-      'ډله لرې کیږي او زده کوونکي ترې جلا کیږي. د زده کوونکو حسابونه نه ړنګیږي.';
+      '‹‹The cohort is removed and students are detached from it. Student accounts are not deleted.››';
 
   @override
-  String get teacherCohortsScreenDelete => 'ړنګول';
+  String get teacherCohortsScreenDelete => '‹‹Delete››';
 
   @override
-  String get teacherCohortsScreenDeleted => 'ړنګ شو';
+  String get teacherCohortsScreenDeleted => '‹‹Deleted››';
 
   @override
-  String get teacherCohortsScreenLoadStudentsError => 'زده کوونکي بار نشول';
+  String get teacherCohortsScreenLoadStudentsError =>
+      '‹‹Could not load students››';
 
   @override
   String teacherCohortsScreenAddNStudents(int count) {
-    return '$count زده کوونکي زیات کړئ';
+    return '‹‹Add $count students››';
   }
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
-    return '$count زده کوونکي زیات شول';
+    return '‹‹Added $count students››';
   }
 
   @override
-  String get teacherCohortsScreenNoStudentsYet =>
-      'تر اوسه هیڅ زده کوونکی نشته.';
+  String get teacherCohortsScreenNoStudentsYet => '‹‹No students yet.››';
 
   @override
-  String get adminSettingsScreenBulkTools => 'ډله ییز وسایل';
+  String get adminSettingsScreenBulkTools => '‹‹Bulk tools››';
 
   @override
-  String get adminSettingsScreenImportUsers => 'کاروونکي واردول';
+  String get adminSettingsScreenImportUsers => '‹‹Import users››';
 
   @override
   String get adminSettingsScreenImportUsersSubtitle =>
-      'په یوځل ډیر زیات کړئ — جدول یا CSV';
+      '‹‹Add many at once — grid or CSV››';
 
   @override
-  String get adminSettingsScreenUpgradeGrades => 'ټولګي لوړول';
+  String get adminSettingsScreenUpgradeGrades => '‹‹Upgrade grades››';
 
   @override
   String get adminSettingsScreenUpgradeGradesSubtitle =>
-      'هر زده کوونکی یو ټولګی پورته کړئ';
+      '‹‹Promote every student one grade››';
 
   @override
-  String get adminSettingsScreenUpgradeGradesTitle => 'ټول ټولګي لوړ کړئ؟';
+  String get adminSettingsScreenUpgradeGradesTitle => '‹‹Upgrade all grades?››';
 
   @override
   String get adminSettingsScreenUpgradeGradesBody =>
-      'هر زده کوونکی یو ټولګی پورته ځي. هغه زده کوونکي چې دمخه په لوړ ټولګي کې دي د فارغانو په توګه ساتل کیږي (هیڅکله نه ړنګیږي) ترڅو تاسو یې اداره کړئ. دا د ښوونځي د کال په پیل کې یوځل پرځای کول خوندي دي.';
+      '‹‹Every student moves up one grade. Students already at the top grade are kept as graduating (never deleted) for you to handle. This is safe to run once at the start of the school year.››';
 
   @override
-  String get adminSettingsScreenUpgradeConfirm => 'لوړول';
+  String get adminSettingsScreenUpgradeConfirm => '‹‹Upgrade››';
 
   @override
   String adminSettingsScreenUpgradeSuccess(int promoted, int graduating) {
-    return '$promoted زده کوونکي پورته شول · $graduating فارغیږي';
+    return '‹‹Promoted $promoted students · $graduating graduating››';
   }
 
   @override
-  String get adminSettingsScreenDangerZone => 'د خطر سیمه';
+  String get adminSettingsScreenDangerZone => '‹‹Danger zone››';
 
   @override
-  String get adminSettingsScreenResetSchedule => 'مهالویش بیا تنظیمول';
+  String get adminSettingsScreenResetSchedule => '‹‹Reset schedule››';
 
   @override
   String get adminSettingsScreenResetScheduleSubtitle =>
-      'ټول دورې او بدلونونه ړنګ کړئ';
+      '‹‹Delete all periods & overrides››';
 
   @override
   String get adminSettingsScreenResetScheduleTitle =>
-      'ټول مهالویش بیا تنظیم کړئ؟';
+      '‹‹Reset the whole schedule?››';
 
   @override
   String get adminSettingsScreenResetScheduleBody =>
-      'دا د ستاسو د ښوونځي هره دوره او یوځلي بدلون په تل پاتې توګه ړنګوي. د زنګ مهالویش وختونه ساتل کیږي. دا بیرته نشي اوښتلی.';
+      '‹‹This permanently deletes every period and one-off override for your school. Bell-schedule times are kept. This cannot be undone.››';
 
   @override
   String adminSettingsScreenResetScheduleSuccess(int slots) {
-    return 'مهالویش پاک شو — $slots دورې لرې شوې';
+    return '‹‹Schedule cleared — $slots periods removed››';
   }
 
   @override
-  String get adminSettingsScreenResetCohorts => 'ډلې بیا تنظیمول';
+  String get adminSettingsScreenResetCohorts => '‹‹Reset cohorts››';
 
   @override
   String get adminSettingsScreenResetCohortsSubtitle =>
-      'ستاسو ټولې ډلې ړنګ کړئ';
+      '‹‹Delete all of your cohorts››';
 
   @override
-  String get adminSettingsScreenResetCohortsTitle => 'ټولې ډلې ړنګ کړئ؟';
+  String get adminSettingsScreenResetCohortsTitle => '‹‹Delete all cohorts?››';
 
   @override
   String get adminSettingsScreenResetCohortsBody =>
-      'دا ستاسو د ښوونځي هره ډله په تل پاتې توګه ړنګوي او زده کوونکي ترې لرې کوي. د زده کوونکو حسابونه نه ړنګیږي. دا بیرته نشي اوښتلی.';
+      '‹‹This permanently deletes every cohort in your school and removes students from them. Student accounts are NOT deleted. This cannot be undone.››';
 
   @override
-  String get adminSettingsScreenDeleteCohortsConfirm => 'ډلې ړنګول';
+  String get adminSettingsScreenDeleteCohortsConfirm => '‹‹Delete cohorts››';
 
   @override
   String adminSettingsScreenResetCohortsSuccess(int deleted) {
-    return '$deleted ډلې ړنګې شوې';
+    return '‹‹Deleted $deleted cohorts››';
   }
 
   @override
-  String get adminSettingsScreenAppearanceSubtitle => 'بڼه، رنګونه، ژبه';
+  String get adminSettingsScreenAppearanceSubtitle =>
+      '‹‹Theme, colors, language››';
 
   @override
-  String get adminSettingsScreenCancel => 'لغوه';
+  String get adminSettingsScreenCancel => '‹‹Cancel››';
 
   @override
-  String get adminSettingsScreenWorking => 'کار روان دی…';
+  String get adminSettingsScreenWorking => '‹‹Working…››';
 
   @override
   String adminSettingsScreenFailed(String error) {
-    return 'ناکام شو: $error';
+    return '‹‹Failed: $error››';
   }
 
   @override
   String adminSchedulePickStartDate(int freq) {
-    return 'د هرو $freq اونیو مهالویش لپاره د پیل نیټه وټاکئ.';
+    return '‹‹Pick a start date for the every-$freq-weeks schedule.››';
   }
 
   @override
   String get adminScheduleNoCohortsYet =>
-      'تر اوسه هیڅ ډله نشته — لومړی یوه جوړه کړئ.';
+      '‹‹No cohorts yet — create one first.››';
 
   @override
   String adminScheduleGradeWithCohort(String grade, String cohort) {
-    return 'ټولګی $grade · $cohort';
+    return '‹‹Grade $grade · $cohort››';
   }
 
   @override
-  String get adminScheduleDateOnLabel => 'په';
+  String get adminScheduleDateOnLabel => '‹‹On››';
 
   @override
-  String get adminScheduleDateStartsOnLabel => 'پیلیږي په';
+  String get adminScheduleDateStartsOnLabel => '‹‹Starts on››';
 
   @override
   String adminScheduleStudentCount(int count) {
-    return '$count زده کوونکي';
+    return '‹‹$count students››';
   }
 
   @override
-  String get adminScheduleAudienceNone => '—';
+  String get adminScheduleAudienceNone => '‹‹—››';
 
   @override
   String adminScheduleTeacherClashNamed(String name) {
-    return '$name به په یوه وخت کې دوه ټولګۍ ولري.';
+    return '‹‹$name would have two classes at the same time.››';
   }
 
   @override
   String get adminScheduleTeacherClash =>
-      'دا ښوونکی به په یوه وخت کې دوه ټولګۍ ولري.';
+      '‹‹This teacher would have two classes at the same time.››';
 
   @override
   String adminScheduleStudentClashSingle(String name) {
-    return '$name به په یوه وخت کې دوه دورې ولري:';
+    return '‹‹$name would have two periods at the same time:››';
   }
 
   @override
   String adminScheduleStudentClashMany(int count) {
-    return '$count زده کوونکي به په یوه وخت کې دوه دورې ولري:';
+    return '‹‹$count students would have two periods at the same time:››';
   }
 
   @override
-  String get adminScheduleAStudent => 'یو زده کوونکی';
+  String get adminScheduleAStudent => '‹‹A student››';
 
   @override
   String adminScheduleAffected(String preview) {
-    return 'اغیزمن: $preview';
+    return '‹‹Affected: $preview››';
   }
 
   @override
-  String get adminScheduleResolvePrompt => 'دا باید څنګه حل شي؟';
+  String get adminScheduleResolvePrompt => '‹‹How should this be resolved?››';
 
   @override
   String get adminScheduleResolvePromptStudents =>
-      'دا د هغو زده کوونکو لپاره باید څنګه حل شي؟';
+      '‹‹How should this be resolved for those students?››';
 
   @override
   String adminScheduleStudentsInCohorts(int count, int cohortCount) {
-    return 'په ټاکل شویو ډلو کې $count زده کوونکي';
+    return '‹‹$count students in selected cohorts››';
   }
 
   @override
   String adminScheduleStudentsInGrade(int count, String grade) {
-    return 'په ټولګي $grade کې $count زده کوونکي';
+    return '‹‹$count students in Grade $grade››';
   }
 
   @override
   String get adminScheduleCustomizedNote =>
-      'دودیز شوی — د جلا زده کوونکو په توګه خوندي شو';
+      '‹‹Customized — saved as individual students››';
 
   @override
   String adminScheduleMoreCount(int count) {
-    return '+$count نور';
+    return '‹‹+$count more››';
   }
 
   @override
-  String get adminScheduleAddStudentsTitle => 'زده کوونکي زیاتول';
+  String get adminScheduleAddStudentsTitle => '‹‹Add students››';
 
   @override
-  String get adminScheduleNoStudentsMatch => 'هیڅ زده کوونکی سمون نه خوري.';
+  String get adminScheduleNoStudentsMatch => '‹‹No students match.››';
 
   @override
-  String get adminScheduleNoPeriodsHere => 'دلته تر اوسه هیڅ دوره نشته.';
+  String get adminScheduleNoPeriodsHere => '‹‹No periods here yet.››';
 
   @override
   String adminScheduleGradeRange(String from, String to) {
-    return 'ټولګی $from-$to';
+    return '‹‹Grade $from-$to››';
   }
 
   @override
   String adminScheduleGradesList(String grades) {
-    return 'ټولګي $grades';
+    return '‹‹Grades $grades››';
   }
 
   @override
   String get adminScheduleNoStudentsInCohorts =>
-      'په دې ډلو کې تر اوسه هیڅ زده کوونکی نشته.';
+      '‹‹No students in these cohorts yet.››';
 
   @override
   String adminScheduleEveryNWeeks(int freq) {
-    return 'هرې $freq اونۍ';
+    return '‹‹Every $freq weeks››';
   }
 
   @override
-  String get adminScheduleColorLabel => 'رنګ';
+  String get adminScheduleColorLabel => '‹‹Color››';
 
   @override
-  String get adminScheduleSubjectRequired => 'مضمون *';
+  String get adminScheduleSubjectRequired => '‹‹Subject *››';
 
   @override
   String get adminScheduleNoSchoolSubjects =>
-      'تر اوسه د ښوونځي مضمونونه نشته. د یوه تعریفولو لپاره «نوی زیاتول» کلیک کړئ.';
+      '‹‹No school subjects yet. Tap \"Add new\" to define one.››';
 
   @override
   String get adminScheduleNoSubjectsMatch =>
-      'ستاسو د لټون سره هیڅ مضمون سمون نه خوري.';
+      '‹‹No subjects match your search.››';
 
   @override
   String get teacherNewAnnouncementScreenBroadcastBody =>
-      'هیڅ ځانګړې لیدونکي نه دي ټاکل شوي. دا اعلان به د ښوونځي هر زده کوونکي، مور و پلار، ښوونکي، منشي او اداره چي ته ښکاره وي.';
+      '‹‹No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.››';
 
   @override
   String teacherNewAnnouncementScreenGradeLabel(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
   String get teacherNewAnnouncementScreenNoFilesAttached =>
-      'هیڅ فایل نه دی نښلول شوی.';
+      '‹‹No files attached.››';
 
   @override
   String teacherNewAnnouncementScreenSelectedCount(int count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
   String get teacherNewAnnouncementScreenAudienceHint =>
-      'یوه کټګوري وټاکئ، بیا ځانګړي رولونه، ټولګي، ډلې یا کسان. د هرې کټګورۍ ټاکنې سره یوځای کیږي.';
+      '‹‹Pick a category, then the specific roles, grades, cohorts, or people. Selections from every category add up.››';
 
   @override
   String get teacherNewAnnouncementScreenLoadingStudents =>
-      'زده کوونکي بار کیږي…';
+      '‹‹Loading students…››';
 
   @override
   String get teacherNewAnnouncementScreenNoGradeLevels =>
-      'تر اوسه هیڅ ټولګی نه دی موندل شوی.';
+      '‹‹No grade levels found yet.››';
 
   @override
   String get teacherNewAnnouncementScreenTapSelectCohorts =>
-      'د ډلو ټاکلو لپاره کلیک کړئ…';
+      '‹‹Tap to select cohorts…››';
 
   @override
   String teacherNewAnnouncementScreenCohortsSelected(int count) {
-    return '$count ډلې ټاکل شوې';
+    return '‹‹$count cohorts selected››';
   }
 
   @override
   String get teacherNewAnnouncementScreenTapSelectStudents =>
-      'د زده کوونکو ټاکلو لپاره کلیک کړئ…';
+      '‹‹Tap to select students…››';
 
   @override
   String teacherNewAnnouncementScreenStudentsSelected(int count) {
-    return '$count زده کوونکي ټاکل شوي';
+    return '‹‹$count students selected››';
   }
 
   @override
   String get teacherNewAnnouncementScreenTapSelectParents =>
-      'د مور و پلار ټاکلو لپاره کلیک کړئ…';
+      '‹‹Tap to select parents…››';
 
   @override
   String teacherNewAnnouncementScreenParentsSelected(int count) {
-    return '$count مور و پلار ټاکل شوي';
+    return '‹‹$count parents selected››';
   }
 
   @override
-  String get teacherNewAnnouncementScreenSelectedAudience => 'ټاکل شوي لیدونکي';
+  String get teacherNewAnnouncementScreenSelectedAudience =>
+      '‹‹Selected audience››';
 
   @override
   String teacherNewAnnouncementScreenStudentsInCohorts(int count) {
-    return 'په ټاکل شویو ډلو کې $count زده کوونکي';
+    return '‹‹$count students in selected cohorts››';
   }
 
   @override
-  String get teacherNewAnnouncementScreenSelectParents => 'مور و پلار ټاکل';
+  String get teacherNewAnnouncementScreenSelectParents => '‹‹Select parents››';
 
   @override
   String teacherNewAnnouncementScreenChildrenSummary(
     int count,
     String summary,
   ) {
-    return '$count ماشومان — $summary';
+    return '‹‹$count children — $summary››';
   }
 
   @override
   String get teacherNewAnnouncementScreenNoLinkedChildren =>
-      'هیڅ نښلول شوی ماشوم نشته';
+      '‹‹No linked children››';
 
   @override
   String adminPeriodsScreenDayN(int dow) {
-    return 'ورځ $dow';
+    return '‹‹Day $dow››';
   }
 
   @override
   String adminPeriodsScreenPeriodN(int period) {
-    return 'دوره $period';
+    return '‹‹Period $period››';
   }
 
   @override
-  String get adminPeriodsScreenPeriodDropdownLabel => 'دوره';
+  String get adminPeriodsScreenPeriodDropdownLabel => '‹‹Period››';
 
   @override
-  String get adminPeriodsScreenSelectTeacher => 'ښوونکی وټاکئ…';
+  String get adminPeriodsScreenSelectTeacher => '‹‹Select teacher…››';
 
   @override
-  String get adminPeriodsScreenNone => '— هیڅ —';
+  String get adminPeriodsScreenNone => '‹‹— None —››';
 
   @override
-  String get adminPeriodsScreenLinkClassroom => 'له ټولګي سره نښلول…';
+  String get adminPeriodsScreenLinkClassroom => '‹‹Link to classroom…››';
 
   @override
   String adminPeriodsScreenCohortGradeName(String grade, String name) {
-    return 'ټ$grade — $name';
+    return '‹‹G$grade — $name››';
   }
 
   @override
   String adminPeriodsScreenGradeN(String grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get roleBadgeStudent => 'زده کوونکی';
+  String get roleBadgeStudent => '‹‹Student››';
 
   @override
-  String get roleBadgeTeacher => 'ښوونکی';
+  String get roleBadgeTeacher => '‹‹Teacher››';
 
   @override
-  String get roleBadgeAdmin => 'اداره چي';
+  String get roleBadgeAdmin => '‹‹Admin››';
 
   @override
-  String get roleBadgeSecretary => 'منشي';
+  String get roleBadgeSecretary => '‹‹Secretary››';
 
   @override
-  String get roleBadgeParent => 'مور و پلار';
+  String get roleBadgeParent => '‹‹Parent››';
 
   @override
-  String get roleBadgeMember => 'غړی';
+  String get roleBadgeMember => '‹‹Member››';
 
   @override
-  String get teacherSlotAttachmentsScreenEmptyTitle => 'تر اوسه هیڅ ضمیمه نشته';
+  String get teacherSlotAttachmentsScreenEmptyTitle => '‹‹No attachments yet››';
 
   @override
   String get teacherSlotAttachmentsScreenEmptyBody =>
-      'توکي ضمیمه کړئ ترڅو ستاسو زده کوونکي یې د دې دورې په کارت کې وګوري.';
+      '‹‹Attach materials so your students see them on this period\'s card.››';
 
   @override
-  String get teacherSlotAttachmentsScreenMaterialFallback => 'توکی';
+  String get teacherSlotAttachmentsScreenMaterialFallback => '‹‹Material››';
 
   @override
-  String get teacherSlotAttachmentsScreenSheetTitle => 'توکی ضمیمه کول';
+  String get teacherSlotAttachmentsScreenSheetTitle => '‹‹Attach material››';
 
   @override
-  String get teacherSlotAttachmentsScreenCreateNew => 'نوی توکی جوړول';
+  String get teacherSlotAttachmentsScreenCreateNew => '‹‹Create new material››';
 
   @override
   String get teacherAddGradeScreenPickAudience =>
-      'لږ تر لږه یو زده کوونکی، ډله یا ټولګی وټاکئ.';
+      '‹‹Pick at least one student, cohort, or grade.››';
 
   @override
   String get teacherAddGradeScreenEnterTitle =>
-      'د دې نمرې لپاره یو سرلیک دننه کړئ.';
+      '‹‹Enter a title for this grade.››';
 
   @override
-  String get teacherAddGradeScreenPickExam => 'یوه ازموینه وټاکئ.';
+  String get teacherAddGradeScreenPickExam => '‹‹Pick an exam.››';
 
   @override
-  String get teacherAddGradeScreenPickAssignment => 'یو دنده وټاکئ.';
+  String get teacherAddGradeScreenPickAssignment => '‹‹Pick an assignment.››';
 
   @override
   String get teacherAddGradeScreenCouldNotResolveTitle =>
-      'د نمرې سرلیک نشو ټاکلی.';
+      '‹‹Could not resolve grade title.››';
 
   @override
   String teacherAddGradeScreenEnterNumericGrade(String name) {
-    return 'د $name لپاره عددي نمره دننه کړئ.';
+    return '‹‹Enter a numeric grade for $name.››';
   }
 
   @override
   String teacherAddGradeScreenError(String error) {
-    return 'تېروتنه: $error';
+    return '‹‹Error: $error››';
   }
 
   @override
   String get teacherAddGradeScreenTapSelectStudents =>
-      'د زده کوونکو ټاکلو لپاره کلیک کړئ…';
+      '‹‹Tap to select students…››';
 
   @override
   String teacherAddGradeScreenStudentsSelected(int count) {
-    return '$count زده کوونکي ټاکل شوي';
+    return '‹‹$count student(s) selected››';
   }
 
   @override
   String get teacherAddGradeScreenTapSelectCohorts =>
-      'د ډلو ټاکلو لپاره کلیک کړئ…';
+      '‹‹Tap to select cohorts…››';
 
   @override
   String teacherAddGradeScreenCohortsSelected(int count) {
-    return '$count ډلې ټاکل شوې';
+    return '‹‹$count cohort(s) selected››';
   }
 
   @override
   String teacherAddGradeScreenWillBeGraded(int count) {
-    return '$count زده کوونکو ته به نمره ورکړل شي';
+    return '‹‹$count student(s) will be graded››';
   }
 
   @override
   String get teacherAddGradeScreenNoGradeLevels =>
-      'تر اوسه ستاسو په زده کوونکو هیڅ ټولګی نه دی موندل شوی.';
+      '‹‹No grade levels found on your students yet.››';
 
   @override
   String get teacherAddGradeScreenSelectAudienceExams =>
-      'د ازموینو فلټرولو لپاره لومړی لیدونکي وټاکئ.';
+      '‹‹Select an audience first to filter exams.››';
 
   @override
   String teacherAddGradeScreenNoExamsReach(String audience) {
-    return 'هیڅ ازموینه ټولو ټاکل شویو $audience ته نه رسیږي.';
+    return '‹‹No exams reach all selected $audience.››';
   }
 
   @override
   String get teacherAddGradeScreenSelectAudienceAssignments =>
-      'د دندو فلټرولو لپاره لومړی لیدونکي وټاکئ.';
+      '‹‹Select an audience first to filter assignments.››';
 
   @override
   String teacherAddGradeScreenNoAssignmentsReach(String audience) {
-    return 'هیڅ دنده ټولو ټاکل شویو $audience ته نه رسیږي.';
+    return '‹‹No assignments reach all selected $audience.››';
   }
 
   @override
   String get teacherAddGradeScreenSelectAudienceAbove =>
-      'د نمرو دننه کولو لپاره پورته یو لیدونکي وټاکئ.';
+      '‹‹Select an audience above to enter grades.››';
 
   @override
-  String get teacherAddGradeScreenSelectStudentsTitle => 'زده کوونکي ټاکل';
+  String get teacherAddGradeScreenSelectStudentsTitle => '‹‹Select students››';
 
   @override
   String teacherAddGradeScreenCountSelected(int count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
-  String get teacherAddGradeScreenSelectCohortsTitle => 'ډلې ټاکل';
+  String get teacherAddGradeScreenSelectCohortsTitle => '‹‹Select cohorts››';
 
   @override
-  String get teacherAddGradeScreenAudienceCohorts => 'ډلې';
+  String get teacherAddGradeScreenAudienceCohorts => '‹‹cohorts››';
 
   @override
-  String get teacherAddGradeScreenAudienceGrades => 'ټولګي';
+  String get teacherAddGradeScreenAudienceGrades => '‹‹grades››';
 
   @override
-  String get teacherAddGradeScreenAudienceStudents => 'زده کوونکي';
+  String get teacherAddGradeScreenAudienceStudents => '‹‹students››';
 
   @override
-  String get formDetailScreenCouldNotLoad => 'دا فورمه اوس مهال نشي بار کیدای.';
+  String get formDetailScreenCouldNotLoad =>
+      '‹‹Could not load this form right now.››';
 
   @override
-  String get formDetailScreenSubmitted => 'فورمه وسپارل شوه';
+  String get formDetailScreenSubmitted => '‹‹Form submitted››';
 
   @override
-  String get formDetailScreenSubmissionFailed => 'سپارل ناکام شو';
+  String get formDetailScreenSubmissionFailed => '‹‹Submission failed››';
 
   @override
   String get formDetailScreenAlreadySubmittedNote =>
-      'تاسو دا فورمه دمخه سپارلې ده.';
+      '‹‹You have already submitted this form.››';
 
   @override
-  String get formDetailScreenSubmitting => 'سپارل کیږي…';
+  String get formDetailScreenSubmitting => '‹‹Submitting…››';
 
   @override
-  String get formDetailScreenSubmitAgain => 'بیا سپارل';
+  String get formDetailScreenSubmitAgain => '‹‹Submit again››';
 
   @override
-  String get formDetailScreenSubmitForm => 'فورمه سپارل';
+  String get formDetailScreenSubmitForm => '‹‹Submit form››';
 
   @override
   String formDetailScreenQuestionCount(int count) {
-    return '$count پوښتنې';
+    return '‹‹$count questions››';
   }
 
   @override
-  String get formDetailScreenMultiSubmit => 'څو ځله سپارل';
+  String get formDetailScreenMultiSubmit => '‹‹Multi-submit››';
 
   @override
-  String get formDetailScreenOnePerStudent => 'هر زده کوونکي ته ۱';
+  String get formDetailScreenOnePerStudent => '‹‹1 per student››';
 
   @override
-  String get formDetailScreenRequired => 'اړین';
+  String get formDetailScreenRequired => '‹‹Required››';
 
   @override
-  String get formDetailScreenYourAnswer => 'ستاسو ځواب';
+  String get formDetailScreenYourAnswer => '‹‹Your answer››';
 
   @override
-  String get formDetailScreenLongAnswerText => 'اوږد ځواب متن';
+  String get formDetailScreenLongAnswerText => '‹‹Long answer text››';
 
   @override
-  String get formDetailScreenSelect => 'وټاکئ';
+  String get formDetailScreenSelect => '‹‹Select››';
 
   @override
-  String get novaChatScreenAboutAiPoweredTitle => 'په AI ولاړ مرستندوی';
+  String get novaChatScreenAboutAiPoweredTitle => '‹‹AI-powered assistant››';
 
   @override
   String get novaChatScreenAboutAiPoweredBody =>
-      'NOVA د لوی ژبني ماډل پر تخنیک جوړ دی ترڅو تاسو سره په زده کړه، د مفهومونو په پوهیدلو او د نظرونو په کشف کې مرسته وکړي.';
+      '‹‹NOVA is built on large language model technology to help you study, understand concepts, and explore ideas.››';
 
   @override
   String get novaChatScreenAboutMistakesBody =>
-      'NOVA ممکن ناسم، نیمګړي یا زاړه معلومات تولید کړي. مهم ځوابونه تل د خپل ښوونکي یا د باور وړ سرچینې سره تایید کړئ.';
+      '‹‹NOVA may produce inaccurate, incomplete, or outdated information. Always verify important answers with your teacher or a trusted source.››';
 
   @override
   String get novaChatScreenAboutEducationalBody =>
-      'NOVA د زده کړې مرستې لپاره ډیزاین شوی او د مسلکي طبي، حقوقي یا مالي مشورې بدیل نه دی.';
+      '‹‹NOVA is designed for learning support and is not a substitute for professional medical, legal, or financial advice.››';
 
   @override
   String get novaChatScreenAboutPrivacyBody =>
-      'خبرې اترې د ځوابونو د تولید لپاره کارول کیږي. حساس شخصي معلومات مه شریکوئ.';
+      '‹‹Conversations are used to generate responses. Do not share sensitive personal information.››';
 
   @override
   String get novaChatScreenDisclaimerTapToLearn =>
-      'NOVA کولی شي تېروتنې وکړي. د نورو زده کړې لپاره کلیک کړئ.';
+      '‹‹NOVA can make mistakes. Tap to learn more.››';
 
   @override
-  String get userProfileSheetSchool => 'ښوونځی';
+  String get userProfileSheetSchool => '‹‹School››';
 
   @override
-  String get userProfileSheetClass => 'ټولګی';
+  String get userProfileSheetClass => '‹‹Class››';
 
   @override
-  String get userProfileSheetParents => 'مور و پلار';
+  String get userProfileSheetParents => '‹‹Parents››';
 
   @override
-  String get userProfileSheetChildren => 'ماشومان';
+  String get userProfileSheetChildren => '‹‹Children››';
 
   @override
-  String get scheduleScreenNotes => 'یادښتونه';
+  String get scheduleScreenNotes => '‹‹Notes››';
 
   @override
-  String get scheduleScreenMaterialFallback => 'توکی';
+  String get scheduleScreenMaterialFallback => '‹‹Material››';
 
   @override
-  String get scheduleScreenNow => 'اوس';
+  String get scheduleScreenNow => '‹‹NOW››';
 
   @override
   String scheduleScreenMaterialCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count توکي',
-      one: '۱ توکی',
+      other: '$count materials',
+      one: '1 material',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -9387,50 +9504,50 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ونه',
+      other: 's',
       one: '',
     );
-    return '$count ځواب$_temp0';
+    return '‹‹$count response$_temp0››';
   }
 
   @override
-  String get teacherFormResponsesScreenEmptyTitle => 'تر اوسه هیڅ ځواب نشته';
+  String get teacherFormResponsesScreenEmptyTitle => '‹‹No responses yet››';
 
   @override
   String get teacherFormResponsesScreenEmptySubtitle =>
-      'کله چې زده کوونکي وسپاري، ځوابونه به دلته ښکاره شي.';
+      '‹‹Responses will appear here once students submit.››';
 
   @override
-  String get teacherFormResponsesScreenStudentFallback => 'زده کوونکی';
+  String get teacherFormResponsesScreenStudentFallback => '‹‹Student››';
 
   @override
   String teacherFormResponsesScreenSubmittedAt(String date) {
-    return 'وسپارل شو $date';
+    return '‹‹Submitted $date››';
   }
 
   @override
   String teacherCreateFormScreenQuestionNumber(String number) {
-    return 'پ$number';
+    return '‹‹Q$number››';
   }
 
   @override
-  String get teacherCreateFormScreenShortAnswerPreview => 'لنډ ځواب';
+  String get teacherCreateFormScreenShortAnswerPreview => '‹‹Short answer››';
 
   @override
-  String get teacherCreateFormScreenLongAnswerPreview => 'اوږد ځواب';
+  String get teacherCreateFormScreenLongAnswerPreview => '‹‹Long answer››';
 
   @override
-  String get teacherCreateFormScreenDatePickerPreview => 'د نیټې ټاکونکی';
+  String get teacherCreateFormScreenDatePickerPreview => '‹‹Date picker››';
 
   @override
-  String get teacherCreateFormScreenScaleTo => 'تر';
+  String get teacherCreateFormScreenScaleTo => '‹‹to››';
 
   @override
-  String get teacherMeetingsScreenNoneOption => 'هیڅ';
+  String get teacherMeetingsScreenNoneOption => '‹‹None››';
 
   @override
   String teacherMeetingsScreenGradeLabel(String grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
@@ -9438,69 +9555,69 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count زده کوونک$_temp0';
+    return '‹‹$count student$_temp0››';
   }
 
   @override
-  String get teacherMeetingsScreenPickStartTime => 'د پیل وخت وټاکئ';
+  String get teacherMeetingsScreenPickStartTime => '‹‹Pick start time››';
 
   @override
-  String get teacherMeetingsScreenPickEndTime => 'د پای وخت وټاکئ';
+  String get teacherMeetingsScreenPickEndTime => '‹‹Pick end time››';
 
   @override
   String teacherMeetingsScreenMembersWillReceive(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count غړ$_temp0 به دا ترلاسه کړي';
+    return '‹‹$count member$_temp0 will receive this››';
   }
 
   @override
-  String get teacherAssignmentsScreenTitle => 'دندې';
+  String get teacherAssignmentsScreenTitle => '‹‹Assignments››';
 
   @override
   String teacherAssignmentsScreenSummary(int total, int published) {
-    return '$total ټول · $published خپاره شوي';
+    return '‹‹$total total · $published published››';
   }
 
   @override
   String get teacherAssignmentsScreenEmpty =>
-      'تر اوسه هیڅ دنده نشته.\nد جوړولو لپاره + کلیک کړئ.';
+      '‹‹No assignments yet.\nTap + to create one.››';
 
   @override
   String teacherAssignmentsScreenSubmitted(int count) {
-    return '$count وسپارل شول';
+    return '‹‹$count submitted››';
   }
 
   @override
-  String get audienceSectionCohorts => 'ډلې';
+  String get audienceSectionCohorts => '‹‹Cohorts››';
 
   @override
-  String get audienceSectionGrades => 'ټولګي';
+  String get audienceSectionGrades => '‹‹Grades››';
 
   @override
   String audienceSectionGradeLabel(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get audienceSectionStudents => 'زده کوونکي';
+  String get audienceSectionStudents => '‹‹Students››';
 
   @override
   String audienceSectionStudentCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count زده کوونک$_temp0';
+    return '‹‹$count student$_temp0››';
   }
 
   @override
@@ -9508,15 +9625,15 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count غړ$_temp0 به دا ترلاسه کړي';
+    return '‹‹$count member$_temp0 will receive this››';
   }
 
   @override
   String audienceSectionSelectedCount(int count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
@@ -9524,160 +9641,159 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count زده کوونک$_temp0';
+    return '‹‹$count student$_temp0››';
   }
 
   @override
   String secretaryStudentsScreenAvg(String grade) {
-    return 'منځنۍ $grade';
+    return '‹‹Avg $grade››';
   }
 
   @override
-  String get secretaryStudentsScreenIdentity => 'هویت';
+  String get secretaryStudentsScreenIdentity => '‹‹Identity››';
 
   @override
-  String get secretaryStudentsScreenUsername => 'د کاروونکي نوم';
+  String get secretaryStudentsScreenUsername => '‹‹Username››';
 
   @override
-  String get secretaryStudentsScreenEmail => 'بریښنالیک';
+  String get secretaryStudentsScreenEmail => '‹‹Email››';
 
   @override
-  String get secretaryStudentsScreenPhone => 'تلیفون';
+  String get secretaryStudentsScreenPhone => '‹‹Phone››';
 
   @override
-  String get secretaryStudentsScreenCohort => 'ډله';
+  String get secretaryStudentsScreenCohort => '‹‹Cohort››';
 
   @override
-  String get secretaryStudentsScreenGrade => 'ټولګی';
+  String get secretaryStudentsScreenGrade => '‹‹Grade››';
 
   @override
-  String get secretaryStudentsScreenPrimaryCohort => 'اصلي ډله';
+  String get secretaryStudentsScreenPrimaryCohort => '‹‹Primary cohort››';
 
   @override
   String secretaryStudentsScreenTeacher(String name) {
-    return 'ښوونکی: $name';
+    return '‹‹Teacher: $name››';
   }
 
   @override
-  String get chatMessageBubbleEdited => 'سم شو';
+  String get chatMessageBubbleEdited => '‹‹edited››';
 
   @override
-  String get chatMessageBubbleForwarded => 'لیږل شوی';
+  String get chatMessageBubbleForwarded => '‹‹Forwarded››';
 
   @override
-  String get chatMessageBubblePinned => 'پن شوی';
+  String get chatMessageBubblePinned => '‹‹Pinned››';
 
   @override
-  String get chatMessageBubbleReply => 'ځواب';
+  String get chatMessageBubbleReply => '‹‹Reply››';
 
   @override
-  String get chatMessageBubbleMessage => 'پیغام';
+  String get chatMessageBubbleMessage => '‹‹Message››';
 
   @override
-  String get chatMessageBubbleDeletedMessage => 'دا پیغام ړنګ شو';
+  String get chatMessageBubbleDeletedMessage => '‹‹This message was deleted››';
 
   @override
-  String get chatMessageBubbleImage => 'انځور';
+  String get chatMessageBubbleImage => '‹‹Image››';
 
   @override
-  String get chatMessageBubbleVideo => 'ویډیو';
+  String get chatMessageBubbleVideo => '‹‹Video››';
 
   @override
-  String get chatMessageBubbleFile => 'فایل';
+  String get chatMessageBubbleFile => '‹‹File››';
 
   @override
-  String get chatMessageInfoPageReadSection => 'لوستل شوی';
+  String get chatMessageInfoPageReadSection => '‹‹Read››';
 
   @override
-  String get chatMessageInfoPageNoOneRead => 'تر اوسه چا دا نه دی لوستلی';
+  String get chatMessageInfoPageNoOneRead => '‹‹No one has read this yet››';
 
   @override
-  String get chatMessageInfoPageDeliveredSection => 'رسول شوی';
+  String get chatMessageInfoPageDeliveredSection => '‹‹Delivered››';
 
   @override
-  String get chatMessageInfoPagePendingSection => 'په تمه';
+  String get chatMessageInfoPagePendingSection => '‹‹Pending››';
 
   @override
-  String get chatMessageInfoPageUnknown => 'نامعلوم';
+  String get chatMessageInfoPageUnknown => '‹‹Unknown››';
 
   @override
-  String get profileEnterCodeTitle => '۶ رقمي کوډ دننه کړئ';
+  String get profileEnterCodeTitle => '‹‹Enter the 6-digit code››';
 
   @override
   String profileCodeSentTo(String target) {
-    return '$target ته ولیږل شو. په ۱۵ دقیقو کې پای ته رسیږي.';
+    return '‹‹Sent to $target. Expires in 15 minutes.››';
   }
 
   @override
-  String get profileCodeSent => 'کوډ ولیږل شو. په ۱۵ دقیقو کې پای ته رسیږي.';
+  String get profileCodeSent => '‹‹Code sent. Expires in 15 minutes.››';
 
   @override
   String profileChangeContact(String label) {
-    return '$label بدلول';
+    return '‹‹Change $label››';
   }
 
   @override
   String get profileVerifyNewContactInfo =>
-      'یو تایید کوډ به هغه ارزښت ته ولیږل شي چې تاسو یې دننه کوئ — ترڅو ثابته شي چې ستاسو دی.';
+      '‹‹A verification code will be sent to the value you enter — confirming you own it.››';
 
   @override
   String profileVerifyCurrentContactInfo(String label) {
-    return 'یو تایید کوډ به ستاسو اوسني $label ته ولیږل شي ترڅو د بدلولو دمخه ثابته کړئ چې ستاسو دی.';
+    return '‹‹A verification code will be sent to your CURRENT $label so you can prove ownership before switching.››';
   }
 
   @override
-  String get appShellReports => 'راپورونه';
+  String get appShellReports => '‹‹Reports››';
 
   @override
-  String get appShellExportData => 'د معلوماتو صادرول';
+  String get appShellExportData => '‹‹Export Data››';
 
   @override
-  String get appShellAdmin => 'اداره';
+  String get appShellAdmin => '‹‹Admin››';
 
   @override
-  String get appShellViewingAs => 'د دې په توګه کتل ';
+  String get appShellViewingAs => '‹‹Viewing as ››';
 
   @override
-  String get appShellSwitchChild => 'ماشوم بدلول';
+  String get appShellSwitchChild => '‹‹Switch child››';
 
   @override
   String get messageThreadScreenGroupInviteSubtitle =>
-      'تاسو دې ګروپ ته د ګډون بلنه درکړل شوې.';
+      '‹‹You were invited to join this group.››';
 
   @override
   String get messageThreadScreenBlockedHint =>
-      'تاسو دا چټ بند کړی. د بیا چټ لپاره یې د بند شویو کسانو له لیست څخه خلاص کړئ.';
+      '‹‹You blocked this chat. Unblock from the blocked people list to chat again.››';
 
   @override
   String get messageThreadScreenCannotSendHint =>
-      'تاسو اوس مهال په دې چټ کې پیغامونه نشئ لیږلی.';
+      '‹‹You cannot send messages in this chat right now.››';
 
   @override
-  String get messageThreadScreenTapForGroupInfo =>
-      'د ګروپ معلوماتو لپاره کلیک کړئ';
+  String get messageThreadScreenTapForGroupInfo => '‹‹Tap for group info››';
 
   @override
-  String get messageThreadScreenAddParticipantsTitle => 'ګډون کوونکي زیاتول';
+  String get messageThreadScreenAddParticipantsTitle => '‹‹Add participants››';
 
   @override
   String teacherExamsScreenGradedCount(int count) {
-    return '$count نمره ورکړل شوي';
+    return '‹‹$count graded››';
   }
 
   @override
-  String get teacherScheduleScreenNextUp => 'راتلونکی';
+  String get teacherScheduleScreenNextUp => '‹‹Next up››';
 
   @override
   String teacherScheduleScreenPeriodLabel(String period) {
-    return 'دوره $period';
+    return '‹‹Period $period››';
   }
 
   @override
   String teacherScheduleScreenGradeLabel(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
@@ -9685,217 +9801,220 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count توکي',
-      one: '۱ توکی',
+      other: '$count materials',
+      one: '1 material',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get teacherClassroomAddAssignmentScreenTitle => 'دنده زیاتول';
+  String get teacherClassroomAddAssignmentScreenTitle => '‹‹Add Assignment››';
 
   @override
-  String get teacherClassroomAddAssignmentScreenDetails => 'د دندې جزئیات';
+  String get teacherClassroomAddAssignmentScreenDetails =>
+      '‹‹Assignment Details››';
 
   @override
   String get teacherClassroomAddAssignmentScreenDueDateOptional =>
-      'د سپارلو نیټه (اختیاري)';
+      '‹‹Due date (optional)››';
 
   @override
   String get teacherClassroomAddAssignmentScreenNotifyStudents =>
-      'زده کوونکو ته خبر ورکول';
+      '‹‹Notify students››';
 
   @override
-  String get teacherClassroomAddAssignmentScreenUploading => 'پورته کیږي…';
+  String get teacherClassroomAddAssignmentScreenUploading => '‹‹Uploading…››';
 
   @override
-  String get teacherClassroomAddAssignmentScreenAttachFiles => 'فایلونه نښلول';
+  String get teacherClassroomAddAssignmentScreenAttachFiles =>
+      '‹‹Attach files››';
 
   @override
   String get teacherClassroomAddAssignmentScreenAddMoreFiles =>
-      'نور فایلونه زیاتول';
+      '‹‹Add more files››';
 
   @override
-  String get diplomasScreenCertificate => 'سند';
+  String get diplomasScreenCertificate => '‹‹Certificate››';
 
   @override
   String diplomasScreenIssuedDate(String date) {
-    return 'صادر شو $date';
+    return '‹‹Issued $date››';
   }
 
   @override
   String get diplomasScreenNoCertificatesReceived =>
-      'تر اوسه هیڅ سند نه دی ترلاسه شوی.';
+      '‹‹No certificates received yet.››';
 
   @override
   String diplomasScreenFileCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count فایلونه',
-      one: '$count فایل',
+      other: '$count files',
+      one: '$count file',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get gradesScreenOutOf100 => '/ ۱۰۰';
+  String get gradesScreenOutOf100 => '‹‹/ 100››';
 
   @override
   String gradesScreenShowMore(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ې نمرې',
-      one: 'ه نمره',
+      other: 's',
+      one: '',
     );
-    return '$count نور$_temp0 وښیه';
+    return '‹‹Show $count more grade$_temp0››';
   }
 
   @override
-  String get gradesScreenShowLess => 'لږ وښیه';
+  String get gradesScreenShowLess => '‹‹Show less››';
 
   @override
   String gradesScreenScoreOutOf100(String score) {
-    return '$score / ۱۰۰';
+    return '‹‹$score / 100››';
   }
 
   @override
-  String get adminSchoolSettingsStart => 'پیل';
+  String get adminSchoolSettingsStart => '‹‹Start››';
 
   @override
-  String get adminSchoolSettingsEnd => 'پای';
+  String get adminSchoolSettingsEnd => '‹‹End››';
 
   @override
-  String get adminExportScreenEachUserAlone => 'هر کاروونکی یوازې';
+  String get adminExportScreenEachUserAlone => '‹‹Each user alone››';
 
   @override
   String get adminExportScreenEachUserAloneOn =>
-      'هر کاروونکي ته یوه بشپړه پاڼه، د لوستلو وړ لوی کارت طرحه.';
+      '‹‹One full page per user, big readable card layout.››';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
-      'کوچنی جدول — هر کاروونکی یوه کرښه ده.';
+      '‹‹Compact table — every user is a row.››';
 
   @override
-  String get adminExportScreenSeparateFilesOn => 'هر کاروونکي ته جلا PDF';
+  String get adminExportScreenSeparateFilesOn => '‹‹Separate PDF per user››';
 
   @override
   String get adminExportScreenSeparateFilesOff =>
-      'یوازینی PDF، هر کاروونکي ته یوه پاڼه';
+      '‹‹Single PDF, one page per user››';
 
   @override
   String adminExportScreenSeparateFilesOnDesc(int count) {
-    return 'تاسو به یوځل $count PDF فایلونه شریک کړئ — هر کاروونکی خپل ترلاسه کوي.';
+    return '‹‹You\'ll share $count PDF file(s) at once — each user gets their own.››';
   }
 
   @override
   String get adminExportScreenSeparateFilesOffDesc =>
-      'هرڅوک په یوه PDF کې، هر یو په خپله پاڼه کې.';
+      '‹‹Everyone in one PDF, each on their own page.››';
 
   @override
-  String get adminSubjectDetailScreenSchoolSettings => 'د ښوونځي امستنې';
+  String get adminSubjectDetailScreenSchoolSettings => '‹‹School Settings››';
 
   @override
-  String get adminSubjectDetailScreenNewSubject => 'نوی مضمون';
+  String get adminSubjectDetailScreenNewSubject => '‹‹New subject››';
 
   @override
-  String get adminSubjectDetailScreenLangEnglish => 'انګلیسي';
+  String get adminSubjectDetailScreenLangEnglish => '‹‹English››';
 
   @override
-  String get adminSubjectDetailScreenLangArabic => 'عربي';
+  String get adminSubjectDetailScreenLangArabic => '‹‹Arabic››';
 
   @override
-  String get adminSubjectDetailScreenLangHebrew => 'عبري';
+  String get adminSubjectDetailScreenLangHebrew => '‹‹Hebrew››';
 
   @override
-  String get adminSubjectDetailScreenLangFrench => 'فرانسوي';
+  String get adminSubjectDetailScreenLangFrench => '‹‹French››';
 
   @override
-  String get adminSubjectDetailScreenLangRussian => 'روسي';
+  String get adminSubjectDetailScreenLangRussian => '‹‹Russian››';
 
   @override
-  String get adminSubjectDetailScreenColor => 'رنګ';
+  String get adminSubjectDetailScreenColor => '‹‹Color››';
 
   @override
-  String get parentHomeScreenGreetingFallback => 'دلته';
+  String get parentHomeScreenGreetingFallback => '‹‹there››';
 
   @override
   String parentHomeScreenChildrenLoadError(String error) {
-    return 'ستاسو ماشومان بار نشول: $error';
+    return '‹‹Could not load your children: $error››';
   }
 
   @override
-  String get parentHomeScreenMaterials => 'توکي';
+  String get parentHomeScreenMaterials => '‹‹Materials››';
 
   @override
-  String get cmCodeBlockCopied => 'کاپي شو';
+  String get cmCodeBlockCopied => '‹‹Copied››';
 
   @override
-  String get cmCodeBlockCopy => 'کاپي';
+  String get cmCodeBlockCopy => '‹‹Copy››';
 
   @override
-  String get phoneFieldCountryCode => 'د هیواد کوډ';
+  String get phoneFieldCountryCode => '‹‹Country code››';
 
   @override
   String get teacherClassroomAddMeetingScreenEndDateDefault =>
-      'د پای نیټه د پیل نیټې ته اوړي';
+      '‹‹End date defaults to start date››';
 
   @override
-  String get teacherAddMaterialScreenLinkHint => 'https://…';
+  String get teacherAddMaterialScreenLinkHint => '‹‹https://…››';
 
   @override
-  String get teacherAddMaterialScreenLinkFallback => 'لینک';
+  String get teacherAddMaterialScreenLinkFallback => '‹‹Link››';
 
   @override
-  String get teacherAddMaterialScreenFileFallback => 'فایل';
+  String get teacherAddMaterialScreenFileFallback => '‹‹File››';
 
   @override
-  String get teacherCreateDiplomaScreenTitle => 'سند صادرول';
+  String get teacherCreateDiplomaScreenTitle => '‹‹Issue Certificate››';
 
   @override
-  String get teacherCreateDiplomaScreenGradePrefix => 'ټولګی';
+  String get teacherCreateDiplomaScreenGradePrefix => '‹‹Grade››';
 
   @override
-  String get teacherCreateDiplomaScreenAttachFiles => 'د سند فایل(ونه) نښلول';
+  String get teacherCreateDiplomaScreenAttachFiles =>
+      '‹‹Attach certificate file(s)››';
 
   @override
-  String get teacherCreateDiplomaScreenAddMoreFiles => 'نور فایلونه زیاتول';
+  String get teacherCreateDiplomaScreenAddMoreFiles => '‹‹Add more files››';
 
   @override
-  String get teacherAssignmentDetailScreenTitle => 'دنده';
+  String get teacherAssignmentDetailScreenTitle => '‹‹Assignment››';
 
   @override
   String get teacherAssignmentDetailScreenNoSubmissions =>
-      'تر اوسه هیڅ سپارنه نشته';
+      '‹‹No submissions yet››';
 
   @override
   String teacherAssignmentDetailScreenSubmissionCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ې',
-      one: 'ه',
+      other: 's',
+      one: '',
     );
-    return '$count سپارن$_temp0';
+    return '‹‹$count submission$_temp0››';
   }
 
   @override
   String teacherAssignmentDetailScreenGradedCount(int count) {
-    return '$count نمره ورکړل شوي';
+    return '‹‹$count graded››';
   }
 
   @override
-  String get teacherAssignmentDetailScreenStudentFallback => 'زده کوونکی';
+  String get teacherAssignmentDetailScreenStudentFallback => '‹‹Student››';
 
   @override
   String teacherAssignmentDetailScreenSubmittedOn(String date) {
-    return 'وسپارل شو $date';
+    return '‹‹Submitted $date››';
   }
 
   @override
   String teacherAddAssignmentScreenGradeLabel(int count) {
-    return 'ټولګی $count';
+    return '‹‹Grade $count››';
   }
 
   @override
@@ -9903,10 +10022,10 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count زده کوونک$_temp0';
+    return '‹‹$count student$_temp0››';
   }
 
   @override
@@ -9914,909 +10033,912 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ي',
-      one: 'ی',
+      other: 's',
+      one: '',
     );
-    return '$count غړ$_temp0 به دا ترلاسه کړي';
+    return '‹‹$count member$_temp0 will receive this››';
   }
 
   @override
-  String get teacherAddAssignmentScreenNoDueDate => 'د سپارلو نیټه نشته';
+  String get teacherAddAssignmentScreenNoDueDate => '‹‹No due date››';
 
   @override
-  String get teacherAddAssignmentScreenMaterialFallback => 'توکی';
+  String get teacherAddAssignmentScreenMaterialFallback => '‹‹Material››';
 
   @override
   String teacherAddAssignmentScreenSelectedCount(int count) {
-    return '$count ټاکل شوي';
+    return '‹‹$count selected››';
   }
 
   @override
   String teacherClassroomsScreenGradeLabel(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
-  String get teacherClassroomsScreenNewClassroom => 'نوی ټولګی';
+  String get teacherClassroomsScreenNewClassroom => '‹‹New Classroom››';
 
   @override
-  String get assignmentsScreenAlreadyHandedIn => 'تاسو دا دنده دمخه سپارلې ده.';
+  String get assignmentsScreenAlreadyHandedIn =>
+      '‹‹You have already handed in this assignment.››';
 
   @override
   String get assignmentsScreenAddNoteOrFiles =>
-      'یادښت زیات کړئ یا فایلونه ونښلوئ، بیا «وسپاره» کلیک کړئ.';
+      '‹‹Add a note or attach files, then press Hand in.››';
 
   @override
   String assignmentsScreenGradeLabel(String grade) {
-    return 'نمره: $grade';
+    return '‹‹Grade: $grade››';
   }
 
   @override
   String assignmentsScreenFeedbackLabel(String feedback) {
-    return 'نظر: $feedback';
+    return '‹‹Feedback: $feedback››';
   }
 
   @override
   String get assignmentsScreenReturnedForResolution =>
-      'د بیا حل لپاره بیرته راستانه شو';
+      '‹‹Returned for re-solution››';
 
   @override
-  String get assignmentsScreenAttachFile => 'فایل نښلول';
+  String get assignmentsScreenAttachFile => '‹‹Attach file››';
 
   @override
-  String get assignmentsScreenAddMoreFiles => 'نور فایلونه زیاتول';
+  String get assignmentsScreenAddMoreFiles => '‹‹Add more files››';
 
   @override
-  String get assignmentsScreenHandingIn => 'سپارل کیږي…';
+  String get assignmentsScreenHandingIn => '‹‹Handing in…››';
 
   @override
-  String get assignmentsScreenHandIn => 'وسپاره';
+  String get assignmentsScreenHandIn => '‹‹Hand in››';
 
   @override
   String get examDetailScreenCouldNotLoad =>
-      'دا ازموینه اوس مهال نشي بار کیدای.';
+      '‹‹Could not load this exam right now.››';
 
   @override
-  String get adminEditUserRoleStudent => 'زده کوونکی';
+  String get adminEditUserRoleStudent => '‹‹Student››';
 
   @override
-  String get adminEditUserRoleTeacher => 'ښوونکی';
+  String get adminEditUserRoleTeacher => '‹‹Teacher››';
 
   @override
-  String get adminEditUserRoleSecretary => 'منشي';
+  String get adminEditUserRoleSecretary => '‹‹Secretary››';
 
   @override
-  String get adminEditUserRoleParent => 'مور و پلار';
+  String get adminEditUserRoleParent => '‹‹Parent››';
 
   @override
-  String get adminEditUserRoleAdmin => 'اداره چي';
+  String get adminEditUserRoleAdmin => '‹‹Admin››';
 
   @override
   String adminEditUserCohortMemberCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'و',
-      one: 'ې',
+      other: 's',
+      one: '',
     );
-    return 'د $count ډل$_temp0 غړی.';
+    return '‹‹Member of $count cohort$_temp0.››';
   }
 
   @override
-  String get adminEditUserSearchStudents => 'زده کوونکي ولټوئ…';
+  String get adminEditUserSearchStudents => '‹‹Search students…››';
 
   @override
   String adminEditUserGradeSuffix(int grade) {
-    return '(ټولګی $grade)';
+    return '‹‹(Grade $grade)››';
   }
 
   @override
-  String get solutionAssetPreviewSheetPdfDocument => 'PDF سند';
+  String get solutionAssetPreviewSheetPdfDocument => '‹‹PDF document››';
 
   @override
   String get solutionAssetPreviewSheetUnableToPreview =>
-      'PDF نشي مخکتنه کیدای.';
+      '‹‹Unable to preview PDF.››';
 
   @override
   String classroomDetailSectionHeader(String title, int count) {
-    return '$title ($count)';
+    return '‹‹$title ($count)››';
   }
 
   @override
-  String get classroomDetailTeacherSection => 'ښوونکی';
+  String get classroomDetailTeacherSection => '‹‹Teacher››';
 
   @override
-  String get classroomDetailStudentsSection => 'زده کوونکي';
+  String get classroomDetailStudentsSection => '‹‹Students››';
 
   @override
-  String get classroomDetailClassroomFallback => 'ټولګی';
+  String get classroomDetailClassroomFallback => '‹‹Classroom››';
 
   @override
-  String get classroomDetailUntitled => 'بې سرلیکه';
+  String get classroomDetailUntitled => '‹‹Untitled››';
 
   @override
-  String get typingDotsPaused => 'ودرول شو';
+  String get typingDotsPaused => '‹‹Paused››';
 
   @override
-  String get cmAiMessageStartPracticeSession => 'د تمرین ناسته پیل کړئ';
+  String get cmAiMessageStartPracticeSession => '‹‹Start practice session››';
 
   @override
   String cmAiMessageQuestionCount(int count) {
-    return '$count پوښتنې';
+    return '‹‹$count questions››';
   }
 
   @override
-  String get cmAiMessageDifficultyEasy => 'اسانه';
+  String get cmAiMessageDifficultyEasy => '‹‹Easy››';
 
   @override
-  String get cmAiMessageDifficultyHard => 'ګران';
+  String get cmAiMessageDifficultyHard => '‹‹Hard››';
 
   @override
-  String get cmAiMessageDifficultyOlympiad => 'المپیاد';
+  String get cmAiMessageDifficultyOlympiad => '‹‹Olympiad››';
 
   @override
-  String get cmAiMessageDifficultyAdaptive => 'تطبیقي';
+  String get cmAiMessageDifficultyAdaptive => '‹‹Adaptive››';
 
   @override
-  String get cmAiMessageDifficultyMedium => 'منځنی';
+  String get cmAiMessageDifficultyMedium => '‹‹Medium››';
 
   @override
-  String get teacherCreateFormScreenParagraphType => 'پراګراف';
+  String get teacherCreateFormScreenParagraphType => '‹‹Paragraph››';
 
   @override
-  String get teacherCreateFormScreenMultipleChoiceType => 'ګڼ ګروهیز';
+  String get teacherCreateFormScreenMultipleChoiceType => '‹‹Multiple choice››';
 
   @override
-  String get teacherCreateFormScreenCheckboxesType => 'د چک بکسونه';
+  String get teacherCreateFormScreenCheckboxesType => '‹‹Checkboxes››';
 
   @override
-  String get teacherCreateFormScreenRatingType => 'درجه بندي (۱–۵)';
+  String get teacherCreateFormScreenRatingType => '‹‹Rating (1–5)››';
 
   @override
-  String get teacherCreateFormScreenLinearScaleType => 'خطي مقیاس';
+  String get teacherCreateFormScreenLinearScaleType => '‹‹Linear scale››';
 
   @override
-  String get teacherCreateFormScreenDropdownType => 'ښکته کیدونکی';
+  String get teacherCreateFormScreenDropdownType => '‹‹Dropdown››';
 
   @override
-  String get teacherCreateFormScreenDateType => 'نیټه';
+  String get teacherCreateFormScreenDateType => '‹‹Date››';
 
   @override
   String teacherCohortsScreenSingleGrade(int grade) {
-    return 'ټولګی $grade';
+    return '‹‹Grade $grade››';
   }
 
   @override
   String teacherCohortsScreenGradeRange(int from, int to) {
-    return 'ټولګی $from-$to';
+    return '‹‹Grade $from-$to››';
   }
 
   @override
   String teacherCohortsScreenMultiGrade(String grades) {
-    return 'ټولګي $grades';
+    return '‹‹Grades $grades››';
   }
 
   @override
   String get teacherAddGradeScreenFailedCreateRecord =>
-      'د نمرې ریکارډ جوړول ناکام شو.';
+      '‹‹Failed to create grade record.››';
 
   @override
-  String get phoneFieldLabel => 'تلیفون (اختیاري)';
+  String get phoneFieldLabel => '‹‹Phone (optional)››';
 
   @override
-  String get phoneFieldHelper =>
-      'د SMS له لارې د پټنوم بیا تنظیمولو لپاره کارول کیږي';
+  String get phoneFieldHelper => '‹‹Used for SMS password reset››';
 
   @override
-  String get gradesScreenCouldNotLoad => 'نمرې بار نشوې.';
+  String get gradesScreenCouldNotLoad => '‹‹Could not load grades.››';
 
   @override
-  String get gradesScreenTimeout => 'غوښتنه وخت تېر شو. خپل اتصال وګورئ.';
+  String get gradesScreenTimeout =>
+      '‹‹Request timed out. Check your connection.››';
 
   @override
-  String get gradesScreenNoConnection => 'اتصال نشته. د بیا هڅې لپاره کش کړئ.';
+  String get gradesScreenNoConnection => '‹‹No connection. Pull to retry.››';
 
   @override
-  String get examDetailScreenCountdownPassed => 'دا ازموینه تېره شوې ده';
+  String get examDetailScreenCountdownPassed => '‹‹This exam has passed››';
 
   @override
-  String get examDetailScreenCountdownToday => 'دا نن دی!';
+  String get examDetailScreenCountdownToday => '‹‹It\'s today!››';
 
   @override
-  String get teacherCreateDiplomaScreenDefaultTitle => 'د لاسته راوړنې سند';
+  String get teacherCreateDiplomaScreenDefaultTitle =>
+      '‹‹Certificate of Achievement››';
 
   @override
   String teacherMaterialAddedBy(String name) {
-    return 'زیات شوی د $name لخوا';
+    return '‹‹Added by $name››';
   }
 
   @override
   String teacherMaterialAttachedTo(String period) {
-    return 'نښلول شوی له $period سره';
+    return '‹‹Attached to $period››';
   }
 
   @override
-  String get adminPeopleAddMany => 'ډېر اضافه کړئ';
+  String get adminPeopleAddMany => '‹‹Add many››';
 
   @override
-  String get adminAddManyPasteNames => 'نومونه پیست کړئ';
+  String get adminAddManyPasteNames => '‹‹Paste names››';
 
   @override
-  String get adminAddManyApplyRole => 'د ټولو لپاره رول وټاکئ';
+  String get adminAddManyApplyRole => '‹‹Set role for all››';
 
   @override
-  String get adminAddManyApplyGrade => 'د ټولو لپاره درجه وټاکئ';
+  String get adminAddManyApplyGrade => '‹‹Set grade for all››';
 
   @override
-  String get adminAddManyParentLabel => 'والد';
+  String get adminAddManyParentLabel => '‹‹Parent››';
 
   @override
-  String get adminAddManyParentNone => 'هیڅ والد نشته';
+  String get adminAddManyParentNone => '‹‹No parent››';
 
   @override
-  String get adminAddManyAddParent => 'والد اضافه کړئ';
+  String get adminAddManyAddParent => '‹‹Add parent››';
 
   @override
-  String get adminAddManyCreateParentGeneric => 'نوی والد جوړ کړئ';
+  String get adminAddManyCreateParentGeneric => '‹‹Create new parent››';
 
   @override
-  String get adminAddManyParentInBatch => 'پدې لیست کې نوي والدین';
+  String get adminAddManyParentInBatch => '‹‹New parents in this list››';
 
   @override
-  String get adminAddManyParentExisting => 'موجود والدین';
+  String get adminAddManyParentExisting => '‹‹Existing parents››';
 
   @override
-  String get adminAddManySearchParents => 'والدین ولټوئ…';
+  String get adminAddManySearchParents => '‹‹Search parents…››';
 
   @override
   String get adminAddManyNoParentsYet =>
-      'هیڅ سمون لرونکی والد نشته — د جوړولو لپاره پورته یو نوم ولیکئ';
+      '‹‹No matching parents — type a name above to create one››';
 
   @override
-  String get adminAddManyUsernameTaken => 'کارن نوم لا دمخه نیول شوی';
+  String get adminAddManyUsernameTaken => '‹‹Username already taken››';
 
   @override
-  String get adminAddManyUsernameDupe => 'پدې لیست کې تکراري کارن نوم';
+  String get adminAddManyUsernameDupe => '‹‹Duplicate username in this list››';
 
   @override
-  String get adminUsernameAvailable => 'Username is available';
+  String get adminUsernameAvailable => '‹‹Username is available››';
 
   @override
-  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+  String get adminUsernameInvalidFormat =>
+      '‹‹Use 3+ letters, digits, or . _ -››';
 
   @override
   String get adminUsernameSuggestionsLabel =>
-      'Available suggestions — tap to use:';
+      '‹‹Available suggestions — tap to use:››';
 
   @override
   String adminAddManyCreateParent(String name) {
-    return 'نوی والد جوړ کړئ \"$name\"';
+    return '‹‹Create new parent \"$name\"››';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return '$count کرښې اضافه شوې';
+    return '‹‹Added $count rows››';
   }
 
   @override
   String get teacherCreateClassroomNoStudentsInCohort =>
-      'په ټاکل شوي کوهورت کې لا تر اوسه زده کوونکي نشته.';
+      '‹‹No students in the selected cohort yet.››';
 
   @override
-  String get audienceSummaryResolving => 'د زده کوونکو موندل…';
+  String get audienceSummaryResolving => '‹‹Finding students…››';
 
   @override
   String audienceSummaryCount(int count) {
-    return '$count به دا وویني';
+    return '‹‹$count will see this››';
   }
 
   @override
-  String get audienceSummaryEmpty =>
-      'هیڅ زده کوونکی د دې لیدونکو سره سمون نه خوري.';
+  String get audienceSummaryEmpty => '‹‹No students match this audience.››';
 
   @override
   String audienceSummaryRestore(int count) {
-    return '$count ړنګ شوي بیرته راوله';
+    return '‹‹Restore $count removed››';
   }
 
   @override
-  String get scheduleUpcomingExam => 'راتلونکې ازموینه';
+  String get scheduleUpcomingExam => '‹‹Upcoming Exam››';
 
   @override
-  String get scheduleNoUpcomingExams => 'هیڅ راتلونکې ازموینه نشته';
+  String get scheduleNoUpcomingExams => '‹‹No upcoming exams››';
 
   @override
-  String get navCertificates => 'سندونه';
+  String get navCertificates => '‹‹Certificates››';
 
   @override
-  String get averagesDelete => 'ړنګول';
+  String get averagesDelete => '‹‹Delete››';
 
   @override
-  String get averagesFieldTitle => 'سرليک';
+  String get averagesFieldTitle => '‹‹Title››';
 
   @override
-  String get averagesSave => 'ساتل';
+  String get averagesSave => '‹‹Save››';
 
   @override
-  String get certificatesTitle => 'سندونه';
+  String get certificatesTitle => '‹‹Certificates››';
 
   @override
-  String get certHomeroom => 'ټولګی (سرښوونکی)';
+  String get certHomeroom => '‹‹Class (homeroom)››';
 
   @override
-  String get certStudent => 'زده‌کوونکی';
+  String get certStudent => '‹‹Student››';
 
   @override
-  String get certDisplayName => 'په سند کې نوم';
+  String get certDisplayName => '‹‹Name on certificate››';
 
   @override
-  String get certNationalId => 'ملي پېژندپاڼه';
+  String get certNationalId => '‹‹National ID››';
 
   @override
-  String get certHomeroomTeacher => 'د ټولګي سرښوونکی';
+  String get certHomeroomTeacher => '‹‹Homeroom teacher››';
 
   @override
-  String get certPrincipal => 'مدير';
+  String get certPrincipal => '‹‹Principal››';
 
   @override
-  String get certPublisherNote => 'یادښت (اختیاري)';
+  String get certPublisherNote => '‹‹Note (optional)››';
 
   @override
-  String get certSemesterWeights => 'د سمسټرونو وزنونه';
+  String get certSemesterWeights => '‹‹Semester weights››';
 
   @override
-  String get certLanguage => 'د سند ژبه';
+  String get certLanguage => '‹‹Certificate language››';
 
   @override
-  String get certGenerate => 'PDF جوړ کړئ';
+  String get certGenerate => '‹‹Generate PDF››';
 
   @override
-  String get certWeightsMustBe100 => 'د سمسټرونو د وزنونو مجموعه باید ۱۰۰٪ شي.';
+  String get certWeightsMustBe100 => '‹‹Semester weights must total 100%.››';
 
   @override
-  String get certSelectStudentFirst => 'لومړی یو زده‌کوونکی وټاکئ.';
+  String get certSelectStudentFirst => '‹‹Select a student first.››';
 
   @override
-  String get certSaved => 'سند جوړ شو.';
+  String get certSaved => '‹‹Certificate generated.››';
 
   @override
-  String get certSaveAndPublish => 'Save & publish';
+  String get certSaveAndPublish => '‹‹Save & publish››';
 
   @override
-  String get certSaveDraft => 'Save as draft';
+  String get certSaveDraft => '‹‹Save as draft››';
 
   @override
-  String get examGradesPublished => 'Grades published to students.';
+  String get examGradesPublished => '‹‹Grades published to students.››';
 
   @override
-  String get examGradesPublishedShort => 'Published';
+  String get examGradesPublishedShort => '‹‹Published››';
 
   @override
-  String get examRepublish => 'Republish';
+  String get examRepublish => '‹‹Republish››';
 
   @override
-  String get certPreview => 'Preview PDF';
+  String get certPreview => '‹‹Preview PDF››';
 
   @override
-  String get certPublished => 'Published to the student.';
+  String get certPublished => '‹‹Published to the student.››';
 
   @override
-  String get certDraftSaved => 'Saved as draft.';
+  String get certDraftSaved => '‹‹Saved as draft.››';
 
   @override
-  String get certPublishing => 'Publishing…';
+  String get certPublishing => '‹‹Publishing…››';
 
   @override
-  String get certDownload => 'Download';
+  String get certDownload => '‹‹Download››';
 
   @override
-  String get certNoneYet => 'No certificates yet.';
+  String get certNoneYet => '‹‹No certificates yet.››';
 
   @override
-  String get certMine => 'My certificates';
+  String get certMine => '‹‹My certificates››';
 
   @override
   String get certNoHomeroom =>
-      'You are not a homeroom teacher of any class yet.';
+      '‹‹You are not a homeroom teacher of any class yet.››';
 
   @override
-  String get certGrin => 'Grades';
+  String get certGrin => '‹‹Grades››';
 
   @override
-  String get certPrintAll => 'Print all';
+  String get certPrintAll => '‹‹Print all››';
 
   @override
   String get certSelectCohortToPrint =>
-      'Select a class to print all its certificates.';
+      '‹‹Select a class to print all its certificates.››';
 
   @override
-  String get certEditTitle => 'Edit certificate';
+  String get certEditTitle => '‹‹Edit certificate››';
 
   @override
-  String get certPdfAnnualCertificate => 'کلنی سند';
+  String get certPdfAnnualCertificate => '‹‹Annual Certificate››';
 
   @override
-  String get certPdfSubject => 'مضمون';
+  String get certPdfSubject => '‹‹Subject››';
 
   @override
-  String get certPdfFinal => 'وروستی';
+  String get certPdfFinal => '‹‹Final››';
 
   @override
-  String get certPdfOverall => 'عمومي اوسط';
+  String get certPdfOverall => '‹‹General Average››';
 
   @override
-  String get certPdfAverage => 'اوسط';
+  String get certPdfAverage => '‹‹Average››';
 
   @override
-  String get certPdfAbsences => 'غیرحاضري';
+  String get certPdfAbsences => '‹‹Absences››';
 
   @override
-  String get certPdfLateness => 'ناوختي';
+  String get certPdfLateness => '‹‹Lateness››';
 
   @override
-  String get certPdfHomeroomTeacher => 'د ټولګي سرښوونکی';
+  String get certPdfHomeroomTeacher => '‹‹Homeroom teacher››';
 
   @override
-  String get certPdfPrincipal => 'مدير';
+  String get certPdfPrincipal => '‹‹Principal››';
 
   @override
-  String get certPdfNationalId => 'د پېژندپاڼې شمېره';
+  String get certPdfNationalId => '‹‹ID No.››';
 
   @override
-  String get certPdfDate => 'نېټه';
+  String get certPdfDate => '‹‹Date››';
 
   @override
-  String get certPdfGeneratedBy => 'جوړوونکی';
+  String get certPdfGeneratedBy => '‹‹Created by››';
 
   @override
-  String get certPdfName => 'نوم';
+  String get certPdfName => '‹‹Name››';
 
   @override
-  String get certPdfClass => 'ټولګی';
+  String get certPdfClass => '‹‹Class››';
 
   @override
-  String get adminEditUserNationalId => 'ملي پېژندپاڼه';
+  String get adminEditUserNationalId => '‹‹National ID››';
 
   @override
   String get teacherCohortsScreenNoStudentsToAdd =>
-      'ټول زده‌کوونکي دمخه په دې ټولګي کې دي.';
+      '‹‹All students are already in this class.››';
 
   @override
-  String get gradeWeightLabel => 'په اوسط کې وزن (%)';
+  String get gradeWeightLabel => '‹‹Weight on average (%)››';
 
   @override
   String get gradeWeightHint =>
-      'اختیاري — وټاکئ چې څومره سلنه د مضمون په اوسط کې حساب شي، یا وروسته لپاره یې خالي پرېږدئ.';
+      '‹‹Optional — set what % this counts toward the subject average, or leave blank to set later.››';
 
   @override
-  String get gradeSemesterLabel => 'سمسټر';
+  String get gradeSemesterLabel => '‹‹Semester››';
 
   @override
-  String get gradeSemesterAuto => 'اتومات (د نېټې له مخې)';
+  String get gradeSemesterAuto => '‹‹Auto (by date)››';
 
   @override
-  String get gradeDeleteTooltip => 'نمره ړنګول';
+  String get gradeDeleteTooltip => '‹‹Delete grade››';
 
   @override
-  String get gradeDeleteTitle => 'نمره ړنګول';
+  String get gradeDeleteTitle => '‹‹Delete grade››';
 
   @override
   String gradeDeleteConfirm(String title) {
-    return 'د “$title” نمره ړنګه کړئ؟';
+    return '‹‹Delete the grade for “$title”?››';
   }
 
   @override
-  String get cohortHomeroomLabel => 'د ټولګي مشري (سرښوونکی)';
+  String get cohortHomeroomLabel => '‹‹Homeroom class››';
 
   @override
-  String get cohortHomeroomHint => 'د دې ټولګي لپاره سرښوونکی وټاکئ.';
+  String get cohortHomeroomHint =>
+      '‹‹Assign a homeroom teacher for this class.››';
 
   @override
-  String get cohortHomeroomTeacher => 'د ټولګي سرښوونکی';
+  String get cohortHomeroomTeacher => '‹‹Homeroom teacher››';
 
   @override
-  String get adminPrincipalLabel => 'مدير';
+  String get adminPrincipalLabel => '‹‹Principal››';
 
   @override
   String get adminPrincipalHint =>
-      'دا مدير یو مدير دی؛ سندونه یې نوم د زده‌کوونکي د ټولګي له مخې په اتومات ډول ډکوي.';
+      '‹‹This admin is a principal; certificates auto-fill their name by the student’s grade.››';
 
   @override
-  String get adminPrincipalGrades => 'د ټولګیو لپاره مدير';
+  String get adminPrincipalGrades => '‹‹Principal for grades››';
 
   @override
-  String get certPdfTeacher => 'ښوونکی';
+  String get certPdfTeacher => '‹‹Teacher››';
 
   @override
   String gradesHubSummary(int subjects, int students) {
-    return '$subjects مضمونونه · $students زده‌کوونکي';
+    return '‹‹$subjects subjects · $students students››';
   }
 
   @override
-  String get gradesHubSearchSubjects => 'د مضمونونو لټون';
+  String get gradesHubSearchSubjects => '‹‹Search subjects››';
 
   @override
   String get gradesHubEmpty =>
-      'تر اوسه نمرې نشته. یوه نمره ورزیاته کړئ او مضمون به دلته ښکاره شي.';
+      '‹‹No grades yet. Add a grade and the subject will appear here.››';
 
   @override
   String gradesHubStudentCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count زده‌کوونکي',
-      one: 'یو زده‌کوونکی',
+      other: '$count students',
+      one: '1 student',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get gradesSubjectStudentsTab => 'زده‌کوونکي';
+  String get gradesSubjectStudentsTab => '‹‹Students››';
 
   @override
-  String get gradesSubjectGradesTab => 'نمرې';
+  String get gradesSubjectGradesTab => '‹‹Grades››';
 
   @override
-  String get gradesSubjectNoGrades => 'په دې مضمون کې تر اوسه نمرې نشته.';
+  String get gradesSubjectNoGrades => '‹‹No grades in this subject yet.››';
 
   @override
-  String get gradesPublishedShort => 'Published';
+  String get gradesPublishedShort => '‹‹Published››';
 
   @override
-  String get gradesDraftShort => 'Draft';
+  String get gradesDraftShort => '‹‹Draft››';
 
   @override
   String gradesPublishTitle(Object title) {
-    return 'Publish “$title”';
+    return '‹‹Publish “$title”››';
   }
 
   @override
   String gradesUnpublishTitle(Object title) {
-    return 'Unpublish “$title”';
+    return '‹‹Unpublish “$title”››';
   }
 
   @override
-  String get gradesPublishAction => 'Publish';
+  String get gradesPublishAction => '‹‹Publish››';
 
   @override
-  String get gradesUnpublishAction => 'Unpublish';
+  String get gradesUnpublishAction => '‹‹Unpublish››';
 
   @override
   String get gradesPublishedToast =>
-      'Grade published — students can now see it.';
+      '‹‹Grade published — students can now see it.››';
 
   @override
   String get gradesUnpublishedToast =>
-      'Grade unpublished — hidden from students.';
+      '‹‹Grade unpublished — hidden from students.››';
 
   @override
-  String get navGradeScales => 'Grade Scales';
+  String get navGradeScales => '‹‹Grade Scales››';
 
   @override
-  String get gradeScaleAdd => 'Add grade scale';
+  String get gradeScaleAdd => '‹‹Add grade scale››';
 
   @override
-  String get gradeScaleEdit => 'Edit grade scale';
+  String get gradeScaleEdit => '‹‹Edit grade scale››';
 
   @override
-  String get gradeScaleDeleteTitle => 'Delete grade scale?';
+  String get gradeScaleDeleteTitle => '‹‹Delete grade scale?››';
 
   @override
   String gradeScaleDeleteConfirm(Object name) {
-    return 'Delete “$name”? Assessments already graded on it keep their labels.';
+    return '‹‹Delete “$name”? Assessments already graded on it keep their labels.››';
   }
 
   @override
-  String get gradeScaleEmptyTitle => 'No grade scales yet';
+  String get gradeScaleEmptyTitle => '‹‹No grade scales yet››';
 
   @override
   String get gradeScaleEmptyHint =>
-      'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.';
+      '‹‹Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.››';
 
   @override
-  String get gradeScaleAllGrades => 'Applies to all grades';
+  String get gradeScaleAllGrades => '‹‹Applies to all grades››';
 
   @override
   String gradeScaleAppliesTo(Object grades) {
-    return 'Grades $grades';
+    return '‹‹Grades $grades››';
   }
 
   @override
-  String get gradeScaleNameLabel => 'Scale name';
+  String get gradeScaleNameLabel => '‹‹Scale name››';
 
   @override
-  String get gradeScaleNameHint => 'e.g. Letter grades';
+  String get gradeScaleNameHint => '‹‹e.g. Letter grades››';
 
   @override
-  String get gradeScaleNameRequired => 'Enter a scale name.';
+  String get gradeScaleNameRequired => '‹‹Enter a scale name.››';
 
   @override
-  String get gradeScaleGradeLevels => 'Applies to grades';
+  String get gradeScaleGradeLevels => '‹‹Applies to grades››';
 
   @override
   String get gradeScaleGradeLevelsHint =>
-      'Leave none selected to apply to all grades.';
+      '‹‹Leave none selected to apply to all grades.››';
 
   @override
-  String get gradeScaleLabels => 'Labels';
+  String get gradeScaleLabels => '‹‹Labels››';
 
   @override
   String get gradeScaleLabelsHint =>
-      'Add each label (e.g. A+) with an optional number (0–100) used for averages.';
+      '‹‹Add each label (e.g. A+) with an optional number (0–100) used for averages.››';
 
   @override
-  String get gradeScaleLabelText => 'Label';
+  String get gradeScaleLabelText => '‹‹Label››';
 
   @override
-  String get gradeScaleLabelValue => 'Value';
+  String get gradeScaleLabelValue => '‹‹Value››';
 
   @override
-  String get gradeScaleAddLabel => 'Add label';
+  String get gradeScaleAddLabel => '‹‹Add label››';
 
   @override
-  String get gradeScaleNeedTwoLabels => 'Add at least two labels.';
+  String get gradeScaleNeedTwoLabels => '‹‹Add at least two labels.››';
 
   @override
-  String get gradeScalePickLabel => 'Grade';
+  String get gradeScalePickLabel => '‹‹Grade››';
 
   @override
-  String get gradeScaleUseScale => 'Grade scale';
+  String get gradeScaleUseScale => '‹‹Grade scale››';
 
   @override
   String gradeScaleNumeric(Object max) {
-    return 'Number (0–$max)';
+    return '‹‹Number (0–$max)››';
   }
 
   @override
-  String get accountSwitcherTitle => 'Accounts';
+  String get accountSwitcherTitle => '‹‹Accounts››';
 
   @override
-  String get accountAddAccount => 'Add account';
+  String get accountAddAccount => '‹‹Add account››';
 
   @override
-  String get accountSignOutThis => 'Sign out this account';
+  String get accountSignOutThis => '‹‹Sign out this account››';
 
   @override
-  String get averagesManageTooltip => 'Manage averages';
+  String get averagesManageTooltip => '‹‹Manage averages››';
 
   @override
-  String get averagesTitle => 'Averages';
+  String get averagesTitle => '‹‹Averages››';
 
   @override
-  String get averagesAdd => 'Add average';
+  String get averagesAdd => '‹‹Add average››';
 
   @override
-  String get averagesDeleteTitle => 'Delete average';
+  String get averagesDeleteTitle => '‹‹Delete average››';
 
   @override
   String averagesDeleteConfirm(Object title) {
-    return 'Delete \"$title\"? This cannot be undone.';
+    return '‹‹Delete \"$title\"? This cannot be undone.››';
   }
 
   @override
-  String get averagesCancel => 'Cancel';
+  String get averagesCancel => '‹‹Cancel››';
 
   @override
-  String get averagesEmptyTitle => 'No averages yet';
+  String get averagesEmptyTitle => '‹‹No averages yet››';
 
   @override
   String get averagesEmptyBody =>
-      'Tap \"Add average\" to create a weighted grade formula for a subject.';
+      '‹‹Tap \"Add average\" to create a weighted grade formula for a subject.››';
 
   @override
-  String get averagesFullYear => 'Full year';
+  String get averagesFullYear => '‹‹Full year››';
 
   @override
   String averagesSemesterN(Object n) {
-    return 'Semester $n';
+    return '‹‹Semester $n››';
   }
 
   @override
   String averagesFormatChip(Object index, Object total) {
-    return 'Format $index: $total%';
+    return '‹‹Format $index: $total%››';
   }
 
   @override
-  String get averagesNoStudents => 'No students to compute.';
+  String get averagesNoStudents => '‹‹No students to compute.››';
 
   @override
   String averagesFormatN(Object n) {
-    return 'Format $n';
+    return '‹‹Format $n››';
   }
 
   @override
-  String get averagesErrTitle => 'Enter a title.';
+  String get averagesErrTitle => '‹‹Enter a title.››';
 
   @override
-  String get averagesErrSubject => 'Choose a subject.';
+  String get averagesErrSubject => '‹‹Choose a subject.››';
 
   @override
-  String get averagesErrCohort => 'Choose a cohort.';
+  String get averagesErrCohort => '‹‹Choose a cohort.››';
 
   @override
-  String get averagesErrNoFormat => 'Add at least one format.';
+  String get averagesErrNoFormat => '‹‹Add at least one format.››';
 
   @override
   String averagesErrFormatNoGrade(Object n) {
-    return 'Format $n: pick at least one grade.';
+    return '‹‹Format $n: pick at least one grade.››';
   }
 
   @override
   String averagesErrFormatSum(Object n, Object total) {
-    return 'Format $n: weights must sum to 100 (now $total%).';
+    return '‹‹Format $n: weights must sum to 100 (now $total%).››';
   }
 
   @override
-  String get averagesNew => 'New average';
+  String get averagesNew => '‹‹New average››';
 
   @override
-  String get averagesEdit => 'Edit average';
+  String get averagesEdit => '‹‹Edit average››';
 
   @override
-  String get averagesLabelSubject => 'Subject';
+  String get averagesLabelSubject => '‹‹Subject››';
 
   @override
-  String get averagesHintSubject => 'Choose a subject';
+  String get averagesHintSubject => '‹‹Choose a subject››';
 
   @override
-  String get averagesLabelCohort => 'Cohort';
+  String get averagesLabelCohort => '‹‹Cohort››';
 
   @override
-  String get averagesHintCohort => 'Choose a cohort';
+  String get averagesHintCohort => '‹‹Choose a cohort››';
 
   @override
-  String get averagesLabelUnits => 'Units (optional)';
+  String get averagesLabelUnits => '‹‹Units (optional)››';
 
   @override
-  String get averagesFormats => 'Formats';
+  String get averagesFormats => '‹‹Formats››';
 
   @override
   String get averagesFormatsHelp =>
-      'Each format\'s weights must sum to 100%. The best-scoring format is used per student.';
+      '‹‹Each format\'s weights must sum to 100%. The best-scoring format is used per student.››';
 
   @override
-  String get averagesAddFormat => 'Add format';
+  String get averagesAddFormat => '‹‹Add format››';
 
   @override
-  String get averagesLabelFormatLabel => 'Format label (optional)';
+  String get averagesLabelFormatLabel => '‹‹Format label (optional)››';
 
   @override
-  String get averagesAddGrade => 'Add grade';
+  String get averagesAddGrade => '‹‹Add grade››';
 
   @override
   String averagesTotal(Object total) {
-    return 'Total: $total%';
+    return '‹‹Total: $total%››';
   }
 
   @override
-  String get averagesLabelGrade => 'Grade';
+  String get averagesLabelGrade => '‹‹Grade››';
 
   @override
-  String get averagesHintPickFirst => 'Pick subject & cohort first';
+  String get averagesHintPickFirst => '‹‹Pick subject & cohort first››';
 
   @override
-  String get averagesHintGrade => 'Choose a grade';
+  String get averagesHintGrade => '‹‹Choose a grade››';
 
   @override
-  String get adminInsightsSearchHint => 'Search students by name…';
+  String get adminInsightsSearchHint => '‹‹Search students by name…››';
 
   @override
-  String get adminInsightsNoStudents => 'No students found.';
+  String get adminInsightsNoStudents => '‹‹No students found.››';
 
   @override
-  String get adminInsightsNoGrades => 'No grades recorded yet.';
+  String get adminInsightsNoGrades => '‹‹No grades recorded yet.››';
 
   @override
-  String get gradesEditGradeTitle => 'د نمرې سمون';
+  String get gradesEditGradeTitle => '‹‹Edit grade››';
 
   @override
   String gradeFormatN(String n) {
-    return 'بڼه $n';
+    return '‹‹Format $n››';
   }
 
   @override
-  String get gradeAddFormat => 'بڼه زیاته کړئ';
+  String get gradeAddFormat => '‹‹Add format››';
 
   @override
-  String get gradesBreakdownAverage => 'اوسط';
+  String get gradesBreakdownAverage => '‹‹Average››';
 
   @override
-  String get adminPrincipalRangeFrom => 'له';
+  String get adminPrincipalRangeFrom => '‹‹From››';
 
   @override
-  String get adminPrincipalRangeTo => 'تر';
+  String get adminPrincipalRangeTo => '‹‹To››';
 
   @override
-  String get adminPrincipalAddRange => 'لړ زیات کړئ';
+  String get adminPrincipalAddRange => '‹‹Add range››';
 
   @override
   String certPdfSemesterCertificate(String sem) {
-    return 'سمسټر سند — $sem';
+    return '‹‹Semester Certificate — $sem››';
   }
 
   @override
-  String get certPdfRemarks => 'د ټولګي سرښوونکي یادښتونه';
+  String get certPdfRemarks => '‹‹Homeroom teacher\'s remarks››';
 
   @override
-  String get certTypeLabel => 'د سند ډول';
+  String get certTypeLabel => '‹‹Certificate type››';
 
   @override
-  String get certTypeAnnual => 'کلنی';
+  String get certTypeAnnual => '‹‹Annual››';
 
   @override
   String certTypeSemester(String sem) {
-    return 'د $sem پای';
+    return '‹‹End of $sem››';
   }
 
   @override
-  String get certRoundWhole => 'بشپړ عدد ته نږدې کول';
+  String get certRoundWhole => '‹‹Round to whole number››';
 
   @override
   String get certRoundWholeHint =>
-      'له ۰٫۵ لاندې ښکته، ۰٫۵ او پورته پورته. د دوو اعشاریه شمېرو ښودلو لپاره یې بند کړئ.';
+      '‹‹Below .5 rounds down, .5 and up rounds up. Turn off to show two decimals.››';
 
   @override
   String get teacherAddGradeSubjectRequired =>
-      'مهرباني وکړئ د دې نمرې لپاره یو مضمون وټاکئ.';
+      '‹‹Please choose a subject for this grade.››';
 
   @override
-  String get gradesSubjectAveragesTab => 'اوسطونه';
+  String get gradesSubjectAveragesTab => '‹‹Averages››';
 
   @override
-  String get gradesAveragesSummaryTitle => 'د سمسټر اوسط';
+  String get gradesAveragesSummaryTitle => '‹‹Semester average››';
 
   @override
   String gradesAveragesSummaryCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count وزن‌لرونکې نمرې',
-      one: 'یوه وزن‌لرونکې نمره',
-      zero: 'تر اوسه وزن‌لرونکې نمرې نشته',
+      other: '$count weighted grades',
+      one: '1 weighted grade',
+      zero: 'No weighted grades yet',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get gradesAveragesTotalWeight => 'ټول وزن';
+  String get gradesAveragesTotalWeight => '‹‹Total weight››';
 
   @override
   String get gradesAveragesNoWeighted =>
-      'په دې سمسټر کې وزن‌لرونکې نمرې نشته. یوه ورزیاته کړئ یا په نمره کې سلنه وټاکئ.';
+      '‹‹No grades with a weight in this semester. Add one or set a % on a grade.››';
 
   @override
-  String get gradesAvgPickTitle => 'Add a grade to the average';
+  String get gradesAvgPickTitle => '‹‹Add a grade to the average››';
 
   @override
   String gradesAvgPickSubtitle(String subject) {
-    return 'Pick a published grade in $subject, then set its weight, semester and format.';
+    return '‹‹Pick a published grade in $subject, then set its weight, semester and format.››';
   }
 
   @override
-  String get gradesAvgFilterAll => 'All';
+  String get gradesAvgFilterAll => '‹‹All››';
 
   @override
   String gradesAvgFilterCohort(String name) {
-    return 'Cohort — $name';
+    return '‹‹Cohort — $name››';
   }
 
   @override
-  String get gradesAvgSearchHint => 'Search grades';
+  String get gradesAvgSearchHint => '‹‹Search grades››';
 
   @override
-  String get gradesAvgNoResults => 'No matching grades in this subject.';
+  String get gradesAvgNoResults => '‹‹No matching grades in this subject.››';
 
   @override
-  String get gradesAvgInAverage => 'In average';
+  String get gradesAvgInAverage => '‹‹In average››';
 
   @override
-  String get notesTitle => 'Notes';
+  String get notesTitle => '‹‹Notes››';
 
   @override
-  String get notesSearchStudents => 'Search students';
+  String get notesSearchStudents => '‹‹Search students››';
 
   @override
-  String get notesNoStudents => 'No students found';
+  String get notesNoStudents => '‹‹No students found››';
 
   @override
   String notesCount(num count) {
@@ -10827,384 +10949,385 @@ class AppLocalizationsPs extends AppLocalizations {
       one: '1 note',
       zero: 'No notes',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get notesNewNote => 'New note';
+  String get notesNewNote => '‹‹New note››';
 
   @override
-  String get notesNoNotes => 'No notes yet';
+  String get notesNoNotes => '‹‹No notes yet››';
 
   @override
   String get notesNoNotesHint =>
-      'Tap + to write the first note about this student.';
+      '‹‹Tap + to write the first note about this student.››';
 
   @override
-  String get notesDeleteTitle => 'Delete note?';
+  String get notesDeleteTitle => '‹‹Delete note?››';
 
   @override
-  String get notesDeleteBody => 'This note will be permanently deleted.';
+  String get notesDeleteBody => '‹‹This note will be permanently deleted.››';
 
   @override
-  String get notesUntitled => 'Untitled';
+  String get notesUntitled => '‹‹Untitled››';
 
   @override
-  String get notesTitleHint => 'Title';
+  String get notesTitleHint => '‹‹Title››';
 
   @override
-  String get notesBodyHint => 'Start writing…';
+  String get notesBodyHint => '‹‹Start writing…››';
 
   @override
   String notesEditedBy(String name) {
-    return 'By $name';
+    return '‹‹By $name››';
   }
 
   @override
-  String get cmailTitle => 'CMail';
+  String get cmailTitle => '‹‹CMail››';
 
   @override
-  String get cmailInbox => 'Inbox';
+  String get cmailInbox => '‹‹Inbox››';
 
   @override
-  String get cmailSentTab => 'Sent';
+  String get cmailSentTab => '‹‹Sent››';
 
   @override
-  String get cmailCompose => 'New mail';
+  String get cmailCompose => '‹‹New mail››';
 
   @override
-  String get cmailEmptyInbox => 'No mail yet';
+  String get cmailEmptyInbox => '‹‹No mail yet››';
 
   @override
-  String get cmailEmptyInboxHint => 'Mail from your school will appear here.';
+  String get cmailEmptyInboxHint =>
+      '‹‹Mail from your school will appear here.››';
 
   @override
-  String get cmailEmptySent => 'Nothing sent yet';
+  String get cmailEmptySent => '‹‹Nothing sent yet››';
 
   @override
-  String get cmailSubject => 'Subject';
+  String get cmailSubject => '‹‹Subject››';
 
   @override
-  String get cmailBodyHint => 'Write your message…';
+  String get cmailBodyHint => '‹‹Write your message…››';
 
   @override
-  String get cmailAudience => 'To';
+  String get cmailAudience => '‹‹To››';
 
   @override
-  String get cmailAudienceSchool => 'Everyone';
+  String get cmailAudienceSchool => '‹‹Everyone››';
 
   @override
-  String get cmailAudienceStudents => 'All students';
+  String get cmailAudienceStudents => '‹‹All students››';
 
   @override
-  String get cmailAudienceTeachers => 'All teachers';
+  String get cmailAudienceTeachers => '‹‹All teachers››';
 
   @override
-  String get cmailAudienceParents => 'All parents';
+  String get cmailAudienceParents => '‹‹All parents››';
 
   @override
-  String get cmailAudienceStaff => 'Staff';
+  String get cmailAudienceStaff => '‹‹Staff››';
 
   @override
-  String get cmailAudienceGrades => 'By grade';
+  String get cmailAudienceGrades => '‹‹By grade››';
 
   @override
-  String get cmailAudienceCohorts => 'By class';
+  String get cmailAudienceCohorts => '‹‹By class››';
 
   @override
-  String get cmailAudienceUsers => 'Specific people';
+  String get cmailAudienceUsers => '‹‹Specific people››';
 
   @override
-  String get cmailPickGrades => 'Pick grades';
+  String get cmailPickGrades => '‹‹Pick grades››';
 
   @override
-  String get cmailPickCohorts => 'Pick classes';
+  String get cmailPickCohorts => '‹‹Pick classes››';
 
   @override
-  String get cmailPickPeople => 'Pick people';
+  String get cmailPickPeople => '‹‹Pick people››';
 
   @override
-  String get cmailAttach => 'Attach files';
+  String get cmailAttach => '‹‹Attach files››';
 
   @override
-  String get cmailSendAction => 'Send';
+  String get cmailSendAction => '‹‹Send››';
 
   @override
-  String get cmailSentOk => 'Mail sent';
+  String get cmailSentOk => '‹‹Mail sent››';
 
   @override
-  String get cmailDeleteTitle => 'Delete mail?';
+  String get cmailDeleteTitle => '‹‹Delete mail?››';
 
   @override
-  String get cmailDeleteForAll => 'This deletes the mail for everyone.';
+  String get cmailDeleteForAll => '‹‹This deletes the mail for everyone.››';
 
   @override
-  String get cmailDeleteForMe => 'This removes the mail from your inbox.';
+  String get cmailDeleteForMe => '‹‹This removes the mail from your inbox.››';
 
   @override
   String cmailRecipients(num count) {
-    return '$count recipients';
+    return '‹‹$count recipients››';
   }
 
   @override
   String cmailReadStats(num read, num total) {
-    return '$read of $total read';
+    return '‹‹$read of $total read››';
   }
 
   @override
-  String get cmailSubjectRequired => 'Subject is required';
+  String get cmailSubjectRequired => '‹‹Subject is required››';
 
   @override
-  String get cmailAudienceRequired => 'Pick who this mail goes to';
+  String get cmailAudienceRequired => '‹‹Pick who this mail goes to››';
 
   @override
-  String get cmailAttachments => 'Attachments';
+  String get cmailAttachments => '‹‹Attachments››';
 
   @override
   String cmailFrom(String name) {
-    return 'From $name';
+    return '‹‹From $name››';
   }
 
   @override
-  String get phoneLinkTitle => 'Add your phone';
+  String get phoneLinkTitle => '‹‹Add your phone››';
 
   @override
   String get phoneLinkSubtitle =>
-      'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.';
+      '‹‹Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.››';
 
   @override
-  String get phoneLinkFieldLabel => 'Phone number';
+  String get phoneLinkFieldLabel => '‹‹Phone number››';
 
   @override
-  String get phoneLinkSend => 'Send code';
+  String get phoneLinkSend => '‹‹Send code››';
 
   @override
-  String get phoneLinkCodeLabel => '6-digit code';
+  String get phoneLinkCodeLabel => '‹‹6-digit code››';
 
   @override
   String phoneLinkCodeSent(String phone) {
-    return 'Code sent to $phone';
+    return '‹‹Code sent to $phone››';
   }
 
   @override
-  String get phoneLinkVerify => 'Verify & link';
+  String get phoneLinkVerify => '‹‹Verify & link››';
 
   @override
-  String get phoneLinkLater => 'Later';
+  String get phoneLinkLater => '‹‹Later››';
 
   @override
-  String get phoneLinkDone => 'Phone linked!';
+  String get phoneLinkDone => '‹‹Phone linked!››';
 
   @override
-  String get phoneLinkResend => 'Resend code';
+  String get phoneLinkResend => '‹‹Resend code››';
 
   @override
-  String get phoneLinkInvalid => 'Enter a valid phone number';
+  String get phoneLinkInvalid => '‹‹Enter a valid phone number››';
 
   @override
-  String get hubParentsSection => 'Parents';
+  String get hubParentsSection => '‹‹Parents››';
 
   @override
-  String get hubNoParents => 'No linked parents yet';
+  String get hubNoParents => '‹‹No linked parents yet››';
 
   @override
-  String get hubStudentSection => 'Student';
+  String get hubStudentSection => '‹‹Student››';
 
   @override
-  String get hubAverageLabel => 'Average';
+  String get hubAverageLabel => '‹‹Average››';
 
   @override
-  String get hubAccuracyLabel => 'Practice accuracy';
+  String get hubAccuracyLabel => '‹‹Practice accuracy››';
 
   @override
-  String get hubBestSubject => 'Best subject';
+  String get hubBestSubject => '‹‹Best subject››';
 
   @override
-  String get hubWeakestSubject => 'Weakest subject';
+  String get hubWeakestSubject => '‹‹Weakest subject››';
 
   @override
-  String get hubWeakTopics => 'Weak topics';
+  String get hubWeakTopics => '‹‹Weak topics››';
 
   @override
-  String get hubStrongTopics => 'Strong topics';
+  String get hubStrongTopics => '‹‹Strong topics››';
 
   @override
-  String get hubNoInsights => 'No insights yet';
+  String get hubNoInsights => '‹‹No insights yet››';
 
   @override
-  String get hubNoGrades => 'No grades yet';
+  String get hubNoGrades => '‹‹No grades yet››';
 
   @override
-  String get hubUnpublished => 'Draft';
+  String get hubUnpublished => '‹‹Draft››';
 
   @override
-  String get hubClass => 'Class';
+  String get hubClass => '‹‹Class››';
 
   @override
-  String get a11yBack => 'Back';
+  String get a11yBack => '‹‹Back››';
 
   @override
-  String get a11yClose => 'Close';
+  String get a11yClose => '‹‹Close››';
 
   @override
-  String get a11yCancel => 'Cancel';
+  String get a11yCancel => '‹‹Cancel››';
 
   @override
-  String get a11yDone => 'Done';
+  String get a11yDone => '‹‹Done››';
 
   @override
-  String get a11ySave => 'Save';
+  String get a11ySave => '‹‹Save››';
 
   @override
-  String get a11yEdit => 'Edit';
+  String get a11yEdit => '‹‹Edit››';
 
   @override
-  String get a11yDelete => 'Delete';
+  String get a11yDelete => '‹‹Delete››';
 
   @override
-  String get a11yRemove => 'Remove';
+  String get a11yRemove => '‹‹Remove››';
 
   @override
-  String get a11yAdd => 'Add';
+  String get a11yAdd => '‹‹Add››';
 
   @override
-  String get a11yCreate => 'Create';
+  String get a11yCreate => '‹‹Create››';
 
   @override
-  String get a11ySend => 'Send';
+  String get a11ySend => '‹‹Send››';
 
   @override
-  String get a11ySearch => 'Search';
+  String get a11ySearch => '‹‹Search››';
 
   @override
-  String get a11yClear => 'Clear';
+  String get a11yClear => '‹‹Clear››';
 
   @override
-  String get a11yFilter => 'Filter';
+  String get a11yFilter => '‹‹Filter››';
 
   @override
-  String get a11ySort => 'Sort';
+  String get a11ySort => '‹‹Sort››';
 
   @override
-  String get a11yMore => 'More options';
+  String get a11yMore => '‹‹More options››';
 
   @override
-  String get a11yMenu => 'Menu';
+  String get a11yMenu => '‹‹Menu››';
 
   @override
-  String get a11yRefresh => 'Refresh';
+  String get a11yRefresh => '‹‹Refresh››';
 
   @override
-  String get a11yRetry => 'Retry';
+  String get a11yRetry => '‹‹Retry››';
 
   @override
-  String get a11yShare => 'Share';
+  String get a11yShare => '‹‹Share››';
 
   @override
-  String get a11yCopy => 'Copy';
+  String get a11yCopy => '‹‹Copy››';
 
   @override
-  String get a11yDownload => 'Download';
+  String get a11yDownload => '‹‹Download››';
 
   @override
-  String get a11yUpload => 'Upload';
+  String get a11yUpload => '‹‹Upload››';
 
   @override
-  String get a11yAttach => 'Attach file';
+  String get a11yAttach => '‹‹Attach file››';
 
   @override
-  String get a11yAddPhoto => 'Add photo';
+  String get a11yAddPhoto => '‹‹Add photo››';
 
   @override
-  String get a11yCamera => 'Camera';
+  String get a11yCamera => '‹‹Camera››';
 
   @override
-  String get a11yMicrophone => 'Voice input';
+  String get a11yMicrophone => '‹‹Voice input››';
 
   @override
-  String get a11yPlay => 'Play';
+  String get a11yPlay => '‹‹Play››';
 
   @override
-  String get a11yPause => 'Pause';
+  String get a11yPause => '‹‹Pause››';
 
   @override
-  String get a11yNext => 'Next';
+  String get a11yNext => '‹‹Next››';
 
   @override
-  String get a11yPrevious => 'Previous';
+  String get a11yPrevious => '‹‹Previous››';
 
   @override
-  String get a11yExpand => 'Expand';
+  String get a11yExpand => '‹‹Expand››';
 
   @override
-  String get a11yCollapse => 'Collapse';
+  String get a11yCollapse => '‹‹Collapse››';
 
   @override
-  String get a11yShow => 'Show';
+  String get a11yShow => '‹‹Show››';
 
   @override
-  String get a11yHide => 'Hide';
+  String get a11yHide => '‹‹Hide››';
 
   @override
-  String get a11ySettings => 'Settings';
+  String get a11ySettings => '‹‹Settings››';
 
   @override
-  String get a11yProfile => 'Profile';
+  String get a11yProfile => '‹‹Profile››';
 
   @override
-  String get a11yNotifications => 'Notifications';
+  String get a11yNotifications => '‹‹Notifications››';
 
   @override
-  String get a11yHelp => 'Help';
+  String get a11yHelp => '‹‹Help››';
 
   @override
-  String get a11yInfo => 'Details';
+  String get a11yInfo => '‹‹Details››';
 
   @override
-  String get a11yFavorite => 'Favorite';
+  String get a11yFavorite => '‹‹Favorite››';
 
   @override
-  String get a11yPin => 'Pin';
+  String get a11yPin => '‹‹Pin››';
 
   @override
-  String get a11yUnpin => 'Unpin';
+  String get a11yUnpin => '‹‹Unpin››';
 
   @override
-  String get a11yMute => 'Mute';
+  String get a11yMute => '‹‹Mute››';
 
   @override
-  String get a11yUnmute => 'Unmute';
+  String get a11yUnmute => '‹‹Unmute››';
 
   @override
-  String get a11yMarkRead => 'Mark as read';
+  String get a11yMarkRead => '‹‹Mark as read››';
 
   @override
-  String get a11yNewChat => 'New chat';
+  String get a11yNewChat => '‹‹New chat››';
 
   @override
-  String get a11yNewMessage => 'New message';
+  String get a11yNewMessage => '‹‹New message››';
 
   @override
-  String get a11yEmoji => 'Emoji';
+  String get a11yEmoji => '‹‹Emoji››';
 
   @override
-  String get a11ySelectDate => 'Select date';
+  String get a11ySelectDate => '‹‹Select date››';
 
   @override
-  String get a11yLogout => 'Log out';
+  String get a11yLogout => '‹‹Log out››';
 
   @override
-  String get a11yAddAccount => 'Add account';
+  String get a11yAddAccount => '‹‹Add account››';
 
   @override
-  String get a11yShowPassword => 'Show password';
+  String get a11yShowPassword => '‹‹Show password››';
 
   @override
-  String get a11yHidePassword => 'Hide password';
+  String get a11yHidePassword => '‹‹Hide password››';
 
   @override
-  String get a11yScrollToBottom => 'Scroll to bottom';
+  String get a11yScrollToBottom => '‹‹Scroll to bottom››';
 
   @override
-  String get a11yOpen => 'Open';
+  String get a11yOpen => '‹‹Open››';
 }

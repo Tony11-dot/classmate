@@ -82,6 +82,8 @@ class PhoneField extends StatelessWidget {
     required this.onDialCodeChanged,
     this.labelText,
     this.helperText,
+    this.errorText,
+    this.onChanged,
     this.autofocus = false,
   });
 
@@ -90,6 +92,11 @@ class PhoneField extends StatelessWidget {
   final ValueChanged<String> onDialCodeChanged;
   final String? labelText;
   final String? helperText;
+  /// Validation message shown under the field (e.g. "Enter a valid number").
+  /// When non-null the field renders in its error state.
+  final String? errorText;
+  /// Fired on every keystroke so the caller can re-run live validation.
+  final ValueChanged<String>? onChanged;
   final bool autofocus;
 
   Future<void> _pickDialCode(BuildContext context) async {
@@ -190,9 +197,11 @@ class PhoneField extends StatelessWidget {
       autofocus: autofocus,
       keyboardType: TextInputType.phone,
       autocorrect: false,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: labelText ?? l.phoneFieldLabel,
         helperText: helperText ?? l.phoneFieldHelper,
+        errorText: errorText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         prefixIcon: InkWell(
           borderRadius: BorderRadius.circular(8),

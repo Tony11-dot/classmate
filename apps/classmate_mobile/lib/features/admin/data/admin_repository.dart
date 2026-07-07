@@ -87,6 +87,10 @@ class AdminRepository {
     String? nationalId,
     bool? isPrincipal,
     List<int>? principalGrades,
+    // Optional homeroom class to assign a newly-created TEACHER to (makes
+    // them that cohort's homeroom teacher). Ignored by the server for
+    // non-teacher roles.
+    String? homeroomCohortId,
   }) async {
     final raw = await _api.postJson('/admin/users', body: {
       'name': name,
@@ -99,6 +103,8 @@ class AdminRepository {
       if (nationalId != null && nationalId.isNotEmpty) 'nationalId': nationalId,
       'isPrincipal': ?isPrincipal,
       'principalGrades': ?principalGrades,
+      if (homeroomCohortId != null && homeroomCohortId.isNotEmpty)
+        'homeroomCohortId': homeroomCohortId,
     });
     final m = _m(raw);
     return AdminCreateResult(
@@ -106,6 +112,15 @@ class AdminRepository {
       tempPassword: m['tempPassword']?.toString() ?? '',
       username: m['username']?.toString(),
     );
+  }
+
+  /// Classes in this school that don't yet have a homeroom teacher — used to
+  /// populate the "assign homeroom class" dropdown on the create-teacher form.
+  Future<List<AdminHomeroomCohort>> fetchUnassignedHomeroomCohorts() async {
+    final raw = await _api.getJson('/admin/ddl/unassigned-homeroom-cohorts');
+    return _l(_m(raw)['cohorts'])
+        .map((e) => AdminHomeroomCohort.fromJson(_m(e)))
+        .toList();
   }
 
   Future<void> updateUser(String id, {
@@ -703,6 +718,23 @@ class AdminCreateResult {
   final AdminUser user;
   final String tempPassword;
   final String? username; // auto-generated or provided username
+}
+
+/// A class/cohort with no homeroom teacher yet — an option in the
+/// create-teacher "assign homeroom class" dropdown.
+class AdminHomeroomCohort {
+  const AdminHomeroomCohort({required this.id, required this.name, required this.grade});
+  final String id;
+  final String name;
+  final int grade;
+
+  factory AdminHomeroomCohort.fromJson(Map<String, dynamic> m) => AdminHomeroomCohort(
+        id: m['id']?.toString() ?? '',
+        name: m['name']?.toString() ?? '',
+        grade: m['grade'] is int
+            ? m['grade'] as int
+            : int.tryParse('${m['grade'] ?? ''}') ?? 0,
+      );
 }
 
 class AdminCohort {

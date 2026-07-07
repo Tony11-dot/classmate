@@ -106,6 +106,144 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// No description provided for @commonShowPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get commonShowPassword;
+
+  /// No description provided for @commonHidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get commonHidePassword;
+
+  /// No description provided for @adminEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get adminEmailInvalid;
+
+  /// No description provided for @adminPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get adminPhoneInvalid;
+
+  /// No description provided for @adminFullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get adminFullNameLabel;
+
+  /// No description provided for @adminHomeroomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Homeroom class'**
+  String get adminHomeroomLabel;
+
+  /// No description provided for @adminHomeroomNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No homeroom class'**
+  String get adminHomeroomNone;
+
+  /// No description provided for @adminHomeroomNoneAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No unassigned classes available'**
+  String get adminHomeroomNoneAvailable;
+
+  /// No description provided for @adminHomeroomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This teacher becomes the homeroom teacher of the selected class.'**
+  String get adminHomeroomHint;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to sign in again to use ClassMate.'**
+  String get logoutConfirmBody;
+
+  /// No description provided for @pressBackAgainToExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Press back again to exit'**
+  String get pressBackAgainToExit;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @onboardingSlide1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to ClassMate'**
+  String get onboardingSlide1Title;
+
+  /// No description provided for @onboardingSlide1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your smart school companion — everything for school, all in one place.'**
+  String get onboardingSlide1Body;
+
+  /// No description provided for @onboardingSlide2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet NOVA'**
+  String get onboardingSlide2Title;
+
+  /// No description provided for @onboardingSlide2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your AI tutor, ready to explain any topic and help you practice, anytime.'**
+  String get onboardingSlide2Body;
+
+  /// No description provided for @onboardingSlide3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay on top of everything'**
+  String get onboardingSlide3Title;
+
+  /// No description provided for @onboardingSlide3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule, grades, attendance and assignments — always up to date.'**
+  String get onboardingSlide3Body;
+
+  /// No description provided for @onboardingSlide4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay connected'**
+  String get onboardingSlide4Title;
+
+  /// No description provided for @onboardingSlide4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages and announcements keep students, teachers and parents in sync.'**
+  String get onboardingSlide4Body;
+
   /// Consent gate
   ///
   /// In en, this message translates to:
