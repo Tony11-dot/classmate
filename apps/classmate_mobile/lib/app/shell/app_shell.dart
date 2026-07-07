@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -23,7 +22,9 @@ import '../../features/lifedoc/student_materials_screen.dart';
 import '../../features/consent/consent_gate.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
+import '../../ui/glass/cm_glass.dart';
 import '../../ui/glass/native_glass_view.dart';
+import '../../ui/glass/scroll_edge_effect.dart';
 import '../../ui/nav/main_drawer.dart';
 import '../../ui/widgets/classmate_logo.dart';
 import '../../ui/widgets/in_app_notification_banner.dart';
@@ -897,7 +898,14 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
             ? body
             : NotificationListener<ScrollNotification>(
                 onNotification: _onBodyScroll,
-                child: body,
+                // Scroll-edge effect (iOS 26): soft scrim where content
+                // slides under the floating pill so the last row stays
+                // legible through the glass. Top edge arrives with the
+                // glass top-bar migration (needs a per-screen padding pass).
+                child: ScrollEdgeEffect(
+                  showTop: false,
+                  child: body,
+                ),
               ),
         floatingActionButton: widget.buildFab(context),
         bottomNavigationBar: widget.hideBottomNav
@@ -1122,31 +1130,12 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     // Dark gets a touch more tint so the pill stays legible over dark pages.
     final pillTint = cs.surface.withValues(alpha: isDark ? 0.45 : 0.52);
 
-    // ── Android Material-3 fallback ──────────────────────────────────────
-    // The iOS 26 liquid-glass aesthetic is platform-specific; on Android
-    // it'd feel out of place against the rest of the M3 system chrome.
-    // Render Flutter's NavigationBar instead — themed automatically, gets
-    // ripple + indicator for free. Icon-only to match the iOS pill.
-    if (kIsWeb || (!Platform.isIOS && !Platform.isMacOS)) {
-      return NavigationBar(
-        selectedIndex: widget.index,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-        onDestinationSelected: (i) {
-          HapticFeedback.lightImpact();
-          widget.onTap(i);
-        },
-        destinations: [
-          for (final item in widget.items)
-            NavigationDestination(
-              icon: _BadgedIcon(icon: item.icon, badge: item.badge),
-              selectedIcon: _BadgedIcon(icon: item.selectedIcon, badge: item.badge),
-              label: item.label,
-            ),
-        ],
-      );
-    }
-
-    // ── iOS / macOS liquid-glass floating pill ───────────────────────────
+    // ── Liquid-glass floating pill — ALL platforms ───────────────────────
+    // One nav, one brand: iOS/macOS get the real UIVisualEffectView glass;
+    // Android/web get NativeGlassView's built-in BackdropFilter fallback.
+    // All the pill physics (slide-to-switch, rubber-band, springs, haptics)
+    // are pure Flutter and work identically everywhere. (Previously Android
+    // fell back to a plain M3 NavigationBar — no glass, no physics.)
     return SafeArea(
       top: false, left: false, right: false, bottom: true,
       child: Padding(
@@ -1245,45 +1234,6 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
           );
         }),
       ),
-    );
-  }
-}
-
-/// Wraps a tab icon with a small red dot in the corner when the item has
-/// unread items (used by the Messages tab). Lives in module scope so the
-/// M3 NavigationBar branch above can also share it.
-class _BadgedIcon extends StatelessWidget {
-  const _BadgedIcon({required this.icon, required this.badge});
-  final IconData icon;
-  final int badge;
-
-  @override
-  Widget build(BuildContext context) {
-    if (badge <= 0) return Icon(icon);
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Icon(icon),
-        Positioned(
-          right: -4, top: -2,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            constraints: const BoxConstraints(minWidth: 14),
-            child: Text(
-              badge > 99 ? '99+' : '$badge',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onError,
-                fontSize: 9, fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -1531,17 +1481,17 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsetsDirectional.only(end: 14),
           child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-              ),
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+            // Real glass capsule (was a fake alpha-on-solid chip).
+            child: CMGlass(
+              capsule: true,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.labelSmall
+                      ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                ),
               ),
             ),
           ),
