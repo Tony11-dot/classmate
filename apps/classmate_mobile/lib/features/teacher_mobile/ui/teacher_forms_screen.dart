@@ -110,7 +110,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
       onRefresh: _load,
       child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+        padding: EdgeInsets.fromLTRB(16, 12 + MediaQuery.paddingOf(context).top, 16, 100),
         children: [
           // Hero banner
           LiquidGlassCard(

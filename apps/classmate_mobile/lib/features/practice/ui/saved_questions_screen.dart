@@ -70,12 +70,17 @@ class SavedQuestionsScreen extends ConsumerWidget {
       : localizedPracticeSubject(context, subjects.first);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16 + MediaQuery.paddingOf(context).top,
+        16,
+        28,
+      ),
       children: [
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: cs.outlineVariant,
             ),
@@ -200,7 +205,7 @@ class _SavedQuestionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(

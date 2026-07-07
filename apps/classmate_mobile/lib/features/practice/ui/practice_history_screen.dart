@@ -11,6 +11,7 @@ import '../providers/practice_providers.dart';
 import 'practice_display_text.dart';
 import 'practice_history_review_screen.dart';
 import 'practice_mode_specs.dart';
+import '../../../ui/nav/glass_back_button.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 String _practiceModeLabel(BuildContext context, PracticeMode mode) {
@@ -59,10 +60,10 @@ class PracticeHistoryScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).maybePop(),
+        leadingWidth: 60,
+        leading: const Padding(
+          padding: EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton()),
         ),
         title: Text(l.practiceHistoryTitle),
         actions: [

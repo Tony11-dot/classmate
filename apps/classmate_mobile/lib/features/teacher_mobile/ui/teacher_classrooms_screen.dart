@@ -12,6 +12,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'teacher_create_classroom_screen.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 
 String _friendlyError(BuildContext context, String? error) {
   final l = AppLocalizations.of(context)!;
@@ -124,7 +125,7 @@ class _TeacherClassroomsScreenState
           RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
+          padding: EdgeInsets.fromLTRB(16, MediaQuery.paddingOf(context).top, 16, 130),
           children: [
             // ── Header card — matches student "Your Classrooms" style ──────
             Padding(
@@ -140,7 +141,7 @@ class _TeacherClassroomsScreenState
                       Container(
                         width: 62, height: 62,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           color: cs.primaryContainer,
                         ),
                         child: Icon(Icons.forum_rounded, size: 30, color: cs.onPrimaryContainer),
@@ -184,25 +185,10 @@ class _TeacherClassroomsScreenState
             // ── Search bar ───────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: TextField(
+              child: GlassSearchField(
+                hintText: AppLocalizations.of(context)!.teacherSearchClassrooms,
                 controller: _searchCtl,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.teacherSearchClassrooms,
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: _searchCtl.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: l.a11yClear,
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: () { _searchCtl.clear(); FocusScope.of(context).unfocus(); },
-                        ),
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
               ),
             ),
             if (_error != null)

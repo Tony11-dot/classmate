@@ -14,6 +14,8 @@ import 'package:printing/printing.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/nav/glass_back_button.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 import '../data/admin_repository.dart';
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -341,9 +343,6 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                       label: Text(l.adminExportAddFilter),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
                       ),
                     ),
                   ),
@@ -685,15 +684,15 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             child: Row(
               children: [
-                if (_drillRole != null)
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    tooltip: l.a11yBack,
+                if (_drillRole != null) ...[
+                  GlassBackButton(
                     onPressed: () => setState(() {
                       _drillRole = null;
                       _userQuery = '';
                     }),
                   ),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: Text(
                     _drillRole != null
@@ -866,16 +865,9 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-          child: TextField(
+          child: GlassSearchField(
+            hintText: l.adminScheduleSearchStudents,
             onChanged: (v) => setState(() => _userQuery = v),
-            decoration: InputDecoration(
-              hintText: l.adminScheduleSearchStudents,
-              prefixIcon: const Icon(Icons.search_rounded, size: 18),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              isDense: true,
-            ),
           ),
         ),
         Padding(
@@ -1935,7 +1927,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _exporting ? null : _exportPdf,
-                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
+                  style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary),
                   icon: _exporting
                       ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : const Icon(Icons.picture_as_pdf_rounded, size: 16),

@@ -42,7 +42,8 @@ class AdminDashboardScreen extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: EdgeInsets.fromLTRB(
+                  16, 16 + MediaQuery.paddingOf(context).top, 16, 0),
               sliver: SliverToBoxAdapter(
                 child: Text(
                   l.adminDashboardTitle,

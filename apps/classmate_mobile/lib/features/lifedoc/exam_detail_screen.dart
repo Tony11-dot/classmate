@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import 'data/exams_repository.dart';
 import 'domain/exam_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/nav/glass_back_button.dart';
 import '../common/media/image_viewer_screen.dart';
 import '../common/media/pdf_viewer_screen.dart';
 import '../../ui/widgets/cm_loading.dart';
@@ -160,7 +161,14 @@ class ExamDetailScreen extends ConsumerWidget {
         body: Center(child: CmLoading()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
+        appBar: AppBar(
+          leadingWidth: 60,
+          leading: const Padding(
+            padding: EdgeInsetsDirectional.only(start: 8),
+            child: Center(child: GlassBackButton()),
+          ),
+          title: Text(AppLocalizations.of(context)!.examTitle),
+        ),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -179,7 +187,14 @@ class ExamDetailScreen extends ConsumerWidget {
         );
         if (exam == null || exam.id.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
+            appBar: AppBar(
+              leadingWidth: 60,
+              leading: const Padding(
+                padding: EdgeInsetsDirectional.only(start: 8),
+                child: Center(child: GlassBackButton()),
+              ),
+              title: Text(AppLocalizations.of(context)!.examTitle),
+            ),
             body: Center(child: Text(AppLocalizations.of(context)!.examNotFound)),
           );
         }
@@ -199,7 +214,14 @@ class _ExamDetailBody extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     if (exam.id.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(l.examTitle)),
+        appBar: AppBar(
+          leadingWidth: 60,
+          leading: const Padding(
+            padding: EdgeInsetsDirectional.only(start: 8),
+            child: Center(child: GlassBackButton()),
+          ),
+          title: Text(l.examTitle),
+        ),
         body: Center(child: Text(l.examNotFound)),
       );
     }
@@ -274,43 +296,14 @@ class _ExamDetailBody extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
             // ── back button ──
-            Row(
-              children: [
-                Semantics(
-                  button: true,
-                  label: l.a11yBack,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => context.pop(),
-                    child: SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: LiquidGlassCard(
-                        borderRadius: BorderRadius.circular(16),
-                        color: cs.surfaceContainerHigh,
-                        padding: EdgeInsets.zero,
-                        border: Border.all(color: cs.outlineVariant),
-                        child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    exam.subject,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+            GlassDetailHeader(
+              title: exam.subject,
+              onBack: () => context.pop(),
             ),
             const SizedBox(height: 16),
           LiquidGlassCard(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(24),
             color: heroBg,
             border: Border.all(color: cs.outlineVariant),
             child: Row(

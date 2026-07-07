@@ -409,9 +409,6 @@ class _LoginCard extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: cs.primary,
                 foregroundColor: cs.onPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
               ),
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 180),

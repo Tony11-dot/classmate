@@ -184,8 +184,6 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
                         : _sendCode,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
                 ),
                 child: (_sending || _verifying)
                     ? const SizedBox(

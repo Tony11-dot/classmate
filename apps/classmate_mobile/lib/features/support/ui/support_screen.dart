@@ -102,7 +102,12 @@ class SupportScreen extends StatelessWidget {
       // No local AppBar — the shell's top bar already shows a "Support"
       // pill when this route is active. Avoids stacking two titles.
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16 + MediaQuery.paddingOf(context).top,
+          16,
+          40,
+        ),
         children: [
           // ── Contact CTAs ─────────────────────────────────────────────────
           Container(
@@ -190,7 +195,12 @@ class AboutScreen extends StatelessWidget {
       // No local AppBar — the shell's top bar already shows an "About"
       // pill when this route is active.
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          16 + MediaQuery.paddingOf(context).top,
+          20,
+          40,
+        ),
         children: [
           _AboutBlock(
             title: l.aboutWhatIsClassmate,

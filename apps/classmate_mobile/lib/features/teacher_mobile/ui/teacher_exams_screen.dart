@@ -134,7 +134,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
       child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+        padding: EdgeInsets.fromLTRB(16, 12 + MediaQuery.paddingOf(context).top, 16, 100),
         children: [
           // Hero
           LiquidGlassCard(

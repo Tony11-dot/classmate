@@ -1476,13 +1476,13 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
         onTap: () => _openAttachment(m),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300),
           child: LiquidGlassCard(
           padding: const EdgeInsets.all(10),
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(14),
             color: accent,
             border: Border.all(color: cs.outlineVariant),
           child: Row(

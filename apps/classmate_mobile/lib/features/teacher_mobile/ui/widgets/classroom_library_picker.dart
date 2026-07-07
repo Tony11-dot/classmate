@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../data/teacher_mobile_repository.dart';
+import '../../../../ui/widgets/glass_search_field.dart';
 
 /// Three flavors share the same picker shape: only the fetch source,
 /// "Create new" route, attach call, and labels differ.
@@ -198,15 +199,9 @@ class _ClassroomLibraryPickerSheetState
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
+              child: GlassSearchField(
+                hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
                 onChanged: (v) => setState(() => _query = v),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
-                ),
               ),
             ),
             const SizedBox(height: 8),

@@ -296,7 +296,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        padding: EdgeInsets.fromLTRB(16, 12 + MediaQuery.paddingOf(context).top, 16, 32),
         children: [
           // ── Hero Banner ──────────────────────────────────────────────────
           LiquidGlassCard(

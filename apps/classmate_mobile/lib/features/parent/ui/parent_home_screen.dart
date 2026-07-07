@@ -33,7 +33,8 @@ class ParentHomeScreen extends ConsumerWidget {
           ref.invalidate(parentChildrenProvider);
         },
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          padding: EdgeInsets.fromLTRB(
+              16, 12 + MediaQuery.paddingOf(context).top, 16, 24),
           children: [
             const SizedBox(height: 4),
             Text(

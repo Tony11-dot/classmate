@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 
@@ -63,13 +64,10 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: TextField(
+              child: GlassSearchField(
+                hintText: l.messagesSearchPeopleHint,
                 controller: _searchCtl,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: l.messagesSearchPeopleHint,
-                  prefixIcon: const Icon(Icons.search_rounded),
-                ),
               ),
             ),
             if (_selected.isNotEmpty)

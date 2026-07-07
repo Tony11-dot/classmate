@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 
 /// Manages the materials attached to a single teacher schedule slot.
 ///
@@ -395,14 +396,9 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
+              child: GlassSearchField(
+                hintText: AppLocalizations.of(context)!.teacherSearchMaterials,
                 onChanged: (v) => setState(() => _query = v),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.teacherSearchMaterials,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
-                ),
               ),
             ),
             const SizedBox(height: 8),

@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../lifedoc/announcements_provider.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 // Role descriptor. The CODE (id) is stable and used in the API payload;
 // the display label is resolved at build time via AppLocalizations so it
@@ -388,11 +389,15 @@ class _TeacherNewAnnouncementScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/announcements'),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(
+            child: GlassBackButton(
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/announcements'),
+            ),
+          ),
         ),
         title: Text(
           l.teacherNewAnnouncementAction,
@@ -983,8 +988,6 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                 onPressed: () => Navigator.of(ctx).pop(),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(AppLocalizations.of(context)!.commonDone),
               ),

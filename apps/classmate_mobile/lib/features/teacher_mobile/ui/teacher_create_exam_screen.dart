@@ -15,6 +15,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/audience_section.dart';
 import 'widgets/audience_students_summary.dart';
 import 'widgets/classroom_library_picker.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherCreateExamScreen extends ConsumerStatefulWidget {
   const TeacherCreateExamScreen({super.key, this.initialExam});
@@ -332,10 +333,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
         ),
         title: Text(
           _isEditing ? AppLocalizations.of(context)!.teacherExamEditTitle : AppLocalizations.of(context)!.teacherExamNewTitle,
