@@ -9,6 +9,10 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get consentGateError =>
+      'Не удалось сохранить ваш выбор. Проверьте подключение и повторите попытку.';
+
+  @override
   String get commonShowPassword => 'Показать пароль';
 
   @override

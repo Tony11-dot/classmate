@@ -1,5 +1,6 @@
 {
   "@@locale": "fr",
+  "consentGateError": "Impossible d'enregistrer votre choix. Vérifiez votre connexion et réessayez.",
   "commonShowPassword": "Afficher le mot de passe",
   "commonHidePassword": "Masquer le mot de passe",
   "adminEmailInvalid": "Saisissez une adresse e-mail valide",

@@ -23,13 +23,22 @@ class ConsentGate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final needsConsent =
-        ref.watch(authSessionProvider.select((s) => s.consentRequired));
-    return Stack(
-      children: [
-        child,
-        if (needsConsent) const _ConsentOverlay(),
-      ],
+    final session = ref.watch(authSessionProvider);
+    // Observe the session directly — it's a ChangeNotifier. `authSessionProvider`
+    // is a plain Provider, so `ref.watch(...select((s) => s.consentRequired))`
+    // alone does NOT rebuild when acceptConsent() flips the flag + notifies
+    // (only a full AppRestart would). That left the gate — and its "Agree &
+    // Continue" spinner — stuck on screen forever even though consent had been
+    // recorded server-side. The ListenableBuilder makes the overlay hide the
+    // instant the flag clears.
+    return ListenableBuilder(
+      listenable: session,
+      builder: (context, _) => Stack(
+        children: [
+          child,
+          if (session.consentRequired) const _ConsentOverlay(),
+        ],
+      ),
     );
   }
 }
@@ -58,8 +67,17 @@ class _ConsentOverlayState extends ConsumerState<_ConsentOverlay> {
     setState(() => _busy = true);
     try {
       await ref.read(authSessionProvider).acceptConsent(guardianConsent: _guardian);
-    } catch (_) {
+      // On success ConsentGate removes this overlay (the session notifies), so
+      // this State is usually disposed right after. Guard with `mounted` and
+      // still drop the spinner defensively — a stuck "loading forever" button
+      // here means the user can't use the app at all.
       if (mounted) setState(() => _busy = false);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.consentGateError)),
+      );
     }
   }
 

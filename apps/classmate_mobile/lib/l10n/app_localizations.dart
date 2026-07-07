@@ -106,6 +106,12 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// No description provided for @consentGateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save your choice. Please check your connection and try again.'**
+  String get consentGateError;
+
   /// No description provided for @commonShowPassword.
   ///
   /// In en, this message translates to:

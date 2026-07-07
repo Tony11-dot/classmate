@@ -9,6 +9,10 @@ class AppLocalizationsPs extends AppLocalizations {
   AppLocalizationsPs([String locale = 'ps']) : super(locale);
 
   @override
+  String get consentGateError =>
+      '‹‹Couldn\'t save your choice. Please check your connection and try again.››';
+
+  @override
   String get commonShowPassword => '‹‹Show password››';
 
   @override

@@ -9,6 +9,10 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get consentGateError =>
+      'לא הצלחנו לשמור את הבחירה שלכם. בדקו את החיבור ונסו שוב.';
+
+  @override
   String get commonShowPassword => 'הצגת סיסמה';
 
   @override

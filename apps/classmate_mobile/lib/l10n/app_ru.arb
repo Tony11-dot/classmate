@@ -1,5 +1,6 @@
 {
   "@@locale": "ru",
+  "consentGateError": "Не удалось сохранить ваш выбор. Проверьте подключение и повторите попытку.",
   "commonShowPassword": "Показать пароль",
   "commonHidePassword": "Скрыть пароль",
   "adminEmailInvalid": "Введите корректный адрес эл. почты",

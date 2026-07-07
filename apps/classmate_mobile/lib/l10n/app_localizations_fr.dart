@@ -9,6 +9,10 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get consentGateError =>
+      'Impossible d\'enregistrer votre choix. Vérifiez votre connexion et réessayez.';
+
+  @override
   String get commonShowPassword => 'Afficher le mot de passe';
 
   @override

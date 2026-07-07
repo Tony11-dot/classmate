@@ -9,6 +9,10 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get consentGateError =>
+      'تعذّر حفظ اختيارك. تحقّق من اتصالك وحاول مرة أخرى.';
+
+  @override
   String get commonShowPassword => 'إظهار كلمة المرور';
 
   @override

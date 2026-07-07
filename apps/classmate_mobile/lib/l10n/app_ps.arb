@@ -1,5 +1,6 @@
 {
   "@@locale": "ps",
+  "consentGateError": "‹‹Couldn't save your choice. Please check your connection and try again.››",
   "commonShowPassword": "‹‹Show password››",
   "commonHidePassword": "‹‹Hide password››",
   "adminEmailInvalid": "‹‹Enter a valid email address››",

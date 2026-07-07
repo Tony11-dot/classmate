@@ -1,5 +1,6 @@
 {
   "@@locale": "he",
+  "consentGateError": "לא הצלחנו לשמור את הבחירה שלכם. בדקו את החיבור ונסו שוב.",
   "commonShowPassword": "הצגת סיסמה",
   "commonHidePassword": "הסתרת סיסמה",
   "adminEmailInvalid": "הזינו כתובת אימייל תקינה",
