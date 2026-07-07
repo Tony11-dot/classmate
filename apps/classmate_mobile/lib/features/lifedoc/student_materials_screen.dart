@@ -78,7 +78,8 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
           if (items.isEmpty) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+              padding: EdgeInsets.fromLTRB(
+                  16, 20 + MediaQuery.paddingOf(context).top, 16, 100),
               children: [
                 // Hero banner
                 LiquidGlassCard(
@@ -118,7 +119,8 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
 
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+            padding: EdgeInsets.fromLTRB(
+                16, 20 + MediaQuery.paddingOf(context).top, 16, 100),
             children: [
               // Hero banner
               LiquidGlassCard(

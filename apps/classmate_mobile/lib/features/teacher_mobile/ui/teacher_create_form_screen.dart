@@ -10,6 +10,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'widgets/audience_section.dart';
 import 'widgets/audience_students_summary.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 class _FormQuestion {
   String text = '';
@@ -187,13 +188,16 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
-        leading: IconButton(tooltip: l.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () { if (context.canPop()) context.pop(); }),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton(onPressed: () { if (context.canPop()) context.pop(); })),
+        ),
         title: Text(AppLocalizations.of(context)!.teacherCreateFormTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
           TextButton(onPressed: _saving ? null : () => _save(published: false), child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft)),

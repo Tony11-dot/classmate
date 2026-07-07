@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/nav/glass_back_button.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
@@ -284,26 +285,10 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                 children: [
                   // ── Back chevron + title — no AppBar, so this header is
                   // the only visual way back.
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                        tooltip: l.a11yBack,
-                        onPressed: () => Navigator.maybePop(context),
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          _nameEnCtrl.text.trim().isEmpty ? l.adminEditUser : _nameEnCtrl.text.trim(),
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                  GlassDetailHeader(
+                    title: _nameEnCtrl.text.trim().isEmpty
+                        ? l.adminEditUser
+                        : _nameEnCtrl.text.trim(),
                   ),
                   const SizedBox(height: 16),
                   // ── Login credentials ──────────────────────────────────────

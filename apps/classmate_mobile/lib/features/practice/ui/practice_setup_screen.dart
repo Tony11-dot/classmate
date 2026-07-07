@@ -13,6 +13,7 @@ import '../domain/timing_mode.dart';
 import 'practice_session_screen.dart';
 import 'practice_history_screen.dart';
 import 'practice_analytics_debug_screen.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 
 String practiceDifficultyLabel(
   BuildContext context,
@@ -1442,25 +1443,10 @@ class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  GlassSearchField(
+                    hintText: widget.searchHint,
                     controller: _controller,
                     onChanged: (v) => setState(() => _query = v),
-                    decoration: InputDecoration(
-                      hintText: widget.searchHint,
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      filled: true,
-                      fillColor: cs.surfaceContainerHighest.withValues(
-                        alpha: 0.65,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 12),
                   Flexible(

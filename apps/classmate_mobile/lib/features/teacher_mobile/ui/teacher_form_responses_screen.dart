@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherFormResponsesScreen extends ConsumerStatefulWidget {
   const TeacherFormResponsesScreen({
@@ -64,10 +65,10 @@ class _TeacherFormResponsesScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +150,7 @@ class _TeacherFormResponsesScreenState
 
                         return LiquidGlassCard(
                           padding: const EdgeInsets.all(20),
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           color: cs.surfaceContainerLow,
                           border: Border.all(color: cs.outlineVariant),
                           child: Column(

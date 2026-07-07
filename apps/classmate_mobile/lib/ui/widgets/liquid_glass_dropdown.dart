@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../glass/cm_glass.dart';
+import '../glass/glass_tokens.dart';
 import '../glass/liquid_glass_card.dart';
+
+/// Shared trigger surface for the dropdown/select fields: REAL glass
+/// (CMGlass) with native press physics, replacing the old fake alpha-gradient
+/// `Ink` decoration that imitated glass without any blur.
+class _GlassTriggerShell extends StatelessWidget {
+  const _GlassTriggerShell({required this.child, this.onTap});
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassPressable(
+      onTap: onTap,
+      child: CMGlass(
+        radius: CMRadii.field(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
 
 class LiquidGlassDropdownItem<T> {
   final T value;
@@ -58,54 +84,34 @@ class LiquidGlassDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final cs = Theme.of(context).colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
 
-    return InkWell(
+    return _GlassTriggerShell(
       onTap: enabled ? () => _open(context) : null,
-      borderRadius: BorderRadius.circular(14),
-      child: Ink(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cs.surface.withValues(alpha: isDark ? 0.76 : 0.88),
-              cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
-            ],
-          ),
-          border: Border.all(
-            color: cs.outlineVariant,
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _labelFor(value),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _labelFor(value),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
-          ],
-        ),
+          ),
+          Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
+        ],
       ),
     );
   }
@@ -170,54 +176,37 @@ class LiquidGlassSelectField<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
     final selectedLabel = _labelFor(value);
 
     return Opacity(
       opacity: enabled ? 1 : 0.5,
-      child: InkWell(
+      child: _GlassTriggerShell(
         onTap: enabled ? () => _open(context) : null,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cs.surface.withValues(alpha: isDark ? 0.76 : 0.88),
-                cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
-              ],
-            ),
-            border: Border.all(color: cs.outlineVariant),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    selectedLabel ?? (hint ?? ''),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: selectedLabel == null ? cs.onSurfaceVariant : cs.onSurface,
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      selectedLabel ?? (hint ?? ''),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: selectedLabel == null ? cs.onSurfaceVariant : cs.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
-            ],
-          ),
+            ),
+            Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
+          ],
         ),
       ),
     );

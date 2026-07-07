@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../glass/cm_glass.dart';
+import '../glass/glass_tokens.dart';
 import '../glass/liquid_glass_card.dart';
 
 /// Liquid-glass multi-select for grade levels. The trigger matches the
@@ -58,27 +60,16 @@ class _GradeMultiSelectFieldState extends State<GradeMultiSelectField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
     final l = AppLocalizations.of(context)!;
     final hasValue = widget.selected.isNotEmpty;
 
-    return InkWell(
+    // Real glass trigger with native press physics (was a fake alpha-gradient).
+    return GlassPressable(
       onTap: _open,
-      borderRadius: BorderRadius.circular(14),
-      child: Ink(
+      child: CMGlass(
+        radius: CMRadii.field(context),
+        child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              cs.surface.withValues(alpha: isDark ? 0.76 : 0.88),
-              cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
-            ],
-          ),
-          border: Border.all(color: cs.outlineVariant),
-        ),
         child: Row(
           children: [
             Expanded(
@@ -103,6 +94,7 @@ class _GradeMultiSelectFieldState extends State<GradeMultiSelectField> {
             ),
             Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
           ],
+        ),
         ),
       ),
     );

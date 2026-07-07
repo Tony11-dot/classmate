@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 
 // ── data model ──────────────────────────────────────────────────────────────
 
@@ -135,12 +136,12 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).padding.bottom + 100),
+        padding: EdgeInsets.fromLTRB(16, 16 + MediaQuery.paddingOf(context).top, 16, MediaQuery.of(context).padding.bottom + 100),
         children: [
           // ── Hero card ────────────────────────────────────────────────────
           LiquidGlassCard(
             padding: const EdgeInsets.all(18),
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(24),
             color: cs.primaryContainer,
             border: Border.all(color: cs.outlineVariant),
             child: Column(
@@ -207,32 +208,10 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
           const SizedBox(height: 16),
 
           // ── Search bar ───────────────────────────────────────────────────
-          Container(
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outlineVariant),
-            ),
-            child: TextField(
-              controller: _searchCtrl,
-              onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: l.teacherInsightsSearchHint,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                suffixIcon: _query.isNotEmpty
-                    ? IconButton(
-                        tooltip: l.a11yClear,
-                        icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          setState(() => _query = '');
-                        },
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
+          GlassSearchField(
+            hintText: l.teacherInsightsSearchHint,
+            controller: _searchCtrl,
+            onChanged: (v) => setState(() => _query = v),
           ),
           const SizedBox(height: 16),
 
@@ -299,7 +278,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                             height: 44,
                             decoration: BoxDecoration(
                               color: cs.primaryContainer,
-                              borderRadius: BorderRadius.circular(13),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                             child: Center(
                               child: Text(

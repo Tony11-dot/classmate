@@ -38,7 +38,7 @@ class UserProfileSheet extends ConsumerWidget {
       builder: (ctx, scroll) => Container(
         decoration: BoxDecoration(
           color: cs.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [

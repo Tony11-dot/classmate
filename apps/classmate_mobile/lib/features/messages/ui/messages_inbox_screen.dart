@@ -12,6 +12,7 @@ import '../../chat_core/utils/chat_time.dart';
 import 'new_chat_screen.dart';
 import 'blocked_people_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 import '../../../core/realtime/realtime_listener.dart';
 
 class MessagesInboxScreen extends ConsumerStatefulWidget {
@@ -190,10 +191,6 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
         ],
       ),
     );
-  }
-
-  Widget _bottomNavCover(BuildContext context) {
-    return const IgnorePointer(child: SizedBox.shrink());
   }
 
   DateTime? _parseInboxTimestamp(String raw) {
@@ -469,108 +466,82 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                 .toList();
 
             if (filtered.isEmpty) {
-              return Stack(
-                children: [
-                  RefreshIndicator(
-                    onRefresh: _refreshInbox,
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
-                      children: [
-                        _header(context),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                          child: TextField(
-                            controller: _searchCtl,
-                            onChanged: (_) => setState(() {}),
-                            decoration: InputDecoration(
-                              hintText: l.messagesSearchHint,
-                              prefixIcon: const Icon(Icons.search_rounded),
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(18),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 180),
-                        Center(child: Text(l.messagesNoResults)),
-                      ],
-                    ),
+              return RefreshIndicator(
+                onRefresh: _refreshInbox,
+                child: ListView(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
                   ),
-                  _bottomNavCover(context),
-                ],
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
+                  children: [
+                    _header(context),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                      child: GlassSearchField(
+                        hintText: l.messagesSearchHint,
+                        controller: _searchCtl,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    const SizedBox(height: 180),
+                    Center(child: Text(l.messagesNoResults)),
+                  ],
+                ),
               );
             }
 
-            return Stack(
-              children: [
-                RefreshIndicator(
-                  onRefresh: _refreshInbox,
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
-                    children: [
-                      _header(context),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                        child: TextField(
-                          controller: _searchCtl,
-                          onChanged: (_) => setState(() {}),
-                          decoration: InputDecoration(
-                            hintText: l.messagesSearchHint,
-                            prefixIcon: const Icon(Icons.search_rounded),
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (requests.isNotEmpty) ...[
-                        _SectionHeader(
-                          title: l.messagesRequestsSection,
-                          subtitle: l.messagesPendingApprovals,
-                        ),
-                        ...requests.map(
-                          (item) => _InboxRow(
-                            item: item,
-                            trailingLabel: _formatInboxTrailingLabel(item),
-                            onLongPress: () => _showThreadActions(item),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (chats.isNotEmpty) ...[
-                        _SectionHeader(
-                          title: requests.isEmpty
-                              ? l.messagesChatsSection
-                              : l.messagesAllChatsSection,
-                          subtitle: l.messagesConversationCount(chats.length),
-                        ),
-                        ...chats.map(
-                          (item) => _InboxRow(
-                            item: item,
-                            trailingLabel: _formatInboxTrailingLabel(item),
-                            onLongPress: () => _showThreadActions(item),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+            return RefreshIndicator(
+              onRefresh: _refreshInbox,
+              child: ListView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
                 ),
-                _bottomNavCover(context),
-              ],
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
+                children: [
+                  _header(context),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                    child: GlassSearchField(
+                      hintText: l.messagesSearchHint,
+                      controller: _searchCtl,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  if (requests.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: l.messagesRequestsSection,
+                      subtitle: l.messagesPendingApprovals,
+                    ),
+                    ...requests.map(
+                      (item) => _InboxRow(
+                        item: item,
+                        trailingLabel: _formatInboxTrailingLabel(item),
+                        onLongPress: () => _showThreadActions(item),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (chats.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: requests.isEmpty
+                          ? l.messagesChatsSection
+                          : l.messagesAllChatsSection,
+                      subtitle: l.messagesConversationCount(chats.length),
+                    ),
+                    ...chats.map(
+                      (item) => _InboxRow(
+                        item: item,
+                        trailingLabel: _formatInboxTrailingLabel(item),
+                        onLongPress: () => _showThreadActions(item),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             );
           },
         ),

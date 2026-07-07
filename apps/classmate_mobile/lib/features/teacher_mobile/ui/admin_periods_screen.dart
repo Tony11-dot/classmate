@@ -7,6 +7,7 @@ import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 
 // ── Data helpers ─────────────────────────────────────────────────────────────
 
@@ -134,7 +135,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
           final sortedDays = byDay.keys.toList()..sort();
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+            padding: EdgeInsets.fromLTRB(16, 8 + MediaQuery.paddingOf(context).top, 16, 120),
             children: sortedDays.expand((dow) {
               final daySlots = byDay[dow]!..sort((a, b) => ((a['period'] as num?)?.toInt() ?? 0).compareTo((b['period'] as num?)?.toInt() ?? 0));
               return [
@@ -517,15 +518,9 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                     ),
                 ]),
                 const SizedBox(height: 8),
-                TextField(
+                GlassSearchField(
+                  hintText: AppLocalizations.of(context)!.adminPeriodsSearchByName,
                   onChanged: (v) => setState(() => _studentSearch = v),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.adminPeriodsSearchByName,
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    isDense: true,
-                  ),
                 ),
                 const SizedBox(height: 6),
                 ...filteredStudents.map((s) {

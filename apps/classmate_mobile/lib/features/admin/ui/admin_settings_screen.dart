@@ -20,7 +20,8 @@ class AdminSettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: cs.surface,
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        padding: EdgeInsets.fromLTRB(
+            16, 8 + MediaQuery.paddingOf(context).top, 16, 100),
         children: [
           // ── School ────────────────────────────────────────────────────────
           _SectionHeader(label: l.navSchool),

@@ -10,6 +10,7 @@ import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
 import 'nova_chat_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 import '../../../ui/widgets/nova_avatar.dart';
 
 class TutorHomeScreen extends ConsumerStatefulWidget {
@@ -492,9 +493,6 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                             minimumSize: const Size(0, 42),
                             visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
                           ),
                         ),
                         OutlinedButton.icon(
@@ -513,9 +511,6 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                             minimumSize: const Size(0, 42),
                             visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
                           ),
                         ),
                       ],
@@ -525,56 +520,10 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: cs.outlineVariant,
-                ),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (_) => setState(() {}),
-                onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                decoration: InputDecoration(
-                  hintText: l.tutorSearchHistoryHint,
-                  hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  prefixIcon: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 4),
-                    child: Icon(
-                      Icons.search_rounded,
-                      size: 18,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 36,
-                    minHeight: 36,
-                  ),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  suffixIcon: _searchController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: l.clear,
-                          visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {});
-                            FocusScope.of(context).unfocus();
-                          },
-                          icon: Icon(
-                            Icons.close_rounded,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                  border: InputBorder.none,
-                ),
-              ),
+            GlassSearchField(
+              hintText: l.tutorSearchHistoryHint,
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
             ),
           ],
         ),
@@ -587,7 +536,12 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
           : sessions.when(
               loading: () => ListView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
+                padding: EdgeInsets.fromLTRB(
+                  0,
+                  MediaQuery.paddingOf(context).top,
+                  0,
+                  120,
+                ),
                 children: [
                   topSection(),
                   const SizedBox(height: 24),
@@ -596,7 +550,12 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               ),
               error: (e, _) => ListView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
+                padding: EdgeInsets.fromLTRB(
+                  0,
+                  MediaQuery.paddingOf(context).top,
+                  0,
+                  120,
+                ),
                 children: [
                   topSection(),
                   Padding(
@@ -634,7 +593,12 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                   },
                   child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 120),
+                    padding: EdgeInsets.fromLTRB(
+                  0,
+                  MediaQuery.paddingOf(context).top,
+                  0,
+                  120,
+                ),
                     children: [
                       topSection(),
                       if (items.isEmpty)
@@ -701,9 +665,6 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                       minimumSize: const Size(0, 40),
                                       visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
                                     ),
                                   ),
                                 ],

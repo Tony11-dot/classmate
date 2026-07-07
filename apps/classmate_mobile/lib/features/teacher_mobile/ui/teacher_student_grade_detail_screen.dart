@@ -7,6 +7,7 @@ import '../../../core/util/friendly_date.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data model
@@ -218,10 +219,10 @@ class _TeacherStudentGradeDetailScreenState
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).pop(),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton(onPressed: () => Navigator.of(context).pop())),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

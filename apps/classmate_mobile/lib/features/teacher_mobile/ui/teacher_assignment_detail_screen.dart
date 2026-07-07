@@ -10,6 +10,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/attachment_pill.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherAssignmentDetailScreen extends ConsumerStatefulWidget {
   const TeacherAssignmentDetailScreen({
@@ -136,7 +137,6 @@ class _TeacherAssignmentDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -151,10 +151,10 @@ class _TeacherAssignmentDetailScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
         ),
         title: Text(
           widget.assignmentTitle ?? AppLocalizations.of(context)!.teacherAssignmentDetailScreenTitle,

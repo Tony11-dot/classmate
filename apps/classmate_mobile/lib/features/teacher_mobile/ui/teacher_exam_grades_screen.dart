@@ -9,6 +9,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/nav/glass_back_button.dart';
+import '../../../ui/glass/scroll_edge_effect.dart';
 
 class TeacherExamGradesScreen extends ConsumerStatefulWidget {
   const TeacherExamGradesScreen({super.key, required this.exam});
@@ -272,10 +274,10 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +334,10 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                 )
               : RefreshIndicator(
                   onRefresh: _load,
-                  child: ListView(
+                  child: ScrollEdgeEffect(
+                    top: ScrollEdgeStyle.hard,
+                    bottom: ScrollEdgeStyle.hard,
+                    child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
@@ -546,6 +551,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                         ),
                       ],
                     ],
+                  ),
                   ),
                 ),
     );

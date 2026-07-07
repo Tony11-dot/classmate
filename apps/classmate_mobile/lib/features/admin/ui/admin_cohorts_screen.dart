@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/nav/glass_back_button.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
@@ -75,7 +77,8 @@ class AdminCohortsScreen extends ConsumerWidget {
           final grades = byGrade.keys.toList()..sort();
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+            padding: EdgeInsets.fromLTRB(
+                16, 8 + MediaQuery.paddingOf(context).top, 16, 120),
             children: [
               for (final grade in grades) ...[
                 Padding(
@@ -481,11 +484,8 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
               padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    tooltip: l.a11yBack,
-                    onPressed: widget.onBack,
-                  ),
+                  GlassBackButton(onPressed: widget.onBack),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -520,14 +520,9 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Column(
                 children: [
-                  TextField(
+                  GlassSearchField(
+                    hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
                     onChanged: (v) => setState(() => _search = v),
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
-                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      isDense: true,
-                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -786,10 +781,14 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
         backgroundColor: cs.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          tooltip: AppLocalizations.of(context)!.a11yBack,
-          onPressed: () => Navigator.of(context).maybePop(),
+        leadingWidth: 60,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Center(
+            child: GlassBackButton(
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
+          ),
         ),
         title: Text(
           _cohort.name,

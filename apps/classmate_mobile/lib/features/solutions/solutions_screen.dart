@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/glass_search_field.dart';
 import 'domain/solution_subjects.dart';
 import 'providers/solutions_flow_provider.dart';
 import 'ui/widgets/solution_upload_sheet_content.dart';
@@ -48,7 +49,12 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16 + MediaQuery.paddingOf(context).top,
+                16,
+                0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -56,7 +62,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(28),
                       border: Border.all(color: cs.outlineVariant),
                     ),
                     child: Column(
@@ -90,21 +96,10 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  TextField(
+                  GlassSearchField(
+                    hintText: l.assignmentsSearchSubjects,
                     controller: _searchCtrl,
                     onChanged: notifier.search,
-                    decoration: InputDecoration(
-                      hintText: l.assignmentsSearchSubjects,
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      filled: true,
-                      fillColor: cs.surfaceContainerHighest.withValues(
-                        alpha: 0.7,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 14),
                 ],
@@ -133,7 +128,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                   return Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(24),
                       onTap: () {
                         notifier.selectSubject(subject);
                         context.push('/solutions/books');
@@ -144,7 +139,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                           color: cs.surfaceContainerLow.withValues(
                             alpha: 0.75,
                           ),
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: cs.outlineVariant,
                           ),

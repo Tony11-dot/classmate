@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../common/widgets/cm_rich_content.dart';
+import '../../../ui/nav/glass_back_button.dart';
 import '../domain/practice_history_models.dart';
 import '../domain/practice_models.dart';
 import 'practice_display_text.dart';
@@ -72,7 +73,14 @@ class _PracticeHistoryReviewScreenState
         : questions;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.practiceSessionReviewTitle)),
+      appBar: AppBar(
+        leadingWidth: 60,
+        leading: const Padding(
+          padding: EdgeInsetsDirectional.only(start: 8),
+          child: Center(child: GlassBackButton()),
+        ),
+        title: Text(l.practiceSessionReviewTitle),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
@@ -200,7 +208,7 @@ class _PracticeHistoryReviewScreenState
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: q.isCorrect
                         ? Colors.green

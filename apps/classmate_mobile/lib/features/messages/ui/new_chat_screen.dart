@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_session.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/nav/glass_back_button.dart';
+import '../../../ui/widgets/glass_search_field.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'new_group_screen.dart';
@@ -108,34 +110,19 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        tooltip: l.a11yBack,
+                      GlassBackButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        style: IconButton.styleFrom(padding: const EdgeInsets.all(8)),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 12),
                       Text(l.tutorNewChat, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                     ],
                   ),
                   const SizedBox(height: 12),
                   // Search bar
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cs.outlineVariant),
-                    ),
-                    child: TextField(
-                      controller: _searchCtl,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: l.messagesSearchPeopleHint,
-                        prefixIcon: Icon(Icons.search_rounded, color: cs.onSurfaceVariant),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                    ),
+                  GlassSearchField(
+                    hintText: l.messagesSearchPeopleHint,
+                    controller: _searchCtl,
+                    onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 10),
                   // Filter chips — shown for every role with a mixed

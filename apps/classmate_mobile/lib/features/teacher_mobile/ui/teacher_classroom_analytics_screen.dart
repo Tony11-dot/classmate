@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherClassroomAnalyticsScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAnalyticsScreen({
@@ -58,7 +59,6 @@ class _TeacherClassroomAnalyticsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -77,11 +77,8 @@ class _TeacherClassroomAnalyticsScreenState
               ),
               child: Row(
                 children: [
-                  IconButton(
-                    tooltip: l.a11yBack,
+                  GlassBackButton(
                     onPressed: () { if (context.canPop()) context.pop(); },
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

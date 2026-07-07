@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/nav/glass_back_button.dart';
 
 /// Edits the 5-language names for a single school subject. Returns the
 /// updated [SchoolSubject] via Navigator.pop when the user taps save.
@@ -102,15 +103,8 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
             // ── Header row: back chevron + breadcrumb pill ───────────────
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                  tooltip: AppLocalizations.of(context)!.a11yBack,
-                  onPressed: () => Navigator.maybePop(context),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-                ),
-                const SizedBox(width: 4),
+                const GlassBackButton(),
+                const SizedBox(width: 8),
                 InkWell(
                   borderRadius: BorderRadius.circular(999),
                   onTap: () => Navigator.maybePop(context),
