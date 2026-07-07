@@ -23,6 +23,7 @@ import '../../features/consent/consent_gate.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/cm_glass.dart';
+import '../../ui/glass/glass_tokens.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/glass/scroll_edge_effect.dart';
 import '../../ui/nav/main_drawer.dart';
@@ -831,11 +832,24 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
 
     // Tab/route fade is handled app-wide via pageTransitionsTheme (a pure
     // fade, no slide). Render the page directly here.
+    // The child-switcher banner is pinned (doesn't scroll), so it must sit
+    // BELOW the glass top bar, not under it. Pad by the bar-inclusive
+    // MediaQuery top padding and remove it for descendants so the parent
+    // screens don't double-pad.
     final body = showChildBanner
-        ? Column(children: [
-            const _ParentChildSwitcherBar(),
-            Expanded(child: widget.child),
-          ])
+        ? Builder(builder: (ctx) {
+            return Padding(
+              padding: EdgeInsets.only(top: MediaQuery.paddingOf(ctx).top),
+              child: MediaQuery.removePadding(
+                context: ctx,
+                removeTop: true,
+                child: Column(children: [
+                  const _ParentChildSwitcherBar(),
+                  Expanded(child: widget.child),
+                ]),
+              ),
+            );
+          })
         : widget.child;
 
     if (wide) {
@@ -891,6 +905,10 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       },
       child: Scaffold(
         extendBody: true,
+        // Content scrolls under the glass top bar (the bar blurs it). Screens
+        // rendered in the shell account for the bar via
+        // MediaQuery.paddingOf(context).top on their outermost scrollable.
+        extendBodyBehindAppBar: true,
         drawerEnableOpenDragGesture: !widget.hideTopBar,
         drawer: widget.hideTopBar ? null : const MainDrawer(),
         appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
@@ -1452,7 +1470,7 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final brightness = Theme.of(context).brightness;
 
     return AppBar(
       toolbarHeight: 60,
@@ -1460,10 +1478,28 @@ class _TopBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leadingWidth: showMenuButton ? 52 : 0,
       automaticallyImplyLeading: false,
-      backgroundColor: cs.surface,
+      // Liquid Glass bar: fully transparent AppBar over a real glass slab
+      // (UIVisualEffectView on iOS, blur fallback elsewhere). Content scrolls
+      // UNDER it (extendBodyBehindAppBar on the shell Scaffold) and stays
+      // legible through the material — no opaque background, no shadow.
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
+      flexibleSpace: NativeGlassView(
+        borderRadius: 0,
+        style: NativeGlassStyle.regular,
+        fallbackColor: GlassTokens.tint(
+            Theme.of(context).colorScheme, brightness),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            height: 0.5,
+            width: double.infinity,
+            child: ColoredBox(color: GlassTokens.hairline(brightness)),
+          ),
+        ),
+      ),
       leading: !showMenuButton
           ? null
           : Builder(
