@@ -152,6 +152,15 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     brightness: brightness,
   );
 
+  // ── Concentric radius chain (HIG concentricity) ───────────────────────────
+  // One token drives every corner: nested elements shrink their radius by the
+  // gap to their container so all curves share a center. At the default
+  // radius (18): sheets/dialogs 24 · cards/menus 18 · inputs 14 · chips 10.
+  final rOuter = s.radius + 6.0; // sheets, dialogs — outermost floating layer
+  final rCard = s.radius; // cards, menus, buttons
+  final rField = (s.radius - 4.0).clamp(8.0, 24.0); // inputs, segmented
+  final rChip = (s.radius - 8.0).clamp(6.0, 20.0); // chips, small nested
+
   final base = ThemeData(
     useMaterial3: true,
     brightness: brightness,
@@ -217,7 +226,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(s.radius),
+          borderRadius: BorderRadius.circular(rCard),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -225,10 +234,72 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(s.radius),
+          borderRadius: BorderRadius.circular(rCard),
         ),
+        side: BorderSide(color: scheme.outlineVariant),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(rField),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      ),
+    ),
+    // ── Floating layer: dialogs, sheets, snackbars ───────────────────────
+    // Outermost radius of the concentric chain + zero surface tint so the
+    // shape (not a color cast) carries the elevation, like native iOS.
+    dialogTheme: DialogThemeData(
+      backgroundColor: scheme.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 10,
+      shadowColor: Colors.black.withValues(alpha: 0.24),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(rOuter),
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: scheme.surface,
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: scheme.surface,
+      // NOT showDragHandle:true — most sheets hand-roll their own handle
+      // (audit), a global default would double them. Opt in per sheet.
+      dragHandleColor: scheme.onSurfaceVariant.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(rOuter)),
+      ),
+      clipBehavior: Clip.antiAlias,
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: brightness == Brightness.dark
+          ? scheme.surfaceContainerHigh
+          : scheme.inverseSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(rField),
+      ),
+      insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+    ),
+    chipTheme: ChipThemeData(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(rChip),
+      ),
+      side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(rField),
+        ),
+        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+      ),
+    ),
+    dividerTheme: DividerThemeData(
+      color: scheme.outlineVariant.withValues(alpha: 0.5),
+      thickness: 0.5,
+      space: 0.5,
     ),
     // ── Liquid-glass menus everywhere ────────────────────────────────────
     // Every PopupMenuButton (three-dots), DropdownButton and Menu shares one
@@ -239,7 +310,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
       elevation: 8,
       shadowColor: Colors.black.withValues(alpha: 0.18),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(rCard),
         side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       textStyle: TextStyle(color: on, fontWeight: FontWeight.w600),
@@ -250,7 +321,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         elevation: const WidgetStatePropertyAll(8),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(rCard),
           side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
         )),
       ),
@@ -261,7 +332,7 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         elevation: const WidgetStatePropertyAll(8),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(rCard),
           side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
         )),
       ),
