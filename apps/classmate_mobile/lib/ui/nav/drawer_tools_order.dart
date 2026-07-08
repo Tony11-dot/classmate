@@ -73,7 +73,6 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
       return [
         DrawerTool(route: '/admin/dashboard', icon: Icons.dashboard_rounded, label: l.navDashboard),
         DrawerTool(route: '/admin/people', icon: Icons.people_rounded, label: l.navPeople),
-        DrawerTool(route: '/admin/insights', icon: Icons.insights_rounded, label: l.navInsights),
         DrawerTool(route: '/admin/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/admin/schedule', icon: Icons.manage_history_rounded, label: l.adminScheduleTitle),
         DrawerTool(route: '/admin/school', icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle),

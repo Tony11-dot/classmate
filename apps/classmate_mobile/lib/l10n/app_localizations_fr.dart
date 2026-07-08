@@ -9,6 +9,97 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get certAddTeacher => 'Ajouter un enseignant';
+
+  @override
+  String get certSearchStudent => 'Rechercher des élèves';
+
+  @override
+  String get certNewCertificate => 'Nouveau bulletin';
+
+  @override
+  String certCertificateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bulletins',
+      one: '1 bulletin',
+      zero: 'Aucun bulletin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onbTeacher2Title => 'Vos classes, organisées';
+
+  @override
+  String get onbTeacher2Body =>
+      'Votre emploi du temps, vos classes et vos listes d\'élèves — au même endroit.';
+
+  @override
+  String get onbTeacher3Title => 'Notes et présence, en un instant';
+
+  @override
+  String get onbTeacher3Body =>
+      'Faites l\'appel et saisissez les notes en quelques secondes, depuis votre téléphone.';
+
+  @override
+  String get onbTeacher4Title => 'Touchez tout le monde';
+
+  @override
+  String get onbTeacher4Body =>
+      'Publiez des annonces et écrivez aux élèves et aux parents instantanément.';
+
+  @override
+  String get onbAdmin2Title => 'Gérez votre école';
+
+  @override
+  String get onbAdmin2Body =>
+      'Gérez les personnes, les classes et l\'emploi du temps depuis un tableau de bord.';
+
+  @override
+  String get onbAdmin3Title => 'Configurez en quelques minutes';
+
+  @override
+  String get onbAdmin3Body =>
+      'Ajoutez élèves, enseignants et classes en quelques touches.';
+
+  @override
+  String get onbAdmin4Title => 'Gardez tout le monde synchronisé';
+
+  @override
+  String get onbAdmin4Body =>
+      'Diffusez des annonces et écrivez à toute votre école.';
+
+  @override
+  String get onbSecretary2Title => 'Les élèves à portée de main';
+
+  @override
+  String get onbSecretary2Body =>
+      'Retrouvez n\'importe quel élève et tenez ses informations à jour.';
+
+  @override
+  String get onbSecretary3Title => 'Faites passer le mot';
+
+  @override
+  String get onbSecretary3Body =>
+      'Envoyez des annonces aux bonnes classes en quelques secondes.';
+
+  @override
+  String get onbParent2Title => 'Suivez votre enfant';
+
+  @override
+  String get onbParent2Body =>
+      'Son emploi du temps, ses notes et sa présence — toujours à jour.';
+
+  @override
+  String get onbParent3Title => 'Ne manquez rien';
+
+  @override
+  String get onbParent3Body =>
+      'Recevez les annonces et les mises à jour de l\'école dès qu\'elles arrivent.';
+
+  @override
   String get accountActionsTooltip => 'Options du compte';
 
   @override

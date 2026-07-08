@@ -15,9 +15,10 @@ import 'certificate_pdf.dart';
 import 'certificates_screen.dart';
 import 'data/certificates_repository.dart';
 
-/// Staff-facing certificates hub. Teachers (their homeroom) + admins can create
-/// and edit; secretaries are read-only and can open/print PDFs by cohort.
-/// Body-only: the app shell supplies the top bar.
+/// Staff-facing certificates hub. It is **student-first**: pick a class, see
+/// its students, tap a student to see (and create) all of THEIR certificates.
+/// Teachers (their homeroom) + admins can create/edit; secretaries stay
+/// read-only and print by cohort. Body-only: the app shell supplies the top bar.
 class CertificatesHomeScreen extends ConsumerStatefulWidget {
   const CertificatesHomeScreen({super.key});
 
@@ -26,8 +27,10 @@ class CertificatesHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen> {
-  List<Map<String, dynamic>> _items = [];
+  List<Map<String, dynamic>> _items = []; // certs in the selected cohort
   List<CertCohort> _cohorts = [];
+  List<CertStudent> _students = []; // students in the selected cohort
+  final _searchCtrl = TextEditingController();
   String? _cohortFilter;
   bool _loading = true;
   String? _error;
@@ -40,7 +43,14 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
   @override
   void initState() {
     super.initState();
+    _searchCtrl.addListener(() => setState(() {}));
     Future<void>.microtask(_load);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -50,11 +60,17 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     });
     try {
       final cohorts = await _repo.cohorts();
-      final items = await _repo.list(cohortId: _cohortFilter);
+      // Default to the first class (homeroom teachers usually have one).
+      _cohortFilter ??= cohorts.isNotEmpty ? cohorts.first.id : null;
+      final items = _cohortFilter != null ? await _repo.list(cohortId: _cohortFilter) : <Map<String, dynamic>>[];
+      final students = (_canCreate && _cohortFilter != null)
+          ? await _repo.students(_cohortFilter!)
+          : <CertStudent>[];
       if (!mounted) return;
       setState(() {
         _cohorts = cohorts;
         _items = items;
+        _students = students;
         _loading = false;
       });
     } catch (e) {
@@ -66,11 +82,24 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     }
   }
 
-  Future<void> _openForm({String? certId}) async {
-    final changed = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => CertificatesFormPage(certId: certId)),
+  int _certCountFor(String studentId) =>
+      _items.where((c) => (c['studentId'] ?? '').toString() == studentId).length;
+
+  Future<void> _openStudent(CertStudent student) async {
+    final cohortName = _cohorts
+        .firstWhere((c) => c.id == _cohortFilter, orElse: () => const CertCohort(id: '', name: ''))
+        .name;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => StudentCertificatesStaffPage(
+          cohortId: _cohortFilter!,
+          cohortName: cohortName,
+          student: student,
+        ),
+      ),
     );
-    if (changed == true) _load();
+    // Always refresh counts on return (a cert may have been created/edited).
+    if (mounted) _load();
   }
 
   Future<void> _openPdf(String rawUrl) async {
@@ -84,9 +113,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  /// Build ONE combined PDF of every published certificate in the cohort (each
-  /// as its own page, in color) from their frozen snapshots, and open the print
-  /// dialog.
+  /// Build ONE combined PDF of every published certificate in the cohort.
   Future<void> _printAll() async {
     if (_cohortFilter == null) return;
     final l = AppLocalizations.of(context)!;
@@ -157,30 +184,27 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
 
     if (_loading) return const Center(child: CmLoading());
 
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
-        children: [
-          if (_error != null)
-            Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),
-          if (_canCreate)
-            FilledButton.icon(
-              onPressed: () => _openForm(),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(l.navCertificates),
-            ),
-          if (_isSecretary) ...[
-            LiquidGlassSelectField<String>(
-              label: l.certPrintAll,
-              hint: l.certSelectCohortToPrint,
-              value: _cohortFilter,
-              items: _cohorts.map((c) => LiquidGlassDropdownItem(value: c.id, label: c.name)).toList(),
-              onChanged: (v) {
-                setState(() => _cohortFilter = v);
-                _load();
-              },
-            ),
+    final cohortField = LiquidGlassSelectField<String>(
+      label: l.certHomeroom,
+      hint: l.certHomeroom,
+      value: _cohortFilter,
+      items: _cohorts.map((c) => LiquidGlassDropdownItem(value: c.id, label: c.name)).toList(),
+      onChanged: (v) {
+        setState(() => _cohortFilter = v);
+        _load();
+      },
+    );
+
+    // ── Secretary: read-only print-by-cohort + flat published list ──────────
+    if (_isSecretary) {
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+          children: [
+            if (_error != null)
+              Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),
+            cohortField,
             if (_cohortFilter != null) ...[
               const SizedBox(height: 10),
               FilledButton.icon(
@@ -189,61 +213,271 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
                 label: Text(l.certPrintAll),
               ),
             ],
+            const SizedBox(height: 14),
+            if (_items.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(child: Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant))),
+              )
+            else
+              for (final c in _items)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _CertRow(
+                    cert: c,
+                    canEdit: false,
+                    onTap: () => _openPdf((c['pdfUrl'] ?? '').toString()),
+                  ),
+                ),
           ],
+        ),
+      );
+    }
+
+    // ── Admin / Teacher: student-first browse ───────────────────────────────
+    final q = _searchCtrl.text.trim().toLowerCase();
+    final students = q.isEmpty
+        ? _students
+        : _students.where((s) => s.name.toLowerCase().contains(q)).toList();
+
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+        children: [
+          if (_error != null)
+            Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),
+          cohortField,
+          const SizedBox(height: 12),
+          TextField(
+            controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: l.certSearchStudent,
+              prefixIcon: const Icon(Icons.search_rounded),
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
           const SizedBox(height: 14),
-          if (_items.isEmpty)
+          if (students.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(child: Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant))),
             )
           else
-            for (final c in _items)
+            for (final s in students)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    final id = (c['id'] ?? '').toString();
-                    final pdfUrl = (c['pdfUrl'] ?? '').toString();
-                    if (_canCreate) {
-                      _openForm(certId: id);
-                    } else if (pdfUrl.isNotEmpty) {
-                      _openPdf(pdfUrl);
-                    }
-                  },
+                  onTap: () => _openStudent(s),
                   child: LiquidGlassCard(
                     borderRadius: BorderRadius.circular(16),
                     color: cs.surfaceContainerLow,
                     border: Border.all(color: cs.outlineVariant),
                     child: Row(
                       children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: cs.primaryContainer,
+                          child: Text(
+                            _initials(s.name),
+                            style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text((c['studentDisplayName'] ?? '').toString(),
+                              Text(s.name,
                                   style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                               Text(
-                                [
-                                  (c['schoolYear'] ?? '').toString(),
-                                  if ((c['issuedAt'] ?? '').toString().isNotEmpty)
-                                    FriendlyDate.date(c['issuedAt'].toString()),
-                                ].where((s) => s.isNotEmpty).join(' · '),
+                                l.certCertificateCount(_certCountFor(s.id)),
                                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                               ),
                             ],
                           ),
                         ),
-                        _Badge(published: c['published'] == true),
-                        const SizedBox(width: 6),
-                        Icon(_canCreate ? Icons.edit_rounded : Icons.open_in_new_rounded,
-                            size: 18, color: cs.onSurfaceVariant),
+                        Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
                       ],
                     ),
                   ),
                 ),
               ),
         ],
+      ),
+    );
+  }
+}
+
+/// Per-student certificate list (staff). Shows all of one student's
+/// certificates with tap-to-edit, plus a "New certificate" button that opens
+/// the editor preselected for this student. Full-screen (own Scaffold+AppBar).
+class StudentCertificatesStaffPage extends ConsumerStatefulWidget {
+  const StudentCertificatesStaffPage({
+    super.key,
+    required this.cohortId,
+    required this.cohortName,
+    required this.student,
+  });
+
+  final String cohortId;
+  final String cohortName;
+  final CertStudent student;
+
+  @override
+  ConsumerState<StudentCertificatesStaffPage> createState() => _StudentCertificatesStaffPageState();
+}
+
+class _StudentCertificatesStaffPageState extends ConsumerState<StudentCertificatesStaffPage> {
+  List<Map<String, dynamic>> _certs = [];
+  bool _loading = true;
+  String? _error;
+
+  CertificatesRepository get _repo => ref.read(certificatesRepositoryProvider);
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.microtask(_load);
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final all = await _repo.list(cohortId: widget.cohortId);
+      if (!mounted) return;
+      setState(() {
+        _certs = all
+            .where((c) => (c['studentId'] ?? '').toString() == widget.student.id)
+            .toList();
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = '$e';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _openForm({String? certId}) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => CertificatesFormPage(
+          certId: certId,
+          initialCohortId: certId == null ? widget.cohortId : null,
+          initialStudentId: certId == null ? widget.student.id : null,
+        ),
+      ),
+    );
+    if (changed == true) _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return Scaffold(
+        appBar: AppBar(title: Text(widget.student.name)),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _openForm(),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(l.certNewCertificate),
+        ),
+        body: SafeArea(
+          child: _loading
+              ? const Center(child: CmLoading())
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                  children: [
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(_error!, style: TextStyle(color: cs.error)),
+                      ),
+                    Text('${widget.cohortName} · ${widget.student.name}',
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    const SizedBox(height: 12),
+                    if (_certs.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Center(child: Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant))),
+                      )
+                    else
+                      for (final c in _certs)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _CertRow(
+                            cert: c,
+                            canEdit: true,
+                            onTap: () => _openForm(certId: (c['id'] ?? '').toString()),
+                          ),
+                        ),
+                  ],
+                ),
+        ),
+    );
+  }
+}
+
+String _initials(String name) {
+  final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+  if (parts.isEmpty) return '?';
+  if (parts.length == 1) return parts.first.characters.take(1).toString().toUpperCase();
+  return (parts.first.characters.take(1).toString() + parts.last.characters.take(1).toString()).toUpperCase();
+}
+
+/// A single certificate row (student name + year/date + published badge).
+class _CertRow extends StatelessWidget {
+  const _CertRow({required this.cert, required this.canEdit, required this.onTap});
+  final Map<String, dynamic> cert;
+  final bool canEdit;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: LiquidGlassCard(
+        borderRadius: BorderRadius.circular(16),
+        color: cs.surfaceContainerLow,
+        border: Border.all(color: cs.outlineVariant),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text((cert['studentDisplayName'] ?? '').toString(),
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                  Text(
+                    [
+                      (cert['schoolYear'] ?? '').toString(),
+                      if ((cert['issuedAt'] ?? '').toString().isNotEmpty)
+                        FriendlyDate.date(cert['issuedAt'].toString()),
+                    ].where((s) => s.isNotEmpty).join(' · '),
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            _Badge(published: cert['published'] == true),
+            const SizedBox(width: 6),
+            Icon(canEdit ? Icons.edit_rounded : Icons.open_in_new_rounded,
+                size: 18, color: cs.onSurfaceVariant),
+          ],
+        ),
       ),
     );
   }

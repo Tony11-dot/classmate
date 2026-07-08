@@ -9,6 +9,96 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get certAddTeacher => 'Добавить учителя';
+
+  @override
+  String get certSearchStudent => 'Поиск учеников';
+
+  @override
+  String get certNewCertificate => 'Новый табель';
+
+  @override
+  String certCertificateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count табелей',
+      one: '1 табель',
+      zero: 'Нет табелей',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onbTeacher2Title => 'Ваши классы — под рукой';
+
+  @override
+  String get onbTeacher2Body =>
+      'Расписание, классы и списки учеников — всё в одном месте.';
+
+  @override
+  String get onbTeacher3Title => 'Оценки и посещаемость — быстро';
+
+  @override
+  String get onbTeacher3Body =>
+      'Отмечайте посещаемость и выставляйте оценки за секунды, прямо с телефона.';
+
+  @override
+  String get onbTeacher4Title => 'Свяжитесь со всеми';
+
+  @override
+  String get onbTeacher4Body =>
+      'Публикуйте объявления и пишите ученикам и родителям мгновенно.';
+
+  @override
+  String get onbAdmin2Title => 'Управляйте школой';
+
+  @override
+  String get onbAdmin2Body =>
+      'Управляйте людьми, классами и расписанием с единой панели.';
+
+  @override
+  String get onbAdmin3Title => 'Настройка за минуты';
+
+  @override
+  String get onbAdmin3Body =>
+      'Добавляйте учеников, учителей и классы в несколько касаний.';
+
+  @override
+  String get onbAdmin4Title => 'Все на одной волне';
+
+  @override
+  String get onbAdmin4Body => 'Рассылайте объявления и пишите всей школе.';
+
+  @override
+  String get onbSecretary2Title => 'Ученики под рукой';
+
+  @override
+  String get onbSecretary2Body =>
+      'Найдите любого ученика и держите его данные актуальными.';
+
+  @override
+  String get onbSecretary3Title => 'Расскажите всем';
+
+  @override
+  String get onbSecretary3Body =>
+      'Отправляйте объявления нужным классам за секунды.';
+
+  @override
+  String get onbParent2Title => 'Следите за ребёнком';
+
+  @override
+  String get onbParent2Body =>
+      'Его расписание, оценки и посещаемость — всегда актуальны.';
+
+  @override
+  String get onbParent3Title => 'Ничего не пропустите';
+
+  @override
+  String get onbParent3Body =>
+      'Получайте объявления и новости школы в момент их появления.';
+
+  @override
   String get accountActionsTooltip => 'Параметры аккаунта';
 
   @override

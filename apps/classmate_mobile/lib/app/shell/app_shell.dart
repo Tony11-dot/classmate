@@ -215,7 +215,7 @@ class AppShell extends ConsumerWidget {
     '/admin/dashboard',
     '/cmail',
     '/admin/people',
-    '/admin/insights',
+    '/teacher/students',
     '/admin/cohorts',
     '/admin/schedule',
     '/admin/school',
@@ -302,7 +302,7 @@ class AppShell extends ConsumerWidget {
   String _adminTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/admin/dashboard' => l.navDashboard,
     '/admin/people' => l.navPeople,
-    '/admin/insights' => l.navInsights,
+    '/teacher/students' => l.teacherStudentsLabel,
     '/admin/cohorts' => l.navCohorts,
     '/admin/schedule' => l.adminScheduleTitle,
     '/admin/school' => l.adminSchoolSettingsTitle,

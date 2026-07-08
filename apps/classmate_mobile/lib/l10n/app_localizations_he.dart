@@ -9,6 +9,90 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get certAddTeacher => 'הוספת מורה';
+
+  @override
+  String get certSearchStudent => 'חיפוש תלמידים';
+
+  @override
+  String get certNewCertificate => 'תעודה חדשה';
+
+  @override
+  String certCertificateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count תעודות',
+      one: 'תעודה אחת',
+      zero: 'אין תעודות',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onbTeacher2Title => 'הכיתות שלך, מסודרות';
+
+  @override
+  String get onbTeacher2Body =>
+      'המערכת, הכיתות ורשימות התלמידים — הכול במקום אחד.';
+
+  @override
+  String get onbTeacher3Title => 'ציונים ונוכחות, מהר';
+
+  @override
+  String get onbTeacher3Body =>
+      'רשמו נוכחות והזינו ציונים בשניות, ישירות מהטלפון.';
+
+  @override
+  String get onbTeacher4Title => 'להגיע לכולם';
+
+  @override
+  String get onbTeacher4Body =>
+      'פרסמו הודעות ושלחו הודעות לתלמידים ולהורים מיד.';
+
+  @override
+  String get onbAdmin2Title => 'נהלו את בית הספר';
+
+  @override
+  String get onbAdmin2Body => 'נהלו משתמשים, כיתות ומערכת שעות מלוח בקרה אחד.';
+
+  @override
+  String get onbAdmin3Title => 'הקמה בדקות';
+
+  @override
+  String get onbAdmin3Body => 'הוסיפו תלמידים, מורים וכיתות בכמה הקשות.';
+
+  @override
+  String get onbAdmin4Title => 'כולם מסונכרנים';
+
+  @override
+  String get onbAdmin4Body => 'שדרו הודעות ושלחו הודעה לכל בית הספר.';
+
+  @override
+  String get onbSecretary2Title => 'התלמידים בהישג יד';
+
+  @override
+  String get onbSecretary2Body => 'אתרו כל תלמיד ושמרו על פרטיו מעודכנים.';
+
+  @override
+  String get onbSecretary3Title => 'להפיץ את הבשורה';
+
+  @override
+  String get onbSecretary3Body => 'שלחו הודעות לכיתות הנכונות בשניות.';
+
+  @override
+  String get onbParent2Title => 'עקבו אחר ילדכם';
+
+  @override
+  String get onbParent2Body => 'המערכת, הציונים והנוכחות — תמיד מעודכנים.';
+
+  @override
+  String get onbParent3Title => 'אל תפספסו כלום';
+
+  @override
+  String get onbParent3Body => 'קבלו הודעות ועדכונים מבית הספר ברגע שהם קורים.';
+
+  @override
   String get accountActionsTooltip => 'אפשרויות חשבון';
 
   @override

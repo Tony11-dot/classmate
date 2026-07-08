@@ -106,6 +106,150 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// No description provided for @certAddTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Add teacher'**
+  String get certAddTeacher;
+
+  /// No description provided for @certSearchStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students'**
+  String get certSearchStudent;
+
+  /// No description provided for @certNewCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'New certificate'**
+  String get certNewCertificate;
+
+  /// No description provided for @certCertificateCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No certificates} =1{1 certificate} other{{count} certificates}}'**
+  String certCertificateCount(int count);
+
+  /// No description provided for @onbTeacher2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your classes, organized'**
+  String get onbTeacher2Title;
+
+  /// No description provided for @onbTeacher2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your schedule, classrooms and student rosters — all in one place.'**
+  String get onbTeacher2Body;
+
+  /// No description provided for @onbTeacher3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades & attendance, fast'**
+  String get onbTeacher3Title;
+
+  /// No description provided for @onbTeacher3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Take attendance and enter grades in seconds, right from your phone.'**
+  String get onbTeacher3Body;
+
+  /// No description provided for @onbTeacher4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach everyone'**
+  String get onbTeacher4Title;
+
+  /// No description provided for @onbTeacher4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Post announcements and message students and parents instantly.'**
+  String get onbTeacher4Body;
+
+  /// No description provided for @onbAdmin2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Run your school'**
+  String get onbAdmin2Title;
+
+  /// No description provided for @onbAdmin2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage people, classes and the timetable from one dashboard.'**
+  String get onbAdmin2Body;
+
+  /// No description provided for @onbAdmin3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up in minutes'**
+  String get onbAdmin3Title;
+
+  /// No description provided for @onbAdmin3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Add students, teachers and classes in just a few taps.'**
+  String get onbAdmin3Body;
+
+  /// No description provided for @onbAdmin4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep everyone in sync'**
+  String get onbAdmin4Title;
+
+  /// No description provided for @onbAdmin4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast announcements and message your whole school.'**
+  String get onbAdmin4Body;
+
+  /// No description provided for @onbSecretary2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Students at your fingertips'**
+  String get onbSecretary2Title;
+
+  /// No description provided for @onbSecretary2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Look up any student and keep their details up to date.'**
+  String get onbSecretary2Body;
+
+  /// No description provided for @onbSecretary3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the word'**
+  String get onbSecretary3Title;
+
+  /// No description provided for @onbSecretary3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Send announcements to the right classes in seconds.'**
+  String get onbSecretary3Body;
+
+  /// No description provided for @onbParent2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your child'**
+  String get onbParent2Title;
+
+  /// No description provided for @onbParent2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Their schedule, grades and attendance — always up to date.'**
+  String get onbParent2Body;
+
+  /// No description provided for @onbParent3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Never miss a thing'**
+  String get onbParent3Title;
+
+  /// No description provided for @onbParent3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Get school announcements and updates the moment they happen.'**
+  String get onbParent3Body;
+
   /// No description provided for @accountActionsTooltip.
   ///
   /// In en, this message translates to:

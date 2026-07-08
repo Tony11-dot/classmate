@@ -9,6 +9,97 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get certAddTeacher => 'Add teacher';
+
+  @override
+  String get certSearchStudent => 'Search students';
+
+  @override
+  String get certNewCertificate => 'New certificate';
+
+  @override
+  String certCertificateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count certificates',
+      one: '1 certificate',
+      zero: 'No certificates',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onbTeacher2Title => 'Your classes, organized';
+
+  @override
+  String get onbTeacher2Body =>
+      'Your schedule, classrooms and student rosters — all in one place.';
+
+  @override
+  String get onbTeacher3Title => 'Grades & attendance, fast';
+
+  @override
+  String get onbTeacher3Body =>
+      'Take attendance and enter grades in seconds, right from your phone.';
+
+  @override
+  String get onbTeacher4Title => 'Reach everyone';
+
+  @override
+  String get onbTeacher4Body =>
+      'Post announcements and message students and parents instantly.';
+
+  @override
+  String get onbAdmin2Title => 'Run your school';
+
+  @override
+  String get onbAdmin2Body =>
+      'Manage people, classes and the timetable from one dashboard.';
+
+  @override
+  String get onbAdmin3Title => 'Set up in minutes';
+
+  @override
+  String get onbAdmin3Body =>
+      'Add students, teachers and classes in just a few taps.';
+
+  @override
+  String get onbAdmin4Title => 'Keep everyone in sync';
+
+  @override
+  String get onbAdmin4Body =>
+      'Broadcast announcements and message your whole school.';
+
+  @override
+  String get onbSecretary2Title => 'Students at your fingertips';
+
+  @override
+  String get onbSecretary2Body =>
+      'Look up any student and keep their details up to date.';
+
+  @override
+  String get onbSecretary3Title => 'Share the word';
+
+  @override
+  String get onbSecretary3Body =>
+      'Send announcements to the right classes in seconds.';
+
+  @override
+  String get onbParent2Title => 'Follow your child';
+
+  @override
+  String get onbParent2Body =>
+      'Their schedule, grades and attendance — always up to date.';
+
+  @override
+  String get onbParent3Title => 'Never miss a thing';
+
+  @override
+  String get onbParent3Body =>
+      'Get school announcements and updates the moment they happen.';
+
+  @override
   String get accountActionsTooltip => 'Account options';
 
   @override

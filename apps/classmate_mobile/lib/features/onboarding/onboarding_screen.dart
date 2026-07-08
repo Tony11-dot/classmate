@@ -44,6 +44,7 @@ class OnboardingGate extends ConsumerWidget {
                 if (seen) return const SizedBox.shrink();
                 return _OnboardingOverlay(
                   firstName: _firstName(session.displayName),
+                  role: session.primaryRole,
                   onDone: () async {
                     await markOnboardingSeen(session.userId);
                     r.invalidate(onboardingSeenProvider(session.userId));
@@ -66,10 +67,15 @@ class OnboardingGate extends ConsumerWidget {
 
 /// The upgraded walkthrough itself — a full-screen animated carousel.
 class _OnboardingOverlay extends StatefulWidget {
-  const _OnboardingOverlay({required this.onDone, required this.firstName});
+  const _OnboardingOverlay({
+    required this.onDone,
+    required this.firstName,
+    required this.role,
+  });
 
   final Future<void> Function() onDone;
   final String firstName;
+  final String role;
 
   @override
   State<_OnboardingOverlay> createState() => _OnboardingOverlayState();
@@ -86,35 +92,68 @@ class _OnboardingOverlayState extends State<_OnboardingOverlay> {
     super.dispose();
   }
 
-  List<_Slide> _slides(AppLocalizations l) => [
-        _Slide(
-          icon: Icons.school_rounded,
-          // Personalized welcome when we know the name.
-          title: widget.firstName.isEmpty
-              ? l.onboardingSlide1Title
-              : l.onboardingWelcomeNamed(widget.firstName),
-          body: l.onboardingSlide1Body,
-          colors: const [Color(0xFF0EA5E9), Color(0xFF4F46E5)],
-        ),
-        _Slide(
-          icon: Icons.auto_awesome_rounded,
-          title: l.onboardingSlide2Title,
-          body: l.onboardingSlide2Body,
-          colors: const [Color(0xFF7C3AED), Color(0xFFDB2777)],
-        ),
-        _Slide(
-          icon: Icons.insights_rounded,
-          title: l.onboardingSlide3Title,
-          body: l.onboardingSlide3Body,
-          colors: const [Color(0xFF0D9488), Color(0xFF16A34A)],
-        ),
-        _Slide(
-          icon: Icons.forum_rounded,
-          title: l.onboardingSlide4Title,
-          body: l.onboardingSlide4Body,
-          colors: const [Color(0xFFEA580C), Color(0xFFE11D48)],
-        ),
-      ];
+  // Slide palettes (reused across roles).
+  static const _cBlue = [Color(0xFF0EA5E9), Color(0xFF4F46E5)];
+  static const _cViolet = [Color(0xFF7C3AED), Color(0xFFDB2777)];
+  static const _cGreen = [Color(0xFF0D9488), Color(0xFF16A34A)];
+  static const _cOrange = [Color(0xFFEA580C), Color(0xFFE11D48)];
+
+  /// Role-tailored walkthrough. Slide 1 is the shared (personalized) welcome;
+  /// the rest highlight the features that role actually uses.
+  List<_Slide> _slides(AppLocalizations l) {
+    final welcome = _Slide(
+      icon: Icons.school_rounded,
+      title: widget.firstName.isEmpty
+          ? l.onboardingSlide1Title
+          : l.onboardingWelcomeNamed(widget.firstName),
+      body: l.onboardingSlide1Body,
+      colors: _cBlue,
+    );
+    final connected = _Slide(
+      icon: Icons.forum_rounded,
+      title: l.onboardingSlide4Title,
+      body: l.onboardingSlide4Body,
+      colors: _cOrange,
+    );
+
+    switch (widget.role) {
+      case 'TEACHER':
+        return [
+          welcome,
+          _Slide(icon: Icons.groups_rounded, title: l.onbTeacher2Title, body: l.onbTeacher2Body, colors: _cViolet),
+          _Slide(icon: Icons.fact_check_rounded, title: l.onbTeacher3Title, body: l.onbTeacher3Body, colors: _cGreen),
+          _Slide(icon: Icons.campaign_rounded, title: l.onbTeacher4Title, body: l.onbTeacher4Body, colors: _cOrange),
+        ];
+      case 'ADMIN':
+        return [
+          welcome,
+          _Slide(icon: Icons.dashboard_rounded, title: l.onbAdmin2Title, body: l.onbAdmin2Body, colors: _cViolet),
+          _Slide(icon: Icons.person_add_alt_1_rounded, title: l.onbAdmin3Title, body: l.onbAdmin3Body, colors: _cGreen),
+          _Slide(icon: Icons.campaign_rounded, title: l.onbAdmin4Title, body: l.onbAdmin4Body, colors: _cOrange),
+        ];
+      case 'SECRETARY':
+        return [
+          welcome,
+          _Slide(icon: Icons.school_rounded, title: l.onbSecretary2Title, body: l.onbSecretary2Body, colors: _cViolet),
+          _Slide(icon: Icons.campaign_rounded, title: l.onbSecretary3Title, body: l.onbSecretary3Body, colors: _cGreen),
+          connected,
+        ];
+      case 'PARENT':
+        return [
+          welcome,
+          _Slide(icon: Icons.favorite_rounded, title: l.onbParent2Title, body: l.onbParent2Body, colors: _cViolet),
+          _Slide(icon: Icons.notifications_active_rounded, title: l.onbParent3Title, body: l.onbParent3Body, colors: _cGreen),
+          connected,
+        ];
+      default: // STUDENT
+        return [
+          welcome,
+          _Slide(icon: Icons.auto_awesome_rounded, title: l.onboardingSlide2Title, body: l.onboardingSlide2Body, colors: _cViolet),
+          _Slide(icon: Icons.insights_rounded, title: l.onboardingSlide3Title, body: l.onboardingSlide3Body, colors: _cGreen),
+          connected,
+        ];
+    }
+  }
 
   Future<void> _finish() async {
     if (_finishing) return;

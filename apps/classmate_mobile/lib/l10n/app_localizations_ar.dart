@@ -9,6 +9,91 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get certAddTeacher => 'إضافة معلّم';
+
+  @override
+  String get certSearchStudent => 'البحث عن طالب';
+
+  @override
+  String get certNewCertificate => 'شهادة جديدة';
+
+  @override
+  String certCertificateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شهادات',
+      one: 'شهادة واحدة',
+      zero: 'لا توجد شهادات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onbTeacher2Title => 'صفوفك، منظّمة';
+
+  @override
+  String get onbTeacher2Body =>
+      'جدولك وصفوفك وقوائم طلابك — كلها في مكان واحد.';
+
+  @override
+  String get onbTeacher3Title => 'العلامات والحضور بسرعة';
+
+  @override
+  String get onbTeacher3Body =>
+      'سجّل الحضور وأدخل العلامات في ثوانٍ، من هاتفك مباشرة.';
+
+  @override
+  String get onbTeacher4Title => 'تواصل مع الجميع';
+
+  @override
+  String get onbTeacher4Body =>
+      'انشر الإعلانات وراسل الطلاب وأولياء الأمور فورًا.';
+
+  @override
+  String get onbAdmin2Title => 'أدِر مدرستك';
+
+  @override
+  String get onbAdmin2Body => 'أدِر المستخدمين والصفوف والجدول من لوحة واحدة.';
+
+  @override
+  String get onbAdmin3Title => 'الإعداد في دقائق';
+
+  @override
+  String get onbAdmin3Body => 'أضف الطلاب والمعلمين والصفوف بنقرات قليلة.';
+
+  @override
+  String get onbAdmin4Title => 'أبقِ الجميع متزامنين';
+
+  @override
+  String get onbAdmin4Body => 'أرسل الإعلانات وراسل مدرستك بأكملها.';
+
+  @override
+  String get onbSecretary2Title => 'الطلاب بين يديك';
+
+  @override
+  String get onbSecretary2Body => 'ابحث عن أي طالب وحافظ على تحديث بياناته.';
+
+  @override
+  String get onbSecretary3Title => 'انشر الخبر';
+
+  @override
+  String get onbSecretary3Body =>
+      'أرسل الإعلانات إلى الصفوف المناسبة في ثوانٍ.';
+
+  @override
+  String get onbParent2Title => 'تابِع طفلك';
+
+  @override
+  String get onbParent2Body => 'جدوله وعلاماته وحضوره — محدّثة دائمًا.';
+
+  @override
+  String get onbParent3Title => 'لا تفوّت شيئًا';
+
+  @override
+  String get onbParent3Body => 'استلم إعلانات المدرسة وتحديثاتها لحظة حدوثها.';
+
+  @override
   String get accountActionsTooltip => 'خيارات الحساب';
 
   @override

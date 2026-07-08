@@ -14,15 +14,30 @@ import 'data/certificates_repository.dart';
 /// Full-screen wrapper (Scaffold + app bar) for pushing the create/edit form
 /// as its own route from the certificates list.
 class CertificatesFormPage extends StatelessWidget {
-  const CertificatesFormPage({super.key, this.certId});
+  const CertificatesFormPage({
+    super.key,
+    this.certId,
+    this.initialCohortId,
+    this.initialStudentId,
+  });
   final String? certId;
+  final String? initialCohortId;
+  final String? initialStudentId;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    // Full-screen: its own Scaffold + plain AppBar (back arrow, no shell logo
+    // top bar) — pushed on the root navigator over the shell.
     return Scaffold(
       appBar: AppBar(title: Text(certId == null ? l.navCertificates : l.certEditTitle)),
-      body: SafeArea(child: CertificatesScreen(certId: certId)),
+      body: SafeArea(
+        child: CertificatesScreen(
+          certId: certId,
+          initialCohortId: initialCohortId,
+          initialStudentId: initialStudentId,
+        ),
+      ),
     );
   }
 }
@@ -40,24 +55,37 @@ const _certLanguages = <(String, String)>[
 /// One editable grades row: the subject + a per-semester grade box + an editable
 /// teacher field (comma/،-separated for multi-teacher subjects).
 class _EditableSubject {
-  _EditableSubject({required this.base, required this.semCtrls, required this.teacherCtrl});
+  _EditableSubject({required this.base, required this.semCtrls, required this.teacherCtrls});
   final CertSubjectRow base;
   final List<TextEditingController> semCtrls;
-  final TextEditingController teacherCtrl;
+  // One controller per teacher — a subject can have several teachers.
+  final List<TextEditingController> teacherCtrls;
   void dispose() {
     for (final c in semCtrls) {
       c.dispose();
     }
-    teacherCtrl.dispose();
+    for (final c in teacherCtrls) {
+      c.dispose();
+    }
   }
 }
 
 class CertificatesScreen extends ConsumerStatefulWidget {
-  const CertificatesScreen({super.key, this.certId});
+  const CertificatesScreen({
+    super.key,
+    this.certId,
+    this.initialCohortId,
+    this.initialStudentId,
+  });
 
   /// When set, the screen opens an EXISTING certificate to edit (admin, or the
   /// homeroom teacher who owns it). Otherwise it's a fresh create.
   final String? certId;
+
+  /// When creating a NEW certificate from the student-first flow, preselect
+  /// this cohort + student so the grader lands straight on the grades.
+  final String? initialCohortId;
+  final String? initialStudentId;
 
   @override
   ConsumerState<CertificatesScreen> createState() => _CertificatesScreenState();
@@ -93,7 +121,42 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
   void initState() {
     super.initState();
     _editId = widget.certId;
-    Future<void>.microtask(_editId != null ? () => _loadForEdit(_editId!) : _loadCohorts);
+    if (_editId != null) {
+      Future<void>.microtask(() => _loadForEdit(_editId!));
+    } else if ((widget.initialCohortId ?? '').isNotEmpty) {
+      // Student-first flow: cohort + student handed in — preselect them.
+      _cohortId = widget.initialCohortId;
+      _studentId = (widget.initialStudentId ?? '').isEmpty ? null : widget.initialStudentId;
+      Future<void>.microtask(_loadForPreselected);
+    } else {
+      Future<void>.microtask(_loadCohorts);
+    }
+  }
+
+  /// Preselected create: load cohorts + the chosen cohort's students, then
+  /// prefill the chosen student's grades — so the grader skips both pickers.
+  Future<void> _loadForPreselected() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      _cohorts = await _repo.cohorts();
+      if ((_cohortId ?? '').isNotEmpty) {
+        _students = await _repo.students(_cohortId!);
+      }
+      if (!mounted) return;
+      setState(() => _loading = false);
+      if ((_cohortId ?? '').isNotEmpty && (_studentId ?? '').isNotEmpty) {
+        await _loadPrefill();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = '$e';
+        _loading = false;
+      });
+    }
   }
 
   @override
@@ -143,9 +206,8 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
         final t = c.text.trim();
         return t.isEmpty ? null : double.tryParse(t);
       }).toList();
-      final teachers = es.teacherCtrl.text
-          .split(RegExp(r'[،,]'))
-          .map((s) => s.trim())
+      final teachers = es.teacherCtrls
+          .map((c) => c.text.trim())
           .where((s) => s.isNotEmpty)
           .toList();
       return CertSubjectRow(
@@ -318,7 +380,10 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
           text: i < s.semesters.length && s.semesters[i] != null ? _trimNum(s.semesters[i]!) : '',
         ),
       );
-      return _EditableSubject(base: s, semCtrls: sem, teacherCtrl: TextEditingController(text: s.teachers.join('، ')));
+      final teacherCtrls = (s.teachers.isEmpty ? <String>[''] : s.teachers)
+          .map((t) => TextEditingController(text: t))
+          .toList();
+      return _EditableSubject(base: s, semCtrls: sem, teacherCtrls: teacherCtrls);
     }).toList();
   }
 
@@ -630,10 +695,39 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      LiquidGlassNameField(
-                        controller: _subjects[i].teacherCtrl,
-                        label: l.certPdfTeacher,
-                        options: p.teacherNames,
+                      // Teacher(s) for this subject — one field per teacher,
+                      // with add/remove so a subject can have several.
+                      for (int t = 0; t < _subjects[i].teacherCtrls.length; t++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: LiquidGlassNameField(
+                                  controller: _subjects[i].teacherCtrls[t],
+                                  label: l.certPdfTeacher,
+                                  options: p.teacherNames,
+                                ),
+                              ),
+                              if (_subjects[i].teacherCtrls.length > 1)
+                                IconButton(
+                                  tooltip: l.a11yRemove,
+                                  icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                                  onPressed: () => setState(() {
+                                    _subjects[i].teacherCtrls.removeAt(t).dispose();
+                                  }),
+                                ),
+                            ],
+                          ),
+                        ),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton.icon(
+                          onPressed: () => setState(() =>
+                              _subjects[i].teacherCtrls.add(TextEditingController())),
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: Text(l.certAddTeacher),
+                        ),
                       ),
                     ],
                   ),

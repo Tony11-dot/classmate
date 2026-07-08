@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/auth/accounts_store.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/phone_field.dart';
@@ -279,6 +280,12 @@ class _UserTab extends ConsumerWidget {
     if (confirm != true) return;
     try {
       await ref.read(adminRepositoryProvider).deleteUser(user.id);
+      // Auto-remove the deleted account from this device's account switcher
+      // too (covers the case where the deleted user is also remembered here).
+      // The deleted user's OWN device drops it on its next /auth/me 401.
+      try {
+        await AccountsStore().remove(user.id);
+      } catch (_) {/* best-effort */}
       onRefresh();
     } catch (e) {
       ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(l.adminCancel)));
