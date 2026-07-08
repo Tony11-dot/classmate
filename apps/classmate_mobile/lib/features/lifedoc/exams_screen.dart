@@ -157,7 +157,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
           children: [
             LiquidGlassCard(
               padding: const EdgeInsets.all(18),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(26),
               color: cs.primaryContainer,
               border: Border.all(color: cs.outlineVariant),
               child: Column(
@@ -273,7 +273,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(0, MediaQuery.paddingOf(context).top, 0, 32),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 32),
       itemCount: items.length + 2, // +2 for header + spacing
       separatorBuilder: (_, i) => i == 0 ? const SizedBox(height: 8) : const SizedBox(height: 12),
       itemBuilder: (context, i) {
@@ -399,11 +399,11 @@ class _ExamCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         onTap: () => context.push('/exams/${exam.id}', extra: exam),
         child: LiquidGlassCard(
           padding: const EdgeInsets.all(16),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(22),
           color: status == _ExamStatus.today
               ? cs.errorContainer
               : cs.surfaceContainerHighest,
@@ -527,11 +527,11 @@ class _FormCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         onTap: () => context.push('/forms/${form.id}', extra: form),
         child: LiquidGlassCard(
           padding: const EdgeInsets.all(16),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(22),
           color: cs.surfaceContainerLow,
           border: Border.all(color: cs.outlineVariant),
           child: Column(

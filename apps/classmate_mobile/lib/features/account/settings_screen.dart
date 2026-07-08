@@ -88,12 +88,7 @@ class SettingsScreen extends ConsumerWidget {
         // ── Header ────────────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16 + MediaQuery.paddingOf(context).top,
-              16,
-              0,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: LiquidGlassCard(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               borderRadius: BorderRadius.circular(24),
@@ -203,7 +198,7 @@ class SettingsScreen extends ConsumerWidget {
                               height: 38,
                               child: LiquidGlassCard(
                                 padding: EdgeInsets.zero,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(11),
                                 color: t.accent,
                                 child: Center(
                                   child: Icon(
@@ -440,7 +435,7 @@ class _SettingRow extends StatelessWidget {
               height: 38,
               child: LiquidGlassCard(
                 padding: EdgeInsets.zero,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(11),
                 color: iconColor != null ? cs.errorContainer : cs.primaryContainer,
                 child: Center(
                   child: Icon(icon, size: 20, color: iconColor ?? cs.onPrimaryContainer),

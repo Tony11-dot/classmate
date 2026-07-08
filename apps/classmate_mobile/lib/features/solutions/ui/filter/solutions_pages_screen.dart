@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../../../ui/nav/glass_back_button.dart';
 import '../../providers/solutions_flow_provider.dart';
 
 /// Special sentinel for "all questions on this page".
@@ -80,12 +79,10 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l.filters),
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(onPressed: () => context.pop()),
-          ),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(

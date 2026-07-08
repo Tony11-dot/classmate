@@ -9,7 +9,6 @@ import '../../l10n/app_localizations.dart';
 import 'data/forms_repository.dart';
 import 'domain/form_models.dart';
 import '../../ui/glass/liquid_glass_card.dart';
-import '../../ui/nav/glass_back_button.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 
@@ -93,11 +92,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
       ),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(
-          leadingWidth: 60,
-          leading: const Padding(
-            padding: EdgeInsetsDirectional.only(start: 8),
-            child: Center(child: GlassBackButton()),
-          ),
+          leading: const BackButton(),
           title: Text(AppLocalizations.of(context)!.formTitle),
         ),
         body: Center(
@@ -120,11 +115,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         if (form == null) {
           return Scaffold(
             appBar: AppBar(
-              leadingWidth: 60,
-              leading: const Padding(
-                padding: EdgeInsetsDirectional.only(start: 8),
-                child: Center(child: GlassBackButton()),
-              ),
+              leading: const BackButton(),
               title: Text(AppLocalizations.of(context)!.formTitle),
             ),
             body: Center(
@@ -144,18 +135,14 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         // Explicit back/chevron button so students can leave without submitting
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(
-              onPressed: () {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left_rounded, size: 28),
+          tooltip: AppLocalizations.of(context)!.commonBack,
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: Text(
           form.title,
@@ -510,7 +497,7 @@ class _QuestionCard extends StatelessWidget {
 
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(22),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant),
       child: Column(

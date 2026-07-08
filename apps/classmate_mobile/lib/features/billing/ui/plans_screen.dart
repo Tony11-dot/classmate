@@ -77,12 +77,7 @@ class PlansScreen extends ConsumerWidget {
             ref.invalidate(plansCatalogProvider);
           }),
           data: (catalog) => ListView(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              8 + MediaQuery.paddingOf(context).top,
-              16,
-              100,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             children: [
               // ── Balance hero ─────────────────────────────────────────
               _BalanceCard(balanceAsync: balanceAsync),
@@ -301,6 +296,7 @@ class _ManageSubscriptionButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12),
           side: BorderSide(color: cs.outlineVariant),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

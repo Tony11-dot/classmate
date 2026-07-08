@@ -188,12 +188,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 LiquidGlassCard(
                   padding: const EdgeInsets.all(18),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(26),
                   color: cs.primaryContainer,
                   border: Border.all(color: cs.outlineVariant),
                   child: Column(
@@ -729,7 +728,7 @@ class _NotificationDetailBody extends ConsumerWidget {
         const SizedBox(height: 18),
         LiquidGlassCard(
           padding: const EdgeInsets.all(16),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(22),
           color: cs.surfaceContainerLow,
           border: Border.all(color: cs.outlineVariant),
           child: Text(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/nav/glass_back_button.dart';
 import '../models/chat_message_info.dart';
 
 /// Per-participant read record for the info page.
@@ -130,7 +129,8 @@ class ChatMessageInfoPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  GlassBackButton(
+                  IconButton(
+                    tooltip: l.a11yBack,
                     onPressed: () {
                       final cb = onBack;
                       if (cb != null) {
@@ -139,6 +139,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                       }
                       Navigator.of(context, rootNavigator: true).pop();
                     },
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   ),
                   Expanded(
                     child: Text(
@@ -147,7 +148,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                       style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
-                  const SizedBox(width: 44),
+                  const SizedBox(width: 48),
                 ],
               ),
             ),

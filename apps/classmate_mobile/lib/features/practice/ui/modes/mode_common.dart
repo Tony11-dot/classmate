@@ -476,7 +476,7 @@ class ModeAnswerTile extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 280),
@@ -492,7 +492,7 @@ class ModeAnswerTile extends StatelessWidget {
                 : selected
                 ? accent
                 : defaultFill,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: revealed
                   ? correct

@@ -13,7 +13,6 @@ import 'classroom_order_screen.dart';
 import 'classroom_detail_screen.dart';
 import '../../chat_core/utils/chat_time.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 class ClassroomsHomeScreen extends ConsumerStatefulWidget {
   const ClassroomsHomeScreen({super.key});
@@ -227,7 +226,7 @@ backgroundColor: cs.surface,
                                 width: 62,
                                 height: 62,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: BorderRadius.circular(22),
                                   color: cs.primaryContainer,
                                 ),
                                 child: Icon(
@@ -297,10 +296,48 @@ backgroundColor: cs.surface,
                   if (index == 1) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: GlassSearchField(
-                        hintText: l.classroomsSearchHint,
+                      child: TextField(
                         controller: _searchCtl,
                         onChanged: (_) => setState(() {}),
+                        onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                        decoration: InputDecoration(
+                          hintText: l.classroomsSearchHint,
+                          prefixIcon: const Icon(Icons.search_rounded),
+                          suffixIcon: _searchCtl.text.isEmpty
+                              ? null
+                              : IconButton(
+                                  tooltip: l.a11yClose,
+                                  onPressed: () {
+                                    _searchCtl.clear();
+                                    setState(() {});
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  icon: const Icon(Icons.close_rounded),
+                                ),
+                          filled: true,
+                          fillColor: cs.surfaceContainerHighest.withValues(
+                            alpha: 0.40,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                              color: cs.outlineVariant,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                              color: cs.outlineVariant,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide(
+                              color: cs.primary,
+                              width: 1.25,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   }

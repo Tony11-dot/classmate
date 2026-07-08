@@ -8,8 +8,6 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 import 'admin_subject_detail_screen.dart';
@@ -476,8 +474,6 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
             ),
       body: Column(
         children: [
-          // Body extends behind the shell's glass top bar — pad past it.
-          SizedBox(height: MediaQuery.paddingOf(context).top),
           // ── Filter bar ────────────────────────────────────────────────────
           // Layout: [selected pills (× to remove)] [Add: Grade / Cohort / Student]
           // [Clear] (shown only when at least one filter is active).  Picking
@@ -1584,8 +1580,22 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
           children: [
             // ── Back chevron — no AppBar, so this is the only way back ─────
-            GlassDetailHeader(
-              title: _isEditing ? l.adminEditPeriod : l.adminScheduleAddPeriod,
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  tooltip: l.a11yBack,
+                  onPressed: () => Navigator.maybePop(context),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _isEditing ? l.adminEditPeriod : l.adminScheduleAddPeriod,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -2456,9 +2466,15 @@ class _MultiPickerListState extends State<_MultiPickerList> {
 
     return Column(
       children: [
-        GlassSearchField(
-          hintText: widget.searchHint,
+        TextField(
           onChanged: (v) => setState(() => _q = v),
+          decoration: InputDecoration(
+            hintText: widget.searchHint,
+            prefixIcon: const Icon(Icons.search_rounded, size: 18),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+          ),
         ),
         const SizedBox(height: 4),
         if (widget.selected.isNotEmpty)
@@ -3164,9 +3180,15 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GlassSearchField(
-                hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
+              child: TextField(
                 onChanged: (v) => setState(() => _q = v),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
+                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -3833,14 +3855,14 @@ class _MiniSwatch extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return InkWell(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(7),
       onTap: onTap,
       child: Container(
         width: 26,
         height: 26,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(7),
           border: Border.all(
             color: selected ? cs.primary : cs.outlineVariant.withValues(alpha: 0.5),
             width: selected ? 2 : 1,
@@ -4071,9 +4093,14 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
             // Search across existing
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: GlassSearchField(
-                hintText: AppLocalizations.of(context)!.adminScheduleSearchSubjects,
+              child: TextField(
                 onChanged: (v) => setState(() => _search = v),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.adminScheduleSearchSubjects,
+                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  isDense: true,
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -4132,7 +4159,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                                 height: 18,
                                 decoration: BoxDecoration(
                                   color: subjectColorOrFallback(s.color, s.nameEn),
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(5),
                                   border: Border.all(
                                     color: cs.outlineVariant.withValues(alpha: 0.5),
                                   ),

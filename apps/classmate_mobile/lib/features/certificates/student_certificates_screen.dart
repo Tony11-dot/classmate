@@ -80,8 +80,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
       return RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(
-              24, 80 + MediaQuery.paddingOf(context).top, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 80, 24, 24),
           children: [
             Icon(Icons.workspace_premium_outlined, size: 56, color: cs.onSurfaceVariant),
             const SizedBox(height: 12),
@@ -94,8 +93,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: EdgeInsets.fromLTRB(
-            16, 12 + MediaQuery.paddingOf(context).top, 16, 120),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         itemCount: _items.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (_, i) {

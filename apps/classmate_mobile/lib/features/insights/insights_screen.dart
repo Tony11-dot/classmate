@@ -63,24 +63,14 @@ class InsightsScreen extends ConsumerWidget {
       child: unifiedAsync.when(
         loading: () => ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(
-            16,
-            24 + MediaQuery.paddingOf(context).top,
-            16,
-            160,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
           children: const [
             SizedBox(height: 120, child: Center(child: CmLoading())),
           ],
         ),
         error: (error, _) => ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(
-            16,
-            24 + MediaQuery.paddingOf(context).top,
-            16,
-            160,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
           children: [
             _Card(
               title: l.insightsNotReadyTitle,
@@ -95,12 +85,7 @@ class InsightsScreen extends ConsumerWidget {
           if (unified == null) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-            16,
-            24 + MediaQuery.paddingOf(context).top,
-            16,
-            160,
-          ),
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 160),
               children: [
                 _Card(
                   title: l.insightsEmptyTitle,
@@ -121,12 +106,7 @@ class InsightsScreen extends ConsumerWidget {
 
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16 + MediaQuery.paddingOf(context).top,
-              16,
-              160,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 160),
             children: [
               // ── Hero: three headline numbers ─────────────────────────────
               Container(
@@ -456,12 +436,12 @@ class _Card extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: EdgeInsets.zero,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(22),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

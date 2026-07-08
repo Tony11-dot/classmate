@@ -14,8 +14,6 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
 import 'widgets/audience_students_summary.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 class TeacherAddAssignmentScreen extends ConsumerStatefulWidget {
   const TeacherAddAssignmentScreen({
@@ -481,10 +479,10 @@ class _TeacherAddAssignmentScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
@@ -969,10 +967,15 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-                child: GlassSearchField(
-                  hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
+                child: TextField(
                   controller: _searchCtrl,
                   onChanged: (v) => setState(() => _query = v),
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    isDense: true,
+                  ),
                 ),
               ),
               Expanded(
@@ -1121,9 +1124,14 @@ class _SinglePickerSheetState extends State<_SinglePickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: GlassSearchField(
-            hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
+          child: TextField(
             onChanged: (v) => setState(() => _query = v),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            ),
           ),
         ),
         Expanded(

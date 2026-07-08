@@ -100,10 +100,7 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
               : RefreshIndicator(
                   onRefresh: _load,
                   child: _scales.isEmpty
-                      ? ListView(
-                          padding: EdgeInsets.only(
-                              top: MediaQuery.paddingOf(context).top),
-                          children: [
+                      ? ListView(children: [
                           const SizedBox(height: 80),
                           Icon(Icons.abc_rounded, size: 56, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
                           const SizedBox(height: 12),
@@ -118,8 +115,7 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
                           ),
                         ])
                       : ListView.builder(
-                          padding: EdgeInsets.fromLTRB(16,
-                              16 + MediaQuery.paddingOf(context).top, 16, 96),
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
                           itemCount: _scales.length,
                           itemBuilder: (_, i) {
                             final s = _scales[i];

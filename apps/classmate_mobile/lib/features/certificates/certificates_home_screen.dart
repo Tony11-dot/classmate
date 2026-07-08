@@ -159,8 +159,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: EdgeInsets.fromLTRB(
-            16, 12 + MediaQuery.paddingOf(context).top, 16, 120),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         children: [
           if (_error != null)
             Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),

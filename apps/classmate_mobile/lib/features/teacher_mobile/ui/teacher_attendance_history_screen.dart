@@ -120,7 +120,7 @@ class _TeacherAttendanceHistoryScreenState
       onRefresh: _load,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(16, 12 + MediaQuery.paddingOf(context).top, 16, 28),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
           // ── Filter bar ──────────────────────────────────────────────────
           LiquidGlassCard(
@@ -141,6 +141,7 @@ class _TeacherAttendanceHistoryScreenState
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                   ),
                   child: Text(l.teacherAttendanceChangeDate),

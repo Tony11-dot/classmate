@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../data/teacher_mobile_repository.dart';
-import '../../../../ui/widgets/glass_search_field.dart';
 
 /// Reusable audience section: cohort DDL + grade DDL + student DDL + member
 /// preview. No classroom picker — use the add-assignment/material/meeting
@@ -338,10 +337,7 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: GlassSearchField(
-            hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
-            onChanged: (v) => setState(() => _query = v),
-          ),
+          child: TextField(onChanged: (v) => setState(() => _query = v), decoration: InputDecoration(hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint, prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14))),
         ),
         Expanded(
           child: filtered.isEmpty

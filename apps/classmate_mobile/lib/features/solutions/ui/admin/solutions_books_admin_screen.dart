@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/config/env.dart';
 import '../../../../core/http/cm_api.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../ui/nav/glass_back_button.dart';
 import '../../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../data/solutions_api.dart';
 import '../../domain/solution_subjects.dart';
@@ -125,12 +124,10 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
     return Scaffold(
       appBar: AppBar(
         title: Text(l.solutionsManageBooksTitle),
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(onPressed: () => context.pop()),
-          ),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(

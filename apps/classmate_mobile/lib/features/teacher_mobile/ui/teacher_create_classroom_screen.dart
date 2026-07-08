@@ -6,7 +6,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 class TeacherCreateClassroomScreen extends ConsumerStatefulWidget {
   const TeacherCreateClassroomScreen({super.key, this.onCreated});
@@ -486,9 +485,14 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: GlassSearchField(
-            hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
+          child: TextField(
             onChanged: (v) => setState(() => _query = v),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            ),
           ),
         ),
         Expanded(

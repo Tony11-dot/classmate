@@ -214,8 +214,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
           onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-                16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             children: [_buildHero(context, null, null, null), const SizedBox(height: 20),
               _ErrorCard(message: _friendlyError(context, err), onRetry: () => ref.invalidate(unifiedStudentInsightsProvider)),
             ],
@@ -255,8 +254,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
             onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _buildHero(context, overallAvg, bestSubject, weakestSubject),
                 const SizedBox(height: 12),
@@ -391,8 +389,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
     final cs = Theme.of(context).colorScheme;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-          16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
       children: [
         Container(
           height: 160,

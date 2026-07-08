@@ -9,7 +9,6 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import 'teacher_student_grade_detail_screen.dart';
-import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherStudentProfileScreen extends ConsumerStatefulWidget {
   const TeacherStudentProfileScreen({
@@ -89,8 +88,11 @@ class _TeacherStudentProfileScreenState
               ),
               child: Row(
                 children: [
-                  GlassBackButton(
+                  IconButton(
+                    tooltip: AppLocalizations.of(context)!.a11yBack,
                     onPressed: () { if (context.canPop()) context.pop(); },
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),
                   ),
                   const SizedBox(width: 12),
                   CircleAvatar(

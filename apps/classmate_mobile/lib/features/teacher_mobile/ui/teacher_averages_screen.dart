@@ -11,7 +11,6 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_select_field.dart';
 import '../data/subject_average.dart';
 import '../data/teacher_mobile_repository.dart';
-import '../../../ui/nav/glass_back_button.dart';
 
 /// Teacher screen to manage first-class "subject averages" — weighted grade
 /// formulas per (cohort, subject). Each average has one or more formats, and
@@ -156,10 +155,10 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        leadingWidth: 60,
-        leading: const Padding(
-          padding: EdgeInsetsDirectional.only(start: 8),
-          child: Center(child: GlassBackButton()),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(l.averagesTitle),
       ),

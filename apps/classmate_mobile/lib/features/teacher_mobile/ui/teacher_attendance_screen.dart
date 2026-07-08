@@ -8,8 +8,6 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'teacher_shared_widgets.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 String _friendlyError(BuildContext context, String? error) {
   final l = AppLocalizations.of(context)!;
@@ -376,8 +374,13 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                 Row(
                   children: [
                     // ← back button
-                    GlassBackButton(
-                      onPressed: () { if (context.canPop()) context.pop(); },
+                    Semantics(
+                      button: true,
+                      label: l.a11yBack,
+                      child: GestureDetector(
+                        onTap: () { if (context.canPop()) context.pop(); },
+                        child: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: cs.onSurface),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -549,10 +552,15 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             ),
             const SizedBox(height: 14),
 
-            GlassSearchField(
-              hintText: l.teacherSearchStudents,
+            TextField(
               controller: _studentSearchCtrl,
               onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                hintText: l.teacherSearchStudents,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
             ),
             const SizedBox(height: 10),
 
@@ -653,6 +661,7 @@ class _BulkStatusButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         backgroundColor: cs.surface,
         side: BorderSide(color: cs.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: Text(label),
     );

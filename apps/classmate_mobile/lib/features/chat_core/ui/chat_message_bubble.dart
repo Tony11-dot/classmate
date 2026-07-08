@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/nav/glass_back_button.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../utils/chat_reply_codec.dart';
@@ -1420,12 +1419,11 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                       bottom: false,
                       child: Row(
                         children: [
-                          Padding(
-                            padding:
-                                const EdgeInsetsDirectional.only(start: 8, top: 4),
-                            child: GlassBackButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
+                          IconButton(
+                            tooltip: AppLocalizations.of(context)!.a11yBack,
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                                color: Colors.white),
+                            onPressed: () => Navigator.of(context).pop(),
                           ),
                         ],
                       ),

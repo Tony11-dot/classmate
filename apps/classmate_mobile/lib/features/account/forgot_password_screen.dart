@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/nav/glass_back_button.dart';
 
 enum _ResetMode { email, sms }
 
@@ -96,15 +95,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(
-              onPressed: () =>
-                  context.canPop() ? context.pop() : context.go('/login'),
-            ),
-          ),
+        leading: IconButton(
+          tooltip: AppLocalizations.of(context)!.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/login'),
         ),
       ),
       body: SafeArea(

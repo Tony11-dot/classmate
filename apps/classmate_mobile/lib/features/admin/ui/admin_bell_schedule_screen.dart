@@ -141,8 +141,7 @@ class _AdminBellScheduleScreenState
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                    16, 12 + MediaQuery.paddingOf(context).top, 16, 120),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
                 children: [
                   // ── Info card ──────────────────────────────────────────────
                   Container(

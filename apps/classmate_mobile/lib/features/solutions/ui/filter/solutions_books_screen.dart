@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/auth_controller.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../ui/nav/glass_back_button.dart';
-import '../../../../ui/widgets/glass_search_field.dart';
 import '../../data/solutions_api.dart';
 import '../../domain/solutions_models.dart';
 import '../../domain/solution_subjects.dart';
@@ -100,12 +98,10 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(subjectTitle),
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(onPressed: () => context.pop()),
-          ),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
       ),
       floatingActionButton: (canManage && subject != null)
@@ -119,10 +115,19 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: GlassSearchField(
-              hintText: l.solutionsSearchBooks,
+            child: TextField(
               controller: _searchCtrl,
               onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: l.solutionsSearchBooks,
+                prefixIcon: const Icon(Icons.search_rounded),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
           ),
           Expanded(
@@ -161,7 +166,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                       return Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(22),
                           onTap: () {
                             notifier.selectBook(book);
                             context.push('/solutions/pages');
@@ -170,7 +175,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: cs.surfaceContainerLow.withValues(alpha: 0.75),
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(22),
                               border: Border.all(color: cs.outlineVariant),
                             ),
                             child: Row(

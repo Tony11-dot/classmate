@@ -47,7 +47,7 @@ class TeacherCohortsScreen extends ConsumerWidget {
             ));
           }
           return ListView(
-            padding: EdgeInsets.fromLTRB(12, 8 + MediaQuery.paddingOf(context).top, 12, 100),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 100),
             children: [for (final c in cohorts) _CohortTile(cohort: c)],
           );
         },

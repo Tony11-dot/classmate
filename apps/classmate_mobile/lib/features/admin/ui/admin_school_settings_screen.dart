@@ -57,8 +57,6 @@ class _AdminSchoolSettingsScreenState
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Column(
         children: [
-          // Body extends behind the shell's glass top bar — pad past it.
-          SizedBox(height: MediaQuery.paddingOf(context).top),
           TabBar(
             controller: _tabs,
             tabs: [

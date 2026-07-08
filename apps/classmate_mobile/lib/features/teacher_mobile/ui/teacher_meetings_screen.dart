@@ -13,8 +13,6 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 // ── List screen ────────────────────────────────────────────────────────────────
 
@@ -105,7 +103,7 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(16, 12 + MediaQuery.paddingOf(context).top, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
           LiquidGlassCard(
             color: cs.primaryContainer,
@@ -570,11 +568,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
-        ),
+        leading: IconButton(tooltip: AppLocalizations.of(context)!.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => context.pop()),
         title: Text(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
@@ -723,7 +717,7 @@ class _MtgSingleSheetState extends State<_MtgSingleSheet> {
     return DraggableScrollableSheet(expand: false, initialChildSize: 0.55, maxChildSize: 0.9, minChildSize: 0.35, builder: (ctx, sc) => Column(children: [
       Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
       Padding(padding: const EdgeInsets.fromLTRB(20,0,20,12), child: Text(widget.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
-      Padding(padding: const EdgeInsets.fromLTRB(16,0,16,8), child: GlassSearchField(hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint, onChanged: (v) => setState(() => _q = v))),
+      Padding(padding: const EdgeInsets.fromLTRB(16,0,16,8), child: TextField(onChanged: (v) => setState(() => _q = v), decoration: InputDecoration(hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint, prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14)))),
       Expanded(child: ListView.builder(controller: sc, padding: const EdgeInsets.fromLTRB(12,4,12,16), itemCount: filtered.length, itemBuilder: (ctx, i) {
         final item = filtered[i]; final isSel = _sel == item.id;
         return RadioListTile<String>(value: item.id, groupValue: _sel, onChanged: (v) { setState(() => _sel = v ?? ''); widget.onSelect(v ?? ''); Navigator.of(context).pop(); }, title: Text(item.label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: isSel ? FontWeight.w700 : FontWeight.w400)), subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)) : null, selected: isSel, activeColor: cs.primary);
@@ -900,8 +894,10 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
           Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text(widget.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
           Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: GlassSearchField(hintText: AppLocalizations.of(context)!.teacherSearchStudentsOrGrade,
-              controller: _searchCtrl, onChanged: (v) => setState(() => _query = v))),
+            child: TextField(controller: _searchCtrl, onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(hintText: AppLocalizations.of(context)!.teacherSearchStudentsOrGrade,
+                prefixIcon: const Icon(Icons.search_rounded),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), isDense: true))),
           Expanded(child: ListView.builder(controller: scroll, itemCount: _filtered.length,
             itemBuilder: (ctx, i) {
               final item = _filtered[i]; final sel = _localSelected.contains(item.id);

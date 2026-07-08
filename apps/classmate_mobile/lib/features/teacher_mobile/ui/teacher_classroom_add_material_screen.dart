@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
-import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherClassroomAddMaterialScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAddMaterialScreen({
@@ -152,10 +151,10 @@ class _TeacherClassroomAddMaterialScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           AppLocalizations.of(context)!.teacherShareMaterialTitle,

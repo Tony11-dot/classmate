@@ -10,7 +10,6 @@ import '../../../core/realtime/realtime_listener.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
-import '../../../ui/nav/glass_back_button.dart';
 import '../../../ui/widgets/attachment_pill.dart';
 import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import '../../chat_core/policies/chat_action_policy.dart';
@@ -686,8 +685,13 @@ class _TopHeader extends StatelessWidget {
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
         child: Row(
           children: [
-            GlassBackButton(onPressed: onBack),
-            const SizedBox(width: 8),
+            IconButton(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+              visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+              tooltip: AppLocalizations.of(context)!.commonBack,
+            ),
+            const SizedBox(width: 4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

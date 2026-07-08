@@ -8,7 +8,6 @@ import '../../l10n/app_localizations.dart';
 import '../../core/semester/school_semester.dart';
 import '../../core/util/friendly_date.dart';
 import '../../ui/glass/liquid_glass_card.dart';
-import '../../ui/nav/glass_back_button.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
 import '../classrooms/providers/classrooms_providers.dart';
@@ -388,8 +387,7 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _HeroCard(
                   title: l.navMeetings,
@@ -678,7 +676,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: [GlassBackButton(onPressed: () => context.pop())]),
+                    _DetailTopBar(onBack: () => context.pop()),
                     const SizedBox(height: 24),
                     _EmptyStateCard(
                       title: l.meetingsUnavailableTitle,
@@ -713,7 +711,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           [
-                            Row(children: [GlassBackButton(onPressed: () => context.pop())]),
+                            _DetailTopBar(onBack: () => context.pop()),
                             const SizedBox(height: 18),
                             LiquidGlassCard(
                               padding: const EdgeInsets.all(20),
@@ -875,7 +873,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: LiquidGlassCard(
                         padding: const EdgeInsets.all(14),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(22),
                         color: Theme.of(context).colorScheme.surface,
                         border: Border.all(
                           color: Theme.of(context).colorScheme.outlineVariant,
@@ -1029,7 +1027,7 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
       border: Border.all(color: cs.outlineVariant),
       child: Column(
@@ -1236,6 +1234,26 @@ class _EmptyStateCard extends StatelessWidget {
   }
 }
 
+class _DetailTopBar extends StatelessWidget {
+  const _DetailTopBar({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        IconButton.filledTonal(
+          onPressed: onBack,
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+      ],
+    );
+  }
+}
+
 class _DetailRow extends StatelessWidget {
   const _DetailRow({
     required this.label,
@@ -1353,7 +1371,7 @@ class _DetailErrorBody extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(children: [GlassBackButton()]),
+            _DetailTopBar(onBack: () => Navigator.of(context).maybePop()),
             const SizedBox(height: 24),
             Text(AppLocalizations.of(context)!.meetingCouldNotLoad, style: const TextStyle(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),

@@ -7,9 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
-import '../../../ui/nav/glass_back_button.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../data/admin_repository.dart';
 
 /// Admin Insights — search students by full name; each shows the grade they're
@@ -78,12 +76,28 @@ class _AdminInsightsScreenState extends ConsumerState<AdminInsightsScreen> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(
-              16, 12 + MediaQuery.paddingOf(context).top, 16, 8),
-          child: GlassSearchField(
-            hintText: l.adminInsightsSearchHint,
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: TextField(
             controller: _searchCtrl,
             onChanged: _onQueryChanged,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              hintText: l.adminInsightsSearchHint,
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _searchCtrl.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: l.a11yClear,
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        _load('');
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+              filled: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+            ),
           ),
         ),
         Expanded(
@@ -229,14 +243,10 @@ class _AdminStudentGradesScreenState extends ConsumerState<AdminStudentGradesScr
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(
-              onPressed: () => Navigator.of(context).maybePop(),
-            ),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          tooltip: l.a11yBack,
+          onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
       ),

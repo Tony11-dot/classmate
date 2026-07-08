@@ -69,13 +69,10 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
         onRefresh: () async => ref.invalidate(parentNotificationsProvider),
         child: listAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => ListView(
-            padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
-            children: [
-              const SizedBox(height: 120),
-              Center(child: Text(l.commonErrorWith(e))),
-            ],
-          ),
+          error: (e, _) => ListView(children: [
+            const SizedBox(height: 120),
+            Center(child: Text(l.commonErrorWith(e))),
+          ]),
           data: (items) {
             // Split: child activity (studentId == selected child) vs the
             // parent's own (studentId null → broadcasts, DMs, parent-targeted).
@@ -89,13 +86,12 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
 
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 // ── Hero ──────────────────────────────────────────────
                 LiquidGlassCard(
                   padding: const EdgeInsets.all(18),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(26),
                   color: cs.primaryContainer,
                   border: Border.all(color: cs.outlineVariant),
                   child: Column(

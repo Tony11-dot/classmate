@@ -130,7 +130,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(16, 16 + MediaQuery.paddingOf(context).top, 16, 120),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
           children: [
             // ── Hero card ──────────────────────────────────────────────────
             weekAsync.when(
@@ -147,7 +147,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: cs.outlineVariant),
               ),
               child: Row(
@@ -263,7 +263,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
       border: Border.all(color: cs.outlineVariant),
       child: Column(
@@ -420,7 +420,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.surfaceContainerHigh,
       border: Border.all(color: cs.outlineVariant),
       child: const Center(child: Padding(padding: EdgeInsets.all(16), child: CmLoading())),
@@ -432,7 +432,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     final l = AppLocalizations.of(context)!;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.errorContainer,
       border: Border.all(color: cs.error),
       child: Column(

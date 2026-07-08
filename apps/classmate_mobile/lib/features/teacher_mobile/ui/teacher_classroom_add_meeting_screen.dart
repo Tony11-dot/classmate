@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
-import '../../../ui/nav/glass_back_button.dart';
 
 class TeacherClassroomAddMeetingScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAddMeetingScreen({
@@ -136,6 +135,7 @@ class _TeacherClassroomAddMeetingScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
@@ -153,10 +153,10 @@ class _TeacherClassroomAddMeetingScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           AppLocalizations.of(context)!.teacherScheduleMeetingTitle,

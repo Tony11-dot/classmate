@@ -8,7 +8,6 @@ import 'schedule_empty_state_copy.dart';
 import '../../core/http/cm_api.dart';
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/glass/cm_glass.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../class_materials/ui/class_materials_section.dart';
 import '../lifedoc/data/exams_repository.dart';
@@ -120,12 +119,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           // Bottom padding accounts for the shell's bottom nav bar +
           // iPhone home indicator so the last period tile isn't clipped.
-          padding: EdgeInsets.fromLTRB(
-            16,
-            16 + MediaQuery.paddingOf(context).top,
-            16,
-            120,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
           children: [
             weekAsync.when(
               data: (data) => _heroCard(context, data),
@@ -142,7 +136,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: cs.outlineVariant),
               ),
               child: Row(
@@ -227,7 +221,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(26),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +290,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       height: 120,
       decoration: BoxDecoration(
         color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(26),
       ),
       child: const Center(child: CmLoading()),
     );
@@ -313,7 +307,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.errorContainer,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(26),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,15 +339,19 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return GlassPressable(
+    final cs = Theme.of(context).colorScheme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: onTap,
-      child: CMGlass(
-        capsule: true,
-        child: SizedBox(
-          width: 52,
-          height: 52,
-          child: Icon(icon),
+      child: Ink(
+        width: 52,
+        height: 52,
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: cs.outlineVariant),
         ),
+        child: Icon(icon),
       ),
     );
   }

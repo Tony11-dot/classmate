@@ -89,12 +89,7 @@ class ProfileScreen extends ConsumerWidget {
         // ── Avatar header ────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              16,
-              16 + MediaQuery.paddingOf(context).top,
-              16,
-              0,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: LiquidGlassCard(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
               borderRadius: BorderRadius.circular(24),

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../../../ui/nav/glass_back_button.dart';
 import '../../data/solutions_api.dart';
 import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
@@ -193,12 +192,10 @@ class _SolutionsQuestionsScreenState
           '$subjectLabel • ${state.selectedBook?.title ?? ''}',
           overflow: TextOverflow.ellipsis,
         ),
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(onPressed: () => context.pop()),
-          ),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -410,7 +407,7 @@ class _SolutionCard extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(

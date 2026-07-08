@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../providers/messages_repository_provider.dart';
-import '../../../ui/nav/glass_back_button.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 class BlockedPeopleScreen extends ConsumerStatefulWidget {
@@ -93,8 +92,12 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
               padding: const EdgeInsets.fromLTRB(8, 8, 16, 4),
               child: Row(
                 children: [
-                  const GlassBackButton(),
-                  const SizedBox(width: 12),
+                  IconButton(
+                    tooltip: l.a11yBack,
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       l.messagesBlockedPeopleTitle,

@@ -6,8 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
@@ -112,9 +110,7 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
           : null,
       body: Column(
         children: [
-          // Tab bar sits flush under the shell's glass top bar — pad past it
-          // (statusbar + 60) since the shell body extends behind the bar.
-          SizedBox(height: MediaQuery.paddingOf(context).top),
+          // Tab bar sits flush under the shell's top bar — same as teacher screens
           TabBar(
             controller: _tabs,
             isScrollable: true,
@@ -123,9 +119,17 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: GlassSearchField(
-              hintText: AppLocalizations.of(context)!.adminSearchPeople,
+            child: TextField(
               controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.adminSearchPeople,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                isDense: true,
+                filled: true,
+                fillColor: cs.surfaceContainerLow,
+              ),
             ),
           ),
           Expanded(
@@ -838,7 +842,23 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                 children: [
                   // ── Back chevron + title — no AppBar, so this header is
                   // the only visual entry point back to the previous screen.
-                  GlassDetailHeader(title: _roleTitleOf(l)),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        tooltip: l.a11yBack,
+                        onPressed: () => Navigator.maybePop(context),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+                      ),
+                  const SizedBox(width: 4),
+                      Text(
+                        _roleTitleOf(l),
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   // ── Login credentials ──────────────────────────────────────
                   TextField(

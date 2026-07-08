@@ -13,9 +13,7 @@ import '../../chat_core/ui/chat_thread_view.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../../common/widgets/role_badge.dart';
-import '../../../ui/nav/glass_back_button.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../../users/ui/user_profile_sheet.dart';
 
 class MessageThreadScreen extends ConsumerStatefulWidget {
@@ -361,9 +359,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   scrolledUnderElevation: 0,
                   title: Row(
                     children: [
-                      const Padding(
-                        padding: EdgeInsetsDirectional.only(start: 8, end: 8),
-                        child: GlassBackButton(),
+                      IconButton(
+                        tooltip: AppLocalizations.of(context)!.a11yBack,
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(Icons.arrow_back_rounded),
                       ),
                       Expanded(
                         child: GestureDetector(
@@ -1080,11 +1079,24 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                 ),
                 const SizedBox(height: 12),
                 // Search bar
-                GlassSearchField(
-                  hintText:
-                      AppLocalizations.of(context)!.messagesSearchByNameOrGrade,
+                TextField(
                   controller: _search,
                   autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.messagesSearchByNameOrGrade,
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    suffixIcon: _search.text.isNotEmpty
+                        ? IconButton(
+                            tooltip: AppLocalizations.of(context)!.a11yClear,
+                            icon: const Icon(Icons.clear_rounded),
+                            onPressed: () => _search.clear(),
+                          )
+                        : null,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    filled: true,
+                    fillColor: cs.surfaceContainerHighest,
+                    isDense: true,
+                  ),
                 ),
                 const SizedBox(height: 8),
               ],
@@ -1149,7 +1161,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                                       width: 42, height: 42,
                                       decoration: BoxDecoration(
 
-                                        borderRadius: BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(13),
                                       ),
                                       child: Center(
                                         child: Text(

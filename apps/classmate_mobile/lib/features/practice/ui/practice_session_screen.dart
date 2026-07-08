@@ -449,7 +449,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(22),
                       border: Border.all(
                         color: isCorrect
                             ? Colors.green

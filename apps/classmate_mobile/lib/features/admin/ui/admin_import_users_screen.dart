@@ -8,8 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/scroll_edge_effect.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
@@ -393,21 +391,15 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
       final headerCount = wide ? 2 : 1;
       return Column(children: [
         Expanded(
-          // Data-dense editable grid → hard scroll edges (short, dense
-          // scrims) so rows stay legible without eating grid height.
-          child: ScrollEdgeEffect(
-            top: ScrollEdgeStyle.hard,
-            bottom: ScrollEdgeStyle.hard,
-            child: ListView.builder(
-              padding: EdgeInsets.fromLTRB(wide ? 16 : 12, 8, wide ? 16 : 12, 12),
-              itemCount: _rows.length + headerCount,
-              itemBuilder: (context, i) {
-                if (i == 0) return _toolbar(context, wide);
-                if (wide && i == 1) return _gridHeader(cs);
-                final idx = i - headerCount;
-                return wide ? _rowWide(idx, cs) : _rowCard(idx, cs);
-              },
-            ),
+          child: ListView.builder(
+            padding: EdgeInsets.fromLTRB(wide ? 16 : 12, 8, wide ? 16 : 12, 12),
+            itemCount: _rows.length + headerCount,
+            itemBuilder: (context, i) {
+              if (i == 0) return _toolbar(context, wide);
+              if (wide && i == 1) return _gridHeader(cs);
+              final idx = i - headerCount;
+              return wide ? _rowWide(idx, cs) : _rowCard(idx, cs);
+            },
           ),
         ),
         SafeArea(
@@ -771,11 +763,16 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
           Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: GlassSearchField(
-              hintText: l.adminAddManySearchParents,
+            child: TextField(
               controller: _searchCtrl,
               autofocus: true,
               onChanged: (v) => setState(() => _q = v.trim()),
+              decoration: InputDecoration(
+                hintText: l.adminAddManySearchParents,
+                prefixIcon: const Icon(Icons.search_rounded),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                isDense: true,
+              ),
             ),
           ),
           Expanded(

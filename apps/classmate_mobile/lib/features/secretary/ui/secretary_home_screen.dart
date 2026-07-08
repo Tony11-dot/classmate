@@ -61,8 +61,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: cs.surface,
       body: ListView(
-        padding: EdgeInsets.fromLTRB(
-            16, 12 + MediaQuery.paddingOf(context).top, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
           const SizedBox(height: 4),
           Text(

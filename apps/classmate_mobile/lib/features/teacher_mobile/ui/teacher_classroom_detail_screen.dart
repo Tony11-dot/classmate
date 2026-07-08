@@ -16,8 +16,6 @@ import '../../messages/providers/messages_repository_provider.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 class TeacherClassroomDetailScreen extends ConsumerStatefulWidget {
   const TeacherClassroomDetailScreen({
@@ -208,7 +206,13 @@ class _TopHeader extends StatelessWidget {
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
         child: Row(
           children: [
-            GlassBackButton(onPressed: onBack),
+            IconButton(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+              visualDensity:
+                  const VisualDensity(horizontal: -2, vertical: -2),
+              tooltip: AppLocalizations.of(context)!.teacherClassroomBackTooltip,
+            ),
             const SizedBox(width: 4),
             Expanded(
               child: Column(
@@ -1496,9 +1500,14 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: GlassSearchField(
-              hintText: AppLocalizations.of(context)!.teacherClassroomSearchNameGrade,
+            child: TextField(
               onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.teacherClassroomSearchNameGrade,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              ),
             ),
           ),
           Expanded(
@@ -1529,7 +1538,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                                   width: 42, height: 42,
                                   decoration: BoxDecoration(
                                     color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(13),
                                   ),
                                   child: Center(child: Text(
                                     s.name.isNotEmpty ? s.name[0].toUpperCase() : '?',
@@ -1575,6 +1584,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                 },
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: Text(_selected.isEmpty ? 'Done' : 'Add ${_selected.length} student${_selected.length == 1 ? "" : "s"}'),
               ),

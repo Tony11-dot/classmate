@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/nav/drawer_tools_order.dart';
-import '../../ui/nav/glass_back_button.dart';
 
 /// Lets the user drag-reorder the drawer's "School Tools" section.
 /// Same flow as the classroom reorder screen: view them ordered, drag to change.
@@ -58,12 +57,10 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
 
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(
-            child: GlassBackButton(onPressed: () => context.pop()),
-          ),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
         title: Text(l.reorderToolsTitle),
         actions: [

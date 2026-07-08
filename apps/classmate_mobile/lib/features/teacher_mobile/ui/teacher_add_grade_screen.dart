@@ -12,9 +12,6 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
 import '../../../ui/widgets/semester_select_field.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
-import '../../../ui/glass/scroll_edge_effect.dart';
 
 enum _AudienceMode { students, cohorts, grades }
 
@@ -589,6 +586,7 @@ class _TeacherAddGradeScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final effective = _effectiveStudents;
@@ -596,10 +594,10 @@ class _TeacherAddGradeScreenState
 
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 60,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 8),
-          child: Center(child: GlassBackButton(onPressed: () => context.pop())),
+        leading: IconButton(
+          tooltip: l.a11yBack,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
         ),
         title: Text(AppLocalizations.of(context)!.teacherAddGradeTitle,
             style: theme.textTheme.titleLarge
@@ -623,10 +621,7 @@ class _TeacherAddGradeScreenState
       ),
       body: _loading
           ? const Center(child: CmLoading())
-          : ScrollEdgeEffect(
-              top: ScrollEdgeStyle.hard,
-              bottom: ScrollEdgeStyle.hard,
-              child: ListView(
+          : ListView(
               keyboardDismissBehavior:
                   ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
@@ -1131,7 +1126,6 @@ class _TeacherAddGradeScreenState
                   ),
                 ),
               ],
-              ),
             ),
     );
   }
@@ -1247,9 +1241,17 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: GlassSearchField(
-              hintText: AppLocalizations.of(context)!.teacherSearchStudents,
+            child: TextField(
               onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.teacherSearchStudents,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 14),
+              ),
             ),
           ),
           Expanded(
@@ -1278,7 +1280,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                                   ? cs.primaryContainer
                                   : cs.surfaceContainerHighest
                                       .withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(13),
                             ),
                             child: Center(
                               child: Text(
@@ -1347,6 +1349,9 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                 onPressed: () => Navigator.of(ctx).pop(),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 child: Text(AppLocalizations.of(context)!.commonDone),
               ),
@@ -1435,9 +1440,17 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: GlassSearchField(
-              hintText: AppLocalizations.of(context)!.adminSearchCohorts,
+            child: TextField(
               onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.adminSearchCohorts,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              ),
             ),
           ),
           Expanded(
@@ -1505,6 +1518,9 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
                 onPressed: () => Navigator.of(ctx).pop(),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 child: Text(AppLocalizations.of(context)!.commonDone),
               ),
@@ -1556,7 +1572,7 @@ class _StudentGradeRow extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(13),
               ),
               child: Center(
                 child: Text(

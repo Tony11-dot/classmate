@@ -15,8 +15,6 @@ import '../../../ui/widgets/semester_select_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'teacher_student_grade_detail_screen.dart';
-import '../../../ui/nav/glass_back_button.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data helpers
@@ -171,7 +169,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
       onRefresh: _load,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(16, 12 + MediaQuery.paddingOf(context).top, 16, 120),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         children: [
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
@@ -209,9 +207,24 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          GlassSearchField(
-            hintText: l.gradesHubSearchSubjects,
+          TextField(
             controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: l.gradesHubSearchSubjects,
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _searchCtrl.text.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: l.a11yClear,
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+              filled: true,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+            ),
           ),
           const SizedBox(height: 12),
           if (_error != null) ...[
@@ -412,10 +425,11 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                 padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
                 child: Row(
                   children: [
-                    GlassBackButton(
+                    IconButton(
+                      tooltip: l.a11yBack,
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
                       onPressed: () => Navigator.of(context).maybePop(),
                     ),
-                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(g.subject,
                           maxLines: 1,
@@ -776,7 +790,7 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
       child: Container(
         margin: const EdgeInsets.all(12),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-        decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(24)),
+        decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(22)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -787,9 +801,21 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
             Text(l.gradesAvgPickSubtitle(g.subject),
                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
-            GlassSearchField(
-              hintText: l.gradesAvgSearchHint,
+            TextField(
               controller: _searchCtrl,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded),
+                hintText: l.gradesAvgSearchHint,
+                isDense: true,
+                border: const OutlineInputBorder(),
+                suffixIcon: _searchCtrl.text.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: l.a11yClear,
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () => _searchCtrl.clear(),
+                      ),
+              ),
             ),
             const SizedBox(height: 12),
             Flexible(
@@ -949,7 +975,7 @@ class _EditAssessmentSheetState extends ConsumerState<_EditAssessmentSheet> {
       child: Container(
         margin: const EdgeInsets.all(12),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-        decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(24)),
+        decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(22)),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,

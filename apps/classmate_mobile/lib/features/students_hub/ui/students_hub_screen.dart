@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../data/students_hub_api.dart';
 import 'student_detail_screen.dart';
 
@@ -87,10 +86,18 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                    child: GlassSearchField(
-                      hintText: l.notesSearchStudents,
+                    child: TextField(
                       controller: _searchCtl,
                       onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: l.notesSearchStudents,
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
                     ),
                   ),
                   if (filtered.isEmpty)

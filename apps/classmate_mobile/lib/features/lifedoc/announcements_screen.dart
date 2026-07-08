@@ -10,7 +10,6 @@ import '../../core/realtime/realtime_listener.dart';
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
-import '../../ui/nav/glass_back_button.dart';
 import '../../ui/widgets/attachment_pill.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'announcements_models.dart';
@@ -328,11 +327,6 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
       }
     });
 
-    // Shell renders this screen behind the glass top bar — the first fixed
-    // element (teacher toggle) or the list itself must clear that inset.
-    final topInset = MediaQuery.paddingOf(context).top;
-    final listTopPadding = isTeacher ? 16.0 : 16.0 + topInset;
-
     // Teacher Received/Published toggle is rendered ABOVE the async content so
     // it stays visible (and switchable) even while a tab's data is loading.
     return Scaffold(
@@ -340,7 +334,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
         children: [
           if (isTeacher)
             Padding(
-              padding: EdgeInsets.fromLTRB(16, 16 + topInset, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: _ViewToggle(
                 view: _view,
                 receivedLabel: l.announcementsTabReceived,
@@ -352,7 +346,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
             child: announcementsAsync.when(
               loading: () => const Center(child: CmLoading()),
               error: (error, _) => ListView(
-                padding: EdgeInsets.fromLTRB(16, listTopPadding, 16, 28),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
                 children: [
                   _EmptyStateCard(
                     title: l.announcementsLoadFailedTitle,
@@ -400,7 +394,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
             },
             child: ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: EdgeInsets.fromLTRB(16, listTopPadding, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _HeroCard(
                   title: l.navAnnouncements,
@@ -647,7 +641,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [GlassBackButton(onPressed: () => context.pop())]),
+                _DetailTopBar(onBack: () => context.pop()),
                 const SizedBox(height: 24),
                 _EmptyStateCard(
                   title: AppLocalizations.of(context)!.announcementsLoadFailedTitle,
@@ -685,7 +679,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: [GlassBackButton(onPressed: () => context.pop())]),
+                    _DetailTopBar(onBack: () => context.pop()),
                     const SizedBox(height: 24),
                     _EmptyStateCard(
                       title: AppLocalizations.of(context)!.announcementsUnavailableTitle,
@@ -716,7 +710,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           [
-                            Row(children: [GlassBackButton(onPressed: () => context.pop())]),
+                            _DetailTopBar(onBack: () => context.pop()),
                             const SizedBox(height: 18),
                             Container(
                               padding: const EdgeInsets.all(20),
@@ -808,7 +802,7 @@ class _AnnouncementDetailScreenState extends ConsumerState<AnnouncementDetailScr
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(22),
                           border: Border.all(
                             color: Theme.of(context).colorScheme.outlineVariant,
                           ),
@@ -1050,7 +1044,7 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
       border: Border.all(color: cs.outlineVariant),
       child: Column(
@@ -1259,6 +1253,26 @@ class _EmptyStateCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DetailTopBar extends StatelessWidget {
+  const _DetailTopBar({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        IconButton.filledTonal(
+          tooltip: l.a11yBack,
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+      ],
     );
   }
 }

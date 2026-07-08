@@ -8,7 +8,6 @@ import '../../core/semester/school_semester.dart';
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
-import '../../ui/nav/glass_back_button.dart';
 import '../../ui/widgets/attachment_pill.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
@@ -394,8 +393,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _HeroCard(
                   title: l.navAssignments,
@@ -808,9 +806,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GlassDetailHeader(
-                        title: l.classroomDetailAssignmentFallback,
-                        onBack: () => context.pop()),
+                    _DetailTopBar(onBack: () => context.pop()),
                     const SizedBox(height: 24),
                     _EmptyStateCard(
                       title: l.assignmentsUnavailableTitle,
@@ -843,9 +839,7 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                   sliver: SliverList(
                     delegate: SliverChildListDelegate(
                           [
-                            GlassDetailHeader(
-                        title: l.classroomDetailAssignmentFallback,
-                        onBack: () => context.pop()),
+                            _DetailTopBar(onBack: () => context.pop()),
                             const SizedBox(height: 18),
                             Container(
                               padding: const EdgeInsets.all(20),
@@ -1308,7 +1302,7 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
       border: Border.all(color: cs.outlineVariant),
       child: Column(
@@ -1521,8 +1515,7 @@ class _AssignmentsLoadingBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-          16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
       children: [
         _HeroCard(
           title: AppLocalizations.of(context)!.navAssignments,
@@ -1567,8 +1560,7 @@ class _AssignmentsErrorBody extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-          16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
       children: [
         _HeroCard(
           title: l.assignmentsUnavailableTitle,
@@ -1590,6 +1582,48 @@ class _AssignmentsErrorBody extends StatelessWidget {
                 label: Text(l.retry),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DetailTopBar extends StatelessWidget {
+  const _DetailTopBar({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        Semantics(
+          button: true,
+          label: l.a11yBack,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onBack,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: LiquidGlassCard(
+                padding: EdgeInsets.zero,
+                borderRadius: BorderRadius.circular(16),
+                color: cs.surfaceContainerLow,
+                border: Border.all(color: cs.outlineVariant),
+                child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            AppLocalizations.of(context)!.classroomDetailAssignmentFallback,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
           ),
         ),
       ],
@@ -1799,14 +1833,10 @@ class _DetailLoadingBody extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(
-          children: [
-            GlassDetailHeader(
-              title: AppLocalizations.of(context)!
-                  .classroomDetailAssignmentFallback,
-              onBack: _noop,
-            ),
-            const SizedBox(height: 18),
-            const Expanded(child: _LoadingSectionCard()),
+          children: const [
+            _DetailTopBar(onBack: _noop),
+            SizedBox(height: 18),
+            Expanded(child: _LoadingSectionCard()),
           ],
         ),
       ),
@@ -1829,9 +1859,7 @@ class _DetailErrorBody extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GlassDetailHeader(
-                        title: l.classroomDetailAssignmentFallback,
-                        onBack: () => context.pop()),
+            _DetailTopBar(onBack: () => context.pop()),
             const SizedBox(height: 24),
             _SectionCard(
               title: l.assignmentsUnavailableTitle,

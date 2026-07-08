@@ -10,7 +10,6 @@ import 'package:classmate_mobile/features/certificates/data/certificates_reposit
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
 import 'package:classmate_mobile/ui/dialogs/confirm_logout.dart';
-import 'package:classmate_mobile/ui/glass/cm_glass.dart';
 import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
 import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
 import 'package:classmate_mobile/ui/nav/drawer_tools_order.dart';
@@ -771,13 +770,21 @@ class _ParentChildDropdown extends ConsumerWidget {
   /// [LiquidGlassDropdown] so the drawer trigger matches the rest of the
   /// app's pickers.
   Widget _shell(ColorScheme cs, bool isDark, {required Widget child}) {
-    // Real glass (was a fake alpha-gradient imitation).
-    return CMGlass(
-      radius: 14,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: child,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.surface.withValues(alpha: isDark ? 0.76 : 0.88),
+            cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
+          ],
+        ),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
       ),
+      child: child,
     );
   }
 }

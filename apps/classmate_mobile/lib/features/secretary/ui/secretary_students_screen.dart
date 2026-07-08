@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/widgets/glass_search_field.dart';
 import '../../admin/data/admin_repository.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
@@ -92,8 +91,7 @@ class _SecretaryStudentsScreenState
           slivers: [
             // ── Hero summary ─────────────────────────────────────────────────
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                  16, 12 + MediaQuery.paddingOf(context).top, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverToBoxAdapter(
                 child: overviewAsync.when(
                   loading: () => const _SummaryCardSkeleton(),
@@ -112,9 +110,19 @@ class _SecretaryStudentsScreenState
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverToBoxAdapter(
-                child: GlassSearchField(
-                  hintText: AppLocalizations.of(context)!.adminSearchPeople,
+                child: TextField(
                   controller: _searchCtrl,
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.adminSearchPeople,
+                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 14),
+                    isDense: true,
+                    filled: true,
+                    fillColor: cs.surfaceContainerLow,
+                  ),
                 ),
               ),
             ),

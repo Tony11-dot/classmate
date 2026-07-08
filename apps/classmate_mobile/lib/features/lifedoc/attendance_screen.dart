@@ -312,8 +312,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
             onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                  16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
               children: [
                 _HeroCard(
                   title: l.navAttendance,
@@ -612,7 +611,7 @@ class _AttendanceDayGroup extends StatelessWidget {
 
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(22),
       border: Border.all(color: cs.outlineVariant),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -718,8 +717,7 @@ class _LoadingBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-          16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
       children: [
         _HeroCard(
           title: title,
@@ -769,8 +767,7 @@ class _ErrorBody extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-          16, 16 + MediaQuery.paddingOf(context).top, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
       children: [
         _HeroCard(
           title: title,
@@ -815,7 +812,7 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
       border: Border.all(color: cs.outlineVariant),
       child: Column(
