@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -452,7 +453,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
     final p = _prefill;
 
     // Body-only: the app shell supplies the top bar / section pill.
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: CmLoading());
 
     return AbsorbPointer(
       absorbing: _generating,
@@ -643,7 +644,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
             FilledButton.icon(
               onPressed: _generating ? null : () => _save(publish: true),
               icon: _generating
-                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const CmLoading(size: 18)
                   : const Icon(Icons.publish_rounded),
               label: Text(l.certSaveAndPublish),
             ),

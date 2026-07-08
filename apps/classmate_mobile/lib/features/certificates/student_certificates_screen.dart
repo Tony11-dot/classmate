@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,7 +73,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: CmLoading());
     if (_error != null) {
       return Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!, style: TextStyle(color: cs.error))));
     }

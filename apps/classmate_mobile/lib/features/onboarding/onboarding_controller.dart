@@ -1,40 +1,35 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// SharedPreferences key for the "user finished the first-launch walkthrough"
-/// flag. Bump the suffix if the onboarding is ever redesigned enough to
-/// warrant showing it again.
-const String kOnboardingSeenKey = 'onboarding_seen_v1';
+/// Per-account "has completed the first-run walkthrough" flag.
+///
+/// The onboarding now shows as an in-shell overlay the first time an account
+/// reaches the app AFTER accepting the Terms/Privacy consent gate — so it is
+/// scoped per user (each account sees it once), not per device.
+String _seenKey(String userId) =>
+    'onboarding_seen_v2_${userId.isEmpty ? 'anon' : userId}';
 
-/// Mirror of [kOnboardingSeenKey], seeded at app boot in `main()` (before the
-/// first frame) and kept in sync when the walkthrough is completed. The
-/// router's redirect is synchronous, so it can't await SharedPreferences — it
-/// reads [onboardingSeenProvider], whose initial value comes from here.
-bool onboardingSeenAtBoot = false;
-
-/// Whether the first-launch walkthrough has already been shown/completed.
-/// Built from [onboardingSeenAtBoot] so the value is correct on the very
-/// first frame (and after an account-switch app restart).
+/// Resolves whether [userId] has already seen the walkthrough. While loading
+/// (or when there is no user yet) callers treat the absence of a `false` as
+/// "don't show", so the overlay never flashes before the check completes.
 final onboardingSeenProvider =
-    NotifierProvider<OnboardingSeenController, bool>(OnboardingSeenController.new);
-
-class OnboardingSeenController extends Notifier<bool> {
-  @override
-  bool build() => onboardingSeenAtBoot;
-
-  void markSeen() => state = true;
-}
-
-/// Marks onboarding complete — in memory (so the router stops sending the user
-/// back to it), persisted, and via [onboardingSeenAtBoot] so a later app
-/// restart doesn't resurrect it.
-Future<void> markOnboardingSeen(WidgetRef ref) async {
-  onboardingSeenAtBoot = true;
-  ref.read(onboardingSeenProvider.notifier).markSeen();
+    FutureProvider.autoDispose.family<bool, String>((ref, userId) async {
+  if (userId.isEmpty) return true;
   try {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(kOnboardingSeenKey, true);
+    return prefs.getBool(_seenKey(userId)) ?? false;
   } catch (_) {
-    // Non-fatal: worst case the walkthrough shows once more next launch.
+    return true; // fail safe: never trap a user behind a broken read
+  }
+});
+
+/// Persist that [userId] finished (or skipped) the walkthrough.
+Future<void> markOnboardingSeen(String userId) async {
+  if (userId.isEmpty) return;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_seenKey(userId), true);
+  } catch (_) {
+    // Non-fatal: worst case it shows once more next launch.
   }
 }

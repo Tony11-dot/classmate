@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -238,11 +239,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
             child: FilledButton.icon(
               onPressed: (_sending || _uploading) ? null : _send,
               icon: _sending
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const CmLoading(size: 16)
                   : const Icon(Icons.send_rounded, size: 18),
               label: Text(l.cmailSendAction),
             ),
@@ -377,11 +374,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
                 OutlinedButton.icon(
                   onPressed: _uploading ? null : _attach,
                   icon: _uploading
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
+                      ? const CmLoading(size: 16)
                       : const Icon(Icons.attach_file_rounded, size: 18),
                   label: Text(l.cmailAttach),
                 ),

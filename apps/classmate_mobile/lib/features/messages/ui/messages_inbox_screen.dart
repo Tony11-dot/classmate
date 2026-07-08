@@ -139,7 +139,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                             }
                           },
                           icon: joining
-                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                              ? const CmLoading(size: 18)
                               : const Icon(Icons.group_add_rounded),
                           label: Text(joining ? AppLocalizations.of(ctx)!.chatJoining : AppLocalizations.of(ctx)!.chatJoinGroup),
                         ),

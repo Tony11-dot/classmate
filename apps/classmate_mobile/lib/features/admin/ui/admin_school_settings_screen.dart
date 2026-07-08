@@ -9,6 +9,7 @@ import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/auth/auth_session.dart' show parseGradeRanges;
 import '../../../core/semester/school_semester.dart' show parseSchoolSemesters;
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import 'package:intl/intl.dart';
 import '../../../core/config/env.dart';
@@ -265,7 +266,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
     final schoolAsync = ref.watch(_schoolProvider2);
 
     return schoolAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CmLoading()),
       error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
       data: (school) {
         if (!_initialized && school != null) {
@@ -314,7 +315,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                             ),
                           ),
                           child: _uploading
-                              ? const Center(child: SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2)))
+                              ? const Center(child: CmLoading(size: 24))
                               : hasLogo
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
@@ -524,7 +525,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: FilledButton.icon(
                 onPressed: (_dirty && !_saving) ? _save : null,
                 icon: _saving
-                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const CmLoading(size: 18, color: Colors.white)
                     : const Icon(Icons.save_rounded),
                 label: Text(l.adminSave),
               ),
@@ -661,7 +662,7 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: CmLoading());
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -690,10 +691,7 @@ class _SubjectsTabState extends ConsumerState<_SubjectsTab> {
             if (_saving)
               const Padding(
                 padding: EdgeInsetsDirectional.only(start: 8),
-                child: SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+                child: CmLoading(size: 16),
               ),
           ],
         ),
@@ -952,7 +950,7 @@ class _BellScheduleTabState extends ConsumerState<_BellScheduleTab> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: CmLoading());
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
@@ -1000,7 +998,7 @@ class _BellScheduleTabState extends ConsumerState<_BellScheduleTab> {
           child: FilledButton.icon(
             onPressed: (_saving || _loading) ? null : _save,
             icon: _saving
-                ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? const CmLoading(size: 18, color: Colors.white)
                 : const Icon(Icons.save_rounded),
             label: Text(l.adminSave),
           ),

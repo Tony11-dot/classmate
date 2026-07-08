@@ -9,6 +9,41 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get accountActionsTooltip => 'خيارات الحساب';
+
+  @override
+  String get accountSwitchTo => 'التبديل إلى هذا الحساب';
+
+  @override
+  String get accountRemove => 'إزالة الحساب';
+
+  @override
+  String get accountRemoveConfirmTitle => 'إزالة الحساب؟';
+
+  @override
+  String accountRemoveConfirmBody(String name) {
+    return 'ستتم إزالة $name من هذا الجهاز. يمكنك تسجيل الدخول مرة أخرى في أي وقت.';
+  }
+
+  @override
+  String onboardingWelcomeNamed(String name) {
+    return 'أهلاً بك، $name!';
+  }
+
+  @override
+  String get practiceGenAlmostReady => 'أوشكنا على الانتهاء…';
+
+  @override
+  String practiceGenRemaining(int seconds) {
+    return '≈ $seconds ثانية متبقية';
+  }
+
+  @override
+  String practiceGenEstimate(int min, int max) {
+    return 'عادةً $min–$max ثانية';
+  }
+
+  @override
   String get consentGateError =>
       'تعذّر حفظ اختيارك. تحقّق من اتصالك وحاول مرة أخرى.';
 

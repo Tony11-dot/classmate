@@ -9,6 +9,41 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
+  String get accountActionsTooltip => 'אפשרויות חשבון';
+
+  @override
+  String get accountSwitchTo => 'מעבר לחשבון הזה';
+
+  @override
+  String get accountRemove => 'הסרת חשבון';
+
+  @override
+  String get accountRemoveConfirmTitle => 'להסיר את החשבון?';
+
+  @override
+  String accountRemoveConfirmBody(String name) {
+    return '$name יוסר מהמכשיר הזה. אפשר להתחבר שוב בכל עת.';
+  }
+
+  @override
+  String onboardingWelcomeNamed(String name) {
+    return 'ברוך הבא, $name!';
+  }
+
+  @override
+  String get practiceGenAlmostReady => 'כמעט מוכן…';
+
+  @override
+  String practiceGenRemaining(int seconds) {
+    return '≈ $seconds שנ׳ נותרו';
+  }
+
+  @override
+  String practiceGenEstimate(int min, int max) {
+    return 'בדרך כלל $min–$max שנ׳';
+  }
+
+  @override
   String get consentGateError =>
       'לא הצלחנו לשמור את הבחירה שלכם. בדקו את החיבור ונסו שוב.';
 

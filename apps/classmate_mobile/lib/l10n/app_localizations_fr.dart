@@ -9,6 +9,41 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get accountActionsTooltip => 'Options du compte';
+
+  @override
+  String get accountSwitchTo => 'Basculer vers ce compte';
+
+  @override
+  String get accountRemove => 'Supprimer le compte';
+
+  @override
+  String get accountRemoveConfirmTitle => 'Supprimer le compte ?';
+
+  @override
+  String accountRemoveConfirmBody(String name) {
+    return '$name sera supprimé de cet appareil. Vous pourrez vous reconnecter à tout moment.';
+  }
+
+  @override
+  String onboardingWelcomeNamed(String name) {
+    return 'Bienvenue, $name !';
+  }
+
+  @override
+  String get practiceGenAlmostReady => 'Presque prêt…';
+
+  @override
+  String practiceGenRemaining(int seconds) {
+    return '≈ $seconds s restantes';
+  }
+
+  @override
+  String practiceGenEstimate(int min, int max) {
+    return 'Généralement $min–$max s';
+  }
+
+  @override
   String get consentGateError =>
       'Impossible d\'enregistrer votre choix. Vérifiez votre connexion et réessayez.';
 

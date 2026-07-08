@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
@@ -159,11 +160,7 @@ class ChatMessageBubble extends StatelessWidget {
         height: previewMode ? 132 : 180,
         alignment: Alignment.center,
         color: cs.surfaceContainerHigh,
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(strokeWidth: 2, color: cs.onSurfaceVariant),
-        ),
+        child: CmLoading(size: 24, color: cs.onSurfaceVariant),
       );
     });
     final errorPanel = Builder(builder: (ctx) {
@@ -1404,7 +1401,7 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                 ),
               )
             else
-              const Center(child: CircularProgressIndicator(color: Colors.white54)),
+              const Center(child: CmLoading(color: Colors.white54)),
 
             // ── Controls overlay (shown/hidden on tap) ─────────────────────
             AnimatedOpacity(

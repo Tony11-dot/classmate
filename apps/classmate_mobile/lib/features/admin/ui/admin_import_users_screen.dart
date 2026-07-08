@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
@@ -419,7 +420,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
                 child: FilledButton.icon(
                   onPressed: _saving ? null : _submit,
                   icon: _saving
-                      ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const CmLoading(size: 16)
                       : const Icon(Icons.check_rounded),
                   label: Text(l.adminImportUsersScreenCreateCount(filledCount)),
                 ),
@@ -628,7 +629,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
       case _UStatus.checking:
         return const Padding(
           padding: EdgeInsetsDirectional.only(end: 8),
-          child: SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+          child: CmLoading(size: 14),
         );
       case _UStatus.available:
         return Icon(Icons.check_circle_rounded, color: cs.tertiary, size: 18);
@@ -896,7 +897,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
           const SizedBox(height: 8),
           Text(l.adminImportUsersScreenSelectedFile(_fileName!), style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
         ],
-        if (_loading) ...[const SizedBox(height: 28), const Center(child: CircularProgressIndicator())],
+        if (_loading) ...[const SizedBox(height: 28), const Center(child: CmLoading())],
         if (_error != null) ...[
           const SizedBox(height: 16),
           Container(

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/env.dart';
 import '../contracts/auth_contracts.dart';
 import '../http/cm_api.dart';
+import 'accounts_store.dart';
 
 class AuthSession extends ChangeNotifier {
   static const _kToken = 'auth_token_v2';
@@ -564,6 +565,17 @@ class AuthSession extends ChangeNotifier {
       }
     } on CMApiException catch (error) {
       if (clearUnauthorizedToken && error.statusCode == 401) {
+        // A 401 on /auth/me means this token is no longer valid — the account
+        // was deleted/disabled server-side (e.g. an admin removed it), or the
+        // password/session was revoked. Purge it from the on-device account
+        // switcher so a deleted account leaves NO trace (previously it lingered
+        // in the switcher and just bounced the user to /login on tap).
+        final deadId = userId;
+        if (deadId.isNotEmpty) {
+          try {
+            await AccountsStore().remove(deadId);
+          } catch (_) {/* best-effort — never block logout on store IO */}
+        }
         await logout();
         return;
       }

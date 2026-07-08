@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/cm_loading.dart';
 import '../../data/teacher_mobile_repository.dart';
 
 /// Snapshot of a resolved audience, reported up to the parent create-screen so
@@ -180,10 +181,7 @@ class _AudienceStudentsSummaryState
                 ),
               ),
               if (_loading)
-                SizedBox.square(
-                  dimension: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary),
-                ),
+                CmLoading(size: 14, color: cs.primary),
             ],
           ),
           if (!_loading && visible.isEmpty)

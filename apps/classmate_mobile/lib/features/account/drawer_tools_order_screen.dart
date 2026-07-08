@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -71,7 +72,7 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
           TextButton(
             onPressed: _saving ? null : save,
             child: _saving
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const CmLoading(size: 16)
                 : Text(l.actionSave),
           ),
         ],

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../lifedoc/announcements_provider.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -405,12 +406,7 @@ class _TeacherNewAnnouncementScreenState
             child: FilledButton.icon(
               onPressed: _saving ? null : _publish,
               icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
+                  ? const CmLoading(size: 16, color: Colors.white)
                   : const Icon(Icons.send_rounded, size: 18),
               label: Text(
                   _saving ? l.teacherPublishingAction : l.teacherPublishAction),
@@ -655,7 +651,7 @@ class _TeacherNewAnnouncementScreenState
                       ? const Center(
                           child: Padding(
                             padding: EdgeInsets.all(8),
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CmLoading(),
                           ),
                         )
                       : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

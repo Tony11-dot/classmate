@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_session.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/parent_models.dart';
 import '../data/parent_repository.dart';
 import 'widgets/child_picker.dart';
@@ -55,8 +56,8 @@ class ParentHomeScreen extends ConsumerWidget {
             // Child picker
             children.when(
               loading: () => const Padding(
-                padding: EdgeInsets.symmetric(vertical: 22),
-                child: Center(child: CircularProgressIndicator()),
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CmLoading()),
               ),
               error: (e, _) => _ErrorTile(
                 message: l.parentHomeScreenChildrenLoadError(e.toString()),
@@ -65,7 +66,7 @@ class ParentHomeScreen extends ConsumerWidget {
               data: (list) => _ChildrenSection(children: list),
             ),
 
-            const SizedBox(height: 22),
+            const SizedBox(height: 14),
 
             Text(
               l.parentYourTools,
@@ -192,7 +193,7 @@ class _ToolsGrid extends ConsumerWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.6,
+        childAspectRatio: 2.1,
       ),
       itemCount: tiles.length,
       itemBuilder: (ctx, i) {

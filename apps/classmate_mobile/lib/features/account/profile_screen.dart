@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -200,11 +201,7 @@ class ProfileScreen extends ConsumerWidget {
                   return async.when(
                     loading: () => const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      child: SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+                      child: CmLoading(size: 18),
                     ),
                     error: (_, __) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -596,14 +593,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
             child: FilledButton(
               onPressed: _loading ? null : _submit,
               child: _loading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
+                  ? const CmLoading(size: 20, color: Colors.white)
                   : Text(l.profileUpdatePassword),
             ),
           ),
@@ -1099,10 +1089,7 @@ Future<void> _showCodeSheet(
                           }
                         },
                   child: submitting
-                      ? const SizedBox.square(
-                          dimension: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
+                      ? const CmLoading(size: 16, color: Colors.white)
                       : Text(AppLocalizations.of(ctx)!.accountConfirmButton),
                 ),
               ),
@@ -1531,11 +1518,7 @@ class _ConfirmPasswordSheetState extends ConsumerState<_ConfirmPasswordSheet> {
             child: FilledButton(
               onPressed: _loading ? null : _submit,
               child: _loading
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
+                  ? const CmLoading(size: 18, color: Colors.white)
                   : Text(l.biometricEnrollYes),
             ),
           ),

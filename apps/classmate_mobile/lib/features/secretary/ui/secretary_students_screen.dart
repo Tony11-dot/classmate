@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../admin/data/admin_repository.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
@@ -132,7 +133,7 @@ class _SecretaryStudentsScreenState
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
               sliver: cohortsAsync.when(
                 loading: () => const SliverToBoxAdapter(
-                    child: Center(child: CircularProgressIndicator())),
+                    child: Center(child: CmLoading())),
                 error: (e, _) =>
                     SliverToBoxAdapter(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
                 data: (cohorts) {
@@ -550,7 +551,7 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
         ],
       ),
       body: rosterAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
         data: (students) {
           if (students.isEmpty) {
@@ -722,7 +723,7 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
           const SizedBox(height: 14),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CmLoading())
                 : _error != null
                     ? Padding(
                         padding: const EdgeInsets.all(20),

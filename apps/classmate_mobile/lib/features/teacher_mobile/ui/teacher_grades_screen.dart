@@ -1016,7 +1016,7 @@ class _EditAssessmentSheetState extends ConsumerState<_EditAssessmentSheet> {
                 child: FilledButton(
                   onPressed: _busy ? null : _save,
                   child: _busy
-                      ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const CmLoading(size: 18)
                       : Text(l.averagesSave),
                 ),
               ),

@@ -215,7 +215,7 @@ class _TeacherCreateClassroomScreenState
             child: FilledButton.icon(
               onPressed: _saving || _loading ? null : _save,
               icon: _saving
-                  ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const CmLoading(size: 16, color: Colors.white)
                   : const Icon(Icons.check_rounded, size: 18),
               label: Text(AppLocalizations.of(context)!.commonCreate),
             ),
@@ -289,7 +289,7 @@ class _TeacherCreateClassroomScreenState
                     padding: const EdgeInsets.all(12),
                     child: _cohortsLoading
                         ? Row(children: [
-                            SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary)),
+                            CmLoading(size: 14, color: cs.primary),
                             const SizedBox(width: 10),
                             Text(AppLocalizations.of(context)!.teacherCreateClassroomLoadingStudents, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                           ])

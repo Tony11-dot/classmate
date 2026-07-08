@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
@@ -46,7 +47,7 @@ class AdminCohortsScreen extends ConsumerWidget {
             )
           : null,
       body: cohortsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
         data: (cohorts) {
           if (cohorts.isEmpty) {
@@ -216,7 +217,7 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
         heroTag: 'fab_create_cohort',
         onPressed: (_saving || _nameCtrl.text.trim().isEmpty || _grades.isEmpty) ? null : _save,
         icon: _saving
-            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            ? const CmLoading(size: 16, color: Colors.white)
             : const Icon(Icons.arrow_forward_rounded),
         label: Text(AppLocalizations.of(context)!.adminCreateAndAddStudents),
       ),
@@ -505,7 +506,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                     FilledButton.icon(
                       onPressed: widget.saving ? null : widget.onSave,
                       icon: widget.saving
-                          ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          ? const CmLoading(size: 14, color: Colors.white)
                           : const Icon(Icons.check_rounded, size: 16),
                       label: Text(l.commonAddCount(widget.selected.length)),
                     )
@@ -550,7 +551,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
             // Student list
             Expanded(
               child: widget.loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CmLoading())
                   : students.isEmpty
                       ? Center(
                           child: Text(
@@ -827,7 +828,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
         label: Text(AppLocalizations.of(context)!.adminAddStudents),
       ),
       body: rosterAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
         data: (students) {
           if (students.isEmpty) {

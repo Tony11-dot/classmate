@@ -342,11 +342,7 @@ class _SubmitSection extends StatelessWidget {
     return FilledButton.icon(
       onPressed: submitting ? null : onSubmit,
       icon: submitting
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
+          ? const CmLoading(size: 18)
           : const Icon(Icons.send_rounded),
       label: Text(
         submitting

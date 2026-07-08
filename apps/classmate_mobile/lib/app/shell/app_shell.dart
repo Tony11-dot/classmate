@@ -21,6 +21,7 @@ import '../../features/parent/data/parent_models.dart';
 import '../../features/parent/data/parent_repository.dart';
 import '../../features/lifedoc/student_materials_screen.dart';
 import '../../features/consent/consent_gate.dart';
+import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
@@ -631,6 +632,9 @@ class AppShell extends ConsumerWidget {
     // unfocused the field, making fields "open and close" the moment you
     // tapped them in forms inside a scroll view (Add User, etc.).
     return ConsentGate(
+      // Onboarding walkthrough shows once per account, right after consent is
+      // accepted — nested INSIDE ConsentGate so the consent gate always wins.
+      child: OnboardingGate(
       child: NotificationListener<UserScrollNotification>(
       onNotification: (n) {
         if (n.direction != ScrollDirection.idle) {
@@ -668,6 +672,7 @@ class AppShell extends ConsumerWidget {
           if (next == loc) return;
           context.go(next);
         },
+      ),
       ),
       ),
       ),

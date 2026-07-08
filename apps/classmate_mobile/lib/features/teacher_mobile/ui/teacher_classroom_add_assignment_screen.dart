@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/attachment_pill.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
 class TeacherClassroomAddAssignmentScreen extends ConsumerStatefulWidget {
@@ -111,11 +112,7 @@ class _TeacherClassroomAddAssignmentScreenState
             child: FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const CmLoading(size: 16)
                   : const Icon(Icons.check_rounded, size: 18),
               label: Text(AppLocalizations.of(context)!.teacherCreateAssignment),
               style: FilledButton.styleFrom(
@@ -244,9 +241,7 @@ class _TeacherClassroomAddAssignmentScreenState
                   OutlinedButton.icon(
                     onPressed: _uploading ? null : _pickFiles,
                     icon: _uploading
-                        ? const SizedBox.square(
-                            dimension: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const CmLoading(size: 16)
                         : const Icon(Icons.attach_file_rounded, size: 18),
                     label: Text(_uploading
                         ? l.teacherClassroomAddAssignmentScreenUploading

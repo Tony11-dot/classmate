@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -638,10 +639,7 @@ class _SolutionUploadSheetBodyState
         FilledButton.icon(
           onPressed: _submitting ? null : _submit,
           icon: _submitting
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+              ? const CmLoading(size: 18)
               : const Icon(Icons.cloud_upload_outlined),
           label: Text(
             _submitting

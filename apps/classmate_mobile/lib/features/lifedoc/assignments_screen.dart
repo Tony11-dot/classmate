@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -1151,13 +1152,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                             ? null
                                             : _stageSubmission,
                                         icon: _submitting
-                                            ? const SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                    color: Colors.white),
-                                              )
+                                            ? const CmLoading(
+                                                size: 16, color: Colors.white)
                                             : const Icon(Icons.send_rounded,
                                                 size: 18),
                                         label: Text(_submitting

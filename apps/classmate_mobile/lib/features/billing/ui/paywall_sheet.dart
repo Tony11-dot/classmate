@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as rc;
@@ -296,11 +297,7 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: _purchasing
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
+                          ? const CmLoading(size: 20, color: Colors.white)
                           : Text(
                               widget.mode == PaywallMode.subscription
                                   ? l.paywallSubscribeButton

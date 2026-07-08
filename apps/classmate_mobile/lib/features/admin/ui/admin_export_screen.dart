@@ -14,6 +14,7 @@ import 'package:printing/printing.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/admin_repository.dart';
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -316,7 +317,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
           : null,
       body: SafeArea(
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CmLoading())
             : ListView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
                 children: [
@@ -399,10 +400,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                       child: Row(
                         children: [
                           if (_previewing)
-                            const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
+                            const CmLoading(size: 18)
                           else
                             Icon(Icons.people_alt_rounded, color: cs.primary),
                           const SizedBox(width: 12),
@@ -840,7 +838,7 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
     final users = _roleUsers[role];
     final loading = _loadingRoles.contains(role) || users == null;
     if (loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CmLoading());
     }
     if (users.isEmpty) {
       return Center(child: Text(l.adminExportNoStudents));
@@ -1926,7 +1924,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 child: FilledButton.icon(
                   onPressed: _exporting ? null : _exportCsv,
                   icon: _exporting
-                      ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      ? const CmLoading(size: 14, color: Colors.white)
                       : const Icon(Icons.table_chart_rounded, size: 16),
                   label: Text(l.adminExportCsvButton),
                 ),
@@ -1937,7 +1935,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   onPressed: _exporting ? null : _exportPdf,
                   style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
                   icon: _exporting
-                      ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      ? const CmLoading(size: 14, color: Colors.white)
                       : const Icon(Icons.picture_as_pdf_rounded, size: 16),
                   label: Text(l.adminExportPdfButton),
                 ),

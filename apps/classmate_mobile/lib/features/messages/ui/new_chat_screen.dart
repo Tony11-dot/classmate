@@ -305,7 +305,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                       ),
                                     ),
                                     if (_creating)
-                                      const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                                      const CmLoading(size: 20)
                                     else
                                       Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant),
                                   ],

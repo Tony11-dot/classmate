@@ -9,6 +9,41 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get accountActionsTooltip => 'Account options';
+
+  @override
+  String get accountSwitchTo => 'Switch to this account';
+
+  @override
+  String get accountRemove => 'Remove account';
+
+  @override
+  String get accountRemoveConfirmTitle => 'Remove account?';
+
+  @override
+  String accountRemoveConfirmBody(String name) {
+    return '$name will be removed from this device. You can sign in again anytime.';
+  }
+
+  @override
+  String onboardingWelcomeNamed(String name) {
+    return 'Welcome, $name!';
+  }
+
+  @override
+  String get practiceGenAlmostReady => 'Almost ready…';
+
+  @override
+  String practiceGenRemaining(int seconds) {
+    return '≈ ${seconds}s left';
+  }
+
+  @override
+  String practiceGenEstimate(int min, int max) {
+    return 'Usually $min–${max}s';
+  }
+
+  @override
   String get consentGateError =>
       'Couldn\'t save your choice. Please check your connection and try again.';
 

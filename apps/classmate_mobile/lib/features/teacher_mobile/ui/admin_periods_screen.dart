@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 
 // ── Data helpers ─────────────────────────────────────────────────────────────
@@ -107,7 +108,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
         label: Text(AppLocalizations.of(context)!.adminPeriodsAddPeriod),
       ),
       body: periodsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))),
         data: (periods) {
           if (periods.isEmpty) {
@@ -378,7 +379,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: _loading
-          ? const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()))
+          ? const SizedBox(height: 200, child: Center(child: CmLoading()))
           : ListView(
               shrinkWrap: true,
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -389,7 +390,7 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                     Expanded(child: Text(AppLocalizations.of(context)!.adminPeriodsNewPeriod, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
                     FilledButton.icon(
                       onPressed: _saving ? null : _save,
-                      icon: _saving ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.check_rounded, size: 16),
+                      icon: _saving ? const CmLoading(size: 14, color: Colors.white) : const Icon(Icons.check_rounded, size: 16),
                       label: Text(AppLocalizations.of(context)!.commonSave),
                     ),
                   ],

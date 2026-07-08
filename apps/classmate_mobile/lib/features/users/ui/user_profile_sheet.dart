@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widgets/role_badge.dart';
@@ -54,7 +55,7 @@ class UserProfileSheet extends ConsumerWidget {
             const SizedBox(height: 8),
             Expanded(
               child: async.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CmLoading()),
                 error: (e, _) => _Error(message: e.toString(), onRetry: () {
                   ref.invalidate(userProfileProvider(userId));
                 }),

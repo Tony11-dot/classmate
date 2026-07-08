@@ -454,7 +454,7 @@ class _InlinePdfViewState extends State<_InlinePdfView> {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(child: CmLoading(color: Colors.white));
     }
 
     if (_localPath != null) {

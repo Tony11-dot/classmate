@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:just_audio/just_audio.dart';
 
 class ChatAudioBubble extends StatefulWidget {
@@ -270,14 +271,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
               clipBehavior: Clip.none,
               children: [
                 if (_loading)
-                  SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: onAccent,
-                    ),
-                  )
+                  CmLoading(size: 18, color: onAccent)
                 else
                   Icon(
                     _isPlaying

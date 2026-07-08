@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
 class TeacherClassroomAddMeetingScreen extends ConsumerStatefulWidget {
@@ -169,11 +170,7 @@ class _TeacherClassroomAddMeetingScreenState
             child: FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const CmLoading(size: 16)
                   : const Icon(Icons.event_available_rounded, size: 18),
               label: Text(AppLocalizations.of(context)!.teacherScheduleButton),
               style: FilledButton.styleFrom(

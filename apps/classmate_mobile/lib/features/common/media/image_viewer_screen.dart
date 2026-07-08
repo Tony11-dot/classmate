@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -100,7 +101,7 @@ class ImageViewerScreen extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: url,
           fit: BoxFit.contain,
-          placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: Colors.white54)),
+          placeholder: (ctx, url) => const Center(child: CmLoading(color: Colors.white54)),
           errorWidget: (ctx, url, err) => Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,

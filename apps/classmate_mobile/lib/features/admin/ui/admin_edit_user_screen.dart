@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
@@ -260,7 +261,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     final theme = Theme.of(context);
     final l     = AppLocalizations.of(context)!;
 
-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_loading) return const Scaffold(body: Center(child: CmLoading()));
 
     final isParent = _role == 'PARENT';
     final isStudent = _role == 'STUDENT';
@@ -271,7 +272,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         heroTag: 'fab_edit_user',
         onPressed: _saving ? null : _save,
         icon: _saving
-            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            ? const CmLoading(size: 16, color: Colors.white)
             : const Icon(Icons.check_rounded),
         label: Text(l.adminSave),
       ),
@@ -350,7 +351,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                   // Reset password
                   OutlinedButton.icon(
                     onPressed: _resetting ? null : _changePassword,
-                    icon: _resetting ? const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.lock_reset_rounded, size: 16),
+                    icon: _resetting ? const CmLoading(size: 14) : const Icon(Icons.lock_reset_rounded, size: 16),
                     label: Text(l.adminEditUserChangePassword),
                     style: OutlinedButton.styleFrom(foregroundColor: cs.error, side: BorderSide(color: cs.error.withValues(alpha: 0.5))),
                   ),
@@ -571,7 +572,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     ],
 
                     _loadingChildren
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const Center(child: CmLoading())
                         : _children.isEmpty
                             ? Text(l.adminEditUserNoChildren, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))
                             : Column(

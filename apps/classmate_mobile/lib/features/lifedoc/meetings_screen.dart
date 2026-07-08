@@ -841,11 +841,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                                             ? null
                                             : () => _openMeetingLink(link),
                                         icon: _openingLink
-                                            ? const SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: CircularProgressIndicator(strokeWidth: 2),
-                                              )
+                                            ? const CmLoading(size: 16)
                                             : const Icon(Icons.open_in_new_rounded),
                                         label: Text(_openingLink ? l.meetingsOpening : l.meetingsOpenLink),
                                       ),

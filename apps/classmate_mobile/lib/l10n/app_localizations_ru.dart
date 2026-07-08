@@ -9,6 +9,41 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get accountActionsTooltip => 'Параметры аккаунта';
+
+  @override
+  String get accountSwitchTo => 'Переключиться на этот аккаунт';
+
+  @override
+  String get accountRemove => 'Удалить аккаунт';
+
+  @override
+  String get accountRemoveConfirmTitle => 'Удалить аккаунт?';
+
+  @override
+  String accountRemoveConfirmBody(String name) {
+    return '$name будет удалён с этого устройства. Вы сможете войти снова в любое время.';
+  }
+
+  @override
+  String onboardingWelcomeNamed(String name) {
+    return 'Добро пожаловать, $name!';
+  }
+
+  @override
+  String get practiceGenAlmostReady => 'Почти готово…';
+
+  @override
+  String practiceGenRemaining(int seconds) {
+    return '≈ $seconds с осталось';
+  }
+
+  @override
+  String practiceGenEstimate(int min, int max) {
+    return 'Обычно $min–$max с';
+  }
+
+  @override
   String get consentGateError =>
       'Не удалось сохранить ваш выбор. Проверьте подключение и повторите попытку.';
 

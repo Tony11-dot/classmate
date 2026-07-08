@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -72,7 +73,7 @@ class PlansScreen extends ConsumerWidget {
           ref.invalidate(tokenBalanceProvider);
         },
         child: catalogAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CmLoading()),
           error: (e, _) => _Error(message: e.toString(), onRetry: () {
             ref.invalidate(plansCatalogProvider);
           }),
@@ -157,7 +158,7 @@ class _BalanceCard extends StatelessWidget {
       child: balanceAsync.when(
         loading: () => const SizedBox(
           height: 80,
-          child: Center(child: CircularProgressIndicator()),
+          child: Center(child: CmLoading()),
         ),
         error: (_, _) => Text(
           AppLocalizations.of(context)!.plansCouldntLoadBalance,

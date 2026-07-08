@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
 /// Manages the materials attached to a single teacher schedule slot.
@@ -151,7 +152,7 @@ class _TeacherSlotAttachmentsScreenState
         label: Text(AppLocalizations.of(context)!.teacherSlotAttachMaterial),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CmLoading())
           : _error != null
               ? Padding(
                   padding: const EdgeInsets.all(20),
@@ -408,7 +409,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
             const SizedBox(height: 8),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CmLoading())
                   : _error != null
                       ? Padding(
                           padding: const EdgeInsets.all(20),

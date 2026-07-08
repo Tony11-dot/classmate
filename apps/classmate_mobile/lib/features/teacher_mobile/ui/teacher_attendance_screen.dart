@@ -630,7 +630,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             // ── Save button ───────────────────────────────────────────────
             FilledButton.icon(
               onPressed: _saving ? null : _save,
-              icon: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.save_rounded),
+              icon: _saving ? const CmLoading(size: 18) : const Icon(Icons.save_rounded),
               label: Text(_saving
                   ? l.teacherAttendanceSaving
                   : dirtyCount > 0

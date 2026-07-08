@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
@@ -790,7 +792,7 @@ class _MiniPill extends StatelessWidget {
   }
 }
 
-class PracticeSessionMatchmakingScreen extends StatelessWidget {
+class PracticeSessionMatchmakingScreen extends StatefulWidget {
   const PracticeSessionMatchmakingScreen({
     super.key,
     required this.mode,
@@ -798,6 +800,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
     required this.difficulty,
     required this.tip,
     required this.onCancel,
+    this.questionCount = 5,
   });
 
   final String mode;
@@ -805,14 +808,51 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
   final String difficulty;
   final String tip;
   final VoidCallback onCancel;
+  final int questionCount;
+
+  @override
+  State<PracticeSessionMatchmakingScreen> createState() =>
+      _PracticeSessionMatchmakingScreenState();
+}
+
+class _PracticeSessionMatchmakingScreenState
+    extends State<PracticeSessionMatchmakingScreen> {
+  Timer? _ticker;
+  int _elapsed = 0;
+
+  // Estimate seeded from the requested question count. Generation is ~2-4s per
+  // question on the current model, so we show a live countdown across that
+  // range and gracefully switch to "almost ready" if it runs long.
+  late final int _estMin = (widget.questionCount * 2).clamp(6, 120);
+  late final int _estMax = (widget.questionCount * 4).clamp(10, 180);
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _elapsed += 1);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final currentMode = _practiceModeFromLabel(context, mode);
+    final currentMode = _practiceModeFromLabel(context, widget.mode);
     final accent = practiceModeColor(currentMode);
     final l = AppLocalizations.of(context)!;
+
+    final remaining = (_estMax - _elapsed);
+    final overrun = remaining <= 0;
+    // Determinate-ish progress, capped so it never reads "100%" before the
+    // questions actually arrive.
+    final progress = (_elapsed / _estMax).clamp(0.0, 0.95);
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -848,8 +888,36 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(accent),
+                      // Branded animated loader + live ETA countdown.
+                      CmLoading(size: 52, color: accent),
+                      const SizedBox(height: 14),
+                      Text(
+                        overrun
+                            ? l.practiceGenAlmostReady
+                            : l.practiceGenRemaining(remaining),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: accent,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l.practiceGenEstimate(_estMin, _estMax),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: LinearProgressIndicator(
+                          value: overrun ? null : progress,
+                          minHeight: 6,
+                          backgroundColor: cs.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation<Color>(accent),
+                        ),
                       ),
                       const SizedBox(height: 18),
                       Text(
@@ -861,7 +929,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "$mode • $subject",
+                        "${widget.mode} • ${widget.subject}",
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
@@ -869,7 +937,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        l.practiceSessionMatchmakingDifficulty(difficulty),
+                        l.practiceSessionMatchmakingDifficulty(widget.difficulty),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
@@ -886,7 +954,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
-                          tip,
+                          widget.tip,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall?.copyWith(
                             height: 1.35,
@@ -901,7 +969,7 @@ class PracticeSessionMatchmakingScreen extends StatelessWidget {
                             color: cs.surfaceContainerLow,
                           ),
                         ),
-                        onPressed: onCancel,
+                        onPressed: widget.onCancel,
                         icon: Icon(Icons.close_rounded, color: accent),
                         label: Text(l.practiceSetupStopGenerating),
                       ),

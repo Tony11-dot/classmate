@@ -704,7 +704,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
                   child: FilledButton(
                     onPressed: _saving ? null : _save,
                     child: _saving
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const CmLoading(size: 20)
                         : Text(l.averagesSave),
                   ),
                 ),

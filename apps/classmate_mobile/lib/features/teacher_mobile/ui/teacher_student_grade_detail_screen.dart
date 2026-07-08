@@ -246,13 +246,7 @@ class _TeacherStudentGradeDetailScreenState
               child: FilledButton.icon(
                 onPressed: _saving ? null : _save,
                 icon: _saving
-                    ? const SizedBox.square(
-                        dimension: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
+                    ? const CmLoading(size: 16, color: Colors.white)
                     : const Icon(Icons.check_rounded, size: 18),
                 label: Text(l.commonSave),
               ),

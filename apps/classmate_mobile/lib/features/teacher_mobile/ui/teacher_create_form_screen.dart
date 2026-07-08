@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'widgets/audience_section.dart';
@@ -201,7 +202,7 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
           Padding(padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton(
               onPressed: _saving ? null : () => _save(published: true),
-              child: _saving ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(AppLocalizations.of(context)!.commonPublish))),
+              child: _saving ? const CmLoading(size: 18, color: Colors.white) : Text(AppLocalizations.of(context)!.commonPublish))),
         ],
       ),
       body: ListView(

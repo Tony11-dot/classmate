@@ -457,7 +457,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                 if (snap.connectionState != ConnectionState.done) {
                   return const SizedBox(
                     height: 56,
-                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: Center(child: CmLoading()),
                   );
                 }
                 final subjects = snap.data ?? const <SchoolSubject>[];
@@ -510,11 +510,7 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
               child: FilledButton.icon(
                 onPressed: _saving ? null : _save,
                 icon: _saving
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
-                      )
+                    ? const CmLoading(size: 18, color: Colors.white)
                     : const Icon(Icons.add_rounded),
                 label: Text(AppLocalizations.of(context)!.teacherCreateClassroomButton),
               ),

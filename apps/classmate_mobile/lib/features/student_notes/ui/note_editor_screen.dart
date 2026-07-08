@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -145,11 +146,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         if (saved && mounted) Navigator.of(context).pop();
                       },
                 icon: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const CmLoading(size: 18)
                     : const Icon(Icons.check_rounded),
               ),
           ],

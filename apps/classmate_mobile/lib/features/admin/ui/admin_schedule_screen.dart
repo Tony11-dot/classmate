@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/contracts/school_subject.dart';
 import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 import 'admin_subject_detail_screen.dart';
@@ -624,7 +625,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
           // ── Grid ──────────────────────────────────────────────────────────
           Expanded(
             child: periodsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CmLoading()),
               error: (e, _) => Center(child: Text(l.commonErrorWith(e))),
               data: (allPeriods) {
                 // Build (day, period) → [slots] map filtered by current selection
@@ -1571,7 +1572,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         heroTag: 'fab_add_period',
         onPressed: _saving ? null : _save,
         icon: _saving
-            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            ? const CmLoading(size: 16, color: Colors.white)
             : const Icon(Icons.check_rounded),
         label: Text(l.adminScheduleSave),
       ),
@@ -3028,11 +3029,7 @@ class _AudienceEditorState extends State<_AudienceEditor> {
                 ),
               ),
               if (widget.loading)
-                SizedBox(
-                  width: 12,
-                  height: 12,
-                  child: CircularProgressIndicator(strokeWidth: 1.5, color: widget.accent),
-                ),
+                CmLoading(size: 12, color: widget.accent),
             ],
           ),
           if (_customized) ...[
@@ -3617,11 +3614,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                                 ),
                               ),
                               if (_loadingRoster)
-                                SizedBox(
-                                  width: 12,
-                                  height: 12,
-                                  child: CircularProgressIndicator(strokeWidth: 1.5, color: color),
-                                )
+                                CmLoading(size: 12, color: color)
                               else
                                 AnimatedRotation(
                                   duration: const Duration(milliseconds: 180),
@@ -4109,7 +4102,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                 future: _subjectsFuture,
                 builder: (ctx, snap) {
                   if (snap.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CmLoading());
                   }
                   final all = snap.data ?? const <SchoolSubject>[];
                   final q = _search.trim().toLowerCase();

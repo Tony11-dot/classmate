@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'phone_link_screen.dart';
@@ -416,14 +417,10 @@ class _LoginCard extends StatelessWidget {
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 180),
                 child: loading
-                    ? SizedBox(
+                    ? CmLoading(
                         key: const ValueKey('loading'),
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          color: cs.onPrimary,
-                        ),
+                        size: 20,
+                        color: cs.onPrimary,
                       )
                     : Text(
                         key: const ValueKey('label'),

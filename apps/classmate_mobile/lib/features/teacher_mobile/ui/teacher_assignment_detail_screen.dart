@@ -168,7 +168,7 @@ class _TeacherAssignmentDetailScreenState
               child: FilledButton.icon(
                 onPressed: _saving ? null : _saveGrades,
                 icon: _saving
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const CmLoading(size: 16)
                     : const Icon(Icons.save_rounded, size: 18),
                 label: Text(AppLocalizations.of(context)!.teacherSaveGradesButton),
               ),

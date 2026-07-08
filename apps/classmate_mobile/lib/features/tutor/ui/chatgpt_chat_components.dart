@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
@@ -260,11 +261,7 @@ class _SendButton extends StatelessWidget {
           onTap: onPressed,
           child: Center(
             child: isSending
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                ? const CmLoading(size: 18)
                 : Transform.rotate(
                     angle: -math.pi / 4,
                     child: Icon(

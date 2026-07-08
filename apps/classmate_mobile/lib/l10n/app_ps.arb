@@ -1,5 +1,45 @@
 {
   "@@locale": "ps",
+  "accountActionsTooltip": "‹‹Account options››",
+  "accountSwitchTo": "‹‹Switch to this account››",
+  "accountRemove": "‹‹Remove account››",
+  "accountRemoveConfirmTitle": "‹‹Remove account?››",
+  "accountRemoveConfirmBody": "‹‹{name} will be removed from this device. You can sign in again anytime.››",
+  "@accountRemoveConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingWelcomeNamed": "‹‹Welcome, {name}!››",
+  "@onboardingWelcomeNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "practiceGenAlmostReady": "‹‹Almost ready…››",
+  "practiceGenRemaining": "‹‹≈ {seconds}s left››",
+  "@practiceGenRemaining": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "practiceGenEstimate": "‹‹Usually {min}–{max}s››",
+  "@practiceGenEstimate": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "consentGateError": "‹‹Couldn't save your choice. Please check your connection and try again.››",
   "commonShowPassword": "‹‹Show password››",
   "commonHidePassword": "‹‹Hide password››",

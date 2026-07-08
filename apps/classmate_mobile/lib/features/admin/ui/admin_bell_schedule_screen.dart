@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/admin_repository.dart';
 
 // ── Bell schedule screen ───────────────────────────────────────────────────────
@@ -129,15 +130,12 @@ class _AdminBellScheduleScreenState
         heroTag: 'fab_save_bell',
         onPressed: (_saving || _loading) ? null : _save,
         icon: _saving
-            ? const SizedBox.square(
-                dimension: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
+            ? const CmLoading(size: 18, color: Colors.white)
             : const Icon(Icons.save_rounded),
         label: Text(l.adminSave),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CmLoading())
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(

@@ -945,7 +945,7 @@ class _ActionPill extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             loading
-                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: tint))
+                ? CmLoading(size: 20, color: tint)
                 : Icon(icon, color: tint, size: 20),
             const SizedBox(height: 4),
             Text(label, style: TextStyle(color: tint, fontWeight: FontWeight.w700, fontSize: 11)),
@@ -1239,7 +1239,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                   child: FilledButton.icon(
                     onPressed: _submitting ? null : () => Navigator.of(context).pop(_selected.toList()),
                     icon: _submitting
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const CmLoading(size: 18)
                         : const Icon(Icons.person_add_rounded),
                     label: Text(_submitting ? AppLocalizations.of(context)!.commonAdding : AppLocalizations.of(context)!.messagesAddParticipants(n)),
                   ),

@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -187,7 +188,7 @@ class _ClassMaterialsSectionState extends ConsumerState<ClassMaterialsSection> {
             ),
             const Spacer(),
             if (_busy)
-              const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+              const CmLoading(size: 16)
             else
               TextButton.icon(
                 onPressed: _add,

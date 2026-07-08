@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
 class TeacherClassroomAddMaterialScreen extends ConsumerStatefulWidget {
@@ -167,11 +168,7 @@ class _TeacherClassroomAddMaterialScreenState
             child: FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const CmLoading(size: 16)
                   : const Icon(Icons.send_rounded, size: 18),
               label: Text(AppLocalizations.of(context)!.teacherShareButton),
               style: FilledButton.styleFrom(

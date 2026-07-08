@@ -143,7 +143,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                     }
                                   },
                                   icon: joining
-                                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                      ? const CmLoading(size: 18)
                                       : const Icon(Icons.login_rounded),
                                   label: Text(joining ? AppLocalizations.of(ctx)!.chatJoining : AppLocalizations.of(ctx)!.classroomsJoinAction),
                                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/util/friendly_date.dart';
@@ -68,7 +69,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
       body: RefreshIndicator(
         onRefresh: () async => ref.invalidate(parentNotificationsProvider),
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CmLoading()),
           error: (e, _) => ListView(children: [
             const SizedBox(height: 120),
             Center(child: Text(l.commonErrorWith(e))),

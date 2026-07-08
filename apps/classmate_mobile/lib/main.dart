@@ -4,14 +4,12 @@ import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app/app.dart';
 import 'core/app_restart.dart';
 import 'core/auth/auth_session.dart';
 import 'core/config/env.dart';
-import 'features/onboarding/onboarding_controller.dart';
 import 'core/push/push_notifications_service.dart';
 import 'core/realtime/realtime_listener.dart';
 import 'features/billing/data/revenuecat_service.dart';
@@ -34,15 +32,6 @@ const _sentryEnv =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Env.init();
-  // Seed the first-launch onboarding flag before the first frame so the
-  // router's (synchronous) redirect can decide whether to show the
-  // walkthrough without awaiting SharedPreferences.
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    onboardingSeenAtBoot = prefs.getBool(kOnboardingSeenKey) ?? false;
-  } catch (_) {
-    onboardingSeenAtBoot = false;
-  }
   // TEMP web diagnostic: render build errors as readable text instead of a
   // blank/grey screen, so a startup crash is visible without DevTools.
   if (kIsWeb) {

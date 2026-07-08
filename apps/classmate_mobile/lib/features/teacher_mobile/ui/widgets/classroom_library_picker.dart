@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/cm_loading.dart';
 import '../../data/teacher_mobile_repository.dart';
 
 /// Three flavors share the same picker shape: only the fetch source,
@@ -212,7 +213,7 @@ class _ClassroomLibraryPickerSheetState
             const SizedBox(height: 8),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CmLoading())
                   : _error != null
                       ? Padding(
                           padding: const EdgeInsets.all(20),

@@ -305,7 +305,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
             child: OutlinedButton.icon(
               onPressed: (_saving || _loading) ? null : () => _save(),
               icon: _saving
-                  ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const CmLoading(size: 16)
                   : const Icon(Icons.save_outlined, size: 18),
               label: Text(l.certSaveDraft),
             ),
@@ -536,7 +536,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                               child: FilledButton.icon(
                                 onPressed: _saving ? null : () => _save(publish: true),
                                 icon: _saving
-                                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                    ? const CmLoading(size: 18)
                                     : const Icon(Icons.publish_rounded),
                                 label: Text(_published ? l.examRepublish : l.certSaveAndPublish),
                                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),

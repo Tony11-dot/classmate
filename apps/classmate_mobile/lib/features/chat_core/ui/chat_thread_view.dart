@@ -1797,7 +1797,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                             ),
                           ],
                         ),
-                        child: const CircularProgressIndicator(strokeWidth: 2),
+                        child: const CmLoading(size: 18),
                       ),
                     ),
                   ),

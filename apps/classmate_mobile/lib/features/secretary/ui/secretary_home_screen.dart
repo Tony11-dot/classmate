@@ -74,7 +74,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
                 : l.roleSecretary,
             style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 14),
           Text(
             l.secretaryYourTools,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
@@ -87,7 +87,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.6,
+              childAspectRatio: 2.1,
             ),
             itemCount: tiles.length,
             itemBuilder: (ctx, i) {

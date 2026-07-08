@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
@@ -202,7 +203,7 @@ class _UserTab extends ConsumerWidget {
     final async = ref.watch(_usersProvider(role));
 
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CmLoading()),
       error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
       data: (list) {
         final filtered = search.isEmpty
@@ -650,7 +651,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
     if (_uChecking) {
       return const Padding(
         padding: EdgeInsets.all(12),
-        child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+        child: CmLoading(size: 16),
       );
     }
     if (_usernameCtrl.text.trim().isEmpty) return null;
@@ -829,7 +830,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         heroTag: 'fab_add_user_screen',
         onPressed: _saving ? null : _save,
         icon: _saving
-            ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            ? const CmLoading(size: 16, color: Colors.white)
             : const Icon(Icons.check_rounded),
         label: Text(l.adminCreateUser),
       ),
@@ -978,7 +979,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     if (_homeroomLoading)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
-                        child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                        child: CmLoading(size: 18),
                       )
                     else if (_homeroomCohorts.isEmpty)
                       Text(l.adminHomeroomNoneAvailable,

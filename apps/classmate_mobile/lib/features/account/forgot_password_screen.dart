@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -150,7 +151,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             FilledButton.icon(
               onPressed: _submitting ? null : _submitChannelReset,
               icon: _submitting
-                  ? const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const CmLoading(size: 16, color: Colors.white)
                   : Icon(_mode == _ResetMode.email ? Icons.send_rounded : Icons.sms_rounded),
               label: Text(_mode == _ResetMode.email
                   ? AppLocalizations.of(context)!.forgotPasswordEmailButton

@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -154,7 +155,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const Center(child: CmLoading());
 
     return RefreshIndicator(
       onRefresh: _load,

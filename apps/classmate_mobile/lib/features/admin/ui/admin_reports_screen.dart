@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../solutions/data/solutions_api.dart';
 import '../../solutions/data/solutions_live_mapper.dart';
 import '../../solutions/ui/widgets/solution_asset_preview_sheet.dart';
@@ -118,7 +119,7 @@ class _MessagesTab extends ConsumerWidget {
     final async = ref.watch(_messageReportsProvider('OPEN'));
 
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CmLoading()),
       error: (e, _) => Center(child: Text(l.commonErrorWith(e))),
       data: (reports) {
         if (reports.isEmpty) {
@@ -152,7 +153,7 @@ class _SolutionsTab extends ConsumerWidget {
     final async = ref.watch(_solutionReportsProvider);
 
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CmLoading()),
       error: (e, _) => Center(child: Text(l.commonErrorWith(e))),
       data: (all) {
         final pending = all
@@ -198,7 +199,7 @@ class _ResolvedTab extends ConsumerWidget {
     final solAsync = ref.watch(_solutionReportsProvider);
 
     if (msgAsync.isLoading || solAsync.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CmLoading());
     }
     if (msgAsync.hasError) {
       return Center(child: Text(l.commonErrorWith(msgAsync.error!)));

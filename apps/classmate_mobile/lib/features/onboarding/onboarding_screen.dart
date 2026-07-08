@@ -1,24 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_session.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/classmate_logo.dart';
 import 'onboarding_controller.dart';
 
-/// First-launch walkthrough. Shown once to logged-out users who haven't seen
-/// it (see the router redirect + [onboardingSeenProvider]). Introduces what
-/// ClassMate is and its headline features, then hands off to /login.
-class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({super.key});
+/// Gate that shows the first-run walkthrough as an overlay the first time an
+/// account reaches the app after accepting consent. Wrap the shell content in
+/// it (inside [ConsentGate], so consent takes priority):
+///
+///   ConsentGate(child: OnboardingGate(child: <shell>))
+///
+/// Because [AuthSession] is a ChangeNotifier we observe it via a
+/// [ListenableBuilder] (a plain `ref.watch(...select)` wouldn't rebuild when
+/// `acceptConsent()` flips the flag) — so the walkthrough appears the instant
+/// the consent overlay clears.
+class OnboardingGate extends ConsumerWidget {
+  const OnboardingGate({super.key, required this.child});
+
+  final Widget child;
 
   @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(authSessionProvider);
+    return ListenableBuilder(
+      listenable: session,
+      builder: (context, _) {
+        final eligible = session.isLoggedIn &&
+            !session.consentRequired &&
+            session.userId.isNotEmpty;
+        if (!eligible) return child;
+        return Stack(
+          children: [
+            child,
+            Consumer(
+              builder: (ctx, r, __) {
+                // `?? true` while loading → never flash the overlay before the
+                // per-user "seen" flag has actually been read.
+                final seen =
+                    r.watch(onboardingSeenProvider(session.userId)).value ?? true;
+                if (seen) return const SizedBox.shrink();
+                return _OnboardingOverlay(
+                  firstName: _firstName(session.displayName),
+                  onDone: () async {
+                    await markOnboardingSeen(session.userId);
+                    r.invalidate(onboardingSeenProvider(session.userId));
+                  },
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static String _firstName(String full) {
+    final t = full.trim();
+    if (t.isEmpty) return '';
+    return t.split(RegExp(r'\s+')).first;
+  }
 }
 
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+/// The upgraded walkthrough itself — a full-screen animated carousel.
+class _OnboardingOverlay extends StatefulWidget {
+  const _OnboardingOverlay({required this.onDone, required this.firstName});
+
+  final Future<void> Function() onDone;
+  final String firstName;
+
+  @override
+  State<_OnboardingOverlay> createState() => _OnboardingOverlayState();
+}
+
+class _OnboardingOverlayState extends State<_OnboardingOverlay> {
   final _controller = PageController();
   int _page = 0;
+  bool _finishing = false;
 
   @override
   void dispose() {
@@ -29,38 +89,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   List<_Slide> _slides(AppLocalizations l) => [
         _Slide(
           icon: Icons.school_rounded,
-          title: l.onboardingSlide1Title,
+          // Personalized welcome when we know the name.
+          title: widget.firstName.isEmpty
+              ? l.onboardingSlide1Title
+              : l.onboardingWelcomeNamed(widget.firstName),
           body: l.onboardingSlide1Body,
+          colors: const [Color(0xFF0EA5E9), Color(0xFF4F46E5)],
         ),
         _Slide(
-          icon: Icons.psychology_rounded,
+          icon: Icons.auto_awesome_rounded,
           title: l.onboardingSlide2Title,
           body: l.onboardingSlide2Body,
+          colors: const [Color(0xFF7C3AED), Color(0xFFDB2777)],
         ),
         _Slide(
-          icon: Icons.event_note_rounded,
+          icon: Icons.insights_rounded,
           title: l.onboardingSlide3Title,
           body: l.onboardingSlide3Body,
+          colors: const [Color(0xFF0D9488), Color(0xFF16A34A)],
         ),
         _Slide(
           icon: Icons.forum_rounded,
           title: l.onboardingSlide4Title,
           body: l.onboardingSlide4Body,
+          colors: const [Color(0xFFEA580C), Color(0xFFE11D48)],
         ),
       ];
 
   Future<void> _finish() async {
-    await markOnboardingSeen(ref);
-    if (!mounted) return;
-    context.go('/login');
+    if (_finishing) return;
+    setState(() => _finishing = true);
+    HapticFeedback.mediumImpact();
+    await widget.onDone();
   }
 
   void _next(int count) {
     if (_page >= count - 1) {
       _finish();
     } else {
+      HapticFeedback.selectionClick();
       _controller.nextPage(
-        duration: const Duration(milliseconds: 280),
+        duration: const Duration(milliseconds: 320),
         curve: Curves.easeOutCubic,
       );
     }
@@ -73,111 +142,105 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final theme = Theme.of(context);
     final slides = _slides(l);
     final isLast = _page >= slides.length - 1;
+    final accent = slides[_page].colors;
 
-    return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: Column(
+    // Opaque full-screen page (covers the shell + nav underneath) so it reads
+    // as a dedicated intro, not a translucent sheet. PopScope keeps hardware
+    // back from dropping the user into a half-onboarded app.
+    return PopScope(
+      canPop: false,
+      child: Material(
+        color: cs.surface,
+        child: Stack(
           children: [
-            // Top row: logo + Skip.
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
-              child: Row(
-                children: [
-                  const ClassMateLogo(height: 30),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: _finish,
-                    child: Text(l.onboardingSkip),
-                  ),
-                ],
+            // Soft ambient wash that shifts colour per slide.
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    accent.first.withValues(alpha: 0.14),
+                    cs.surface.withValues(alpha: 0.0),
+                  ],
+                ),
               ),
             ),
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: slides.length,
-                onPageChanged: (i) => setState(() => _page = i),
-                itemBuilder: (context, i) {
-                  final s = slides[i];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+            SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
+                    child: Row(
                       children: [
-                        Container(
-                          width: 128,
-                          height: 128,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                cs.primary.withValues(alpha: 0.18),
-                                cs.primary.withValues(alpha: 0.06),
-                              ],
-                            ),
-                          ),
-                          child: Icon(s.icon, size: 60, color: cs.primary),
-                        ),
-                        const SizedBox(height: 40),
-                        Text(
-                          s.title,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          s.body,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            height: 1.4,
-                          ),
+                        const ClassMateLogo(height: 30),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: _finishing ? null : _finish,
+                          child: Text(l.onboardingSkip),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-            // Page dots.
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (int i = 0; i < slides.length; i++)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 220),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: i == _page ? 22 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: i == _page ? cs.primary : cs.outlineVariant,
-                      borderRadius: BorderRadius.circular(4),
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _controller,
+                      itemCount: slides.length,
+                      onPageChanged: (i) => setState(() => _page = i),
+                      itemBuilder: (context, i) => _SlideView(slide: slides[i]),
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => _next(slides.length),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (int i = 0; i < slides.length; i++)
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 260),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: i == _page ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: i == _page ? accent.first : cs.outlineVariant,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: FilledButton(
+                        onPressed: _finishing ? null : () => _next(slides.length),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: accent.first,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: _finishing
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                            : Text(
+                                isLast ? l.onboardingGetStarted : l.onboardingNext,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
-                  child: Text(
-                    isLast ? l.onboardingGetStarted : l.onboardingNext,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                ),
+                ],
               ),
             ),
           ],
@@ -187,9 +250,80 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 }
 
+class _SlideView extends StatelessWidget {
+  const _SlideView({required this.slide});
+  final _Slide slide;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Animated gradient hero orb — scales/fades in on each build so
+          // swiping between slides gives a subtle pop.
+          TweenAnimationBuilder<double>(
+            key: ValueKey(slide.icon.codePoint),
+            tween: Tween(begin: 0.85, end: 1.0),
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeOutBack,
+            builder: (context, scale, child) =>
+                Transform.scale(scale: scale, child: child),
+            child: Container(
+              width: 148,
+              height: 148,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: slide.colors,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: slide.colors.first.withValues(alpha: 0.35),
+                    blurRadius: 32,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Icon(slide.icon, size: 66, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: 44),
+          Text(
+            slide.title,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            slide.body,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: cs.onSurfaceVariant,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Slide {
-  const _Slide({required this.icon, required this.title, required this.body});
+  const _Slide({
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.colors,
+  });
   final IconData icon;
   final String title;
   final String body;
+  final List<Color> colors;
 }

@@ -1012,6 +1012,8 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
                                         PracticeSessionMatchmakingScreen(
+                                          questionCount:
+                                              startFilter.questionCount,
                                           mode: _practiceModeLabel(
                                             context,
                                             startFilter.mode,

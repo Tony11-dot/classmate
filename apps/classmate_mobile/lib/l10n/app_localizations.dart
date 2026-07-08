@@ -106,6 +106,60 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// No description provided for @accountActionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Account options'**
+  String get accountActionsTooltip;
+
+  /// No description provided for @accountSwitchTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to this account'**
+  String get accountSwitchTo;
+
+  /// No description provided for @accountRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove account'**
+  String get accountRemove;
+
+  /// No description provided for @accountRemoveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove account?'**
+  String get accountRemoveConfirmTitle;
+
+  /// No description provided for @accountRemoveConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will be removed from this device. You can sign in again anytime.'**
+  String accountRemoveConfirmBody(String name);
+
+  /// No description provided for @onboardingWelcomeNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}!'**
+  String onboardingWelcomeNamed(String name);
+
+  /// No description provided for @practiceGenAlmostReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost ready…'**
+  String get practiceGenAlmostReady;
+
+  /// No description provided for @practiceGenRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {seconds}s left'**
+  String practiceGenRemaining(int seconds);
+
+  /// No description provided for @practiceGenEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually {min}–{max}s'**
+  String practiceGenEstimate(int min, int max);
+
   /// No description provided for @consentGateError.
   ///
   /// In en, this message translates to:

@@ -767,7 +767,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                           if (snap.connectionState != ConnectionState.done) {
                             return const Padding(
                               padding: EdgeInsets.all(28),
-                              child: Center(child: CircularProgressIndicator()),
+                              child: Center(child: CmLoading()),
                             );
                           }
                           final names = snap.data ?? const <String>[];

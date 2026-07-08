@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -188,11 +189,7 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
                       borderRadius: BorderRadius.circular(16)),
                 ),
                 child: (_sending || _verifying)
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const CmLoading(size: 20)
                     : Text(
                         codeStage ? l.phoneLinkVerify : l.phoneLinkSend,
                         style: const TextStyle(fontWeight: FontWeight.w800),

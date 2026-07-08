@@ -61,7 +61,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                   data: (o) => Column(
                     children: [
                       _StatsGrid(overview: o),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       // Always shown — collapses to a compact "all done" pill
                       // once everything is ticked, so admins can still spot-
                       // check at a glance after first-time setup.
@@ -74,7 +74,7 @@ class AdminDashboardScreen extends ConsumerWidget {
 
             // ── Quick actions ────────────────────────────────────────────────
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +122,7 @@ class AdminDashboardScreen extends ConsumerWidget {
 
             // ── Attendance by cohort ─────────────────────────────────────────
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
               sliver: SliverToBoxAdapter(
                 child: Text(
                   l.adminAttendanceLast30,
@@ -444,7 +444,7 @@ class _StatsGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      childAspectRatio: 1.55,
+      childAspectRatio: 2.6,
       children: [
         _StatCard(
           label: l.adminStudents,
@@ -552,7 +552,7 @@ class _StatsGridSkeleton extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      childAspectRatio: 1.55,
+      childAspectRatio: 2.6,
       children: List.generate(
         4,
         (_) => Container(

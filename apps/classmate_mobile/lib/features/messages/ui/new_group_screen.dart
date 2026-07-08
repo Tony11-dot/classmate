@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -185,11 +186,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                             }
                           },
                     child: _submitting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                        ? const CmLoading(size: 18)
                         : Text(l.messagesCreateGroupAction),
                       ),
                     ),

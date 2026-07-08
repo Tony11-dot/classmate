@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/grade_multi_select_field.dart';
+import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/student_multi_select_sheet.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -33,7 +34,7 @@ class TeacherCohortsScreen extends ConsumerWidget {
         label: Text(l.teacherCohortsScreenNewCohort),
       ),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text('${l.teacherCohortsScreenLoadError}\n$e', textAlign: TextAlign.center, style: TextStyle(color: cs.error)),
@@ -337,7 +338,7 @@ class _RosterState extends ConsumerState<_Roster> {
       future: _future,
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const Padding(padding: EdgeInsets.all(12), child: Center(child: CircularProgressIndicator()));
+          return const Padding(padding: EdgeInsets.all(12), child: Center(child: CmLoading()));
         }
         final students = snap.data ?? const [];
         if (students.isEmpty) {

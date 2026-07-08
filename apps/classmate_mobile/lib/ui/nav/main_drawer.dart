@@ -598,9 +598,65 @@ Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
                       if (acct.roleLabel.isNotEmpty) _roleLabelFor(l, acct.roleLabel),
                       if (acct.schoolName != null && acct.schoolName!.isNotEmpty) acct.schoolName!,
                     ].join(' · ')),
-                    trailing: acct.userId == activeId
-                        ? Icon(Icons.check_circle_rounded, color: cs.primary)
-                        : null,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (acct.userId == activeId)
+                          Icon(Icons.check_circle_rounded, color: cs.primary),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert_rounded),
+                          tooltip: l.accountActionsTooltip,
+                          onSelected: (value) async {
+                            if (value == 'switch') {
+                              Navigator.of(sheetCtx).pop();
+                              await controller.switchAccount(acct);
+                            } else if (value == 'remove') {
+                              final ok = await _confirmRemoveAccount(
+                                  sheetCtx, l, acct.displayName);
+                              if (ok != true) return;
+                              if (acct.userId == activeId) {
+                                // Removing the ACTIVE account: sign it out, which
+                                // drops it from the store and switches to another
+                                // remembered account (or /login if none remain).
+                                Navigator.of(sheetCtx).pop();
+                                await controller.signOutActiveAccount();
+                              } else {
+                                // Non-active: just forget it — no trace left in
+                                // the switcher, no session change.
+                                await ref
+                                    .read(accountsStoreProvider)
+                                    .remove(acct.userId);
+                                await ref
+                                    .read(accountsControllerProvider.notifier)
+                                    .reload();
+                              }
+                            }
+                          },
+                          itemBuilder: (menuCtx) => [
+                            if (acct.userId != activeId)
+                              PopupMenuItem<String>(
+                                value: 'switch',
+                                child: Row(children: [
+                                  Icon(Icons.swap_horiz_rounded,
+                                      size: 20, color: cs.primary),
+                                  const SizedBox(width: 12),
+                                  Text(l.accountSwitchTo),
+                                ]),
+                              ),
+                            PopupMenuItem<String>(
+                              value: 'remove',
+                              child: Row(children: [
+                                Icon(Icons.delete_outline_rounded,
+                                    size: 20, color: cs.error),
+                                const SizedBox(width: 12),
+                                Text(l.accountRemove,
+                                    style: TextStyle(color: cs.error)),
+                              ]),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                     onTap: acct.userId == activeId
                         ? () => Navigator.of(sheetCtx).pop()
                         : () async {
@@ -638,6 +694,30 @@ Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
         );
       });
     },
+  );
+}
+
+/// Confirmation before forgetting an account from this device's switcher.
+Future<bool?> _confirmRemoveAccount(
+    BuildContext context, AppLocalizations l, String name) {
+  return showDialog<bool>(
+    context: context,
+    builder: (dCtx) => AlertDialog(
+      title: Text(l.accountRemoveConfirmTitle),
+      content: Text(l.accountRemoveConfirmBody(name.isEmpty ? 'ClassMate' : name)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dCtx).pop(false),
+          child: Text(l.actionCancel),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dCtx).colorScheme.error),
+          onPressed: () => Navigator.of(dCtx).pop(true),
+          child: Text(l.accountRemove),
+        ),
+      ],
+    ),
   );
 }
 
