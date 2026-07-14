@@ -712,6 +712,60 @@ abstract class AppLocalizations {
   /// **'Solutions'**
   String get titleSolutions;
 
+  /// No description provided for @titleBagrut.
+  ///
+  /// In en, this message translates to:
+  /// **'Bagrut'**
+  String get titleBagrut;
+
+  /// No description provided for @bagrutSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search subjects'**
+  String get bagrutSearchHint;
+
+  /// No description provided for @bagrutNoExams.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams yet for {subject}.'**
+  String bagrutNoExams(Object subject);
+
+  /// No description provided for @bagrutFilesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No files} =1{1 file} other{{count} files}}'**
+  String bagrutFilesCount(int count);
+
+  /// No description provided for @bagrutNoFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No files.'**
+  String get bagrutNoFiles;
+
+  /// No description provided for @bagrutFileQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get bagrutFileQuestions;
+
+  /// No description provided for @bagrutFileAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers'**
+  String get bagrutFileAnswers;
+
+  /// No description provided for @bagrutFileSolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution'**
+  String get bagrutFileSolution;
+
+  /// No description provided for @bagrutFileAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Full solution'**
+  String get bagrutFileAdvanced;
+
   /// No description provided for @titleExams.
   ///
   /// In en, this message translates to:

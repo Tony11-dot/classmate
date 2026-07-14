@@ -5,6 +5,7 @@ export const APP_ROLES = [
   'PARENT',
   'TUTOR',
   'SECRETARY',
+  'MANAGER',
 ] as const;
 
 export type AppRole = (typeof APP_ROLES)[number];
@@ -20,6 +21,7 @@ export enum Role {
   PARENT = 'PARENT',
   TUTOR = 'TUTOR',
   SECRETARY = 'SECRETARY',
+  MANAGER = 'MANAGER',
 }
 
 /**
@@ -39,6 +41,7 @@ export const ALL_APP_ROLES: Role[] = [
   Role.PARENT,
   Role.ADMIN,
   Role.SECRETARY,
+  Role.MANAGER,
 ];
 
 export function isRole(v: unknown): v is AppRole {

@@ -127,7 +127,9 @@ class AuthSession extends ChangeNotifier {
   List<String> get roles => List<String>.unmodifiable(_roles);
 
   String get primaryRole {
-    const priority = <String>['TEACHER', 'ADMIN', 'SECRETARY', 'PARENT', 'STUDENT'];
+    // MANAGER (platform owner console) wins over everything so an allowlisted
+    // owner lands on the manager shell rather than their school role.
+    const priority = <String>['MANAGER', 'TEACHER', 'ADMIN', 'SECRETARY', 'PARENT', 'STUDENT'];
     for (final role in priority) {
       if (_roles.contains(role)) return role;
     }
@@ -135,6 +137,8 @@ class AuthSession extends ChangeNotifier {
   }
 
   bool get isTeacherLike => _roles.contains('TEACHER') || _roles.contains('ADMIN');
+
+  bool get isManager => _roles.contains('MANAGER');
 
   bool get isLoggedIn => (token != null && token!.isNotEmpty);
 

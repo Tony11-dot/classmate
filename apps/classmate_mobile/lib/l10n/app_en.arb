@@ -112,6 +112,27 @@
   "titleNova": "NOVA",
   "titleMessages": "Messages",
   "titleSolutions": "Solutions",
+  "titleBagrut": "Bagrut",
+  "bagrutSearchHint": "Search subjects",
+  "bagrutNoExams": "No exams yet for {subject}.",
+  "@bagrutNoExams": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "bagrutFilesCount": "{count, plural, =0{No files} =1{1 file} other{{count} files}}",
+  "@bagrutFilesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bagrutNoFiles": "No files.",
+  "bagrutFileQuestions": "Questions",
+  "bagrutFileAnswers": "Answers",
+  "bagrutFileSolution": "Solution",
+  "bagrutFileAdvanced": "Full solution",
   "titleExams": "Exams",
   "solutionsUploadAction": "Upload",
   "solutionsNoSubjectsAvailable": "No subjects available.",

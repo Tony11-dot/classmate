@@ -23,7 +23,7 @@ import { TutorModule } from './tutor/tutor.module';
 import { StudentModule } from './student/student.module';
 import { AdminModule } from './admin/admin.module';
 import { DmUploadController } from './uploads/dm-upload.controller';
-import { SetupController } from './setup/setup.controller';
+import { ManagerModule } from './manager/manager.module';
 import { PasswordResetController } from './auth/password-reset/password-reset.controller';
 import { PasswordResetService } from './auth/password-reset/password-reset.service';
 import { EmailService } from './auth/password-reset/email.service';
@@ -152,6 +152,7 @@ const seedControllers = [
     BrainModule,
     ScheduleModule,
     BagrutModule,
+    ManagerModule,
     PracticeAdaptiveModule,
     NovaModule,
     PracticeModule,
@@ -163,7 +164,7 @@ const seedControllers = [
     BillingModule,
     UsersModule,
   ],
-  controllers: [DmUploadController, SetupController, PasswordResetController, VerifyController, MetricsController, ...seedControllers],
+  controllers: [DmUploadController, PasswordResetController, VerifyController, MetricsController, ...seedControllers],
   providers: [
     JsonLogger,
     RequestMetricsInterceptor,
