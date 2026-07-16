@@ -117,7 +117,8 @@ class SolutionsApi {
       final body = await streamed.stream.bytesToString();
 
       if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
-        throw Exception('upload failed (${streamed.statusCode}): $body');
+        // Sanitized toString — never leak the raw response body to the UI.
+        throw CMApiException(statusCode: streamed.statusCode, uri: _uri('/uploads/solution-file'), body: body);
       }
 
       final decoded = jsonDecode(body);

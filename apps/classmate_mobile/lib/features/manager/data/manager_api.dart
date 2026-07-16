@@ -86,7 +86,8 @@ class ManagerApi {
     final streamed = await req.send();
     final body = await streamed.stream.bytesToString();
     if (streamed.statusCode < 200 || streamed.statusCode >= 300) {
-      throw Exception('logo upload failed (${streamed.statusCode}): $body');
+      // Sanitized toString — never leak the raw response body to the UI.
+      throw CMApiException(statusCode: streamed.statusCode, uri: _uri('/uploads/manager-logo'), body: body);
     }
     final decoded = jsonDecode(body);
     if (decoded is Map && decoded['url'] is String) return decoded['url'] as String;

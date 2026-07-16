@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -75,8 +76,9 @@ class _BagrutExamsScreenState extends ConsumerState<BagrutExamsScreen> {
                     ].join(' · '),
                   ),
                   trailing: const Icon(Icons.chevron_right_rounded),
+                  // Cupertino route → back chevron + edge-swipe to leave.
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => BagrutExamScreen(exam: e)),
+                    CupertinoPageRoute<void>(builder: (_) => BagrutExamScreen(exam: e)),
                   ),
                 ),
               );

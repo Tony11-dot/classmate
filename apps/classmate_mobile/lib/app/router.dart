@@ -453,12 +453,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const DrawerToolsOrderScreen(),
       ),
 
-      // Bagrut past-exam library (students + teachers, via School Tools drawer).
-      _slideRoute(
-        path: '/bagrut',
-        builder: (context, state) => const BagrutScreen(),
-      ),
-
       // Platform-owner console (MANAGER role only; redirect-guarded above).
       _slideRoute(
         path: '/manager/home',
@@ -959,6 +953,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/solutions',
             builder: (context, state) => const SolutionsScreen(),
+          ),
+          // Inside the shell so the top bar (hamburger/logo/title pill) stays
+          // visible on the subject grid — subject/exam screens are pushed on
+          // the ROOT navigator and go full-screen with swipe-back.
+          _fadeRoute(
+            path: '/bagrut',
+            builder: (context, state) => const BagrutScreen(),
           ),
           _fadeRoute(
             path: '/insights',

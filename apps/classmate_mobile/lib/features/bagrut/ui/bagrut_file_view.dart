@@ -142,8 +142,15 @@ class _BagrutFileScreenState extends State<_BagrutFileScreen> {
             children: [
               const Icon(Icons.picture_as_pdf_rounded, color: Colors.white54, size: 64),
               const SizedBox(height: 12),
-              Text(_error == null ? 'Unable to preview this file.' : 'Unable to preview: $_error',
-                  style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
+              // Never surface the raw exception — a friendly line + the
+              // open-externally fallback is all the user needs.
+              Text(
+                _error == null
+                    ? 'Unable to preview this file.'
+                    : 'Unable to preview this file. Check your connection and try again.',
+                style: const TextStyle(color: Colors.white70),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 14),
               FilledButton.icon(
                 onPressed: _openExternally,

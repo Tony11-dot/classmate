@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,8 +30,9 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
       return s.en.toLowerCase().contains(q) || s.he.contains(_query.trim());
     }).toList();
 
+    // No AppBar here — this screen lives inside the AppShell, whose top bar
+    // (hamburger / logo / title pill) stays visible, mirroring Solutions.
     return Scaffold(
-      appBar: AppBar(title: Text(l.titleBagrut)),
       body: Column(
         children: [
           Padding(
@@ -65,8 +67,10 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
                   borderRadius: BorderRadius.circular(18),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(18),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
+                    // Root navigator → full-screen (covers the shell top bar);
+                    // Cupertino route → back chevron + edge-swipe to leave.
+                    onTap: () => Navigator.of(context, rootNavigator: true).push(
+                      CupertinoPageRoute<void>(
                         builder: (_) => BagrutExamsScreen(subjectKey: s.key),
                       ),
                     ),

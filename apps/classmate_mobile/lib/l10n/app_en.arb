@@ -2391,6 +2391,9 @@
     }
   },
   "commonRetry": "Retry",
+  "chatThreadLoadFailedTitle": "Couldn't load this conversation",
+  "chatThreadLoadFailedBody": "Please check your connection and try again.",
+  "chatThreadLoadFailedBusy": "The server is a little busy right now. Give it a moment, then retry.",
   "commonBack": "Back",
   "commonClose": "Close",
   "commonDownload": "Download",

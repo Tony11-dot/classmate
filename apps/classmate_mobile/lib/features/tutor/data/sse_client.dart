@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../../core/http/cm_api.dart';
+
 class SseClient {
   final http.Client _client;
   SseClient({http.Client? client}) : _client = client ?? http.Client();
@@ -28,7 +30,8 @@ class SseClient {
     final res = await _client.send(req);
     if (res.statusCode < 200 || res.statusCode >= 300) {
       final body = await res.stream.bytesToString();
-      throw Exception('SSE HTTP ${res.statusCode}: $body');
+      // Sanitized toString — never leak the raw response body to the UI.
+      throw CMApiException(statusCode: res.statusCode, uri: uri, body: body);
     }
 
     String? curId;

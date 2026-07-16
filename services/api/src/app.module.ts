@@ -128,9 +128,32 @@ const seedControllers = [
     //   • auth    — strict 5 req / 15 min / IP for credential-handling
     //     endpoints (login, register, forgot/reset password). Brute-
     //     force defense; opted into per-route with @Throttle({ auth: … }).
+    //
+    // ⚠ @nestjs/throttler enforces EVERY named bucket on EVERY route unless
+    // that bucket is skipped by name — and a bare @SkipThrottle() only skips
+    // 'default'. Without the skipIf below, the strict auth cap silently
+    // applied platform-wide and intermittently 429'd hot read endpoints
+    // (testers hit it on the messages thread fetch). skipIf makes the auth
+    // bucket OPT-IN: it only runs on routes that explicitly declared
+    // @Throttle({ auth: … }) metadata.
     ThrottlerModule.forRoot([
       { name: 'default', ttl: 60_000, limit: 1200 },
-      { name: 'auth', ttl: 15 * 60_000, limit: 5 },
+      {
+        name: 'auth',
+        ttl: 15 * 60_000,
+        limit: 5,
+        skipIf: (context) => {
+          // THROTTLER_LIMIT constant from @nestjs/throttler internals —
+          // metadata key is `${'THROTTLER:LIMIT'}${bucketName}`.
+          const key = 'THROTTLER:LIMITauth';
+          const handler = context.getHandler();
+          const cls = context.getClass();
+          return (
+            Reflect.getMetadata(key, handler) === undefined &&
+            Reflect.getMetadata(key, cls) === undefined
+          );
+        },
+      },
     ]),
     HealthModule,
     PrismaModule,

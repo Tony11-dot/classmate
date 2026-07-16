@@ -5457,6 +5457,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonRetry => 'Повторить';
 
   @override
+  String get chatThreadLoadFailedTitle => 'Couldn\'t load this conversation';
+
+  @override
+  String get chatThreadLoadFailedBody =>
+      'Please check your connection and try again.';
+
+  @override
+  String get chatThreadLoadFailedBusy =>
+      'The server is a little busy right now. Give it a moment, then retry.';
+
+  @override
   String get commonBack => 'Назад';
 
   @override

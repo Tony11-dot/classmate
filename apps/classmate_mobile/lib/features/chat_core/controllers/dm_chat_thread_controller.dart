@@ -113,7 +113,13 @@ class DmChatThreadController extends ChatThreadController {
     _staticSentUrls.clear();
     _sessionCache.clear();
     _staticLocalMedia.clear();
+    _staticLastMessages.clear();
   }
+
+  // Last successfully rendered message list per thread — survives controller
+  // recreation within the session so re-opened threads paint instantly and a
+  // transient fetch failure never blanks a previously seen conversation.
+  static final Map<String, List<ChatMessage>> _staticLastMessages = {};
 
   Set<String> get _sentUrls =>
       _staticSentUrls.putIfAbsent(_threadId, () => {});
@@ -541,6 +547,10 @@ class DmChatThreadController extends ChatThreadController {
     final deduped = merged.where((m) => seen.add(m.id)).toList();
 
     _cachedMessages = deduped;
+    // Session-scoped last-known snapshot: a NEW controller instance for a
+    // recently opened thread renders this instantly (and on fetch failure)
+    // instead of a spinner / error page, while the live fetch refreshes it.
+    _staticLastMessages[_threadId] = deduped;
     return deduped;
   }
 
@@ -587,13 +597,27 @@ class DmChatThreadController extends ChatThreadController {
         final server = [...older, ...window];
         return AsyncValue.data(_mergeWithOptimistic(server));
       },
-      loading: () => _cachedMessages.isNotEmpty
-          ? AsyncValue.data(_cachedMessages)
-          : const AsyncValue.loading(),
-      error: (err, stack) => _cachedMessages.isNotEmpty
-          ? AsyncValue.data(_cachedMessages)
-          : AsyncValue.error(err, stack),
+      loading: () {
+        final fallback =
+            _cachedMessages.isNotEmpty ? _cachedMessages : _staticLastMessages[_threadId];
+        return (fallback != null && fallback.isNotEmpty)
+            ? AsyncValue.data(fallback)
+            : const AsyncValue.loading();
+      },
+      error: (err, stack) {
+        final fallback =
+            _cachedMessages.isNotEmpty ? _cachedMessages : _staticLastMessages[_threadId];
+        return (fallback != null && fallback.isNotEmpty)
+            ? AsyncValue.data(fallback)
+            : AsyncValue.error(err, stack);
+      },
     );
+  }
+
+  @override
+  Future<void> retryInitialLoad() async {
+    ref.invalidate(messageThreadProvider(_threadId));
+    invalidate();
   }
 
   ChatMessage _convertMessageItem(MessageItem item,

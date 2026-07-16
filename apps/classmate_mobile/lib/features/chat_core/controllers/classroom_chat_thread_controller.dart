@@ -466,6 +466,12 @@ class ClassroomChatThreadController extends ChatThreadController {
   }
 
   @override
+  Future<void> retryInitialLoad() async {
+    ref.invalidate(classroomChatProvider((id: _courseId, limit: 50, cursor: null)));
+    invalidate();
+  }
+
+  @override
   AsyncValue<List<ChatMessage>> watchMessages(WidgetRef ref) {
     final provider = classroomChatProvider((id: _courseId, limit: 50, cursor: null));
     final chatAsync = ref.watch(provider);

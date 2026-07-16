@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/http/cm_api.dart';
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../domain/message_thread_models.dart';
@@ -195,8 +196,14 @@ class ApiMessagesRepository implements MessagesRepository {
       response.statusCode >= 200 && response.statusCode < 300;
 
   Never _fail(String label, http.Response response) {
-    throw Exception(
-      '$label failed (${response.statusCode}): ${response.body.isEmpty ? 'empty body' : response.body}',
+    // CMApiException.toString() is a sanitized, user-friendly message — the
+    // raw status/path/body stay in debugString for logs only. Never throw the
+    // raw response body: it leaks internal API paths and framework exception
+    // names into every UI that renders the error (tester-reported).
+    throw CMApiException(
+      statusCode: response.statusCode,
+      uri: Uri(path: label),
+      body: response.body,
     );
   }
 

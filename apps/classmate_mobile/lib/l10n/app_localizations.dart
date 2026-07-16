@@ -9807,6 +9807,24 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get commonRetry;
 
+  /// No description provided for @chatThreadLoadFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this conversation'**
+  String get chatThreadLoadFailedTitle;
+
+  /// No description provided for @chatThreadLoadFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your connection and try again.'**
+  String get chatThreadLoadFailedBody;
+
+  /// No description provided for @chatThreadLoadFailedBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'The server is a little busy right now. Give it a moment, then retry.'**
+  String get chatThreadLoadFailedBusy;
+
   /// No description provided for @commonBack.
   ///
   /// In en, this message translates to:
