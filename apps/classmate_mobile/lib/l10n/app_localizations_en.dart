@@ -2000,6 +2000,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get messagesErrorRateLimited =>
+      'You\'re going a little too fast. Please wait a moment, then tap Retry.';
+
+  @override
+  String get messagesErrorOffline =>
+      'You appear to be offline. Check your connection and try again.';
+
+  @override
+  String get messagesErrorServer =>
+      'Something went wrong on our side. Please try again in a moment.';
+
+  @override
+  String get messagesErrorSignedOut =>
+      'Your session has expired. Please sign in again.';
+
+  @override
+  String get messagesErrorGeneric =>
+      'We couldn\'t load this conversation. Please try again.';
+
+  @override
   String get messagesRequestBannerIncoming => 'Message request';
 
   @override

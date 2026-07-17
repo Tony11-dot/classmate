@@ -11,6 +11,7 @@ import '../providers/messages_repository_provider.dart';
 import '../../chat_core/utils/chat_time.dart';
 import 'new_chat_screen.dart';
 import 'blocked_people_screen.dart';
+import 'components/messages_error_view.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../core/realtime/realtime_listener.dart';
 
@@ -135,7 +136,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                               }
                             } catch (e) {
                               joining = false;
-                              setS(() { errorMsg = e.toString().replaceFirst('Exception: ', ''); });
+                              setS(() { errorMsg = messagesActionError(ctx, e); });
                             }
                           },
                           icon: joining
@@ -281,7 +282,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(content: Text(messagesActionError(context, e))),
       );
     } finally {
       if (mounted) {
@@ -449,8 +450,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       body: SafeArea(
         child: inbox.when(
           loading: () => const Center(child: CmLoading()),
-          error: (error, stackTrace) =>
-              Center(child: Text(l.messagesLoadFailed(error.toString()))),
+          error: (error, stackTrace) => MessagesErrorView(
+            error: error,
+            onRetry: () => ref.invalidate(messagesInboxProvider),
+          ),
           data: (items) {
             final filtered = items.where((item) {
               if (query.isEmpty) return true;

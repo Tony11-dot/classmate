@@ -12,6 +12,7 @@ import '../../chat_core/policies/chat_action_policy.dart';
 import '../../chat_core/ui/chat_thread_view.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
+import 'components/messages_error_view.dart';
 import '../../../common/widgets/role_badge.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../users/ui/user_profile_sheet.dart';
@@ -333,11 +334,29 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         bottom: false,
         child: thread.when(
           loading: () => const Center(child: CmLoading()),
-          error: (error, _) => Center(
-              child: Text(
-                AppLocalizations.of(context)!.messagesRequestLoadFailed(error),
+          error: (error, _) => Column(
+            children: [
+              AppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                leading: IconButton(
+                  tooltip: AppLocalizations.of(context)!.a11yBack,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                ),
               ),
-            ),
+              Expanded(
+                child: MessagesErrorView(
+                  error: error,
+                  onRetry: () =>
+                      ref.invalidate(messageThreadProvider(widget.threadId)),
+                ),
+              ),
+            ],
+          ),
           data: (detail) {
             final banners = <Widget>[];
             if (detail.requestState == ChatRequestState.pendingIncoming) {

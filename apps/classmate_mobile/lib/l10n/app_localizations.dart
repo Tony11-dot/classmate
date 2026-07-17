@@ -3524,6 +3524,36 @@ abstract class AppLocalizations {
   /// **'Failed to load request: {error}'**
   String messagesRequestLoadFailed(Object error);
 
+  /// Shown when a messaging request is rate limited (HTTP 429).
+  ///
+  /// In en, this message translates to:
+  /// **'You're going a little too fast. Please wait a moment, then tap Retry.'**
+  String get messagesErrorRateLimited;
+
+  /// Shown when a messaging request fails due to no network connectivity.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear to be offline. Check your connection and try again.'**
+  String get messagesErrorOffline;
+
+  /// Shown when a messaging request fails with a server error (HTTP 5xx).
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our side. Please try again in a moment.'**
+  String get messagesErrorServer;
+
+  /// Shown when a messaging request is unauthorized (HTTP 401).
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please sign in again.'**
+  String get messagesErrorSignedOut;
+
+  /// Generic fallback shown when a conversation fails to load.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn't load this conversation. Please try again.'**
+  String get messagesErrorGeneric;
+
   /// No description provided for @messagesRequestBannerIncoming.
   ///
   /// In en, this message translates to:

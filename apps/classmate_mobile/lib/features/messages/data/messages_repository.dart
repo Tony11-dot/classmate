@@ -3,6 +3,44 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Thrown when a ClassMate messages API call fails with a non-2xx response.
+///
+/// Carries the HTTP [statusCode] (and a best-effort parsed [serverMessage])
+/// so the UI can render a friendly, SANITIZED error state — e.g. a "slow
+/// down" message for a 429 — instead of dumping the raw backend response
+/// body. A tester on v1.0.8 tapped a rate-limited conversation and saw a
+/// raw `429` with internal endpoint paths and exception text; keeping the
+/// body out of [toString] (and off the screen) is what prevents that leak.
+class MessagesApiException implements Exception {
+  MessagesApiException({
+    required this.operation,
+    required this.statusCode,
+    this.serverMessage,
+  });
+
+  /// Internal label of the failing call, e.g. `messages.fetchThread`.
+  /// For logging/Sentry only — never surfaced to users.
+  final String operation;
+
+  /// HTTP status code from the response (0 when no response was received).
+  final int statusCode;
+
+  /// Best-effort parsed `message` field from the server. Never rendered raw.
+  final String? serverMessage;
+
+  bool get isRateLimited => statusCode == 429;
+  bool get isUnauthorized => statusCode == 401;
+  bool get isForbidden => statusCode == 403;
+  bool get isNotFound => statusCode == 404;
+  bool get isServerError => statusCode >= 500;
+
+  // NOTE: intentionally includes the numeric status (so existing callers that
+  // string-match e.g. `e.toString().contains('404')` keep working) but NEVER
+  // the raw response body.
+  @override
+  String toString() => 'MessagesApiException($operation, status: $statusCode)';
+}
+
 import '../../../core/config/env.dart';
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
@@ -195,9 +233,30 @@ class ApiMessagesRepository implements MessagesRepository {
       response.statusCode >= 200 && response.statusCode < 300;
 
   Never _fail(String label, http.Response response) {
-    throw Exception(
-      '$label failed (${response.statusCode}): ${response.body.isEmpty ? 'empty body' : response.body}',
+    throw MessagesApiException(
+      operation: label,
+      statusCode: response.statusCode,
+      serverMessage: _parseServerMessage(response.body),
     );
+  }
+
+  /// Pulls a short `message` string out of a JSON error body for logging.
+  /// Returns null on anything unparseable so we never propagate raw HTML,
+  /// stack traces, or internal endpoint paths.
+  String? _parseServerMessage(String body) {
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || !trimmed.startsWith('{')) return null;
+    try {
+      final decoded = jsonDecode(trimmed);
+      if (decoded is Map) {
+        final msg = decoded['message'] ?? decoded['error'];
+        if (msg is String && msg.trim().isNotEmpty) {
+          final clean = msg.trim();
+          return clean.length > 200 ? '${clean.substring(0, 200)}…' : clean;
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   ChatThreadType _threadType(String raw) {
