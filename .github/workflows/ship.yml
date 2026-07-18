@@ -190,7 +190,11 @@ jobs:
   ios:
     needs: version
     if: ${{ inputs.target == 'all' || inputs.target == 'ios' }}
-    runs-on: macos-14
+    # macos-15 defaults to Xcode 16 / Swift 6. Firebase 11.x (pulled by
+    # firebase_core ^3.6.0) uses Swift 6 features ('sending', AccessLevelOnImport)
+    # that the older Xcode on macos-14 can't compile, which failed the archive
+    # in FirebaseCoreInternal. macos-14's toolchain is too old for these pods.
+    runs-on: macos-15
     timeout-minutes: 60
     defaults:
       run:
