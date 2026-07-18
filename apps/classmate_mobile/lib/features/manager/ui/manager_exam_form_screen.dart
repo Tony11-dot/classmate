@@ -130,7 +130,8 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
         } else if (slot.existingUrl != null && slot.existingUrl!.isNotEmpty) {
           files.add({
             'kind': kind,
-            'url': slot.existingUrl,
+            // Persist the relative /uploads path, not the resolved absolute URL.
+            'url': api.relativizeUrl(slot.existingUrl!),
             'mimeType': slot.existingMime,
             'fileName': slot.existingName,
             'fileSize': slot.existingSize,

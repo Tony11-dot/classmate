@@ -23,6 +23,7 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
   }
 
   void _reload() {
+    if (!mounted) return;
     setState(() => _future = ref.read(managerApiProvider).listSchools());
   }
 
@@ -107,8 +108,8 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
         ],
       ),
     );
-    if (ok != true) return;
     try {
+      if (ok != true) return;
       await _api.updateSchool(school['id'].toString(), {
         'name': nameCtl.text.trim(),
         if (int.tryParse(minCtl.text.trim()) != null) 'minGrade': int.parse(minCtl.text.trim()),
@@ -117,6 +118,10 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
       _reload();
     } catch (e) {
       _snack('$e');
+    } finally {
+      nameCtl.dispose();
+      minCtl.dispose();
+      maxCtl.dispose();
     }
   }
 
@@ -152,12 +157,14 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
         ),
       ),
     );
-    if (ok != true) return;
     try {
+      if (ok != true) return;
       await _api.deleteSchool(school['id'].toString());
       _reload();
     } catch (e) {
       _snack('$e');
+    } finally {
+      ctl.dispose();
     }
   }
 

@@ -119,7 +119,11 @@ class DmChatThreadController extends ChatThreadController {
   // Last successfully rendered message list per thread — survives controller
   // recreation within the session so re-opened threads paint instantly and a
   // transient fetch failure never blanks a previously seen conversation.
+  // Bounded (see _mergeWithOptimistic): at most _kLastMsgThreadCap threads,
+  // each capped to _kLastMsgPerThread messages.
   static final Map<String, List<ChatMessage>> _staticLastMessages = {};
+  static const int _kLastMsgThreadCap = 24;
+  static const int _kLastMsgPerThread = 80;
 
   Set<String> get _sentUrls =>
       _staticSentUrls.putIfAbsent(_threadId, () => {});
@@ -550,7 +554,17 @@ class DmChatThreadController extends ChatThreadController {
     // Session-scoped last-known snapshot: a NEW controller instance for a
     // recently opened thread renders this instantly (and on fetch failure)
     // instead of a spinner / error page, while the live fetch refreshes it.
-    _staticLastMessages[_threadId] = deduped;
+    // Bounded so a session that opens many long threads can't grow this map
+    // without limit: keep only the most-recent slice per thread, and evict the
+    // oldest OTHER thread once we hold more than _kLastMsgThreadCap.
+    _staticLastMessages[_threadId] = deduped.length > _kLastMsgPerThread
+        ? deduped.sublist(deduped.length - _kLastMsgPerThread)
+        : deduped;
+    if (_staticLastMessages.length > _kLastMsgThreadCap) {
+      final oldest = _staticLastMessages.keys
+          .firstWhere((k) => k != _threadId, orElse: () => _threadId);
+      if (oldest != _threadId) _staticLastMessages.remove(oldest);
+    }
     return deduped;
   }
 

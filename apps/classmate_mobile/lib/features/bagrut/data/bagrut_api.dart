@@ -41,6 +41,13 @@ class BagrutApi {
     return '${_normalizedBaseUrl()}${u.startsWith('/') ? '' : '/'}$u';
   }
 
+  /// Inverse of [resolveUrl] — strips our API origin so files are persisted as
+  /// relative `/uploads/...` paths (portable if the API host ever changes).
+  String relativizeUrl(String url) {
+    final base = _normalizedBaseUrl();
+    return url.startsWith(base) ? url.substring(base.length) : url;
+  }
+
   Map<String, String> _headers() {
     final trimmed = token.trim();
     final looksJwt = trimmed.split('.').length >= 3;

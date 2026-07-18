@@ -36,36 +36,36 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
     final email = TextEditingController();
     final username = TextEditingController();
     final password = TextEditingController();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add manager'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Grant manager access to an existing account by email or username, '
-                'or fill everything to create a brand-new manager.',
-                style: TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 12),
-              TextField(controller: email, decoration: const InputDecoration(labelText: 'Email')),
-              TextField(controller: username, decoration: const InputDecoration(labelText: 'Username')),
-              const Divider(height: 24),
-              TextField(controller: name, decoration: const InputDecoration(labelText: 'Full name (new account)')),
-              TextField(controller: password, decoration: const InputDecoration(labelText: 'Password (new account)')),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
-        ],
-      ),
-    );
-    if (ok != true) return;
     try {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Add manager'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Grant manager access to an existing account by email or username, '
+                  'or fill everything to create a brand-new manager.',
+                  style: TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                TextField(controller: email, decoration: const InputDecoration(labelText: 'Email')),
+                TextField(controller: username, decoration: const InputDecoration(labelText: 'Username')),
+                const Divider(height: 24),
+                TextField(controller: name, decoration: const InputDecoration(labelText: 'Full name (new account)')),
+                TextField(controller: password, decoration: const InputDecoration(labelText: 'Password (new account)')),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
+          ],
+        ),
+      );
+      if (ok != true) return;
       final res = await _api.addManager(
         name: name.text,
         email: email.text,
@@ -80,6 +80,11 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
       }
     } catch (e) {
       _snack('$e');
+    } finally {
+      name.dispose();
+      email.dispose();
+      username.dispose();
+      password.dispose();
     }
   }
 

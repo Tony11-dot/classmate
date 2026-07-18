@@ -109,20 +109,26 @@ export class BagrutLibraryService {
     }
     if (body.term !== undefined) data.term = String(body.term).trim();
 
-    // If files are supplied, replace the whole set (simplest, matches the
-    // manager edit-exam UX where the file list is re-picked wholesale).
+    const include = { files: { orderBy: { sortOrder: 'asc' as const } } };
+
+    // If files are supplied, replace the whole set (matches the manager
+    // edit-exam UX where the file list is re-picked wholesale). Delete + create
+    // must be atomic — otherwise a failure between them leaves the exam with
+    // zero files (silent data loss on an edit).
     if (body.files !== undefined) {
       const files = this.normalizeFiles(body.files);
       if (!files.length) throw new BadRequestException('At least one file is required.');
-      await this.prisma.bagrutExamFile.deleteMany({ where: { examId: id } });
-      data.files = { create: files as any };
+      return this.prisma.$transaction(async (tx) => {
+        await tx.bagrutExamFile.deleteMany({ where: { examId: id } });
+        return tx.bagrutExam.update({
+          where: { id },
+          data: { ...data, files: { create: files as any } },
+          include,
+        });
+      });
     }
 
-    return this.prisma.bagrutExam.update({
-      where: { id },
-      data,
-      include: { files: { orderBy: { sortOrder: 'asc' } } },
-    });
+    return this.prisma.bagrutExam.update({ where: { id }, data, include });
   }
 
   async deleteExam(id: string) {
