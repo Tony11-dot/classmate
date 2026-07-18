@@ -1,0 +1,176 @@
+name: Ship
+
+# Cloud release pipeline. Builds + ships ClassMate to Play (internal), TestFlight,
+# and Firebase Hosting using signing material stored in GitHub Actions secrets —
+# so a release can be triggered from anywhere (incl. Claude Code on a phone) with
+# NO signing keys on the device. See docs/CI_SHIPPING.md.
+#
+# Trigger:  Actions → Ship → Run workflow   (or:  gh workflow run ship.yml -f target=all)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which targets to ship
+        type: choice
+        default: all
+        options: [all, android, web, ios]
+      bump_build:
+        description: Auto-increment the pubspec build number (+1) and commit it
+        type: boolean
+        default: true
+
+concurrency:
+  group: ship-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.35.5"
+
+jobs:
+  # ── Bump the build number so Play + TestFlight never reject a duplicate ──────
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.out.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bump build number
+        if: ${{ inputs.bump_build }}
+        run: |
+          set -euo pipefail
+          f=apps/classmate_mobile/pubspec.yaml
+          line=$(grep '^version:' "$f")           # e.g. "version: 1.0.9+202"
+          base="${line#version: }"; base="${base%%+*}"
+          n="${line##*+}"; new=$((n + 1))
+          sed -i "s/^version:.*/version: ${base}+${new}/" "$f"
+          echo "Bumped to ${base}+${new}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): bump build to ${base}+${new} [skip ci]"
+          git push
+      - id: out
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # ── Android → Google Play internal track ────────────────────────────────────
+  android:
+    needs: version
+    if: ${{ inputs.target == 'all' || inputs.target == 'android' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/classmate_mobile
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ needs.version.outputs.sha }}" }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
+      - run: flutter pub get
+      - name: Materialize signing config
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload-key.jks"
+          cat > android/key.properties <<EOF
+          storePassword=${STORE_PW}
+          keyPassword=${KEY_PW}
+          keyAlias=${KEY_ALIAS}
+          storeFile=${RUNNER_TEMP}/upload-key.jks
+          EOF
+          printf '%s' "$PLAY_JSON" > fastlane/play-service-account.json
+      - name: Install fastlane
+        run: gem install fastlane --no-document
+      - name: fastlane android internal
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: fastlane android internal
+
+  # ── Web → Firebase Hosting ──────────────────────────────────────────────────
+  web:
+    needs: version
+    if: ${{ inputs.target == 'all' || inputs.target == 'web' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/classmate_mobile
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ needs.version.outputs.sha }}" }
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
+      - run: flutter pub get
+      - run: flutter build web --release
+      - name: Deploy to Firebase Hosting
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/fb.json
+          FB_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$FB_JSON" > "$RUNNER_TEMP/fb.json"
+          npx --yes firebase-tools@latest deploy --only hosting \
+            --project classmate-f17d6 --non-interactive
+
+  # ── iOS → TestFlight ────────────────────────────────────────────────────────
+  # Requires IOS_DIST_CERT_P12_BASE64 + IOS_DIST_CERT_PASSWORD (see CI_SHIPPING.md).
+  ios:
+    needs: version
+    if: ${{ inputs.target == 'all' || inputs.target == 'ios' }}
+    runs-on: macos-14
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: apps/classmate_mobile
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ needs.version.outputs.sha }}" }
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
+      - run: flutter pub get
+      - name: Import distribution cert into a temp keychain
+        env:
+          P12_B64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          P12_PW: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KC="$RUNNER_TEMP/build.keychain-db"
+          KP="ci-$RANDOM$RANDOM"
+          security create-keychain -p "$KP" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KP" "$KC"
+          echo "$P12_B64" | base64 -d > "$RUNNER_TEMP/dist.p12"
+          security import "$RUNNER_TEMP/dist.p12" -k "$KC" -P "$P12_PW" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KP" "$KC"
+          # Prepend our keychain to the search list so codesign finds the identity.
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+      - name: Install provisioning profile
+        env:
+          PROFILE_B64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          dir="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$dir"
+          echo "$PROFILE_B64" | base64 -d > "$dir/ClassMate_AppStore.mobileprovision"
+      - name: Write App Store Connect API key
+        env:
+          P8_B64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: echo "$P8_B64" | base64 -d > "$RUNNER_TEMP/AuthKey.p8"
+      - name: Install fastlane
+        run: gem install fastlane --no-document
+      - name: fastlane ios beta
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: fastlane ios beta

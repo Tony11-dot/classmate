@@ -4,16 +4,48 @@ A repeatable security pass. Run before major releases or when touching auth, pay
 
 ## 1 · Rate limiting (all endpoints; auth = max 5 / 15 min)
 
-Use `@nestjs/throttler`.
+Use `@nestjs/throttler` with **two named buckets** registered in `app.module.ts`
+(`ThrottlerModule.forRoot([...])`), the guard wired as an `APP_GUARD`:
 
-- Global default throttle (e.g. 100 req/min/IP) registered as an `APP_GUARD` in `app.module.ts`.
-- Strict per-route override on auth/sensitive routes — **5 attempts / 15 min**:
-  ```ts
-  @Throttle({ default: { limit: 5, ttl: 15 * 60 * 1000 } })
-  ```
-  Apply to: `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`, phone/email verify (`startVerify`/`confirmVerify`), and the biometric password-confirm path (`/auth/login` re-use).
-- Behind Railway's proxy, trust the proxy and key the limiter on the real client IP (`X-Forwarded-For`), not the proxy IP — otherwise everyone shares one bucket.
-- Return `429 Too Many Requests` with a generic message (don't leak which field was wrong).
+- `default` — generous global cap (**1200 req/min/IP**) so a buggy client can't
+  spam us to death (a parent watching two kids fans out 30+ req/s on a tab switch).
+- `auth` — strict **5 req / 15 min / IP** for credential endpoints.
+
+**⚠ Gotcha (fixed in build 202): named buckets are enforced on _every_ route by
+default.** `@nestjs/throttler` runs each named bucket on all routes, and a bare
+`@SkipThrottle()` only skips the bucket literally named `default`. So the `auth`
+bucket silently rate-limited the whole platform and intermittently 429'd hot
+reads (e.g. the messages thread fetch — see the tester report). Make `auth`
+**opt-in** via a `skipIf` on its definition that skips unless the route declared
+`@Throttle({ auth: … })` metadata:
+
+```ts
+{
+  name: 'auth',
+  ttl: 15 * 60_000,
+  limit: 5,
+  skipIf: (ctx) =>
+    Reflect.getMetadata('THROTTLER:LIMITauth', ctx.getHandler()) === undefined &&
+    Reflect.getMetadata('THROTTLER:LIMITauth', ctx.getClass()) === undefined,
+}
+```
+
+Then:
+
+- Opt a route into the strict bucket with `@Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })`.
+  Apply to: `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`,
+  phone/email verify (`startVerify`/`confirmVerify`), and the biometric password-confirm path.
+- When skipping throttling on a controller, list **both** buckets by name:
+  `@SkipThrottle({ default: true, auth: true })` — a bare `@SkipThrottle()` leaves
+  `default` in force (health-check bug, also fixed in 202).
+- Behind Railway's proxy, trust the proxy and key the limiter on the real client IP
+  (`X-Forwarded-For`), not the proxy IP — otherwise everyone shares one bucket.
+- Return `429 Too Many Requests` with a **generic** message. The client never
+  renders the raw body: `CMApiException.toString()` maps every error (incl. 429)
+  to a friendly line, keeping status/path/framework-exception names out of the UI.
+- **Verify live** after a deploy: `curl -sD - $PROD/messages/inbox | grep ratelimit`
+  should show `x-ratelimit-limit: 1200` but **no** `-auth` header; `curl -sD - -X POST $PROD/auth/login`
+  **should** show `x-ratelimit-limit-auth: 5`.
 
 ## 2 · Scan for hardcoded secrets
 
