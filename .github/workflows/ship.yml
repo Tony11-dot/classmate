@@ -25,6 +25,11 @@ concurrency:
   group: ship-${{ github.ref }}
   cancel-in-progress: false
 
+# The version job commits the build-number bump back to main, so the workflow
+# token needs write access to repo contents (default is read-only).
+permissions:
+  contents: write
+
 env:
   FLUTTER_VERSION: "3.44.6"
   # Non-secret Railway IDs (project + api service) — the RAILWAY_TOKEN secret is
