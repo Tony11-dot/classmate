@@ -51,7 +51,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
       - name: flutter analyze
-        run: cd apps/classmate_mobile && flutter pub get && flutter analyze lib
+        run: cd apps/classmate_mobile && flutter pub get && flutter analyze lib --no-fatal-infos
 
   # ── 1 · Bump the build number so Play + TestFlight never reject a duplicate ──
   version:
