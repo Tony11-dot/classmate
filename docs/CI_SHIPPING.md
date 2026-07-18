@@ -5,6 +5,13 @@ runners using signing material kept in **GitHub Actions secrets**. This means a
 release needs **no signing keys on the machine that triggers it** — you can ship
 from a laptop, a browser, or Claude Code on your phone.
 
+It is a faithful clone of the local Mac flow, in this order:
+**verify (`flutter analyze` + `tsc`) → bump build → Railway → Web → Android → iOS → Sentry.**
+The `verify` job gates everything (a red analyze/tsc stops the release before any
+upload). The `railway` job mirrors `railway up` and **no-ops cleanly until you add
+a `RAILWAY_TOKEN` secret** (Railway → Account → Tokens) — the app targets don't
+need it.
+
 > **The one thing to understand about the keys:** they live in GitHub, not on
 > your phone. Your phone only sends a "go" signal (it triggers the workflow);
 > GitHub does the signed build. Never copy a keystore, `.p12`, `.p8`, or
@@ -109,8 +116,10 @@ If the cert is ever lost/expired, regenerate it + the profile with
 | --- | --- | --- |
 | Android | 6/6 | ✅ |
 | Web | 1/1 | ✅ |
-| iOS | 4/6 | ⛔ needs `IOS_DIST_CERT_P12_BASE64` + `IOS_DIST_CERT_PASSWORD` |
+| iOS | 6/6 | ✅ |
+| Railway | `RAILWAY_TOKEN` | ⛔ optional — job skips cleanly until the token is set |
 
 Confirm names anytime with `gh secret list --repo Tony11-dot/classmate`.
-Railway (backend) is **not** in this pipeline — deploy it with `railway up`
-(see [SHIPPING.md](SHIPPING.md)) or add a `RAILWAY_TOKEN` job later.
+The Railway job runs on `target=all` or `target=railway` and no-ops with a warning
+until you add `RAILWAY_TOKEN` (Railway → Account → Tokens):
+`printf '%s' '<token>' | gh secret set RAILWAY_TOKEN --repo Tony11-dot/classmate`.
