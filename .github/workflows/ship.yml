@@ -202,6 +202,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: "${{ needs.version.outputs.sha }}" }
+      - name: Select newest Xcode 16.x
+        # macos-15's default Xcode can be 16.0, whose iOS 18.0 SDK has ObjC header
+        # regressions (e.g. device_info_plus's NSProcessInfo.isiOSAppOnVision not
+        # visible) that are fixed in 16.1+. Pin to the newest 16.x present so the
+        # archive uses the good SDK. No-op if none matches (keeps the default).
+        working-directory: /
+        run: |
+          latest=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1 || true)
+          if [ -n "$latest" ]; then sudo xcode-select -s "$latest/Contents/Developer"; fi
+          xcodebuild -version
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
       - run: flutter pub get
