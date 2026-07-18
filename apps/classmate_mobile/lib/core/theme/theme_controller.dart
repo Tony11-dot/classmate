@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart'; // CupertinoPageTransitionsBuilder moved here in Flutter 3.44 (decouple-page-transition-builders)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
