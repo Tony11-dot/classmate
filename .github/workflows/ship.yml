@@ -150,7 +150,8 @@ jobs:
           EOF
           printf '%s' "$PLAY_JSON" > fastlane/play-service-account.json
       - name: Install fastlane
-        run: gem install fastlane --no-document
+        # ubuntu system Ruby installs gems to /var/lib/gems (root-owned) → needs sudo.
+        run: sudo gem install fastlane --no-document
       - name: fastlane android internal
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
