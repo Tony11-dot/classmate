@@ -2,6 +2,13 @@
 
 The tested release flow. **Order:** verify → bump → commit → **Railway → Web → Android (Play) → iOS (TestFlight)**. Sentry symbol/dSYM upload runs automatically inside the mobile fastlane lanes.
 
+> **Ship from the cloud / your phone:** the same build can run on GitHub's
+> runners with zero signing keys on your device — `gh workflow run ship.yml -f target=all`.
+> The keystore, `.p12`, `.p8`, and service-account JSONs live in GitHub Actions
+> secrets, not on the triggering machine. Full secret registry + the "keys never
+> touch the phone" model: **[CI_SHIPPING.md](CI_SHIPPING.md)**. The manual
+> local flow below still works and is the fallback if a CI signing step fails.
+
 ## 0 · Pre-ship (always)
 
 ```bash

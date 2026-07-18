@@ -22,6 +22,19 @@ function ensureUploadsDir() {
   mkdirSync('uploads/attachments', { recursive: true });
 }
 
+function ensureDir(sub: string) {
+  mkdirSync('uploads', { recursive: true });
+  mkdirSync(`uploads/${sub}`, { recursive: true });
+}
+
+function stampedName(originalname: string): string {
+  const stamp = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+  const base = safeName(originalname || 'upload');
+  const ext = extname(base);
+  const stem = ext ? base.slice(0, -ext.length) : base;
+  return `${stem}-${stamp}${ext}`;
+}
+
 function safeName(raw: string) {
   return raw.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
@@ -100,6 +113,53 @@ export class UploadsController {
       fileName: file.originalname,
       mimeType: file.mimetype,
       fileSize: file.size,
+    };
+  }
+
+  // Manager-only: school logo image for the create/edit-school flow.
+  @Roles(Role.MANAGER)
+  @Post('manager-logo')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => { ensureDir('setup'); cb(null, 'uploads/setup'); },
+        filename: (_req, file, cb) => cb(null, stampedName(file.originalname)),
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        const ok = String(file.mimetype || '').toLowerCase().startsWith('image/');
+        cb(ok ? null : new BadRequestException('Only image files are allowed'), ok);
+      },
+    }),
+  )
+  uploadManagerLogo(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('file is required');
+    return { ok: true, url: `/uploads/setup/${file.filename}` };
+  }
+
+  // Manager-only: a bagrut exam file (questions / answers / solution / advanced).
+  @Roles(Role.MANAGER)
+  @Post('bagrut-file')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => { ensureDir('bagrut'); cb(null, 'uploads/bagrut'); },
+        filename: (_req, file, cb) => cb(null, stampedName(file.originalname)),
+      }),
+      limits: { fileSize: 20 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        const mime = String(file.mimetype || '').toLowerCase();
+        const ok = mime.startsWith('image/') || mime === 'application/pdf';
+        cb(ok ? null : new BadRequestException('Only image/pdf allowed'), ok);
+      },
+    }),
+  )
+  uploadBagrutFile(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('file is required');
+    const kind = file.mimetype === 'application/pdf' ? 'pdf' : 'image';
+    return {
+      ok: true,
+      file: { url: `/uploads/bagrut/${file.filename}`, fileName: file.originalname, mimeType: file.mimetype, kind, fileSize: file.size },
     };
   }
 }

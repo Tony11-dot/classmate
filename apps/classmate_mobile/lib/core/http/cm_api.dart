@@ -51,7 +51,14 @@ class CMApiException implements Exception {
         lower == 'invalid token' ||
         lower == 'bad request' ||
         lower.contains('internal server error') ||
-        lower.contains('prisma');
+        lower.contains('prisma') ||
+        // Framework exception names / internals must never reach the UI
+        // (e.g. "ThrottlerException: Too Many Requests").
+        lower.contains('exception') ||
+        lower.contains('throttler') ||
+        lower.contains('stack') ||
+        lower.contains('/api/') ||
+        lower.contains('http');
   }
 
   @override

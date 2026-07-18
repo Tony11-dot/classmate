@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const RoleSchema = z.enum(['STUDENT', 'PARENT', 'TEACHER', 'SECRETARY', 'ADMIN']);
+export const RoleSchema = z.enum(['STUDENT', 'PARENT', 'TEACHER', 'SECRETARY', 'ADMIN', 'MANAGER']);
 
 // SDK expects these:
 export const LoginRequestSchema = z.object({

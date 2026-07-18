@@ -4,7 +4,9 @@ import { Public } from '../auth/decorators/public.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Controller()
-@SkipThrottle({ global: true, auth: true })
+// Bucket names must match ThrottlerModule.forRoot — the old '{ global: true }'
+// referenced a bucket that doesn't exist, leaving 'default' still enforced.
+@SkipThrottle({ default: true, auth: true })
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 

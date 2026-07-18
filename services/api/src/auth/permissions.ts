@@ -3,7 +3,8 @@ export type Role =
   | 'TEACHER'
   | 'ADMIN'
   | 'PARENT'
-  | 'SECRETARY';
+  | 'SECRETARY'
+  | 'MANAGER';
 
 type UserLike = { roles?: string[] | undefined } | undefined | null;
 

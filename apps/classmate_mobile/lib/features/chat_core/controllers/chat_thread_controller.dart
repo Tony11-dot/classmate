@@ -55,6 +55,11 @@ abstract class ChatThreadController {
 
   Future<void> markRead();
 
+  /// Re-triggers the initial thread fetch after a load failure (drives the
+  /// Retry button on the thread error state). Default no-op; controllers
+  /// backed by a provider invalidate it so the next watch refetches.
+  Future<void> retryInitialLoad() async {}
+
   Future<void> markVoicePlayed(String messageId) async {}
 
   AsyncValue<bool> watchTyping(WidgetRef ref) => const AsyncValue.data(false);

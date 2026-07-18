@@ -11,6 +11,8 @@ import '../features/account/profile_screen.dart';
 import '../features/account/settings_screen.dart';
 import '../features/account/drawer_tools_order_screen.dart';
 import '../features/billing/ui/plans_screen.dart';
+import '../features/bagrut/ui/bagrut_screen.dart';
+import '../features/manager/ui/manager_shell.dart';
 import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
 import '../features/insights/insights_screen.dart';
@@ -245,6 +247,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           loc == '/materials' ||
           loc == '/solutions' ||
           loc.startsWith('/solutions/') ||
+          loc == '/bagrut' ||
+          loc.startsWith('/bagrut/') ||
           loc == '/profile' ||
           loc == '/settings' ||
           loc == '/settings/reorder-tools' ||
@@ -264,17 +268,23 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isSecretary = primaryRole == 'SECRETARY';
       final isParent = primaryRole == 'PARENT';
+      final isManager = session.isManager;
+      final isManagerRoute = loc == '/manager' || loc.startsWith('/manager/');
 
       // Bare '/' (and empty) has no page of its own — an account switch or a
       // stray deep link can land here. Route to the signed-in user's role home
       // instead of throwing "no routes for location: /".
       if (loc == '/' || loc.isEmpty) {
         if (!loggedIn) return '/login';
+        if (isManager) return '/manager/home';
         if (isSecretary) return '/secretary/home';
         if (isParent) return '/parent/home';
         if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
       }
+
+      // Non-managers can never reach the platform console.
+      if (loggedIn && !isManager && isManagerRoute) return '/';
 
       if (!loggedIn && !isAuthRoute) return '/login';
       // Multi-account: `/login?add=1` is reachable WHILE logged in so a user can
@@ -285,10 +295,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAddAccount = isLoginOnly && state.uri.queryParameters['add'] == '1';
       if (loggedIn && isAddAccount) return null;
       if (loggedIn && isLoginOnly && !isAddAccount) {
+        if (isManager) return '/manager/home';
         if (isSecretary) return '/secretary/home';
         if (isParent) return '/parent/home';
         if (isAdminLike) return '/admin/dashboard';
         return session.isTeacherLike ? '/teacher/schedule' : '/schedule';
+      }
+
+      // Manager: platform console is isolated — bounce off any non-manager
+      // route (except account/auth pages) back to the console.
+      if (loggedIn && isManager && !isAuthRoute) {
+        final managerSafe = isManagerRoute ||
+            loc == '/profile' ||
+            loc == '/settings' ||
+            loc == '/support' ||
+            loc == '/about';
+        if (!managerSafe) return '/manager/home';
       }
       // Secretary must not access admin-only routes (e.g. /admin/dashboard,
       // /admin/schedule). Carve-out: /admin/export is shared between
@@ -429,6 +451,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       _slideRoute(
         path: '/settings/reorder-tools',
         builder: (context, state) => const DrawerToolsOrderScreen(),
+      ),
+
+      // Platform-owner console (MANAGER role only; redirect-guarded above).
+      _slideRoute(
+        path: '/manager/home',
+        builder: (context, state) => const ManagerShell(),
       ),
 
       _slideRoute(
@@ -925,6 +953,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/solutions',
             builder: (context, state) => const SolutionsScreen(),
+          ),
+          // Inside the shell so the top bar (hamburger/logo/title pill) stays
+          // visible on the subject grid — subject/exam screens are pushed on
+          // the ROOT navigator and go full-screen with swipe-back.
+          _fadeRoute(
+            path: '/bagrut',
+            builder: (context, state) => const BagrutScreen(),
           ),
           _fadeRoute(
             path: '/insights',

@@ -8,6 +8,20 @@ import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 
+// Platform-owner allowlist. Any account whose email OR username matches is
+// always granted MANAGER on every request — no DB row required, so it works
+// even on a freshly-reset database. `Testarossa1939` is this account's
+// password and is intentionally NOT referenced here. Additional managers are
+// granted the role in the DB via the in-app "add manager" flow.
+const MANAGER_ALLOWLIST_EMAILS = new Set(['aboudtony22@gmail.com']);
+const MANAGER_ALLOWLIST_USERNAMES = new Set(['rafanadal22']);
+
+function isManagerAllowlisted(email?: string | null, username?: string | null): boolean {
+  if (email && MANAGER_ALLOWLIST_EMAILS.has(String(email).trim().toLowerCase())) return true;
+  if (username && MANAGER_ALLOWLIST_USERNAMES.has(String(username).trim().toLowerCase())) return true;
+  return false;
+}
+
 function rolesFromEmail(email: string): Role[] {
   const e = String(email || '').toLowerCase();
   if (e.includes('admin')) return [Role.ADMIN];
@@ -77,6 +91,10 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     }
 
     const roles: Role[] = (user.roles ?? []).map((r: any) => r.role);
+    // Platform-owner bootstrap: always grant MANAGER to the allowlisted account.
+    if (isManagerAllowlisted(user.email, user.username) && !roles.includes(Role.MANAGER)) {
+      roles.push(Role.MANAGER);
+    }
     const displayName = user.name ?? user.email?.split('@')[0] ?? '';
     const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
     const resolvedSchoolId = user.schoolId ?? schoolId ?? null;

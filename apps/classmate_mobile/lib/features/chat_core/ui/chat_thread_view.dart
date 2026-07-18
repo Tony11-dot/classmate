@@ -16,6 +16,7 @@ import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/realtime/realtime_listener.dart';
 import '../controllers/chat_thread_controller.dart';
+import 'chat_load_error_view.dart';
 import '../domain/chat_delete_mode.dart';
 import '../domain/chat_message.dart';
 import '../domain/chat_message_kind.dart';
@@ -1838,9 +1839,16 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
             loading: () => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
                 : const Center(child: CmLoading()),
+            // First-open failure (nothing cached yet): show a friendly,
+            // localized state with a Retry button. NEVER render the raw
+            // error — it used to leak the backend path/status/exception
+            // payload straight into the chat area (tester-reported).
             error: (err, _) => _lastKnownMessages.isNotEmpty
                 ? buildBody(_lastKnownMessages)
-                : Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(err))),
+                : ChatLoadErrorView(
+                    error: err,
+                    onRetry: () => widget.controller.retryInitialLoad(),
+                  ),
           ),
         ),
         if (_isForwardSelectionMode)

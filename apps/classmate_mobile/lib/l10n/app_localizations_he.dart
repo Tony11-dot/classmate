@@ -338,6 +338,44 @@ class AppLocalizationsHe extends AppLocalizations {
   String get titleSolutions => 'פתרונות';
 
   @override
+  String get titleBagrut => 'Bagrut';
+
+  @override
+  String get bagrutSearchHint => 'Search subjects';
+
+  @override
+  String bagrutNoExams(Object subject) {
+    return 'No exams yet for $subject.';
+  }
+
+  @override
+  String bagrutFilesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+      zero: 'No files',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bagrutNoFiles => 'No files.';
+
+  @override
+  String get bagrutFileQuestions => 'Questions';
+
+  @override
+  String get bagrutFileAnswers => 'Answers';
+
+  @override
+  String get bagrutFileSolution => 'Solution';
+
+  @override
+  String get bagrutFileAdvanced => 'Full solution';
+
+  @override
   String get titleExams => 'בחינות';
 
   @override
@@ -5425,6 +5463,17 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get commonRetry => 'נסה שוב';
+
+  @override
+  String get chatThreadLoadFailedTitle => 'Couldn\'t load this conversation';
+
+  @override
+  String get chatThreadLoadFailedBody =>
+      'Please check your connection and try again.';
+
+  @override
+  String get chatThreadLoadFailedBusy =>
+      'The server is a little busy right now. Give it a moment, then retry.';
 
   @override
   String get commonBack => 'חזור';
