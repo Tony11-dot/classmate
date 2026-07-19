@@ -622,6 +622,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsThemeDark => 'כהה';
 
   @override
+  String get settingsThemeCoffee => 'Coffee';
+
+  @override
   String get settingsLanguageSearchHint => 'חפש שפה...';
 
   @override

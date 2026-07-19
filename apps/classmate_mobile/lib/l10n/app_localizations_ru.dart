@@ -643,6 +643,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsThemeDark => 'Тёмная';
 
   @override
+  String get settingsThemeCoffee => 'Coffee';
+
+  @override
   String get settingsLanguageSearchHint => 'Поиск языка...';
 
   @override

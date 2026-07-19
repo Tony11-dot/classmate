@@ -1168,6 +1168,12 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get settingsThemeDark;
 
+  /// No description provided for @settingsThemeCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get settingsThemeCoffee;
+
   /// No description provided for @settingsLanguageSearchHint.
   ///
   /// In en, this message translates to:

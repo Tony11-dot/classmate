@@ -14,6 +14,7 @@ import '../core/locale/locale_controller.dart';
 import '../core/auth/auth_controller.dart';
 import '../features/lifedoc/notifications_local_service.dart';
 import '../features/lifedoc/notifications_provider.dart';
+import '../ui/nav/desktop_chrome_shell.dart';
 import '../l10n/app_localizations.dart';
 
 final appScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -61,8 +62,18 @@ class ClassMateApp extends ConsumerWidget {
         // by scripts/generate_pseudo_locale.dart.
         Locale('ps'),
       ],
-      themeMode: t.mode,
-      theme: buildTheme(brightness: Brightness.light, s: t),
+      // Coffee shares the LIGHT slot (its theme is built with coffee: true and
+      // Brightness.light), so it never participates in system light/dark.
+      themeMode: switch (t.mode) {
+        AppThemeMode.dark => ThemeMode.dark,
+        AppThemeMode.system => ThemeMode.system,
+        AppThemeMode.light || AppThemeMode.coffee => ThemeMode.light,
+      },
+      theme: buildTheme(
+        brightness: Brightness.light,
+        s: t,
+        coffee: t.mode == AppThemeMode.coffee,
+      ),
       darkTheme: buildTheme(brightness: Brightness.dark, s: t),
       builder: (context, child) {
         final mediaQuery = MediaQuery.maybeOf(context);
@@ -75,6 +86,14 @@ class ClassMateApp extends ConsumerWidget {
         // continues to fine-tune on top of that.
         final osScale = MediaQuery.textScalerOf(context).scale(1.0);
         final combinedScale = (osScale * t.textScale).clamp(0.85, 2.0);
+        // Wrap the router's root navigator in the always-on desktop/tablet
+        // chrome (persistent sidebar + top bar). It sits ABOVE the root
+        // navigator so it survives every push — including full-screen
+        // `rootNavigator: true` routes. No-op on phones. See DesktopChromeShell.
+        final chromed = DesktopChromeShell(
+          router: router,
+          child: child ?? const SizedBox.shrink(),
+        );
         final scaledChild = MediaQuery(
           data: (mediaQuery ?? const MediaQueryData()).copyWith(
             textScaler: TextScaler.linear(combinedScale),
@@ -86,7 +105,7 @@ class ClassMateApp extends ConsumerWidget {
             // entire app's motion.
             disableAnimations: t.reduceMotion,
           ),
-          child: child ?? const SizedBox.shrink(),
+          child: chromed,
         );
         // Dismiss the keyboard whenever any scrollable below us starts a user
         // drag. Per-screen `keyboardDismissBehavior: onDrag` is the same idea

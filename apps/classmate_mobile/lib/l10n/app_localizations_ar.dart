@@ -627,6 +627,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsThemeDark => 'داكن';
 
   @override
+  String get settingsThemeCoffee => 'Coffee';
+
+  @override
   String get settingsLanguageSearchHint => 'ابحث عن لغة...';
 
   @override

@@ -639,6 +639,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsThemeDark => '‹‹Dark››';
 
   @override
+  String get settingsThemeCoffee => 'Coffee';
+
+  @override
   String get settingsLanguageSearchHint => '‹‹Search language...››';
 
   @override

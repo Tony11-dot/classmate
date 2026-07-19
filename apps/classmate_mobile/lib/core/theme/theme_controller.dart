@@ -7,6 +7,12 @@ final themeControllerProvider = NotifierProvider<ThemeController, ThemeState>(
   ThemeController.new,
 );
 
+/// App-level theme choice. Extends the usual system/light/dark with a warm
+/// **coffee** mode (à la coffee-mode blogs) — a sepia/latte palette that, for
+/// brightness-driven decisions (logos, glass, status bar), behaves exactly like
+/// light (its [ThemeData.brightness] is [Brightness.light]).
+enum AppThemeMode { system, light, dark, coffee }
+
 class ThemeState {
   const ThemeState({
     required this.mode,
@@ -17,7 +23,7 @@ class ThemeState {
     required this.reduceMotion,
   });
 
-  final ThemeMode mode;
+  final AppThemeMode mode;
   final Color accent;
   final double radius;
   final double density;
@@ -25,7 +31,7 @@ class ThemeState {
   final bool reduceMotion;
 
   ThemeState copyWith({
-    ThemeMode? mode,
+    AppThemeMode? mode,
     Color? accent,
     double? radius,
     double? density,
@@ -55,7 +61,7 @@ class ThemeController extends Notifier<ThemeState> {
   ThemeState build() {
     _load();
     return const ThemeState(
-      mode: ThemeMode.light,
+      mode: AppThemeMode.light,
       accent: Color(0xFF0EA5E9),
       radius: 18.0,
       density: 0.0,
@@ -72,10 +78,11 @@ class ThemeController extends Notifier<ThemeState> {
     // their choice — only the unset case is affected.
     final modeRaw = prefs.getString(_kMode) ?? 'light';
     final mode = switch (modeRaw) {
-      'light' => ThemeMode.light,
-      'dark' => ThemeMode.dark,
-      'system' => ThemeMode.system,
-      _ => ThemeMode.light,
+      'light' => AppThemeMode.light,
+      'dark' => AppThemeMode.dark,
+      'coffee' => AppThemeMode.coffee,
+      'system' => AppThemeMode.system,
+      _ => AppThemeMode.light,
     };
 
     final accent = Color(
@@ -103,13 +110,14 @@ class ThemeController extends Notifier<ThemeState> {
     );
   }
 
-  Future<void> setMode(ThemeMode mode) async {
+  Future<void> setMode(AppThemeMode mode) async {
     state = state.copyWith(mode: mode);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kMode, switch (mode) {
-      ThemeMode.light => 'light',
-      ThemeMode.dark => 'dark',
-      _ => 'system',
+      AppThemeMode.light => 'light',
+      AppThemeMode.dark => 'dark',
+      AppThemeMode.coffee => 'coffee',
+      AppThemeMode.system => 'system',
     });
   }
 
@@ -147,15 +155,48 @@ class ThemeController extends Notifier<ThemeState> {
   }
 }
 
-ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: s.accent,
-    brightness: brightness,
+/// Warm sepia "coffee" palette. Built on a mocha seed, then the surfaces are
+/// overridden to latte/paper tones and text to espresso so the whole app reads
+/// like a warm coffee-shop page. Brightness stays [Brightness.light] so every
+/// brightness-driven decision (logos, glass, icons) treats coffee as light.
+ColorScheme _coffeeScheme() {
+  final base = ColorScheme.fromSeed(
+    seedColor: const Color(0xFF9B6B43),
+    brightness: Brightness.light,
   );
+  return base.copyWith(
+    surface: const Color(0xFFF3E9D8),
+    onSurface: const Color(0xFF3B2F25),
+    onSurfaceVariant: const Color(0xFF6A5B4B),
+    surfaceContainerLowest: const Color(0xFFFBF4E7),
+    surfaceContainerLow: const Color(0xFFF6ECDC),
+    surfaceContainer: const Color(0xFFEFE4D1),
+    surfaceContainerHigh: const Color(0xFFE9DCC7),
+    surfaceContainerHighest: const Color(0xFFE2D4BC),
+    outline: const Color(0xFFA1907B),
+    outlineVariant: const Color(0xFFCDBBA0),
+    primaryContainer: const Color(0xFFF0DAC2),
+    onPrimaryContainer: const Color(0xFF3D2A18),
+    secondaryContainer: const Color(0xFFEBD9C4),
+    onSecondaryContainer: const Color(0xFF362619),
+  );
+}
+
+/// [coffee] swaps in the warm sepia scheme and forces light brightness; the
+/// [brightness] arg is then ignored (coffee has no dark variant).
+ThemeData buildTheme({
+  required Brightness brightness,
+  required ThemeState s,
+  bool coffee = false,
+}) {
+  final effectiveBrightness = coffee ? Brightness.light : brightness;
+  final scheme = coffee
+      ? _coffeeScheme()
+      : ColorScheme.fromSeed(seedColor: s.accent, brightness: brightness);
 
   final base = ThemeData(
     useMaterial3: true,
-    brightness: brightness,
+    brightness: effectiveBrightness,
     colorScheme: scheme,
     // App-wide UI typeface: Cabinet Grotesk (bundled). Arabic/Hebrew have no
     // Cabinet glyphs and fall back to the platform / CanvasKit Noto fonts.
@@ -163,7 +204,10 @@ ThemeData buildTheme({required Brightness brightness, required ThemeState s}) {
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
   );
 
-  final on = (brightness == Brightness.dark) ? Colors.white : Colors.black;
+  // Coffee text is espresso (from the scheme), not pure black.
+  final on = coffee
+      ? scheme.onSurface
+      : ((brightness == Brightness.dark) ? Colors.white : Colors.black);
 
   final fixedTextTheme = base.textTheme.apply(
     bodyColor: on,

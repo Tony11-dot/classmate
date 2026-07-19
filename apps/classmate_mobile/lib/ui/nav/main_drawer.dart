@@ -15,16 +15,39 @@ import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
 import 'package:classmate_mobile/ui/nav/drawer_tools_order.dart';
 
 class MainDrawer extends ConsumerWidget {
-  const MainDrawer({super.key, this.permanent = false});
+  const MainDrawer({
+    super.key,
+    this.permanent = false,
+    this.navRouter,
+    this.currentLocation,
+  });
 
   /// When true, render as a permanent left panel (desktop/web) instead of a
   /// slide-out Drawer — no rounded edge, no close button, and tapping an item
   /// navigates without popping a route.
   final bool permanent;
 
+  /// When this drawer is rendered by the GLOBAL desktop chrome
+  /// ([DesktopChromeShell]), it lives ABOVE the router's navigator, where
+  /// `context.go` / `showDialog` / `showModalBottomSheet` have no
+  /// InheritedGoRouter / Navigator ancestor. Passing the [GoRouter] lets us
+  /// route + show modals via the ROOT navigator's context instead. Null in the
+  /// normal phone-drawer / in-shell cases (plain `context` works there).
+  final GoRouter? navRouter;
+
+  /// Current location, supplied alongside [navRouter] because
+  /// `GoRouterState.of(context)` would throw above the navigator. Falls back to
+  /// GoRouterState when null.
+  final String? currentLocation;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    // In global-chrome mode use the root navigator's context (INSIDE
+    // InheritedGoRouter + backed by an Overlay) for every navigation/modal;
+    // otherwise plain `context` is already inside the navigator.
+    final navContext =
+        navRouter?.routerDelegate.navigatorKey.currentContext ?? context;
     void closeDrawer() { if (!permanent) Navigator.of(context).pop(); }
     final l = AppLocalizations.of(context)!;
     final session = ref.watch(authSessionProvider);
@@ -42,7 +65,7 @@ class MainDrawer extends ConsumerWidget {
     final initials = _initials(displayName);
     final schoolName = session.schoolName.trim();
     final schoolLogoUrl = session.schoolLogoUrl.trim();
-    final loc = GoRouterState.of(context).matchedLocation;
+    final loc = currentLocation ?? GoRouterState.of(context).matchedLocation;
     final roleLabel = switch (session.primaryRole) {
       'TEACHER' => l.roleTeacher,
       'ADMIN' => l.roleAdmin,
@@ -115,7 +138,7 @@ class MainDrawer extends ConsumerWidget {
             borderRadius: BorderRadius.circular(14),
             onTap: () {
               closeDrawer();
-              context.go(route);
+              navContext.go(route);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
@@ -239,7 +262,7 @@ class MainDrawer extends ConsumerWidget {
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () => _openAccountSwitcher(context, ref),
+                      onTap: () => _openAccountSwitcher(navContext, ref),
                       child: Row(
                         children: [
                           Container(
@@ -291,7 +314,7 @@ class MainDrawer extends ConsumerWidget {
                                 ),
                                 if (isParent) ...[
                                   const SizedBox(height: 8),
-                                  const _ParentChildDropdown(),
+                                  _ParentChildDropdown(navRouter: navRouter),
                                 ],
                               ],
                             ),
@@ -469,8 +492,8 @@ class MainDrawer extends ConsumerWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () async {
-                          if (!await confirmLogout(context)) return;
-                          if (!context.mounted) return;
+                          if (!await confirmLogout(navContext)) return;
+                          if (!navContext.mounted) return;
                           closeDrawer();
                           await ref.read(authControllerProvider).logout();
                         },
@@ -758,7 +781,11 @@ Widget _schoolLogoPlaceholder(ColorScheme cs) {
 /// writes to [selectedChildProvider] so every parent-scoped data
 /// provider re-fetches against the new child.
 class _ParentChildDropdown extends ConsumerWidget {
-  const _ParentChildDropdown();
+  const _ParentChildDropdown({this.navRouter});
+
+  /// See [MainDrawer.navRouter] — non-null in the global desktop chrome so the
+  /// child picker opens from the root navigator's context.
+  final GoRouter? navRouter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -766,6 +793,8 @@ class _ParentChildDropdown extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final async = ref.watch(parentChildrenProvider);
     final selectedId = ref.watch(selectedChildProvider);
+    final pickerContext =
+        navRouter?.routerDelegate.navigatorKey.currentContext ?? context;
 
     return async.when(
       loading: () => _shell(cs, isDark,
@@ -788,7 +817,7 @@ class _ParentChildDropdown extends ConsumerWidget {
         return InkWell(
           onTap: () async {
             final picked = await showLiquidGlassPicker<String>(
-              context: context,
+              context: pickerContext,
               title: AppLocalizations.of(context)!.drawerSwitchChild,
               currentValue: selected.studentId,
               items: [

@@ -259,6 +259,7 @@
   "settingsThemeSystem": "System default",
   "settingsThemeLight": "Light",
   "settingsThemeDark": "Dark",
+  "settingsThemeCoffee": "Coffee",
   "settingsLanguageSearchHint": "Search language...",
   "teacherWorkspaceSubtitle": "Run attendance, rosters, and grading from the mobile app.",
   "teacherMetricSessionsToday": "Sessions today",

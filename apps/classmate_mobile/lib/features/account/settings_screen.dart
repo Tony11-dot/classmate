@@ -137,28 +137,33 @@ class SettingsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  LiquidGlassDropdown<ThemeMode>(
+                  LiquidGlassDropdown<AppThemeMode>(
                     label: l.settingsTheme,
                     value: t.mode,
                     items: [
                       LiquidGlassDropdownItem(
-                        value: ThemeMode.system,
+                        value: AppThemeMode.system,
                         label: l.settingsThemeSystem,
                         icon: Icons.settings_suggest_rounded,
                       ),
                       LiquidGlassDropdownItem(
-                        value: ThemeMode.light,
+                        value: AppThemeMode.light,
                         label: l.settingsThemeLight,
                         icon: Icons.light_mode_rounded,
                       ),
                       LiquidGlassDropdownItem(
-                        value: ThemeMode.dark,
+                        value: AppThemeMode.dark,
                         label: l.settingsThemeDark,
                         icon: Icons.dark_mode_rounded,
                       ),
+                      LiquidGlassDropdownItem(
+                        value: AppThemeMode.coffee,
+                        label: l.settingsThemeCoffee,
+                        icon: Icons.coffee_rounded,
+                      ),
                     ],
                     onChanged: tc.setMode,
-                    searchHint: '${l.settingsThemeSystem} / ${l.settingsThemeLight} / ${l.settingsThemeDark}',
+                    searchHint: '${l.settingsThemeSystem} / ${l.settingsThemeLight} / ${l.settingsThemeDark} / ${l.settingsThemeCoffee}',
                   ),
                   const SizedBox(height: 12),
                   LiquidGlassDropdown<String?>(

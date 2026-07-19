@@ -644,6 +644,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsThemeDark => 'Sombre';
 
   @override
+  String get settingsThemeCoffee => 'Coffee';
+
+  @override
   String get settingsLanguageSearchHint => 'Rechercher une langue...';
 
   @override

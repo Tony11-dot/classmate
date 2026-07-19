@@ -302,7 +302,7 @@ class AppShell extends ConsumerWidget {
     '/support',
   ];
 
-  String _adminTitle(AppLocalizations l, String prefix) => switch (prefix) {
+  static String _adminTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/admin/dashboard' => l.navDashboard,
     '/admin/people' => l.navPeople,
     '/teacher/students' => l.teacherStudentsLabel,
@@ -339,7 +339,7 @@ class AppShell extends ConsumerWidget {
     _ => l.roleSecretary,
   };
 
-  String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
+  static String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/teacher/student/' => l.teacherStudentsLabel,
     '/teacher/schedule' => l.navSchedule,
     '/teacher/insights' => l.navInsights,
@@ -373,7 +373,7 @@ class AppShell extends ConsumerWidget {
     _ => l.navTeacherWorkspace,
   };
 
-  String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
+  static String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/classrooms' => l.titleClasses,
     '/messages' => l.titleMessages,
     '/cmail' => l.cmailTitle,
@@ -401,7 +401,7 @@ class AppShell extends ConsumerWidget {
     _ => l.titleSchedule,
   };
 
-  String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
+  static String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
     '/parent/home' => l.navHome,
     '/parent/schedule' => l.navSchedule,
     '/parent/overview' => l.navInsights,
@@ -426,7 +426,16 @@ class AppShell extends ConsumerWidget {
     _ => l.navHome,
   };
 
-  String _pageTitle(BuildContext context, String loc, bool isTeacherLike, bool isAdminLike, {bool isParent = false}) {
+  /// Public, role-aware page title for a location — shared by the shell's own
+  /// top bar AND the global desktop chrome ([DesktopChromeShell]) so both show
+  /// the same title pill for any given route.
+  static String titleForLocation(
+    BuildContext context,
+    String loc, {
+    required bool isTeacherLike,
+    required bool isAdminLike,
+    bool isParent = false,
+  }) {
     final l = AppLocalizations.of(context)!;
     if (isAdminLike) {
       for (final p in _adminPrefixes) {
@@ -571,7 +580,8 @@ class AppShell extends ConsumerWidget {
                 ? _teacherLocFor(0)
                 : _studentLocFor(0);
 
-    final pageTitle = _pageTitle(context, loc, isTeacherLike, isAdminLike, isParent: isParent);
+    final pageTitle = titleForLocation(context, loc,
+        isTeacherLike: isTeacherLike, isAdminLike: isAdminLike, isParent: isParent);
 
     // Global real-time event handler — invalidates providers when SSE events arrive
     ref.listen(realtimeEventProvider, (_, event) {
@@ -831,13 +841,13 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
         && loc.startsWith('/parent/')
         && loc != '/parent/home';
     final navItems = _navItemsFor(l);
-    // Shared phone-vs-desktop switch (see isDesktopWide): laptops/desktops
-    // (>= 900px) and tablets in any orientation (iPad, even portrait) get the
-    // persistent left rail; phones stay in pure phone mode with the iOS 26
-    // glass pill owning the bottom edge. Must match the breakpoint the router
-    // uses to frame full-screen pushes, so the sidebar's presence never flips
-    // between a tab and a chat opened from it.
-    final wide = isDesktopWide(context);
+    // Desktop/tablet when the global chrome ([DesktopChromeShell]) is wrapping
+    // us — it owns the persistent sidebar + top bar, so here we render the
+    // content-only wide layout. We key off the chrome's scope (not the raw
+    // window size) because the chrome overrides the content pane's MediaQuery
+    // to the pane's size, which would otherwise mis-trip a size check. On
+    // phones the chrome is absent → false → the iOS 26 glass pill layout.
+    final wide = DesktopChromeScope.isActive(context);
 
     // Tab/route fade is handled app-wide via pageTransitionsTheme (a pure
     // fade, no slide). Render the page directly here.
@@ -849,41 +859,21 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
         : widget.child;
 
     if (wide) {
-      // Desktop / web: the full menu is ALWAYS pinned open as a permanent
-      // sidebar — it never collapses to a hamburger, on any route (including
-      // admin and detail pages). The sidebar is the left child of the
-      // top-level Row, so it spans the FULL window height (reaches the very
-      // top — no top bar sitting above it). The page-title bar lives in the
-      // content column to the right instead of spanning the whole width.
+      // Desktop / tablet: the persistent left sidebar AND the top bar (logo +
+      // title pill) are now owned by the GLOBAL chrome ([DesktopChromeShell] in
+      // app.dart), which sits ABOVE the root navigator so it survives EVERY
+      // push — including full-screen `rootNavigator: true` routes (chats,
+      // classroom detail, etc.). So here we render only the page content
+      // (width-capped for readability) + the role FAB; no sidebar, no top bar,
+      // no bottom nav — the chrome supplies them uniformly on every route.
       return Scaffold(
-        body: SafeArea(
-          child: Row(
-            children: [
-              const MainDrawer(permanent: true),
-              const VerticalDivider(width: 1, thickness: 1),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!widget.hideTopBar)
-                      SizedBox(
-                        height: 60,
-                        child: _TopBar(title: widget.pageTitle, showMenuButton: false),
-                      ),
-                    Expanded(
-                      child: Center(
-                        child: ConstrainedBox(
-                          // Fill most of the window next to the sidebar (no big
-                          // empty gutters) while still capping width so
-                          // phone-first screens don't stretch across a 27".
-                          constraints: const BoxConstraints(maxWidth: 1100),
-                          child: body,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        body: Center(
+          child: ConstrainedBox(
+            // Fill most of the pane next to the sidebar (no big empty gutters)
+            // while still capping width so phone-first screens don't stretch
+            // across a 27".
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: body,
           ),
         ),
         floatingActionButton: widget.buildFab(context),
@@ -903,7 +893,7 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
         extendBody: true,
         drawerEnableOpenDragGesture: !widget.hideTopBar,
         drawer: widget.hideTopBar ? null : const MainDrawer(),
-        appBar: widget.hideTopBar ? null : _TopBar(title: widget.pageTitle),
+        appBar: widget.hideTopBar ? null : AppShellTopBar(title: widget.pageTitle),
         body: widget.hideBottomNav
             ? body
             : NotificationListener<ScrollNotification>(
@@ -1500,8 +1490,8 @@ class _NavItem {
   final int badge;
 }
 
-class _TopBar extends StatelessWidget implements PreferredSizeWidget {
-  const _TopBar({required this.title, this.showMenuButton = true});
+class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
+  const AppShellTopBar({super.key, required this.title, this.showMenuButton = true});
 
   final String title;
   // On wide layouts the full menu is already pinned open as a permanent
