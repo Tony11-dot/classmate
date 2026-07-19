@@ -1174,6 +1174,36 @@ abstract class AppLocalizations {
   /// **'Coffee'**
   String get settingsThemeCoffee;
 
+  /// No description provided for @settingsThemeMatcha.
+  ///
+  /// In en, this message translates to:
+  /// **'Matcha'**
+  String get settingsThemeMatcha;
+
+  /// No description provided for @settingsThemeRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rosé'**
+  String get settingsThemeRose;
+
+  /// No description provided for @settingsThemeMidnight.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight'**
+  String get settingsThemeMidnight;
+
+  /// No description provided for @settingsThemeNord.
+  ///
+  /// In en, this message translates to:
+  /// **'Nord'**
+  String get settingsThemeNord;
+
+  /// No description provided for @settingsThemeForest.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest'**
+  String get settingsThemeForest;
+
   /// No description provided for @settingsLanguageSearchHint.
   ///
   /// In en, this message translates to:

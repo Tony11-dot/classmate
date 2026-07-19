@@ -32,6 +32,10 @@ class ClassMateApp extends ConsumerWidget {
     final locale = ref.watch(localeControllerProvider);
     final router = ref.watch(routerProvider);
 
+    // One curated palette per theme. Concrete themes pin their own brightness;
+    // only `system` follows the OS between the plain Light / Dark defaults.
+    final themes = resolveAppTheme(t);
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       // Flutter web overwrites the browser <title> from this at runtime; with
@@ -62,19 +66,9 @@ class ClassMateApp extends ConsumerWidget {
         // by scripts/generate_pseudo_locale.dart.
         Locale('ps'),
       ],
-      // Coffee shares the LIGHT slot (its theme is built with coffee: true and
-      // Brightness.light), so it never participates in system light/dark.
-      themeMode: switch (t.mode) {
-        AppThemeMode.dark => ThemeMode.dark,
-        AppThemeMode.system => ThemeMode.system,
-        AppThemeMode.light || AppThemeMode.coffee => ThemeMode.light,
-      },
-      theme: buildTheme(
-        brightness: Brightness.light,
-        s: t,
-        coffee: t.mode == AppThemeMode.coffee,
-      ),
-      darkTheme: buildTheme(brightness: Brightness.dark, s: t),
+      themeMode: themes.mode,
+      theme: themes.light,
+      darkTheme: themes.dark,
       builder: (context, child) {
         final mediaQuery = MediaQuery.maybeOf(context);
         // Accessibility (WCAG 1.4.4 / IS 5568): honor the OS / Dynamic-Type

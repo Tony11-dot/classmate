@@ -647,6 +647,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsThemeCoffee => 'Coffee';
 
   @override
+  String get settingsThemeMatcha => 'Matcha';
+
+  @override
+  String get settingsThemeRose => 'Rosé';
+
+  @override
+  String get settingsThemeMidnight => 'Midnight';
+
+  @override
+  String get settingsThemeNord => 'Nord';
+
+  @override
+  String get settingsThemeForest => 'Forest';
+
+  @override
   String get settingsLanguageSearchHint => 'Rechercher une langue...';
 
   @override

@@ -32,31 +32,39 @@ const _kLanguages = [
   _Lang('ps', '‹‹ Pseudo ››', '🧪'),
 ];
 
-// ── Accent colour palette ────────────────────────────────────────────────────
+// ── Theme catalogue ──────────────────────────────────────────────────────────
 
-const _kAccents = <Color>[
-  Color(0xFF0EA5E9), // Blue
-  Color(0xFF4F46E5), // Indigo
-  Color(0xFF7C3AED), // Violet
-  Color(0xFF0D9488), // Teal
-  Color(0xFF16A34A), // Green
-  Color(0xFFEA580C), // Orange
-  Color(0xFFE11D48), // Rose
-];
-
-String _accentLabel(Color color, AppLocalizations l) {
-  return switch (color.toARGB32()) {
-    0xFF0EA5E9 => l.colorBlue,
-    0xFF4F46E5 => l.colorIndigo,
-    0xFF7C3AED => l.colorViolet,
-    0xFF0D9488 => l.colorTeal,
-    0xFF16A34A => l.colorGreen,
-    0xFFEA580C => l.colorOrange,
-    _ => l.colorRose,
-  };
+class _ThemeChoice {
+  const _ThemeChoice(this.value, this.icon);
+  final AppTheme value;
+  final IconData icon;
 }
 
-bool _accentMatch(Color a, Color b) => a.toARGB32() == b.toARGB32();
+// One cohesive, hand-tuned palette each — no free accent picker. Order groups
+// the light family, then the dark family, after System.
+const _kThemes = <_ThemeChoice>[
+  _ThemeChoice(AppTheme.system, Icons.settings_suggest_rounded),
+  _ThemeChoice(AppTheme.light, Icons.light_mode_rounded),
+  _ThemeChoice(AppTheme.coffee, Icons.coffee_rounded),
+  _ThemeChoice(AppTheme.matcha, Icons.spa_rounded),
+  _ThemeChoice(AppTheme.rose, Icons.local_florist_rounded),
+  _ThemeChoice(AppTheme.dark, Icons.dark_mode_rounded),
+  _ThemeChoice(AppTheme.midnight, Icons.bedtime_rounded),
+  _ThemeChoice(AppTheme.nord, Icons.ac_unit_rounded),
+  _ThemeChoice(AppTheme.forest, Icons.forest_rounded),
+];
+
+String _themeLabel(AppTheme t, AppLocalizations l) => switch (t) {
+      AppTheme.system => l.settingsThemeSystem,
+      AppTheme.light => l.settingsThemeLight,
+      AppTheme.coffee => l.settingsThemeCoffee,
+      AppTheme.matcha => l.settingsThemeMatcha,
+      AppTheme.rose => l.settingsThemeRose,
+      AppTheme.dark => l.settingsThemeDark,
+      AppTheme.midnight => l.settingsThemeMidnight,
+      AppTheme.nord => l.settingsThemeNord,
+      AppTheme.forest => l.settingsThemeForest,
+    };
 
 // ── Screen ──────────────────────────────────────────────────────────────────
 
@@ -137,33 +145,21 @@ class SettingsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  LiquidGlassDropdown<AppThemeMode>(
+                  LiquidGlassDropdown<AppTheme>(
                     label: l.settingsTheme,
-                    value: t.mode,
+                    value: t.theme,
                     items: [
-                      LiquidGlassDropdownItem(
-                        value: AppThemeMode.system,
-                        label: l.settingsThemeSystem,
-                        icon: Icons.settings_suggest_rounded,
-                      ),
-                      LiquidGlassDropdownItem(
-                        value: AppThemeMode.light,
-                        label: l.settingsThemeLight,
-                        icon: Icons.light_mode_rounded,
-                      ),
-                      LiquidGlassDropdownItem(
-                        value: AppThemeMode.dark,
-                        label: l.settingsThemeDark,
-                        icon: Icons.dark_mode_rounded,
-                      ),
-                      LiquidGlassDropdownItem(
-                        value: AppThemeMode.coffee,
-                        label: l.settingsThemeCoffee,
-                        icon: Icons.coffee_rounded,
-                      ),
+                      for (final choice in _kThemes)
+                        LiquidGlassDropdownItem(
+                          value: choice.value,
+                          label: _themeLabel(choice.value, l),
+                          icon: choice.icon,
+                        ),
                     ],
-                    onChanged: tc.setMode,
-                    searchHint: '${l.settingsThemeSystem} / ${l.settingsThemeLight} / ${l.settingsThemeDark} / ${l.settingsThemeCoffee}',
+                    onChanged: tc.setTheme,
+                    searchHint: _kThemes
+                        .map((c) => _themeLabel(c.value, l))
+                        .join(' / '),
                   ),
                   const SizedBox(height: 12),
                   LiquidGlassDropdown<String?>(
@@ -188,101 +184,6 @@ class SettingsScreen extends ConsumerWidget {
                     ],
                     onChanged: lc.setLocale,
                     searchHint: l.settingsLanguageSearchHint,
-                  ),
-                  const _Divider(),
-                  // ── Accent colour ──────────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 38,
-                              height: 38,
-                              child: LiquidGlassCard(
-                                padding: EdgeInsets.zero,
-                                borderRadius: BorderRadius.circular(11),
-                                color: t.accent,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.color_lens_outlined,
-                                    size: 20,
-                                    color: t.accent,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l.settingsAccentColour,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                Text(
-                                  l.settingsAccentSubtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(color: cs.onSurfaceVariant),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: _kAccents.map((accent) {
-                            final selected = _accentMatch(t.accent, accent);
-                            return Tooltip(
-                              message: _accentLabel(accent, l),
-                              child: GestureDetector(
-                                onTap: () => tc.setAccent(accent),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 180),
-                                  width: selected ? 40 : 34,
-                                  height: selected ? 40 : 34,
-                                  decoration: BoxDecoration(
-                                    color: accent,
-                                    shape: BoxShape.circle,
-                                    border: selected
-                                        ? Border.all(
-                                            color: cs.onSurface,
-                                            width: 2.5,
-                                          )
-                                        : null,
-                                    boxShadow: selected
-                                        ? [
-                                            BoxShadow(
-                                              color: accent
-                                                  .withValues(alpha: 0.5),
-                                              blurRadius: 8,
-                                              spreadRadius: 1,
-                                            ),
-                                          ]
-                                        : null,
-                                  ),
-                                  child: selected
-                                      ? const Icon(
-                                          Icons.check_rounded,
-                                          color: Colors.white,
-                                          size: 18,
-                                        )
-                                      : null,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
                   ),
                   const _Divider(),
                   _SettingRow(
