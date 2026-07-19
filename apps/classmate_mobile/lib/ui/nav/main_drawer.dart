@@ -138,6 +138,21 @@ class MainDrawer extends ConsumerWidget {
             borderRadius: BorderRadius.circular(14),
             onTap: () {
               closeDrawer();
+              // Desktop/tablet chrome keeps this sidebar visible even when a
+              // full-screen page is stacked over the content pane. Many of
+              // those pages (classroom detail, classroom chat, teacher
+              // sub-screens, …) are pushed IMPERATIVELY on the root navigator
+              // via `Navigator.push(rootNavigator: true)`, so go_router can't
+              // see them — a plain go() switches the tab underneath but leaves
+              // them covering the pane (the highlight moves, nothing else). So
+              // when the chrome owns this drawer, first tear down every route
+              // stacked above the shell, THEN navigate. Phones (navRouter null,
+              // slide-out drawer) keep the plain close-drawer + go().
+              // popUntil uses Navigator.pop, which is NOT gated by PopScope
+              // (only maybePop / system-back are), so a screen guarding back
+              // can't leave the nav stuck.
+              navRouter?.routerDelegate.navigatorKey.currentState
+                  ?.popUntil((r) => r.isFirst);
               navContext.go(route);
             },
             child: Padding(
