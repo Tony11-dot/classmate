@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_session.dart';
 import '../../core/realtime/realtime_listener.dart';
+import '../layout_breakpoints.dart';
 import '../../features/lifedoc/assignments_screen.dart';
 import '../../features/lifedoc/data/exams_repository.dart';
 import '../../features/lifedoc/meetings_screen.dart';
@@ -830,12 +831,13 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
         && loc.startsWith('/parent/')
         && loc != '/parent/home';
     final navItems = _navItemsFor(l);
-    final width = MediaQuery.sizeOf(context).width;
-    // 900px is the same breakpoint Instagram/Twitter web use to switch
-    // from bottom nav to persistent left rail. Below that we stay in
-    // pure phone mode so the existing iOS 26 glass nav keeps owning the
-    // bottom edge; at and above 900 we lift the nav into a desktop rail.
-    final wide = width >= 900;
+    // Shared phone-vs-desktop switch (see isDesktopWide): laptops/desktops
+    // (>= 900px) and tablets in any orientation (iPad, even portrait) get the
+    // persistent left rail; phones stay in pure phone mode with the iOS 26
+    // glass pill owning the bottom edge. Must match the breakpoint the router
+    // uses to frame full-screen pushes, so the sidebar's presence never flips
+    // between a tab and a chat opened from it.
+    final wide = isDesktopWide(context);
 
     // Tab/route fade is handled app-wide via pageTransitionsTheme (a pure
     // fade, no slide). Render the page directly here.

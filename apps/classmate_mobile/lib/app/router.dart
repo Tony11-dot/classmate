@@ -93,25 +93,54 @@ import '../features/parent/ui/parent_home_screen.dart';
 import '../features/parent/ui/parent_notifications_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
+import '../ui/nav/desktop_nav_frame.dart';
+import 'layout_breakpoints.dart';
 import 'shell/app_shell.dart';
 
 /// A GoRoute that renders as a native iOS page — horizontal slide with the
 /// finger-following swipe-back gesture. Used for full-screen DETAIL/push
 /// screens (the ones with a "<" back button). Top-level tabs stay on the
 /// app-wide fade transition; this is the per-route override for pushes.
+///
+/// On WIDE (desktop / tablet) layouts these full-screen pushes are wrapped in
+/// [DesktopNavFrame] so the persistent left nav sidebar stays visible even
+/// inside a chat (WhatsApp-web style) and the transition cross-fades instead of
+/// sliding — the slide would drag the whole frame (sidebar included) across the
+/// screen. Pass [desktopFrame] = false for routes that already live INSIDE the
+/// [AppShell] ShellRoute (which draws its own sidebar) so they don't get a
+/// second one.
 GoRoute _slideRoute({
   required String path,
   String? name,
+  bool desktopFrame = true,
   required Widget Function(BuildContext, GoRouterState) builder,
 }) {
   return GoRoute(
     path: path,
     name: name,
     pageBuilder: (context, state) {
-      // Reduce-motion: skip the Cupertino slide entirely — the page just
-      // appears. (CupertinoPage always slides + ignores disableAnimations,
+      final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+
+      // Wide: keep the nav sidebar pinned on this full-screen route + fade.
+      if (desktopFrame && isDesktopWide(context)) {
+        return CustomTransitionPage<dynamic>(
+          key: state.pageKey,
+          transitionDuration:
+              reduce ? Duration.zero : const Duration(milliseconds: 200),
+          reverseTransitionDuration:
+              reduce ? Duration.zero : const Duration(milliseconds: 200),
+          child: DesktopNavFrame(child: builder(context, state)),
+          transitionsBuilder: reduce
+              ? (_, __, ___, child) => child
+              : (_, animation, __, child) =>
+                  FadeTransition(opacity: animation, child: child),
+        );
+      }
+
+      // Reduce-motion (phone): skip the Cupertino slide entirely — the page
+      // just appears. (CupertinoPage always slides + ignores disableAnimations,
       // so we swap in a zero-duration transition instead.)
-      if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      if (reduce) {
         return CustomTransitionPage<dynamic>(
           key: state.pageKey,
           transitionDuration: Duration.zero,
@@ -797,6 +826,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           _slideRoute(
             path: '/admin/import-users',
+            // Inside the AppShell ShellRoute — it draws the sidebar already.
+            desktopFrame: false,
             builder: (context, state) => const AdminImportUsersScreen(),
           ),
           _fadeRoute(
@@ -912,6 +943,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           _slideRoute(
             path: '/teacher/cohorts',
+            // Inside the AppShell ShellRoute — it draws the sidebar already.
+            desktopFrame: false,
             builder: (context, state) => const TeacherCohortsScreen(),
           ),
           _fadeRoute(
