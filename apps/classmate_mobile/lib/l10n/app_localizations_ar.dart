@@ -643,6 +643,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsThemeForest => 'Forest';
+  String get settingsThemeSand => 'Sand';
+  String get settingsThemeSky => 'Sky';
+  String get settingsThemeLavender => 'Lavender';
+  String get settingsThemePeach => 'Peach';
+  String get settingsThemeMint => 'Mint';
+  String get settingsThemeDracula => 'Dracula';
+  String get settingsThemeObsidian => 'Obsidian';
+  String get settingsThemeWine => 'Wine';
+  String get settingsThemeSolarized => 'Solarized';
+  String get settingsThemePlum => 'Plum';
+  String get settingsThemeOcean => 'Ocean';
 
   @override
   String get settingsLanguageSearchHint => 'ابحث عن لغة...';
@@ -6031,6 +6042,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get supportSmsLabel => 'رسالة';
+  String get supportAiCardTitle => 'Ask AI';
+  String get supportAiCardSubtitle => 'Instant answers about using ClassMate — any time';
+  String get supportAiSheetTitle => 'ClassMate Assistant';
+  String get supportAiGreeting => 'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
+  String get supportAiInputHint => 'Ask a question…';
+  String get supportAiDisclaimer => 'AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.';
+  String get supportAiError => 'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.';
 
   @override
   String get aboutWhatIsClassmate => 'ما هو ClassMate؟';

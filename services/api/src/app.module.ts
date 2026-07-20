@@ -58,6 +58,7 @@ import { SlotSharedMaterialsModule } from './slot-shared-materials/slot-shared-m
 import { NotesModule } from './notes/notes.module';
 import { CMailModule } from './cmail/cmail.module';
 import { AccountModule } from './account/account.module';
+import { SupportModule } from './support/support.module';
 import { RetentionService } from './common/retention.service';
 
 const env = loadEnv();
@@ -186,6 +187,7 @@ const seedControllers = [
     AccountModule,
     BillingModule,
     UsersModule,
+    SupportModule,
   ],
   controllers: [DmUploadController, PasswordResetController, VerifyController, MetricsController, ...seedControllers],
   providers: [

@@ -1182,6 +1182,29 @@ export class MessagesService {
       await this.requireUser(memberId);
     }
 
+    // Enforce same-school membership — mirrors createDirectRequest. Without
+    // this, a cross-school user could be seeded into the group and (since
+    // PENDING_INCOMING participants can already read the thread) immediately
+    // read its messages. Only enforce between accounts that both carry a
+    // schoolId, consistent with the direct-message path.
+    const creatorRow = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { schoolId: true },
+    });
+    const creatorSchoolId = creatorRow?.schoolId ?? null;
+    if (creatorSchoolId) {
+      const memberRows = await this.prisma.user.findMany({
+        where: { id: { in: memberIds } },
+        select: { id: true, schoolId: true },
+      });
+      const crossSchool = memberRows.some(
+        (m) => m.schoolId && m.schoolId !== creatorSchoolId,
+      );
+      if (crossSchool) {
+        throw new ForbiddenException('Cannot add users from a different school');
+      }
+    }
+
     const thread = await this.prisma.dmThread.create({
       data: {
         type: DmThreadType.GROUP,
@@ -1521,6 +1544,14 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     }
 
     const message = await this.loadMessageOrThrow(threadId, messageId, userId);
+
+    // Only the original author may rewrite a message. loadMessageOrThrow only
+    // proves the caller is a thread participant, so without this any member
+    // could edit anyone else's text (siblings togglePin / deleteForEveryone
+    // enforce the same sender-ownership guard).
+    if (message.senderId !== userId) {
+      throw new ForbiddenException('Only the sender can edit this message');
+    }
 
     const nextText = text;
     const currentText = String(message.text ?? '').trim();
@@ -1991,9 +2022,24 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     const identifier = String(body?.email ?? body?.userId ?? '').trim();
     if (!identifier) throw new BadRequestException('userId or email required');
     const targetUser = identifier.includes('@')
-      ? await this.prisma.user.findUnique({ where: { email: identifier }, select: { id: true } })
-      : await this.prisma.user.findUnique({ where: { id: identifier }, select: { id: true } });
+      ? await this.prisma.user.findUnique({ where: { email: identifier }, select: { id: true, schoolId: true } })
+      : await this.prisma.user.findUnique({ where: { id: identifier }, select: { id: true, schoolId: true } });
     if (!targetUser) throw new BadRequestException('User not found');
+
+    // Same-school membership — the admin must not pull a cross-school account
+    // into the group (mirrors createGroup / createDirectRequest). Enforced only
+    // between accounts that both carry a schoolId.
+    const requesterRow = await this.prisma.user.findUnique({
+      where: { id: requesterId },
+      select: { schoolId: true },
+    });
+    if (
+      requesterRow?.schoolId &&
+      targetUser.schoolId &&
+      requesterRow.schoolId !== targetUser.schoolId
+    ) {
+      throw new ForbiddenException('Cannot add users from a different school');
+    }
 
     // Blocked members cannot be re-added
     const existing = await this.prisma.dmParticipant.findUnique({

@@ -723,6 +723,10 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async listClassroomsForTeacher(user: any, teacherId: string) {
     this.requireAdminOrSecretary(user);
     if (!teacherId) throw new BadRequestException('teacherId is required');
+    // Confirm the teacher belongs to the caller's school before listing their
+    // classrooms — a bare teacherId filter otherwise leaks another school's
+    // classroom names/subjects.
+    await this.assertUserInSchool(user, teacherId);
     const classrooms = await this.prisma.classroom.findMany({
       where: { teacherId },
       select: { id: true, name: true, subject: true },
@@ -1933,6 +1937,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async unlinkChild(user: any, parentId: string, childId: string) {
     this.requireAdminOrSecretary(user);
+    // Scope to the caller's school — linkParent asserts the same, so the
+    // unlink path must too or an admin could sever links in another school.
+    await Promise.all([
+      this.assertUserInSchool(user, parentId),
+      this.assertUserInSchool(user, childId),
+    ]);
     await this.prisma.parentChild.deleteMany({ where: { parentId, childId } });
     return { ok: true };
   }
@@ -2041,6 +2051,17 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async unlinkParent(user: any, id: string) {
     this.requireAdminOrSecretary(user);
+    // Resolve the link and confirm its members belong to the caller's school
+    // before deleting — otherwise any link id from any school could be severed.
+    const link = await this.prisma.parentChild.findUnique({
+      where: { id },
+      select: { parentId: true, childId: true },
+    });
+    if (!link) return { ok: true };
+    await Promise.all([
+      this.assertUserInSchool(user, link.parentId),
+      this.assertUserInSchool(user, link.childId),
+    ]);
     await this.prisma.parentChild.delete({ where: { id } });
     return { ok: true };
   }
@@ -2092,6 +2113,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async updateCohort(user: any, id: string, dto: any) {
     this.requireAdminOrSecretary(user);
+    await this.assertCohortInSchool(user, id);
     const data: any = {};
     if (dto?.name !== undefined) data.name = String(dto.name).trim();
 
@@ -2117,6 +2139,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
     if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can delete cohorts');
 
+    await this.assertCohortInSchool(user, id);
     await this.prisma.studentCohort.deleteMany({ where: { cohortId: id } });
     await this.prisma.cohort.delete({ where: { id } });
     return { ok: true };

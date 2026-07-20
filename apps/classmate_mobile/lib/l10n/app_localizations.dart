@@ -1204,6 +1204,72 @@ abstract class AppLocalizations {
   /// **'Forest'**
   String get settingsThemeForest;
 
+  /// No description provided for @settingsThemeSand.
+  ///
+  /// In en, this message translates to:
+  /// **'Sand'**
+  String get settingsThemeSand;
+
+  /// No description provided for @settingsThemeSky.
+  ///
+  /// In en, this message translates to:
+  /// **'Sky'**
+  String get settingsThemeSky;
+
+  /// No description provided for @settingsThemeLavender.
+  ///
+  /// In en, this message translates to:
+  /// **'Lavender'**
+  String get settingsThemeLavender;
+
+  /// No description provided for @settingsThemePeach.
+  ///
+  /// In en, this message translates to:
+  /// **'Peach'**
+  String get settingsThemePeach;
+
+  /// No description provided for @settingsThemeMint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mint'**
+  String get settingsThemeMint;
+
+  /// No description provided for @settingsThemeDracula.
+  ///
+  /// In en, this message translates to:
+  /// **'Dracula'**
+  String get settingsThemeDracula;
+
+  /// No description provided for @settingsThemeObsidian.
+  ///
+  /// In en, this message translates to:
+  /// **'Obsidian'**
+  String get settingsThemeObsidian;
+
+  /// No description provided for @settingsThemeWine.
+  ///
+  /// In en, this message translates to:
+  /// **'Wine'**
+  String get settingsThemeWine;
+
+  /// No description provided for @settingsThemeSolarized.
+  ///
+  /// In en, this message translates to:
+  /// **'Solarized'**
+  String get settingsThemeSolarized;
+
+  /// No description provided for @settingsThemePlum.
+  ///
+  /// In en, this message translates to:
+  /// **'Plum'**
+  String get settingsThemePlum;
+
+  /// No description provided for @settingsThemeOcean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get settingsThemeOcean;
+
   /// No description provided for @settingsLanguageSearchHint.
   ///
   /// In en, this message translates to:
@@ -10820,6 +10886,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Message'**
   String get supportSmsLabel;
+
+  /// No description provided for @supportAiCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask AI'**
+  String get supportAiCardTitle;
+
+  /// No description provided for @supportAiCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant answers about using ClassMate — any time'**
+  String get supportAiCardSubtitle;
+
+  /// No description provided for @supportAiSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ClassMate Assistant'**
+  String get supportAiSheetTitle;
+
+  /// No description provided for @supportAiGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I'm the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
+  String get supportAiGreeting;
+
+  /// No description provided for @supportAiInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question…'**
+  String get supportAiInputHint;
+
+  /// No description provided for @supportAiDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.'**
+  String get supportAiDisclaimer;
+
+  /// No description provided for @supportAiError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry — I couldn't answer that right now. Please try again, or contact support above.'**
+  String get supportAiError;
 
   /// No description provided for @aboutWhatIsClassmate.
   ///

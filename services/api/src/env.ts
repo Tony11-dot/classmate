@@ -15,6 +15,15 @@ NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 
   // CORS (optional but common)
   CORS_ORIGINS: z.string().optional(),
+
+  // Support assistant (free, OpenAI-compatible; Groq by default). All optional
+  // — when unset the assistant reports itself disabled and the app falls back
+  // to the static FAQ + human contact. SUPPORT_AI_API_KEY falls back to
+  // GROQ_API_KEY at read time in SupportService.
+  SUPPORT_AI_BASE_URL: z.string().optional(),
+  SUPPORT_AI_API_KEY: z.string().optional(),
+  SUPPORT_AI_MODEL: z.string().optional(),
+  GROQ_API_KEY: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

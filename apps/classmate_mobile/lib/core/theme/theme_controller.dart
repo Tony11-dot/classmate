@@ -25,11 +25,22 @@ enum AppTheme {
   coffee,
   matcha,
   rose,
+  sand,
+  sky,
+  lavender,
+  peach,
+  mint,
   // Dark family
   dark,
   midnight,
   nord,
   forest,
+  dracula,
+  obsidian,
+  wine,
+  solarized,
+  plum,
+  ocean,
 }
 
 class ThemeState {
@@ -252,6 +263,116 @@ final _rosePalette = _Palette(
   ),
 );
 
+/// Sand — sun-bleached desert paper, warm terracotta accent.
+final _sandPalette = _Palette(
+  brightness: Brightness.light,
+  seed: const Color(0xFFB0632F),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFFF5EDE0),
+    onSurface: const Color(0xFF3E342A),
+    onSurfaceVariant: const Color(0xFF6E6152),
+    surfaceContainerLowest: const Color(0xFFFCF6EC),
+    surfaceContainerLow: const Color(0xFFF1E7D8),
+    surfaceContainer: const Color(0xFFEBE0CF),
+    surfaceContainerHigh: const Color(0xFFE4D7C2),
+    surfaceContainerHighest: const Color(0xFFDCCDB4),
+    outline: const Color(0xFFA6917A),
+    outlineVariant: const Color(0xFFD2C2AB),
+    primaryContainer: const Color(0xFFF3DCC4),
+    onPrimaryContainer: const Color(0xFF48260F),
+    secondaryContainer: const Color(0xFFEADBC6),
+    onSecondaryContainer: const Color(0xFF3B2C1B),
+  ),
+);
+
+/// Sky — airy pale-blue paper, deep ocean accent.
+final _skyPalette = _Palette(
+  brightness: Brightness.light,
+  seed: const Color(0xFF2F6FB0),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFFEDF3F9),
+    onSurface: const Color(0xFF27333E),
+    onSurfaceVariant: const Color(0xFF556472),
+    surfaceContainerLowest: const Color(0xFFF6FAFD),
+    surfaceContainerLow: const Color(0xFFE7EFF6),
+    surfaceContainer: const Color(0xFFDFE9F2),
+    surfaceContainerHigh: const Color(0xFFD6E2ED),
+    surfaceContainerHighest: const Color(0xFFCBD9E7),
+    outline: const Color(0xFF7C8B9A),
+    outlineVariant: const Color(0xFFC0CEDC),
+    primaryContainer: const Color(0xFFCFE1F3),
+    onPrimaryContainer: const Color(0xFF0E2A42),
+    secondaryContainer: const Color(0xFFDAE6F0),
+    onSecondaryContainer: const Color(0xFF223341),
+  ),
+);
+
+/// Lavender — pale lilac paper, muted violet accent.
+final _lavenderPalette = _Palette(
+  brightness: Brightness.light,
+  seed: const Color(0xFF7A5AC2),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFFF3EFFA),
+    onSurface: const Color(0xFF332C43),
+    onSurfaceVariant: const Color(0xFF635A73),
+    surfaceContainerLowest: const Color(0xFFFAF7FE),
+    surfaceContainerLow: const Color(0xFFEEE9F7),
+    surfaceContainer: const Color(0xFFE7E1F2),
+    surfaceContainerHigh: const Color(0xFFDFD8ED),
+    surfaceContainerHighest: const Color(0xFFD6CDE6),
+    outline: const Color(0xFF8E85A0),
+    outlineVariant: const Color(0xFFCEC4DE),
+    primaryContainer: const Color(0xFFE4DAF6),
+    onPrimaryContainer: const Color(0xFF2C1D4F),
+    secondaryContainer: const Color(0xFFE1DBEF),
+    onSecondaryContainer: const Color(0xFF302941),
+  ),
+);
+
+/// Peach — warm apricot cream, soft coral accent.
+final _peachPalette = _Palette(
+  brightness: Brightness.light,
+  seed: const Color(0xFFCB5F4E),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFFFBEEE7),
+    onSurface: const Color(0xFF43322C),
+    onSurfaceVariant: const Color(0xFF77605A),
+    surfaceContainerLowest: const Color(0xFFFFF7F2),
+    surfaceContainerLow: const Color(0xFFF7E9E1),
+    surfaceContainer: const Color(0xFFF2E1D8),
+    surfaceContainerHigh: const Color(0xFFEBD8CD),
+    surfaceContainerHighest: const Color(0xFFE3CCC0),
+    outline: const Color(0xFFAB9188),
+    outlineVariant: const Color(0xFFDCC7BD),
+    primaryContainer: const Color(0xFFF8D9CE),
+    onPrimaryContainer: const Color(0xFF521F13),
+    secondaryContainer: const Color(0xFFEFDBD0),
+    onSecondaryContainer: const Color(0xFF43291F),
+  ),
+);
+
+/// Mint — cool pale mint paper, deep teal accent.
+final _mintPalette = _Palette(
+  brightness: Brightness.light,
+  seed: const Color(0xFF2E9C86),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFFEAF4EF),
+    onSurface: const Color(0xFF26332E),
+    onSurfaceVariant: const Color(0xFF54655E),
+    surfaceContainerLowest: const Color(0xFFF4FAF7),
+    surfaceContainerLow: const Color(0xFFE3EFEA),
+    surfaceContainer: const Color(0xFFDBE9E3),
+    surfaceContainerHigh: const Color(0xFFD1E1DA),
+    surfaceContainerHighest: const Color(0xFFC6D8D0),
+    outline: const Color(0xFF7B8D86),
+    outlineVariant: const Color(0xFFBFD3CB),
+    primaryContainer: const Color(0xFFCDE8DE),
+    onPrimaryContainer: const Color(0xFF0C3229),
+    secondaryContainer: const Color(0xFFD7E7E0),
+    onSecondaryContainer: const Color(0xFF23332D),
+  ),
+);
+
 // ── Dark family ──────────────────────────────────────────────────────────────
 
 const _darkPalette = _Palette(brightness: Brightness.dark, seed: _skySeed);
@@ -328,15 +449,170 @@ final _forestPalette = _Palette(
   ),
 );
 
+/// Dracula — the cult purple-slate dark with a soft violet accent.
+final _draculaPalette = _Palette(
+  brightness: Brightness.dark,
+  seed: const Color(0xFFBD93F9),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFF282A36),
+    onSurface: const Color(0xFFF8F8F2),
+    onSurfaceVariant: const Color(0xFFB8BAC8),
+    surfaceContainerLowest: const Color(0xFF21222C),
+    surfaceContainerLow: const Color(0xFF2D2F3B),
+    surfaceContainer: const Color(0xFF343746),
+    surfaceContainerHigh: const Color(0xFF3C3F51),
+    surfaceContainerHighest: const Color(0xFF44475A),
+    outline: const Color(0xFF6272A4),
+    outlineVariant: const Color(0xFF44475A),
+    primary: const Color(0xFFBD93F9),
+    onPrimary: const Color(0xFF241A38),
+    primaryContainer: const Color(0xFF44415E),
+    onPrimaryContainer: const Color(0xFFE9DDFF),
+    secondaryContainer: const Color(0xFF3B3A52),
+    onSecondaryContainer: const Color(0xFFE3E0F5),
+  ),
+);
+
+/// Obsidian — near-black neutral glass with an electric cyan accent.
+final _obsidianPalette = _Palette(
+  brightness: Brightness.dark,
+  seed: const Color(0xFF4CC9D6),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFF111315),
+    onSurface: const Color(0xFFE4E6E8),
+    onSurfaceVariant: const Color(0xFF9BA1A6),
+    surfaceContainerLowest: const Color(0xFF0B0C0E),
+    surfaceContainerLow: const Color(0xFF16181B),
+    surfaceContainer: const Color(0xFF1B1E21),
+    surfaceContainerHigh: const Color(0xFF23272B),
+    surfaceContainerHighest: const Color(0xFF2D3237),
+    outline: const Color(0xFF4A5157),
+    outlineVariant: const Color(0xFF2A2F34),
+    primary: const Color(0xFF57D6E0),
+    onPrimary: const Color(0xFF05282E),
+    primaryContainer: const Color(0xFF14424A),
+    onPrimaryContainer: const Color(0xFFB4EEF4),
+    secondaryContainer: const Color(0xFF25292D),
+    onSecondaryContainer: const Color(0xFFD3D8DC),
+  ),
+);
+
+/// Wine — deep burgundy cellar, warm rosé accent.
+final _winePalette = _Palette(
+  brightness: Brightness.dark,
+  seed: const Color(0xFFE07491),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFF241016),
+    onSurface: const Color(0xFFF3DDE3),
+    onSurfaceVariant: const Color(0xFFC79AA4),
+    surfaceContainerLowest: const Color(0xFF1C0B10),
+    surfaceContainerLow: const Color(0xFF2B141B),
+    surfaceContainer: const Color(0xFF321820),
+    surfaceContainerHigh: const Color(0xFF3D1F28),
+    surfaceContainerHighest: const Color(0xFF492833),
+    outline: const Color(0xFF7C5560),
+    outlineVariant: const Color(0xFF4A2C33),
+    primary: const Color(0xFFEC9AAE),
+    onPrimary: const Color(0xFF3E0E1D),
+    primaryContainer: const Color(0xFF5C2434),
+    onPrimaryContainer: const Color(0xFFFFD9E1),
+    secondaryContainer: const Color(0xFF3A1F27),
+    onSecondaryContainer: const Color(0xFFF4D3DB),
+  ),
+);
+
+/// Solarized — Ethan Schoonover's teal-slate dark with an amber accent.
+final _solarizedPalette = _Palette(
+  brightness: Brightness.dark,
+  seed: const Color(0xFFB58900),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFF002B36),
+    onSurface: const Color(0xFF93A1A1),
+    onSurfaceVariant: const Color(0xFF839496),
+    surfaceContainerLowest: const Color(0xFF00232C),
+    surfaceContainerLow: const Color(0xFF073642),
+    surfaceContainer: const Color(0xFF0A3D4A),
+    surfaceContainerHigh: const Color(0xFF0E4653),
+    surfaceContainerHighest: const Color(0xFF14505E),
+    outline: const Color(0xFF586E75),
+    outlineVariant: const Color(0xFF0E4653),
+    primary: const Color(0xFFC99A2E),
+    onPrimary: const Color(0xFF2C2100),
+    primaryContainer: const Color(0xFF554614),
+    onPrimaryContainer: const Color(0xFFF5E4B0),
+    secondaryContainer: const Color(0xFF0E4653),
+    onSecondaryContainer: const Color(0xFFCFE0DF),
+  ),
+);
+
+/// Plum — deep grape twilight, bright lilac accent.
+final _plumPalette = _Palette(
+  brightness: Brightness.dark,
+  seed: const Color(0xFFB98CE0),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFF1E1526),
+    onSurface: const Color(0xFFE9DFF3),
+    onSurfaceVariant: const Color(0xFFB1A3C0),
+    surfaceContainerLowest: const Color(0xFF17101E),
+    surfaceContainerLow: const Color(0xFF251A2F),
+    surfaceContainer: const Color(0xFF2B1F37),
+    surfaceContainerHigh: const Color(0xFF342740),
+    surfaceContainerHighest: const Color(0xFF3E2F4C),
+    outline: const Color(0xFF6E5E7E),
+    outlineVariant: const Color(0xFF362A43),
+    primary: const Color(0xFFC9A2ED),
+    onPrimary: const Color(0xFF33204A),
+    primaryContainer: const Color(0xFF48335E),
+    onPrimaryContainer: const Color(0xFFEBDCFB),
+    secondaryContainer: const Color(0xFF33273F),
+    onSecondaryContainer: const Color(0xFFE4DAF0),
+  ),
+);
+
+/// Ocean — deep sea-trench teal, luminous aqua accent.
+final _oceanPalette = _Palette(
+  brightness: Brightness.dark,
+  seed: const Color(0xFF3FB5C4),
+  overrides: (base) => base.copyWith(
+    surface: const Color(0xFF0C1E24),
+    onSurface: const Color(0xFFDBEBEE),
+    onSurfaceVariant: const Color(0xFF98B0B6),
+    surfaceContainerLowest: const Color(0xFF07171C),
+    surfaceContainerLow: const Color(0xFF11262D),
+    surfaceContainer: const Color(0xFF152E36),
+    surfaceContainerHigh: const Color(0xFF1D3A43),
+    surfaceContainerHighest: const Color(0xFF264851),
+    outline: const Color(0xFF456068),
+    outlineVariant: const Color(0xFF23424B),
+    primary: const Color(0xFF56C7D4),
+    onPrimary: const Color(0xFF04272E),
+    primaryContainer: const Color(0xFF1A4B54),
+    onPrimaryContainer: const Color(0xFFB6ECF2),
+    secondaryContainer: const Color(0xFF1B333B),
+    onSecondaryContainer: const Color(0xFFCFE6EA),
+  ),
+);
+
 _Palette _concretePalette(AppTheme theme) => switch (theme) {
       AppTheme.system || AppTheme.light => _lightPalette,
       AppTheme.coffee => _coffeePalette,
       AppTheme.matcha => _matchaPalette,
       AppTheme.rose => _rosePalette,
+      AppTheme.sand => _sandPalette,
+      AppTheme.sky => _skyPalette,
+      AppTheme.lavender => _lavenderPalette,
+      AppTheme.peach => _peachPalette,
+      AppTheme.mint => _mintPalette,
       AppTheme.dark => _darkPalette,
       AppTheme.midnight => _midnightPalette,
       AppTheme.nord => _nordPalette,
       AppTheme.forest => _forestPalette,
+      AppTheme.dracula => _draculaPalette,
+      AppTheme.obsidian => _obsidianPalette,
+      AppTheme.wine => _winePalette,
+      AppTheme.solarized => _solarizedPalette,
+      AppTheme.plum => _plumPalette,
+      AppTheme.ocean => _oceanPalette,
     };
 
 /// Whether a concrete theme is a dark palette (used for the status bar / logo

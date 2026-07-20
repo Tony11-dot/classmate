@@ -44,14 +44,27 @@ class _ThemeChoice {
 // the light family, then the dark family, after System.
 const _kThemes = <_ThemeChoice>[
   _ThemeChoice(AppTheme.system, Icons.settings_suggest_rounded),
+  // Light family
   _ThemeChoice(AppTheme.light, Icons.light_mode_rounded),
   _ThemeChoice(AppTheme.coffee, Icons.coffee_rounded),
   _ThemeChoice(AppTheme.matcha, Icons.spa_rounded),
   _ThemeChoice(AppTheme.rose, Icons.local_florist_rounded),
+  _ThemeChoice(AppTheme.sand, Icons.beach_access_rounded),
+  _ThemeChoice(AppTheme.sky, Icons.cloud_rounded),
+  _ThemeChoice(AppTheme.lavender, Icons.filter_vintage_rounded),
+  _ThemeChoice(AppTheme.peach, Icons.wb_twilight_rounded),
+  _ThemeChoice(AppTheme.mint, Icons.eco_rounded),
+  // Dark family
   _ThemeChoice(AppTheme.dark, Icons.dark_mode_rounded),
   _ThemeChoice(AppTheme.midnight, Icons.bedtime_rounded),
   _ThemeChoice(AppTheme.nord, Icons.ac_unit_rounded),
   _ThemeChoice(AppTheme.forest, Icons.forest_rounded),
+  _ThemeChoice(AppTheme.dracula, Icons.nights_stay_rounded),
+  _ThemeChoice(AppTheme.obsidian, Icons.diamond_rounded),
+  _ThemeChoice(AppTheme.wine, Icons.wine_bar_rounded),
+  _ThemeChoice(AppTheme.solarized, Icons.brightness_5_rounded),
+  _ThemeChoice(AppTheme.plum, Icons.nightlight_rounded),
+  _ThemeChoice(AppTheme.ocean, Icons.waves_rounded),
 ];
 
 String _themeLabel(AppTheme t, AppLocalizations l) => switch (t) {
@@ -60,10 +73,21 @@ String _themeLabel(AppTheme t, AppLocalizations l) => switch (t) {
       AppTheme.coffee => l.settingsThemeCoffee,
       AppTheme.matcha => l.settingsThemeMatcha,
       AppTheme.rose => l.settingsThemeRose,
+      AppTheme.sand => l.settingsThemeSand,
+      AppTheme.sky => l.settingsThemeSky,
+      AppTheme.lavender => l.settingsThemeLavender,
+      AppTheme.peach => l.settingsThemePeach,
+      AppTheme.mint => l.settingsThemeMint,
       AppTheme.dark => l.settingsThemeDark,
       AppTheme.midnight => l.settingsThemeMidnight,
       AppTheme.nord => l.settingsThemeNord,
       AppTheme.forest => l.settingsThemeForest,
+      AppTheme.dracula => l.settingsThemeDracula,
+      AppTheme.obsidian => l.settingsThemeObsidian,
+      AppTheme.wine => l.settingsThemeWine,
+      AppTheme.solarized => l.settingsThemeSolarized,
+      AppTheme.plum => l.settingsThemePlum,
+      AppTheme.ocean => l.settingsThemeOcean,
     };
 
 // ── Screen ──────────────────────────────────────────────────────────────────

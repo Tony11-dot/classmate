@@ -458,7 +458,15 @@ export class CertificatesService {
     const existing = await this.prisma.schoolCertificate.findUnique({ where: { id } });
     if (!existing || existing.schoolId !== schoolId) throw new NotFoundException('Certificate not found');
     const cohortId = dto.cohortId || existing.cohortId;
-    await this.assertCohortAccess(user, cohortId, { write: true });
+    // Authorize against the certificate's CURRENT cohort — otherwise a homeroom
+    // teacher could pass their own cohort in the body to pass the check while
+    // editing (and reassigning) another homeroom's certificate by id.
+    await this.assertCohortAccess(user, existing.cohortId, { write: true });
+    // If the edit reassigns the certificate to a different cohort, the caller
+    // must also own the destination.
+    if (cohortId !== existing.cohortId) {
+      await this.assertCohortAccess(user, cohortId, { write: true });
+    }
 
     const weights = dto.semesterWeights ?? (existing.semesterWeights as number[]) ?? [];
     this.validateWeights(weights);

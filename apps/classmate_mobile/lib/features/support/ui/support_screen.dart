@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../data/support_ai_repository.dart';
+import 'support_ai_sheet.dart';
 
 const _supportEmail = 'support@classmateapp.org';
 const _supportPhone = '+972525488441';
 
-class SupportScreen extends StatelessWidget {
+class SupportScreen extends ConsumerWidget {
   const SupportScreen({super.key});
 
   List<_FaqCategory> _categoriesFor(AppLocalizations l) => <_FaqCategory>[
@@ -91,11 +94,14 @@ class SupportScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
     final categories = _categoriesFor(l);
+    // Only offer the assistant when the backend has a provider configured;
+    // otherwise the screen is exactly the FAQ + contact card as before.
+    final aiEnabled = ref.watch(supportAiEnabledProvider).value ?? false;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -163,6 +169,11 @@ class SupportScreen extends StatelessWidget {
               ],
             ),
           ),
+          // ── Ask-AI entry (only when the assistant is configured) ─────────
+          if (aiEnabled) ...[
+            const SizedBox(height: 12),
+            _AskAiCard(onTap: () => showSupportAiSheet(context)),
+          ],
           const SizedBox(height: 20),
           // ── FAQ by category ──────────────────────────────────────────────
           ...{
@@ -226,6 +237,68 @@ class AboutScreen extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Internals
 // ─────────────────────────────────────────────────────────────────────────────
+
+class _AskAiCard extends StatelessWidget {
+  const _AskAiCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.primaryContainer.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.auto_awesome_rounded, size: 20, color: cs.onPrimaryContainer),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.supportAiCardTitle,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: cs.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l.supportAiCardSubtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _FaqCategory {
   const _FaqCategory({required this.title, required this.icon, required this.faqs});

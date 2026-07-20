@@ -1508,6 +1508,10 @@ export class TeacherService {
     const cohortId = (query as any)?.cohortId as string | undefined;
 
     if (cohortId) {
+      // A teacher may only read assessments for a cohort they actually teach
+      // (admins pass through). Without this, any cohortId leaks assessment
+      // titles/dates/weights cross-school.
+      await this.assertTeacherTeachesCohort(user, cohortId);
       const cohort = await this.prisma.cohort.findUnique({ where: { id: cohortId } });
       if (!cohort) throw new BadRequestException('Invalid cohortId');
 
@@ -2164,7 +2168,12 @@ export class TeacherService {
     if (body?.title !== undefined) data.title = String(body.title).trim();
     if (body?.body !== undefined) data.body = body.body ? String(body.body).trim() : null;
     if (body?.dueAt !== undefined) data.dueAt = body.dueAt ? new Date(String(body.dueAt)) : null;
-    const item = await this.prisma.classroomAssignment.update({ where: { id }, data });
+    // Scope the write to the owned classroom — owning `classroomId` must not
+    // grant edit access to an assignment `id` from another classroom (the
+    // sibling delete already scopes to { id, classroomId }).
+    const res = await this.prisma.classroomAssignment.updateMany({ where: { id, classroomId }, data });
+    if (res.count === 0) throw new NotFoundException('Assignment not found');
+    const item = await this.prisma.classroomAssignment.findFirst({ where: { id, classroomId } });
     return { ok: true, item };
   }
 
@@ -2282,6 +2291,15 @@ export class TeacherService {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
     await this.assertTeacherOwnsClassroom(teacherId, classroomId);
+
+    // Tie the assignment to the owned classroom before reading its
+    // submissions — otherwise a teacher could pass any assignmentId and read
+    // another classroom's student submissions (names, notes, files).
+    const ownedAssignment = await this.prisma.classroomAssignment.findFirst({
+      where: { id: assignmentId, classroomId },
+      select: { id: true },
+    });
+    if (!ownedAssignment) throw new NotFoundException('Assignment not found');
 
     const [submissions, members] = await Promise.all([
       this.prisma.assignmentSubmission.findMany({
