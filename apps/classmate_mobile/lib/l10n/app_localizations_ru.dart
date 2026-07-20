@@ -661,6 +661,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsThemeForest => 'Forest';
 
   @override
+  String get settingsThemeSand => 'Sand';
+
+  @override
+  String get settingsThemeSky => 'Sky';
+
+  @override
+  String get settingsThemeLavender => 'Lavender';
+
+  @override
+  String get settingsThemePeach => 'Peach';
+
+  @override
+  String get settingsThemeMint => 'Mint';
+
+  @override
+  String get settingsThemeDracula => 'Dracula';
+
+  @override
+  String get settingsThemeObsidian => 'Obsidian';
+
+  @override
+  String get settingsThemeWine => 'Wine';
+
+  @override
+  String get settingsThemeSolarized => 'Solarized';
+
+  @override
+  String get settingsThemePlum => 'Plum';
+
+  @override
+  String get settingsThemeOcean => 'Ocean';
+
+  @override
   String get settingsLanguageSearchHint => 'Поиск языка...';
 
   @override
@@ -6005,6 +6038,31 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get supportSmsLabel => 'Сообщение';
+
+  @override
+  String get supportAiCardTitle => 'Ask AI';
+
+  @override
+  String get supportAiCardSubtitle =>
+      'Instant answers about using ClassMate — any time';
+
+  @override
+  String get supportAiSheetTitle => 'ClassMate Assistant';
+
+  @override
+  String get supportAiGreeting =>
+      'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
+
+  @override
+  String get supportAiInputHint => 'Ask a question…';
+
+  @override
+  String get supportAiDisclaimer =>
+      'AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.';
+
+  @override
+  String get supportAiError =>
+      'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.';
 
   @override
   String get aboutWhatIsClassmate => 'Что такое ClassMate?';

@@ -31,9 +31,7 @@ permissions:
   contents: write
 
 env:
-  # 3.41.6 is the minimum that satisfies device_info_plus >= 13.x (the iOS
-  # archive fix — see apps/classmate_mobile/pubspec.yaml dependency_overrides).
-  FLUTTER_VERSION: "3.41.6"
+  FLUTTER_VERSION: "3.41.0"
   # Non-secret Railway IDs (project + api service) — the RAILWAY_TOKEN secret is
   # what authorizes the deploy.
   RAILWAY_SERVICE_ID: "5da6d230-a9d9-48d0-8fa5-e0c13d75fe65"
@@ -192,11 +190,19 @@ jobs:
   ios:
     needs: version
     if: ${{ inputs.target == 'all' || inputs.target == 'ios' }}
-    # macos-15 defaults to Xcode 16 / Swift 6. Firebase 11.x (pulled by
-    # firebase_core ^3.6.0) uses Swift 6 features ('sending', AccessLevelOnImport)
-    # that the older Xcode on macos-14 can't compile, which failed the archive
-    # in FirebaseCoreInternal. macos-14's toolchain is too old for these pods.
-    runs-on: macos-15
+    # macos-26 ships Xcode 26.x (iOS SDK 26.x) — the SAME toolchain the Mac
+    # ships from, and the minimum this app's pods build against:
+    #   • Firebase 11.x (via firebase_core ^3.6.0) needs Swift 6 ⇒ Xcode 16+,
+    #     which ruled out macos-14.
+    #   • device_info_plus 12.4.0 (via sentry_flutter) calls
+    #     `NSProcessInfo.isiOSAppOnVision`, declared `API_AVAILABLE(ios(26.1))`
+    #     — it exists ONLY in the iOS 26.1+ SDK. macos-15 tops out at Xcode 16.4
+    #     / iOS SDK 18.5, so every archive there died with "No visible
+    #     @interface for 'NSProcessInfo' declares the selector
+    #     'isiOSAppOnVision'". This is an SDK-availability problem, not a
+    #     package-version one: bumping device_info_plus is BOTH unnecessary and
+    #     unresolvable (13.x wants win32 ^6, file_picker 10.x pins win32 ^5).
+    runs-on: macos-26
     timeout-minutes: 60
     defaults:
       run:
@@ -204,16 +210,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: "${{ needs.version.outputs.sha }}" }
-      - name: Select newest Xcode 16.x
-        # macos-15's default Xcode can be 16.0, whose iOS 18.0 SDK has ObjC header
-        # regressions (e.g. device_info_plus's NSProcessInfo.isiOSAppOnVision not
-        # visible) that are fixed in 16.1+. Pin to the newest 16.x present so the
-        # archive uses the good SDK. No-op if none matches (keeps the default).
+      - name: Select newest Xcode 26.x
+        # The image's default Xcode is not always its newest. Pin to the newest
+        # 26.x present so the archive gets an iOS 26.x SDK (see the runs-on note
+        # — anything older is missing NSProcessInfo.isiOSAppOnVision). Fail loudly
+        # rather than silently falling back: an Xcode-16 archive CANNOT succeed,
+        # so a 4-minute build to the same error helps nobody.
         working-directory: /
         run: |
-          latest=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n1 || true)
-          if [ -n "$latest" ]; then sudo xcode-select -s "$latest/Contents/Developer"; fi
+          set -euo pipefail
+          latest=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n1 || true)
+          if [ -z "$latest" ]; then
+            echo "::error::No Xcode 26.x on this runner image; the iOS 26 SDK is required to archive."
+            ls -d /Applications/Xcode*.app || true
+            exit 1
+          fi
+          sudo xcode-select -s "$latest/Contents/Developer"
           xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
       - run: flutter pub get

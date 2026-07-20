@@ -10908,7 +10908,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportAiGreeting.
   ///
   /// In en, this message translates to:
-  /// **'Hi! I'm the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
+  /// **'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
   String get supportAiGreeting;
 
   /// No description provided for @supportAiInputHint.
@@ -10926,7 +10926,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportAiError.
   ///
   /// In en, this message translates to:
-  /// **'Sorry — I couldn't answer that right now. Please try again, or contact support above.'**
+  /// **'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.'**
   String get supportAiError;
 
   /// No description provided for @aboutWhatIsClassmate.

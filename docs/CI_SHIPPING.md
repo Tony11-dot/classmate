@@ -123,3 +123,40 @@ Confirm names anytime with `gh secret list --repo Tony11-dot/classmate`.
 The Railway job runs on `target=all` or `target=railway` and no-ops with a warning
 until you add `RAILWAY_TOKEN` (Railway → Account → Tokens):
 `printf '%s' '<token>' | gh secret set RAILWAY_TOKEN --repo Tony11-dot/classmate`.
+
+> `gh secret list` showing `RAILWAY_TOKEN` is **not** proof it works — a secret can
+> exist with an empty value, and the guard step then skips as if it were absent.
+> The tell is in the job log: a real secret prints as `RAILWAY_TOKEN: ***`, an empty
+> one prints as `RAILWAY_TOKEN:` with nothing after it.
+>
+> Losing this job is not the same as losing the deploy: Railway's own GitHub
+> integration auto-deploys the API on pushes to `main` that touch backend paths
+> (other pushes show as `SKIPPED` in its Deployments tab). `RAILWAY_TOKEN` only
+> buys a *deterministic* deploy inside the ship run.
+
+---
+
+## The iOS job needs an Xcode **26** runner — don't "fix" it with a package bump
+
+`device_info_plus` (transitive, via `sentry_flutter`) calls
+`NSProcessInfo.isiOSAppOnVision`, which Foundation declares as
+`API_AVAILABLE(ios(26.1))` — it exists **only in the iOS 26.1+ SDK**. On any older
+runner the archive dies with:
+
+```text
+No visible @interface for 'NSProcessInfo' declares the selector 'isiOSAppOnVision'
+```
+
+That is an **SDK-availability** problem, not a package-version one. `macos-15` tops
+out at Xcode 16.4 / iOS SDK 18.5, so it can never archive this app; `macos-26` ships
+Xcode 26.x / iOS SDK 26.x — the same toolchain the Mac ships from. Hence
+`runs-on: macos-26` plus a `Select newest Xcode 26.x` step that **fails loudly** if
+no 26.x is present (an Xcode 16 archive cannot succeed, so burning four minutes to
+reach the same error helps nobody).
+
+Two dead ends, recorded so nobody re-walks them:
+
+- **Bumping `device_info_plus` to 13.x doesn't resolve at all** — 13.1+ needs
+  `win32 ^6.0.1` and `file_picker 10.x` pins `win32 ^5.9.0`, so `pub get` hard-fails.
+- **It was never necessary.** `flutter build ipa` with `device_info_plus` 12.4.0
+  archives cleanly on a local Xcode 26.6. The package was always fine; the SDK wasn't.
