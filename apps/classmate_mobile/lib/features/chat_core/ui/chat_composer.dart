@@ -44,7 +44,7 @@ class ChatComposer extends StatelessWidget {
     this.showMic = true,
     this.hasDraft = false,
     this.recordingElapsed = Duration.zero,
-    this.recordingAmplitudes = const <double>[],
+    this.recordingAmplitudes,
     this.activeHoldDx = 0,
     this.activeHoldDy = 0,
     this.topContent,
@@ -87,10 +87,11 @@ class ChatComposer extends StatelessWidget {
   final bool showMic;
   final bool hasDraft;
   final Duration recordingElapsed;
-  /// Live, normalised (0..1) mic-amplitude samples, oldest first. Drives the
-  /// locked-recording waveform so it reacts to the user's real voice. Empty →
-  /// the waveform falls back to its built-in idle animation.
-  final List<double> recordingAmplitudes;
+  /// Live, normalised (0..1) mic-amplitude samples, oldest first, exposed as a
+  /// listenable so the high-frequency stream repaints ONLY the waveform bars
+  /// (not the whole composer/thread). Null/empty → the waveform falls back to
+  /// its built-in idle animation.
+  final ValueListenable<List<double>>? recordingAmplitudes;
   final double activeHoldDx;
   final double activeHoldDy;
   final Widget? topContent;
@@ -766,56 +767,58 @@ class ChatComposer extends StatelessWidget {
   /// the action buttons.
   Widget _slimWaveform(BuildContext context, {required Color accent, required Duration elapsed, bool dim = false}) {
     final tone = dim ? accent.withValues(alpha: 0.55) : accent;
+    final listenable = recordingAmplitudes;
+    if (listenable == null) return _idleWave(tone, elapsed);
+    // Only these bars repaint at the ~10 Hz amplitude rate — nothing else.
+    return ValueListenableBuilder<List<double>>(
+      valueListenable: listenable,
+      builder: (context, amps, _) =>
+          amps.isEmpty ? _idleWave(tone, elapsed) : _liveWave(tone, amps),
+    );
+  }
 
-    // Real-voice waveform: scrolling bars whose heights come straight from the
-    // live mic amplitude. Newest sample is on the right, so the trace flows
-    // like Instagram's recorder. When paused (dim) the last trace holds still.
-    final amps = recordingAmplitudes;
-    if (amps.isNotEmpty) {
-      const maxH = 18.0;
-      const minH = 3.0;
-      const barW = 2.5;
-      const gap = 1.5;
-      return SizedBox(
-        height: maxH,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // Derive the bar count from the actual width so the trace can never
-            // overflow the pill on narrow screens.
-            final avail = constraints.maxWidth.isFinite
-                ? constraints.maxWidth
-                : 120.0;
-            final int barCount =
-                ((avail + gap) / (barW + gap)).floor().clamp(6, 40).toInt();
-            final start = amps.length > barCount ? amps.length - barCount : 0;
-            final recent = amps.sublist(start);
-            final int pad = barCount - recent.length;
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                for (var i = 0; i < barCount; i++) ...[
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 90),
-                    curve: Curves.easeOut,
-                    width: barW,
-                    height: minH +
-                        (i < pad ? 0.0 : recent[i - pad]) * (maxH - minH),
-                    decoration: BoxDecoration(
-                      color: tone,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+  /// Real-voice waveform: scrolling bars whose heights come from live mic
+  /// amplitude, newest on the right — flows like Instagram's recorder.
+  Widget _liveWave(Color tone, List<double> amps) {
+    const maxH = 18.0, minH = 3.0, barW = 2.5, gap = 1.5;
+    return SizedBox(
+      height: maxH,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final avail =
+              constraints.maxWidth.isFinite ? constraints.maxWidth : 120.0;
+          final int barCount =
+              ((avail + gap) / (barW + gap)).floor().clamp(6, 40).toInt();
+          final start = amps.length > barCount ? amps.length - barCount : 0;
+          final recent = amps.sublist(start);
+          final int pad = barCount - recent.length;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              for (var i = 0; i < barCount; i++) ...[
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 80),
+                  curve: Curves.easeOut,
+                  width: barW,
+                  height:
+                      minH + (i < pad ? 0.0 : recent[i - pad]) * (maxH - minH),
+                  decoration: BoxDecoration(
+                    color: tone,
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                  if (i != barCount - 1) const SizedBox(width: gap),
-                ],
+                ),
+                if (i != barCount - 1) const SizedBox(width: gap),
               ],
-            );
-          },
-        ),
-      );
-    }
+            ],
+          );
+        },
+      ),
+    );
+  }
 
-    // Fallback (amplitude stream unsupported): the prior idle animation.
+  /// Fallback idle animation (amplitude stream unsupported).
+  Widget _idleWave(Color tone, Duration elapsed) {
     final phase = elapsed.inSeconds % 4;
     const baseHeights = <double>[6, 11, 16, 9, 13, 7, 12, 8, 14, 10];
     return SizedBox(

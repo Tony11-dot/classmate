@@ -109,6 +109,19 @@ class DmChatThreadController extends ChatThreadController {
   // key: mediaUrl, value: 'DELETED_FOR_ME' | 'DELETED_FOR_EVERYONE'
   Map<String, String> _deletedUrls = {};
 
+  // Durable deletion state for TEXT messages, keyed by a content signature
+  // ("senderId|text") rather than id. Text has no media URL to anchor to, so
+  // without this a text deleted before the server confirmed its real id (i.e.
+  // while it was still an "optimistic-…" bubble) would be re-issued to the
+  // server as a 404 and then reappear with a fresh server id on re-entry.
+  // Signature-based matching makes text deletion survive id churn + restarts,
+  // exactly like the URL map does for media. Persisted.
+  // key: 'senderId|trimmedText', value: 'DELETED_FOR_ME' | 'DELETED_FOR_EVERYONE'
+  Map<String, String> _deletedTexts = {};
+
+  static String _textSig(String senderId, String text) =>
+      '$senderId|${text.trim()}';
+
   // Server ids we've already fired a compensating "delete for everyone" at, so
   // the merge retry (below) never spams the API for the same message.
   final Set<String> _reDeleteAttempted = {};
@@ -143,6 +156,7 @@ class DmChatThreadController extends ChatThreadController {
 
   String _deletedKey() => 'dm_deleted:$_threadId';
   String _deletedUrlsKey() => 'dm_deleted_urls:$_threadId';
+  String _deletedTextsKey() => 'dm_deleted_texts:$_threadId';
   String _sentUrlsKey() => 'dm_sent_urls:$_threadId';
 
   Future<void> _persistLocalDeleted() async {
@@ -150,6 +164,7 @@ class DmChatThreadController extends ChatThreadController {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_deletedKey(), jsonEncode(_localDeleted));
       await prefs.setString(_deletedUrlsKey(), jsonEncode(_deletedUrls));
+      await prefs.setString(_deletedTextsKey(), jsonEncode(_deletedTexts));
     } catch (_) {}
   }
 
@@ -254,6 +269,15 @@ class DmChatThreadController extends ChatThreadController {
         );
       }
 
+      // Restore durable text-signature deletion state.
+      final deletedTextsRaw = prefs.getString(_deletedTextsKey()) ?? '{}';
+      final deletedTextsDecoded = jsonDecode(deletedTextsRaw);
+      if (deletedTextsDecoded is Map) {
+        _deletedTexts = deletedTextsDecoded.map(
+          (k, v) => MapEntry(k.toString(), v.toString()),
+        );
+      }
+
       // Restore sent CDN URLs (for isOwn detection even after list is pruned).
       final sentRaw = prefs.getString(_sentUrlsKey()) ?? '[]';
       final sentDecoded = jsonDecode(sentRaw);
@@ -287,6 +311,7 @@ class DmChatThreadController extends ChatThreadController {
     if (_localMediaMessages.isNotEmpty ||
         _localDeleted.isNotEmpty ||
         _deletedUrls.isNotEmpty ||
+        _deletedTexts.isNotEmpty ||
         _sessionCache.keys.any((k) => k.startsWith('$_threadId:'))) {
       invalidate();
     }
@@ -689,12 +714,17 @@ class DmChatThreadController extends ChatThreadController {
     final localDelete = _localDeleted[item.id];
     final urlDelete =
         (mediaUrl ?? '').isNotEmpty ? _deletedUrls[mediaUrl] : null;
+    final textDelete = (item.text.trim().isNotEmpty && (mediaUrl ?? '').isEmpty)
+        ? _deletedTexts[_textSig(item.senderId, item.text)]
+        : null;
     final resolvedDeletedForMe = deletedForMe ||
         localDelete == 'DELETED_FOR_ME' ||
-        urlDelete == 'DELETED_FOR_ME';
+        urlDelete == 'DELETED_FOR_ME' ||
+        textDelete == 'DELETED_FOR_ME';
     final resolvedDeletedForEveryone = deletedForEveryone ||
         localDelete == 'DELETED_FOR_EVERYONE' ||
-        urlDelete == 'DELETED_FOR_EVERYONE';
+        urlDelete == 'DELETED_FOR_EVERYONE' ||
+        textDelete == 'DELETED_FOR_EVERYONE';
 
     // Once a URL is marked deleted-for-everyone, the media must never be
     // resolvable again — drop it so no bubble can render or replay it.
@@ -708,17 +738,31 @@ class DmChatThreadController extends ChatThreadController {
     // reports itself visible, re-issue the delete once so it's gone for the
     // peer and on our other devices too. Fire-and-forget; guarded so it runs
     // at most once per id.
-    if (urlDelete == 'DELETED_FOR_EVERYONE' &&
-        !deletedForEveryone &&
-        (item.isMine || item.senderId == _currentUserId) &&
+    // What this viewer intended for this message, resolved via any durable key.
+    final intendedDelete = urlDelete ?? textDelete ?? localDelete;
+    final serverAlreadyDeleted = deletedForEveryone || deletedForMe;
+    if (intendedDelete != null &&
+        !serverAlreadyDeleted &&
         !item.id.startsWith('local-') &&
         !item.id.startsWith('optimistic-') &&
+        // deleteForEveryone requires ownership; deleteForMe works for any msg.
+        (intendedDelete == 'DELETED_FOR_ME' ||
+            item.isMine ||
+            item.senderId == _currentUserId) &&
         _reDeleteAttempted.add(item.id)) {
+      // Promote the real server id into the id map so hiding never depends on
+      // the re-delete round-trip succeeding, then push it to the server so the
+      // deletion persists (for the peer on everyone-deletes, and per-user on
+      // this account's other devices).
+      _localDeleted[item.id] = intendedDelete;
+      _persistLocalDeleted();
       _repo
           .deleteMessage(
             threadId: _threadId,
             messageId: item.id,
-            mode: 'deleteForEveryone',
+            mode: intendedDelete == 'DELETED_FOR_EVERYONE'
+                ? 'deleteForEveryone'
+                : 'deleteForMe',
           )
           .catchError((_) {});
     }
@@ -1082,6 +1126,16 @@ class DmChatThreadController extends ChatThreadController {
     final modeLabel = mode == ChatDeleteMode.deleteForEveryone
         ? 'DELETED_FOR_EVERYONE'
         : 'DELETED_FOR_ME';
+
+    // Durable, id-independent record for TEXT: keep this message hidden even
+    // when its id changes (optimistic→server) or the app restarts. Mirrors the
+    // URL map for media. Only meaningful for text-only messages.
+    final deletedMsg = _cachedMessages.where((m) => m.id == messageId).firstOrNull;
+    if (deletedMsg != null &&
+        (deletedMsg.mediaUrl ?? '').isEmpty &&
+        deletedMsg.text.trim().isNotEmpty) {
+      _deletedTexts[_textSig(deletedMsg.senderId, deletedMsg.text)] = modeLabel;
+    }
 
     if (deletedUrl.isNotEmpty) {
       // Durable, id-independent record: any message (now or in the future, with

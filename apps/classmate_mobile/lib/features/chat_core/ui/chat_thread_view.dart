@@ -155,8 +155,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   // Live mic amplitude, sampled while recording, so the HUD waveform reacts to
   // the user's actual voice (Instagram-style) instead of a canned animation.
   // Normalised 0..1, newest last, capped to the number of bars the HUD draws.
+  // Held in a ValueNotifier so the ~8 Hz amplitude stream repaints ONLY the
+  // waveform bars — never the whole thread view — which is what kept the
+  // recorder feeling laggy/unresponsive.
   StreamSubscription<Amplitude>? _ampSub;
-  List<double> _ampWave = const <double>[];
+  final ValueNotifier<List<double>> _ampWave =
+      ValueNotifier<List<double>>(const <double>[]);
   static const int _kAmpBars = 44;
   // Set in dispose() so async recorder work started before teardown never
   // touches the disposed platform recorder (would throw "Recorder has not
@@ -199,6 +203,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _textController.dispose();
     _scrollController.dispose();
     _ampSub?.cancel();
+    _ampWave.dispose();
     _recorder.dispose();
     _recordTicker?.cancel();
     _cancelPulseTimers();
@@ -931,20 +936,21 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           () => _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1));
     });
 
-    // Live waveform: sample mic amplitude ~8×/s and push onto a rolling buffer.
-    _ampWave = const <double>[];
+    // Live waveform: sample mic amplitude ~10×/s and push onto a rolling buffer.
+    // Writing to the ValueNotifier repaints only the waveform, not the tree.
+    _ampWave.value = const <double>[];
     _ampSub?.cancel();
     try {
       _ampSub = _recorder
-          .onAmplitudeChanged(const Duration(milliseconds: 120))
+          .onAmplitudeChanged(const Duration(milliseconds: 100))
           .listen((amp) {
         if (!mounted || !_recording || _voicePaused) return;
         final v = _normAmp(amp.current);
-        final next = List<double>.of(_ampWave)..add(v);
+        final next = List<double>.of(_ampWave.value)..add(v);
         if (next.length > _kAmpBars) {
           next.removeRange(0, next.length - _kAmpBars);
         }
-        setState(() => _ampWave = next);
+        _ampWave.value = next;
       }, onError: (_) {});
     } catch (_) {
       // Amplitude stream unsupported on this platform — HUD falls back to its
@@ -1018,7 +1024,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _recordTicker = null;
     _ampSub?.cancel();
     _ampSub = null;
-    _ampWave = const <double>[];
+    _ampWave.value = const <double>[];
     if (!mounted) return;
     setState(() {
       _recording = false;

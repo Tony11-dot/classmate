@@ -43,6 +43,10 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   bool _ready = false;
   bool _playedOnce = false;
   double _speed = 1.0;
+  // While the user is dragging the scrubber we show this ratio immediately and
+  // commit the actual seek on release — so the thumb tracks the finger 1:1
+  // without fighting the position stream (Instagram-style crisp scrubbing).
+  double? _dragRatio;
 
   static bool _isLocalPath(String url) {
     if (url.startsWith('file://')) return true;
@@ -178,7 +182,8 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         _duration > Duration.zero ? _duration : _fallback;
     final totalMs = math.max(1, resolved.inMilliseconds);
     final posMs = _position.inMilliseconds.clamp(0, totalMs);
-    final progress = posMs / totalMs;
+    // While scrubbing, the drag ratio wins so the UI tracks the finger exactly.
+    final progress = _dragRatio ?? (posMs / totalMs);
 
     final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
     // Voice-bubble palette tuned per sender + theme for legibility.
@@ -309,11 +314,11 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     // the seekbar's RenderBox — required for accurate tap + drag seeking.
     final seekBar = LayoutBuilder(
       builder: (ctx, constraints) {
-        void seekFromGlobal(Offset globalPosition) {
+        double ratioFromGlobal(Offset globalPosition) {
           final box = ctx.findRenderObject() as RenderBox?;
-          if (box == null) return;
+          if (box == null) return 0;
           final local = box.globalToLocal(globalPosition);
-          _seekToRatio(local.dx / math.max(1, box.size.width));
+          return (local.dx / math.max(1, box.size.width)).clamp(0.0, 1.0);
         }
 
         final usable = constraints.maxWidth;
@@ -321,9 +326,20 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTapDown: (d) => seekFromGlobal(d.globalPosition),
-          onHorizontalDragUpdate: (d) => seekFromGlobal(d.globalPosition),
-          onPanUpdate: (d) => seekFromGlobal(d.globalPosition),
+          // Tap → jump immediately. Drag → track the finger live (visual only)
+          // and commit the seek on release, so scrubbing never stutters against
+          // the position stream even with network audio.
+          onTapDown: (d) => _seekToRatio(ratioFromGlobal(d.globalPosition)),
+          onHorizontalDragStart: (d) =>
+              setState(() => _dragRatio = ratioFromGlobal(d.globalPosition)),
+          onHorizontalDragUpdate: (d) =>
+              setState(() => _dragRatio = ratioFromGlobal(d.globalPosition)),
+          onHorizontalDragEnd: (_) {
+            final r = _dragRatio;
+            if (r != null) _seekToRatio(r);
+            setState(() => _dragRatio = null);
+          },
+          onHorizontalDragCancel: () => setState(() => _dragRatio = null),
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -351,6 +367,29 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                 children: List.generate(
                   barCount,
                   (i) => Expanded(child: Center(child: waveformBar(i, barCount))),
+                ),
+              ),
+              // Draggable thumb — grows while scrubbing for a crisp Insta feel.
+              Align(
+                alignment: Alignment(
+                  (progress.clamp(0.0, 1.0) * 2) - 1,
+                  0,
+                ),
+                child: Container(
+                  width: _dragRatio != null ? 14 : 11,
+                  height: _dragRatio != null ? 14 : 11,
+                  decoration: BoxDecoration(
+                    color: accent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: widget.bubbleColor, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
