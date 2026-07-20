@@ -1085,8 +1085,31 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   // ---- School CRUD ----
 
+  /**
+   * A regular ADMIN may only ever act on their OWN school. Platform-level
+   * school operations (creating, listing, or deleting arbitrary schools, and
+   * moving users between schools) belong to the MANAGER role and live in the
+   * dedicated /manager controller. This guards the /admin/schools routes so a
+   * single-school admin can't reach into — or move accounts into — another
+   * school. A MANAGER (platform owner) passes through unrestricted.
+   */
+  private assertOwnSchool(user: any, schoolId: string): void {
+    if (hasAnyRole(user, ['MANAGER'])) return;
+    const own = (user as any)?.schoolId ? String((user as any).schoolId) : null;
+    if (!own) throw new ForbiddenException('Your account is not attached to a school');
+    if (String(schoolId ?? '') !== own) {
+      throw new ForbiddenException('You can only manage your own school');
+    }
+  }
+
   async createSchool(user: any, dto: any) {
     this.requireAdminOrSecretary(user);
+    // Creating a new school is a platform-level action (MANAGER, via /manager).
+    // An admin who already belongs to a school manages that one — they don't
+    // spin up additional schools here.
+    if (!hasAnyRole(user, ['MANAGER']) && (user as any)?.schoolId) {
+      throw new ForbiddenException('Schools are provisioned by the platform manager');
+    }
     const name = String(dto?.name ?? '').trim();
     if (!name) throw new BadRequestException('name required');
     const logoUrl = dto?.logoUrl ? String(dto.logoUrl).trim() : null;
@@ -1098,20 +1121,27 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async listSchools(user: any) {
     this.requireAdminOrSecretary(user);
-    const rows = await this.prisma.school.findMany({
-      orderBy: { name: 'asc' },
-    });
-    return { ok: true, schools: rows };
+    // MANAGER sees the whole platform; an admin sees only their own school.
+    if (hasAnyRole(user, ['MANAGER'])) {
+      const rows = await this.prisma.school.findMany({ orderBy: { name: 'asc' } });
+      return { ok: true, schools: rows };
+    }
+    const own = (user as any)?.schoolId ?? null;
+    if (!own) return { ok: true, schools: [] };
+    const row = await this.prisma.school.findUnique({ where: { id: own } });
+    return { ok: true, schools: row ? [row] : [] };
   }
 
   async getSchool(user: any, id: string) {
     this.requireAdminOrSecretary(user);
+    this.assertOwnSchool(user, id);
     const row = await this.prisma.school.findUnique({ where: { id } });
     return { ok: true, school: row ?? null };
   }
 
   async updateSchool(user: any, id: string, dto: any) {
     this.requireAdminOrSecretary(user);
+    this.assertOwnSchool(user, id);
     const data: any = {};
     if (dto?.name !== undefined) data.name = String(dto.name).trim();
     if (dto?.logoUrl !== undefined) data.logoUrl = dto.logoUrl ? String(dto.logoUrl).trim() : null;
@@ -1121,15 +1151,32 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
   async deleteSchool(user: any, id: string) {
     this.requireAdminOrSecretary(user);
+    // Deleting a school (with its cascade) is a platform-owner action.
+    if (!hasAnyRole(user, ['MANAGER'])) {
+      throw new ForbiddenException('Only the platform manager can delete a school');
+    }
     await this.prisma.school.delete({ where: { id } });
     return { ok: true };
   }
 
   async assignUserToSchool(user: any, schoolId: string, dto: any) {
     this.requireAdminOrSecretary(user);
+    // An admin may only place users into their OWN school...
+    this.assertOwnSchool(user, schoolId);
     const identifier = String(dto?.userId ?? dto?.email ?? '').trim();
     if (!identifier) throw new BadRequestException('userId or email required');
     const userId = await this.resolveUserId(identifier);
+    // ...and must not poach an account that already belongs to another school
+    // (that's a cross-tenant move only the platform manager may perform).
+    if (!hasAnyRole(user, ['MANAGER'])) {
+      const target = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { schoolId: true },
+      });
+      if (target?.schoolId && String(target.schoolId) !== String(schoolId)) {
+        throw new ForbiddenException('That user already belongs to another school');
+      }
+    }
     await this.prisma.user.update({ where: { id: userId }, data: { schoolId } as any });
     return { ok: true };
   }
