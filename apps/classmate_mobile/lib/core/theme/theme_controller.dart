@@ -263,25 +263,28 @@ final _rosePalette = _Palette(
   ),
 );
 
-/// Sand — sun-bleached desert paper, warm terracotta accent.
+/// Sand — pale wheat dune, warm golden accent. Deliberately gold (not brown)
+/// so it never reads as a duplicate of Coffee's espresso palette.
 final _sandPalette = _Palette(
   brightness: Brightness.light,
-  seed: const Color(0xFFB0632F),
+  seed: const Color(0xFFC79A3E),
   overrides: (base) => base.copyWith(
-    surface: const Color(0xFFF5EDE0),
-    onSurface: const Color(0xFF3E342A),
-    onSurfaceVariant: const Color(0xFF6E6152),
-    surfaceContainerLowest: const Color(0xFFFCF6EC),
-    surfaceContainerLow: const Color(0xFFF1E7D8),
-    surfaceContainer: const Color(0xFFEBE0CF),
-    surfaceContainerHigh: const Color(0xFFE4D7C2),
-    surfaceContainerHighest: const Color(0xFFDCCDB4),
-    outline: const Color(0xFFA6917A),
-    outlineVariant: const Color(0xFFD2C2AB),
-    primaryContainer: const Color(0xFFF3DCC4),
-    onPrimaryContainer: const Color(0xFF48260F),
-    secondaryContainer: const Color(0xFFEADBC6),
-    onSecondaryContainer: const Color(0xFF3B2C1B),
+    surface: const Color(0xFFF9F2DE),
+    onSurface: const Color(0xFF423A26),
+    onSurfaceVariant: const Color(0xFF726A50),
+    surfaceContainerLowest: const Color(0xFFFEFAEB),
+    surfaceContainerLow: const Color(0xFFF4EBD1),
+    surfaceContainer: const Color(0xFFEEE4C7),
+    surfaceContainerHigh: const Color(0xFFE7DBB8),
+    surfaceContainerHighest: const Color(0xFFDFD1A8),
+    outline: const Color(0xFFAA9A66),
+    outlineVariant: const Color(0xFFD8C99C),
+    primary: const Color(0xFFA37B10),
+    onPrimary: const Color(0xFFFFFFFF),
+    primaryContainer: const Color(0xFFF6E6B2),
+    onPrimaryContainer: const Color(0xFF382A00),
+    secondaryContainer: const Color(0xFFEDE1BE),
+    onSecondaryContainer: const Color(0xFF3B3114),
   ),
 );
 
@@ -473,10 +476,11 @@ final _draculaPalette = _Palette(
   ),
 );
 
-/// Obsidian — near-black neutral glass with an electric cyan accent.
+/// Obsidian — near-black neutral glass with an electric blue accent. Blue
+/// (not cyan) keeps it clearly distinct from Ocean's aqua palette.
 final _obsidianPalette = _Palette(
   brightness: Brightness.dark,
-  seed: const Color(0xFF4CC9D6),
+  seed: const Color(0xFF3B82F6),
   overrides: (base) => base.copyWith(
     surface: const Color(0xFF111315),
     onSurface: const Color(0xFFE4E6E8),
@@ -488,10 +492,10 @@ final _obsidianPalette = _Palette(
     surfaceContainerHighest: const Color(0xFF2D3237),
     outline: const Color(0xFF4A5157),
     outlineVariant: const Color(0xFF2A2F34),
-    primary: const Color(0xFF57D6E0),
-    onPrimary: const Color(0xFF05282E),
-    primaryContainer: const Color(0xFF14424A),
-    onPrimaryContainer: const Color(0xFFB4EEF4),
+    primary: const Color(0xFF6AA1FF),
+    onPrimary: const Color(0xFF04122B),
+    primaryContainer: const Color(0xFF16345E),
+    onPrimaryContainer: const Color(0xFFCFE0FF),
     secondaryContainer: const Color(0xFF25292D),
     onSecondaryContainer: const Color(0xFFD3D8DC),
   ),
@@ -545,27 +549,28 @@ final _solarizedPalette = _Palette(
   ),
 );
 
-/// Plum — deep grape twilight, bright lilac accent.
+/// Plum — deep grape twilight, bright orchid-magenta accent. Warmer/pinker
+/// than Dracula's blue-violet so the two purples never look interchangeable.
 final _plumPalette = _Palette(
   brightness: Brightness.dark,
-  seed: const Color(0xFFB98CE0),
+  seed: const Color(0xFFCE6FD8),
   overrides: (base) => base.copyWith(
-    surface: const Color(0xFF1E1526),
-    onSurface: const Color(0xFFE9DFF3),
-    onSurfaceVariant: const Color(0xFFB1A3C0),
-    surfaceContainerLowest: const Color(0xFF17101E),
-    surfaceContainerLow: const Color(0xFF251A2F),
-    surfaceContainer: const Color(0xFF2B1F37),
-    surfaceContainerHigh: const Color(0xFF342740),
-    surfaceContainerHighest: const Color(0xFF3E2F4C),
-    outline: const Color(0xFF6E5E7E),
-    outlineVariant: const Color(0xFF362A43),
-    primary: const Color(0xFFC9A2ED),
-    onPrimary: const Color(0xFF33204A),
-    primaryContainer: const Color(0xFF48335E),
-    onPrimaryContainer: const Color(0xFFEBDCFB),
-    secondaryContainer: const Color(0xFF33273F),
-    onSecondaryContainer: const Color(0xFFE4DAF0),
+    surface: const Color(0xFF22132A),
+    onSurface: const Color(0xFFF1DFF3),
+    onSurfaceVariant: const Color(0xFFC0A3C4),
+    surfaceContainerLowest: const Color(0xFF1A0E21),
+    surfaceContainerLow: const Color(0xFF2A1834),
+    surfaceContainer: const Color(0xFF321D3E),
+    surfaceContainerHigh: const Color(0xFF3C244A),
+    surfaceContainerHighest: const Color(0xFF472C56),
+    outline: const Color(0xFF7E5E86),
+    outlineVariant: const Color(0xFF412A49),
+    primary: const Color(0xFFE58CE6),
+    onPrimary: const Color(0xFF421248),
+    primaryContainer: const Color(0xFF5A2C60),
+    onPrimaryContainer: const Color(0xFFFBD9FB),
+    secondaryContainer: const Color(0xFF3B2743),
+    onSecondaryContainer: const Color(0xFFF0DAF2),
   ),
 );
 

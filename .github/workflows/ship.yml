@@ -56,7 +56,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
       - name: flutter analyze
-        run: cd apps/classmate_mobile && flutter pub get && flutter analyze lib --no-fatal-infos
+        run: cd apps/classmate_mobile && flutter pub get && flutter gen-l10n && flutter analyze lib --no-fatal-infos
 
   # ── 1 · Bump the build number so Play + TestFlight never reject a duplicate ──
   version:
@@ -131,7 +131,7 @@ jobs:
         with: { distribution: temurin, java-version: "17" }
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
-      - run: flutter pub get
+      - run: flutter pub get && flutter gen-l10n
       - name: Materialize signing config
         env:
           KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -179,7 +179,7 @@ jobs:
         with: { ref: "${{ needs.version.outputs.sha }}" }
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
-      - run: flutter pub get
+      - run: flutter pub get && flutter gen-l10n
       - run: flutter build web --release
       - name: Deploy to Firebase Hosting
         env:
@@ -235,7 +235,7 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version
       - uses: subosito/flutter-action@v2
         with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable }
-      - run: flutter pub get
+      - run: flutter pub get && flutter gen-l10n
       - name: Import distribution cert into a temp keychain
         env:
           P12_B64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}

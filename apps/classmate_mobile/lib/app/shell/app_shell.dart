@@ -1131,7 +1131,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     if (kIsWeb || (!Platform.isIOS && !Platform.isMacOS)) {
       return NavigationBar(
         selectedIndex: widget.index,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: (i) {
           HapticFeedback.lightImpact();
           widget.onTap(i);
@@ -1210,7 +1210,7 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                   style: NativeGlassStyle.regular,
                   fallbackColor: pillTint,
                   child: SizedBox(
-                    height: 56,
+                    height: 64,
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -1441,41 +1441,63 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
         ? Duration.zero
         : const Duration(milliseconds: 140);
 
-    // Icon-only (Instagram-style) — no text label.
+    // Icon + text label beneath it, matching the labelled Android/Web bar.
     return SizedBox.expand(
-      child: Center(
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            AnimatedBuilder(
-              animation: _pulse,
-              builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
-              child: AnimatedSwitcher(
-                duration: swapDur,
-                child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 25, color: color),
-              ),
-            ),
-            if (hasBadge)
-              Positioned(
-                right: -6,
-                top: -4,
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
-                  child: Text(
-                    widget.item.badge > 99 ? '99+' : '${widget.item.badge}',
-                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, height: 1.4),
-                    textAlign: TextAlign.center,
-                  ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AnimatedBuilder(
+                animation: _pulse,
+                builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
+                child: AnimatedSwitcher(
+                  duration: swapDur,
+                  child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
                 ),
               ),
-          ],
-        ),
+              if (hasBadge)
+                Positioned(
+                  right: -6,
+                  top: -4,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Text(
+                      widget.item.badge > 99 ? '99+' : '${widget.item.badge}',
+                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, height: 1.4),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text(
+              widget.item.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10,
+                height: 1.05,
+                color: color,
+                fontWeight: (widget.selected || widget.hovered)
+                    ? FontWeight.w700
+                    : FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
