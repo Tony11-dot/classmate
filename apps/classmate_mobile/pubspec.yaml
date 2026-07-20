@@ -21,6 +21,19 @@ version: 1.0.9+224
 environment:
   sdk: ^3.10.4
 
+# ── iOS build fix (device_info_plus) ─────────────────────────────────────────
+# device_info_plus 12.4.0 (pulled in transitively by sentry_flutter) fails the
+# iOS release archive on the CI runner's SDK:
+#   "No visible @interface for 'NSProcessInfo' declares the selector
+#    'isiOSAppOnVision'"  (FPPDeviceInfoPlusPlugin.m)
+# The fix is device_info_plus >= 13.x. It's not used directly in our Dart, so
+# this override is API-safe. NOTE: 13.x requires Flutter >= 3.41.6 / Dart
+# >= 3.11.0, so the CI FLUTTER_VERSION in .github/workflows/ship.yml was bumped
+# 3.41.0 -> 3.41.6 to match. VERIFY on a machine with Flutter before shipping:
+#   flutter pub get && flutter analyze lib   (then a local `flutter build ipa`).
+dependency_overrides:
+  device_info_plus: ^13.2.0
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
