@@ -100,6 +100,19 @@ class DmChatThreadController extends ChatThreadController {
   // key: messageId (server or local), value: 'DELETED_FOR_ME' | 'DELETED_FOR_EVERYONE'
   Map<String, String> _localDeleted = {};
 
+  // Durable deletion state keyed by the media CDN URL — the ONE identifier that
+  // survives a message ID changing between the optimistic/local bubble and the
+  // server-confirmed row. Without this a voice note deleted before the server
+  // roundtrip completed would reappear "alive" on re-entry (the persisted
+  // id-keyed map never matched the freshly-assigned server id). Persisted, so
+  // deletion is unbreakable across exit + re-entry regardless of id churn.
+  // key: mediaUrl, value: 'DELETED_FOR_ME' | 'DELETED_FOR_EVERYONE'
+  Map<String, String> _deletedUrls = {};
+
+  // Server ids we've already fired a compensating "delete for everyone" at, so
+  // the merge retry (below) never spams the API for the same message.
+  final Set<String> _reDeleteAttempted = {};
+
   // Static set of CDN URLs for media WE have sent.  Never pruned within a
   // session — used to determine isOwn even after _localMediaMessages is cleared.
   static final Map<String, Set<String>> _staticSentUrls = {};
@@ -129,12 +142,14 @@ class DmChatThreadController extends ChatThreadController {
       _staticSentUrls.putIfAbsent(_threadId, () => {});
 
   String _deletedKey() => 'dm_deleted:$_threadId';
+  String _deletedUrlsKey() => 'dm_deleted_urls:$_threadId';
   String _sentUrlsKey() => 'dm_sent_urls:$_threadId';
 
   Future<void> _persistLocalDeleted() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_deletedKey(), jsonEncode(_localDeleted));
+      await prefs.setString(_deletedUrlsKey(), jsonEncode(_deletedUrls));
     } catch (_) {}
   }
 
@@ -230,6 +245,15 @@ class DmChatThreadController extends ChatThreadController {
         );
       }
 
+      // Restore durable URL-keyed deletion state (survives message-id churn).
+      final deletedUrlsRaw = prefs.getString(_deletedUrlsKey()) ?? '{}';
+      final deletedUrlsDecoded = jsonDecode(deletedUrlsRaw);
+      if (deletedUrlsDecoded is Map) {
+        _deletedUrls = deletedUrlsDecoded.map(
+          (k, v) => MapEntry(k.toString(), v.toString()),
+        );
+      }
+
       // Restore sent CDN URLs (for isOwn detection even after list is pruned).
       final sentRaw = prefs.getString(_sentUrlsKey()) ?? '[]';
       final sentDecoded = jsonDecode(sentRaw);
@@ -262,6 +286,7 @@ class DmChatThreadController extends ChatThreadController {
     // so the correct deleted/visible state is applied immediately.
     if (_localMediaMessages.isNotEmpty ||
         _localDeleted.isNotEmpty ||
+        _deletedUrls.isNotEmpty ||
         _sessionCache.keys.any((k) => k.startsWith('$_threadId:'))) {
       invalidate();
     }
@@ -507,10 +532,11 @@ class DmChatThreadController extends ChatThreadController {
     final localOnly = _localMediaMessages
         .where((m) {
           if (localIds.contains(m.id)) return false;
-          final del = _localDeleted[m.id];
+          final url = m.mediaUrl ?? '';
+          final urlDel = url.isNotEmpty ? _deletedUrls[url] : null;
+          final del = _localDeleted[m.id] ?? urlDel;
           // DELETED_FOR_ME: hide completely.
           if (del == 'DELETED_FOR_ME') return false;
-          final url = m.mediaUrl ?? '';
           if (url.isNotEmpty && !_isDeviceLocalPath(url)) {
             if (optimisticCdnUrls.contains(url)) return false;
             // If the server version of this URL is DELETED_FOR_ME, hide.
@@ -522,13 +548,14 @@ class DmChatThreadController extends ChatThreadController {
           return true; // DELETED_FOR_EVERYONE or normal → keep
         })
         .map((m) {
-          // Apply DELETED_FOR_EVERYONE stamp to local entries.
-          final del = _localDeleted[m.id];
+          // Apply DELETED_FOR_EVERYONE stamp to local entries (by id or URL).
+          final url = m.mediaUrl ?? '';
+          final urlDel = url.isNotEmpty ? _deletedUrls[url] : null;
+          final del = _localDeleted[m.id] ?? urlDel;
           if (del == 'DELETED_FOR_EVERYONE') {
             return m.copyWith(deletedForEveryone: true, mediaUrl: null);
           }
           // Check if server version with same URL is DELETED_FOR_EVERYONE.
-          final url = m.mediaUrl ?? '';
           if (url.isNotEmpty) {
             final serverDel = patchedServer
                 .where((s) => s.mediaUrl == url)
@@ -654,11 +681,47 @@ class DmChatThreadController extends ChatThreadController {
     }
 
     // Apply immediate local deletion state (set before server confirmation).
+    // Two keys are consulted: the message id AND the media URL. The URL is the
+    // durable identifier — it is stable even when the id changes between the
+    // optimistic bubble and the server row, so a voice note deleted before the
+    // server roundtrip completed stays deleted on re-entry instead of coming
+    // "back alive".
     final localDelete = _localDeleted[item.id];
-    final resolvedDeletedForMe =
-        deletedForMe || localDelete == 'DELETED_FOR_ME';
-    final resolvedDeletedForEveryone =
-        deletedForEveryone || localDelete == 'DELETED_FOR_EVERYONE';
+    final urlDelete =
+        (mediaUrl ?? '').isNotEmpty ? _deletedUrls[mediaUrl] : null;
+    final resolvedDeletedForMe = deletedForMe ||
+        localDelete == 'DELETED_FOR_ME' ||
+        urlDelete == 'DELETED_FOR_ME';
+    final resolvedDeletedForEveryone = deletedForEveryone ||
+        localDelete == 'DELETED_FOR_EVERYONE' ||
+        urlDelete == 'DELETED_FOR_EVERYONE';
+
+    // Once a URL is marked deleted-for-everyone, the media must never be
+    // resolvable again — drop it so no bubble can render or replay it.
+    if (resolvedDeletedForEveryone) {
+      mediaUrl = null;
+    }
+
+    // Compensating server delete: if WE deleted this for everyone while it was
+    // still a local/optimistic bubble, the API call may have hit a 404 (the
+    // server didn't know the id yet). Now that the server row exists and still
+    // reports itself visible, re-issue the delete once so it's gone for the
+    // peer and on our other devices too. Fire-and-forget; guarded so it runs
+    // at most once per id.
+    if (urlDelete == 'DELETED_FOR_EVERYONE' &&
+        !deletedForEveryone &&
+        (item.isMine || item.senderId == _currentUserId) &&
+        !item.id.startsWith('local-') &&
+        !item.id.startsWith('optimistic-') &&
+        _reDeleteAttempted.add(item.id)) {
+      _repo
+          .deleteMessage(
+            threadId: _threadId,
+            messageId: item.id,
+            mode: 'deleteForEveryone',
+          )
+          .catchError((_) {});
+    }
 
     // Server's isMine is authoritative (compared server-side as senderId === viewerId).
     // UUID comparison is a secondary check for cases where the server omits isMine.
@@ -1021,6 +1084,11 @@ class DmChatThreadController extends ChatThreadController {
         : 'DELETED_FOR_ME';
 
     if (deletedUrl.isNotEmpty) {
+      // Durable, id-independent record: any message (now or in the future, with
+      // any id) carrying this URL stays deleted. This is what makes deletion
+      // unbreakable across the optimistic→server id swap and app restarts.
+      _deletedUrls[deletedUrl] = modeLabel;
+
       // Mark ALL messages (by ID) that share this CDN URL as deleted.
       // This covers both the server message ID AND any local IDs like
       // 'local-xxx-voice' — local IDs persist in SharedPreferences and will

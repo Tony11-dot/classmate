@@ -152,6 +152,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   Timer? _recordTicker;
   Duration _recordElapsed = Duration.zero;
   String? _recordingPath;
+  // Live mic amplitude, sampled while recording, so the HUD waveform reacts to
+  // the user's actual voice (Instagram-style) instead of a canned animation.
+  // Normalised 0..1, newest last, capped to the number of bars the HUD draws.
+  StreamSubscription<Amplitude>? _ampSub;
+  List<double> _ampWave = const <double>[];
+  static const int _kAmpBars = 44;
   // Set in dispose() so async recorder work started before teardown never
   // touches the disposed platform recorder (would throw "Recorder has not
   // yet been created or has already been disposed" → fatal).
@@ -192,6 +198,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _pollTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
+    _ampSub?.cancel();
     _recorder.dispose();
     _recordTicker?.cancel();
     _cancelPulseTimers();
@@ -542,7 +549,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       final msg = _lastKnownMessages.where((m) => m.id == id).firstOrNull;
       final effectiveMode =
           msg?.deletedForEveryone == true ? ChatDeleteMode.deleteForMe : mode;
-      await widget.controller.deleteMessage(id, mode: effectiveMode);
+      // One message failing (e.g. transient network) must never abort the rest
+      // or leave the UI wedged in selection mode. The controller already hides
+      // the message locally and durably (by URL), and retries server
+      // propagation on its own — so swallowing here keeps delete unbreakable.
+      try {
+        await widget.controller.deleteMessage(id, mode: effectiveMode);
+      } catch (_) {}
     }
     widget.controller.invalidate();
     _exitDeleteMode();
@@ -847,8 +860,22 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   // ─── voice recording ─────────────────────────────────────────────────────
 
+  /// Maps a raw dBFS amplitude reading (roughly -50 = silence, 0 = clipping)
+  /// onto a 0..1 bar height. Quiet floor is lifted a touch so even soft speech
+  /// visibly moves the waveform, matching how Instagram's recorder feels.
+  double _normAmp(double dbfs) {
+    if (dbfs.isNaN || dbfs.isInfinite) return 0.06;
+    const floor = -45.0;
+    final clamped = dbfs.clamp(floor, 0.0);
+    final norm = (clamped - floor) / (0.0 - floor); // 0..1
+    return (0.06 + norm * 0.94).clamp(0.0, 1.0);
+  }
+
   Future<void> _startRecording() async {
     if (_recording || _disposed) return;
+    // Drop the keyboard the instant recording begins — otherwise it lingers
+    // behind the recording HUD and feels "stuck".
+    FocusManager.instance.primaryFocus?.unfocus();
     final bool hasPermission;
     try {
       hasPermission = await _recorder.hasPermission();
@@ -904,6 +931,26 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
           () => _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1));
     });
 
+    // Live waveform: sample mic amplitude ~8×/s and push onto a rolling buffer.
+    _ampWave = const <double>[];
+    _ampSub?.cancel();
+    try {
+      _ampSub = _recorder
+          .onAmplitudeChanged(const Duration(milliseconds: 120))
+          .listen((amp) {
+        if (!mounted || !_recording || _voicePaused) return;
+        final v = _normAmp(amp.current);
+        final next = List<double>.of(_ampWave)..add(v);
+        if (next.length > _kAmpBars) {
+          next.removeRange(0, next.length - _kAmpBars);
+        }
+        setState(() => _ampWave = next);
+      }, onError: (_) {});
+    } catch (_) {
+      // Amplitude stream unsupported on this platform — HUD falls back to its
+      // built-in animation. Never fatal.
+    }
+
     setState(() {
       _recording = true;
       _voicePaused = false;
@@ -923,6 +970,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     }
     _recordTicker?.cancel();
     _recordTicker = null;
+    _ampSub?.cancel();
+    _ampSub = null;
     final elapsed = _recordElapsed;
     if (!mounted) return;
     setState(() {
@@ -967,6 +1016,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     }
     _recordTicker?.cancel();
     _recordTicker = null;
+    _ampSub?.cancel();
+    _ampSub = null;
+    _ampWave = const <double>[];
     if (!mounted) return;
     setState(() {
       _recording = false;
@@ -1864,6 +1916,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 isVoiceLocked: _voiceLocked,
                 isVoicePaused: _voicePaused,
                 recordingElapsed: _recordElapsed,
+                recordingAmplitudes: _ampWave,
                 activeHoldDx: _holdDx,
                 activeHoldDy: _holdDy,
                 hasDraft: _draftAttachments.isNotEmpty,

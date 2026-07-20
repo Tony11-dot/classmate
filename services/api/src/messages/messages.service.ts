@@ -723,7 +723,15 @@ export class MessagesService {
           isPinned: !!m.isPinned,
           edited: !!m.editedAt,
           forwarded: !!m.forwardedFromId || (() => { const t = String(m.text ?? '').trim(); return t.startsWith('Forwarded\n') || t === 'Forwarded'; })(),
-          deleteState: String(m.deleteMode ?? 'VISIBLE'),
+          deleteState: (() => {
+            if (String(m.deleteMode ?? 'VISIBLE') === 'DELETED_FOR_EVERYONE') {
+              return 'DELETED_FOR_EVERYONE';
+            }
+            const hiddenFor = Array.isArray((m as any).deletedForUserIds)
+              ? ((m as any).deletedForUserIds as string[])
+              : [];
+            return hiddenFor.includes(viewerId) ? 'DELETED_FOR_ME' : 'VISIBLE';
+          })(),
           delivered: delivery.delivered,
           seen: delivery.seen,
           deliveredAt: delivery.deliveredAt,
@@ -1639,15 +1647,22 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       return { ok: true };
     }
 
-    // allow any participant to delete for self
-
-    await this.prisma.dmMessage.update({
-      where: { id: messageId },
-      data: {
-        deletedAt: new Date(),
-        deleteMode: 'DELETED_FOR_ME',
-      },
-    });
+    // Delete for self only — any participant may hide a message for
+    // themselves. This must be per-viewer: record the user id in
+    // deletedForUserIds and DO NOT touch the global deleteMode, otherwise the
+    // other participant would lose the message too. Idempotent — deleting a
+    // message already hidden for this user is a no-op that still returns ok.
+    const alreadyHidden = Array.isArray((message as any).deletedForUserIds)
+      ? ((message as any).deletedForUserIds as string[])
+      : [];
+    if (!alreadyHidden.includes(userId)) {
+      await this.prisma.dmMessage.update({
+        where: { id: messageId },
+        data: {
+          deletedForUserIds: { set: [...alreadyHidden, userId] },
+        } as any,
+      });
+    }
 
     return { ok: true };
   }

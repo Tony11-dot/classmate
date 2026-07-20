@@ -1894,6 +1894,11 @@ model DmMessage {
   editedAt         DateTime?
   deletedAt        DateTime?
   deleteMode       DmMessageDeleteMode @default(VISIBLE)
+  // Per-viewer "delete for me": user ids who have hidden this message for
+  // themselves only. `deleteMode` stays VISIBLE (or DELETED_FOR_EVERYONE) — it
+  // is global, so it must NOT be reused for a one-sided hide, otherwise one
+  // participant deleting for themselves would wipe the message for the other.
+  deletedForUserIds String[]           @default([])
   forwardedFromId  String?
   createdAt        DateTime            @default(now())
   thread           DmThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
