@@ -39,7 +39,10 @@ export class AuthController {
     const email = String(body?.email ?? '').trim().toLowerCase();
     const name = String(body?.name ?? '').trim();
     const password = String(body?.password ?? '').trim();
-    const schoolId: string | null = body?.schoolId ? String(body.schoolId).trim() : null;
+    // Deliberately IGNORE any client-supplied schoolId. Registration never
+    // mints an account directly into a school — that would let anyone place a
+    // self-made account inside a target school. School membership is granted
+    // only by an admin or by redeeming a join code (both server-verified).
 
     if (!email || !email.includes('@')) throw new BadRequestException('Valid email required');
     if (!name) throw new BadRequestException('Name required');
@@ -64,7 +67,6 @@ export class AuthController {
         name,
         password: hash,
         status: 'ACTIVE',
-        ...(schoolId ? { schoolId } : {}),
         roles: { create: [{ role: 'STUDENT' }] },
       } as any,
     });

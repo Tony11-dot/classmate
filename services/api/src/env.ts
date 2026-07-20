@@ -24,6 +24,21 @@ NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   SUPPORT_AI_API_KEY: z.string().optional(),
   SUPPORT_AI_MODEL: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+
+  // Ministry of Education SSO (OpenID Connect). All optional — the integration
+  // stays inert until MOE_SSO_ENABLED=1 AND the required fields below are set
+  // (see src/auth/moe-sso/moe-sso.config.ts). Fill these once the Ministry
+  // issues the client credentials + endpoints; no code change needed to go live.
+  MOE_SSO_ENABLED: z.string().optional(),
+  MOE_SSO_CLIENT_ID: z.string().optional(),
+  MOE_SSO_CLIENT_SECRET: z.string().optional(),
+  MOE_SSO_AUTH_URL: z.string().optional(),
+  MOE_SSO_TOKEN_URL: z.string().optional(),
+  MOE_SSO_USERINFO_URL: z.string().optional(),
+  MOE_SSO_REDIRECT_URI: z.string().optional(),
+  MOE_SSO_SCOPES: z.string().optional(),
+  MOE_SSO_IDENTIFIER_CLAIM: z.string().optional(),
+  MOE_SSO_POST_LOGIN_REDIRECT: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

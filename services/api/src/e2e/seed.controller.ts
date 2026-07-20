@@ -2,7 +2,7 @@ import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import * as bcrypt from 'bcrypt';
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { E2ESeedGuard } from './e2e-seed.guard';
 import { PrismaService } from '../prisma/prisma.service';
 

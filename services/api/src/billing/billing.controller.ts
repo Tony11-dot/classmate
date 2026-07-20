@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Req, UseGuards, Headers, HttpCode } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { ALL_APP_ROLES } from '../auth/roles';
 import { TokensService } from './tokens.service';

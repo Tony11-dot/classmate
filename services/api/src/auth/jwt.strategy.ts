@@ -55,7 +55,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
   /** Verifies a signed JWT (issued by AuthService.login) and hydrates the
    * user object the rest of the app expects. Returns null if the token isn't
    * a valid JWT — caller falls through to the dev-token path. */
-  private async tryRealJwt(token: string, schoolId?: string, actingStudentId?: string): Promise<any | null> {
+  private async tryRealJwt(token: string, actingStudentId?: string): Promise<any | null> {
     let payload: any;
     try {
       payload = await this.jwt.verifyAsync(token);
@@ -96,8 +96,28 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       roles.push(Role.MANAGER);
     }
     const displayName = user.name ?? user.email?.split('@')[0] ?? '';
-    const cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
-    const resolvedSchoolId = user.schoolId ?? schoolId ?? null;
+    let cohortId = user.studentProfile?.cohortId ?? payload?.cohortId ?? undefined;
+    // School isolation: trust ONLY the account's stored schoolId. The
+    // client-supplied x-school-id header is NEVER used to pick the caller's
+    // school — otherwise any account with no school could set the header and
+    // read another school's data. The single legitimate exception is a PARENT
+    // (who has no school of their own) acting on an approved child: the school
+    // is derived from that child, verified against the parentChild link.
+    let resolvedSchoolId = user.schoolId ?? null;
+    if (!resolvedSchoolId && actingStudentId && roles.includes(Role.PARENT)) {
+      const link = await this.prisma.parentChild.findFirst({
+        where: { parentId: user.id, childId: actingStudentId, status: 'APPROVED' },
+        select: { id: true },
+      });
+      if (link) {
+        const childRow = await this.prisma.user.findUnique({
+          where: { id: actingStudentId },
+          select: { schoolId: true, studentProfile: { select: { cohortId: true } } },
+        });
+        resolvedSchoolId = childRow?.schoolId ?? null;
+        if (!cohortId) cohortId = childRow?.studentProfile?.cohortId ?? undefined;
+      }
+    }
 
     return {
       sub: user.id,
@@ -154,7 +174,6 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
   async validate(req: Request): Promise<any> {
     const h: any = (req as any)?.headers ?? {};
     const actingStudentId = firstHeader(h, 'x-acting-student-id', 'X-Acting-Student-Id');
-    const schoolId = firstHeader(h, 'x-school-id', 'X-School-Id');
 
     const auth = String((req as any)?.headers?.authorization ?? '');
     const token = auth.replace(/^Bearer\s+/i, '').trim();
@@ -162,7 +181,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     // 1) Real signed JWT (issued by /auth/login). This is the main path in
     //    production — dev tokens are now off by default.
     if (token && !token.startsWith('dev-token-')) {
-      const real = await this.tryRealJwt(token, schoolId, actingStudentId);
+      const real = await this.tryRealJwt(token, actingStudentId);
       if (real) return real;
     }
 
@@ -227,7 +246,9 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
           cohortId = provisioned.cohortId;
         }
 
-        let resolvedSchoolId = existing?.schoolId ?? schoolId ?? null;
+        // Trust only the stored schoolId — never the x-school-id header (see
+        // tryRealJwt). Parents resolve their school from the acting child below.
+        let resolvedSchoolId = existing?.schoolId ?? null;
 
         // Parent multi-school support:
         // If a parent has no schoolId but is acting as a child, resolve the school
