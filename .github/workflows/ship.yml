@@ -153,11 +153,16 @@ jobs:
         # ubuntu system Ruby installs gems to /var/lib/gems (root-owned) → needs sudo.
         run: sudo gem install fastlane --no-document
       - name: fastlane android internal
-        # Sentry symbol upload is intentionally NOT wired here: the
-        # sentry_dart_plugin upload hangs intermittently and runs AFTER the
-        # Play upload, which was stalling the whole job to the 40-min timeout.
-        # The fastlane lane skips it cleanly when SENTRY_AUTH_TOKEN is absent.
-        # Upload symbols separately later (scripts/upload-sentry-symbols.sh).
+        env:
+          # Symbol upload was previously withheld from CI because
+          # sentry_dart_plugin wedges intermittently and runs AFTER the Play
+          # upload — a hang stalled the job to its timeout and marked a
+          # already-delivered release RED. The lane now time-boxes each attempt
+          # (see upload_sentry_symbols in fastlane/Fastfile), so a wedge costs
+          # bounded minutes instead of the job. Without symbols, crash reports
+          # from CI-shipped builds are unsymbolicated — which defeats shipping
+          # from a phone, since there'd be no Mac in the loop to backfill them.
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: fastlane android internal
 
   # ── 4 · Web → Firebase Hosting ──────────────────────────────────────────────
@@ -265,6 +270,6 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
-        # Sentry symbol upload omitted in CI (hangs after the store upload —
-        # see the android job note). Upload dSYMs later via the runbook script.
+          # dSYM upload — now time-boxed per attempt, see the android job note.
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: fastlane ios beta

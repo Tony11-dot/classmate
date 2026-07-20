@@ -118,6 +118,16 @@ If the cert is ever lost/expired, regenerate it + the profile with
 | Web | 1/1 | ✅ |
 | iOS | 6/6 | ✅ |
 | Railway | `RAILWAY_TOKEN` | ⛔ optional — job skips cleanly until the token is set |
+| Sentry symbols | `SENTRY_AUTH_TOKEN` | ✅ wired into both store jobs |
+
+**Symbols now upload from CI.** They used to be withheld because
+`sentry_dart_plugin` wedges intermittently, and because it runs *after* the store
+upload a wedge stalled the job to its timeout — marking a release RED that had
+already shipped. `upload_sentry_symbols` in `fastlane/Fastfile` now time-boxes each
+of its 3 attempts (`perl -e 'alarm …'`, the portable SIGALRM wrapper — macOS runners
+have no GNU `timeout`), so a wedge costs bounded minutes and is swallowed. This
+matters specifically for phone-shipping: with no Mac in the loop, there is nobody to
+backfill dSYMs, and unsymbolicated iOS crash reports are close to useless.
 
 Confirm names anytime with `gh secret list --repo Tony11-dot/classmate`.
 The Railway job runs on `target=all` or `target=railway` and no-ops with a warning
