@@ -1315,28 +1315,54 @@ class _SelectionCapsule extends StatelessWidget {
   final double? pointerX;
   final bool isRtl;
 
+  /// Corner treatment. Mid-bar the capsule is a soft 20-radius chip; when it
+  /// sits at (or is dragged against) the bar's first/last slot, the corners on
+  /// the OUTER side open up to fully round (half the capsule height), so the
+  /// pill nests concentrically inside the bar's stadium end instead of its
+  /// tighter corners cutting against the big curve. `leftT`/`rightT` are 0..1
+  /// how close each physical side is to its end of the bar.
+  BorderRadius _capsuleRadius(double leftT, double rightT) {
+    const inner = 20.0;
+    // 52pt tall (62 − 5 − 5) → 26 is a true stadium end, matching the bar's
+    // own 34-radius outline once the 4–5pt inset is subtracted.
+    const outer = 26.0;
+    final l = Radius.circular(inner + (outer - inner) * leftT.clamp(0.0, 1.0));
+    final r = Radius.circular(inner + (outer - inner) * rightT.clamp(0.0, 1.0));
+    return BorderRadius.only(
+      topLeft: l,
+      bottomLeft: l,
+      topRight: r,
+      bottomRight: r,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final reduce = MediaQuery.of(context).disableAnimations;
     final slotW = totalWidth / itemCount;
     final capsuleW = slotW - 8;
+    final slideDur = reduce ? Duration.zero : const Duration(milliseconds: 200);
 
     // Vertical grow when dragged up/down (pill can exceed bar height)
     final sy = 1.0 + (dragDy.abs() / 120).clamp(0.0, 0.40);
 
-    final child = Transform(
-      alignment: Alignment.center,
-      transform: Matrix4.diagonal3Values(1.0, sy, 1.0),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.22)
-              : cs.onSurface.withValues(alpha: 0.13),
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-    );
+    Widget capsule(BorderRadius radius, Duration duration) => Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.diagonal3Values(1.0, sy, 1.0),
+          // AnimatedContainer (not DecoratedBox) so the corner morph plays in
+          // step with the AnimatedPositioned slide into/out of the end slots.
+          child: AnimatedContainer(
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.22)
+                  : cs.onSurface.withValues(alpha: 0.13),
+              borderRadius: radius,
+            ),
+          ),
+        );
 
     // While the finger is down the capsule follows it with zero animation so
     // it glides smoothly between (and past) tab centres. On release it springs
@@ -1344,17 +1370,29 @@ class _SelectionCapsule extends StatelessWidget {
     if (pointerX != null) {
       final maxLeft = (totalWidth - capsuleW - 4).clamp(4.0, double.infinity);
       final left = (pointerX! - capsuleW / 2).clamp(4.0, maxLeft);
+      // Continuous corner morph while dragging: the closer the capsule is
+      // pushed against an end of the bar, the rounder that side gets.
+      final leftT = 1 - ((left - 4) / 28).clamp(0.0, 1.0);
+      final rightT = 1 - ((maxLeft - left) / 28).clamp(0.0, 1.0);
       return AnimatedPositioned(
         duration: Duration.zero,
         left: left,
         top: 5,
         bottom: 5,
         width: capsuleW,
-        child: child,
+        child: capsule(_capsuleRadius(leftT, rightT), Duration.zero),
       );
     }
 
-    final slideDur = reduce ? Duration.zero : const Duration(milliseconds: 200);
+    // Resting: fully round the physical side that touches the bar's end.
+    // Index 0 is the start slot — the LEFT end in LTR, the RIGHT end in RTL.
+    final atStart = selectedIndex == 0;
+    final atEnd = selectedIndex == itemCount - 1;
+    final restRadius = _capsuleRadius(
+      (isRtl ? atEnd : atStart) ? 1 : 0,
+      (isRtl ? atStart : atEnd) ? 1 : 0,
+    );
+
     final edge = slotW * selectedIndex + 4;
     return isRtl
         ? AnimatedPositioned(
@@ -1364,7 +1402,7 @@ class _SelectionCapsule extends StatelessWidget {
             top: 5,
             bottom: 5,
             width: capsuleW,
-            child: child,
+            child: capsule(restRadius, slideDur),
           )
         : AnimatedPositioned(
             duration: slideDur,
@@ -1373,7 +1411,7 @@ class _SelectionCapsule extends StatelessWidget {
             top: 5,
             bottom: 5,
             width: capsuleW,
-            child: child,
+            child: capsule(restRadius, slideDur),
           );
   }
 }
