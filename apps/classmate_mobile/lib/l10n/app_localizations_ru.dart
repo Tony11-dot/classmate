@@ -2599,7 +2599,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementsDetailsTitle => 'Подробности';
 
   @override
-  String get announcementsDetailsSubtitle => '';
+  String get announcementsDetailsSubtitle =>
+      'Метаданные публикации этого объявления и текущее состояние прочтения.';
 
   @override
   String get announcementsSeverityLabel => 'Важность';

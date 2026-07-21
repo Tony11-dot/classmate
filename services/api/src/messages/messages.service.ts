@@ -1671,8 +1671,29 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
     });
 
+    void this.emitDmChanged(threadId, userId);
     return { ok: true, edited: true };
   }
+  /// Realtime nudge to every OTHER participant after a message mutation
+  /// (delete-for-everyone, edit, react, pin). Their open thread and inbox
+  /// invalidate on `dm_message`, so the change lands instantly instead of on
+  /// the next foreground poll — a WhatsApp-grade "delete means deleted NOW".
+  /// Fire-and-forget: a realtime hiccup must never fail the mutation itself.
+  private async emitDmChanged(threadId: string, actorId: string) {
+    try {
+      const participants = await this.prisma.dmParticipant.findMany({
+        where: { threadId, userId: { not: actorId } },
+        select: { userId: true },
+      });
+      this.realtime.emitToUsers(
+        participants.map((p) => p.userId),
+        { type: 'dm_message', threadId },
+      );
+    } catch (_) {
+      // Best-effort only.
+    }
+  }
+
   async togglePin(user: AppUser, dto: TogglePinMessageDto) {
     const userId = this.viewerId(user);
     const threadId = String(dto.threadId ?? '').trim();
@@ -1703,6 +1724,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       select: { isPinned: true },
     });
 
+    void this.emitDmChanged(threadId, userId);
     return { ok: true, isPinned: updated.isPinned };
   }
 
@@ -1735,6 +1757,11 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
         },
       });
 
+      // Push the tombstone to the other side IMMEDIATELY — before this, peers
+      // only noticed a delete-for-everyone on their next foreground poll,
+      // which is exactly the kind of "did it really delete?" doubt an urgent
+      // retraction cannot afford.
+      void this.emitDmChanged(threadId, userId);
       return { ok: true };
     }
 
@@ -1782,6 +1809,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
             id: existing.id,
           },
         });
+        void this.emitDmChanged(threadId, userId);
       }
       return { ok: true, reaction: null };
     }
@@ -1793,6 +1821,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
             id: existing.id,
           },
         });
+        void this.emitDmChanged(threadId, userId);
         return { ok: true, reaction: null };
       }
 
@@ -1808,6 +1837,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
         },
       });
 
+      void this.emitDmChanged(threadId, userId);
       return { ok: true, reaction: updated.emoji };
     }
 
@@ -1822,6 +1852,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
     });
 
+    void this.emitDmChanged(threadId, userId);
     return { ok: true, reaction: created.emoji };
   }
 

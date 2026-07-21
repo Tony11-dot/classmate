@@ -14,9 +14,9 @@ import 'chat_bubble_tail.dart';
 import 'chat_ticks.dart';
 import 'chat_audio_bubble.dart';
 
-/// Width of the sender pointer, and of the strip reserved for it on bubbles
-/// that don't draw one — see [ChatBubbleTail].
-const double _kTailWidth = 8;
+/// Width of the sender pointer (its breathing gap included), and of the strip
+/// reserved for it on bubbles that don't draw one — see [ChatBubbleTail].
+const double _kTailWidth = 10;
 
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({
@@ -285,21 +285,12 @@ class ChatMessageBubble extends StatelessWidget {
   bool _tailPointsRight(BuildContext context) =>
       isMine != (Directionality.of(context) == TextDirection.rtl);
 
-  /// Rounded everywhere except the corner the tail grows out of, which is
-  /// squared off so the two read as one shape. A tailless bubble (mid-run)
-  /// stays fully rounded.
-  BorderRadius _bubbleRadius(BuildContext context) {
-    const r = Radius.circular(18);
-    const tight = Radius.circular(6);
-    if (!tail) return const BorderRadius.all(r);
-    final pointRight = _tailPointsRight(context);
-    return BorderRadius.only(
-      topLeft: pointRight ? r : tight,
-      topRight: pointRight ? tight : r,
-      bottomLeft: r,
-      bottomRight: r,
-    );
-  }
+  /// Fully rounded on every corner. The tail is a DETACHED piece now (see
+  /// [ChatBubbleTail]) with a hairline of space between it and the bubble, so
+  /// the bubble no longer squares off the corner it used to grow out of —
+  /// two clean shapes instead of one silhouette.
+  BorderRadius _bubbleRadius(BuildContext context) =>
+      const BorderRadius.all(Radius.circular(18));
 
   Widget _buildChecks(BuildContext context) => ChatTicks(
         state: ChatTicks.stateOf(delivered: delivered, seen: seen),
@@ -1072,8 +1063,13 @@ class ChatMessageBubble extends StatelessWidget {
       final pointRight = _tailPointsRight(context);
       // Tailless bubbles reserve the same strip, so every bubble in a run
       // shares one outer edge instead of the mid-run ones jutting out.
+      // Nudged down a touch so the flick sits against the curve of the fully
+      // rounded corner instead of floating above it.
       final Widget pointer = tail
-          ? ChatBubbleTail(color: tailColor, pointRight: pointRight)
+          ? Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: ChatBubbleTail(color: tailColor, pointRight: pointRight),
+            )
           : const SizedBox(width: _kTailWidth);
       // Laid out in explicit LTR so "right" here means the physical right
       // edge; mirroring is already baked into pointRight.

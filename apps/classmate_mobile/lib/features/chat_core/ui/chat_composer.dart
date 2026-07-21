@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
+import 'chat_live_waveform.dart';
 import 'chat_recording_tokens.dart';
 import '../utils/chat_reply_codec.dart';
 
@@ -256,7 +257,11 @@ class ChatComposer extends StatelessWidget {
               onPointerCancel: enabled && !isVoiceLocked
                   ? (_) => onActiveHoldCancel?.call()
                   : null,
-              child: ValueListenableBuilder<TextEditingValue>(
+              child: LayoutBuilder(
+                builder: (context, constraints) => Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ValueListenableBuilder<TextEditingValue>(
                 valueListenable: controller,
                 builder: (context, value, _) {
                   final hasText = value.text.trim().isNotEmpty;
@@ -311,10 +316,87 @@ class ChatComposer extends StatelessWidget {
                         : _idle(context, hasText),
                   );
                 },
+                    ),
+                    // Floating lock bubble — Instagram's model: it is not part
+                    // of the pill, it hovers ABOVE the finger and follows it,
+                    // so the gesture reads as "carry the recording up into the
+                    // lock" rather than "hit an anchored button".
+                    if (isRecording && !isVoiceLocked)
+                      _lockBubble(context, constraints.maxWidth),
+                  ],
+                ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// The hover circle that tracks the finger while a hold-recording is live.
+  /// Rises with the drag; fills red and swaps to a closed padlock as the lock
+  /// threshold is reached (the thread view latches the lock on that crossing).
+  Widget _lockBubble(BuildContext context, double width) {
+    final scheme = Theme.of(context).colorScheme;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final toCancel = isRtl ? activeHoldDx : -activeHoldDx;
+    final cancelProgress = _clamp01(toCancel / chatRecordingCancelThreshold);
+    final lockProgress = _clamp01((-activeHoldDy) / chatRecordingLockThreshold);
+    final locking = lockProgress >= 0.99;
+
+    // The finger lands on the mic, which sits at the trailing edge.
+    const bubbleSize = 46.0;
+    final startX = isRtl ? 28.0 : width - 28.0;
+    final x = (startX + activeHoldDx).clamp(26.0, width - 26.0);
+    // Hovers ~64 px above the finger and rides up with it.
+    final lift = 64.0 - activeHoldDy.clamp(-120.0, 16.0);
+
+    return Positioned(
+      left: x - bubbleSize / 2,
+      top: -lift,
+      child: IgnorePointer(
+        child: AnimatedOpacity(
+          // Dragging toward the trash means "cancel" — the lock affordance
+          // bows out instead of competing for attention.
+          opacity: (1.0 - cancelProgress * 0.9).clamp(0.0, 1.0),
+          duration: const Duration(milliseconds: 90),
+          child: AnimatedScale(
+            scale: locking ? 1.14 : 1.0 + 0.08 * lockProgress,
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 140),
+              curve: Curves.easeOutCubic,
+              width: bubbleSize,
+              height: bubbleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: locking
+                    ? scheme.error
+                    : Color.lerp(scheme.surfaceContainerHigh, scheme.error,
+                        0.25 * lockProgress),
+                border: Border.all(
+                  color: locking
+                      ? scheme.error
+                      : scheme.outlineVariant.withValues(alpha: 0.8),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                locking ? Icons.lock_rounded : Icons.lock_open_rounded,
+                size: 20,
+                color: locking ? Colors.white : scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -549,43 +631,17 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _holding(BuildContext context) {
-    // Minimal Instagram-style hold HUD:
-    //   ●  0:05   ← Slide to cancel              ↑
-    // Replaces the prior dual-edge-icons + gesture meter clutter. The hint
-    // text fades to red as the cancel swipe approaches threshold, and the
-    // trailing chevron firms into a lock icon as the lock swipe approaches.
+    // Instagram-style hold HUD. The pill is STATIC — the finger moves, not
+    // the bar:
+    //   🗑 (grows red as you drag toward it)  ──live waveform──  ● 0:05
+    // The lock affordance is the floating bubble above the finger (see
+    // _lockBubble), not part of this row.
     final scheme = Theme.of(context).colorScheme;
-    final cancelProgress = _clamp01(
-      (-activeHoldDx) / chatRecordingCancelThreshold,
-    );
-    final lockProgress = _clamp01(
-      (-activeHoldDy) / chatRecordingLockThreshold,
-    );
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final toCancel = isRtl ? activeHoldDx : -activeHoldDx;
+    final cancelProgress = _clamp01(toCancel / chatRecordingCancelThreshold);
     final cancelActive = cancelProgress >= 1;
-    final lockActive = lockProgress >= 1;
-
-    final cancelTint = Color.lerp(
-          scheme.onSurfaceVariant.withValues(alpha: 0.7),
-          scheme.error,
-          cancelProgress,
-        ) ??
-        scheme.error;
-    final lockTint = Color.lerp(
-          scheme.onSurfaceVariant.withValues(alpha: 0.7),
-          scheme.primary,
-          lockProgress,
-        ) ??
-        scheme.primary;
-    final accent =
-        cancelActive ? scheme.error : (lockActive ? scheme.primary : scheme.primary);
-
-    // Instagram-style: the pill stays put. Only the chevron + "Slide
-    // to cancel" group slides left as the user drags, and it fades out
-    // the further it goes, so the affordance feels like a button being
-    // pulled off-screen rather than the whole HUD shifting.
-    final cancelDrag = _clamp01(cancelProgress);
-    final cancelInsetOffset = Offset(-cancelDrag * 64, 0);
-    final cancelOpacity = (1.0 - cancelDrag * 0.85).clamp(0.0, 1.0);
+    final accent = cancelActive ? scheme.error : scheme.primary;
 
     return _shell(
       context,
@@ -594,18 +650,50 @@ class ChatComposer extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
         constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: Color.lerp(scheme.outlineVariant, accent, 0.4 * (cancelProgress + lockProgress))!,
+            color: Color.lerp(
+                scheme.outlineVariant, scheme.error, 0.6 * cancelProgress)!,
           ),
         ),
         child: Row(
           children: [
-            _recordingPulseDot(context, accent: accent),
+            // Trash target at the start edge (the cancel direction). Swells
+            // and tints red as the drag approaches so the finger has
+            // something concrete to aim at — release over it cancels.
+            AnimatedScale(
+              scale: 1.0 + 0.3 * cancelProgress,
+              duration: const Duration(milliseconds: 110),
+              curve: Curves.easeOutCubic,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.error
+                      .withValues(alpha: 0.16 * cancelProgress),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  cancelActive
+                      ? Icons.delete_rounded
+                      : Icons.delete_outline_rounded,
+                  size: 19,
+                  color: Color.lerp(
+                      scheme.onSurfaceVariant, scheme.error, cancelProgress),
+                ),
+              ),
+            ),
             const SizedBox(width: 10),
+            Expanded(
+              child: ChatLiveWaveform(levels: voiceLevels, color: accent),
+            ),
+            const SizedBox(width: 10),
+            _recordingPulseDot(context, accent: scheme.error),
+            const SizedBox(width: 7),
             Text(
               _fmtElapsed(recordingElapsed),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -613,60 +701,6 @@ class ChatComposer extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                     color: scheme.onSurface,
                   ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: ClipRect(
-                child: Transform.translate(
-                  offset: cancelInsetOffset,
-                  child: Opacity(
-                    opacity: cancelOpacity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          cancelActive
-                              ? Icons.delete_forever_rounded
-                              : Icons.chevron_left_rounded,
-                          size: 18,
-                          color: cancelTint,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          cancelActive ? AppLocalizations.of(context)!.chatComposerReleaseToCancel : AppLocalizations.of(context)!.chatComposerSlideToCancel,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: cancelTint,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              width: 30 + 6 * lockProgress,
-              height: 30 + 6 * lockProgress,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: lockActive ? scheme.primary : Colors.transparent,
-                border: Border.all(
-                  color: lockTint,
-                  width: lockActive ? 0 : 1.5,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                lockActive
-                    ? Icons.lock_rounded
-                    : Icons.keyboard_arrow_up_rounded,
-                size: 16 + 2 * lockProgress,
-                color: lockActive ? scheme.onPrimary : lockTint,
-              ),
             ),
           ],
         ),
@@ -675,67 +709,65 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _locked(BuildContext context) {
-    // Minimal locked HUD:
-    //   🗑    ●  0:12  ──animated bar──   ⏸  ▶(send)
+    // Locked (hands-free) HUD — the timer's spot at the trailing edge becomes
+    // the send button, exactly the swap Instagram makes:
+    //   🗑    ● 0:12   ──live waveform──   ➤(send)
     final scheme = Theme.of(context).colorScheme;
-    final accent = isVoicePaused ? scheme.tertiary : scheme.primary;
 
     return _shell(
       context,
       key: const ValueKey('locked'),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: scheme.outlineVariant),
-        ),
-        child: Row(
-          children: [
-            _miniIconButton(
-              context,
-              icon: Icons.delete_outline_rounded,
-              color: scheme.error,
-              onTap: enabled ? (onTrashRecording ?? onMic) : null,
-            ),
-            const SizedBox(width: 6),
-            _recordingPulseDot(context, accent: accent, dim: isVoicePaused),
-            const SizedBox(width: 8),
-            Text(
-              _fmtElapsed(recordingElapsed),
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                    fontWeight: FontWeight.w800,
-                    color: scheme.onSurface,
-                  ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _slimWaveform(context, accent: accent, elapsed: recordingElapsed, dim: isVoicePaused),
-            ),
-            const SizedBox(width: 8),
-            _miniIconButton(
-              context,
-              icon: isVoicePaused ? Icons.mic_rounded : Icons.pause_rounded,
-              color: accent,
-              onTap: enabled
-                  ? (isVoicePaused
-                      ? (onResumeRecording ?? onMic)
-                      : (onPauseRecording ?? onMic))
-                  : null,
-            ),
-            const SizedBox(width: 6),
-            _miniIconButton(
-              context,
-              icon: Icons.send_rounded,
-              color: Colors.white,
-              fill: scheme.primary,
-              onTap: enabled ? onMic : null,
-            ),
-          ],
+      // Claim horizontal drags that start on the pill so a host TabBarView
+      // (classroom tabs) can't turn a stray swipe into a page change while a
+      // take is open.
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: (_) {},
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              _miniIconButton(
+                context,
+                icon: Icons.delete_outline_rounded,
+                color: scheme.error,
+                onTap: enabled ? (onTrashRecording ?? onMic) : null,
+              ),
+              const SizedBox(width: 4),
+              _recordingPulseDot(context, accent: scheme.error),
+              const SizedBox(width: 7),
+              Text(
+                _fmtElapsed(recordingElapsed),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      fontWeight: FontWeight.w800,
+                      color: scheme.onSurface,
+                    ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ChatLiveWaveform(
+                    levels: voiceLevels, color: scheme.primary),
+              ),
+              const SizedBox(width: 10),
+              _sendBtn(
+                context,
+                key: const ValueKey('voice_send_btn'),
+                icon: Icons.send_rounded,
+                active: enabled,
+                onTap: enabled ? onMic : null,
+                large: true,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -779,60 +811,6 @@ class ChatComposer extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: Icon(icon, size: 18, color: color),
-      ),
-    );
-  }
-
-  /// Slimmer waveform than the prior bar+track variant — a single row of
-  /// animated bars with no spacer rail, sized to fit between elapsed and
-  /// the action buttons.
-  /// Scrolling waveform driven by the recorder's actual input level.
-  ///
-  /// This used to cycle a fixed array of bar heights off `elapsed`, so it
-  /// animated identically whether you were talking or the mic was muted —
-  /// it read as a busy spinner rather than as feedback. Now each bar is a real
-  /// amplitude sample, newest on the right, so the trace responds to your
-  /// voice the way WhatsApp's and Instagram's do. [voiceLevels] is empty
-  /// before the first sample (and on platforms with no amplitude reporting),
-  /// which falls back to a flat idle baseline rather than a fake dance.
-  Widget _slimWaveform(BuildContext context,
-      {required Color accent, required Duration elapsed, bool dim = false}) {
-    const barCount = 26;
-    const maxHeight = 18.0;
-    const minHeight = 3.0;
-    final tone = dim ? accent.withValues(alpha: 0.55) : accent;
-
-    final levels = voiceLevels;
-    return SizedBox(
-      height: maxHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (var i = 0; i < barCount; i++) ...[
-            () {
-              // Right-align the samples so the newest bar is always at the
-              // right edge and the trace grows leftward as it fills.
-              final sampleIndex = levels.length - barCount + i;
-              final level = (sampleIndex >= 0 && sampleIndex < levels.length)
-                  ? levels[sampleIndex]
-                  : 0.0;
-              // Older samples fade, giving the trace a sense of direction.
-              final age = (barCount - i) / barCount;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                curve: Curves.easeOutCubic,
-                width: 2.5,
-                height: minHeight + (maxHeight - minHeight) * level,
-                decoration: BoxDecoration(
-                  color: tone.withValues(alpha: dim ? 0.45 : 1 - age * 0.45),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              );
-            }(),
-            if (i != barCount - 1) const SizedBox(width: 2),
-          ],
-        ],
       ),
     );
   }
@@ -1033,10 +1011,25 @@ class _MicPressDetector extends StatelessWidget {
     if (!enabled) {
       return SizedBox(key: key, child: child);
     }
-    return Listener(
-      behavior: HitTestBehavior.opaque,
-      onPointerDown: (e) => onPressStart?.call(e.position),
-      child: child,
+    // The eager recognizer claims the pointer in the gesture arena the moment
+    // it lands on the mic. Without it, the raw Listener below gets the events
+    // but never *competes* for them — so a host TabBarView (classroom tabs)
+    // would win the horizontal drag and slide-to-cancel doubled as a page
+    // swipe. With the claim, the whole hold-drag stream belongs to the
+    // recorder and the page never moves.
+    return RawGestureDetector(
+      gestures: <Type, GestureRecognizerFactory>{
+        EagerGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<EagerGestureRecognizer>(
+          () => EagerGestureRecognizer(),
+          (EagerGestureRecognizer instance) {},
+        ),
+      },
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (e) => onPressStart?.call(e.position),
+        child: child,
+      ),
     );
   }
 }

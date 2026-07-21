@@ -1090,7 +1090,7 @@
     }
   },
   "announcementsDetailsTitle": "Подробности",
-  "announcementsDetailsSubtitle": "",
+  "announcementsDetailsSubtitle": "Метаданные публикации этого объявления и текущее состояние прочтения.",
   "announcementsSeverityLabel": "Важность",
   "announcementsCreatedLabel": "Создано",
   "announcementsIdLabel": "ID",

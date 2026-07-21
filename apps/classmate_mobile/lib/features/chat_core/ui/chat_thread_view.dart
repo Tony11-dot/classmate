@@ -126,12 +126,11 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   // not as a microphone that's listening.
   final List<double> _voiceLevels = <double>[];
   StreamSubscription<Amplitude>? _amplitudeSub;
-  static const int _kVoiceLevelWindow = 34;
+  static const int _kVoiceLevelWindow = 72;
 
   // Haptic edge-detection: fire once when a drag CROSSES a threshold, not on
   // every move event while it sits past it.
   bool _cancelHapticFired = false;
-  bool _lockHapticFired = false;
 
   // List rendering
   final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
@@ -1068,7 +1067,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _amplitudeSub?.cancel();
     _voiceLevels.clear();
     _amplitudeSub = _recorder
-        .onAmplitudeChanged(const Duration(milliseconds: 90))
+        .onAmplitudeChanged(const Duration(milliseconds: 70))
         .listen((amp) {
       if (!mounted || !_recording || _voicePaused) return;
       // `current` is dBFS: 0 is clipping, silence is around -60 and can go
@@ -1076,8 +1075,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       // quiet room still shows a living baseline rather than a flat line.
       final db = amp.current;
       final normalised = ((db + 50) / 50).clamp(0.0, 1.0);
+      // Light one-pole smoothing: raw dBFS jitters bar-to-bar; a 30% carry
+      // from the previous sample keeps the trace lively but rounds off the
+      // spikes so it scrolls the way Instagram's does.
+      final prev = _voiceLevels.isEmpty ? normalised : _voiceLevels.last;
+      final smoothed = prev * 0.3 + normalised * 0.7;
       setState(() {
-        _voiceLevels.add(normalised < 0.08 ? 0.08 : normalised);
+        _voiceLevels.add(smoothed < 0.07 ? 0.07 : smoothed);
         if (_voiceLevels.length > _kVoiceLevelWindow) _voiceLevels.removeAt(0);
       });
     }, onError: (_) {
@@ -1250,50 +1254,60 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _holdDx = 0;
     _holdDy = 0;
     _cancelHapticFired = false;
-    _lockHapticFired = false;
     await _startRecording();
   }
 
   void _updateActiveHold(Offset globalPosition) {
-    if (!_recording || _voiceEnding || _holdStartGlobal == null) return;
+    if (!_recording || _voiceEnding || _voiceLocked || _holdStartGlobal == null) {
+      return;
+    }
     final dx = globalPosition.dx - _holdStartGlobal!.dx;
     final dy = globalPosition.dy - _holdStartGlobal!.dy;
     if (!mounted) return;
 
-    // Haptics on the EDGE, so each threshold ticks once as you cross it and
-    // once more if you back off and cross again. Without this you have to
-    // watch the HUD to know whether a swipe has armed; with it the gesture is
-    // legible without looking, which is the whole point of slide-to-cancel.
-    final pastCancel = dx <= -chatRecordingCancelThreshold;
+    // Cancel direction follows the trash icon: it sits at the pill's START
+    // edge, so the drag is toward the physical left in LTR and toward the
+    // physical right in RTL locales.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final toCancel = isRtl ? dx : -dx;
+    final pastCancel = toCancel >= chatRecordingCancelThreshold;
+
+    // Haptic on the EDGE, so the threshold ticks once as you cross it and
+    // once more if you back off and cross again — the gesture stays legible
+    // without looking at the screen.
     if (pastCancel != _cancelHapticFired) {
       _cancelHapticFired = pastCancel;
       unawaited(HapticFeedback.mediumImpact());
     }
-    final pastLock = dy <= -chatRecordingLockThreshold;
-    if (pastLock != _lockHapticFired) {
-      _lockHapticFired = pastLock;
+
+    // Instagram's lock model: carrying the recording up INTO the floating
+    // lock bubble locks it right there, finger still down — not on release.
+    // (Cancel intent wins if both are somehow past threshold.)
+    if (dy <= -chatRecordingLockThreshold && !pastCancel) {
       unawaited(HapticFeedback.selectionClick());
+      setState(() {
+        _voiceLocked = true;
+        _voicePaused = false;
+        _voiceCancelled = false;
+        _holdStartGlobal = null;
+        _holdDx = 0;
+        _holdDy = 0;
+      });
+      return;
     }
 
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
-      // Drag direction tracks both, but neither commits until release.
-      // The cancel indicator still LIGHTS at threshold via the HUD's
-      // own progress computation, and so does the lock chevron — but
-      // we deliberately don't flip _voiceLocked here. If we did,
-      // dragging up past the threshold while still holding would
-      // commit the lock prematurely; users expect lock to happen only
-      // when they let go past the threshold (same model as
-      // slide-to-cancel, which also resolves on release).
-      _voiceCancelled = dx <= -chatRecordingCancelThreshold;
+      _voiceCancelled = pastCancel;
     });
   }
 
   /// Finger up. Resolves the press into one of three outcomes, in priority
-  /// order: cancel (slid left), lock (slid up, or it was a quick tap), send.
+  /// order: cancel (dragged onto the trash), lock (it was a quick tap —
+  /// slide-up locks earlier, on the crossing itself), send.
   Future<void> _finishActiveHold() async {
-    if (!_recording || _voiceEnding) return;
+    if (!_recording || _voiceEnding || _voiceLocked) return;
     final heldMs = DateTime.now().millisecondsSinceEpoch - _holdStartMs;
     final dx = _holdDx;
     final dy = _holdDy;
@@ -1305,10 +1319,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     }
 
     // A quick tap with no real drag means hands-free: keep recording, hand the
-    // user the locked HUD so they can put the phone down. Held presses commit
-    // on release, matching slide-to-cancel's "resolve on lift" model.
+    // user the locked HUD so they can put the phone down.
     final wasTap = heldMs <= _kVoiceTapMaxMs && dx.abs() < 16 && dy.abs() < 16;
-    if (wasTap || dy <= -chatRecordingLockThreshold) {
+    if (wasTap) {
       if (mounted) {
         setState(() {
           _voiceLocked = true;
