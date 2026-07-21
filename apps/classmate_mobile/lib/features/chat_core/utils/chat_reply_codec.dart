@@ -1,43 +1,80 @@
+import '../../../l10n/app_localizations.dart';
+
+/// The localized words for each media kind. Kept as one bundle (rather than a
+/// BuildContext lookup inside the codec) so the pure string functions below
+/// stay callable from places without a context — controllers, tests — which
+/// then just omit it and get the English defaults.
+class ChatPreviewLabels {
+  const ChatPreviewLabels({
+    this.photo = 'Photo',
+    this.voice = 'Voice message',
+    this.video = 'Video',
+    this.attachment = 'Attachment',
+    this.message = 'Message',
+  });
+
+  factory ChatPreviewLabels.of(AppLocalizations l) => ChatPreviewLabels(
+        photo: l.chatPreviewPhoto,
+        voice: l.chatPreviewVoice,
+        video: l.chatPreviewVideo,
+        attachment: l.chatPreviewAttachment,
+        message: l.chatPreviewMessage,
+      );
+
+  final String photo;
+  final String voice;
+  final String video;
+  final String attachment;
+  final String message;
+}
+
+const ChatPreviewLabels _en = ChatPreviewLabels();
+
 /// One-line summary of a message, for anywhere a message is shown outside the
 /// thread: the classroom card on the home screen, the DM inbox row, a reply
 /// quote.
 ///
 /// Text wins when there is any. Otherwise the message is described by its
-/// kind, using the SAME vocabulary as the server's `kindLabel`
-/// (services/api/src/messages/messages.service.ts) and the same emoji as the
-/// push notification — so one photo reads "📷 Photo" on the lock screen, in
-/// the inbox, and in a reply quote instead of three different things.
+/// kind, with the same emoji as the push notification — so one photo reads
+/// "📷 Photo" on the lock screen, in the inbox, and in a reply quote instead
+/// of three different things. Pass [labels] (from `ChatPreviewLabels.of(l)`)
+/// wherever a localization context exists; the emoji stays constant across
+/// locales, only the word translates.
 ///
 /// [rawText] may still carry a wire marker (`[IMAGE] IMG_2.jpg`) because the
 /// classroom endpoint bakes one into `text` when it stores media; those are
 /// unwrapped rather than shown raw.
-String messagePreviewText({required String kind, String rawText = ''}) {
+String messagePreviewText({
+  required String kind,
+  String rawText = '',
+  ChatPreviewLabels labels = _en,
+}) {
   final t = rawText.trim();
   if (t.isNotEmpty) {
-    final pretty = _formatAttachmentMarker(t);
+    final pretty = _formatAttachmentMarker(t, labels);
     if (pretty != null) return pretty;
     final singleLine = t.replaceAll('\n', ' ');
     return singleLine.length <= 80 ? singleLine : '${singleLine.substring(0, 80)}…';
   }
   switch (kind.trim().toUpperCase()) {
     case 'IMAGE':
-      return '📷 Photo';
+      return '📷 ${labels.photo}';
     case 'VOICE':
-      return '🎤 Voice message';
+      return '🎤 ${labels.voice}';
     case 'VIDEO':
-      return '🎥 Video';
+      return '🎥 ${labels.video}';
     case 'FILE':
     case 'DOC':
-      return '📎 Attachment';
+      return '📎 ${labels.attachment}';
     default:
-      return '💬 Message';
+      return '💬 ${labels.message}';
   }
 }
 
-String replyPreviewText(String text) {
+String replyPreviewText(String text, {ChatPreviewLabels labels = _en}) {
   var t = text.trim();
 
-  if (t.isEmpty) return 'Message';
+  if (t.isEmpty) return labels.message;
 
   // Unwrap an encoded reply ("↪ Sender: <quoted> — <body>") down to just
   // THIS message's own content, so a reply-to-a-reply doesn't show the ↪
@@ -51,10 +88,10 @@ String replyPreviewText(String text) {
       final colon = t.indexOf(': ');
       t = (colon != -1 ? t.substring(colon + 2) : t.substring(2)).trim();
     }
-    if (t.isEmpty) return 'Message';
+    if (t.isEmpty) return labels.message;
   }
 
-  final pretty = _formatAttachmentMarker(t);
+  final pretty = _formatAttachmentMarker(t, labels);
   if (pretty != null) return pretty;
 
   final singleLine = t.replaceAll('\n', ' ');
@@ -66,7 +103,7 @@ String replyPreviewText(String text) {
 /// Recognises the wire-format attachment markers the server bakes into
 /// message text — `[IMAGE] name.png`, `[VOICE] ... [duration:N]`,
 /// `[FILE] doc.pdf` — and returns a human snippet for reply previews.
-String? _formatAttachmentMarker(String raw) {
+String? _formatAttachmentMarker(String raw, ChatPreviewLabels labels) {
   // Bare media filenames (e.g. "chat-voice-123.m4a", "IMG_2.jpg") that arrive
   // without a [KIND] marker — classify by extension so a reply to media never
   // shows a raw filename.
@@ -74,13 +111,13 @@ String? _formatAttachmentMarker(String raw) {
   if (!lower.contains(' ') && lower.contains('.')) {
     final ext = lower.split('.').last;
     if (['m4a', 'aac', 'mp3', 'wav', 'ogg', 'opus', 'caf'].contains(ext)) {
-      return '🎤 Voice message';
+      return '🎤 ${labels.voice}';
     }
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'].contains(ext)) {
-      return '📷 Photo';
+      return '📷 ${labels.photo}';
     }
     if (['mp4', 'mov', 'm4v', 'webm', 'avi', 'mkv'].contains(ext)) {
-      return '🎥 Video';
+      return '🎥 ${labels.video}';
     }
     if (['pdf'].contains(ext)) return '📄 $raw';
     if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'txt'].contains(ext)) {
@@ -95,23 +132,23 @@ String? _formatAttachmentMarker(String raw) {
 
   switch (kind) {
     case 'IMAGE':
-      return '📷 Photo';
+      return '📷 ${labels.photo}';
     case 'VOICE':
       final durationMatch = RegExp(r'\[duration:(\d+)\]').firstMatch(rest);
       if (durationMatch != null) {
         final secs = int.tryParse(durationMatch.group(1)!) ?? 0;
         final mm = (secs ~/ 60).toString();
         final ss = (secs % 60).toString().padLeft(2, '0');
-        return '🎤 Voice message ($mm:$ss)';
+        return '🎤 ${labels.voice} ($mm:$ss)';
       }
-      return '🎤 Voice message';
+      return '🎤 ${labels.voice}';
     case 'FILE':
       final filename = rest.isEmpty ? 'file' : rest;
       final lowerName = filename.toLowerCase();
       if (lowerName.endsWith('.pdf')) return '📄 $filename';
       return '📎 $filename';
     case 'VIDEO':
-      return '🎥 Video';
+      return '🎥 ${labels.video}';
   }
   return null;
 }

@@ -22,10 +22,7 @@ class ChatComposer extends StatelessWidget {
     this.onCancelReply,
     this.onTapReplyPreview,
     this.onStop,
-    this.onMicHoldStart,
-    this.onMicHoldMove,
-    this.onMicHoldEnd,
-    this.onMicHoldCancel,
+    this.onMicPressStart,
     this.onActiveHoldMove,
     this.onActiveHoldRelease,
     this.onActiveHoldCancel,
@@ -67,10 +64,9 @@ class ChatComposer extends StatelessWidget {
   final VoidCallback? onGallery;
   final VoidCallback onMic;
   final VoidCallback? onStop;
-  final GestureLongPressStartCallback? onMicHoldStart;
-  final GestureLongPressMoveUpdateCallback? onMicHoldMove;
-  final GestureLongPressEndCallback? onMicHoldEnd;
-  final VoidCallback? onMicHoldCancel;
+  /// Finger down on the mic — recording starts immediately. The global
+  /// position seeds the slide-to-cancel / slide-to-lock origin.
+  final ValueChanged<Offset>? onMicPressStart;
   final ValueChanged<Offset>? onActiveHoldMove;
   final VoidCallback? onActiveHoldRelease;
   final VoidCallback? onActiveHoldCancel;
@@ -242,13 +238,22 @@ class ChatComposer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: Listener(
               behavior: HitTestBehavior.translucent,
-              onPointerMove: enabled && isRecording && !isVoiceLocked
+              // Deliberately NOT gated on isRecording: pointer routing is
+              // frozen at pointer-down, and at that instant recording hasn't
+              // started yet. If these were null until the post-setState
+              // rebuild, a release landing before that frame (fast tap, or a
+              // janky frame during recorder bring-up) would go unhandled and
+              // strand the HUD with the mic open. The handlers no-op while
+              // not recording, so pre-recording taps cost nothing. Locked
+              // mode stays gated out — there, pointer-ups belong to the HUD's
+              // own buttons, and treating one as a hold-release would send.
+              onPointerMove: enabled && !isVoiceLocked
                   ? (e) => onActiveHoldMove?.call(e.position)
                   : null,
-              onPointerUp: enabled && isRecording && !isVoiceLocked
+              onPointerUp: enabled && !isVoiceLocked
                   ? (_) => onActiveHoldRelease?.call()
                   : null,
-              onPointerCancel: enabled && isRecording && !isVoiceLocked
+              onPointerCancel: enabled && !isVoiceLocked
                   ? (_) => onActiveHoldCancel?.call()
                   : null,
               child: ValueListenableBuilder<TextEditingValue>(
@@ -256,9 +261,28 @@ class ChatComposer extends StatelessWidget {
                 builder: (context, value, _) {
                   final hasText = value.text.trim().isNotEmpty;
                   return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeOutCubic,
+                    duration: const Duration(milliseconds: 240),
+                    // Fade THROUGH, not across. A plain cross-fade paints the
+                    // outgoing and incoming rows on top of each other for the
+                    // whole transition, which reads as "the composer and the
+                    // recording HUD are both on screen at once" — especially
+                    // on cancel, where the eye is already looking for a change.
+                    // These intervals make the old row finish leaving (35%)
+                    // before the new one starts arriving (50%), so exactly one
+                    // is ever visible.
+                    switchInCurve: const Interval(0.5, 1, curve: Curves.easeOutCubic),
+                    switchOutCurve: const Interval(0.65, 1, curve: Curves.easeIn),
+                    // Size to the incoming child only, so the bar doesn't jump
+                    // to the taller of the two mid-transition.
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        ...previous.map(
+                          (c) => Positioned.fill(child: IgnorePointer(child: c)),
+                        ),
+                        if (current != null) current,
+                      ],
+                    ),
                     transitionBuilder: (child, animation) {
                       final fade = CurvedAnimation(
                         parent: animation,
@@ -494,18 +518,17 @@ class ChatComposer extends StatelessWidget {
                       large: true,
                     )
                   : showMic
-                  ? _MicHoldDetector(
+                  ? _MicPressDetector(
                       key: const ValueKey('mic_btn'),
                       enabled: enabled && !forceMicOnlyTap,
-                      onHoldStart: onMicHoldStart,
-                      onHoldMove: onMicHoldMove,
-                      onHoldEnd: onMicHoldEnd,
-                      onHoldCancel: onMicHoldCancel,
+                      onPressStart: onMicPressStart,
                       child: Center(
                         child: _circleBtn(
                           context,
                           icon: Icons.mic_none_rounded,
-                          onTap: enabled ? onMic : null,
+                          // Tap-only fallback surfaces (no press-to-record)
+                          // still get a plain tap to open a locked take.
+                          onTap: enabled && forceMicOnlyTap ? onMic : null,
                           prominent: true,
                         ),
                       ),
@@ -978,57 +1001,41 @@ class _ComposerActionPopover extends StatelessWidget {
   }
 }
 
-/// Press-and-hold detector for the mic button, with a much shorter recognition
-/// delay than the stock `GestureDetector.onLongPress*`.
+/// Mic button press detector: recording starts on *contact*, with no
+/// recognition delay at all.
 ///
-/// Flutter's default long-press timeout is [kLongPressTimeout] — 500 ms — and
-/// nothing at all fires before it elapses. Stacked on top of the platform work
-/// the recorder still has to do (permission, temp dir, audio-session
-/// activation), holding the mic felt like it did nothing for a second or more.
-/// WhatsApp and Instagram engage the recorder almost on contact; [_kMicHoldDelay]
-/// gets us there while staying long enough that a plain tap (which opens
-/// hands-free/locked recording via `onTap`) is still distinguishable.
-const Duration _kMicHoldDelay = Duration(milliseconds: 120);
-
-class _MicHoldDetector extends StatelessWidget {
-  const _MicHoldDetector({
+/// This deliberately uses a raw [Listener] rather than any gesture recognizer.
+/// Every recognizer has to wait before it can claim the pointer — the stock
+/// long-press waits [kLongPressTimeout] (500 ms), and even a shortened one
+/// waits its own duration — during which nothing happens on screen. Stacked on
+/// top of the platform work the recorder still does (permission, temp dir,
+/// audio-session activation), that read as a mic button that ignored you.
+///
+/// There is nothing to disambiguate here anyway: the mic button does exactly
+/// one thing on press, and *what kind* of press it was (quick tap → hands-free
+/// lock, hold → send on release, slide left → cancel, slide up → lock) is
+/// decided later from the same pointer stream, by the composer-level [Listener]
+/// that takes over once this button unmounts and the recording HUD replaces it.
+class _MicPressDetector extends StatelessWidget {
+  const _MicPressDetector({
     super.key,
     required this.enabled,
     required this.child,
-    this.onHoldStart,
-    this.onHoldMove,
-    this.onHoldEnd,
-    this.onHoldCancel,
+    this.onPressStart,
   });
 
   final bool enabled;
   final Widget child;
-  final GestureLongPressStartCallback? onHoldStart;
-  final GestureLongPressMoveUpdateCallback? onHoldMove;
-  final GestureLongPressEndCallback? onHoldEnd;
-  final VoidCallback? onHoldCancel;
+  final ValueChanged<Offset>? onPressStart;
 
   @override
   Widget build(BuildContext context) {
     if (!enabled) {
       return SizedBox(key: key, child: child);
     }
-    return RawGestureDetector(
+    return Listener(
       behavior: HitTestBehavior.opaque,
-      gestures: <Type, GestureRecognizerFactory>{
-        LongPressGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-          () => LongPressGestureRecognizer(
-            duration: _kMicHoldDelay,
-            debugOwner: this,
-          ),
-          (recognizer) => recognizer
-            ..onLongPressStart = onHoldStart
-            ..onLongPressMoveUpdate = onHoldMove
-            ..onLongPressEnd = onHoldEnd
-            ..onLongPressCancel = onHoldCancel,
-        ),
-      },
+      onPointerDown: (e) => onPressStart?.call(e.position),
       child: child,
     );
   }

@@ -178,6 +178,36 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   Timer? _recordTicker;
   Duration _recordElapsed = Duration.zero;
   String? _recordingPath;
+  // Monotonic id for the current take. Every async continuation captures the
+  // value it started with and bails if it no longer matches, so a stop/cancel
+  // can never be applied to the take that replaced it. This is what keeps the
+  // two gesture paths (the mic's own pointer-down and the composer-level
+  // Listener that takes over once the mic button unmounts) from both driving
+  // the same take and leaving the HUD and the idle composer on screen at once.
+  int _voiceSession = 0;
+  // True between "user let go" and "teardown finished". The UI treats the take
+  // as already gone, so the composer flips back on the release frame instead of
+  // waiting for the platform to close the audio session.
+  bool _voiceEnding = false;
+  // Wall-clock of the press, used to tell a tap from a hold on release.
+  int _holdStartMs = 0;
+  // Precise elapsed accounting. The 1s ticker is only a repaint pulse; the
+  // duration we display and attach to the sent clip comes from the clock, so
+  // it matches the actual audio even if a tick is dropped under load.
+  int _voicePausedAccumMs = 0;
+  int _voiceResumedAtMs = 0;
+
+  /// Real recorded length so far, excluding any paused stretches.
+  Duration _liveRecordElapsed() {
+    if (!_recorderActive) return Duration.zero;
+    final running = _voicePaused
+        ? 0
+        : DateTime.now().millisecondsSinceEpoch - _voiceResumedAtMs;
+    return Duration(milliseconds: _voicePausedAccumMs + running);
+  }
+  /// A press shorter than this with no meaningful drag is a *tap*, which starts
+  /// hands-free (locked) recording — the same affordance WhatsApp gives.
+  static const int _kVoiceTapMaxMs = 320;
   // Set in dispose() so async recorder work started before teardown never
   // touches the disposed platform recorder (would throw "Recorder has not
   // yet been created or has already been disposed" → fatal).
@@ -904,24 +934,34 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   /// on a cold audio session. Now the HUD is optimistic and `_recorderActive`
   /// tracks whether audio is genuinely flowing; the elapsed timer only starts
   /// once it is, so the displayed duration still matches the recorded file.
-  Future<void> _startRecording() async {
-    if (_recording || _disposed) return;
+  Future<void> _startRecording({bool locked = false}) async {
+    // _voiceEnding: the previous take's stop() is still pending on the shared
+    // recorder — starting now would race it on the platform side.
+    if (_recording || _voiceEnding || _disposed) return;
 
+    final session = ++_voiceSession;
     setState(() {
       _recording = true;
+      _voiceEnding = false;
       _recorderActive = false;
       _voicePaused = false;
       _voiceCancelled = false;
-      _voiceLocked = false;
+      _voiceLocked = locked;
       _recordElapsed = Duration.zero;
     });
 
-    final start = _bringUpRecorder();
+    final start = _bringUpRecorder(session);
     _recorderStarting = start;
     await start;
   }
 
-  Future<bool> _bringUpRecorder() async {
+  /// Brings the platform recorder up for take [session]. Every await is
+  /// followed by a session re-check: if the user released, cancelled, or
+  /// started a new take while a channel call was in flight, this take is dead
+  /// and must not touch shared state.
+  Future<bool> _bringUpRecorder(int session) async {
+    bool stale() => _disposed || _voiceSession != session || !_recording;
+
     // Permission: skip the round-trip once granted (see _micPermissionGranted).
     if (!_micPermissionGranted) {
       bool granted;
@@ -961,12 +1001,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     }
 
     final dir = _voiceTempDir ??= await getTemporaryDirectory();
-    if (_disposed || !mounted) return false;
-
-    // The user may have already let go (or swiped to cancel) during the awaits
-    // above — in that case _recording is back to false and starting the mic now
-    // would leave it running with nobody to stop it.
-    if (!_recording) return false;
+    if (!mounted || stale()) return false;
 
     final path =
         '${dir.path}/chat-voice-${DateTime.now().millisecondsSinceEpoch}.m4a';
@@ -980,24 +1015,33 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       return false;
     }
 
-    if (!mounted || !_recording) {
-      // Released while start() was in flight — stop the mic we just opened.
+    if (!mounted || stale()) {
+      // Released while start() was in flight — stop the mic we just opened and
+      // bin the fragment, since whoever ended the take already gave up on it.
       try {
         await _recorder.stop();
+      } catch (_) {}
+      try {
+        final f = File(path);
+        if (await f.exists()) await f.delete();
       } catch (_) {}
       return false;
     }
 
     _recordingPath = path;
     _recorderActive = true;
+    _voicePausedAccumMs = 0;
+    _voiceResumedAtMs = DateTime.now().millisecondsSinceEpoch;
     // Contact confirmation — the same "it heard you" tick the big apps give.
     unawaited(HapticFeedback.selectionClick());
     _listenToAmplitude();
     _recordTicker?.cancel();
-    _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+    _recordTicker = Timer.periodic(const Duration(milliseconds: 200), (_) {
       if (!mounted || !_recording || _voicePaused) return;
-      setState(
-          () => _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1));
+      final next = _liveRecordElapsed();
+      // Only repaint when the displayed second actually changes.
+      if (next.inSeconds == _recordElapsed.inSeconds) return;
+      setState(() => _recordElapsed = next);
     });
     return true;
   }
@@ -1033,16 +1077,57 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   /// Tears the optimistic HUD back down when the recorder never came up.
   Future<void> _abortRecordingUi() async {
+    _voiceSession++;
     _recordTicker?.cancel();
     _recordTicker = null;
     _stopAmplitude();
     _recorderActive = false;
     _recordingPath = null;
-    if (!mounted) {
+    void reset() {
       _recording = false;
+      _voiceEnding = false;
+      _voiceLocked = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _holdStartGlobal = null;
+      _holdDx = 0;
+      _holdDy = 0;
+      _recordElapsed = Duration.zero;
+    }
+
+    if (!mounted) {
+      reset();
       return;
     }
-    setState(() {
+    setState(reset);
+  }
+
+  /// Ends the current take *synchronously* — the HUD is gone on this frame and
+  /// the take id is burned, so any in-flight start and any second release from
+  /// the other gesture path both become no-ops. Returns the state the async
+  /// teardown needs, or null if there was no live take to end.
+  ({int session, bool wasActive, Duration elapsed, String? path})? _endTake() {
+    if (!_recording || _voiceEnding) return null;
+    final snapshot = (
+      session: _voiceSession,
+      wasActive: _recorderActive,
+      elapsed: _liveRecordElapsed(),
+      path: _recordingPath,
+    );
+    // Burn the id first: _bringUpRecorder() re-checks it after every await and
+    // will now clean up after itself instead of adopting a dead take.
+    _voiceSession++;
+    // Stays true until the caller's async teardown (awaiting the in-flight
+    // start, stopping the platform recorder) finishes — it is what blocks a
+    // new press from calling _recorder.start() while stop() is still pending
+    // on the same shared recorder. The caller clears it in its `finally`.
+    _voiceEnding = true;
+    _recorderActive = false;
+    _recordingPath = null;
+    _recordTicker?.cancel();
+    _recordTicker = null;
+    _stopAmplitude();
+    void reset() {
       _recording = false;
       _voiceLocked = false;
       _voicePaused = false;
@@ -1051,47 +1136,53 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       _holdDx = 0;
       _holdDy = 0;
       _recordElapsed = Duration.zero;
-    });
+    }
+
+    if (mounted) {
+      setState(reset);
+    } else {
+      reset();
+    }
+    return snapshot;
   }
 
   Future<void> _stopRecordingAndSend() async {
-    if (!_recording) return;
-    // A quick tap can land here before _bringUpRecorder() has reached the
-    // platform. Let it finish so stop() has something to stop — otherwise the
-    // mic keeps running with no owner and the clip is lost.
-    await _recorderStarting;
-    _recorderStarting = null;
-    if (!_recording) return;
-    String? path;
-    if (_recorderActive) {
-      try {
-        path = await _recorder.stop();
-      } catch (_) {
-        // Recorder disposed/failed — fall back to the tracked path below.
-      }
-    }
-    _stopAmplitude();
-    _recorderActive = false;
-    _recordTicker?.cancel();
-    _recordTicker = null;
-    final elapsed = _recordElapsed;
-    if (!mounted) return;
-    setState(() {
-      _recording = false;
-      _voiceLocked = false;
-      _voicePaused = false;
-      _voiceCancelled = false;
-      _holdStartGlobal = null;
-      _holdDx = 0;
-      _holdDy = 0;
-      _recordElapsed = Duration.zero;
-    });
+    final take = _endTake();
+    if (take == null) return;
 
-    final resolved = (path ?? _recordingPath ?? '').trim();
-    _recordingPath = null;
+    String? path;
+    try {
+      // A quick tap can land here before _bringUpRecorder() has reached the
+      // platform. Let it settle so we never leave a mic running with no
+      // owner — it sees the burned session id and tears itself down.
+      await _recorderStarting;
+      _recorderStarting = null;
+
+      if (take.wasActive) {
+        try {
+          path = await _recorder.stop();
+        } catch (_) {
+          // Recorder disposed/failed — fall back to the tracked path below.
+        }
+      }
+    } finally {
+      // Recorder ownership released — a new take may start now.
+      _voiceEnding = false;
+    }
+
+    final elapsed = take.elapsed;
+    final resolved = (path ?? take.path ?? '').trim();
     if (resolved.isEmpty) return;
     final file = File(resolved);
     if (!await file.exists()) return;
+    // Sub-second takes are almost always an accidental brush of the mic —
+    // WhatsApp drops them rather than sending a blip. Bin the file too.
+    if (elapsed.inMilliseconds < 700) {
+      try {
+        await file.delete();
+      } catch (_) {}
+      return;
+    }
 
     // Do NOT delete the temp file here — the voice bubble's optimistic message
     // still references this local path.  The OS cleans up temp files automatically.
@@ -1106,54 +1197,49 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   }
 
   Future<void> _cancelVoiceDraft() async {
-    // Same race as _stopRecordingAndSend: a swipe-to-cancel can beat the start.
-    await _recorderStarting;
-    _recorderStarting = null;
-    if (_recorderActive) {
-      try {
-        await _recorder.stop();
-      } catch (_) {}
+    final take = _endTake();
+    if (take == null) return;
+    unawaited(HapticFeedback.mediumImpact());
+
+    try {
+      // Same race as _stopRecordingAndSend: a swipe-to-cancel can beat the
+      // start.
+      await _recorderStarting;
+      _recorderStarting = null;
+      if (take.wasActive) {
+        try {
+          await _recorder.stop();
+        } catch (_) {}
+      }
+    } finally {
+      _voiceEnding = false;
     }
-    _stopAmplitude();
-    _recorderActive = false;
-    final path = (_recordingPath ?? '').trim();
+    final path = (take.path ?? '').trim();
     if (path.isNotEmpty) {
       try {
         final f = File(path);
         if (await f.exists()) await f.delete();
       } catch (_) {}
     }
-    _recordTicker?.cancel();
-    _recordTicker = null;
-    if (!mounted) return;
-    setState(() {
-      _recording = false;
-      _voiceLocked = false;
-      _voicePaused = false;
-      _voiceCancelled = false;
-      _holdStartGlobal = null;
-      _holdDx = 0;
-      _holdDy = 0;
-      _recordingPath = null;
-      _recordElapsed = Duration.zero;
-    });
   }
 
-  Future<void> _micHoldStart(LongPressStartDetails d) async {
-    if (_recording) return;
-    _holdStartGlobal = d.globalPosition;
+  /// Finger down on the mic. Recording begins on this frame — there is no
+  /// recognition delay to wait out, because the press *is* the gesture: what
+  /// the user does next (release quickly, hold, slide left, slide up) is
+  /// resolved later from the same pointer stream.
+  Future<void> _micPressStart(Offset globalPosition) async {
+    if (_recording || _voiceEnding) return;
+    _holdStartGlobal = globalPosition;
+    _holdStartMs = DateTime.now().millisecondsSinceEpoch;
     _holdDx = 0;
     _holdDy = 0;
     _cancelHapticFired = false;
     _lockHapticFired = false;
-    _voiceLocked = false;
-    _voicePaused = false;
-    _voiceCancelled = false;
     await _startRecording();
   }
 
   void _updateActiveHold(Offset globalPosition) {
-    if (!_recording || _holdStartGlobal == null) return;
+    if (!_recording || _voiceEnding || _holdStartGlobal == null) return;
     final dx = globalPosition.dx - _holdStartGlobal!.dx;
     final dy = globalPosition.dy - _holdStartGlobal!.dy;
     if (!mounted) return;
@@ -1188,45 +1274,54 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     });
   }
 
+  /// Finger up. Resolves the press into one of three outcomes, in priority
+  /// order: cancel (slid left), lock (slid up, or it was a quick tap), send.
   Future<void> _finishActiveHold() async {
+    if (!_recording || _voiceEnding) return;
+    final heldMs = DateTime.now().millisecondsSinceEpoch - _holdStartMs;
+    final dx = _holdDx;
+    final dy = _holdDy;
     _holdStartGlobal = null;
-    if (!_recording) return;
+
     if (_voiceCancelled) {
       await _cancelVoiceDraft();
       return;
     }
-    // Lock is committed on release, mirroring the cancel commit semantics.
-    if (_holdDy <= -chatRecordingLockThreshold) {
+
+    // A quick tap with no real drag means hands-free: keep recording, hand the
+    // user the locked HUD so they can put the phone down. Held presses commit
+    // on release, matching slide-to-cancel's "resolve on lift" model.
+    final wasTap = heldMs <= _kVoiceTapMaxMs && dx.abs() < 16 && dy.abs() < 16;
+    if (wasTap || dy <= -chatRecordingLockThreshold) {
       if (mounted) {
         setState(() {
           _voiceLocked = true;
           _voicePaused = false;
-        });
-      }
-      return;
-    }
-    await _stopRecordingAndSend();
-  }
-
-  Future<void> _toggleMicTap() async {
-    if (!_recording) {
-      // Tap (not hold) → start recording and immediately enter locked mode.
-      await _startRecording();
-      if (mounted) {
-        setState(() {
-          _voiceLocked = true;
           _holdDx = 0;
           _holdDy = 0;
         });
+        unawaited(HapticFeedback.selectionClick());
       }
       return;
     }
-    // Already recording → send (works in both locked and hold states).
     await _stopRecordingAndSend();
   }
 
+  /// Mic tap routed through onTap (locked-HUD send button, and tap-only
+  /// fallback surfaces): sends the running take, or starts a hands-free one.
+  Future<void> _toggleMicTap() async {
+    if (_recording) {
+      await _stopRecordingAndSend();
+      return;
+    }
+    await _startRecording(locked: true);
+  }
+
   Future<void> _pauseVoiceRecord() async {
-    if (!_recording || !_voiceLocked) return;
+    if (!_recording || !_voiceLocked || _voicePaused) return;
+    // Bank the running stretch before the flag flips, or it is lost.
+    _voicePausedAccumMs +=
+        DateTime.now().millisecondsSinceEpoch - _voiceResumedAtMs;
     try {
       await _recorder.pause();
     } catch (_) {}
@@ -1234,7 +1329,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   }
 
   Future<void> _resumeVoiceRecord() async {
-    if (!_recording || !_voiceLocked) return;
+    if (!_recording || !_voiceLocked || !_voicePaused) return;
+    _voiceResumedAtMs = DateTime.now().millisecondsSinceEpoch;
     try {
       await _recorder.resume();
     } catch (_) {}
@@ -1497,8 +1593,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     }
   }
 
-  Widget _buildBubble(ChatMessage message, {required bool showName}) {
+  Widget _buildBubble(
+    ChatMessage message, {
+    required bool showName,
+    bool tail = false,
+  }) {
     return ChatMessageBubble(
+      tail: tail,
       contextForNavigation: context,
       rawText: message.text,
       mediaUrl: message.mediaUrl ?? '',
@@ -1896,8 +1997,10 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         // moved on thread ENTRY, so ticks froze while both sides sat in chat.
         widget.controller.markRead().catchError((_) {});
       }
-      // The other side read the thread → refetch so my ticks light up live.
-      if (event.type == 'dm_read' && event.threadId == tid) {
+      // The other side received (grey ✓✓) or read (blue ✓✓) the thread →
+      // refetch so my ticks advance live rather than on the next poll.
+      if ((event.type == 'dm_read' || event.type == 'dm_delivered') &&
+          event.threadId == tid) {
         widget.controller.invalidate();
       }
     });
@@ -2050,10 +2153,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 onVideo: _handleVideo,
                 onGallery: _handleGallery,
                 onMic: _toggleMicTap,
-                onMicHoldStart: _micHoldStart,
-                onMicHoldMove: (d) => _updateActiveHold(d.globalPosition),
-                onMicHoldEnd: (_) async => _finishActiveHold(),
-                onMicHoldCancel: () async => _cancelVoiceDraft(),
+                onMicPressStart: _micPressStart,
                 onActiveHoldMove: _updateActiveHold,
                 onActiveHoldRelease: () async => _finishActiveHold(),
                 onActiveHoldCancel: () async => _cancelVoiceDraft(),
@@ -2298,7 +2398,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                                       : CrossAxisAlignment.start,
                                   children: [
                                     if (!row.deletedForMe)
-                                      _buildBubble(row, showName: startsGroup),
+                                      _buildBubble(
+                                        row,
+                                        showName: startsGroup,
+                                        // Only the run's first bubble points
+                                        // at its sender; the rest tuck in.
+                                        tail: startsGroup,
+                                      ),
                                   ],
                                 ),
                               ),
@@ -2470,7 +2576,8 @@ class _LiveMessageInfoPageState extends ConsumerState<_LiveMessageInfoPage> {
       if (next == null) return;
       final t = next.type;
       final matches = t == 'poll' ||
-          ((t == 'dm_read' || t == 'dm_message') && next.threadId == widget.threadId);
+          ((t == 'dm_read' || t == 'dm_delivered' || t == 'dm_message') &&
+              next.threadId == widget.threadId);
       if (matches) _refresh();
     });
 

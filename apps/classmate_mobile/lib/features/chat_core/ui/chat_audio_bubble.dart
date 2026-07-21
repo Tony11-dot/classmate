@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:just_audio/just_audio.dart';
+import 'chat_ticks.dart';
 
 class ChatAudioBubble extends StatefulWidget {
   const ChatAudioBubble({
@@ -442,14 +443,13 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     // it never sits at full-opacity white on a white-ish bubble.
     Widget checksWidget = const SizedBox.shrink();
     if (widget.isMine) {
-      const seenColor = Color(0xFF53BDEB);
-      final pendingDelivered = timeColor;
-      checksWidget = Icon(
-        widget.seen || widget.delivered
-            ? Icons.done_all_rounded
-            : Icons.done_rounded,
+      checksWidget = ChatTicks(
+        state: ChatTicks.stateOf(
+          delivered: widget.delivered,
+          seen: widget.seen,
+        ),
+        onAccentSurface: true,
         size: 16,
-        color: widget.seen ? seenColor : pendingDelivered,
       );
     }
 

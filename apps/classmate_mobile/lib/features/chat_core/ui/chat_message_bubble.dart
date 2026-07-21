@@ -10,7 +10,13 @@ import '../../../l10n/app_localizations.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../utils/chat_reply_codec.dart';
+import 'chat_bubble_tail.dart';
+import 'chat_ticks.dart';
 import 'chat_audio_bubble.dart';
+
+/// Width of the sender pointer, and of the strip reserved for it on bubbles
+/// that don't draw one — see [ChatBubbleTail].
+const double _kTailWidth = 8;
 
 class ChatMessageBubble extends StatelessWidget {
   const ChatMessageBubble({
@@ -43,6 +49,7 @@ class ChatMessageBubble extends StatelessWidget {
     this.previewMode = false,
     this.previewMaxHeight,
     this.showDeliveryStatus = true,
+    this.tail = false,
   });
 
   final BuildContext contextForNavigation;
@@ -73,6 +80,10 @@ class ChatMessageBubble extends StatelessWidget {
   final bool previewMode;
   final double? previewMaxHeight;
   final bool showDeliveryStatus;
+
+  /// Draw the sender pointer. Only true for the first bubble in a run from the
+  /// same sender — see [ChatBubbleTail].
+  final bool tail;
 
   bool _isImageByUrl(String v) => RegExp(
     r'\.(jpg|jpeg|png|webp|gif|heic|heif)(\?|$)',
@@ -269,62 +280,32 @@ class ChatMessageBubble extends StatelessWidget {
     return isMediaish && _looksLikeFileName(normalizedBody);
   }
 
-  Widget _buildChecks(BuildContext context) {
-    final seenColor = const Color(0xFF53BDEB);
-    final pendingColor = Colors.white;
-    final deliveredColor = Colors.white;
+  /// Own bubbles hug the trailing edge, which is the right in LTR and the left
+  /// in RTL — so the tail follows the reading direction, not `isMine` alone.
+  bool _tailPointsRight(BuildContext context) =>
+      isMine != (Directionality.of(context) == TextDirection.rtl);
 
-    if (seen) {
-      return SizedBox(
-        width: 16,
-        height: 12,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              left: 0,
-              top: -1,
-              child: Icon(Icons.done_rounded, size: 13, color: seenColor),
-            ),
-            Positioned(
-              left: 5,
-              top: -1,
-              child: Icon(Icons.done_rounded, size: 13, color: seenColor),
-            ),
-          ],
-        ),
-      );
-    }
-    if (delivered) {
-      return SizedBox(
-        width: 16,
-        height: 12,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              left: 0,
-              top: -1,
-              child: Icon(Icons.done_rounded, size: 13, color: deliveredColor),
-            ),
-            Positioned(
-              left: 5,
-              top: -1,
-              child: Icon(Icons.done_rounded, size: 13, color: deliveredColor),
-            ),
-          ],
-        ),
-      );
-    }
-    return Transform.translate(
-      offset: const Offset(0, -0.5),
-      child: Icon(
-        Icons.done_rounded,
-        size: 13,
-        color: pendingColor,
-      ),
+  /// Rounded everywhere except the corner the tail grows out of, which is
+  /// squared off so the two read as one shape. A tailless bubble (mid-run)
+  /// stays fully rounded.
+  BorderRadius _bubbleRadius(BuildContext context) {
+    const r = Radius.circular(18);
+    const tight = Radius.circular(6);
+    if (!tail) return const BorderRadius.all(r);
+    final pointRight = _tailPointsRight(context);
+    return BorderRadius.only(
+      topLeft: pointRight ? r : tight,
+      topRight: pointRight ? tight : r,
+      bottomLeft: r,
+      bottomRight: r,
     );
   }
+
+  Widget _buildChecks(BuildContext context) => ChatTicks(
+        state: ChatTicks.stateOf(delivered: delivered, seen: seen),
+        // Own bubbles and media overlays are both dark/accented surfaces.
+        onAccentSurface: true,
+      );
 
   Future<void> _openAttachment(
     BuildContext context,
@@ -670,7 +651,17 @@ class ChatMessageBubble extends StatelessWidget {
         ),
       );
 
-      if (!previewMode) return nakedBubble;
+      // Media has its own rounded frame and takes no tail, but it still has to
+      // share the same outer edge as the text bubbles around it.
+      if (!previewMode) {
+        return Padding(
+          padding: EdgeInsetsDirectional.only(
+            end: isMine ? _kTailWidth : 0,
+            start: isMine ? 0 : _kTailWidth,
+          ),
+          child: nakedBubble,
+        );
+      }
       return ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: maxWidth,
@@ -698,7 +689,7 @@ class ChatMessageBubble extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
             decoration: BoxDecoration(
               color: isMine ? outgoingBubbleColor : incomingBubbleColor,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: _bubbleRadius(context),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1071,6 +1062,30 @@ class ChatMessageBubble extends StatelessWidget {
         ],
       ),
     );
+
+    // Hang the tail off the squared corner. It sits OUTSIDE the constrained
+    // bubble so it never steals width from the text, and is top-aligned so it
+    // meets the corner the radius left square. Previews skip it — there is no
+    // conversation for the bubble to point into.
+    if (!previewMode) {
+      final tailColor = isMine ? outgoingBubbleColor : incomingBubbleColor;
+      final pointRight = _tailPointsRight(context);
+      // Tailless bubbles reserve the same strip, so every bubble in a run
+      // shares one outer edge instead of the mid-run ones jutting out.
+      final Widget pointer = tail
+          ? ChatBubbleTail(color: tailColor, pointRight: pointRight)
+          : const SizedBox(width: _kTailWidth);
+      // Laid out in explicit LTR so "right" here means the physical right
+      // edge; mirroring is already baked into pointRight.
+      bubble = Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        textDirection: TextDirection.ltr,
+        children: pointRight
+            ? [Flexible(child: bubble), pointer]
+            : [pointer, Flexible(child: bubble)],
+      );
+    }
 
     if (!previewMode) {
       return bubble;

@@ -1860,6 +1860,12 @@ model DmParticipant {
   state          DmParticipantState @default(ACCEPTED)
   isMuted        Boolean            @default(false)
   lastSeenAt     DateTime?
+  // Last instant this user's client actually had the thread's messages in
+  // hand. Distinct from lastSeenAt (which means "read"): a message is
+  // DELIVERED once it reaches the recipient's device, READ once they open the
+  // thread. Without this, "delivered" could only be guessed from lastSeenAt,
+  // which made a brand-new chat sit on one tick until the peer opened it.
+  lastDeliveredAt DateTime?
   // Per-user inbox state (WhatsApp-style long-press actions).
   // pinnedAt: thread pinned to the top of MY inbox.
   // markedUnreadAt: manually marked unread — cleared on next markThreadRead.
@@ -1894,6 +1900,11 @@ model DmMessage {
   editedAt         DateTime?
   deletedAt        DateTime?
   deleteMode       DmMessageDeleteMode @default(VISIBLE)
+  // "Delete for me" is per-viewer: the row stays intact for everyone else, and
+  // whoever appears here no longer sees the message anywhere — thread, inbox
+  // subtitle, or unread count. deletedAt/deleteMode remain for the
+  // delete-for-EVERYONE tombstone, which is genuinely global.
+  deletedForUserIds String[]           @default([])
   forwardedFromId  String?
   createdAt        DateTime            @default(now())
   thread           DmThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)

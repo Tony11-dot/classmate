@@ -353,11 +353,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get titleBagrut => 'Bagrut';
 
   @override
-  String get bagrutSearchHint => 'Search subjects';
+  String get bagrutSearchHint => 'مضمونونه ولټوئ';
 
   @override
   String bagrutNoExams(Object subject) {
-    return 'No exams yet for $subject.';
+    return 'د $subject لپاره تر اوسه ازموینې نشته.';
   }
 
   @override
@@ -365,27 +365,27 @@ class AppLocalizationsPs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count files',
-      one: '1 file',
-      zero: 'No files',
+      other: '$count فایلونه',
+      one: '1 فایل',
+      zero: 'فایلونه نشته',
     );
     return '$_temp0';
   }
 
   @override
-  String get bagrutNoFiles => 'No files.';
+  String get bagrutNoFiles => 'فایلونه نشته.';
 
   @override
-  String get bagrutFileQuestions => 'Questions';
+  String get bagrutFileQuestions => 'پوښتنې';
 
   @override
-  String get bagrutFileAnswers => 'Answers';
+  String get bagrutFileAnswers => 'ځوابونه';
 
   @override
-  String get bagrutFileSolution => 'Solution';
+  String get bagrutFileSolution => 'حل';
 
   @override
-  String get bagrutFileAdvanced => 'Full solution';
+  String get bagrutFileAdvanced => 'بشپړ حل';
 
   @override
   String get titleExams => '‹‹Exams››';
@@ -639,55 +639,55 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsThemeDark => '‹‹Dark››';
 
   @override
-  String get settingsThemeCoffee => 'Coffee';
+  String get settingsThemeCoffee => 'قهوه';
 
   @override
-  String get settingsThemeMatcha => 'Matcha';
+  String get settingsThemeMatcha => 'ماچا';
 
   @override
-  String get settingsThemeRose => 'Rosé';
+  String get settingsThemeRose => 'روزې';
 
   @override
-  String get settingsThemeMidnight => 'Midnight';
+  String get settingsThemeMidnight => 'نیمه شپه';
 
   @override
-  String get settingsThemeNord => 'Nord';
+  String get settingsThemeNord => 'نورد';
 
   @override
-  String get settingsThemeForest => 'Forest';
+  String get settingsThemeForest => 'ځنګل';
 
   @override
-  String get settingsThemeSand => 'Sand';
+  String get settingsThemeSand => 'شګه';
 
   @override
-  String get settingsThemeSky => 'Sky';
+  String get settingsThemeSky => 'اسمان';
 
   @override
-  String get settingsThemeLavender => 'Lavender';
+  String get settingsThemeLavender => 'لیوېنډر';
 
   @override
-  String get settingsThemePeach => 'Peach';
+  String get settingsThemePeach => 'شفتالو';
 
   @override
-  String get settingsThemeMint => 'Mint';
+  String get settingsThemeMint => 'نعناع';
 
   @override
-  String get settingsThemeDracula => 'Dracula';
+  String get settingsThemeDracula => 'ډراکولا';
 
   @override
-  String get settingsThemeObsidian => 'Obsidian';
+  String get settingsThemeObsidian => 'اوبسیډین';
 
   @override
-  String get settingsThemeWine => 'Wine';
+  String get settingsThemeWine => 'شراب';
 
   @override
-  String get settingsThemeSolarized => 'Solarized';
+  String get settingsThemeSolarized => 'سولرایزډ';
 
   @override
-  String get settingsThemePlum => 'Plum';
+  String get settingsThemePlum => 'الوچه';
 
   @override
-  String get settingsThemeOcean => 'Ocean';
+  String get settingsThemeOcean => 'سمندر';
 
   @override
   String get settingsLanguageSearchHint => '‹‹Search language...››';
@@ -5324,6 +5324,33 @@ class AppLocalizationsPs extends AppLocalizations {
   String get navSchool => '‹‹School››';
 
   @override
+  String get navSchools => 'ښوونځي';
+
+  @override
+  String get navManagers => 'مدیران';
+
+  @override
+  String get navBagrut => 'Bagrut';
+
+  @override
+  String get chatPreviewPhoto => 'انځور';
+
+  @override
+  String get chatPreviewVoice => 'غږیز پیغام';
+
+  @override
+  String get chatPreviewVideo => 'ویډیو';
+
+  @override
+  String get chatPreviewAttachment => 'ضمیمه';
+
+  @override
+  String get chatPreviewMessage => 'پیغام';
+
+  @override
+  String get chatPreviewYou => 'تاسو';
+
+  @override
   String get adminDashboardTitle => '‹‹School Overview››';
 
   @override
@@ -5609,15 +5636,15 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonRetry => '‹‹Retry››';
 
   @override
-  String get chatThreadLoadFailedTitle => 'Couldn\'t load this conversation';
+  String get chatThreadLoadFailedTitle => 'دا خبرې اترې لوډ نه شوې';
 
   @override
   String get chatThreadLoadFailedBody =>
-      'Please check your connection and try again.';
+      'مهرباني وکړئ خپل انټرنېټ اتصال وګورئ او بیا هڅه وکړئ.';
 
   @override
   String get chatThreadLoadFailedBusy =>
-      'The server is a little busy right now. Give it a moment, then retry.';
+      'سرور دا مهال یو څه بوخت دی. یوه شېبه صبر وکړئ، بیا هڅه وکړئ.';
 
   @override
   String get commonBack => '‹‹Back››';
@@ -6142,29 +6169,29 @@ class AppLocalizationsPs extends AppLocalizations {
   String get supportSmsLabel => '‹‹Message››';
 
   @override
-  String get supportAiCardTitle => 'Ask AI';
+  String get supportAiCardTitle => 'له AI پوښتنه وکړئ';
 
   @override
   String get supportAiCardSubtitle =>
-      'Instant answers about using ClassMate — any time';
+      'د ClassMate د کارولو په اړه سمدستي ځوابونه — هر وخت';
 
   @override
-  String get supportAiSheetTitle => 'ClassMate Assistant';
+  String get supportAiSheetTitle => 'د ClassMate مرستیال';
 
   @override
   String get supportAiGreeting =>
-      'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
+      'سلام! زه د ClassMate مرستیال یم. د اپ د کارولو په اړه هر څه راڅخه وپوښتئ — ننوتل، ستاسو مهالوېش، نمرې، پیغامونه او نور.';
 
   @override
-  String get supportAiInputHint => 'Ask a question…';
+  String get supportAiInputHint => 'پوښتنه وکړئ…';
 
   @override
   String get supportAiDisclaimer =>
-      'AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.';
+      'AI ممکن تېروتنې وکړي. د حساب، بلونو یا د ستونزو د راپور لپاره support@classmateapp.org ته برېښنالیک واستوئ.';
 
   @override
   String get supportAiError =>
-      'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.';
+      'بښنه غواړو — دا مهال مو ځواب نه شو درکولی. مهرباني وکړئ بیا هڅه وکړئ، یا پورته له ملاتړ سره اړیکه ونیسئ.';
 
   @override
   String get aboutWhatIsClassmate => '‹‹What is ClassMate?››';
@@ -11587,51 +11614,50 @@ class AppLocalizationsPs extends AppLocalizations {
   String get a11yOpen => '‹‹Open››';
 
   @override
-  String get errStateOfflineTitle => 'You\'re offline';
+  String get errStateOfflineTitle => 'تاسو آفلاین یاست';
 
   @override
   String get errStateOfflineBody =>
-      'We can\'t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.';
+      'دا مهال ClassMate ته نه شو رسېدلی. خپل Wi-Fi یا موبایل ډېټا وګورئ، بیا هڅه وکړئ.';
 
   @override
-  String get errStateServerTitle => 'Something broke on our side';
+  String get errStateServerTitle => 'زموږ په اړخ کې ستونزه رامنځته شوه';
 
   @override
   String get errStateServerBody =>
-      'Our servers hit a snag. It\'s not you — please try again in a moment.';
+      'زموږ سرورونه له ستونزې سره مخ شول. دا ستاسو تېروتنه نه ده — مهرباني وکړئ یوه شېبه وروسته بیا هڅه وکړئ.';
 
   @override
-  String get errStateNotFoundTitle => 'We couldn\'t find that';
+  String get errStateNotFoundTitle => 'هغه مو ونه موندل';
 
   @override
-  String get errStateNotFoundBody =>
-      'This item may have been moved or deleted.';
+  String get errStateNotFoundBody => 'دا توکی ښایي لېږدول شوی یا ړنګ شوی وي.';
 
   @override
-  String get errStateForbiddenTitle => 'You don\'t have access';
+  String get errStateForbiddenTitle => 'تاسو لاسرسی نه لرئ';
 
   @override
   String get errStateForbiddenBody =>
-      'This area is locked for your account. If that seems wrong, ask your school admin.';
+      'دا برخه ستاسو د حساب لپاره تړلې ده. که دا سمه نه بریښي، د خپل ښوونځي له اډمین څخه وپوښتئ.';
 
   @override
-  String get errStateTimeoutTitle => 'That took too long';
+  String get errStateTimeoutTitle => 'دې ډېر وخت ونیوه';
 
   @override
   String get errStateTimeoutBody =>
-      'The request timed out or the server is busy. Give it a second, then retry.';
+      'غوښتنې وخت پای ته ورساوه یا سرور بوخت دی. یوه شېبه صبر وکړئ، بیا هڅه وکړئ.';
 
   @override
-  String get errStateEmptyTitle => 'Nothing here yet';
+  String get errStateEmptyTitle => 'دلته تر اوسه څه نشته';
 
   @override
   String get errStateEmptyBody =>
-      'When there\'s something to show, it\'ll appear right here.';
+      'کله چې د ښودلو لپاره څه وي، همدلته به ښکاره شي.';
 
   @override
-  String get errStateGenericTitle => 'Something went wrong';
+  String get errStateGenericTitle => 'کومه ستونزه رامنځته شوه';
 
   @override
   String get errStateGenericBody =>
-      'We hit an unexpected hiccup. Try again — it usually works the second time.';
+      'له ناڅاپي ستونزې سره مخ شو. بیا هڅه وکړئ — ډېری وخت په دویم ځل کار کوي.';
 }

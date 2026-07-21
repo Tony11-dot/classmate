@@ -1127,11 +1127,12 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     // The iOS 26 liquid-glass aesthetic is platform-specific; on Android
     // it'd feel out of place against the rest of the M3 system chrome.
     // Render Flutter's NavigationBar instead — themed automatically, gets
-    // ripple + indicator for free. Icon-only to match the iOS pill.
+    // ripple + indicator for free. Labels always shown so every tab is
+    // self-describing — matches the iOS pill, which labels its tabs too.
     if (kIsWeb || (!Platform.isIOS && !Platform.isMacOS)) {
       return NavigationBar(
         selectedIndex: widget.index,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: (i) {
           HapticFeedback.lightImpact();
           widget.onTap(i);
@@ -1210,7 +1211,9 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
                   style: NativeGlassStyle.regular,
                   fallbackColor: pillTint,
                   child: SizedBox(
-                    height: 56,
+                    // Icon (22) + gap + label line — taller than the old
+                    // icon-only 56pt capsule.
+                    height: 62,
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -1441,10 +1444,14 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
         ? Duration.zero
         : const Duration(milliseconds: 140);
 
-    // Icon-only (Instagram-style) — no text label.
+    // Icon over a text label, so a tab is never a guess. The label is
+    // scaled-to-fit rather than ellipsised: a 5-tab bar in Hebrew/Russian
+    // can run long, and a shrunken-but-whole word reads better than "Ann…".
     return SizedBox.expand(
-      child: Center(
-        child: Stack(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+        Stack(
           clipBehavior: Clip.none,
           children: [
             AnimatedBuilder(
@@ -1452,7 +1459,7 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
               builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
               child: AnimatedSwitcher(
                 duration: swapDur,
-                child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 25, color: color),
+                child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
               ),
             ),
             if (hasBadge)
@@ -1476,6 +1483,27 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
               ),
           ],
         ),
+        const SizedBox(height: 2),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              widget.item.label,
+              maxLines: 1,
+              softWrap: false,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10.5,
+                height: 1.0,
+                letterSpacing: -0.1,
+                color: color,
+                fontWeight: widget.selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        ],
       ),
     );
   }

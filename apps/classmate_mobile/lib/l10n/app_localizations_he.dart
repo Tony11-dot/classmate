@@ -338,14 +338,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get titleSolutions => 'פתרונות';
 
   @override
-  String get titleBagrut => 'Bagrut';
+  String get titleBagrut => 'בגרות';
 
   @override
-  String get bagrutSearchHint => 'Search subjects';
+  String get bagrutSearchHint => 'חיפוש מקצועות';
 
   @override
   String bagrutNoExams(Object subject) {
-    return 'No exams yet for $subject.';
+    return 'אין עדיין בחינות עבור $subject.';
   }
 
   @override
@@ -353,27 +353,29 @@ class AppLocalizationsHe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count files',
-      one: '1 file',
-      zero: 'No files',
+      other: '$count קבצים',
+      many: '$count קבצים',
+      two: '2 קבצים',
+      one: 'קובץ אחד',
+      zero: 'אין קבצים',
     );
     return '$_temp0';
   }
 
   @override
-  String get bagrutNoFiles => 'No files.';
+  String get bagrutNoFiles => 'אין קבצים.';
 
   @override
-  String get bagrutFileQuestions => 'Questions';
+  String get bagrutFileQuestions => 'שאלון';
 
   @override
-  String get bagrutFileAnswers => 'Answers';
+  String get bagrutFileAnswers => 'תשובות';
 
   @override
-  String get bagrutFileSolution => 'Solution';
+  String get bagrutFileSolution => 'פתרון';
 
   @override
-  String get bagrutFileAdvanced => 'Full solution';
+  String get bagrutFileAdvanced => 'פתרון מלא';
 
   @override
   String get titleExams => 'בחינות';
@@ -622,55 +624,55 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsThemeDark => 'כהה';
 
   @override
-  String get settingsThemeCoffee => 'Coffee';
+  String get settingsThemeCoffee => 'קפה';
 
   @override
-  String get settingsThemeMatcha => 'Matcha';
+  String get settingsThemeMatcha => 'מאצ\'ה';
 
   @override
-  String get settingsThemeRose => 'Rosé';
+  String get settingsThemeRose => 'רוזה';
 
   @override
-  String get settingsThemeMidnight => 'Midnight';
+  String get settingsThemeMidnight => 'חצות';
 
   @override
-  String get settingsThemeNord => 'Nord';
+  String get settingsThemeNord => 'נורד';
 
   @override
-  String get settingsThemeForest => 'Forest';
+  String get settingsThemeForest => 'יער';
 
   @override
-  String get settingsThemeSand => 'Sand';
+  String get settingsThemeSand => 'חול';
 
   @override
-  String get settingsThemeSky => 'Sky';
+  String get settingsThemeSky => 'שמיים';
 
   @override
-  String get settingsThemeLavender => 'Lavender';
+  String get settingsThemeLavender => 'לבנדר';
 
   @override
-  String get settingsThemePeach => 'Peach';
+  String get settingsThemePeach => 'אפרסק';
 
   @override
-  String get settingsThemeMint => 'Mint';
+  String get settingsThemeMint => 'מנטה';
 
   @override
-  String get settingsThemeDracula => 'Dracula';
+  String get settingsThemeDracula => 'דרקולה';
 
   @override
-  String get settingsThemeObsidian => 'Obsidian';
+  String get settingsThemeObsidian => 'אובסידיאן';
 
   @override
-  String get settingsThemeWine => 'Wine';
+  String get settingsThemeWine => 'יין';
 
   @override
-  String get settingsThemeSolarized => 'Solarized';
+  String get settingsThemeSolarized => 'סולארייזד';
 
   @override
-  String get settingsThemePlum => 'Plum';
+  String get settingsThemePlum => 'שזיף';
 
   @override
-  String get settingsThemeOcean => 'Ocean';
+  String get settingsThemeOcean => 'אוקיינוס';
 
   @override
   String get settingsLanguageSearchHint => 'חפש שפה...';
@@ -5233,6 +5235,33 @@ class AppLocalizationsHe extends AppLocalizations {
   String get navSchool => 'בית ספר';
 
   @override
+  String get navSchools => 'בתי ספר';
+
+  @override
+  String get navManagers => 'מנהלי מערכת';
+
+  @override
+  String get navBagrut => 'בגרות';
+
+  @override
+  String get chatPreviewPhoto => 'תמונה';
+
+  @override
+  String get chatPreviewVoice => 'הודעה קולית';
+
+  @override
+  String get chatPreviewVideo => 'סרטון';
+
+  @override
+  String get chatPreviewAttachment => 'קובץ מצורף';
+
+  @override
+  String get chatPreviewMessage => 'הודעה';
+
+  @override
+  String get chatPreviewYou => 'את/ה';
+
+  @override
   String get adminDashboardTitle => 'סקירת בית הספר';
 
   @override
@@ -5516,15 +5545,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonRetry => 'נסה שוב';
 
   @override
-  String get chatThreadLoadFailedTitle => 'Couldn\'t load this conversation';
+  String get chatThreadLoadFailedTitle => 'לא הצלחנו לטעון את השיחה';
 
   @override
-  String get chatThreadLoadFailedBody =>
-      'Please check your connection and try again.';
+  String get chatThreadLoadFailedBody => 'בדקו את החיבור לאינטרנט ונסו שוב.';
 
   @override
   String get chatThreadLoadFailedBusy =>
-      'The server is a little busy right now. Give it a moment, then retry.';
+      'השרת קצת עמוס כרגע. חכו רגע ונסו שוב.';
 
   @override
   String get commonBack => 'חזור';
@@ -6037,29 +6065,29 @@ class AppLocalizationsHe extends AppLocalizations {
   String get supportSmsLabel => 'הודעה';
 
   @override
-  String get supportAiCardTitle => 'Ask AI';
+  String get supportAiCardTitle => 'שאלו את ה-AI';
 
   @override
   String get supportAiCardSubtitle =>
-      'Instant answers about using ClassMate — any time';
+      'תשובות מיידיות על השימוש ב-ClassMate — בכל שעה';
 
   @override
-  String get supportAiSheetTitle => 'ClassMate Assistant';
+  String get supportAiSheetTitle => 'העוזר של ClassMate';
 
   @override
   String get supportAiGreeting =>
-      'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
+      'היי! אני העוזר של ClassMate. אפשר לשאול אותי כל דבר על השימוש באפליקציה — התחברות, מערכת השעות, ציונים, הודעות ועוד.';
 
   @override
-  String get supportAiInputHint => 'Ask a question…';
+  String get supportAiInputHint => 'יש לכם שאלה?…';
 
   @override
   String get supportAiDisclaimer =>
-      'AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.';
+      'ה-AI עלול לטעות. בנושאי חשבון, חיוב או דיווח על תקלות, כתבו אל support@classmateapp.org.';
 
   @override
   String get supportAiError =>
-      'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.';
+      'מצטערים — לא הצלחתי לענות על זה כרגע. נסו שוב, או פנו לתמיכה למעלה.';
 
   @override
   String get aboutWhatIsClassmate => 'מהו ClassMate?';
@@ -11397,51 +11425,49 @@ class AppLocalizationsHe extends AppLocalizations {
   String get a11yOpen => 'פתיחה';
 
   @override
-  String get errStateOfflineTitle => 'You\'re offline';
+  String get errStateOfflineTitle => 'אין חיבור לאינטרנט';
 
   @override
   String get errStateOfflineBody =>
-      'We can\'t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.';
+      'לא הצלחנו להתחבר ל-ClassMate. בדקו את ה-Wi-Fi או את חבילת הגלישה ונסו שוב.';
 
   @override
-  String get errStateServerTitle => 'Something broke on our side';
+  String get errStateServerTitle => 'משהו השתבש אצלנו';
 
   @override
   String get errStateServerBody =>
-      'Our servers hit a snag. It\'s not you — please try again in a moment.';
+      'השרתים שלנו נתקלו בבעיה. זה לא אתם — נסו שוב בעוד רגע.';
 
   @override
-  String get errStateNotFoundTitle => 'We couldn\'t find that';
+  String get errStateNotFoundTitle => 'לא מצאנו את מה שחיפשתם';
 
   @override
-  String get errStateNotFoundBody =>
-      'This item may have been moved or deleted.';
+  String get errStateNotFoundBody => 'ייתכן שהפריט הועבר או נמחק.';
 
   @override
-  String get errStateForbiddenTitle => 'You don\'t have access';
+  String get errStateForbiddenTitle => 'אין לכם גישה';
 
   @override
   String get errStateForbiddenBody =>
-      'This area is locked for your account. If that seems wrong, ask your school admin.';
+      'האזור הזה נעול עבור החשבון שלכם. אם זה נראה לכם מוזר, פנו למנהל בית הספר.';
 
   @override
-  String get errStateTimeoutTitle => 'That took too long';
+  String get errStateTimeoutTitle => 'זה לקח יותר מדי זמן';
 
   @override
   String get errStateTimeoutBody =>
-      'The request timed out or the server is busy. Give it a second, then retry.';
+      'הבקשה התארכה מדי או שהשרת עמוס. חכו שנייה ונסו שוב.';
 
   @override
-  String get errStateEmptyTitle => 'Nothing here yet';
+  String get errStateEmptyTitle => 'אין כאן כלום בינתיים';
 
   @override
-  String get errStateEmptyBody =>
-      'When there\'s something to show, it\'ll appear right here.';
+  String get errStateEmptyBody => 'כשיהיה מה להציג, הוא יופיע בדיוק כאן.';
 
   @override
-  String get errStateGenericTitle => 'Something went wrong';
+  String get errStateGenericTitle => 'משהו השתבש';
 
   @override
   String get errStateGenericBody =>
-      'We hit an unexpected hiccup. Try again — it usually works the second time.';
+      'נתקלנו בתקלה לא צפויה. נסו שוב — בדרך כלל זה מסתדר בפעם השנייה.';
 }

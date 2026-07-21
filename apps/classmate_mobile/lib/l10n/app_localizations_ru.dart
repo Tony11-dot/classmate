@@ -350,14 +350,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get titleSolutions => 'Решения';
 
   @override
-  String get titleBagrut => 'Bagrut';
+  String get titleBagrut => 'Багрут';
 
   @override
-  String get bagrutSearchHint => 'Search subjects';
+  String get bagrutSearchHint => 'Поиск предметов';
 
   @override
   String bagrutNoExams(Object subject) {
-    return 'No exams yet for $subject.';
+    return 'По предмету «$subject» пока нет экзаменов.';
   }
 
   @override
@@ -365,27 +365,29 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count files',
-      one: '1 file',
-      zero: 'No files',
+      other: '$count файла',
+      many: '$count файлов',
+      few: '$count файла',
+      one: '$count файл',
+      zero: 'Нет файлов',
     );
     return '$_temp0';
   }
 
   @override
-  String get bagrutNoFiles => 'No files.';
+  String get bagrutNoFiles => 'Нет файлов.';
 
   @override
-  String get bagrutFileQuestions => 'Questions';
+  String get bagrutFileQuestions => 'Вопросы';
 
   @override
-  String get bagrutFileAnswers => 'Answers';
+  String get bagrutFileAnswers => 'Ответы';
 
   @override
-  String get bagrutFileSolution => 'Solution';
+  String get bagrutFileSolution => 'Решение';
 
   @override
-  String get bagrutFileAdvanced => 'Full solution';
+  String get bagrutFileAdvanced => 'Полное решение';
 
   @override
   String get titleExams => 'Экзамены';
@@ -643,55 +645,55 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsThemeDark => 'Тёмная';
 
   @override
-  String get settingsThemeCoffee => 'Coffee';
+  String get settingsThemeCoffee => 'Кофе';
 
   @override
-  String get settingsThemeMatcha => 'Matcha';
+  String get settingsThemeMatcha => 'Матча';
 
   @override
-  String get settingsThemeRose => 'Rosé';
+  String get settingsThemeRose => 'Розе';
 
   @override
-  String get settingsThemeMidnight => 'Midnight';
+  String get settingsThemeMidnight => 'Полночь';
 
   @override
-  String get settingsThemeNord => 'Nord';
+  String get settingsThemeNord => 'Норд';
 
   @override
-  String get settingsThemeForest => 'Forest';
+  String get settingsThemeForest => 'Лес';
 
   @override
-  String get settingsThemeSand => 'Sand';
+  String get settingsThemeSand => 'Песок';
 
   @override
-  String get settingsThemeSky => 'Sky';
+  String get settingsThemeSky => 'Небо';
 
   @override
-  String get settingsThemeLavender => 'Lavender';
+  String get settingsThemeLavender => 'Лаванда';
 
   @override
-  String get settingsThemePeach => 'Peach';
+  String get settingsThemePeach => 'Персик';
 
   @override
-  String get settingsThemeMint => 'Mint';
+  String get settingsThemeMint => 'Мята';
 
   @override
-  String get settingsThemeDracula => 'Dracula';
+  String get settingsThemeDracula => 'Дракула';
 
   @override
-  String get settingsThemeObsidian => 'Obsidian';
+  String get settingsThemeObsidian => 'Обсидиан';
 
   @override
-  String get settingsThemeWine => 'Wine';
+  String get settingsThemeWine => 'Вино';
 
   @override
   String get settingsThemeSolarized => 'Solarized';
 
   @override
-  String get settingsThemePlum => 'Plum';
+  String get settingsThemePlum => 'Слива';
 
   @override
-  String get settingsThemeOcean => 'Ocean';
+  String get settingsThemeOcean => 'Океан';
 
   @override
   String get settingsLanguageSearchHint => 'Поиск языка...';
@@ -2040,7 +2042,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get messagesCreateGroupAction => 'Создать группу';
 
   @override
-  String get messagesGroupMinMembers => 'Select at least 2 people for a group';
+  String get messagesGroupMinMembers => 'Выберите минимум 2 человек для группы';
 
   @override
   String get messagesBlockedPersonFallback => 'этого пользователя';
@@ -4897,7 +4899,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get novaTokenTip =>
-      'Use your tokens carefully — they\'re meant for studying.';
+      'Расходуйте токены с умом — они предназначены для учёбы.';
 
   @override
   String get practiceCustomDisclaimer =>
@@ -5185,7 +5187,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherExamGradesEnterGrades => 'Ввести оценки';
 
   @override
-  String get teacherExamClassAverage => 'Class average';
+  String get teacherExamClassAverage => 'Средний балл класса';
 
   @override
   String get teacherDeleteExamTitle => 'Удалить экзамен?';
@@ -5220,6 +5222,33 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get navSchool => 'Школа';
+
+  @override
+  String get navSchools => 'Школы';
+
+  @override
+  String get navManagers => 'Менеджеры';
+
+  @override
+  String get navBagrut => 'Багрут';
+
+  @override
+  String get chatPreviewPhoto => 'Фото';
+
+  @override
+  String get chatPreviewVoice => 'Голосовое сообщение';
+
+  @override
+  String get chatPreviewVideo => 'Видео';
+
+  @override
+  String get chatPreviewAttachment => 'Вложение';
+
+  @override
+  String get chatPreviewMessage => 'Сообщение';
+
+  @override
+  String get chatPreviewYou => 'Вы';
 
   @override
   String get adminDashboardTitle => 'Обзор школы';
@@ -5508,15 +5537,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonRetry => 'Повторить';
 
   @override
-  String get chatThreadLoadFailedTitle => 'Couldn\'t load this conversation';
+  String get chatThreadLoadFailedTitle => 'Не удалось загрузить беседу';
 
   @override
   String get chatThreadLoadFailedBody =>
-      'Please check your connection and try again.';
+      'Проверьте подключение и попробуйте ещё раз.';
 
   @override
   String get chatThreadLoadFailedBusy =>
-      'The server is a little busy right now. Give it a moment, then retry.';
+      'Сервер сейчас немного перегружен. Подождите немного и повторите попытку.';
 
   @override
   String get commonBack => 'Назад';
@@ -5552,52 +5581,53 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonShare => 'Поделиться';
 
   @override
-  String get inboxActionPin => 'Pin chat';
+  String get inboxActionPin => 'Закрепить чат';
 
   @override
-  String get inboxActionUnpin => 'Unpin chat';
+  String get inboxActionUnpin => 'Открепить чат';
 
   @override
-  String get inboxActionMute => 'Mute';
+  String get inboxActionMute => 'Отключить уведомления';
 
   @override
-  String get inboxActionUnmute => 'Unmute';
+  String get inboxActionUnmute => 'Включить уведомления';
 
   @override
-  String get inboxActionMarkRead => 'Mark as read';
+  String get inboxActionMarkRead => 'Отметить как прочитанное';
 
   @override
-  String get inboxActionMarkUnread => 'Mark as unread';
+  String get inboxActionMarkUnread => 'Отметить как непрочитанное';
 
   @override
-  String get inboxActionClear => 'Clear messages';
+  String get inboxActionClear => 'Очистить сообщения';
 
   @override
   String get inboxActionClearConfirm =>
-      'Delete all messages in this chat? This only clears your copy — the other side keeps theirs.';
+      'Удалить все сообщения в этом чате? Это очистит только вашу копию — у собеседника сообщения сохранятся.';
 
   @override
-  String get inboxActionDeleteChat => 'Delete chat';
+  String get inboxActionDeleteChat => 'Удалить чат';
 
   @override
   String get inboxActionDeleteChatConfirm =>
-      'Delete this chat? It disappears from your list and history; it comes back if they message you again.';
+      'Удалить этот чат? Он исчезнет из вашего списка и истории; он появится снова, если вам напишут.';
 
   @override
-  String get inboxActionBlock => 'Block contact';
+  String get inboxActionBlock => 'Заблокировать контакт';
 
   @override
   String get inboxActionBlockConfirm =>
-      'Block this contact? They won\'t be able to message you anymore.';
+      'Заблокировать этот контакт? Он больше не сможет писать вам.';
 
   @override
-  String get cmailActionMarkRead => 'Mark as read';
+  String get cmailActionMarkRead => 'Отметить как прочитанное';
 
   @override
-  String get cmailActionMarkUnread => 'Mark as unread';
+  String get cmailActionMarkUnread => 'Отметить как непрочитанное';
 
   @override
-  String get cmailDeleteConfirm => 'Delete this mail from your mailbox?';
+  String get cmailDeleteConfirm =>
+      'Удалить это письмо из вашего почтового ящика?';
 
   @override
   String get commonLoading => 'Загрузка…';
@@ -6040,29 +6070,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get supportSmsLabel => 'Сообщение';
 
   @override
-  String get supportAiCardTitle => 'Ask AI';
+  String get supportAiCardTitle => 'Спросить ИИ';
 
   @override
   String get supportAiCardSubtitle =>
-      'Instant answers about using ClassMate — any time';
+      'Мгновенные ответы о работе с ClassMate — в любое время';
 
   @override
-  String get supportAiSheetTitle => 'ClassMate Assistant';
+  String get supportAiSheetTitle => 'Ассистент ClassMate';
 
   @override
   String get supportAiGreeting =>
-      'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
+      'Здравствуйте! Я ассистент ClassMate. Задайте любой вопрос о приложении — вход, расписание, оценки, сообщения и многое другое.';
 
   @override
-  String get supportAiInputHint => 'Ask a question…';
+  String get supportAiInputHint => 'Задайте вопрос…';
 
   @override
   String get supportAiDisclaimer =>
-      'AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.';
+      'ИИ может ошибаться. По вопросам аккаунта, оплаты или ошибок пишите на support@classmateapp.org.';
 
   @override
   String get supportAiError =>
-      'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.';
+      'Извините — сейчас не удалось ответить. Попробуйте ещё раз или обратитесь в поддержку выше.';
 
   @override
   String get aboutWhatIsClassmate => 'Что такое ClassMate?';
@@ -6891,8 +6921,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminExportNoStudents => 'Ученики не найдены';
 
   @override
-  String get adminExportIncludesPasswords =>
-      'Export will reset & include passwords';
+  String get adminExportIncludesPasswords => 'Экспорт сбросит и включит пароли';
 
   @override
   String get adminExportAnyway => 'Всё равно экспортировать';
@@ -7622,9 +7651,13 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
+          'Пароли $count ученика будут сброшены на новые и записаны в файл, чтобы вы могли распечатать и выдать карточки для входа. Старые пароли перестанут работать. Любой, у кого есть файл, сможет войти от имени этих учеников — передавайте файл осторожно и удалите после использования.',
+      many:
+          'Пароли $count учеников будут сброшены на новые и записаны в файл, чтобы вы могли распечатать и выдать карточки для входа. Старые пароли перестанут работать. Любой, у кого есть файл, сможет войти от имени этих учеников — передавайте файл осторожно и удалите после использования.',
+      few:
+          'Пароли $count учеников будут сброшены на новые и записаны в файл, чтобы вы могли распечатать и выдать карточки для входа. Старые пароли перестанут работать. Любой, у кого есть файл, сможет войти от имени этих учеников — передавайте файл осторожно и удалите после использования.',
       one:
-          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
+          'Пароль $count ученика будет сброшен на новый и записан в файл, чтобы вы могли распечатать и выдать карточку для входа. Старый пароль перестанет работать. Любой, у кого есть файл, сможет войти от имени этого ученика — передавайте файл осторожно и удалите после использования.',
     );
     return '$_temp0';
   }
@@ -7639,10 +7672,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pickerSelectGrades => 'Выберите классы';
 
   @override
-  String get pickerSelectAll => 'Select all';
+  String get pickerSelectAll => 'Выбрать всё';
 
   @override
-  String get pickerUnselectAll => 'Unselect all';
+  String get pickerUnselectAll => 'Снять выбор';
 
   @override
   String get pickerSelectClassroom => 'Выберите класс';
@@ -8303,7 +8336,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminExportPasswordsOn =>
-      'Passwords will be reset and shown in the export — old passwords stop working. Handle the file securely.';
+      'Пароли будут сброшены и показаны в экспорте — старые пароли перестанут работать. Обращайтесь с файлом осторожно.';
 
   @override
   String get adminExportPasswordsOff => 'Экспорт не будет содержать паролей.';
@@ -10481,14 +10514,15 @@ class AppLocalizationsRu extends AppLocalizations {
       'Повтор имени пользователя в этом списке';
 
   @override
-  String get adminUsernameAvailable => 'Username is available';
+  String get adminUsernameAvailable => 'Имя пользователя свободно';
 
   @override
-  String get adminUsernameInvalidFormat => 'Use 3+ letters, digits, or . _ -';
+  String get adminUsernameInvalidFormat =>
+      'Используйте от 3 букв, цифр или . _ -';
 
   @override
   String get adminUsernameSuggestionsLabel =>
-      'Available suggestions — tap to use:';
+      'Свободные варианты — нажмите, чтобы использовать:';
 
   @override
   String adminAddManyCreateParent(String name) {
@@ -10582,57 +10616,57 @@ class AppLocalizationsRu extends AppLocalizations {
   String get certSaved => 'Сертификат создан.';
 
   @override
-  String get certSaveAndPublish => 'Save & publish';
+  String get certSaveAndPublish => 'Сохранить и опубликовать';
 
   @override
-  String get certSaveDraft => 'Save as draft';
+  String get certSaveDraft => 'Сохранить как черновик';
 
   @override
-  String get examGradesPublished => 'Grades published to students.';
+  String get examGradesPublished => 'Оценки опубликованы для учеников.';
 
   @override
-  String get examGradesPublishedShort => 'Published';
+  String get examGradesPublishedShort => 'Опубликовано';
 
   @override
-  String get examRepublish => 'Republish';
+  String get examRepublish => 'Опубликовать заново';
 
   @override
-  String get certPreview => 'Preview PDF';
+  String get certPreview => 'Предпросмотр PDF';
 
   @override
-  String get certPublished => 'Published to the student.';
+  String get certPublished => 'Опубликовано для ученика.';
 
   @override
-  String get certDraftSaved => 'Saved as draft.';
+  String get certDraftSaved => 'Сохранено как черновик.';
 
   @override
-  String get certPublishing => 'Publishing…';
+  String get certPublishing => 'Публикация…';
 
   @override
-  String get certDownload => 'Download';
+  String get certDownload => 'Скачать';
 
   @override
-  String get certNoneYet => 'No certificates yet.';
+  String get certNoneYet => 'Пока нет табелей.';
 
   @override
-  String get certMine => 'My certificates';
+  String get certMine => 'Мои табели';
 
   @override
   String get certNoHomeroom =>
-      'You are not a homeroom teacher of any class yet.';
+      'Вы пока не являетесь классным руководителем ни одного класса.';
 
   @override
-  String get certGrin => 'Grades';
+  String get certGrin => 'Оценки';
 
   @override
-  String get certPrintAll => 'Print all';
+  String get certPrintAll => 'Распечатать все';
 
   @override
   String get certSelectCohortToPrint =>
-      'Select a class to print all its certificates.';
+      'Выберите класс, чтобы распечатать все его табели.';
 
   @override
-  String get certEditTitle => 'Edit certificate';
+  String get certEditTitle => 'Редактировать табель';
 
   @override
   String get certPdfAnnualCertificate => 'Годовой сертификат';
@@ -10763,251 +10797,251 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gradesSubjectNoGrades => 'В этом предмете пока нет оценок.';
 
   @override
-  String get gradesPublishedShort => 'Published';
+  String get gradesPublishedShort => 'Опубликовано';
 
   @override
-  String get gradesDraftShort => 'Draft';
+  String get gradesDraftShort => 'Черновик';
 
   @override
   String gradesPublishTitle(Object title) {
-    return 'Publish “$title”';
+    return 'Опубликовать «$title»';
   }
 
   @override
   String gradesUnpublishTitle(Object title) {
-    return 'Unpublish “$title”';
+    return 'Снять с публикации «$title»';
   }
 
   @override
-  String get gradesPublishAction => 'Publish';
+  String get gradesPublishAction => 'Опубликовать';
 
   @override
-  String get gradesUnpublishAction => 'Unpublish';
+  String get gradesUnpublishAction => 'Снять с публикации';
 
   @override
   String get gradesPublishedToast =>
-      'Grade published — students can now see it.';
+      'Оценка опубликована — теперь ученики её видят.';
 
   @override
   String get gradesUnpublishedToast =>
-      'Grade unpublished — hidden from students.';
+      'Оценка снята с публикации — скрыта от учеников.';
 
   @override
-  String get navGradeScales => 'Grade Scales';
+  String get navGradeScales => 'Шкалы оценок';
 
   @override
-  String get gradeScaleAdd => 'Add grade scale';
+  String get gradeScaleAdd => 'Добавить шкалу оценок';
 
   @override
-  String get gradeScaleEdit => 'Edit grade scale';
+  String get gradeScaleEdit => 'Редактировать шкалу оценок';
 
   @override
-  String get gradeScaleDeleteTitle => 'Delete grade scale?';
+  String get gradeScaleDeleteTitle => 'Удалить шкалу оценок?';
 
   @override
   String gradeScaleDeleteConfirm(Object name) {
-    return 'Delete “$name”? Assessments already graded on it keep their labels.';
+    return 'Удалить «$name»? Работы, уже оценённые по этой шкале, сохранят свои отметки.';
   }
 
   @override
-  String get gradeScaleEmptyTitle => 'No grade scales yet';
+  String get gradeScaleEmptyTitle => 'Пока нет шкал оценок';
 
   @override
   String get gradeScaleEmptyHint =>
-      'Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.';
+      'Создайте буквенную или словесную шкалу (например, A, A+, B) для младших классов. Учителя этих классов будут выбирать отметку вместо числа.';
 
   @override
-  String get gradeScaleAllGrades => 'Applies to all grades';
+  String get gradeScaleAllGrades => 'Применяется ко всем классам';
 
   @override
   String gradeScaleAppliesTo(Object grades) {
-    return 'Grades $grades';
+    return 'Классы $grades';
   }
 
   @override
-  String get gradeScaleNameLabel => 'Scale name';
+  String get gradeScaleNameLabel => 'Название шкалы';
 
   @override
-  String get gradeScaleNameHint => 'e.g. Letter grades';
+  String get gradeScaleNameHint => 'например, Буквенные оценки';
 
   @override
-  String get gradeScaleNameRequired => 'Enter a scale name.';
+  String get gradeScaleNameRequired => 'Введите название шкалы.';
 
   @override
-  String get gradeScaleGradeLevels => 'Applies to grades';
+  String get gradeScaleGradeLevels => 'Применяется к классам';
 
   @override
   String get gradeScaleGradeLevelsHint =>
-      'Leave none selected to apply to all grades.';
+      'Не выбирайте ничего, чтобы применить ко всем классам.';
 
   @override
-  String get gradeScaleLabels => 'Labels';
+  String get gradeScaleLabels => 'Отметки';
 
   @override
   String get gradeScaleLabelsHint =>
-      'Add each label (e.g. A+) with an optional number (0–100) used for averages.';
+      'Добавьте каждую отметку (например, A+) с необязательным числом (0–100) для расчёта средних.';
 
   @override
-  String get gradeScaleLabelText => 'Label';
+  String get gradeScaleLabelText => 'Отметка';
 
   @override
-  String get gradeScaleLabelValue => 'Value';
+  String get gradeScaleLabelValue => 'Значение';
 
   @override
-  String get gradeScaleAddLabel => 'Add label';
+  String get gradeScaleAddLabel => 'Добавить отметку';
 
   @override
-  String get gradeScaleNeedTwoLabels => 'Add at least two labels.';
+  String get gradeScaleNeedTwoLabels => 'Добавьте минимум две отметки.';
 
   @override
-  String get gradeScalePickLabel => 'Grade';
+  String get gradeScalePickLabel => 'Оценка';
 
   @override
-  String get gradeScaleUseScale => 'Grade scale';
+  String get gradeScaleUseScale => 'Шкала оценок';
 
   @override
   String gradeScaleNumeric(Object max) {
-    return 'Number (0–$max)';
+    return 'Число (0–$max)';
   }
 
   @override
-  String get accountSwitcherTitle => 'Accounts';
+  String get accountSwitcherTitle => 'Аккаунты';
 
   @override
-  String get accountAddAccount => 'Add account';
+  String get accountAddAccount => 'Добавить аккаунт';
 
   @override
-  String get accountSignOutThis => 'Sign out this account';
+  String get accountSignOutThis => 'Выйти из этого аккаунта';
 
   @override
-  String get averagesManageTooltip => 'Manage averages';
+  String get averagesManageTooltip => 'Управление средними';
 
   @override
-  String get averagesTitle => 'Averages';
+  String get averagesTitle => 'Средние баллы';
 
   @override
-  String get averagesAdd => 'Add average';
+  String get averagesAdd => 'Добавить средний балл';
 
   @override
-  String get averagesDeleteTitle => 'Delete average';
+  String get averagesDeleteTitle => 'Удалить средний балл';
 
   @override
   String averagesDeleteConfirm(Object title) {
-    return 'Delete \"$title\"? This cannot be undone.';
+    return 'Удалить «$title»? Это действие нельзя отменить.';
   }
 
   @override
-  String get averagesCancel => 'Cancel';
+  String get averagesCancel => 'Отмена';
 
   @override
-  String get averagesEmptyTitle => 'No averages yet';
+  String get averagesEmptyTitle => 'Пока нет средних баллов';
 
   @override
   String get averagesEmptyBody =>
-      'Tap \"Add average\" to create a weighted grade formula for a subject.';
+      'Нажмите «Добавить средний балл», чтобы создать взвешенную формулу оценки по предмету.';
 
   @override
-  String get averagesFullYear => 'Full year';
+  String get averagesFullYear => 'Весь год';
 
   @override
   String averagesSemesterN(Object n) {
-    return 'Semester $n';
+    return 'Семестр $n';
   }
 
   @override
   String averagesFormatChip(Object index, Object total) {
-    return 'Format $index: $total%';
+    return 'Формат $index: $total%';
   }
 
   @override
-  String get averagesNoStudents => 'No students to compute.';
+  String get averagesNoStudents => 'Нет учеников для расчёта.';
 
   @override
   String averagesFormatN(Object n) {
-    return 'Format $n';
+    return 'Формат $n';
   }
 
   @override
-  String get averagesErrTitle => 'Enter a title.';
+  String get averagesErrTitle => 'Введите название.';
 
   @override
-  String get averagesErrSubject => 'Choose a subject.';
+  String get averagesErrSubject => 'Выберите предмет.';
 
   @override
-  String get averagesErrCohort => 'Choose a cohort.';
+  String get averagesErrCohort => 'Выберите класс.';
 
   @override
-  String get averagesErrNoFormat => 'Add at least one format.';
+  String get averagesErrNoFormat => 'Добавьте хотя бы один формат.';
 
   @override
   String averagesErrFormatNoGrade(Object n) {
-    return 'Format $n: pick at least one grade.';
+    return 'Формат $n: выберите хотя бы одну оценку.';
   }
 
   @override
   String averagesErrFormatSum(Object n, Object total) {
-    return 'Format $n: weights must sum to 100 (now $total%).';
+    return 'Формат $n: сумма весов должна быть 100 (сейчас $total%).';
   }
 
   @override
-  String get averagesNew => 'New average';
+  String get averagesNew => 'Новый средний балл';
 
   @override
-  String get averagesEdit => 'Edit average';
+  String get averagesEdit => 'Редактировать средний балл';
 
   @override
-  String get averagesLabelSubject => 'Subject';
+  String get averagesLabelSubject => 'Предмет';
 
   @override
-  String get averagesHintSubject => 'Choose a subject';
+  String get averagesHintSubject => 'Выберите предмет';
 
   @override
-  String get averagesLabelCohort => 'Cohort';
+  String get averagesLabelCohort => 'Класс';
 
   @override
-  String get averagesHintCohort => 'Choose a cohort';
+  String get averagesHintCohort => 'Выберите класс';
 
   @override
-  String get averagesLabelUnits => 'Units (optional)';
+  String get averagesLabelUnits => 'Единицы (необязательно)';
 
   @override
-  String get averagesFormats => 'Formats';
+  String get averagesFormats => 'Форматы';
 
   @override
   String get averagesFormatsHelp =>
-      'Each format\'s weights must sum to 100%. The best-scoring format is used per student.';
+      'Сумма весов каждого формата должна быть 100%. Для каждого ученика используется формат с лучшим результатом.';
 
   @override
-  String get averagesAddFormat => 'Add format';
+  String get averagesAddFormat => 'Добавить формат';
 
   @override
-  String get averagesLabelFormatLabel => 'Format label (optional)';
+  String get averagesLabelFormatLabel => 'Название формата (необязательно)';
 
   @override
-  String get averagesAddGrade => 'Add grade';
+  String get averagesAddGrade => 'Добавить оценку';
 
   @override
   String averagesTotal(Object total) {
-    return 'Total: $total%';
+    return 'Итого: $total%';
   }
 
   @override
-  String get averagesLabelGrade => 'Grade';
+  String get averagesLabelGrade => 'Оценка';
 
   @override
-  String get averagesHintPickFirst => 'Pick subject & cohort first';
+  String get averagesHintPickFirst => 'Сначала выберите предмет и класс';
 
   @override
-  String get averagesHintGrade => 'Choose a grade';
+  String get averagesHintGrade => 'Выберите оценку';
 
   @override
-  String get adminInsightsSearchHint => 'Search students by name…';
+  String get adminInsightsSearchHint => 'Поиск учеников по имени…';
 
   @override
-  String get adminInsightsNoStudents => 'No students found.';
+  String get adminInsightsNoStudents => 'Ученики не найдены.';
 
   @override
-  String get adminInsightsNoGrades => 'No grades recorded yet.';
+  String get adminInsightsNoGrades => 'Оценок пока нет.';
 
   @override
   String get gradesEditGradeTitle => 'Изменить оценку';
@@ -11088,260 +11122,263 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нет оценок с весом в этом семестре. Добавьте оценку или задайте %.';
 
   @override
-  String get gradesAvgPickTitle => 'Add a grade to the average';
+  String get gradesAvgPickTitle => 'Добавить оценку в средний балл';
 
   @override
   String gradesAvgPickSubtitle(String subject) {
-    return 'Pick a published grade in $subject, then set its weight, semester and format.';
+    return 'Выберите опубликованную оценку по предмету «$subject», затем задайте её вес, семестр и формат.';
   }
 
   @override
-  String get gradesAvgFilterAll => 'All';
+  String get gradesAvgFilterAll => 'Все';
 
   @override
   String gradesAvgFilterCohort(String name) {
-    return 'Cohort — $name';
+    return 'Класс — $name';
   }
 
   @override
-  String get gradesAvgSearchHint => 'Search grades';
+  String get gradesAvgSearchHint => 'Поиск оценок';
 
   @override
-  String get gradesAvgNoResults => 'No matching grades in this subject.';
+  String get gradesAvgNoResults => 'Нет подходящих оценок по этому предмету.';
 
   @override
-  String get gradesAvgInAverage => 'In average';
+  String get gradesAvgInAverage => 'В среднем балле';
 
   @override
-  String get notesTitle => 'Notes';
+  String get notesTitle => 'Заметки';
 
   @override
-  String get notesSearchStudents => 'Search students';
+  String get notesSearchStudents => 'Поиск учеников';
 
   @override
-  String get notesNoStudents => 'No students found';
+  String get notesNoStudents => 'Ученики не найдены';
 
   @override
   String notesCount(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count notes',
-      one: '1 note',
-      zero: 'No notes',
+      other: '$count заметки',
+      many: '$count заметок',
+      few: '$count заметки',
+      one: '$count заметка',
+      zero: 'Нет заметок',
     );
     return '$_temp0';
   }
 
   @override
-  String get notesNewNote => 'New note';
+  String get notesNewNote => 'Новая заметка';
 
   @override
-  String get notesNoNotes => 'No notes yet';
+  String get notesNoNotes => 'Заметок пока нет';
 
   @override
   String get notesNoNotesHint =>
-      'Tap + to write the first note about this student.';
+      'Нажмите +, чтобы написать первую заметку об этом ученике.';
 
   @override
-  String get notesDeleteTitle => 'Delete note?';
+  String get notesDeleteTitle => 'Удалить заметку?';
 
   @override
-  String get notesDeleteBody => 'This note will be permanently deleted.';
+  String get notesDeleteBody => 'Эта заметка будет удалена навсегда.';
 
   @override
-  String get notesUntitled => 'Untitled';
+  String get notesUntitled => 'Без названия';
 
   @override
-  String get notesTitleHint => 'Title';
+  String get notesTitleHint => 'Заголовок';
 
   @override
-  String get notesBodyHint => 'Start writing…';
+  String get notesBodyHint => 'Начните писать…';
 
   @override
   String notesEditedBy(String name) {
-    return 'By $name';
+    return 'Автор: $name';
   }
 
   @override
   String get cmailTitle => 'CMail';
 
   @override
-  String get cmailInbox => 'Inbox';
+  String get cmailInbox => 'Входящие';
 
   @override
-  String get cmailSentTab => 'Sent';
+  String get cmailSentTab => 'Отправленные';
 
   @override
-  String get cmailCompose => 'New mail';
+  String get cmailCompose => 'Новое письмо';
 
   @override
-  String get cmailEmptyInbox => 'No mail yet';
+  String get cmailEmptyInbox => 'Писем пока нет';
 
   @override
-  String get cmailEmptyInboxHint => 'Mail from your school will appear here.';
+  String get cmailEmptyInboxHint =>
+      'Здесь будут появляться письма от вашей школы.';
 
   @override
-  String get cmailEmptySent => 'Nothing sent yet';
+  String get cmailEmptySent => 'Пока ничего не отправлено';
 
   @override
-  String get cmailSubject => 'Subject';
+  String get cmailSubject => 'Тема';
 
   @override
-  String get cmailBodyHint => 'Write your message…';
+  String get cmailBodyHint => 'Напишите сообщение…';
 
   @override
-  String get cmailAudience => 'To';
+  String get cmailAudience => 'Кому';
 
   @override
-  String get cmailAudienceSchool => 'Everyone';
+  String get cmailAudienceSchool => 'Всем';
 
   @override
-  String get cmailAudienceStudents => 'All students';
+  String get cmailAudienceStudents => 'Всем ученикам';
 
   @override
-  String get cmailAudienceTeachers => 'All teachers';
+  String get cmailAudienceTeachers => 'Всем учителям';
 
   @override
-  String get cmailAudienceParents => 'All parents';
+  String get cmailAudienceParents => 'Всем родителям';
 
   @override
-  String get cmailAudienceStaff => 'Staff';
+  String get cmailAudienceStaff => 'Персоналу';
 
   @override
-  String get cmailAudienceGrades => 'By grade';
+  String get cmailAudienceGrades => 'По параллели';
 
   @override
-  String get cmailAudienceCohorts => 'By class';
+  String get cmailAudienceCohorts => 'По классу';
 
   @override
-  String get cmailAudienceUsers => 'Specific people';
+  String get cmailAudienceUsers => 'Конкретным людям';
 
   @override
-  String get cmailPickGrades => 'Pick grades';
+  String get cmailPickGrades => 'Выберите параллели';
 
   @override
-  String get cmailPickCohorts => 'Pick classes';
+  String get cmailPickCohorts => 'Выберите классы';
 
   @override
-  String get cmailPickPeople => 'Pick people';
+  String get cmailPickPeople => 'Выберите людей';
 
   @override
-  String get cmailAttach => 'Attach files';
+  String get cmailAttach => 'Прикрепить файлы';
 
   @override
-  String get cmailSendAction => 'Send';
+  String get cmailSendAction => 'Отправить';
 
   @override
-  String get cmailSentOk => 'Mail sent';
+  String get cmailSentOk => 'Письмо отправлено';
 
   @override
-  String get cmailDeleteTitle => 'Delete mail?';
+  String get cmailDeleteTitle => 'Удалить письмо?';
 
   @override
-  String get cmailDeleteForAll => 'This deletes the mail for everyone.';
+  String get cmailDeleteForAll => 'Письмо будет удалено у всех.';
 
   @override
-  String get cmailDeleteForMe => 'This removes the mail from your inbox.';
+  String get cmailDeleteForMe => 'Письмо будет удалено из ваших входящих.';
 
   @override
   String cmailRecipients(num count) {
-    return '$count recipients';
+    return '$count получателей';
   }
 
   @override
   String cmailReadStats(num read, num total) {
-    return '$read of $total read';
+    return 'Прочитано $read из $total';
   }
 
   @override
-  String get cmailSubjectRequired => 'Subject is required';
+  String get cmailSubjectRequired => 'Укажите тему';
 
   @override
-  String get cmailAudienceRequired => 'Pick who this mail goes to';
+  String get cmailAudienceRequired => 'Выберите, кому отправить это письмо';
 
   @override
-  String get cmailAttachments => 'Attachments';
+  String get cmailAttachments => 'Вложения';
 
   @override
   String cmailFrom(String name) {
-    return 'From $name';
+    return 'От $name';
   }
 
   @override
-  String get phoneLinkTitle => 'Add your phone';
+  String get phoneLinkTitle => 'Добавьте свой телефон';
 
   @override
   String get phoneLinkSubtitle =>
-      'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.';
+      'Защитите свой аккаунт номером телефона. Мы отправим вам код подтверждения по SMS — он также позволит сбрасывать пароль через SMS.';
 
   @override
-  String get phoneLinkFieldLabel => 'Phone number';
+  String get phoneLinkFieldLabel => 'Номер телефона';
 
   @override
-  String get phoneLinkSend => 'Send code';
+  String get phoneLinkSend => 'Отправить код';
 
   @override
-  String get phoneLinkCodeLabel => '6-digit code';
+  String get phoneLinkCodeLabel => '6-значный код';
 
   @override
   String phoneLinkCodeSent(String phone) {
-    return 'Code sent to $phone';
+    return 'Код отправлен на $phone';
   }
 
   @override
-  String get phoneLinkVerify => 'Verify & link';
+  String get phoneLinkVerify => 'Подтвердить и привязать';
 
   @override
-  String get phoneLinkLater => 'Later';
+  String get phoneLinkLater => 'Позже';
 
   @override
-  String get phoneLinkDone => 'Phone linked!';
+  String get phoneLinkDone => 'Телефон привязан!';
 
   @override
-  String get phoneLinkResend => 'Resend code';
+  String get phoneLinkResend => 'Отправить код ещё раз';
 
   @override
-  String get phoneLinkInvalid => 'Enter a valid phone number';
+  String get phoneLinkInvalid => 'Введите корректный номер телефона';
 
   @override
-  String get hubParentsSection => 'Parents';
+  String get hubParentsSection => 'Родители';
 
   @override
-  String get hubNoParents => 'No linked parents yet';
+  String get hubNoParents => 'Привязанных родителей пока нет';
 
   @override
-  String get hubStudentSection => 'Student';
+  String get hubStudentSection => 'Ученик';
 
   @override
-  String get hubAverageLabel => 'Average';
+  String get hubAverageLabel => 'Средний балл';
 
   @override
-  String get hubAccuracyLabel => 'Practice accuracy';
+  String get hubAccuracyLabel => 'Точность в практике';
 
   @override
-  String get hubBestSubject => 'Best subject';
+  String get hubBestSubject => 'Лучший предмет';
 
   @override
-  String get hubWeakestSubject => 'Weakest subject';
+  String get hubWeakestSubject => 'Самый слабый предмет';
 
   @override
-  String get hubWeakTopics => 'Weak topics';
+  String get hubWeakTopics => 'Слабые темы';
 
   @override
-  String get hubStrongTopics => 'Strong topics';
+  String get hubStrongTopics => 'Сильные темы';
 
   @override
-  String get hubNoInsights => 'No insights yet';
+  String get hubNoInsights => 'Аналитики пока нет';
 
   @override
-  String get hubNoGrades => 'No grades yet';
+  String get hubNoGrades => 'Оценок пока нет';
 
   @override
-  String get hubUnpublished => 'Draft';
+  String get hubUnpublished => 'Черновик';
 
   @override
-  String get hubClass => 'Class';
+  String get hubClass => 'Класс';
 
   @override
   String get a11yBack => 'Назад';
@@ -11512,51 +11549,51 @@ class AppLocalizationsRu extends AppLocalizations {
   String get a11yOpen => 'Открыть';
 
   @override
-  String get errStateOfflineTitle => 'You\'re offline';
+  String get errStateOfflineTitle => 'Нет подключения';
 
   @override
   String get errStateOfflineBody =>
-      'We can\'t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.';
+      'Не удаётся связаться с ClassMate. Проверьте Wi-Fi или мобильный интернет и попробуйте ещё раз.';
 
   @override
-  String get errStateServerTitle => 'Something broke on our side';
+  String get errStateServerTitle => 'Что-то сломалось на нашей стороне';
 
   @override
   String get errStateServerBody =>
-      'Our servers hit a snag. It\'s not you — please try again in a moment.';
+      'На наших серверах возникла неполадка. Дело не в вас — попробуйте ещё раз через минуту.';
 
   @override
-  String get errStateNotFoundTitle => 'We couldn\'t find that';
+  String get errStateNotFoundTitle => 'Мы не смогли это найти';
 
   @override
   String get errStateNotFoundBody =>
-      'This item may have been moved or deleted.';
+      'Возможно, этот элемент был перемещён или удалён.';
 
   @override
-  String get errStateForbiddenTitle => 'You don\'t have access';
+  String get errStateForbiddenTitle => 'У вас нет доступа';
 
   @override
   String get errStateForbiddenBody =>
-      'This area is locked for your account. If that seems wrong, ask your school admin.';
+      'Этот раздел закрыт для вашего аккаунта. Если это похоже на ошибку, обратитесь к администратору школы.';
 
   @override
-  String get errStateTimeoutTitle => 'That took too long';
+  String get errStateTimeoutTitle => 'Это заняло слишком много времени';
 
   @override
   String get errStateTimeoutBody =>
-      'The request timed out or the server is busy. Give it a second, then retry.';
+      'Время ожидания истекло или сервер занят. Подождите секунду и повторите попытку.';
 
   @override
-  String get errStateEmptyTitle => 'Nothing here yet';
+  String get errStateEmptyTitle => 'Здесь пока пусто';
 
   @override
   String get errStateEmptyBody =>
-      'When there\'s something to show, it\'ll appear right here.';
+      'Когда появится что-то интересное, оно отобразится прямо здесь.';
 
   @override
-  String get errStateGenericTitle => 'Something went wrong';
+  String get errStateGenericTitle => 'Что-то пошло не так';
 
   @override
   String get errStateGenericBody =>
-      'We hit an unexpected hiccup. Try again — it usually works the second time.';
+      'Произошёл непредвиденный сбой. Попробуйте ещё раз — обычно со второго раза всё получается.';
 }

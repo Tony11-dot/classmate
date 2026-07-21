@@ -5287,6 +5287,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSchool => 'School';
 
   @override
+  String get navSchools => 'Schools';
+
+  @override
+  String get navManagers => 'Managers';
+
+  @override
+  String get navBagrut => 'Bagrut';
+
+  @override
+  String get chatPreviewPhoto => 'Photo';
+
+  @override
+  String get chatPreviewVoice => 'Voice message';
+
+  @override
+  String get chatPreviewVideo => 'Video';
+
+  @override
+  String get chatPreviewAttachment => 'Attachment';
+
+  @override
+  String get chatPreviewMessage => 'Message';
+
+  @override
+  String get chatPreviewYou => 'You';
+
+  @override
   String get adminDashboardTitle => 'School Overview';
 
   @override

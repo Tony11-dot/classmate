@@ -37,6 +37,11 @@ type ThreadWithRelations = Awaited<
 
 @Injectable()
 export class MessagesService {
+  /// How many recent messages the inbox loads per thread. Big enough that an
+  /// unread badge is exact in practice, small enough that a large inbox stays
+  /// one bounded query.
+  private static readonly INBOX_MESSAGE_WINDOW = 30;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly realtime: RealtimeService,
@@ -164,11 +169,26 @@ export class MessagesService {
     return null;
   }
 
+  /**
+   * WhatsApp tick semantics, computed per viewer:
+   *   ✓      sent      — the row exists (implicit; every message we return)
+   *   ✓✓     delivered — every other participant's client has had it in hand
+   *   ✓✓ blue seen      — every other participant has opened the thread since
+   *
+   * "delivered" reads lastDeliveredAt, NOT lastSeenAt. Deriving it from
+   * lastSeenAt meant "delivered" really said "has opened this thread at least
+   * once", so a first message to someone sat on a single tick indefinitely and
+   * then jumped straight to blue — never showing the double-grey state at all.
+   */
   private deliveryStateForMessage(
     message: { senderId: string; createdAt: Date },
     thread: {
       type: DmThreadType;
-      participants: Array<{ userId: string; lastSeenAt?: Date | null }>;
+      participants: Array<{
+        userId: string;
+        lastSeenAt?: Date | null;
+        lastDeliveredAt?: Date | null;
+      }>;
     },
     viewerId: string,
   ) {
@@ -191,14 +211,32 @@ export class MessagesService {
       };
     }
 
-    const deliveredToAll = others.every((p) => !!p.lastSeenAt);
+    // A participant counts as having received this message once their client
+    // checked in at/after it was created — by either receipt, since opening
+    // the thread necessarily means it arrived.
+    const receivedAt = (p: {
+      lastSeenAt?: Date | null;
+      lastDeliveredAt?: Date | null;
+    }): Date | null => {
+      const candidates = [p.lastDeliveredAt, p.lastSeenAt].filter(
+        (v): v is Date => v instanceof Date,
+      );
+      if (!candidates.length) return null;
+      const newest = candidates.sort((a, b) => b.getTime() - a.getTime())[0];
+      return newest.getTime() >= message.createdAt.getTime() ? newest : null;
+    };
+
+    const deliveredToAll = others.every((p) => receivedAt(p) != null);
+    // new Date(value), not new Date(String(value)) — stringifying a Date
+    // drops the milliseconds, which misread same-second receipts as unseen.
     const seenToAll = others.every(
       (p) =>
-        !!p.lastSeenAt && new Date(String(p.lastSeenAt)) >= message.createdAt,
+        !!p.lastSeenAt &&
+        new Date(p.lastSeenAt).getTime() >= message.createdAt.getTime(),
     );
 
     const deliveredAtSource = others
-      .map((p) => p.lastSeenAt)
+      .map((p) => receivedAt(p))
       .filter((v): v is Date => v instanceof Date)
       .sort((a, b) => a.getTime() - b.getTime())[0];
 
@@ -483,6 +521,10 @@ export class MessagesService {
     const messageWhere = {
       threadId,
       ...(clearedAt ? { createdAt: { gt: clearedAt } } : {}),
+      // "Delete for me" is per-viewer — the row survives for everyone else.
+      NOT: { deletedForUserIds: { has: userId } },
+      // Legacy globally-stamped "delete for me" rows (see fetchInbox).
+      deleteMode: { not: 'DELETED_FOR_ME' as const },
     };
 
     const base = await this.prisma.dmThread.findUnique({
@@ -560,6 +602,8 @@ export class MessagesService {
         userId: string;
         role: DmParticipantRole;
         state: DmParticipantState;
+        lastSeenAt?: Date | null;
+        lastDeliveredAt?: Date | null;
       }>;
       messages: Array<{
         id: string;
@@ -579,7 +623,13 @@ export class MessagesService {
   }) {
     const thread = participant.thread;
     const viewerId = participant.userId;
+    // The inbox include fetches newest-first; everything below reads this list
+    // as chronological, so normalise once here.
+    thread.messages = [...thread.messages].sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    );
     // "Clear messages": anything at/before clearedAt no longer exists for ME.
+    // (Per-viewer deletes are already excluded by the query.)
     if (participant.clearedAt) {
       thread.messages = thread.messages.filter(
         (m) => m.createdAt > participant.clearedAt!,
@@ -620,19 +670,41 @@ export class MessagesService {
           ? 'Waiting for approval'
           : 'No messages yet';
 
-    const unreadCount =
-      participant.lastSeenAt == null
-        ? thread.messages.filter((m) => m.senderId !== viewerId).length
-        : thread.messages.filter(
-            (m) =>
-              m.senderId !== viewerId && m.createdAt > participant.lastSeenAt!,
-          ).length;
+    // Counted from the loaded window, so it is exact up to
+    // INBOX_MESSAGE_WINDOW and saturates beyond it — the extra row fetched by
+    // the query is what lets us tell "exactly N" from "at least N".
+    const unreadCount = thread.messages.filter(
+      (m) =>
+        m.senderId !== viewerId &&
+        (participant.lastSeenAt == null ||
+          m.createdAt > participant.lastSeenAt),
+    ).length;
+
+    // The delivery state of the viewer's own last message, for the inbox row's
+    // tick (WhatsApp shows ✓/✓✓ in front of "you said..." previews).
+    const lastDelivery =
+      latestMessage && latestMessage.senderId === viewerId
+        ? this.deliveryStateForMessage(latestMessage, thread, viewerId)
+        : null;
 
     return {
       id: thread.id,
       type: String(thread.type).toLowerCase(),
       title,
       subtitle,
+      // Structured preview. `subtitle` above is a pre-rendered ENGLISH string
+      // and is kept only for older clients — new clients compose the preview
+      // from these fields so "🎤 Voice message" localizes with the app.
+      lastMessage: latestMessage
+        ? {
+            kind: String(latestMessage.kind ?? 'TEXT'),
+            text: String(latestMessage.text ?? ''),
+            senderName: this.displayNameOf(users.get(latestMessage.senderId)),
+            isOwn: latestMessage.senderId === viewerId,
+            delivered: lastDelivery?.delivered ?? false,
+            seen: lastDelivery?.seen ?? false,
+          }
+        : null,
       isGroup: thread.type === DmThreadType.GROUP,
       isUnread: unreadCount > 0 || participant.markedUnreadAt != null,
       unreadCount,
@@ -766,8 +838,22 @@ export class MessagesService {
         thread: {
           include: {
             participants: true,
+            // A window, not just the newest row. Two reasons:
+            //  • the newest row may be invisible to THIS viewer (cleared, or
+            //    deleted-for-me), in which case the subtitle must fall back to
+            //    the newest one they can still see — taking 1 was why a chat
+            //    the user had emptied still showed its old last message.
+            //  • unreadCount is counted from these rows, so take:1 capped
+            //    every badge at 1 no matter how many were actually unread.
             messages: {
-              take: 1,
+              where: {
+                NOT: { deletedForUserIds: { has: userId } },
+                // Legacy rows: "delete for me" used to stamp the SHARED row
+                // with this mode, so pre-fix deletions are invisible in the
+                // thread but would otherwise still surface as the subtitle.
+                deleteMode: { not: 'DELETED_FOR_ME' },
+              },
+              take: MessagesService.INBOX_MESSAGE_WINDOW + 1,
               orderBy: { createdAt: 'desc' },
             },
           },
@@ -783,6 +869,24 @@ export class MessagesService {
       const latest = p.thread.messages[0];
       return !!latest && latest.createdAt > p.hiddenAt;
     });
+
+    // Loading the inbox proves this device now holds these messages, which is
+    // exactly what the sender's second tick means. Ack the threads that have
+    // something newer than our last receipt, so ticks advance even for chats
+    // the user never opens.
+    const undelivered = visible
+      .filter((p: any) =>
+        p.thread.messages.some(
+          (m: any) =>
+            m.senderId !== userId &&
+            (p.lastDeliveredAt == null || m.createdAt > p.lastDeliveredAt),
+        ),
+      )
+      .map((p: any) => p.threadId);
+    if (undelivered.length) {
+      // Best-effort and off the response path — the inbox must not wait on it.
+      void this.markThreadsDelivered(userId, undelivered).catch(() => {});
+    }
 
     const items = await Promise.all(
       visible.map((p) => this.threadToSummary(p)),
@@ -1631,14 +1735,14 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       return { ok: true };
     }
 
-    // allow any participant to delete for self
-
+    // Any participant may delete for themselves. This must NOT touch the
+    // shared row's deletedAt/deleteMode: doing so removed the message from
+    // everyone's thread, and left the inbox subtitle still quoting it because
+    // nothing read those columns back. Record the viewer instead — every read
+    // path filters on deletedForUserIds.
     await this.prisma.dmMessage.update({
       where: { id: messageId },
-      data: {
-        deletedAt: new Date(),
-        deleteMode: 'DELETED_FOR_ME',
-      },
+      data: { deletedForUserIds: { push: userId } },
     });
 
     return { ok: true };
@@ -1892,6 +1996,9 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
       },
       data: {
         lastSeenAt: new Date(),
+        // Reading implies delivery — keep the two receipts consistent so a
+        // message can never be "seen" without also being "delivered".
+        lastDeliveredAt: new Date(),
         // Opening the thread cancels a manual "mark as unread".
         markedUnreadAt: null,
       },
@@ -1913,6 +2020,52 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
     }
 
     return { ok: true };
+  }
+
+  /**
+   * Records that this user's device now holds the thread's messages — the
+   * second (grey) tick for whoever sent them. Called when a client receives a
+   * push/SSE message for a thread it isn't currently reading, and in bulk
+   * whenever the inbox loads.
+   *
+   * Emits `dm_delivered` so a sender sitting in the chat sees the tick flip
+   * without waiting for their next poll.
+   */
+  async markThreadsDelivered(userId: string, threadIds: string[]) {
+    const ids = [...new Set(threadIds.filter(Boolean))];
+    if (!ids.length) return { ok: true };
+
+    await this.prisma.dmParticipant.updateMany({
+      where: { userId, threadId: { in: ids } },
+      data: { lastDeliveredAt: new Date() },
+    });
+
+    try {
+      const peers = await this.prisma.dmParticipant.findMany({
+        where: { threadId: { in: ids }, userId: { not: userId } },
+        select: { userId: true, threadId: true },
+      });
+      for (const threadId of ids) {
+        const peerIds = peers
+          .filter((p) => p.threadId === threadId)
+          .map((p) => p.userId);
+        if (peerIds.length) {
+          this.realtime.emitToUsers(peerIds, { type: 'dm_delivered', threadId });
+        }
+      }
+    } catch {
+      // Delivery receipts are best-effort; never fail the caller.
+    }
+
+    return { ok: true };
+  }
+
+  async markThreadDelivered(user: AppUser, threadId: string) {
+    const userId = this.viewerId(user);
+    const id = String(threadId ?? '').trim();
+    if (!id) throw new BadRequestException('threadId is required');
+    await this.loadParticipantOrThrow(id, userId);
+    return this.markThreadsDelivered(userId, [id]);
   }
 
   // ── Group member management ─────────────────────────────────────────────

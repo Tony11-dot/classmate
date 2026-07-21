@@ -92,6 +92,10 @@ abstract class MessagesRepository {
 
   Future<void> markThreadRead({required String threadId});
 
+  /// Device-level receipt — "this message reached me", regardless of whether
+  /// the thread has been opened. Drives the sender's second grey tick.
+  Future<void> markThreadDelivered({required String threadId});
+
   // ── Inbox long-press actions ──────────────────────────────────────────────
   Future<bool> togglePinThread({required String threadId});
   Future<void> markThreadUnread({required String threadId});
@@ -335,11 +339,24 @@ class ApiMessagesRepository implements MessagesRepository {
     final parsedLastMessageAt = parseChatTimestamp(rawLastMessageAt) ??
         parseChatTimestamp((json['lastMessageAt'] ?? '').toString());
 
+    final lm = json['lastMessage'];
+    final lastMessage = lm is Map
+        ? InboxLastMessage(
+            kind: (lm['kind'] ?? 'TEXT').toString(),
+            text: (lm['text'] ?? '').toString(),
+            senderName: (lm['senderName'] ?? '').toString(),
+            isOwn: (lm['isOwn'] ?? false) == true,
+            delivered: (lm['delivered'] ?? false) == true,
+            seen: (lm['seen'] ?? false) == true,
+          )
+        : null;
+
     return MessageThreadSummary(
       id: (json['id'] ?? '').toString(),
       type: _threadType((json['type'] ?? '').toString()),
       title: (json['title'] ?? '').toString(),
       subtitle: (json['subtitle'] ?? '').toString(),
+      lastMessage: lastMessage,
       isGroup: (json['isGroup'] ?? false) == true,
       isUnread: (json['isUnread'] ?? false) == true,
       unreadCount: (json['unreadCount'] ?? 0) is int
@@ -822,6 +839,15 @@ class ApiMessagesRepository implements MessagesRepository {
   Future<void> markThreadRead({required String threadId}) async {
     final r = await _post('/messages/read', {'threadId': threadId});
     if (!_ok(r)) _fail('messages.markThreadRead', r);
+  }
+
+  @override
+  Future<void> markThreadDelivered({required String threadId}) async {
+    // Best-effort: a missed receipt only costs a tick, and the next inbox
+    // load acks it server-side anyway. Never surface an error for this.
+    try {
+      await _post('/messages/delivered', {'threadId': threadId});
+    } catch (_) {}
   }
 
   @override

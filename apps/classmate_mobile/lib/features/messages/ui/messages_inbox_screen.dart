@@ -9,6 +9,8 @@ import '../data/messages_repository.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../chat_core/utils/chat_time.dart';
+import '../../chat_core/utils/chat_reply_codec.dart';
+import '../../chat_core/ui/chat_ticks.dart';
 import 'new_chat_screen.dart';
 import 'blocked_people_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -739,17 +741,7 @@ class _InboxRow extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        item.subtitle.replaceAll('\n', '  '),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          fontWeight: item.isUnread
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                        ),
-                      ),
+                      _InboxPreviewLine(item: item),
                     ],
                   ),
                 ),
@@ -829,6 +821,74 @@ class _InboxRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The WhatsApp-style second line of an inbox row: delivery tick for your own
+/// last message, "You:"/sender prefix, then the message content — text as-is,
+/// media as emoji + localized kind ("🎤 Voice message"). Composed CLIENT-side
+/// from the structured `lastMessage` payload so it follows the app language;
+/// the server's `subtitle` string is only a fallback for empty threads.
+class _InboxPreviewLine extends StatelessWidget {
+  const _InboxPreviewLine({required this.item});
+
+  final MessageThreadSummary item;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: scheme.onSurfaceVariant,
+          fontWeight: item.isUnread ? FontWeight.w600 : FontWeight.w400,
+        );
+
+    final lm = item.lastMessage;
+    if (lm == null) {
+      // Empty thread (or a pre-upgrade server). Request states already show a
+      // chip on the trailing side, so the line can stay generic.
+      final isRequest = item.requestState.name != 'none';
+      final text = isRequest
+          ? item.subtitle.replaceAll('\n', '  ')
+          : l.classroomsNoMessagesYet;
+      return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+    }
+
+    final labels = ChatPreviewLabels.of(l);
+    final body = lm.text.trim().isEmpty
+        ? messagePreviewText(kind: lm.kind, labels: labels)
+        : replyPreviewText(lm.text, labels: labels);
+    // Sender prefix, WhatsApp-style: in 1:1 chats your own messages carry only
+    // the tick (a "You:" would be redundant next to it); groups name whoever
+    // spoke last — "You:" for yourself, first name for anyone else.
+    final prefix = !item.isGroup
+        ? ''
+        : lm.isOwn
+            ? '${l.chatPreviewYou}: '
+            : lm.senderName.trim().isNotEmpty
+                ? '${lm.senderName.trim().split(' ').first}: '
+                : '';
+
+    return Row(
+      children: [
+        if (lm.isOwn) ...[
+          ChatTicks(
+            state: ChatTicks.stateOf(delivered: lm.delivered, seen: lm.seen),
+            onAccentSurface: false,
+            size: 15,
+          ),
+          const SizedBox(width: 3),
+        ],
+        Expanded(
+          child: Text(
+            '$prefix$body',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -668,6 +668,7 @@ String _previewText(BuildContext context, Map<String, dynamic> m) {
   final text = messagePreviewText(
     kind: _s(m, 'kind', fallback: 'TEXT'),
     rawText: _s(m, 'text', fallback: _s(m, 'content', fallback: '')),
+    labels: ChatPreviewLabels.of(AppLocalizations.of(context)!),
   );
   if (sender.isEmpty) {
     return text;

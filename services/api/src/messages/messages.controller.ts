@@ -123,6 +123,13 @@ export class MessagesController {
     return this.service.markThreadRead(req.user, body);
   }
 
+  /// Device-level receipt: "this message reached me", independent of whether
+  /// the user has opened the thread. Drives the sender's second grey tick.
+  @Post('delivered')
+  markDelivered(@Req() req: any, @Body() body: MarkThreadReadDto) {
+    return this.service.markThreadDelivered(req.user, body?.threadId);
+  }
+
   @Post('edit')
   edit(@Req() req: any, @Body() body: EditMessageDto) {
     return this.service.editMessage(req.user, body);

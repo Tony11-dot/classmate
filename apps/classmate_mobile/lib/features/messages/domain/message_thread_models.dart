@@ -2,11 +2,36 @@ import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../../chat_core/utils/chat_time.dart';
 
+/// The newest visible message of a thread, as structured data — kind, raw
+/// text, sender — so the inbox row can compose a LOCALIZED preview
+/// ("🎤 Voice message" in the app's language, "You:" prefix, delivery ticks)
+/// instead of printing the server's pre-rendered English `subtitle`.
+class InboxLastMessage {
+  final String kind;
+  final String text;
+  final String senderName;
+  final bool isOwn;
+  final bool delivered;
+  final bool seen;
+
+  const InboxLastMessage({
+    required this.kind,
+    required this.text,
+    required this.senderName,
+    required this.isOwn,
+    this.delivered = false,
+    this.seen = false,
+  });
+}
+
 class MessageThreadSummary {
   final String id;
   final ChatThreadType type;
   final String title;
   final String subtitle;
+
+  /// Null on empty threads and on servers older than this field.
+  final InboxLastMessage? lastMessage;
   final bool isGroup;
   final bool isUnread;
   final int unreadCount;
@@ -26,6 +51,7 @@ class MessageThreadSummary {
     required this.type,
     required this.title,
     required this.subtitle,
+    this.lastMessage,
     required this.isGroup,
     required this.isUnread,
     required this.unreadCount,

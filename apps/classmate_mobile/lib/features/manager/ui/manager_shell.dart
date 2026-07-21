@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import 'manager_schools_screen.dart';
 import 'manager_managers_screen.dart';
 import 'manager_bagrut_manage_screen.dart';
@@ -27,15 +28,20 @@ class _ManagerShellState extends ConsumerState<ManagerShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(index: _index, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.school_rounded), label: 'Schools'),
-          NavigationDestination(icon: Icon(Icons.admin_panel_settings_rounded), label: 'Managers'),
-          NavigationDestination(icon: Icon(Icons.history_edu_rounded), label: 'Bagrut'),
+        destinations: [
+          NavigationDestination(
+              icon: const Icon(Icons.school_rounded), label: l.navSchools),
+          NavigationDestination(
+              icon: const Icon(Icons.admin_panel_settings_rounded),
+              label: l.navManagers),
+          NavigationDestination(
+              icon: const Icon(Icons.history_edu_rounded), label: l.navBagrut),
         ],
       ),
     );

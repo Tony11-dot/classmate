@@ -9399,6 +9399,60 @@ abstract class AppLocalizations {
   /// **'School'**
   String get navSchool;
 
+  /// No description provided for @navSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Schools'**
+  String get navSchools;
+
+  /// No description provided for @navManagers.
+  ///
+  /// In en, this message translates to:
+  /// **'Managers'**
+  String get navManagers;
+
+  /// No description provided for @navBagrut.
+  ///
+  /// In en, this message translates to:
+  /// **'Bagrut'**
+  String get navBagrut;
+
+  /// No description provided for @chatPreviewPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatPreviewPhoto;
+
+  /// No description provided for @chatPreviewVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice message'**
+  String get chatPreviewVoice;
+
+  /// No description provided for @chatPreviewVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get chatPreviewVideo;
+
+  /// No description provided for @chatPreviewAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment'**
+  String get chatPreviewAttachment;
+
+  /// No description provided for @chatPreviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get chatPreviewMessage;
+
+  /// No description provided for @chatPreviewYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get chatPreviewYou;
+
   /// No description provided for @adminDashboardTitle.
   ///
   /// In en, this message translates to:

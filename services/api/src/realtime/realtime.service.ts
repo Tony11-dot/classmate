@@ -5,6 +5,8 @@ export type RealtimeEvent =
   | { type: 'classroom_message'; classroomId: string }
   | { type: 'dm_message'; threadId: string }
   | { type: 'dm_read'; threadId: string }
+  // Device-level receipt (second grey tick), as opposed to dm_read (blue).
+  | { type: 'dm_delivered'; threadId: string }
   | { type: 'dm_typing'; threadId: string; userId: string }
   | { type: 'notification'; userId: string }
   | { type: 'grade_updated'; studentId: string }

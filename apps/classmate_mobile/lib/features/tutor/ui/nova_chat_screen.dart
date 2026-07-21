@@ -193,6 +193,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
   double _holdDx = 0;
   double _holdDy = 0;
   Offset? _holdOrigin;
+  int _holdStartMs = 0;
+  /// A press shorter than this with no drag is a tap → hands-free recording.
+  static const int _kVoiceTapMaxMs = 320;
   Duration _recordingElapsed = Duration.zero;
   String _livePartial = '';
   StreamSubscription<Map<String, dynamic>>? _replySub;
@@ -673,49 +676,17 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     await _send();
   }
 
-  Future<void> _micHoldStart(LongPressStartDetails d) async {
+  /// Finger down on the mic — recording starts on contact. See
+  /// `_MicPressDetector` in chat_composer.dart for why there is no recognizer.
+  Future<void> _micPressStart(Offset globalPosition) async {
     if (_sending || _recording) return;
-    _holdOrigin = d.globalPosition;
+    _holdOrigin = globalPosition;
+    _holdStartMs = DateTime.now().millisecondsSinceEpoch;
     _holdDx = 0;
     _holdDy = 0;
     _voiceLocked = false;
     _voiceCancelled = false;
     await _toggleMic();
-  }
-
-  void _micHoldMove(LongPressMoveUpdateDetails d) {
-    if (!_recording) return;
-    final origin = _holdOrigin;
-    if (origin == null) return;
-
-    final dx = d.globalPosition.dx - origin.dx;
-    final dy = d.globalPosition.dy - origin.dy;
-
-    setState(() {
-      _holdDx = dx;
-      _holdDy = dy;
-      _voiceCancelled = dx <= -chatRecordingCancelThreshold;
-      _voiceLocked = dy <= -chatRecordingLockThreshold;
-    });
-  }
-
-  Future<void> _micHoldEnd(LongPressEndDetails d) async {
-    if (!_recording) return;
-    if (_voiceCancelled) {
-      await _cancelVoiceDraft();
-      return;
-    }
-    if (_voiceLocked) {
-      if (mounted) setState(() {});
-      return;
-    }
-    await _toggleMic();
-  }
-
-  Future<void> _micHoldCancel() async {
-    if (!_recording) return;
-    if (_voiceLocked) return;
-    await _cancelVoiceDraft();
   }
 
   void _activeHoldMove(Offset globalPosition) {
@@ -740,8 +711,19 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
       await _cancelVoiceDraft();
       return;
     }
-    if (_voiceLocked) {
-      if (mounted) setState(() {});
+    // Quick tap with no real drag → hands-free (locked) recording, same as the
+    // DM composer. Otherwise a release commits the take.
+    final heldMs = DateTime.now().millisecondsSinceEpoch - _holdStartMs;
+    final wasTap =
+        heldMs <= _kVoiceTapMaxMs && _holdDx.abs() < 16 && _holdDy.abs() < 16;
+    if (_voiceLocked || wasTap) {
+      if (mounted) {
+        setState(() {
+          _voiceLocked = true;
+          _holdDx = 0;
+          _holdDy = 0;
+        });
+      }
       return;
     }
     await _toggleMic();
@@ -1918,10 +1900,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           });
           await _toggleMic();
         },
-        onMicHoldStart: _micHoldStart,
-        onMicHoldMove: _micHoldMove,
-        onMicHoldEnd: _micHoldEnd,
-        onMicHoldCancel: _micHoldCancel,
+        onMicPressStart: _micPressStart,
         onActiveHoldMove: _activeHoldMove,
         onActiveHoldRelease: _activeHoldRelease,
         onActiveHoldCancel: _activeHoldCancel,

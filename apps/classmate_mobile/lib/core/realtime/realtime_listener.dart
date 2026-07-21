@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/messages/providers/messages_repository_provider.dart';
 import '../auth/auth_controller.dart';
 import '../locale/locale_controller.dart';
 import 'realtime_service.dart';
@@ -79,8 +80,29 @@ class _RealtimeListenerState extends ConsumerState<RealtimeListener> {
     _eventSub = RealtimeService.instance.events.listen((event) {
       if (!mounted) return;
       ref.read(realtimeEventProvider.notifier).emit(event);
+      _ackDelivery(event);
     });
   }
+
+  /// A DM that reaches this device IS delivered, whatever screen the user is
+  /// on. Acking here (rather than only when the inbox or the thread opens) is
+  /// what makes the sender's second tick appear in real time instead of
+  /// whenever the recipient next happens to look at their chats.
+  void _ackDelivery(RealtimeEvent event) {
+    if (event.type != 'dm_message') return;
+    final threadId = event.threadId;
+    if (threadId == null || threadId.isEmpty) return;
+    if (!_ackedThreads.add(threadId)) return;
+    unawaited(
+      ref
+          .read(messagesRepositoryProvider)
+          .markThreadDelivered(threadId: threadId)
+          .whenComplete(() => _ackedThreads.remove(threadId)),
+    );
+  }
+
+  /// In-flight acks, so a burst of messages in one thread sends one receipt.
+  final Set<String> _ackedThreads = <String>{};
 
   @override
   void dispose() {
