@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 
-/// The little pointer that marks a chat bubble's sender.
-///
-/// Deliberately drawn as its OWN piece: a small curved flick that floats just
-/// off the bubble's top corner with a hairline of background between them, so
-/// the pair reads as two clean shapes — bubble + tail — rather than one blob
-/// with a growth. (An earlier iteration welded the tail into the bubble
-/// silhouette; the detached look is the requested design.)
+/// The little pointer that joins a chat bubble to its sender — the single
+/// most recognisable part of the WhatsApp bubble, and the thing whose absence
+/// made every message here read as a generic rounded card.
 ///
 /// Only the FIRST bubble of a run from the same sender gets one; the rest of
 /// the run stays tailless and tucks in close, which is what visually groups
-/// them.
+/// them. Draw it beside the bubble (not inside), so it never eats padding or
+/// clips content.
 class ChatBubbleTail extends StatelessWidget {
   const ChatBubbleTail({
     super.key,
     required this.color,
     required this.pointRight,
-    this.width = 10,
+    this.width = 8,
     this.height = 13,
   });
 
@@ -30,15 +27,20 @@ class ChatBubbleTail extends StatelessWidget {
   final double width;
   final double height;
 
-  /// The visible breathing space between the bubble edge and the tail's base,
-  /// kept inside this widget's own box so bubble rows don't need to manage it.
-  static const double gap = 2.5;
+  /// How far the tail's base extends INSIDE the bubble. Two anti-aliased
+  /// shapes that merely touch leave a hairline seam where the background
+  /// bleeds through — the bubble and its tail read as two separate pieces.
+  /// Painting the base a couple of pixels into the bubble (same colour, so
+  /// the overlap is invisible) welds them into one silhouette.
+  static const double overlap = 2.5;
 
   @override
   Widget build(BuildContext context) => SizedBox(
         width: width,
         height: height,
         child: CustomPaint(
+          // The painter draws past its box on the bubble side; that region is
+          // covered by (or exactly matches) the bubble fill.
           painter: _TailPainter(color: color, pointRight: pointRight),
         ),
       );
@@ -56,29 +58,31 @@ class _TailPainter extends CustomPainter {
       ..color = color
       ..isAntiAlias = true;
 
-    const g = ChatBubbleTail.gap;
-    final w = size.width;
-    final h = size.height;
-
-    // A small comma: flat-ish rounded base on the bubble side (inset by the
-    // gap), sweeping out to a soft tip and curling back under. Drawn for the
-    // point-right case; mirrored below for point-left.
-    final path = Path()
-      ..moveTo(g, 1.0)
-      ..quadraticBezierTo(w * 0.72, -0.4, w - 0.6, 1.6)
-      ..quadraticBezierTo(w * 0.46, h * 0.34, g, h * 0.86)
-      ..quadraticBezierTo(g - 1.2, h * 0.45, g, 1.0)
-      ..close();
-
-    if (!pointRight) {
-      // Mirror horizontally about the box's centre.
-      canvas.save();
-      canvas.translate(w, 0);
-      canvas.scale(-1, 1);
-      canvas.drawPath(path, paint);
-      canvas.restore();
-      return;
+    const o = ChatBubbleTail.overlap;
+    final path = Path();
+    if (pointRight) {
+      // Flows out of the bubble's top-right corner and curls back under. The
+      // base edge starts `o` px inside the bubble so the two shapes weld into
+      // one silhouette instead of meeting at an anti-aliased hairline.
+      path.moveTo(-o, 0);
+      path.lineTo(size.width, 0);
+      path.quadraticBezierTo(
+        size.width * 0.45,
+        size.height * 0.30,
+        -o,
+        size.height,
+      );
+    } else {
+      path.moveTo(size.width + o, 0);
+      path.lineTo(0, 0);
+      path.quadraticBezierTo(
+        size.width * 0.55,
+        size.height * 0.30,
+        size.width + o,
+        size.height,
+      );
     }
+    path.close();
     canvas.drawPath(path, paint);
   }
 
