@@ -42,6 +42,23 @@ Or from the GitHub UI: **Actions → Ship → Run workflow**.
 The `version` job bumps `pubspec.yaml` (`+N → +N+1`) and commits it, so Play and
 TestFlight never reject a duplicate build number. Set `bump_build=false` to skip.
 
+> **The bump is relative to the REPO, not to the store** — and those drift.
+> `+N+1` is computed from whatever `pubspec.yaml` says on the branch being
+> shipped. If a build was uploaded from anywhere else since (a `claude/*`
+> branch, a local `fastlane ios beta`, a ship from another machine), the repo's
+> N is stale and the bump lands on a number the store has already seen:
+>
+> ```text
+> The bundle version must be higher than the previously uploaded version: '227'
+> ```
+>
+> This fails at `upload_to_testflight` — i.e. AFTER a full ~6-minute archive —
+> and it is not a signing or Sentry problem, so don't go looking there. The fix
+> is to set `version:` in `apps/classmate_mobile/pubspec.yaml` to the number the
+> error names (the store's latest), commit, and re-run; the `version` job then
+> bumps above it. Check the current TestFlight build first if in doubt —
+> App Store Connect → TestFlight → Builds.
+
 ---
 
 ## Secrets registry
