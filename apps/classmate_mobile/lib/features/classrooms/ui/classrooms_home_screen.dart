@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -178,7 +180,7 @@ backgroundColor: cs.surface,
         onTap: () => FocusScope.of(context).unfocus(),
         onVerticalDragStart: (_) => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: RefreshIndicator(
+          child: ClassMateRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(orderedStudentClassroomsProvider);
             ref.invalidate(studentClassroomsProvider);
@@ -186,7 +188,13 @@ backgroundColor: cs.surface,
           },
           child: async.when(
             loading: () => const _LoadingView(),
-            error: (e, _) => _ErrorView(error: '$e'),
+            error: (e, _) => _ErrorView(
+              error: e,
+              onRetry: () {
+                ref.invalidate(orderedStudentClassroomsProvider);
+                ref.invalidate(studentClassroomsProvider);
+              },
+            ),
             data: (items) {
               final filtered = query.isEmpty
                   ? items
@@ -609,18 +617,14 @@ class _LoadingView extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.error});
+  const _ErrorView({required this.error, this.onRetry});
 
-  final String error;
+  final Object error;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(error, textAlign: TextAlign.center),
-      ),
-    );
+    return ClassMateErrorView(error: error, onRetry: onRetry);
   }
 }
 
@@ -657,21 +661,58 @@ List<Map<String, dynamic>> _normalizeChatList(dynamic raw) {
   return const <Map<String, dynamic>>[];
 }
 
+// Strips a server-stamped media tag (e.g. "[IMAGE] photo.jpg", "[VOICE] voice")
+// so legacy rows that lack a `kind` field don't leak the bracketed fallback
+// into the inbox preview.
+String _stripMediaTag(String s) {
+  return s
+      .replaceFirst(
+        RegExp(r'^\[(IMAGE|PHOTO|VIDEO|VOICE|AUDIO|FILE|DOC)\]\s*',
+            caseSensitive: false),
+        '',
+      )
+      .trim();
+}
+
 String _previewText(BuildContext context, Map<String, dynamic> m) {
+  final l = AppLocalizations.of(context)!;
   final sender = _s(m, 'senderName', fallback: _s(m, 'sender', fallback: ''));
-  final text = _s(
-    m,
-    'text',
-    fallback: _s(
-      m,
-      'content',
-      fallback: AppLocalizations.of(context)!.classroomsMessageFallback,
-    ),
-  );
-  if (sender.isEmpty) {
-    return text;
+  // Mirror the actual last message: media kinds show an emoji + label, text
+  // shows its content. `FILE` is persisted as `DOC` server-side — handle both.
+  final kind = _s(m, 'kind', fallback: 'TEXT').toUpperCase();
+  String body;
+  switch (kind) {
+    case 'IMAGE':
+    case 'PHOTO':
+      body = l.chatPreviewPhoto;
+      break;
+    case 'VIDEO':
+      body = l.chatPreviewVideo;
+      break;
+    case 'VOICE':
+    case 'AUDIO':
+      body = l.chatPreviewVoice;
+      break;
+    case 'FILE':
+    case 'DOC':
+      body = l.chatPreviewFile;
+      break;
+    default:
+      body = _stripMediaTag(
+        _s(
+          m,
+          'text',
+          fallback: _s(m, 'content', fallback: l.classroomsMessageFallback),
+        ),
+      );
   }
-  return '$sender: $text';
+  if (body.trim().isEmpty) {
+    body = l.classroomsMessageFallback;
+  }
+  if (sender.isEmpty) {
+    return body;
+  }
+  return '$sender: $body';
 }
 
 String _previewTime(String raw) {

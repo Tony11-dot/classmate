@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -382,7 +383,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
         final hasActiveFilters =
             safeSource != _allSources || _selectedReadState != _allReadStates;
 
-        return RefreshIndicator(
+        return ClassMateRefreshIndicator(
             onRefresh: () async {
               if (showPublished) {
                 ref.invalidate(myAnnouncementsProvider);

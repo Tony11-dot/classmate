@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
@@ -185,7 +186,7 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
         icon: const Icon(Icons.add_rounded),
         label: const Text('New school'),
       ),
-      body: RefreshIndicator(
+      body: ClassMateRefreshIndicator(
         onRefresh: () async => _reload(),
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _future,

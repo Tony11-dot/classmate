@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -308,7 +309,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               return b.rawDate.compareTo(a.rawDate);
             });
 
-          return RefreshIndicator(
+          return ClassMateRefreshIndicator(
             onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),

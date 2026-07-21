@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -132,7 +133,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
             return Center(child: Text(l.messagesNoBlockedPeople));
           }
 
-          return RefreshIndicator(
+          return ClassMateRefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
               padding: const EdgeInsets.all(12),

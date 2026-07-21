@@ -161,6 +161,24 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     } catch (_) {}
   }
 
+  // Speeds cycle on a single tap: 1× → 1.5× → 2× → 1× (Instagram-style).
+  static const List<double> _speedCycle = [1.0, 1.5, 2.0];
+
+  Future<void> _cycleSpeed() async {
+    final idx = _speedCycle.indexWhere((s) => (s - _speed).abs() < 0.01);
+    final next = _speedCycle[(idx + 1) % _speedCycle.length];
+    await _setSpeed(next);
+  }
+
+  String _speedLabel(double s) {
+    if ((s - 1.0).abs() < 0.01) return '1×';
+    if ((s - 1.5).abs() < 0.01) return '1.5×';
+    if ((s - 2.0).abs() < 0.01) return '2×';
+    // Fallback for any other value — trim a trailing .0
+    final str = s.toStringAsFixed(1);
+    return '${str.endsWith('.0') ? str.substring(0, str.length - 2) : str}×';
+  }
+
   @override
   void dispose() {
     _registry.remove(this);
@@ -414,61 +432,41 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       ),
     );
 
-    // ── Speed selector (below bubble) ────────────────────────────────────
-    const speeds = [1.0, 1.5, 2.0];
-    final speedLabels = ['1×', '1.5×', '2×'];
-
-    final speedRow = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: accent,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: accent),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(speeds.length, (i) {
-              final isActive = (_speed - speeds[i]).abs() < 0.01;
-              return GestureDetector(
-                onTap: () => _setSpeed(speeds[i]),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 9, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? accent
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    speedLabels[i],
-                    style: TextStyle(
-                      // The outer pill is filled with `accent`, so EVERY
-                      // label sits on top of the accent — not just the
-                      // active one.  Using dimColor for inactive labels
-                      // hid them entirely when accent and dimColor
-                      // coincided (e.g. own bubble in light mode: white
-                      // pill + white onSurface dim → invisible until
-                      // tapped).  Inactive labels stay onAccent but at
-                      // reduced opacity so the active one still pops.
-                      color: isActive
-                          ? onAccent
-                          : onAccent.withValues(alpha: 0.55),
-                      fontSize: 10,
-                      fontWeight: isActive
-                          ? FontWeight.w900
-                          : FontWeight.w500,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
+    // ── Speed control (below bubble) ─────────────────────────────────────
+    // A single pill that CYCLES 1× → 1.5× → 2× → 1× on each tap, instead of a
+    // three-button toggle. Shows the current speed; the active state pops.
+    final bool speedBoosted = (_speed - 1.0).abs() >= 0.01;
+    final speedRow = GestureDetector(
+      onTap: _cycleSpeed,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(
+          color: accent,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: accent),
         ),
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.speed_rounded,
+              size: 13,
+              color: onAccent.withValues(alpha: speedBoosted ? 1.0 : 0.7),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _speedLabel(_speed),
+              style: TextStyle(
+                color: onAccent,
+                fontSize: 11,
+                fontWeight: speedBoosted ? FontWeight.w900 : FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
 
     // ── Delivery checks ───────────────────────────────────────────────────

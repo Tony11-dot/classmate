@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -54,7 +55,7 @@ class InsightsScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: () async {
         ref.invalidate(unifiedStudentInsightsProvider);
         ref.invalidate(submissionStatsProvider);

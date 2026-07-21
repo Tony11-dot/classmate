@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -207,7 +208,7 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
             )
           : null,
       body: SafeArea(
-        child: RefreshIndicator(
+        child: ClassMateRefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
             physics: const BouncingScrollPhysics(

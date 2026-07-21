@@ -111,15 +111,19 @@ export class MessagesService {
   }
 
   private kindLabel(kind: DmMessageKind | string | null | undefined) {
+    // Inbox last-message preview for a media message: an emoji + a short label
+    // so the list mirrors the thread ("📷 Photo", "🎤 Voice message", …). Kept
+    // in sync with the push-notification preview below.
     switch (String(kind ?? 'TEXT').toUpperCase()) {
       case 'IMAGE':
-        return 'Photo';
+        return '📷 Photo';
       case 'VOICE':
-        return 'Voice note';
+        return '🎤 Voice message';
       case 'VIDEO':
-        return 'Video';
+        return '🎥 Video';
       case 'FILE':
-        return 'File';
+      case 'DOC':
+        return '📎 File';
       default:
         return 'Message';
     }

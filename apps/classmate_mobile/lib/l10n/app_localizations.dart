@@ -8703,6 +8703,30 @@ abstract class AppLocalizations {
   /// **'Photo'**
   String get chatPhoto;
 
+  /// No description provided for @chatPreviewPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'📷 Photo'**
+  String get chatPreviewPhoto;
+
+  /// No description provided for @chatPreviewVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'🎥 Video'**
+  String get chatPreviewVideo;
+
+  /// No description provided for @chatPreviewVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'🎤 Voice message'**
+  String get chatPreviewVoice;
+
+  /// No description provided for @chatPreviewFile.
+  ///
+  /// In en, this message translates to:
+  /// **'📎 File'**
+  String get chatPreviewFile;
+
   /// No description provided for @chatVideo.
   ///
   /// In en, this message translates to:
@@ -10094,6 +10118,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong'**
   String get commonError;
+
+  /// No description provided for @errorOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get errorOfflineTitle;
+
+  /// No description provided for @errorTimeoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking too long'**
+  String get errorTimeoutTitle;
+
+  /// No description provided for @errorServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Our end hiccuped'**
+  String get errorServerTitle;
+
+  /// No description provided for @errorServerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Something broke on our side. Please try again.'**
+  String get errorServerBody;
+
+  /// No description provided for @errorBusyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One moment'**
+  String get errorBusyTitle;
+
+  /// No description provided for @errorNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get errorNotFoundTitle;
+
+  /// No description provided for @errorNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find what you were looking for.'**
+  String get errorNotFoundBody;
 
   /// No description provided for @commonTryAgain.
   ///

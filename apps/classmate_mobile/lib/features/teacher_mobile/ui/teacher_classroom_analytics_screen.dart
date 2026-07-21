@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -111,7 +112,7 @@ class _TeacherClassroomAnalyticsScreenState
                             FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
                           ]),
                         ))
-                      : RefreshIndicator(
+                      : ClassMateRefreshIndicator(
                           onRefresh: _load,
                           child: ListView(
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),

@@ -489,21 +489,37 @@ class ChatComposer extends StatelessWidget {
                       large: true,
                     )
                   : showMic
-                  ? GestureDetector(
+                  ? RawGestureDetector(
                       key: const ValueKey('mic_btn'),
                       behavior: HitTestBehavior.opaque,
-                      onLongPressStart: enabled && !forceMicOnlyTap
-                          ? onMicHoldStart
-                          : null,
-                      onLongPressMoveUpdate: enabled && !forceMicOnlyTap
-                          ? onMicHoldMove
-                          : null,
-                      onLongPressEnd: enabled && !forceMicOnlyTap
-                          ? onMicHoldEnd
-                          : null,
-                      onLongPressCancel: enabled && !forceMicOnlyTap
-                          ? onMicHoldCancel
-                          : null,
+                      // A custom LongPressGestureRecognizer with a 140ms
+                      // deadline (vs Flutter's default 500ms) so hold-to-record
+                      // engages almost instantly — the WhatsApp/Instagram feel.
+                      // A quick tap under 140ms still falls through to the inner
+                      // button's onTap (onMic) hint.
+                      gestures: <Type, GestureRecognizerFactory>{
+                        LongPressGestureRecognizer:
+                            GestureRecognizerFactoryWithHandlers<
+                                LongPressGestureRecognizer>(
+                          () => LongPressGestureRecognizer(
+                            duration: const Duration(milliseconds: 140),
+                          ),
+                          (r) {
+                            r.onLongPressStart = enabled && !forceMicOnlyTap
+                                ? onMicHoldStart
+                                : null;
+                            r.onLongPressMoveUpdate = enabled && !forceMicOnlyTap
+                                ? onMicHoldMove
+                                : null;
+                            r.onLongPressEnd = enabled && !forceMicOnlyTap
+                                ? onMicHoldEnd
+                                : null;
+                            r.onLongPressCancel = enabled && !forceMicOnlyTap
+                                ? onMicHoldCancel
+                                : null;
+                          },
+                        ),
+                      },
                       child: Center(
                         child: _circleBtn(
                           context,

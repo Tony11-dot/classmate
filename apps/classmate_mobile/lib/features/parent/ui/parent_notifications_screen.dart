@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -66,7 +67,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
+      body: ClassMateRefreshIndicator(
         onRefresh: () async => ref.invalidate(parentNotificationsProvider),
         child: listAsync.when(
           loading: () => const Center(child: CmLoading()),

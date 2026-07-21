@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -171,7 +172,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
           ? const Center(child: CmLoading())
           : _error != null
               ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)))
-              : RefreshIndicator(
+              : ClassMateRefreshIndicator(
                   onRefresh: _reloadAverages,
                   child: _averages.isEmpty
                       ? ListView(children: [

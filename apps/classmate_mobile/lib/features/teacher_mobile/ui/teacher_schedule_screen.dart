@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -116,7 +117,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: () => _refresh(weekOf),
       child: GestureDetector(
         onHorizontalDragEnd: (details) {

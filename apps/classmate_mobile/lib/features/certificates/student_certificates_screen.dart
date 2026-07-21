@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -78,7 +79,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
       return Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!, style: TextStyle(color: cs.error))));
     }
     if (_items.isEmpty) {
-      return RefreshIndicator(
+      return ClassMateRefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 80, 24, 24),
@@ -91,7 +92,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
       );
     }
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),

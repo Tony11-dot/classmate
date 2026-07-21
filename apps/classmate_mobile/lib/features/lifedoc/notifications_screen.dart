@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -180,7 +181,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             grouped.putIfAbsent(_groupLabel(context, item.createdAt), () => <StudentNotificationItem>[]).add(item);
           }
 
-          return RefreshIndicator(
+          return ClassMateRefreshIndicator(
             onRefresh: () async {
               await ref.read(notificationSyncServiceProvider).sync();
               ref.invalidate(notificationInboxProvider);
@@ -594,7 +595,7 @@ class _NotificationDetailScreenState
           // (including after mark-unread), causing the unread state to flip
           // back to read immediately. initState handles the initial mark-read.
 
-          return RefreshIndicator(
+          return ClassMateRefreshIndicator(
             onRefresh: () async {
               await ref.read(notificationSyncServiceProvider).sync();
               ref.invalidate(notificationInboxProvider);

@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -449,8 +451,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       body: SafeArea(
         child: inbox.when(
           loading: () => const Center(child: CmLoading()),
-          error: (error, stackTrace) =>
-              Center(child: Text(l.messagesLoadFailed(error.toString()))),
+          error: (error, stackTrace) => ClassMateErrorView(
+            error: error,
+            onRetry: () => ref.invalidate(messagesInboxProvider),
+          ),
           data: (items) {
             final filtered = items.where((item) {
               if (query.isEmpty) return true;
@@ -471,7 +475,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
             if (filtered.isEmpty) {
               return Stack(
                 children: [
-                  RefreshIndicator(
+                  ClassMateRefreshIndicator(
                     onRefresh: _refreshInbox,
                     child: ListView(
                       physics: const BouncingScrollPhysics(
@@ -510,7 +514,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
 
             return Stack(
               children: [
-                RefreshIndicator(
+                ClassMateRefreshIndicator(
                   onRefresh: _refreshInbox,
                   child: ListView(
                     physics: const BouncingScrollPhysics(

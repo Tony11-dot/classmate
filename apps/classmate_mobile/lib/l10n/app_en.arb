@@ -2136,6 +2136,22 @@
   "chatUnpin": "Unpin",
   "chatPhoto": "Photo",
   "chatVideo": "Video",
+  "chatPreviewPhoto": "📷 Photo",
+  "@chatPreviewPhoto": {
+    "description": "Inbox/chat-list last-message preview for a photo message (emoji + label)."
+  },
+  "chatPreviewVideo": "🎥 Video",
+  "@chatPreviewVideo": {
+    "description": "Inbox/chat-list last-message preview for a video message (emoji + label)."
+  },
+  "chatPreviewVoice": "🎤 Voice message",
+  "@chatPreviewVoice": {
+    "description": "Inbox/chat-list last-message preview for a voice message (emoji + label)."
+  },
+  "chatPreviewFile": "📎 File",
+  "@chatPreviewFile": {
+    "description": "Inbox/chat-list last-message preview for a file/document message (emoji + label)."
+  },
   "chatMedia": "Media",
   "chatAudioFile": "Audio file",
   "chatVideoFile": "Video file",
@@ -2439,6 +2455,34 @@
   "cmailDeleteConfirm": "Delete this mail from your mailbox?",
   "commonLoading": "Loading…",
   "commonError": "Something went wrong",
+  "errorOfflineTitle": "No connection",
+  "@errorOfflineTitle": {
+    "description": "Title on the offline error mascot view."
+  },
+  "errorTimeoutTitle": "Taking too long",
+  "@errorTimeoutTitle": {
+    "description": "Title on the timeout error mascot view."
+  },
+  "errorServerTitle": "Our end hiccuped",
+  "@errorServerTitle": {
+    "description": "Title on the server (5xx) error mascot view."
+  },
+  "errorServerBody": "Something broke on our side. Please try again.",
+  "@errorServerBody": {
+    "description": "Body on the server error mascot view."
+  },
+  "errorBusyTitle": "One moment",
+  "@errorBusyTitle": {
+    "description": "Title on the rate-limited/busy error mascot view."
+  },
+  "errorNotFoundTitle": "Nothing here",
+  "@errorNotFoundTitle": {
+    "description": "Title on the not-found error mascot view."
+  },
+  "errorNotFoundBody": "We couldn't find what you were looking for.",
+  "@errorNotFoundBody": {
+    "description": "Body on the not-found error mascot view."
+  },
   "commonTryAgain": "Try again",
   "studentMaterialsTitle": "Materials",
   "studentMaterialsEmptyTitle": "No materials shared yet",

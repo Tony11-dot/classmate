@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter/material.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -387,7 +388,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
           final nextAssignment = items.isEmpty ? null : items.first;
           final hasActiveFilters = safeSubject != _allSubjects || _selectedState != _allStates;
 
-          return RefreshIndicator(
+          return ClassMateRefreshIndicator(
             onRefresh: () async {
               ref.invalidate(assignmentsFeedProvider);
               await ref.read(assignmentsFeedProvider.future);

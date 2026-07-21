@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
@@ -123,7 +124,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
         icon: const Icon(Icons.person_add_rounded),
         label: const Text('Add manager'),
       ),
-      body: RefreshIndicator(
+      body: ClassMateRefreshIndicator(
         onRefresh: () async => _reload(),
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _future,

@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/semester/school_semester.dart';
@@ -45,7 +46,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
     final l = AppLocalizations.of(context)!;
     final materialsAsync = ref.watch(studentMaterialsProvider);
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: () async => ref.invalidate(studentMaterialsProvider),
       child: materialsAsync.when(
         loading: () => const Center(child: CmLoading()),

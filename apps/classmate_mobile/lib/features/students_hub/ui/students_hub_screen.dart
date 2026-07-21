@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -63,7 +64,7 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                 : items
                     .where((s) => s.name.toLowerCase().contains(query))
                     .toList();
-            return RefreshIndicator(
+            return ClassMateRefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(hubStudentsProvider);
                 await ref.read(hubStudentsProvider.future);

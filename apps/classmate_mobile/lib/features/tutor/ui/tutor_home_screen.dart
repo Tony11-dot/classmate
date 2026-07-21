@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -628,7 +629,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               data: (raw) {
                 final items = _normalizedSessions(raw);
 
-                return RefreshIndicator(
+                return ClassMateRefreshIndicator(
                   onRefresh: () async {
                     ref.invalidate(tutorSessionsProvider);
                   },

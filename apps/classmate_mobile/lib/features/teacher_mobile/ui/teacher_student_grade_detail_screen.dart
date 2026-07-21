@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -253,7 +254,7 @@ class _TeacherStudentGradeDetailScreenState
             ),
         ],
       ),
-      body: RefreshIndicator(
+      body: ClassMateRefreshIndicator(
         onRefresh: _load,
         child: _loading
             ? const Center(child: CmLoading())

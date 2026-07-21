@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -646,7 +647,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: _load,
       child: Stack(
         children: [
@@ -841,7 +842,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: _load,
       child: Stack(
         children: [
@@ -1016,7 +1017,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: _load,
       child: Stack(
         children: [
@@ -1158,7 +1159,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         : <Map<String, dynamic>>[];
     final enrolledIds = students.map((s) => (s['id'] ?? '').toString()).toSet();
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + MediaQuery.of(context).viewInsets.bottom),

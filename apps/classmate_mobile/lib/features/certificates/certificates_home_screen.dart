@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
@@ -197,7 +198,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
 
     // ── Secretary: read-only print-by-cohort + flat published list ──────────
     if (_isSecretary) {
-      return RefreshIndicator(
+      return ClassMateRefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
@@ -240,7 +241,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
         ? _students
         : _students.where((s) => s.name.toLowerCase().contains(q)).toList();
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),

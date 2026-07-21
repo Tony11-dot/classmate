@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
@@ -97,7 +98,7 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
           ? const Center(child: CmLoading())
           : _error != null
               ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)))
-              : RefreshIndicator(
+              : ClassMateRefreshIndicator(
                   onRefresh: _load,
                   child: _scales.isEmpty
                       ? ListView(children: [

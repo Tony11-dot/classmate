@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session.dart';
@@ -125,7 +126,7 @@ class _MessagesTab extends ConsumerWidget {
         if (reports.isEmpty) {
           return _EmptyState(icon: Icons.inbox_outlined, label: l.adminReportsNoOpen);
         }
-        return RefreshIndicator(
+        return ClassMateRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(_messageReportsProvider('OPEN'));
             await ref.read(_messageReportsProvider('OPEN').future);
@@ -163,7 +164,7 @@ class _SolutionsTab extends ConsumerWidget {
           return _EmptyState(
               icon: Icons.verified_user_rounded, label: l.solutionsReportsEmpty);
         }
-        return RefreshIndicator(
+        return ClassMateRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(_solutionReportsProvider);
             await ref.read(_solutionReportsProvider.future);
@@ -218,7 +219,7 @@ class _ResolvedTab extends ConsumerWidget {
           icon: Icons.inbox_outlined, label: l.adminReportsNoInView);
     }
 
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
       onRefresh: () async {
         ref.invalidate(_resolvedMessageReportsProvider);
         ref.invalidate(_solutionReportsProvider);

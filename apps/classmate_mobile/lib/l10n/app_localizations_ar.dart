@@ -4899,6 +4899,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatPhoto => 'صورة';
 
   @override
+  String get chatPreviewPhoto => '📷 Photo';
+
+  @override
+  String get chatPreviewVideo => '🎥 Video';
+
+  @override
+  String get chatPreviewVoice => '🎤 Voice message';
+
+  @override
+  String get chatPreviewFile => '📎 File';
+
+  @override
   String get chatVideo => 'فيديو';
 
   @override
@@ -5637,6 +5649,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonError => 'حدث خطأ ما';
+
+  @override
+  String get errorOfflineTitle => 'No connection';
+
+  @override
+  String get errorTimeoutTitle => 'Taking too long';
+
+  @override
+  String get errorServerTitle => 'Our end hiccuped';
+
+  @override
+  String get errorServerBody => 'Something broke on our side. Please try again.';
+
+  @override
+  String get errorBusyTitle => 'One moment';
+
+  @override
+  String get errorNotFoundTitle => 'Nothing here';
+
+  @override
+  String get errorNotFoundBody => 'We couldn\'t find what you were looking for.';
 
   @override
   String get commonTryAgain => 'حاول مرة أخرى';

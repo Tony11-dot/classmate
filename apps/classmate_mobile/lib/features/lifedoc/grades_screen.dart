@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/realtime/realtime_listener.dart';
@@ -210,7 +211,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
       body: async.when(
         skipLoadingOnRefresh: true,
         loading: () => _buildLoading(context),
-        error: (err, _) => RefreshIndicator(
+        error: (err, _) => ClassMateRefreshIndicator(
           onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -250,7 +251,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
             if (weakAvg == null || avg < weakAvg) { weakAvg = avg; weakestSubject = e.key; }
           }
 
-          return RefreshIndicator(
+          return ClassMateRefreshIndicator(
             onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),

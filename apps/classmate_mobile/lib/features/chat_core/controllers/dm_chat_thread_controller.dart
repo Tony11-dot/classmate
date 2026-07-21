@@ -717,14 +717,24 @@ class DmChatThreadController extends ChatThreadController {
     final textDelete = (item.text.trim().isNotEmpty && (mediaUrl ?? '').isEmpty)
         ? _deletedTexts[_textSig(item.senderId, item.text)]
         : null;
-    final resolvedDeletedForMe = deletedForMe ||
-        localDelete == 'DELETED_FOR_ME' ||
+
+    // An EXPLICIT "delete for me" on THIS device must win over everything —
+    // including a server "deleted for everyone" stamp — so the message is fully
+    // hidden here (not left showing the "This message was deleted" placeholder).
+    // This is what makes the "delete for me" button actually remove the row the
+    // user chose to hide, instead of appearing to do nothing.
+    final localHideForMe = localDelete == 'DELETED_FOR_ME' ||
         urlDelete == 'DELETED_FOR_ME' ||
         textDelete == 'DELETED_FOR_ME';
-    final resolvedDeletedForEveryone = deletedForEveryone ||
-        localDelete == 'DELETED_FOR_EVERYONE' ||
-        urlDelete == 'DELETED_FOR_EVERYONE' ||
-        textDelete == 'DELETED_FOR_EVERYONE';
+
+    final resolvedDeletedForMe = deletedForMe || localHideForMe;
+    // When the user hid this for themselves, suppress the everyone-stamp on this
+    // device so _isInvisible (deletedForMe && !deletedForEveryone) hides the row.
+    final resolvedDeletedForEveryone = !localHideForMe &&
+        (deletedForEveryone ||
+            localDelete == 'DELETED_FOR_EVERYONE' ||
+            urlDelete == 'DELETED_FOR_EVERYONE' ||
+            textDelete == 'DELETED_FOR_EVERYONE');
 
     // Once a URL is marked deleted-for-everyone, the media must never be
     // resolvable again — drop it so no bubble can render or replay it.
@@ -741,7 +751,32 @@ class DmChatThreadController extends ChatThreadController {
     // What this viewer intended for this message, resolved via any durable key.
     final intendedDelete = urlDelete ?? textDelete ?? localDelete;
     final serverAlreadyDeleted = deletedForEveryone || deletedForMe;
+
+    // A text signature ("senderId|text") is a FUZZY key: the same sender's
+    // identical texts all share it. A precise key (media URL, or this exact
+    // message id) never collides. Only let a text-sig-ONLY match drive a
+    // server-side re-delete when it uniquely identifies a single server row —
+    // otherwise deleting one "ok" would re-issue a server delete for every
+    // same-text message (over-hiding for you, or erasing your own duplicates
+    // for the peer). The local hide (resolvedDeletedForMe) still applies; we
+    // just don't propagate an ambiguous text match to the server.
+    final anchoredByPreciseKey = urlDelete != null || localDelete != null;
+    final textSigServerMatches = (!anchoredByPreciseKey && textDelete != null)
+        ? _cachedMessages
+            .where((m) =>
+                !m.id.startsWith('optimistic-') &&
+                !m.id.startsWith('local-') &&
+                (m.mediaUrl ?? '').isEmpty &&
+                m.text.trim().isNotEmpty &&
+                _textSig(m.senderId, m.text) ==
+                    _textSig(item.senderId, item.text))
+            .length
+        : 0;
+    final safeToPropagate =
+        anchoredByPreciseKey || textDelete == null || textSigServerMatches <= 1;
+
     if (intendedDelete != null &&
+        safeToPropagate &&
         !serverAlreadyDeleted &&
         !item.id.startsWith('local-') &&
         !item.id.startsWith('optimistic-') &&
@@ -1200,18 +1235,15 @@ class DmChatThreadController extends ChatThreadController {
         messageId: serverMessageId,
         mode: modeStr,
       );
-    } catch (e) {
-      // 404 = message was never confirmed server-side (optimistic/local-only).
-      // Local deletion is still correct — the message won't come back from server.
-      if (e.toString().contains('404') ||
-          e.toString().toLowerCase().contains('not found')) {
-        return;
-      }
-      // Other errors: revert local state.
-      _localDeleted.remove(messageId);
-      _persistLocalDeleted();
-      invalidate();
-      rethrow;
+    } catch (_) {
+      // Deletion is intentional and DURABLE — never resurrect a message the
+      // user explicitly deleted just because the server call failed (404 for an
+      // optimistic/local-only id, a transient 5xx, or the network dropping).
+      // The local durable flags (_localDeleted / _deletedUrls / _deletedTexts)
+      // keep it hidden across re-entry + restart, and the compensating
+      // re-delete in _convertMessageItem retries the server once the real id is
+      // known. Swallowing here makes "delete for me" as unbreakable as "delete
+      // for everyone" — reverting was exactly what made messages come back.
     }
   }
 

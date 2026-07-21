@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class PlansScreen extends ConsumerWidget {
     // top-bar pill which already shows "NOVA Plans" (see _pageTitle()
     // in app_shell.dart). Returning a bare RefreshIndicator keeps the
     // pill from being doubled.
-    return RefreshIndicator(
+    return ClassMateRefreshIndicator(
         onRefresh: () async {
           ref.invalidate(plansCatalogProvider);
           ref.invalidate(tokenBalanceProvider);

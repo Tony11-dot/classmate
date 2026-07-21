@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/classmate_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
@@ -80,7 +81,7 @@ class _SecretaryStudentsScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
+      body: ClassMateRefreshIndicator(
         onRefresh: () async {
           ref.invalidate(_secOverviewProvider);
           ref.invalidate(_secAttendanceProvider);
