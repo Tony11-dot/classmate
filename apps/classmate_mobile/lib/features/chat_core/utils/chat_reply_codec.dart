@@ -11,6 +11,7 @@ class ChatPreviewLabels {
     this.video = 'Video',
     this.attachment = 'Attachment',
     this.message = 'Message',
+    this.deleted = 'This message was deleted',
   });
 
   factory ChatPreviewLabels.of(AppLocalizations l) => ChatPreviewLabels(
@@ -19,6 +20,7 @@ class ChatPreviewLabels {
         video: l.chatPreviewVideo,
         attachment: l.chatPreviewAttachment,
         message: l.chatPreviewMessage,
+        deleted: l.chatMessageBubbleDeletedMessage,
       );
 
   final String photo;
@@ -26,6 +28,7 @@ class ChatPreviewLabels {
   final String video;
   final String attachment;
   final String message;
+  final String deleted;
 }
 
 const ChatPreviewLabels _en = ChatPreviewLabels();
@@ -66,6 +69,9 @@ String messagePreviewText({
     case 'FILE':
     case 'DOC':
       return '📎 ${labels.attachment}';
+    // Delete-for-everyone tombstone — the row exists but its content is gone.
+    case 'DELETED':
+      return '🚫 ${labels.deleted}';
     default:
       return '💬 ${labels.message}';
   }

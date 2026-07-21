@@ -696,8 +696,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   // ─── info sheet ──────────────────────────────────────────────────────────
 
   /// Fetches the live per-participant read/delivered state for a DM message.
-  /// Recomputed from each participant's `lastSeenAt` vs the message time, so it
-  /// stays accurate as people open the thread. Returns null for non-DM threads.
+  /// Recomputed from each participant's `lastSeenAt`/`lastDeliveredAt` vs the
+  /// message time, so it stays accurate as people open the thread. Returns
+  /// null for non-DM threads.
   Future<_ReadState?> _fetchReadState(ChatMessage message) async {
     if (widget.controller.threadType != ChatThreadType.direct) return null;
     final seenBy = <MessageReadParticipant>[];
@@ -717,28 +718,43 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
               .toList()
           : <Map<String, dynamic>>[];
 
+      DateTime? parseUtc(dynamic v) {
+        final s = (v ?? '').toString().trim();
+        return s.isEmpty ? null : DateTime.tryParse(s)?.toLocal();
+      }
+
       for (final m in members) {
         final userId = (m['userId'] ?? '').toString();
         if (userId == widget.controller.currentUserId) continue;
         final name = (m['name'] ?? '').toString();
-        final lastSeenRaw = (m['lastSeenAt'] ?? '').toString().trim();
-        final lastSeenDt =
-            lastSeenRaw.isEmpty ? null : DateTime.tryParse(lastSeenRaw)?.toLocal();
-        if (lastSeenDt == null) {
-          pendingFor.add(MessageReadParticipant(name: name));
-          continue;
-        }
-        final timeLabel = _formatTime(lastSeenDt);
-        if (!lastSeenDt.isBefore(message.createdAt)) {
-          seenBy.add(MessageReadParticipant(name: name, time: timeLabel));
-          if (latestSeen == null || lastSeenDt.isAfter(latestSeen)) {
-            latestSeen = lastSeenDt;
+        final lastSeenDt = parseUtc(m['lastSeenAt']);
+        final lastDeliveredDt = parseUtc(m['lastDeliveredAt']);
+
+        // Mirror the server's tick semantics exactly (deliveryStateForMessage):
+        // SEEN — opened the thread at/after this message;
+        // DELIVERED — either receipt is at/after it (reading implies arrival);
+        // PENDING — no receipt reaches the message yet.
+        final seenDt = lastSeenDt != null && !lastSeenDt.isBefore(message.createdAt)
+            ? lastSeenDt
+            : null;
+        final receivedDt = [lastDeliveredDt, lastSeenDt]
+            .whereType<DateTime>()
+            .where((d) => !d.isBefore(message.createdAt))
+            .fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a);
+
+        if (seenDt != null) {
+          seenBy.add(MessageReadParticipant(name: name, time: _formatTime(seenDt)));
+          if (latestSeen == null || seenDt.isAfter(latestSeen)) {
+            latestSeen = seenDt;
+          }
+        } else if (receivedDt != null) {
+          deliveredTo
+              .add(MessageReadParticipant(name: name, time: _formatTime(receivedDt)));
+          if (latestDelivered == null || receivedDt.isAfter(latestDelivered)) {
+            latestDelivered = receivedDt;
           }
         } else {
-          deliveredTo.add(MessageReadParticipant(name: name, time: timeLabel));
-          if (latestDelivered == null || lastSeenDt.isAfter(latestDelivered)) {
-            latestDelivered = lastSeenDt;
-          }
+          pendingFor.add(MessageReadParticipant(name: name));
         }
       }
     } catch (_) {
@@ -2258,6 +2274,38 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                   bottom: endsGroup ? 4 : 2,
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Selection circle, pinned to the row's LEADING edge for
+                    // every row (own and incoming alike) — WhatsApp's layout.
+                    // It used to sit inline next to each bubble, which put it
+                    // in a different place on every row and read as clutter.
+                    // AnimatedSize slides the whole thread aside smoothly as
+                    // the mode toggles instead of snapping.
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: _inSelectionMode
+                          ? GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                if (_isForwardSelectionMode) {
+                                  _toggleForwardSelection(row.id);
+                                } else {
+                                  _toggleDeleteSelection(row.id);
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                    start: 2, end: 10),
+                                child: _SelectionCheck(selected: isSelected),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    Expanded(
+                      child: Row(
                   mainAxisAlignment: row.isOwn
                       ? MainAxisAlignment.end
                       : MainAxisAlignment.start,
@@ -2352,68 +2400,42 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                             horizontal: isHighlighted ? 4 : 0,
                             vertical: isHighlighted ? 2 : 0,
                           ),
+                          // Selection state lives ONLY in the leading circle —
+                          // no frame or tint hugging the bubble; the old
+                          // border+fill treatment read as a clunky box around
+                          // the message. The jump-to-message pulse keeps its
+                          // highlight because that one must draw the eye.
                           decoration: BoxDecoration(
-                            color: isSelected
+                            color: isHighlighted
                                 ? Theme.of(context)
                                     .colorScheme
-                                    .secondary
-                                    .withValues(alpha: 0.42)
-                                : isHighlighted
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withValues(alpha: 0.48)
-                                    : Colors.transparent,
+                                    .primary
+                                    .withValues(alpha: 0.48)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .secondary
-                                      .withValues(alpha: 0.70)
-                                  : Colors.transparent,
-                              width: 1.7,
-                            ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                          child: Column(
+                            crossAxisAlignment: row.isOwn
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
                             children: [
-                              // Selection checkbox, WhatsApp-style: it occupies
-                              // real layout space so entering selection mode
-                              // slides the whole thread aside, and every row
-                              // then advertises its own state. The tint alone
-                              // couldn't do that — an unselected row looked
-                              // identical whether or not you were selecting,
-                              // so there was no way to tell the mode was on
-                              // except by reading the bottom bar.
-                              if (_inSelectionMode) ...[
-                                _SelectionCheck(selected: isSelected),
-                                const SizedBox(width: 8),
-                              ],
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: row.isOwn
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                                  children: [
-                                    if (!row.deletedForMe)
-                                      _buildBubble(
-                                        row,
-                                        showName: startsGroup,
-                                        // Only the run's first bubble points
-                                        // at its sender; the rest tuck in.
-                                        tail: startsGroup,
-                                      ),
-                                  ],
+                              if (!row.deletedForMe)
+                                _buildBubble(
+                                  row,
+                                  showName: startsGroup,
+                                  // Only the run's first bubble points
+                                  // at its sender; the rest tuck in.
+                                  tail: startsGroup,
                                 ),
-                              ),
                             ],
                           ),
                         ),
                       ),
                     ),
                     if (row.isOwn) const SizedBox(width: 6),
+                  ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -2615,6 +2637,9 @@ class _LiveMessageInfoPageState extends ConsumerState<_LiveMessageInfoPage> {
 /// in progress. Empty ring when unselected, filled check when selected —
 /// the same read as WhatsApp's, and legible without relying on the row tint
 /// (which washes out against coloured own-bubbles on some of the nine themes).
+/// WhatsApp-style selection circle: a quiet outline ring that fills with the
+/// accent and pops a tick when selected. The tick scales in with a small
+/// overshoot so toggling feels alive rather than binary.
 class _SelectionCheck extends StatelessWidget {
   const _SelectionCheck({required this.selected});
 
@@ -2624,21 +2649,27 @@ class _SelectionCheck extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 140),
-      curve: Curves.easeOutBack,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
       width: 22,
       height: 22,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: selected ? scheme.primary : Colors.transparent,
         border: Border.all(
-          color: selected ? scheme.primary : scheme.outline,
-          width: 1.6,
+          // Unselected is a hint, not a statement — half-strength outline.
+          color: selected
+              ? scheme.primary
+              : scheme.outline.withValues(alpha: 0.55),
+          width: selected ? 1.6 : 1.4,
         ),
       ),
-      child: selected
-          ? Icon(Icons.check_rounded, size: 15, color: scheme.onPrimary)
-          : null,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutBack,
+        scale: selected ? 1.0 : 0.0,
+        child: Icon(Icons.check_rounded, size: 15, color: scheme.onPrimary),
+      ),
     );
   }
 }

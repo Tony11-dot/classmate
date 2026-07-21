@@ -683,7 +683,11 @@ class ClassroomChatThreadController extends ChatThreadController {
         ..add('me');
     }
 
-    final deleteMode = _deletedMessages[id];
+    // Deleted state comes from EITHER side: the local optimistic mark (this
+    // device just deleted it) or the server row's deleteMode (someone else
+    // deleted it for everyone — before the server field existed, other
+    // members simply never saw the deletion).
+    final deleteMode = _deletedMessages[id] ?? _pick(row, 'deleteMode');
     final deletedForEveryone = deleteMode == 'DELETED_FOR_EVERYONE';
 
     // Reply fields — server stores replyToMessageId and denormalised reply preview
@@ -1029,6 +1033,54 @@ class ClassroomChatThreadController extends ChatThreadController {
     // every row still present until the last await resolves.
     invalidate();
     await _persistLocalState();
+
+    // Tell the server. The local marks above were the WHOLE implementation
+    // before — a "deleted" message stayed live for every other member and
+    // kept being the classroom card's preview. Optimistic-only ids never
+    // reached the server, so a failure there is fine to swallow.
+    if (!messageId.startsWith('optimistic-') && !messageId.startsWith('local-')) {
+      try {
+        await _repo.deleteChatMessage(
+          _courseId,
+          messageId: messageId,
+          mode: mode == ChatDeleteMode.deleteForEveryone
+              ? 'deleteForEveryone'
+              : 'deleteForMe',
+        );
+      } catch (_) {
+        // Server refused (e.g. not the sender) — local hide still applies for
+        // this device; don't crash the multi-select loop.
+      }
+    }
+
+    // If the newest message was the one deleted, the classroom card is
+    // quoting it — recompute the cached preview from what's still visible.
+    _refreshCardPreviewAfterDelete();
+    ref.invalidate(
+        classroomChatProvider((id: _courseId, limit: 50, cursor: null)));
+  }
+
+  /// Rebuilds the static last-message preview after a delete so the classroom
+  /// card can't keep showing content that no longer exists for this viewer.
+  void _refreshCardPreviewAfterDelete() {
+    final current = _lastMessageByCourse[_courseId];
+    if (current == null) return;
+    // Walk the freshest known list for the newest row that is not hidden.
+    final rows = [..._cachedMessages]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    for (final m in rows) {
+      final del = _deletedMessages[m.id];
+      if (del == 'DELETED_FOR_ME') continue;
+      _lastMessageByCourse[_courseId] = {
+        'text': del == 'DELETED_FOR_EVERYONE' ? '' : (m.text),
+        'kind': del == 'DELETED_FOR_EVERYONE'
+            ? 'DELETED'
+            : m.kind.name.toUpperCase(),
+        'createdAt': m.createdAt.toIso8601String(),
+      };
+      return;
+    }
+    _lastMessageByCourse.remove(_courseId);
   }
 
   @override

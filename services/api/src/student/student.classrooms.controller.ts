@@ -364,9 +364,12 @@ export class StudentClassroomsController {
   @Get(':id/chat')
   async chatList(@Req() req: any, @Param('id') id: string, @Query('cursor') cursor?: string, @Query('limit') limit?: string) {
     await this.assertAccess(req, id);
+    const uid = this.uid(req);
     const take = Math.min(Math.max(parseInt(limit ?? '30', 10) || 30, 1), 100);
     const rows = await this.prisma.classroomMessage.findMany({
-      where: { classroomId: id },
+      // "Delete for me" rows vanish for THIS viewer only; delete-for-everyone
+      // tombstones stay (deleteMode marks them, content already nulled).
+      where: { classroomId: id, NOT: { deletedForUserIds: { has: uid } } },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: take + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -385,13 +388,13 @@ export class StudentClassroomsController {
         mediaMime: true,
         durationSec: true,
         createdAt: true,
+        deleteMode: true,
         replyToMessageId: true,
         replyToSenderName: true,
         replyToText: true,
       } as any,
     });
     const hasMore = rows.length > take;
-    const uid = this.uid(req);
     // Resolve sender names server-side. The client used to look them up via
     // the classroom roster, which broke for senders who had left the
     // classroom — their name fell through to "Unknown" even though the
@@ -421,6 +424,54 @@ export class StudentClassroomsController {
       if (v) out.set(u.id, v);
     }
     return out;
+  }
+
+  /// Deletes a classroom message, mirroring the DM semantics. Students may
+  /// delete-for-me anything they can see, and delete-for-everyone only their
+  /// own messages. Before this endpoint existed the client only *recorded* the
+  /// delete locally — the message stayed live for every other member and kept
+  /// showing as the classroom card's last-message preview.
+  @Post(':id/chat/delete')
+  async chatDelete(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { messageId?: string; mode?: string },
+  ) {
+    await this.assertAccess(req, id);
+    const uid = this.uid(req);
+    const messageId = String(body?.messageId ?? '').trim();
+    if (!messageId) throw new BadRequestException('messageId is required');
+    const mode = String(body?.mode ?? 'deleteForMe').trim();
+
+    const message = await this.prisma.classroomMessage.findFirst({
+      where: { id: messageId, classroomId: id },
+      select: { id: true, senderUserId: true },
+    });
+    if (!message) throw new BadRequestException('Message not found');
+
+    if (mode === 'deleteForEveryone') {
+      if (message.senderUserId !== uid) {
+        throw new BadRequestException('Only the sender can delete for everyone');
+      }
+      await this.prisma.classroomMessage.update({
+        where: { id: messageId },
+        data: {
+          deleteMode: 'DELETED_FOR_EVERYONE',
+          text: null,
+          mediaUrl: null,
+          mediaMime: null,
+        } as any,
+      });
+      // Nudge open chats so the tombstone lands without waiting for a poll.
+      void this._emitClassroomMessage(id, uid);
+      return { ok: true };
+    }
+
+    await this.prisma.classroomMessage.update({
+      where: { id: messageId },
+      data: { deletedForUserIds: { push: uid } } as any,
+    });
+    return { ok: true };
   }
 
   @Post(':id/chat/text')

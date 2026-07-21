@@ -1425,6 +1425,14 @@ model ClassroomMessage {
   durationSec  Int?
   createdAt    DateTime             @default(now())
 
+  // Deletion, mirroring DmMessage: deleteMode marks a global tombstone
+  // ("delete for everyone" — content nulled, stamp shown), while
+  // deletedForUserIds hides the row for just those viewers ("delete for me").
+  // Before these existed the client only *pretended* to delete (local prefs),
+  // so the message stayed live for everyone else and in the card preview.
+  deleteMode        String   @default("VISIBLE")
+  deletedForUserIds String[] @default([])
+
   replyToMessageId  String?
   replyToSenderName String?
   replyToText       String?

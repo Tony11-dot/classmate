@@ -27,11 +27,20 @@ class ChatBubbleTail extends StatelessWidget {
   final double width;
   final double height;
 
+  /// How far the tail's base extends INSIDE the bubble. Two anti-aliased
+  /// shapes that merely touch leave a hairline seam where the background
+  /// bleeds through — the bubble and its tail read as two separate pieces.
+  /// Painting the base a couple of pixels into the bubble (same colour, so
+  /// the overlap is invisible) welds them into one silhouette.
+  static const double overlap = 2.5;
+
   @override
   Widget build(BuildContext context) => SizedBox(
         width: width,
         height: height,
         child: CustomPaint(
+          // The painter draws past its box on the bubble side; that region is
+          // covered by (or exactly matches) the bubble fill.
           painter: _TailPainter(color: color, pointRight: pointRight),
         ),
       );
@@ -49,24 +58,27 @@ class _TailPainter extends CustomPainter {
       ..color = color
       ..isAntiAlias = true;
 
+    const o = ChatBubbleTail.overlap;
     final path = Path();
     if (pointRight) {
-      // Flows out of the bubble's top-right corner and curls back under.
-      path.moveTo(0, 0);
+      // Flows out of the bubble's top-right corner and curls back under. The
+      // base edge starts `o` px inside the bubble so the two shapes weld into
+      // one silhouette instead of meeting at an anti-aliased hairline.
+      path.moveTo(-o, 0);
       path.lineTo(size.width, 0);
       path.quadraticBezierTo(
         size.width * 0.45,
         size.height * 0.30,
-        0,
+        -o,
         size.height,
       );
     } else {
-      path.moveTo(size.width, 0);
+      path.moveTo(size.width + o, 0);
       path.lineTo(0, 0);
       path.quadraticBezierTo(
         size.width * 0.55,
         size.height * 0.30,
-        size.width,
+        size.width + o,
         size.height,
       );
     }

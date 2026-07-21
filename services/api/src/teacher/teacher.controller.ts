@@ -262,6 +262,11 @@ export class TeacherController {
     return this.teacher.sendClassroomChat(req.user, id, body);
   }
 
+  @Post('classrooms/:id/chat/delete')
+  deleteClassroomChat(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.teacher.deleteClassroomChat(req.user, id, body);
+  }
+
   @Get('classrooms/:id/assignments')
   listClassroomAssignments(@Req() req: any, @Param('id') id: string) {
     return this.teacher.listClassroomAssignments(req.user, id);

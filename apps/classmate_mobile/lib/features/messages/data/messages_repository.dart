@@ -348,6 +348,7 @@ class ApiMessagesRepository implements MessagesRepository {
             isOwn: (lm['isOwn'] ?? false) == true,
             delivered: (lm['delivered'] ?? false) == true,
             seen: (lm['seen'] ?? false) == true,
+            deleteMode: (lm['deleteMode'] ?? 'VISIBLE').toString(),
           )
         : null;
 

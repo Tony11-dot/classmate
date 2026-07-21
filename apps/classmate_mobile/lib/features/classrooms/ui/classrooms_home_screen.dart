@@ -665,9 +665,16 @@ String _previewText(BuildContext context, Map<String, dynamic> m) {
   // the same way the DM inbox, the reply quote and the push notification do.
   // It used to print `text` raw, which for classroom media is the stored wire
   // marker — the card literally read "Tony: [IMAGE] IMG_2.jpg".
+  // A delete-for-everyone tombstone has its content nulled server-side; the
+  // deleteMode flag is what identifies it, so the card shows 🚫 rather than
+  // an empty "💬 Message".
+  final isTombstone =
+      _s(m, 'deleteMode').toUpperCase() == 'DELETED_FOR_EVERYONE' ||
+          _s(m, 'kind').toUpperCase() == 'DELETED';
   final text = messagePreviewText(
-    kind: _s(m, 'kind', fallback: 'TEXT'),
-    rawText: _s(m, 'text', fallback: _s(m, 'content', fallback: '')),
+    kind: isTombstone ? 'DELETED' : _s(m, 'kind', fallback: 'TEXT'),
+    rawText:
+        isTombstone ? '' : _s(m, 'text', fallback: _s(m, 'content', fallback: '')),
     labels: ChatPreviewLabels.of(AppLocalizations.of(context)!),
   );
   if (sender.isEmpty) {

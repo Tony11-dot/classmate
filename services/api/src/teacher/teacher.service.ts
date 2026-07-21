@@ -2077,7 +2077,12 @@ export class TeacherService {
     await this.assertTeacherOwnsClassroom(teacherId, classroomId);
     const take = Math.min(Math.max(opts.limit ?? 30, 1), 100);
     const rows = await this.prisma.classroomMessage.findMany({
-      where: { classroomId, ...(opts.cursor ? { id: { lt: opts.cursor } } : {}) },
+      where: {
+        classroomId,
+        ...(opts.cursor ? { id: { lt: opts.cursor } } : {}),
+        // Per-viewer "delete for me" — hidden for this teacher only.
+        NOT: { deletedForUserIds: { has: teacherId } },
+      },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take,
     });
@@ -2097,11 +2102,62 @@ export class TeacherService {
       const v = String(u.name ?? '').trim();
       if (v) nameById.set(u.id, v);
     }
-    const items = rows.reverse().map((r: any) => ({
-      ...r,
-      senderName: nameById.get(r.senderUserId) ?? null,
-    }));
+    const items = rows.reverse().map((r: any) => {
+      // Never ship the per-viewer hidden list to clients.
+      const { deletedForUserIds: _omit, ...rest } = r;
+      return {
+        ...rest,
+        senderName: nameById.get(r.senderUserId) ?? null,
+      };
+    });
     return { ok: true, items };
+  }
+
+  /// Classroom-message delete for the owning teacher. As the room's moderator
+  /// they may delete ANY member's message for everyone (or hide one for
+  /// themselves) — same rules the DM group-admin path uses.
+  async deleteClassroomChat(
+    user: any,
+    classroomId: string,
+    body: { messageId?: string; mode?: string },
+  ) {
+    this.ensureTeacher(user);
+    const teacherId = user.id ?? user.sub;
+    await this.assertTeacherOwnsClassroom(teacherId, classroomId);
+
+    const messageId = String(body?.messageId ?? '').trim();
+    if (!messageId) throw new BadRequestException('messageId is required');
+    const mode = String(body?.mode ?? 'deleteForMe').trim();
+
+    const message = await this.prisma.classroomMessage.findFirst({
+      where: { id: messageId, classroomId },
+      select: { id: true },
+    });
+    if (!message) throw new BadRequestException('Message not found');
+
+    if (mode === 'deleteForEveryone') {
+      await this.prisma.classroomMessage.update({
+        where: { id: messageId },
+        data: {
+          deleteMode: 'DELETED_FOR_EVERYONE',
+          text: null,
+          mediaUrl: null,
+          mediaMime: null,
+        } as any,
+      });
+      // Nudge open chats so the tombstone appears without waiting for a poll.
+      void this.emitToClassroomMembers(classroomId, {
+        type: 'classroom_message',
+        classroomId,
+      });
+      return { ok: true };
+    }
+
+    await this.prisma.classroomMessage.update({
+      where: { id: messageId },
+      data: { deletedForUserIds: { push: teacherId } } as any,
+    });
+    return { ok: true };
   }
 
   async sendClassroomChat(user: any, classroomId: string, body: any) {

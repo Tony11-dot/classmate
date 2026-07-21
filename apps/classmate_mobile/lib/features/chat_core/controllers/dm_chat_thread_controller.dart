@@ -1091,6 +1091,13 @@ class DmChatThreadController extends ChatThreadController {
       invalidate();
       rethrow;
     }
+
+    // The deleted message may have been the thread's newest — the inbox row is
+    // quoting it. Refetch so the preview falls back to the newest message this
+    // viewer can still see (server-side deletedForUserIds / tombstone logic).
+    try {
+      ref.invalidate(messagesInboxProvider);
+    } catch (_) {}
   }
 
   @override

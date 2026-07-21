@@ -608,6 +608,36 @@ class ClassroomsRepository {
     return Map<String, dynamic>.from(j);
   }
 
+  /// Server-side classroom message delete (mirrors the DM wire contract:
+  /// mode = 'deleteForMe' | 'deleteForEveryone'). Tries the student route
+  /// first, then the teacher route — same both-roles pattern as people/
+  /// assignments above.
+  Future<void> deleteChatMessage(
+    String courseId, {
+    required String messageId,
+    required String mode,
+  }) async {
+    final id = courseId.trim();
+    final mid = messageId.trim();
+    if (id.isEmpty || mid.isEmpty) {
+      throw Exception('courseId and messageId are required');
+    }
+    final body = <String, dynamic>{'messageId': mid, 'mode': mode};
+    try {
+      await _postJson(
+        '/student/classrooms/$id/chat/delete',
+        body,
+        label: 'classrooms.deleteChatMessage',
+      );
+    } catch (_) {
+      await _postJson(
+        '/teacher/classrooms/$id/chat/delete',
+        body,
+        label: 'classrooms.deleteChatMessage.teacher',
+      );
+    }
+  }
+
   Future<void> editChatMessage(
     String courseId, {
     required String messageId,

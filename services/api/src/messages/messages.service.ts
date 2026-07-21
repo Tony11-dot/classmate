@@ -703,6 +703,9 @@ export class MessagesService {
             isOwn: latestMessage.senderId === viewerId,
             delivered: lastDelivery?.delivered ?? false,
             seen: lastDelivery?.seen ?? false,
+            // A delete-for-everyone tombstone rewrites `text` to an ENGLISH
+            // sentence — the client needs the mode to localize the preview.
+            deleteMode: String((latestMessage as any).deleteMode ?? 'VISIBLE'),
           }
         : null,
       isGroup: thread.type === DmThreadType.GROUP,
@@ -2154,6 +2157,12 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
             userRole: u?._primaryRole ?? 'STUDENT',
             joinedAt: p.createdAt,
             isMuted: false,
+            // Receipts, so the message-info sheet can place each member into
+            // seen/delivered/pending truthfully. These were simply missing —
+            // the client read them, got nothing, and filed everyone under
+            // "pending" even while the bubble showed blue ticks.
+            lastSeenAt: p.lastSeenAt ?? null,
+            lastDeliveredAt: p.lastDeliveredAt ?? null,
           };
         }),
       },

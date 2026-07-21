@@ -856,9 +856,13 @@ class _InboxPreviewLine extends StatelessWidget {
     }
 
     final labels = ChatPreviewLabels.of(l);
-    final body = lm.text.trim().isEmpty
-        ? messagePreviewText(kind: lm.kind, labels: labels)
-        : replyPreviewText(lm.text, labels: labels);
+    // Tombstones first: their `text` is the server's English sentence, so the
+    // preview localizes from the flag — 🚫 like WhatsApp.
+    final body = lm.isDeleted
+        ? '🚫 ${l.chatMessageBubbleDeletedMessage}'
+        : lm.text.trim().isEmpty
+            ? messagePreviewText(kind: lm.kind, labels: labels)
+            : replyPreviewText(lm.text, labels: labels);
     // Sender prefix, WhatsApp-style: in 1:1 chats your own messages carry only
     // the tick (a "You:" would be redundant next to it); groups name whoever
     // spoke last — "You:" for yourself, first name for anyone else.

@@ -14,6 +14,12 @@ class InboxLastMessage {
   final bool delivered;
   final bool seen;
 
+  /// 'VISIBLE' | 'DELETED_FOR_EVERYONE'. A tombstone's `text` is the server's
+  /// English sentence, so the preview must localize off this flag instead.
+  final String deleteMode;
+
+  bool get isDeleted => deleteMode == 'DELETED_FOR_EVERYONE';
+
   const InboxLastMessage({
     required this.kind,
     required this.text,
@@ -21,6 +27,7 @@ class InboxLastMessage {
     required this.isOwn,
     this.delivered = false,
     this.seen = false,
+    this.deleteMode = 'VISIBLE',
   });
 }
 

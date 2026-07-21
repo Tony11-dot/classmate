@@ -49,6 +49,15 @@ class SseClient {
     }
 
     final out = StreamController<Map<String, dynamic>>();
+    // Every add below checks isClosed first. The consumer cancelling the
+    // outer `yield*` (user leaves the screen mid-stream) races the network
+    // callbacks here — an event that slips through after the finally's
+    // close() would throw the fatal "Cannot add new events after calling
+    // close" instead of being harmlessly dropped.
+    void safeAdd(Map<String, dynamic> ev) {
+      if (!out.isClosed) out.add(ev);
+    }
+
     final sub = res.stream
         .transform(utf8.decoder)
         .transform(const LineSplitter())
@@ -63,7 +72,7 @@ class SseClient {
                     !ev.containsKey('id')) {
                   ev['id'] = curId;
                 }
-                out.add(ev);
+                safeAdd(ev);
               }
               curId = null;
               return;
@@ -81,7 +90,9 @@ class SseClient {
               return;
             }
           },
-          onError: out.addError,
+          onError: (Object e, StackTrace st) {
+            if (!out.isClosed) out.addError(e, st);
+          },
           onDone: () {
             if (dataBuf.isNotEmpty) {
               final ev = parseEvent(dataBuf.toString());
@@ -89,9 +100,9 @@ class SseClient {
               if (curId != null && curId!.isNotEmpty && !ev.containsKey('id')) {
                 ev['id'] = curId;
               }
-              out.add(ev);
+              safeAdd(ev);
             }
-            out.close();
+            if (!out.isClosed) out.close();
           },
         );
 
@@ -99,7 +110,7 @@ class SseClient {
       yield* out.stream;
     } finally {
       await sub.cancel();
-      await out.close();
+      if (!out.isClosed) await out.close();
     }
   }
 
