@@ -34,23 +34,51 @@ class UpdateGate extends StatefulWidget {
   State<UpdateGate> createState() => _UpdateGateState();
 }
 
-class _UpdateGateState extends State<UpdateGate> {
-  static const String _shownForBuildKey = 'update_prompt_shown_for_build';
+class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
+  static const String _ackedBuildKey = 'update_prompt_acked_build';
 
   bool _visible = false;
+  bool _checking = false;
   String _storeUrl = '';
+  int _promptedBuild = 0;
+  DateTime? _lastCheckAt;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Off the launch path: let the splash/first frame settle first.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future<void>.delayed(const Duration(seconds: 2), _check);
+      Future<void>.delayed(const Duration(seconds: 2), () => _check(retries: 2));
     });
   }
 
-  Future<void> _check() async {
-    if (kIsWeb || !mounted) return;
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// iOS/Android rarely cold-launch — the app usually RESUMES from memory,
+  /// and a release can land while it sleeps in the background. Without this
+  /// hook the single init-time check was the only one that ever ran, so a
+  /// user who never force-quit simply never heard about the new build.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed || _visible) return;
+    final last = _lastCheckAt;
+    // Small cooldown so rapid app-switching doesn't hammer the endpoint.
+    if (last != null &&
+        DateTime.now().difference(last) < const Duration(seconds: 30)) {
+      return;
+    }
+    _check();
+  }
+
+  Future<void> _check({int retries = 0}) async {
+    if (kIsWeb || !mounted || _checking || _visible) return;
+    _checking = true;
+    _lastCheckAt = DateTime.now();
     try {
       final info = await PackageInfo.fromPlatform();
       final current = int.tryParse(info.buildNumber.trim()) ?? 0;
@@ -63,11 +91,11 @@ class _UpdateGateState extends State<UpdateGate> {
       final latest = (mobile['latestBuild'] as num?)?.toInt() ?? 0;
       if (latest <= current) return;
 
-      // "First time after the update" — surface each new build exactly once,
-      // not on every open.
+      // Deliberately keyed on the user ACKNOWLEDGING the card (tapping either
+      // button), not on it having been rendered once — a card the user never
+      // saw (crash, force-quit) must not burn its one showing.
       final prefs = await SharedPreferences.getInstance();
-      if (prefs.getInt(_shownForBuildKey) == latest) return;
-      await prefs.setInt(_shownForBuildKey, latest);
+      if (prefs.getInt(_ackedBuildKey) == latest) return;
 
       final url = (Platform.isIOS ? mobile['iosUrl'] : mobile['androidUrl'])
           ?.toString()
@@ -76,15 +104,33 @@ class _UpdateGateState extends State<UpdateGate> {
       setState(() {
         _visible = true;
         _storeUrl = url;
+        _promptedBuild = latest;
       });
     } catch (_) {
-      // Best-effort — cold server, no network, bad payload: just stay quiet.
+      // Cold Railway start / flaky network right at launch: retry a couple of
+      // times before going quiet until the next resume.
+      if (retries > 0 && mounted) {
+        Future<void>.delayed(
+            const Duration(seconds: 8), () => _check(retries: retries - 1));
+      }
+    } finally {
+      _checking = false;
     }
+  }
+
+  Future<void> _ack() async {
+    final build = _promptedBuild;
+    if (mounted) setState(() => _visible = false);
+    if (build <= 0) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_ackedBuildKey, build);
+    } catch (_) {}
   }
 
   Future<void> _openStore() async {
     final url = _storeUrl;
-    if (mounted) setState(() => _visible = false);
+    await _ack();
     try {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } catch (_) {}
@@ -170,7 +216,7 @@ class _UpdateGateState extends State<UpdateGate> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => setState(() => _visible = false),
+                      onPressed: _ack,
                       child: Text(
                         l?.updatePromptLater ?? 'Not now',
                         style: TextStyle(color: scheme.onSurfaceVariant),
