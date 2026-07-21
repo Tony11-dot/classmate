@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -160,44 +161,49 @@ class ChatComposer extends StatelessWidget {
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 180),
-      pageBuilder: (dialogContext, animation, secondaryAnimation) => SafeArea(
-        child: Stack(
-          children: [
-            // Blurred backdrop instead of solid black
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: animation,
-                builder: (_, __) => BackdropFilter(
-                  filter: ImageFilter.blur(
-                    sigmaX: 6 * animation.value,
-                    sigmaY: 6 * animation.value,
-                  ),
-                  child: ColoredBox(
-                    color: Colors.black.withValues(alpha: 0.28 * animation.value),
-                  ),
+      // NO SafeArea around this Stack. A BackdropFilter blurs exactly its own
+      // layout bounds, so wrapping it in a SafeArea inset the backdrop by
+      // MediaQuery.padding and left the status-bar strip and the home-indicator
+      // strip sharp AND untinted — the screen looked blocky, blurred in the
+      // middle with two crisp bands. The popover doesn't need the SafeArea
+      // either: minTop/maxTop above already clamp against padding.top/.bottom,
+      // so the outer inset was only double-counting them.
+      pageBuilder: (dialogContext, animation, secondaryAnimation) => Stack(
+        children: [
+          // Blurred backdrop instead of solid black — edge to edge.
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: animation,
+              builder: (_, __) => BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 6 * animation.value,
+                  sigmaY: 6 * animation.value,
+                ),
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.28 * animation.value),
                 ),
               ),
             ),
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(dialogContext).pop(),
-              ),
+          ),
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Navigator.of(dialogContext).pop(),
             ),
-            Positioned(
-              left: left,
-              top: top,
-              width: popoverWidth,
-              child: _ComposerActionPopover(
-                actions: actions,
-                onSelect: (action) {
-                  Navigator.of(dialogContext).pop();
-                  action.onTap();
-                },
-              ),
+          ),
+          Positioned(
+            left: left,
+            top: top,
+            width: popoverWidth,
+            child: _ComposerActionPopover(
+              actions: actions,
+              onSelect: (action) {
+                Navigator.of(dialogContext).pop();
+                action.onTap();
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       transitionBuilder: (context, animation, _, child) {
         final curved = CurvedAnimation(
@@ -482,21 +488,13 @@ class ChatComposer extends StatelessWidget {
                       large: true,
                     )
                   : showMic
-                  ? GestureDetector(
+                  ? _MicHoldDetector(
                       key: const ValueKey('mic_btn'),
-                      behavior: HitTestBehavior.opaque,
-                      onLongPressStart: enabled && !forceMicOnlyTap
-                          ? onMicHoldStart
-                          : null,
-                      onLongPressMoveUpdate: enabled && !forceMicOnlyTap
-                          ? onMicHoldMove
-                          : null,
-                      onLongPressEnd: enabled && !forceMicOnlyTap
-                          ? onMicHoldEnd
-                          : null,
-                      onLongPressCancel: enabled && !forceMicOnlyTap
-                          ? onMicHoldCancel
-                          : null,
+                      enabled: enabled && !forceMicOnlyTap,
+                      onHoldStart: onMicHoldStart,
+                      onHoldMove: onMicHoldMove,
+                      onHoldEnd: onMicHoldEnd,
+                      onHoldCancel: onMicHoldCancel,
                       child: Center(
                         child: _circleBtn(
                           context,
@@ -948,6 +946,62 @@ class _ComposerActionPopover extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Press-and-hold detector for the mic button, with a much shorter recognition
+/// delay than the stock `GestureDetector.onLongPress*`.
+///
+/// Flutter's default long-press timeout is [kLongPressTimeout] — 500 ms — and
+/// nothing at all fires before it elapses. Stacked on top of the platform work
+/// the recorder still has to do (permission, temp dir, audio-session
+/// activation), holding the mic felt like it did nothing for a second or more.
+/// WhatsApp and Instagram engage the recorder almost on contact; [_kMicHoldDelay]
+/// gets us there while staying long enough that a plain tap (which opens
+/// hands-free/locked recording via `onTap`) is still distinguishable.
+const Duration _kMicHoldDelay = Duration(milliseconds: 120);
+
+class _MicHoldDetector extends StatelessWidget {
+  const _MicHoldDetector({
+    super.key,
+    required this.enabled,
+    required this.child,
+    this.onHoldStart,
+    this.onHoldMove,
+    this.onHoldEnd,
+    this.onHoldCancel,
+  });
+
+  final bool enabled;
+  final Widget child;
+  final GestureLongPressStartCallback? onHoldStart;
+  final GestureLongPressMoveUpdateCallback? onHoldMove;
+  final GestureLongPressEndCallback? onHoldEnd;
+  final VoidCallback? onHoldCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!enabled) {
+      return SizedBox(key: key, child: child);
+    }
+    return RawGestureDetector(
+      behavior: HitTestBehavior.opaque,
+      gestures: <Type, GestureRecognizerFactory>{
+        LongPressGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+          () => LongPressGestureRecognizer(
+            duration: _kMicHoldDelay,
+            debugOwner: this,
+          ),
+          (recognizer) => recognizer
+            ..onLongPressStart = onHoldStart
+            ..onLongPressMoveUpdate = onHoldMove
+            ..onLongPressEnd = onHoldEnd
+            ..onLongPressCancel = onHoldCancel,
+        ),
+      },
+      child: child,
     );
   }
 }

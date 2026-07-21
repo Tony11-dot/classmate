@@ -1,3 +1,39 @@
+/// One-line summary of a message, for anywhere a message is shown outside the
+/// thread: the classroom card on the home screen, the DM inbox row, a reply
+/// quote.
+///
+/// Text wins when there is any. Otherwise the message is described by its
+/// kind, using the SAME vocabulary as the server's `kindLabel`
+/// (services/api/src/messages/messages.service.ts) and the same emoji as the
+/// push notification — so one photo reads "📷 Photo" on the lock screen, in
+/// the inbox, and in a reply quote instead of three different things.
+///
+/// [rawText] may still carry a wire marker (`[IMAGE] IMG_2.jpg`) because the
+/// classroom endpoint bakes one into `text` when it stores media; those are
+/// unwrapped rather than shown raw.
+String messagePreviewText({required String kind, String rawText = ''}) {
+  final t = rawText.trim();
+  if (t.isNotEmpty) {
+    final pretty = _formatAttachmentMarker(t);
+    if (pretty != null) return pretty;
+    final singleLine = t.replaceAll('\n', ' ');
+    return singleLine.length <= 80 ? singleLine : '${singleLine.substring(0, 80)}…';
+  }
+  switch (kind.trim().toUpperCase()) {
+    case 'IMAGE':
+      return '📷 Photo';
+    case 'VOICE':
+      return '🎤 Voice message';
+    case 'VIDEO':
+      return '🎥 Video';
+    case 'FILE':
+    case 'DOC':
+      return '📎 Attachment';
+    default:
+      return '💬 Message';
+  }
+}
+
 String replyPreviewText(String text) {
   var t = text.trim();
 
@@ -41,10 +77,10 @@ String? _formatAttachmentMarker(String raw) {
       return '🎤 Voice message';
     }
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'].contains(ext)) {
-      return '🖼️ Photo';
+      return '📷 Photo';
     }
     if (['mp4', 'mov', 'm4v', 'webm', 'avi', 'mkv'].contains(ext)) {
-      return '🎬 Video';
+      return '🎥 Video';
     }
     if (['pdf'].contains(ext)) return '📄 $raw';
     if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'txt'].contains(ext)) {
@@ -59,7 +95,7 @@ String? _formatAttachmentMarker(String raw) {
 
   switch (kind) {
     case 'IMAGE':
-      return '🖼️ Photo';
+      return '📷 Photo';
     case 'VOICE':
       final durationMatch = RegExp(r'\[duration:(\d+)\]').firstMatch(rest);
       if (durationMatch != null) {
@@ -75,7 +111,7 @@ String? _formatAttachmentMarker(String raw) {
       if (lowerName.endsWith('.pdf')) return '📄 $filename';
       return '📎 $filename';
     case 'VIDEO':
-      return '🎬 Video';
+      return '🎥 Video';
   }
   return null;
 }

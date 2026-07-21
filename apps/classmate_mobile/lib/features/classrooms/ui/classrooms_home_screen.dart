@@ -12,6 +12,7 @@ import '../../chat_core/controllers/classroom_chat_thread_controller.dart';
 import 'classroom_order_screen.dart';
 import 'classroom_detail_screen.dart';
 import '../../chat_core/utils/chat_time.dart';
+import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 class ClassroomsHomeScreen extends ConsumerStatefulWidget {
@@ -659,14 +660,13 @@ List<Map<String, dynamic>> _normalizeChatList(dynamic raw) {
 
 String _previewText(BuildContext context, Map<String, dynamic> m) {
   final sender = _s(m, 'senderName', fallback: _s(m, 'sender', fallback: ''));
-  final text = _s(
-    m,
-    'text',
-    fallback: _s(
-      m,
-      'content',
-      fallback: AppLocalizations.of(context)!.classroomsMessageFallback,
-    ),
+  // Route through the shared formatter so this card describes an attachment
+  // the same way the DM inbox, the reply quote and the push notification do.
+  // It used to print `text` raw, which for classroom media is the stored wire
+  // marker — the card literally read "Tony: [IMAGE] IMG_2.jpg".
+  final text = messagePreviewText(
+    kind: _s(m, 'kind', fallback: 'TEXT'),
+    rawText: _s(m, 'text', fallback: _s(m, 'content', fallback: '')),
   );
   if (sender.isEmpty) {
     return text;

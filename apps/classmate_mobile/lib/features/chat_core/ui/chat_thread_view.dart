@@ -107,6 +107,19 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   final AudioRecorder _recorder = AudioRecorder();
   final ImagePicker _imagePicker = ImagePicker();
 
+  // ─── voice-recording latency cache ───────────────────────────────────────
+  // Starting the mic costs three platform round-trips (permission check, temp
+  // dir, AVAudioSession activation). Doing them all inside the press handler
+  // is what made the button feel dead for a second or two. These fields let
+  // the HUD open on the press frame while the real recorder catches up:
+  //   • the granted permission and the temp dir are resolved once, up front
+  //   • _recorderStarting is the in-flight start, so stop/cancel can await it
+  //     instead of racing a recorder that hasn't reached the platform yet
+  bool _micPermissionGranted = false;
+  Directory? _voiceTempDir;
+  Future<bool>? _recorderStarting;
+  bool _recorderActive = false;
+
   // List rendering
   final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
   final Map<String, double> _swipeDxByMessage = <String, double>{};
@@ -184,6 +197,25 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       if (!mounted) return;
       widget.controller.invalidate();
     });
+    _prewarmVoiceRecording();
+  }
+
+  /// Resolves the temp directory (and the already-granted mic permission) off
+  /// the press path, so holding the mic doesn't pay for them. Both are pure
+  /// reads — neither prompts the user, so this is safe to run on open.
+  Future<void> _prewarmVoiceRecording() async {
+    try {
+      final dir = await getTemporaryDirectory();
+      if (_disposed) return;
+      _voiceTempDir = dir;
+      // Only cache a GRANTED result: caching a denial would keep the app
+      // thinking the mic is off after the user flips it on in Settings.
+      if (await _recorder.hasPermission() && !_disposed) {
+        _micPermissionGranted = true;
+      }
+    } catch (_) {
+      // Prewarm is best-effort — _startRecording still does the real work.
+    }
   }
 
   @override
@@ -847,42 +879,79 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
   // ─── voice recording ─────────────────────────────────────────────────────
 
+  /// Opens the recording UI on the CURRENT frame and brings the platform
+  /// recorder up behind it.
+  ///
+  /// The old version awaited hasPermission() → getTemporaryDirectory() →
+  /// recorder.start() before flipping any state, so nothing at all happened on
+  /// screen until all three channel calls returned — hundreds of ms, and worse
+  /// on a cold audio session. Now the HUD is optimistic and `_recorderActive`
+  /// tracks whether audio is genuinely flowing; the elapsed timer only starts
+  /// once it is, so the displayed duration still matches the recorded file.
   Future<void> _startRecording() async {
     if (_recording || _disposed) return;
-    final bool hasPermission;
-    try {
-      hasPermission = await _recorder.hasPermission();
-    } catch (_) {
-      // Recorder disposed mid-check (widget torn down) or platform denied — bail.
-      return;
-    }
-    if (_disposed) return;
-    if (!hasPermission) {
-      if (!mounted) return;
-      await showDialog<void>(
-        context: context,
-        builder: (dialogCtx) => AlertDialog(
-          title: Text(AppLocalizations.of(context)!.chatMicNeeded),
-          content: Text(AppLocalizations.of(context)!.chatMicNeededBody),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: Text(AppLocalizations.of(context)!.actionCancel)),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(dialogCtx).pop();
-                await launchUrl(Uri.parse('app-settings:'));
-              },
-              child: Text(AppLocalizations.of(context)!.chatOpenSettings),
-            ),
-          ],
-        ),
-      );
-      return;
+
+    setState(() {
+      _recording = true;
+      _recorderActive = false;
+      _voicePaused = false;
+      _voiceCancelled = false;
+      _voiceLocked = false;
+      _recordElapsed = Duration.zero;
+    });
+
+    final start = _bringUpRecorder();
+    _recorderStarting = start;
+    await start;
+  }
+
+  Future<bool> _bringUpRecorder() async {
+    // Permission: skip the round-trip once granted (see _micPermissionGranted).
+    if (!_micPermissionGranted) {
+      bool granted;
+      try {
+        granted = await _recorder.hasPermission();
+      } catch (_) {
+        // Recorder disposed mid-check (widget torn down) or platform denied.
+        await _abortRecordingUi();
+        return false;
+      }
+      if (_disposed) return false;
+      if (!granted) {
+        await _abortRecordingUi();
+        if (!mounted) return false;
+        await showDialog<void>(
+          context: context,
+          builder: (dialogCtx) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.chatMicNeeded),
+            content: Text(AppLocalizations.of(context)!.chatMicNeededBody),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(dialogCtx).pop(),
+                  child: Text(AppLocalizations.of(context)!.actionCancel)),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(dialogCtx).pop();
+                  await launchUrl(Uri.parse('app-settings:'));
+                },
+                child: Text(AppLocalizations.of(context)!.chatOpenSettings),
+              ),
+            ],
+          ),
+        );
+        return false;
+      }
+      _micPermissionGranted = true;
     }
 
-    final dir = await getTemporaryDirectory();
-    if (_disposed || !mounted) return;
+    final dir = _voiceTempDir ??= await getTemporaryDirectory();
+    if (_disposed || !mounted) return false;
+
+    // The user may have already let go (or swiped to cancel) during the awaits
+    // above — in that case _recording is back to false and starting the mic now
+    // would leave it running with nobody to stop it.
+    if (!_recording) return false;
+
     final path =
         '${dir.path}/chat-voice-${DateTime.now().millisecondsSinceEpoch}.m4a';
     try {
@@ -891,36 +960,68 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     } catch (_) {
       // Recorder was disposed (widget torn down) or the platform failed to
       // start — never surface this as a fatal unhandled error. Reset state.
-      if (mounted) setState(() => _recording = false);
-      return;
+      await _abortRecordingUi();
+      return false;
     }
 
-    if (!mounted) return;
+    if (!mounted || !_recording) {
+      // Released while start() was in flight — stop the mic we just opened.
+      try {
+        await _recorder.stop();
+      } catch (_) {}
+      return false;
+    }
+
     _recordingPath = path;
+    _recorderActive = true;
     _recordTicker?.cancel();
     _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted || !_recording || _voicePaused) return;
       setState(
           () => _recordElapsed = Duration(seconds: _recordElapsed.inSeconds + 1));
     });
+    return true;
+  }
 
+  /// Tears the optimistic HUD back down when the recorder never came up.
+  Future<void> _abortRecordingUi() async {
+    _recordTicker?.cancel();
+    _recordTicker = null;
+    _recorderActive = false;
+    _recordingPath = null;
+    if (!mounted) {
+      _recording = false;
+      return;
+    }
     setState(() {
-      _recording = true;
+      _recording = false;
+      _voiceLocked = false;
       _voicePaused = false;
       _voiceCancelled = false;
-      _voiceLocked = false;
+      _holdStartGlobal = null;
+      _holdDx = 0;
+      _holdDy = 0;
       _recordElapsed = Duration.zero;
     });
   }
 
   Future<void> _stopRecordingAndSend() async {
     if (!_recording) return;
+    // A quick tap can land here before _bringUpRecorder() has reached the
+    // platform. Let it finish so stop() has something to stop — otherwise the
+    // mic keeps running with no owner and the clip is lost.
+    await _recorderStarting;
+    _recorderStarting = null;
+    if (!_recording) return;
     String? path;
-    try {
-      path = await _recorder.stop();
-    } catch (_) {
-      // Recorder disposed/failed — fall back to the tracked path below.
+    if (_recorderActive) {
+      try {
+        path = await _recorder.stop();
+      } catch (_) {
+        // Recorder disposed/failed — fall back to the tracked path below.
+      }
     }
+    _recorderActive = false;
     _recordTicker?.cancel();
     _recordTicker = null;
     final elapsed = _recordElapsed;
@@ -955,9 +1056,15 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   }
 
   Future<void> _cancelVoiceDraft() async {
-    try {
-      await _recorder.stop();
-    } catch (_) {}
+    // Same race as _stopRecordingAndSend: a swipe-to-cancel can beat the start.
+    await _recorderStarting;
+    _recorderStarting = null;
+    if (_recorderActive) {
+      try {
+        await _recorder.stop();
+      } catch (_) {}
+    }
+    _recorderActive = false;
     final path = (_recordingPath ?? '').trim();
     if (path.isNotEmpty) {
       try {

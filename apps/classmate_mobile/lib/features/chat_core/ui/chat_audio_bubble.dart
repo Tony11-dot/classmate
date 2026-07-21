@@ -375,58 +375,59 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       ),
     );
 
-    // ── Speed selector (below bubble) ────────────────────────────────────
+    // ── Speed control (below bubble) ─────────────────────────────────────
+    //
+    // ONE pill that CYCLES 1× → 1.5× → 2× → 1× on tap, the way WhatsApp,
+    // Instagram and Telegram all do it. The old control was a 3-segment
+    // switch showing every option at once: three tap targets ~24 px wide
+    // (below the 44 px minimum), and two of the three labels always drawn in
+    // a washed-out state on an accent-filled pill just to say "not this one".
+    // A single pill shows only the CURRENT rate, which is the only thing
+    // worth reading, and gives the whole control one comfortable hit box.
     const speeds = [1.0, 1.5, 2.0];
-    final speedLabels = ['1×', '1.5×', '2×'];
+    final speedIndex = speeds.indexWhere((s) => (_speed - s).abs() < 0.01);
+    final currentSpeed = speedIndex < 0 ? 0 : speedIndex;
+    final speedLabel = const ['1×', '1.5×', '2×'][currentSpeed];
+    final isDefaultSpeed = currentSpeed == 0;
 
     final speedRow = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: accent,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: accent),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(speeds.length, (i) {
-              final isActive = (_speed - speeds[i]).abs() < 0.01;
-              return GestureDetector(
-                onTap: () => _setSpeed(speeds[i]),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 9, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? accent
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    speedLabels[i],
-                    style: TextStyle(
-                      // The outer pill is filled with `accent`, so EVERY
-                      // label sits on top of the accent — not just the
-                      // active one.  Using dimColor for inactive labels
-                      // hid them entirely when accent and dimColor
-                      // coincided (e.g. own bubble in light mode: white
-                      // pill + white onSurface dim → invisible until
-                      // tapped).  Inactive labels stay onAccent but at
-                      // reduced opacity so the active one still pops.
-                      color: isActive
-                          ? onAccent
-                          : onAccent.withValues(alpha: 0.55),
-                      fontSize: 10,
-                      fontWeight: isActive
-                          ? FontWeight.w900
-                          : FontWeight.w500,
-                    ),
-                  ),
+        GestureDetector(
+          onTap: () => _setSpeed(speeds[(currentSpeed + 1) % speeds.length]),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            // Padding (not margin) so the tap target stays finger-sized while
+            // the visible pill stays small.
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutCubic,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                // At 1× the pill recedes to a quiet outline — nothing is being
+                // overridden, so it shouldn't compete with the waveform.
+                color: isDefaultSpeed ? Colors.transparent : accent,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: isDefaultSpeed ? accent.withValues(alpha: 0.55) : accent,
                 ),
-              );
-            }),
+              ),
+              child: Text(
+                speedLabel,
+                style: TextStyle(
+                  // At 1× the pill is transparent, so the label takes the
+                  // accent itself — the same colour the filled pill uses as
+                  // its background, which by construction contrasts with the
+                  // bubble on both sides of the conversation.
+                  color: isDefaultSpeed ? accent : onAccent,
+                  fontSize: 10,
+                  fontWeight: isDefaultSpeed ? FontWeight.w600 : FontWeight.w900,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ),
           ),
         ),
       ],

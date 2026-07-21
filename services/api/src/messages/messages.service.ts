@@ -110,19 +110,39 @@ export class MessagesService {
     return Number.isFinite(date.getTime()) ? date.toISOString() : '';
   }
 
+  /// The ONE label for a non-text message, used everywhere a message is
+  /// summarised: the inbox subtitle, the reply quote, and the push
+  /// notification. These used to be three separate switch statements that had
+  /// drifted apart — the inbox said "File", the reply quote said "Attachment",
+  /// and only the push had emoji — so the same photo read differently
+  /// depending on where you looked at it. Emoji is the notification set, which
+  /// was the one users already saw on their lock screen.
   private kindLabel(kind: DmMessageKind | string | null | undefined) {
     switch (String(kind ?? 'TEXT').toUpperCase()) {
       case 'IMAGE':
-        return 'Photo';
+        return '📷 Photo';
       case 'VOICE':
-        return 'Voice note';
+        return '🎤 Voice message';
       case 'VIDEO':
-        return 'Video';
+        return '🎥 Video';
       case 'FILE':
-        return 'File';
+        return '📎 Attachment';
       default:
-        return 'Message';
+        return '💬 Message';
     }
+  }
+
+  /// Inbox/reply/push preview for a message: its text when it has any,
+  /// otherwise the kind label. Mirrors `messagePreviewText` on the client
+  /// (apps/classmate_mobile/lib/features/chat_core/utils/chat_reply_codec.dart)
+  /// so a classroom row and a DM row describe the same attachment identically.
+  private previewOf(message: {
+    kind?: DmMessageKind | string | null;
+    text?: string | null;
+  }) {
+    const text = String(message?.text ?? '').trim();
+    if (text) return text;
+    return this.kindLabel(message?.kind);
   }
 
   private voiceDurationSeconds(message: {
@@ -585,25 +605,14 @@ export class MessagesService {
 
     const subtitle = latestMessage
       ? (() => {
-          const body = String(latestMessage.text ?? '').trim();
-          if (body) {
-            if (thread.type === DmThreadType.GROUP) {
-              const senderName = this.displayNameOf(
-                users.get(latestMessage.senderId),
-              );
-              return `${senderName}: ${body}`;
-            }
-            return body;
-          }
-
-          const label = this.kindLabel(latestMessage.kind);
+          const body = this.previewOf(latestMessage);
           if (thread.type === DmThreadType.GROUP) {
             const senderName = this.displayNameOf(
               users.get(latestMessage.senderId),
             );
-            return `${senderName}: ${label}`;
+            return `${senderName}: ${body}`;
           }
-          return label;
+          return body;
         })()
       : participant.state === DmParticipantState.PENDING_INCOMING
         ? 'Sent you a message request'
@@ -659,16 +668,7 @@ export class MessagesService {
       [...thread.messages, ...replyTargets].map((m) => [m.id, m] as const),
     );
 
-    const previewFor = (message: any) => {
-      const kind = String(message?.kind ?? 'TEXT').toUpperCase();
-      const text = String(message?.text ?? '').trim();
-      if (text) return text;
-      if (kind == 'IMAGE') return 'Photo';
-      if (kind == 'VOICE') return 'Voice note';
-      if (kind == 'VIDEO') return 'Video';
-      if (kind == 'FILE') return 'Attachment';
-      return 'Message';
-    };
+    const previewFor = (message: any) => this.previewOf(message);
 
     const otherIds = thread.participants
       .filter((p) => p.userId !== viewerId)
@@ -1463,15 +1463,7 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
 
       if (peerIds.length > 0) {
         const senderName = this.displayNameOf((await this.userMapForIds([userId])).get(userId));
-        const preview = kind === DmMessageKind.TEXT
-          ? (text ?? '').slice(0, 120)
-          : kind === DmMessageKind.IMAGE
-            ? '📷 Photo'
-            : kind === DmMessageKind.VOICE
-              ? '🎤 Voice message'
-              : kind === DmMessageKind.VIDEO
-                ? '🎥 Video'
-                : '📎 Attachment';
+        const preview = this.previewOf({ kind, text }).slice(0, 120);
         // fanOutToParents: false — a parent DM'd directly is the
         // direct recipient. If a STUDENT happens to be the peer, we
         // do want their parents notified, but that's handled inside

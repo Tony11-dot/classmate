@@ -381,8 +381,12 @@ class ClassroomChatThreadController extends ChatThreadController {
     // For media: check timestamp proximity — no kind restriction.
     final localFallback = _localSentMessages.where((m) {
       final id = (m['id'] ?? '').toString();
-      if (_deletedMessages[id] == 'DELETED_FOR_ME') return false;
-      if (_deletedMessages.containsKey(id) && _deletedMessages[id] != 'DELETED_FOR_EVERYONE') return false;
+      // Keep only messages that are undeleted, or deleted-for-everyone (those
+      // still render the stamp). Any other recorded state means "hidden".
+      final localDelete = _deletedMessages[id];
+      if (localDelete != null && localDelete != 'DELETED_FOR_EVERYONE') {
+        return false;
+      }
       final kind = _pick(m, 'kind').toUpperCase();
       final text = _pick(m, 'text').trim().isNotEmpty
           ? _pick(m, 'text').trim()
@@ -453,12 +457,19 @@ class ClassroomChatThreadController extends ChatThreadController {
 
     final messages = filtered.map(_convertClassroomRow).toList();
 
-    // Belt-and-suspenders: if every dedup branch above happened to wipe
-    // the list, fall back to the last known set instead of returning
-    // empty. Users were seeing the whole chat go white whenever an
-    // invalidate fired between server polls — the safest behaviour is
-    // to never SHRINK to nothing once the user has seen something.
-    if (messages.isEmpty && _cachedMessages.isNotEmpty) {
+    // Belt-and-suspenders: if the chat went white because a poll came back
+    // with NOTHING to merge (transient 500 / timeout → repo returns items:[]),
+    // fall back to the last known set rather than blanking a thread the user
+    // has already seen.
+    //
+    // Guarded on `dedupedRaw.isEmpty` — i.e. only when there was no input at
+    // all. Without that guard this fired on the legitimate empty case too:
+    // "delete for me" on every message in the thread filtered `dedupedRaw`
+    // down to nothing, the guard saw messages.isEmpty and handed back the
+    // pre-delete list, and the deletion looked like it had RESTORED the chat.
+    // ("Delete for everyone" never tripped it: those rows stay in the list to
+    // carry the "This message was deleted" stamp, so it was never empty.)
+    if (messages.isEmpty && dedupedRaw.isEmpty && _cachedMessages.isNotEmpty) {
       return _cachedMessages;
     }
     _cachedMessages = messages;
@@ -1013,6 +1024,10 @@ class ClassroomChatThreadController extends ChatThreadController {
         : 'DELETED_FOR_ME';
     _reactionByMessage.remove(messageId);
     _editedTextByMessage.remove(messageId);
+    // Repaint straight away rather than leaving the bubble on screen until the
+    // caller's trailing invalidate() — a multi-select delete otherwise shows
+    // every row still present until the last await resolves.
+    invalidate();
     await _persistLocalState();
   }
 
