@@ -8,6 +8,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'teacher_shared_widgets.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 String _friendlyError(BuildContext context, String? error) {
   final l = AppLocalizations.of(context)!;
@@ -357,7 +358,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
 
     return Scaffold(
       body: SafeArea(
-      child: RefreshIndicator(
+      child: CmRefreshIndicator(
       onRefresh: _loadToday,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

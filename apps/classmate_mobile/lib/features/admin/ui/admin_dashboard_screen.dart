@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../data/admin_repository.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ class AdminDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: () async {
           ref.invalidate(_overviewProvider);
           ref.invalidate(_attendanceProvider);

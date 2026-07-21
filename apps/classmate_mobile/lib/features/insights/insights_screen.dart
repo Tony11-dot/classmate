@@ -7,6 +7,7 @@ import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'providers/insights_providers.dart';
 import 'providers/submissions_provider.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 /// The student performance dashboard: grades, attendance and on-time work for
 /// the semester at a glance. Designed for the least reading and the most
@@ -54,7 +55,7 @@ class InsightsScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: () async {
         ref.invalidate(unifiedStudentInsightsProvider);
         ref.invalidate(submissionStatsProvider);

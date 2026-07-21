@@ -10,6 +10,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../data/cmail_api.dart';
 import 'cmail_compose_screen.dart';
 import 'cmail_detail_screen.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 String cmailAudienceLabel(AppLocalizations l, String? audience) {
   return switch (audience) {
@@ -207,7 +208,7 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
             )
           : null,
       body: SafeArea(
-        child: RefreshIndicator(
+        child: CmRefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
             physics: const BouncingScrollPhysics(

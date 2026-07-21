@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -56,9 +57,11 @@ class UserProfileSheet extends ConsumerWidget {
             Expanded(
               child: async.when(
                 loading: () => const Center(child: CmLoading()),
-                error: (e, _) => _Error(message: e.toString(), onRetry: () {
-                  ref.invalidate(userProfileProvider(userId));
-                }),
+                error: (e, _) => CmErrorState.fromError(
+                  e,
+                  compact: true,
+                  onRetry: () => ref.invalidate(userProfileProvider(userId)),
+                ),
                 data: (p) => _Body(profile: p, scroll: scroll),
               ),
             ),
@@ -273,26 +276,3 @@ class _MemberTile extends StatelessWidget {
   }
 }
 
-class _Error extends StatelessWidget {
-  const _Error({required this.message, required this.onRetry});
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(AppLocalizations.of(context)!.commonRetry),
-          ),
-        ],
-      ),
-    );
-  }
-}

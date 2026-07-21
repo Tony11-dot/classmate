@@ -15,6 +15,7 @@ import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../parent/data/parent_repository.dart';
 import '../parent/data/viewed_student_context.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 final meetingsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
@@ -380,7 +381,7 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
           final hasActiveFilters =
               safeSubject != _allSubjects || _selectedAccessState != _allAccessStates;
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: () async {
               ref.invalidate(meetingsFeedProvider);
               await ref.read(meetingsFeedProvider.future);

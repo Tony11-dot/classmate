@@ -9,6 +9,7 @@ import '../insights/providers/insights_providers.dart';
 import '../../core/semester/school_semester.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Subject average from grades: a plain mean by default, or — when the teacher
 /// set weight %'s — a %-weighted mean, computed under every "format" with the
@@ -210,7 +211,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
       body: async.when(
         skipLoadingOnRefresh: true,
         loading: () => _buildLoading(context),
-        error: (err, _) => RefreshIndicator(
+        error: (err, _) => CmRefreshIndicator(
           onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -250,7 +251,7 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
             if (weakAvg == null || avg < weakAvg) { weakAvg = avg; weakestSubject = e.key; }
           }
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),

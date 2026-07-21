@@ -10,6 +10,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TeacherExamsScreen extends ConsumerStatefulWidget {
   const TeacherExamsScreen({super.key});
@@ -129,7 +130,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
       return d != null && d.isBefore(now);
     }).toList();
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

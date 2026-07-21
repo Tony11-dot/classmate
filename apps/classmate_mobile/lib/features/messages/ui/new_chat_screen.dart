@@ -10,6 +10,7 @@ import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import 'new_group_screen.dart';
 import '../../../common/widgets/role_badge.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 final sameSchoolPeopleProvider =
@@ -169,18 +170,9 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
             Expanded(
               child: peopleValue.when(
                 loading: () => const Center(child: CmLoading()),
-                error: (e, _) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
-                        const SizedBox(height: 16),
-                        Text(l.messagesPeopleLoadFailed(e.toString()), textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
-                      ],
-                    ),
-                  ),
+                error: (e, _) => CmErrorState.fromError(
+                  e,
+                  onRetry: () => ref.invalidate(sameSchoolPeopleProvider),
                 ),
                 data: (people) {
                   final filtered = people.where((p) {

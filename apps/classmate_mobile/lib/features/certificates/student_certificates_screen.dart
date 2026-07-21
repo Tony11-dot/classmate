@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import 'data/certificates_repository.dart';
 import '../parent/data/viewed_student_context.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 /// The student's own PUBLISHED certificates — a simple list they can download.
 /// Body-only: the app shell supplies the top bar / section pill.
@@ -78,7 +79,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
       return Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!, style: TextStyle(color: cs.error))));
     }
     if (_items.isEmpty) {
-      return RefreshIndicator(
+      return CmRefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 80, 24, 24),
@@ -91,7 +92,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
       );
     }
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),

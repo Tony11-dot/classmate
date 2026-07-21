@@ -14,6 +14,7 @@ import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'certificate_pdf.dart';
 import 'certificates_screen.dart';
 import 'data/certificates_repository.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Staff-facing certificates hub. It is **student-first**: pick a class, see
 /// its students, tap a student to see (and create) all of THEIR certificates.
@@ -197,7 +198,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
 
     // ── Secretary: read-only print-by-cohort + flat published list ──────────
     if (_isSecretary) {
-      return RefreshIndicator(
+      return CmRefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
@@ -240,7 +241,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
         ? _students
         : _students.where((s) => s.name.toLowerCase().contains(q)).toList();
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),

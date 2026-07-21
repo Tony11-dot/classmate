@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/manager_api.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class ManagerManagersScreen extends ConsumerStatefulWidget {
   const ManagerManagersScreen({super.key});
@@ -123,7 +124,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
         icon: const Icon(Icons.person_add_rounded),
         label: const Text('Add manager'),
       ),
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: () async => _reload(),
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _future,

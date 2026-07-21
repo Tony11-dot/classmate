@@ -8,6 +8,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/parent_models.dart';
 import '../data/parent_repository.dart';
 import '../data/viewed_student_context.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class ParentNotificationsScreen extends ConsumerStatefulWidget {
   const ParentNotificationsScreen({super.key});
@@ -66,7 +67,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: () async => ref.invalidate(parentNotificationsProvider),
         child: listAsync.when(
           loading: () => const Center(child: CmLoading()),

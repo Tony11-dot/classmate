@@ -13,6 +13,7 @@ import 'notifications_local_service.dart';
 import 'notifications_models.dart';
 import 'notifications_provider.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Translate a notification title when the item carries a known
 /// template; fall back to the literal text for server-pushed items.
@@ -180,7 +181,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             grouped.putIfAbsent(_groupLabel(context, item.createdAt), () => <StudentNotificationItem>[]).add(item);
           }
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: () async {
               await ref.read(notificationSyncServiceProvider).sync();
               ref.invalidate(notificationInboxProvider);
@@ -594,7 +595,7 @@ class _NotificationDetailScreenState
           // (including after mark-unread), causing the unread state to flip
           // back to read immediately. initState handles the initial mark-read.
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: () async {
               await ref.read(notificationSyncServiceProvider).sync();
               ref.invalidate(notificationInboxProvider);

@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/admin_repository.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Admin-managed custom grade scales (e.g. letter grades A / A+ / B). A scale
 /// applies to a set of grade levels; teachers grading a student in one of those
@@ -97,7 +98,7 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
           ? const Center(child: CmLoading())
           : _error != null
               ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)))
-              : RefreshIndicator(
+              : CmRefreshIndicator(
                   onRefresh: _load,
                   child: _scales.isEmpty
                       ? ListView(children: [

@@ -16,6 +16,7 @@ import '../../messages/providers/messages_repository_provider.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TeacherClassroomDetailScreen extends ConsumerStatefulWidget {
   const TeacherClassroomDetailScreen({
@@ -646,7 +647,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: Stack(
         children: [
@@ -841,7 +842,7 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: Stack(
         children: [
@@ -1016,7 +1017,7 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: Stack(
         children: [
@@ -1158,7 +1159,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         : <Map<String, dynamic>>[];
     final enrolledIds = students.map((s) => (s['id'] ?? '').toString()).toSet();
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + MediaQuery.of(context).viewInsets.bottom),

@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TeacherExamGradesScreen extends ConsumerStatefulWidget {
   const TeacherExamGradesScreen({super.key, required this.exam});
@@ -330,7 +331,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                     ],
                   ),
                 )
-              : RefreshIndicator(
+              : CmRefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

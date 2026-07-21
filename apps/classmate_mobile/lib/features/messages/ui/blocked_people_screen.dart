@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class BlockedPeopleScreen extends ConsumerStatefulWidget {
   const BlockedPeopleScreen({super.key});
@@ -132,7 +133,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
             return Center(child: Text(l.messagesNoBlockedPeople));
           }
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
               padding: const EdgeInsets.all(12),

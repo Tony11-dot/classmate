@@ -11585,4 +11585,53 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get a11yOpen => '‹‹Open››';
+
+  @override
+  String get errStateOfflineTitle => 'You\'re offline';
+
+  @override
+  String get errStateOfflineBody =>
+      'We can\'t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.';
+
+  @override
+  String get errStateServerTitle => 'Something broke on our side';
+
+  @override
+  String get errStateServerBody =>
+      'Our servers hit a snag. It\'s not you — please try again in a moment.';
+
+  @override
+  String get errStateNotFoundTitle => 'We couldn\'t find that';
+
+  @override
+  String get errStateNotFoundBody =>
+      'This item may have been moved or deleted.';
+
+  @override
+  String get errStateForbiddenTitle => 'You don\'t have access';
+
+  @override
+  String get errStateForbiddenBody =>
+      'This area is locked for your account. If that seems wrong, ask your school admin.';
+
+  @override
+  String get errStateTimeoutTitle => 'That took too long';
+
+  @override
+  String get errStateTimeoutBody =>
+      'The request timed out or the server is busy. Give it a second, then retry.';
+
+  @override
+  String get errStateEmptyTitle => 'Nothing here yet';
+
+  @override
+  String get errStateEmptyBody =>
+      'When there\'s something to show, it\'ll appear right here.';
+
+  @override
+  String get errStateGenericTitle => 'Something went wrong';
+
+  @override
+  String get errStateGenericBody =>
+      'We hit an unexpected hiccup. Try again — it usually works the second time.';
 }

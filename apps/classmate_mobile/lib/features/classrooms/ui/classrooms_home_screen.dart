@@ -14,6 +14,7 @@ import 'classroom_detail_screen.dart';
 import '../../chat_core/utils/chat_time.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class ClassroomsHomeScreen extends ConsumerStatefulWidget {
   const ClassroomsHomeScreen({super.key});
@@ -179,7 +180,7 @@ backgroundColor: cs.surface,
         onTap: () => FocusScope.of(context).unfocus(),
         onVerticalDragStart: (_) => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: RefreshIndicator(
+          child: CmRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(orderedStudentClassroomsProvider);
             ref.invalidate(studentClassroomsProvider);

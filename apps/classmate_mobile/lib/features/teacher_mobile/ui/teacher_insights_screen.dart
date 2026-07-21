@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ── data model ──────────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
     final l = AppLocalizations.of(context)!;
     final filtered = _filtered;
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

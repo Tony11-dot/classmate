@@ -12,6 +12,7 @@ import '../../ui/widgets/cm_loading.dart';
 import '../class_materials/ui/class_materials_section.dart';
 import '../lifedoc/data/exams_repository.dart';
 import '../lifedoc/domain/exam_models.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Attendance helpers shared across the schedule tile and detail sheet
@@ -103,7 +104,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: () => _retryWeek(weekOf),
       child: GestureDetector(
         onHorizontalDragEnd: (details) {

@@ -11,6 +11,7 @@ import '../providers/tutor_repository_provider.dart';
 import 'nova_chat_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/nova_avatar.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TutorHomeScreen extends ConsumerStatefulWidget {
   const TutorHomeScreen({
@@ -628,7 +629,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               data: (raw) {
                 final items = _normalizedSessions(raw);
 
-                return RefreshIndicator(
+                return CmRefreshIndicator(
                   onRefresh: () async {
                     ref.invalidate(tutorSessionsProvider);
                   },

@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/students_hub_api.dart';
 import 'student_detail_screen.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Students hub home (teacher + admin): searchable roster with the grade next
 /// to each name; tapping opens the full-screen 4-tab student page
@@ -63,7 +64,7 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                 : items
                     .where((s) => s.name.toLowerCase().contains(query))
                     .toList();
-            return RefreshIndicator(
+            return CmRefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(hubStudentsProvider);
                 await ref.read(hubStudentsProvider.future);

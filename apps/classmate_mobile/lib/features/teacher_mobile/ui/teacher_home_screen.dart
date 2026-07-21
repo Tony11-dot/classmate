@@ -11,6 +11,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 Future<void> _showSlotActionSheet(
   BuildContext context,
@@ -293,7 +294,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
       }
     });
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),

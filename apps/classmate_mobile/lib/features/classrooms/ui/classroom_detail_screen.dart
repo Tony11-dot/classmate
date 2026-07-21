@@ -18,6 +18,7 @@ import '../data/classrooms_repository.dart';
 import '../providers/classrooms_repo_provider.dart';
 import '../providers/classrooms_providers.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class ClassroomDetailScreen extends ConsumerStatefulWidget {
   const ClassroomDetailScreen({super.key, required this.courseId});
@@ -263,7 +264,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             Expanded(
               child: Builder(builder: (_) {
                 final tabChildren = <Widget>[
-                  RefreshIndicator(
+                  CmRefreshIndicator(
                     onRefresh: () async {
                       _chatController.invalidate();
                       _refreshAll();

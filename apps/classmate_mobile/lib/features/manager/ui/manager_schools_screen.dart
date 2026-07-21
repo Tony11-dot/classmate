@@ -5,6 +5,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../data/manager_api.dart';
 import 'manager_shell.dart';
 import 'manager_school_form_screen.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class ManagerSchoolsScreen extends ConsumerStatefulWidget {
   const ManagerSchoolsScreen({super.key});
@@ -185,7 +186,7 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
         icon: const Icon(Icons.add_rounded),
         label: const Text('New school'),
       ),
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: () async => _reload(),
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _future,

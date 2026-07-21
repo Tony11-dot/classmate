@@ -12,6 +12,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
 import 'teacher_create_classroom_screen.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 String _friendlyError(BuildContext context, String? error) {
   final l = AppLocalizations.of(context)!;
@@ -121,7 +122,7 @@ class _TeacherClassroomsScreenState
     return Scaffold(
       body: Stack(
         children: [
-          RefreshIndicator(
+          CmRefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),

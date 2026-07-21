@@ -12,6 +12,7 @@ import '../parent/data/viewed_student_context.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/attachment_pill.dart';
 import '../../core/config/env.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 final studentMaterialsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   (ref) async {
@@ -45,7 +46,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
     final l = AppLocalizations.of(context)!;
     final materialsAsync = ref.watch(studentMaterialsProvider);
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: () async => ref.invalidate(studentMaterialsProvider),
       child: materialsAsync.when(
         loading: () => const Center(child: CmLoading()),

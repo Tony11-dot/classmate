@@ -8,6 +8,7 @@ import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // Public trigger so AppShell can open the create sheet
 class _FormsTrigger extends Notifier<int> {
@@ -106,7 +107,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
       _selectedPast,
     );
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

@@ -8,6 +8,7 @@ import '../../solutions/data/solutions_api.dart';
 import '../../solutions/data/solutions_live_mapper.dart';
 import '../../solutions/ui/widgets/solution_asset_preview_sheet.dart';
 import '../data/admin_repository.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Unified moderation queue. Two kinds of user reports now live here behind a
 /// single segmented control instead of two separate drawer destinations:
@@ -125,7 +126,7 @@ class _MessagesTab extends ConsumerWidget {
         if (reports.isEmpty) {
           return _EmptyState(icon: Icons.inbox_outlined, label: l.adminReportsNoOpen);
         }
-        return RefreshIndicator(
+        return CmRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(_messageReportsProvider('OPEN'));
             await ref.read(_messageReportsProvider('OPEN').future);
@@ -163,7 +164,7 @@ class _SolutionsTab extends ConsumerWidget {
           return _EmptyState(
               icon: Icons.verified_user_rounded, label: l.solutionsReportsEmpty);
         }
-        return RefreshIndicator(
+        return CmRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(_solutionReportsProvider);
             await ref.read(_solutionReportsProvider.future);
@@ -218,7 +219,7 @@ class _ResolvedTab extends ConsumerWidget {
           icon: Icons.inbox_outlined, label: l.adminReportsNoInView);
     }
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: () async {
         ref.invalidate(_resolvedMessageReportsProvider);
         ref.invalidate(_solutionReportsProvider);

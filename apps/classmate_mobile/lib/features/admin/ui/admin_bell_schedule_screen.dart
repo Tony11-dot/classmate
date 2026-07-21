@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/admin_repository.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ── Bell schedule screen ───────────────────────────────────────────────────────
 // Lets the admin set start/end times for each period (P1–P9).
@@ -136,7 +137,7 @@ class _AdminBellScheduleScreenState
       ),
       body: _loading
           ? const Center(child: CmLoading())
-          : RefreshIndicator(
+          : CmRefreshIndicator(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),

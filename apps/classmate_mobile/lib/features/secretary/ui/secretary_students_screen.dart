@@ -6,6 +6,7 @@ import '../../../core/realtime/realtime_listener.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../admin/data/admin_repository.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 
@@ -80,7 +81,7 @@ class _SecretaryStudentsScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: () async {
           ref.invalidate(_secOverviewProvider);
           ref.invalidate(_secAttendanceProvider);

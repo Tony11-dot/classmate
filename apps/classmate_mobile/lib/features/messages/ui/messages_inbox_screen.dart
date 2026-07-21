@@ -13,6 +13,7 @@ import 'new_chat_screen.dart';
 import 'blocked_people_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../core/realtime/realtime_listener.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class MessagesInboxScreen extends ConsumerStatefulWidget {
   const MessagesInboxScreen({super.key});
@@ -471,7 +472,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
             if (filtered.isEmpty) {
               return Stack(
                 children: [
-                  RefreshIndicator(
+                  CmRefreshIndicator(
                     onRefresh: _refreshInbox,
                     child: ListView(
                       physics: const BouncingScrollPhysics(
@@ -510,7 +511,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
 
             return Stack(
               children: [
-                RefreshIndicator(
+                CmRefreshIndicator(
                   onRefresh: _refreshInbox,
                   child: ListView(
                     physics: const BouncingScrollPhysics(

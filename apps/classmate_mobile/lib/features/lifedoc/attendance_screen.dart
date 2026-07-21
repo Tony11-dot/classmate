@@ -9,6 +9,7 @@ import '../insights/domain/insights_models.dart';
 import '../insights/providers/insights_providers.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
@@ -308,7 +309,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               return b.rawDate.compareTo(a.rawDate);
             });
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: () => ref.refresh(unifiedStudentInsightsProvider.future),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),

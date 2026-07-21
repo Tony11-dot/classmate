@@ -9,6 +9,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import 'teacher_student_grade_detail_screen.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TeacherStudentProfileScreen extends ConsumerStatefulWidget {
   const TeacherStudentProfileScreen({
@@ -130,7 +131,7 @@ class _TeacherStudentProfileScreenState
                             FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
                           ]),
                         ))
-                      : RefreshIndicator(
+                      : CmRefreshIndicator(
                           onRefresh: _load,
                           child: ListView(
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),

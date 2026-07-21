@@ -19964,6 +19964,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get a11yOpen;
+
+  /// Headline of the illustrated error state shown when the device has no connectivity
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get errStateOfflineTitle;
+
+  /// Body copy of the offline illustrated error state
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.'**
+  String get errStateOfflineBody;
+
+  /// Headline of the illustrated error state shown for 5xx server errors
+  ///
+  /// In en, this message translates to:
+  /// **'Something broke on our side'**
+  String get errStateServerTitle;
+
+  /// Body copy of the server error illustrated state
+  ///
+  /// In en, this message translates to:
+  /// **'Our servers hit a snag. It\'s not you — please try again in a moment.'**
+  String get errStateServerBody;
+
+  /// Headline of the illustrated error state shown for 404 not found
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find that'**
+  String get errStateNotFoundTitle;
+
+  /// Body copy of the not found illustrated state
+  ///
+  /// In en, this message translates to:
+  /// **'This item may have been moved or deleted.'**
+  String get errStateNotFoundBody;
+
+  /// Headline of the illustrated error state shown for 401/403 permission errors
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have access'**
+  String get errStateForbiddenTitle;
+
+  /// Body copy of the permission denied illustrated state
+  ///
+  /// In en, this message translates to:
+  /// **'This area is locked for your account. If that seems wrong, ask your school admin.'**
+  String get errStateForbiddenBody;
+
+  /// Headline of the illustrated error state shown for timeouts and rate limits
+  ///
+  /// In en, this message translates to:
+  /// **'That took too long'**
+  String get errStateTimeoutTitle;
+
+  /// Body copy of the timeout illustrated state
+  ///
+  /// In en, this message translates to:
+  /// **'The request timed out or the server is busy. Give it a second, then retry.'**
+  String get errStateTimeoutBody;
+
+  /// Headline of the illustrated empty state shown when there is no content
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get errStateEmptyTitle;
+
+  /// Body copy of the empty illustrated state
+  ///
+  /// In en, this message translates to:
+  /// **'When there\'s something to show, it\'ll appear right here.'**
+  String get errStateEmptyBody;
+
+  /// Headline of the fallback illustrated error state
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get errStateGenericTitle;
+
+  /// Body copy of the fallback illustrated error state
+  ///
+  /// In en, this message translates to:
+  /// **'We hit an unexpected hiccup. Try again — it usually works the second time.'**
+  String get errStateGenericBody;
 }
 
 class _AppLocalizationsDelegate

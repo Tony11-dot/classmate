@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/billing_repository.dart';
 import '../data/plan_models.dart';
 import 'paywall_sheet.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Opens the OS subscription-management page so the user can cancel a paid
 /// plan (which reverts them to Free at period end). Used by the
@@ -65,9 +66,9 @@ class PlansScreen extends ConsumerWidget {
 
     // No local Scaffold/AppBar — the shell wraps every route with its
     // top-bar pill which already shows "NOVA Plans" (see _pageTitle()
-    // in app_shell.dart). Returning a bare RefreshIndicator keeps the
+    // in app_shell.dart). Returning a bare CmRefreshIndicator keeps the
     // pill from being doubled.
-    return RefreshIndicator(
+    return CmRefreshIndicator(
         onRefresh: () async {
           ref.invalidate(plansCatalogProvider);
           ref.invalidate(tokenBalanceProvider);

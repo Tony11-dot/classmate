@@ -14,6 +14,7 @@ import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/audience_students_summary.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TeacherAddMaterialScreen extends ConsumerStatefulWidget {
   const TeacherAddMaterialScreen({
@@ -895,7 +896,7 @@ class _TeacherMaterialsStandaloneScreenState
       _selectedPast,
     );
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

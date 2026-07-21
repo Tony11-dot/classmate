@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class TeacherClassroomAnalyticsScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAnalyticsScreen({
@@ -111,7 +112,7 @@ class _TeacherClassroomAnalyticsScreenState
                             FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
                           ]),
                         ))
-                      : RefreshIndicator(
+                      : CmRefreshIndicator(
                           onRefresh: _load,
                           child: ListView(
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),

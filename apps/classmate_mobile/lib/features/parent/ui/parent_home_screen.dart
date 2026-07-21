@@ -8,6 +8,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../data/parent_models.dart';
 import '../data/parent_repository.dart';
 import 'widgets/child_picker.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 /// Parent's main landing. Two regions:
 ///   • Top: child picker (chip-list of approved children). The selected
@@ -29,7 +30,7 @@ class ParentHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: () async {
           ref.invalidate(parentChildrenProvider);
         },

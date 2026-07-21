@@ -9,6 +9,7 @@ import '../../../core/util/friendly_date.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ── providers ──────────────────────────────────────────────────────────────
 
@@ -116,7 +117,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: () => _refresh(weekOf),
       child: GestureDetector(
         onHorizontalDragEnd: (details) {

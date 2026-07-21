@@ -120,6 +120,19 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   Future<bool>? _recorderStarting;
   bool _recorderActive = false;
 
+  // Live input levels, newest last, each normalised to 0..1. The recording HUD
+  // draws these instead of the canned bar heights it used to cycle through —
+  // a waveform that doesn't move with your voice reads as a loading animation,
+  // not as a microphone that's listening.
+  final List<double> _voiceLevels = <double>[];
+  StreamSubscription<Amplitude>? _amplitudeSub;
+  static const int _kVoiceLevelWindow = 34;
+
+  // Haptic edge-detection: fire once when a drag CROSSES a threshold, not on
+  // every move event while it sits past it.
+  bool _cancelHapticFired = false;
+  bool _lockHapticFired = false;
+
   // List rendering
   final Map<String, GlobalKey> _messageKeys = <String, GlobalKey>{};
   final Map<String, double> _swipeDxByMessage = <String, double>{};
@@ -224,6 +237,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _pollTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
+    _amplitudeSub?.cancel();
     _recorder.dispose();
     _recordTicker?.cancel();
     _cancelPulseTimers();
@@ -514,6 +528,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       });
 
   void _toggleDeleteSelection(String id) {
+    HapticFeedback.selectionClick();
     setState(() {
       if (_deleteSelectedMessageIds.contains(id)) {
         _deleteSelectedMessageIds.remove(id);
@@ -599,6 +614,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
       });
 
   void _toggleForwardSelection(String id) {
+    HapticFeedback.selectionClick();
     setState(() {
       if (_forwardSelectedMessageIds.contains(id)) {
         _forwardSelectedMessageIds.remove(id);
@@ -974,6 +990,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
 
     _recordingPath = path;
     _recorderActive = true;
+    // Contact confirmation — the same "it heard you" tick the big apps give.
+    unawaited(HapticFeedback.selectionClick());
+    _listenToAmplitude();
     _recordTicker?.cancel();
     _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted || !_recording || _voicePaused) return;
@@ -983,10 +1002,40 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     return true;
   }
 
+  /// Subscribes to the recorder's input level and keeps a rolling window of
+  /// normalised samples for the HUD's waveform.
+  void _listenToAmplitude() {
+    _amplitudeSub?.cancel();
+    _voiceLevels.clear();
+    _amplitudeSub = _recorder
+        .onAmplitudeChanged(const Duration(milliseconds: 90))
+        .listen((amp) {
+      if (!mounted || !_recording || _voicePaused) return;
+      // `current` is dBFS: 0 is clipping, silence is around -60 and can go
+      // lower. Map the useful top ~50 dB onto 0..1 and floor the result so a
+      // quiet room still shows a living baseline rather than a flat line.
+      final db = amp.current;
+      final normalised = ((db + 50) / 50).clamp(0.0, 1.0);
+      setState(() {
+        _voiceLevels.add(normalised < 0.08 ? 0.08 : normalised);
+        if (_voiceLevels.length > _kVoiceLevelWindow) _voiceLevels.removeAt(0);
+      });
+    }, onError: (_) {
+      // Amplitude reporting is optional — losing it must not affect the take.
+    });
+  }
+
+  void _stopAmplitude() {
+    _amplitudeSub?.cancel();
+    _amplitudeSub = null;
+    _voiceLevels.clear();
+  }
+
   /// Tears the optimistic HUD back down when the recorder never came up.
   Future<void> _abortRecordingUi() async {
     _recordTicker?.cancel();
     _recordTicker = null;
+    _stopAmplitude();
     _recorderActive = false;
     _recordingPath = null;
     if (!mounted) {
@@ -1021,6 +1070,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         // Recorder disposed/failed — fall back to the tracked path below.
       }
     }
+    _stopAmplitude();
     _recorderActive = false;
     _recordTicker?.cancel();
     _recordTicker = null;
@@ -1064,6 +1114,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
         await _recorder.stop();
       } catch (_) {}
     }
+    _stopAmplitude();
     _recorderActive = false;
     final path = (_recordingPath ?? '').trim();
     if (path.isNotEmpty) {
@@ -1093,6 +1144,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _holdStartGlobal = d.globalPosition;
     _holdDx = 0;
     _holdDy = 0;
+    _cancelHapticFired = false;
+    _lockHapticFired = false;
     _voiceLocked = false;
     _voicePaused = false;
     _voiceCancelled = false;
@@ -1104,6 +1157,22 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     final dx = globalPosition.dx - _holdStartGlobal!.dx;
     final dy = globalPosition.dy - _holdStartGlobal!.dy;
     if (!mounted) return;
+
+    // Haptics on the EDGE, so each threshold ticks once as you cross it and
+    // once more if you back off and cross again. Without this you have to
+    // watch the HUD to know whether a swipe has armed; with it the gesture is
+    // legible without looking, which is the whole point of slide-to-cancel.
+    final pastCancel = dx <= -chatRecordingCancelThreshold;
+    if (pastCancel != _cancelHapticFired) {
+      _cancelHapticFired = pastCancel;
+      unawaited(HapticFeedback.mediumImpact());
+    }
+    final pastLock = dy <= -chatRecordingLockThreshold;
+    if (pastLock != _lockHapticFired) {
+      _lockHapticFired = pastLock;
+      unawaited(HapticFeedback.selectionClick());
+    }
+
     setState(() {
       _holdDx = dx;
       _holdDy = dy;
@@ -1971,6 +2040,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                 isVoiceLocked: _voiceLocked,
                 isVoicePaused: _voicePaused,
                 recordingElapsed: _recordElapsed,
+                voiceLevels: _voiceLevels,
                 activeHoldDx: _holdDx,
                 activeHoldDy: _holdDy,
                 hasDraft: _draftAttachments.isNotEmpty,
@@ -2205,13 +2275,33 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
                               width: 1.7,
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: row.isOwn
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              if (!row.deletedForMe)
-                                _buildBubble(row, showName: startsGroup),
+                              // Selection checkbox, WhatsApp-style: it occupies
+                              // real layout space so entering selection mode
+                              // slides the whole thread aside, and every row
+                              // then advertises its own state. The tint alone
+                              // couldn't do that — an unselected row looked
+                              // identical whether or not you were selecting,
+                              // so there was no way to tell the mode was on
+                              // except by reading the bottom bar.
+                              if (_inSelectionMode) ...[
+                                _SelectionCheck(selected: isSelected),
+                                const SizedBox(width: 8),
+                              ],
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: row.isOwn
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                                  children: [
+                                    if (!row.deletedForMe)
+                                      _buildBubble(row, showName: startsGroup),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -2410,6 +2500,38 @@ class _LiveMessageInfoPageState extends ConsumerState<_LiveMessageInfoPage> {
       seenBy: s?.seenBy ?? const <MessageReadParticipant>[],
       deliveredTo: s?.deliveredTo ?? const <MessageReadParticipant>[],
       pendingFor: s?.pendingFor ?? const <MessageReadParticipant>[],
+    );
+  }
+}
+
+/// The per-row selection indicator shown while a forward/delete selection is
+/// in progress. Empty ring when unselected, filled check when selected —
+/// the same read as WhatsApp's, and legible without relying on the row tint
+/// (which washes out against coloured own-bubbles on some of the nine themes).
+class _SelectionCheck extends StatelessWidget {
+  const _SelectionCheck({required this.selected});
+
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOutBack,
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: selected ? scheme.primary : Colors.transparent,
+        border: Border.all(
+          color: selected ? scheme.primary : scheme.outline,
+          width: 1.6,
+        ),
+      ),
+      child: selected
+          ? Icon(Icons.check_rounded, size: 15, color: scheme.onPrimary)
+          : null,
     );
   }
 }

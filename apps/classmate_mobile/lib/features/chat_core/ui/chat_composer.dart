@@ -45,6 +45,7 @@ class ChatComposer extends StatelessWidget {
     this.showMic = true,
     this.hasDraft = false,
     this.recordingElapsed = Duration.zero,
+    this.voiceLevels = const <double>[],
     this.activeHoldDx = 0,
     this.activeHoldDy = 0,
     this.topContent,
@@ -87,6 +88,11 @@ class ChatComposer extends StatelessWidget {
   final bool showMic;
   final bool hasDraft;
   final Duration recordingElapsed;
+
+  /// Live mic input levels, newest last, each 0..1. Empty when the recorder
+  /// hasn't reported any yet (or the platform doesn't support amplitude), in
+  /// which case the waveform falls back to a calm idle pattern.
+  final List<double> voiceLevels;
   final double activeHoldDx;
   final double activeHoldDy;
   final Widget? topContent;
@@ -757,29 +763,51 @@ class ChatComposer extends StatelessWidget {
   /// Slimmer waveform than the prior bar+track variant — a single row of
   /// animated bars with no spacer rail, sized to fit between elapsed and
   /// the action buttons.
-  Widget _slimWaveform(BuildContext context, {required Color accent, required Duration elapsed, bool dim = false}) {
-    final phase = elapsed.inSeconds % 4;
-    const baseHeights = <double>[6, 11, 16, 9, 13, 7, 12, 8, 14, 10];
-    final tone = dim
-        ? accent.withValues(alpha: 0.55)
-        : accent;
+  /// Scrolling waveform driven by the recorder's actual input level.
+  ///
+  /// This used to cycle a fixed array of bar heights off `elapsed`, so it
+  /// animated identically whether you were talking or the mic was muted —
+  /// it read as a busy spinner rather than as feedback. Now each bar is a real
+  /// amplitude sample, newest on the right, so the trace responds to your
+  /// voice the way WhatsApp's and Instagram's do. [voiceLevels] is empty
+  /// before the first sample (and on platforms with no amplitude reporting),
+  /// which falls back to a flat idle baseline rather than a fake dance.
+  Widget _slimWaveform(BuildContext context,
+      {required Color accent, required Duration elapsed, bool dim = false}) {
+    const barCount = 26;
+    const maxHeight = 18.0;
+    const minHeight = 3.0;
+    final tone = dim ? accent.withValues(alpha: 0.55) : accent;
+
+    final levels = voiceLevels;
     return SizedBox(
-      height: 16,
+      height: maxHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          for (var i = 0; i < baseHeights.length; i++) ...[
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 280),
-              curve: Curves.easeInOutCubic,
-              width: 2.5,
-              height: baseHeights[(i + phase) % baseHeights.length],
-              decoration: BoxDecoration(
-                color: tone,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            if (i != baseHeights.length - 1) const SizedBox(width: 2),
+          for (var i = 0; i < barCount; i++) ...[
+            () {
+              // Right-align the samples so the newest bar is always at the
+              // right edge and the trace grows leftward as it fills.
+              final sampleIndex = levels.length - barCount + i;
+              final level = (sampleIndex >= 0 && sampleIndex < levels.length)
+                  ? levels[sampleIndex]
+                  : 0.0;
+              // Older samples fade, giving the trace a sense of direction.
+              final age = (barCount - i) / barCount;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                curve: Curves.easeOutCubic,
+                width: 2.5,
+                height: minHeight + (maxHeight - minHeight) * level,
+                decoration: BoxDecoration(
+                  color: tone.withValues(alpha: dim ? 0.45 : 1 - age * 0.45),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              );
+            }(),
+            if (i != barCount - 1) const SizedBox(width: 2),
           ],
         ],
       ),

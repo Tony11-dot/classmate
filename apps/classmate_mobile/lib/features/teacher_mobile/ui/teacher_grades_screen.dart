@@ -15,6 +15,7 @@ import '../../../ui/widgets/semester_select_field.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'teacher_student_grade_detail_screen.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data helpers
@@ -165,7 +166,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
     final cs = theme.colorScheme;
     final filtered = _filtered;
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

@@ -10,6 +10,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 Color _subjectColor(String subject, ColorScheme cs) {
   final s = subject.toLowerCase();
@@ -116,7 +117,7 @@ class _TeacherAttendanceHistoryScreenState
       _selectedPast,
     );
 
-    return RefreshIndicator(
+    return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

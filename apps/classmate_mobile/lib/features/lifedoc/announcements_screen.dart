@@ -15,6 +15,7 @@ import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'announcements_models.dart';
 import 'announcements_provider.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 final announcementReadStateProvider =
     NotifierProvider<AnnouncementReadController, Set<String>>(
@@ -382,7 +383,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
         final hasActiveFilters =
             safeSource != _allSources || _selectedReadState != _allReadStates;
 
-        return RefreshIndicator(
+        return CmRefreshIndicator(
             onRefresh: () async {
               if (showPublished) {
                 ref.invalidate(myAnnouncementsProvider);

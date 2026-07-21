@@ -17,6 +17,7 @@ import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../parent/data/parent_repository.dart';
 import '../parent/data/viewed_student_context.dart';
 import '../teacher_mobile/data/teacher_mobile_repository.dart';
+import '../../ui/widgets/cm_refresh_indicator.dart';
 
 const _assignmentStateNoDueDate = '__no_due_date__';
 const _assignmentStateOverdue = '__overdue__';
@@ -387,7 +388,7 @@ class _AssignmentsScreenState extends ConsumerState<AssignmentsScreen> {
           final nextAssignment = items.isEmpty ? null : items.first;
           final hasActiveFilters = safeSubject != _allSubjects || _selectedState != _allStates;
 
-          return RefreshIndicator(
+          return CmRefreshIndicator(
             onRefresh: () async {
               ref.invalidate(assignmentsFeedProvider);
               await ref.read(assignmentsFeedProvider.future);

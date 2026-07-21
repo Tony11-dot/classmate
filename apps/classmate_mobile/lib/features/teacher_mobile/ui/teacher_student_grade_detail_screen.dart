@@ -7,6 +7,7 @@ import '../../../core/util/friendly_date.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
+import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data model
@@ -253,7 +254,7 @@ class _TeacherStudentGradeDetailScreenState
             ),
         ],
       ),
-      body: RefreshIndicator(
+      body: CmRefreshIndicator(
         onRefresh: _load,
         child: _loading
             ? const Center(child: CmLoading())
