@@ -11470,4 +11470,17 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get errStateGenericBody =>
       'נתקלנו בתקלה לא צפויה. נסו שוב — בדרך כלל זה מסתדר בפעם השנייה.';
+
+  @override
+  String get updatePromptTitle => 'עדכון זמין';
+
+  @override
+  String get updatePromptBody =>
+      'גרסה חדשה של ClassMate מוכנה. עדכנו עכשיו כדי לקבל את החידושים והתיקונים האחרונים.';
+
+  @override
+  String get updatePromptUpdate => 'עדכון';
+
+  @override
+  String get updatePromptLater => 'לא עכשיו';
 }

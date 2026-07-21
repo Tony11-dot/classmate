@@ -6238,5 +6238,9 @@
   "errStateEmptyTitle": "دلته تر اوسه څه نشته",
   "errStateEmptyBody": "کله چې د ښودلو لپاره څه وي، همدلته به ښکاره شي.",
   "errStateGenericTitle": "کومه ستونزه رامنځته شوه",
-  "errStateGenericBody": "له ناڅاپي ستونزې سره مخ شو. بیا هڅه وکړئ — ډېری وخت په دویم ځل کار کوي."
+  "errStateGenericBody": "له ناڅاپي ستونزې سره مخ شو. بیا هڅه وکړئ — ډېری وخت په دویم ځل کار کوي.",
+  "updatePromptTitle": "‹‹Update available››",
+  "updatePromptBody": "‹‹A new version of ClassMate is ready. Update now to get the latest features and fixes.››",
+  "updatePromptUpdate": "‹‹Update››",
+  "updatePromptLater": "‹‹Not now››"
 }

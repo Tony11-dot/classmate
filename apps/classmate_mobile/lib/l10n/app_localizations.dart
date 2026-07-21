@@ -20102,6 +20102,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We hit an unexpected hiccup. Try again — it usually works the second time.'**
   String get errStateGenericBody;
+
+  /// No description provided for @updatePromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get updatePromptTitle;
+
+  /// No description provided for @updatePromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of ClassMate is ready. Update now to get the latest features and fixes.'**
+  String get updatePromptBody;
+
+  /// No description provided for @updatePromptUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updatePromptUpdate;
+
+  /// No description provided for @updatePromptLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get updatePromptLater;
 }
 
 class _AppLocalizationsDelegate

@@ -11594,4 +11594,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errStateGenericBody =>
       'We hit an unexpected hiccup. Try again — it usually works the second time.';
+
+  @override
+  String get updatePromptTitle => 'Update available';
+
+  @override
+  String get updatePromptBody =>
+      'A new version of ClassMate is ready. Update now to get the latest features and fixes.';
+
+  @override
+  String get updatePromptUpdate => 'Update';
+
+  @override
+  String get updatePromptLater => 'Not now';
 }

@@ -4122,5 +4122,9 @@
   "errStateEmptyTitle": "אין כאן כלום בינתיים",
   "errStateEmptyBody": "כשיהיה מה להציג, הוא יופיע בדיוק כאן.",
   "errStateGenericTitle": "משהו השתבש",
-  "errStateGenericBody": "נתקלנו בתקלה לא צפויה. נסו שוב — בדרך כלל זה מסתדר בפעם השנייה."
+  "errStateGenericBody": "נתקלנו בתקלה לא צפויה. נסו שוב — בדרך כלל זה מסתדר בפעם השנייה.",
+  "updatePromptTitle": "עדכון זמין",
+  "updatePromptBody": "גרסה חדשה של ClassMate מוכנה. עדכנו עכשיו כדי לקבל את החידושים והתיקונים האחרונים.",
+  "updatePromptUpdate": "עדכון",
+  "updatePromptLater": "לא עכשיו"
 }

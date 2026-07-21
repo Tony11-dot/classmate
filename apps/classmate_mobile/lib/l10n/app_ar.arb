@@ -4122,5 +4122,9 @@
   "errStateEmptyTitle": "لا يوجد شيء هنا بعد",
   "errStateEmptyBody": "عندما يتوفر شيء لعرضه، سيظهر هنا مباشرة.",
   "errStateGenericTitle": "حدث خطأ ما",
-  "errStateGenericBody": "واجهنا خللًا غير متوقع. حاول مرة أخرى — غالبًا ما ينجح الأمر في المحاولة الثانية."
+  "errStateGenericBody": "واجهنا خللًا غير متوقع. حاول مرة أخرى — غالبًا ما ينجح الأمر في المحاولة الثانية.",
+  "updatePromptTitle": "يتوفر تحديث",
+  "updatePromptBody": "إصدار جديد من ClassMate جاهز. حدِّث الآن للحصول على أحدث الميزات والإصلاحات.",
+  "updatePromptUpdate": "تحديث",
+  "updatePromptLater": "ليس الآن"
 }

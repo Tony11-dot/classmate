@@ -11660,4 +11660,17 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get errStateGenericBody =>
       'له ناڅاپي ستونزې سره مخ شو. بیا هڅه وکړئ — ډېری وخت په دویم ځل کار کوي.';
+
+  @override
+  String get updatePromptTitle => '‹‹Update available››';
+
+  @override
+  String get updatePromptBody =>
+      '‹‹A new version of ClassMate is ready. Update now to get the latest features and fixes.››';
+
+  @override
+  String get updatePromptUpdate => '‹‹Update››';
+
+  @override
+  String get updatePromptLater => '‹‹Not now››';
 }

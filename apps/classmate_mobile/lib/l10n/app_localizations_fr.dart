@@ -11753,4 +11753,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get errStateGenericBody =>
       'Nous avons rencontré un problème inattendu. Réessayez — cela fonctionne généralement la deuxième fois.';
+
+  @override
+  String get updatePromptTitle => 'Mise à jour disponible';
+
+  @override
+  String get updatePromptBody =>
+      'Une nouvelle version de ClassMate est prête. Mettez à jour maintenant pour profiter des dernières nouveautés et corrections.';
+
+  @override
+  String get updatePromptUpdate => 'Mettre à jour';
+
+  @override
+  String get updatePromptLater => 'Plus tard';
 }

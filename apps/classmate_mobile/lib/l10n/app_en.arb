@@ -4,7 +4,13 @@
   "certSearchStudent": "Search students",
   "certNewCertificate": "New certificate",
   "certCertificateCount": "{count, plural, =0{No certificates} =1{1 certificate} other{{count} certificates}}",
-  "@certCertificateCount": { "placeholders": { "count": { "type": "int" } } },
+  "@certCertificateCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "onbTeacher2Title": "Your classes, organized",
   "onbTeacher2Body": "Your schedule, classrooms and student rosters — all in one place.",
   "onbTeacher3Title": "Grades & attendance, fast",
@@ -30,14 +36,41 @@
   "accountRemove": "Remove account",
   "accountRemoveConfirmTitle": "Remove account?",
   "accountRemoveConfirmBody": "{name} will be removed from this device. You can sign in again anytime.",
-  "@accountRemoveConfirmBody": { "placeholders": { "name": { "type": "String" } } },
+  "@accountRemoveConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "onboardingWelcomeNamed": "Welcome, {name}!",
-  "@onboardingWelcomeNamed": { "placeholders": { "name": { "type": "String" } } },
+  "@onboardingWelcomeNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "practiceGenAlmostReady": "Almost ready…",
   "practiceGenRemaining": "≈ {seconds}s left",
-  "@practiceGenRemaining": { "placeholders": { "seconds": { "type": "int" } } },
+  "@practiceGenRemaining": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "practiceGenEstimate": "Usually {min}–{max}s",
-  "@practiceGenEstimate": { "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } } },
+  "@practiceGenEstimate": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "consentGateError": "Couldn't save your choice. Please check your connection and try again.",
   "commonShowPassword": "Show password",
   "commonHidePassword": "Hide password",
@@ -63,17 +96,29 @@
   "onboardingSlide4Title": "Stay connected",
   "onboardingSlide4Body": "Messages and announcements keep students, teachers and parents in sync.",
   "consentGateTitle": "Before you continue",
-  "@consentGateTitle": { "description": "Consent gate" },
+  "@consentGateTitle": {
+    "description": "Consent gate"
+  },
   "consentGateBody": "To keep using ClassMate, please review and accept how we handle your data.",
-  "@consentGateBody": { "description": "Consent gate" },
+  "@consentGateBody": {
+    "description": "Consent gate"
+  },
   "consentGateLink": "Read the Privacy Policy & Terms",
-  "@consentGateLink": { "description": "Consent gate" },
+  "@consentGateLink": {
+    "description": "Consent gate"
+  },
   "consentGateAccept": "I accept the Privacy Policy and Terms of Use",
-  "@consentGateAccept": { "description": "Consent gate" },
+  "@consentGateAccept": {
+    "description": "Consent gate"
+  },
   "consentGateGuardian": "I have my parent or guardian's permission to use ClassMate",
-  "@consentGateGuardian": { "description": "Consent gate" },
+  "@consentGateGuardian": {
+    "description": "Consent gate"
+  },
   "consentGateContinue": "Agree & Continue",
-  "@consentGateContinue": { "description": "Consent gate" },
+  "@consentGateContinue": {
+    "description": "Consent gate"
+  },
   "menu": "Menu",
   "sectionCore": "Core",
   "sectionSchoolTools": "School Tools",
@@ -5578,9 +5623,17 @@
   "gradesDraftShort": "Draft",
   "@gradesDraftShort": {},
   "gradesPublishTitle": "Publish “{title}”",
-  "@gradesPublishTitle": { "placeholders": { "title": {} } },
+  "@gradesPublishTitle": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "gradesUnpublishTitle": "Unpublish “{title}”",
-  "@gradesUnpublishTitle": { "placeholders": { "title": {} } },
+  "@gradesUnpublishTitle": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "gradesPublishAction": "Publish",
   "@gradesPublishAction": {},
   "gradesUnpublishAction": "Unpublish",
@@ -5598,7 +5651,11 @@
   "gradeScaleDeleteTitle": "Delete grade scale?",
   "@gradeScaleDeleteTitle": {},
   "gradeScaleDeleteConfirm": "Delete “{name}”? Assessments already graded on it keep their labels.",
-  "@gradeScaleDeleteConfirm": { "placeholders": { "name": {} } },
+  "@gradeScaleDeleteConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "gradeScaleEmptyTitle": "No grade scales yet",
   "@gradeScaleEmptyTitle": {},
   "gradeScaleEmptyHint": "Create a letter or word scale (e.g. A, A+, B) for younger grades. Teachers grading those grades pick a label instead of a number.",
@@ -5606,7 +5663,11 @@
   "gradeScaleAllGrades": "Applies to all grades",
   "@gradeScaleAllGrades": {},
   "gradeScaleAppliesTo": "Grades {grades}",
-  "@gradeScaleAppliesTo": { "placeholders": { "grades": {} } },
+  "@gradeScaleAppliesTo": {
+    "placeholders": {
+      "grades": {}
+    }
+  },
   "gradeScaleNameLabel": "Scale name",
   "@gradeScaleNameLabel": {},
   "gradeScaleNameHint": "e.g. Letter grades",
@@ -5634,7 +5695,11 @@
   "gradeScaleUseScale": "Grade scale",
   "@gradeScaleUseScale": {},
   "gradeScaleNumeric": "Number (0–{max})",
-  "@gradeScaleNumeric": { "placeholders": { "max": {} } },
+  "@gradeScaleNumeric": {
+    "placeholders": {
+      "max": {}
+    }
+  },
   "accountSwitcherTitle": "Accounts",
   "@accountSwitcherTitle": {},
   "accountAddAccount": "Add account",
@@ -5650,7 +5715,11 @@
   "averagesDeleteTitle": "Delete average",
   "@averagesDeleteTitle": {},
   "averagesDeleteConfirm": "Delete \"{title}\"? This cannot be undone.",
-  "@averagesDeleteConfirm": { "placeholders": { "title": {} } },
+  "@averagesDeleteConfirm": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "averagesCancel": "Cancel",
   "@averagesCancel": {},
   "averagesEmptyTitle": "No averages yet",
@@ -5660,13 +5729,26 @@
   "averagesFullYear": "Full year",
   "@averagesFullYear": {},
   "averagesSemesterN": "Semester {n}",
-  "@averagesSemesterN": { "placeholders": { "n": {} } },
+  "@averagesSemesterN": {
+    "placeholders": {
+      "n": {}
+    }
+  },
   "averagesFormatChip": "Format {index}: {total}%",
-  "@averagesFormatChip": { "placeholders": { "index": {}, "total": {} } },
+  "@averagesFormatChip": {
+    "placeholders": {
+      "index": {},
+      "total": {}
+    }
+  },
   "averagesNoStudents": "No students to compute.",
   "@averagesNoStudents": {},
   "averagesFormatN": "Format {n}",
-  "@averagesFormatN": { "placeholders": { "n": {} } },
+  "@averagesFormatN": {
+    "placeholders": {
+      "n": {}
+    }
+  },
   "averagesErrTitle": "Enter a title.",
   "@averagesErrTitle": {},
   "averagesErrSubject": "Choose a subject.",
@@ -5676,9 +5758,18 @@
   "averagesErrNoFormat": "Add at least one format.",
   "@averagesErrNoFormat": {},
   "averagesErrFormatNoGrade": "Format {n}: pick at least one grade.",
-  "@averagesErrFormatNoGrade": { "placeholders": { "n": {} } },
+  "@averagesErrFormatNoGrade": {
+    "placeholders": {
+      "n": {}
+    }
+  },
   "averagesErrFormatSum": "Format {n}: weights must sum to 100 (now {total}%).",
-  "@averagesErrFormatSum": { "placeholders": { "n": {}, "total": {} } },
+  "@averagesErrFormatSum": {
+    "placeholders": {
+      "n": {},
+      "total": {}
+    }
+  },
   "averagesNew": "New average",
   "@averagesNew": {},
   "averagesEdit": "Edit average",
@@ -5704,7 +5795,11 @@
   "averagesAddGrade": "Add grade",
   "@averagesAddGrade": {},
   "averagesTotal": "Total: {total}%",
-  "@averagesTotal": { "placeholders": { "total": {} } },
+  "@averagesTotal": {
+    "placeholders": {
+      "total": {}
+    }
+  },
   "averagesLabelGrade": "Grade",
   "@averagesLabelGrade": {},
   "averagesHintPickFirst": "Pick subject & cohort first",
@@ -5807,7 +5902,13 @@
   "notesSearchStudents": "Search students",
   "notesNoStudents": "No students found",
   "notesCount": "{count, plural, =0{No notes} =1{1 note} other{{count} notes}}",
-  "@notesCount": {"placeholders": {"count": {"type": "num"}}},
+  "@notesCount": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
   "notesNewNote": "New note",
   "notesNoNotes": "No notes yet",
   "notesNoNotesHint": "Tap + to write the first note about this student.",
@@ -5815,9 +5916,15 @@
   "notesDeleteBody": "This note will be permanently deleted.",
   "notesUntitled": "Untitled",
   "notesTitleHint": "Title",
-  "notesBodyHint": "Start writing\u2026",
+  "notesBodyHint": "Start writing…",
   "notesEditedBy": "By {name}",
-  "@notesEditedBy": {"placeholders": {"name": {"type": "String"}}},
+  "@notesEditedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cmailTitle": "CMail",
   "cmailInbox": "Inbox",
   "cmailSentTab": "Sent",
@@ -5826,7 +5933,7 @@
   "cmailEmptyInboxHint": "Mail from your school will appear here.",
   "cmailEmptySent": "Nothing sent yet",
   "cmailSubject": "Subject",
-  "cmailBodyHint": "Write your message\u2026",
+  "cmailBodyHint": "Write your message…",
   "cmailAudience": "To",
   "cmailAudienceSchool": "Everyone",
   "cmailAudienceStudents": "All students",
@@ -5846,21 +5953,48 @@
   "cmailDeleteForAll": "This deletes the mail for everyone.",
   "cmailDeleteForMe": "This removes the mail from your inbox.",
   "cmailRecipients": "{count} recipients",
-  "@cmailRecipients": {"placeholders": {"count": {"type": "num"}}},
+  "@cmailRecipients": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
   "cmailReadStats": "{read} of {total} read",
-  "@cmailReadStats": {"placeholders": {"read": {"type": "num"}, "total": {"type": "num"}}},
+  "@cmailReadStats": {
+    "placeholders": {
+      "read": {
+        "type": "num"
+      },
+      "total": {
+        "type": "num"
+      }
+    }
+  },
   "cmailSubjectRequired": "Subject is required",
   "cmailAudienceRequired": "Pick who this mail goes to",
   "cmailAttachments": "Attachments",
   "cmailFrom": "From {name}",
-  "@cmailFrom": {"placeholders": {"name": {"type": "String"}}},
+  "@cmailFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "phoneLinkTitle": "Add your phone",
-  "phoneLinkSubtitle": "Protect your account with a phone number. We'll text you a verification code \u2014 it also lets you reset your password by SMS.",
+  "phoneLinkSubtitle": "Protect your account with a phone number. We'll text you a verification code — it also lets you reset your password by SMS.",
   "phoneLinkFieldLabel": "Phone number",
   "phoneLinkSend": "Send code",
   "phoneLinkCodeLabel": "6-digit code",
   "phoneLinkCodeSent": "Code sent to {phone}",
-  "@phoneLinkCodeSent": {"placeholders": {"phone": {"type": "String"}}},
+  "@phoneLinkCodeSent": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "phoneLinkVerify": "Verify & link",
   "phoneLinkLater": "Later",
   "phoneLinkDone": "Phone linked!",
@@ -5880,143 +6014,287 @@
   "hubUnpublished": "Draft",
   "hubClass": "Class",
   "a11yBack": "Back",
-  "@a11yBack": { "description": "Accessibility label for the Back button" },
+  "@a11yBack": {
+    "description": "Accessibility label for the Back button"
+  },
   "a11yClose": "Close",
-  "@a11yClose": { "description": "Accessibility label for the Close button" },
+  "@a11yClose": {
+    "description": "Accessibility label for the Close button"
+  },
   "a11yCancel": "Cancel",
-  "@a11yCancel": { "description": "Accessibility label for the Cancel button" },
+  "@a11yCancel": {
+    "description": "Accessibility label for the Cancel button"
+  },
   "a11yDone": "Done",
-  "@a11yDone": { "description": "Accessibility label for the Done button" },
+  "@a11yDone": {
+    "description": "Accessibility label for the Done button"
+  },
   "a11ySave": "Save",
-  "@a11ySave": { "description": "Accessibility label for the Save button" },
+  "@a11ySave": {
+    "description": "Accessibility label for the Save button"
+  },
   "a11yEdit": "Edit",
-  "@a11yEdit": { "description": "Accessibility label for the Edit button" },
+  "@a11yEdit": {
+    "description": "Accessibility label for the Edit button"
+  },
   "a11yDelete": "Delete",
-  "@a11yDelete": { "description": "Accessibility label for the Delete button" },
+  "@a11yDelete": {
+    "description": "Accessibility label for the Delete button"
+  },
   "a11yRemove": "Remove",
-  "@a11yRemove": { "description": "Accessibility label for the Remove button" },
+  "@a11yRemove": {
+    "description": "Accessibility label for the Remove button"
+  },
   "a11yAdd": "Add",
-  "@a11yAdd": { "description": "Accessibility label for the Add button" },
+  "@a11yAdd": {
+    "description": "Accessibility label for the Add button"
+  },
   "a11yCreate": "Create",
-  "@a11yCreate": { "description": "Accessibility label for the Create button" },
+  "@a11yCreate": {
+    "description": "Accessibility label for the Create button"
+  },
   "a11ySend": "Send",
-  "@a11ySend": { "description": "Accessibility label for the Send button" },
+  "@a11ySend": {
+    "description": "Accessibility label for the Send button"
+  },
   "a11ySearch": "Search",
-  "@a11ySearch": { "description": "Accessibility label for the Search button" },
+  "@a11ySearch": {
+    "description": "Accessibility label for the Search button"
+  },
   "a11yClear": "Clear",
-  "@a11yClear": { "description": "Accessibility label for the Clear button" },
+  "@a11yClear": {
+    "description": "Accessibility label for the Clear button"
+  },
   "a11yFilter": "Filter",
-  "@a11yFilter": { "description": "Accessibility label for the Filter button" },
+  "@a11yFilter": {
+    "description": "Accessibility label for the Filter button"
+  },
   "a11ySort": "Sort",
-  "@a11ySort": { "description": "Accessibility label for the Sort button" },
+  "@a11ySort": {
+    "description": "Accessibility label for the Sort button"
+  },
   "a11yMore": "More options",
-  "@a11yMore": { "description": "Accessibility label for the More options button" },
+  "@a11yMore": {
+    "description": "Accessibility label for the More options button"
+  },
   "a11yMenu": "Menu",
-  "@a11yMenu": { "description": "Accessibility label for the Menu button" },
+  "@a11yMenu": {
+    "description": "Accessibility label for the Menu button"
+  },
   "a11yRefresh": "Refresh",
-  "@a11yRefresh": { "description": "Accessibility label for the Refresh button" },
+  "@a11yRefresh": {
+    "description": "Accessibility label for the Refresh button"
+  },
   "a11yRetry": "Retry",
-  "@a11yRetry": { "description": "Accessibility label for the Retry button" },
+  "@a11yRetry": {
+    "description": "Accessibility label for the Retry button"
+  },
   "a11yShare": "Share",
-  "@a11yShare": { "description": "Accessibility label for the Share button" },
+  "@a11yShare": {
+    "description": "Accessibility label for the Share button"
+  },
   "a11yCopy": "Copy",
-  "@a11yCopy": { "description": "Accessibility label for the Copy button" },
+  "@a11yCopy": {
+    "description": "Accessibility label for the Copy button"
+  },
   "a11yDownload": "Download",
-  "@a11yDownload": { "description": "Accessibility label for the Download button" },
+  "@a11yDownload": {
+    "description": "Accessibility label for the Download button"
+  },
   "a11yUpload": "Upload",
-  "@a11yUpload": { "description": "Accessibility label for the Upload button" },
+  "@a11yUpload": {
+    "description": "Accessibility label for the Upload button"
+  },
   "a11yAttach": "Attach file",
-  "@a11yAttach": { "description": "Accessibility label for the Attach file button" },
+  "@a11yAttach": {
+    "description": "Accessibility label for the Attach file button"
+  },
   "a11yAddPhoto": "Add photo",
-  "@a11yAddPhoto": { "description": "Accessibility label for the Add photo button" },
+  "@a11yAddPhoto": {
+    "description": "Accessibility label for the Add photo button"
+  },
   "a11yCamera": "Camera",
-  "@a11yCamera": { "description": "Accessibility label for the Camera button" },
+  "@a11yCamera": {
+    "description": "Accessibility label for the Camera button"
+  },
   "a11yMicrophone": "Voice input",
-  "@a11yMicrophone": { "description": "Accessibility label for the Voice input button" },
+  "@a11yMicrophone": {
+    "description": "Accessibility label for the Voice input button"
+  },
   "a11yPlay": "Play",
-  "@a11yPlay": { "description": "Accessibility label for the Play button" },
+  "@a11yPlay": {
+    "description": "Accessibility label for the Play button"
+  },
   "a11yPause": "Pause",
-  "@a11yPause": { "description": "Accessibility label for the Pause button" },
+  "@a11yPause": {
+    "description": "Accessibility label for the Pause button"
+  },
   "a11yNext": "Next",
-  "@a11yNext": { "description": "Accessibility label for the Next button" },
+  "@a11yNext": {
+    "description": "Accessibility label for the Next button"
+  },
   "a11yPrevious": "Previous",
-  "@a11yPrevious": { "description": "Accessibility label for the Previous button" },
+  "@a11yPrevious": {
+    "description": "Accessibility label for the Previous button"
+  },
   "a11yExpand": "Expand",
-  "@a11yExpand": { "description": "Accessibility label for the Expand button" },
+  "@a11yExpand": {
+    "description": "Accessibility label for the Expand button"
+  },
   "a11yCollapse": "Collapse",
-  "@a11yCollapse": { "description": "Accessibility label for the Collapse button" },
+  "@a11yCollapse": {
+    "description": "Accessibility label for the Collapse button"
+  },
   "a11yShow": "Show",
-  "@a11yShow": { "description": "Accessibility label for the Show button" },
+  "@a11yShow": {
+    "description": "Accessibility label for the Show button"
+  },
   "a11yHide": "Hide",
-  "@a11yHide": { "description": "Accessibility label for the Hide button" },
+  "@a11yHide": {
+    "description": "Accessibility label for the Hide button"
+  },
   "a11ySettings": "Settings",
-  "@a11ySettings": { "description": "Accessibility label for the Settings button" },
+  "@a11ySettings": {
+    "description": "Accessibility label for the Settings button"
+  },
   "a11yProfile": "Profile",
-  "@a11yProfile": { "description": "Accessibility label for the Profile button" },
+  "@a11yProfile": {
+    "description": "Accessibility label for the Profile button"
+  },
   "a11yNotifications": "Notifications",
-  "@a11yNotifications": { "description": "Accessibility label for the Notifications button" },
+  "@a11yNotifications": {
+    "description": "Accessibility label for the Notifications button"
+  },
   "a11yHelp": "Help",
-  "@a11yHelp": { "description": "Accessibility label for the Help button" },
+  "@a11yHelp": {
+    "description": "Accessibility label for the Help button"
+  },
   "a11yInfo": "Details",
-  "@a11yInfo": { "description": "Accessibility label for the Details button" },
+  "@a11yInfo": {
+    "description": "Accessibility label for the Details button"
+  },
   "a11yFavorite": "Favorite",
-  "@a11yFavorite": { "description": "Accessibility label for the Favorite button" },
+  "@a11yFavorite": {
+    "description": "Accessibility label for the Favorite button"
+  },
   "a11yPin": "Pin",
-  "@a11yPin": { "description": "Accessibility label for the Pin button" },
+  "@a11yPin": {
+    "description": "Accessibility label for the Pin button"
+  },
   "a11yUnpin": "Unpin",
-  "@a11yUnpin": { "description": "Accessibility label for the Unpin button" },
+  "@a11yUnpin": {
+    "description": "Accessibility label for the Unpin button"
+  },
   "a11yMute": "Mute",
-  "@a11yMute": { "description": "Accessibility label for the Mute button" },
+  "@a11yMute": {
+    "description": "Accessibility label for the Mute button"
+  },
   "a11yUnmute": "Unmute",
-  "@a11yUnmute": { "description": "Accessibility label for the Unmute button" },
+  "@a11yUnmute": {
+    "description": "Accessibility label for the Unmute button"
+  },
   "a11yMarkRead": "Mark as read",
-  "@a11yMarkRead": { "description": "Accessibility label for the Mark as read button" },
+  "@a11yMarkRead": {
+    "description": "Accessibility label for the Mark as read button"
+  },
   "a11yNewChat": "New chat",
-  "@a11yNewChat": { "description": "Accessibility label for the New chat button" },
+  "@a11yNewChat": {
+    "description": "Accessibility label for the New chat button"
+  },
   "a11yNewMessage": "New message",
-  "@a11yNewMessage": { "description": "Accessibility label for the New message button" },
+  "@a11yNewMessage": {
+    "description": "Accessibility label for the New message button"
+  },
   "a11yEmoji": "Emoji",
-  "@a11yEmoji": { "description": "Accessibility label for the Emoji button" },
+  "@a11yEmoji": {
+    "description": "Accessibility label for the Emoji button"
+  },
   "a11ySelectDate": "Select date",
-  "@a11ySelectDate": { "description": "Accessibility label for the Select date button" },
+  "@a11ySelectDate": {
+    "description": "Accessibility label for the Select date button"
+  },
   "a11yLogout": "Log out",
-  "@a11yLogout": { "description": "Accessibility label for the Log out button" },
+  "@a11yLogout": {
+    "description": "Accessibility label for the Log out button"
+  },
   "a11yAddAccount": "Add account",
-  "@a11yAddAccount": { "description": "Accessibility label for the Add account button" },
+  "@a11yAddAccount": {
+    "description": "Accessibility label for the Add account button"
+  },
   "a11yShowPassword": "Show password",
-  "@a11yShowPassword": { "description": "Accessibility label for the Show password button" },
+  "@a11yShowPassword": {
+    "description": "Accessibility label for the Show password button"
+  },
   "a11yHidePassword": "Hide password",
-  "@a11yHidePassword": { "description": "Accessibility label for the Hide password button" },
+  "@a11yHidePassword": {
+    "description": "Accessibility label for the Hide password button"
+  },
   "a11yScrollToBottom": "Scroll to bottom",
-  "@a11yScrollToBottom": { "description": "Accessibility label for the Scroll to bottom button" },
+  "@a11yScrollToBottom": {
+    "description": "Accessibility label for the Scroll to bottom button"
+  },
   "a11yOpen": "Open",
-  "@a11yOpen": { "description": "Accessibility label for the Open button" },
+  "@a11yOpen": {
+    "description": "Accessibility label for the Open button"
+  },
   "errStateOfflineTitle": "You're offline",
-  "@errStateOfflineTitle": { "description": "Headline of the illustrated error state shown when the device has no connectivity" },
+  "@errStateOfflineTitle": {
+    "description": "Headline of the illustrated error state shown when the device has no connectivity"
+  },
   "errStateOfflineBody": "We can't reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.",
-  "@errStateOfflineBody": { "description": "Body copy of the offline illustrated error state" },
+  "@errStateOfflineBody": {
+    "description": "Body copy of the offline illustrated error state"
+  },
   "errStateServerTitle": "Something broke on our side",
-  "@errStateServerTitle": { "description": "Headline of the illustrated error state shown for 5xx server errors" },
+  "@errStateServerTitle": {
+    "description": "Headline of the illustrated error state shown for 5xx server errors"
+  },
   "errStateServerBody": "Our servers hit a snag. It's not you — please try again in a moment.",
-  "@errStateServerBody": { "description": "Body copy of the server error illustrated state" },
+  "@errStateServerBody": {
+    "description": "Body copy of the server error illustrated state"
+  },
   "errStateNotFoundTitle": "We couldn't find that",
-  "@errStateNotFoundTitle": { "description": "Headline of the illustrated error state shown for 404 not found" },
+  "@errStateNotFoundTitle": {
+    "description": "Headline of the illustrated error state shown for 404 not found"
+  },
   "errStateNotFoundBody": "This item may have been moved or deleted.",
-  "@errStateNotFoundBody": { "description": "Body copy of the not found illustrated state" },
+  "@errStateNotFoundBody": {
+    "description": "Body copy of the not found illustrated state"
+  },
   "errStateForbiddenTitle": "You don't have access",
-  "@errStateForbiddenTitle": { "description": "Headline of the illustrated error state shown for 401/403 permission errors" },
+  "@errStateForbiddenTitle": {
+    "description": "Headline of the illustrated error state shown for 401/403 permission errors"
+  },
   "errStateForbiddenBody": "This area is locked for your account. If that seems wrong, ask your school admin.",
-  "@errStateForbiddenBody": { "description": "Body copy of the permission denied illustrated state" },
+  "@errStateForbiddenBody": {
+    "description": "Body copy of the permission denied illustrated state"
+  },
   "errStateTimeoutTitle": "That took too long",
-  "@errStateTimeoutTitle": { "description": "Headline of the illustrated error state shown for timeouts and rate limits" },
+  "@errStateTimeoutTitle": {
+    "description": "Headline of the illustrated error state shown for timeouts and rate limits"
+  },
   "errStateTimeoutBody": "The request timed out or the server is busy. Give it a second, then retry.",
-  "@errStateTimeoutBody": { "description": "Body copy of the timeout illustrated state" },
+  "@errStateTimeoutBody": {
+    "description": "Body copy of the timeout illustrated state"
+  },
   "errStateEmptyTitle": "Nothing here yet",
-  "@errStateEmptyTitle": { "description": "Headline of the illustrated empty state shown when there is no content" },
+  "@errStateEmptyTitle": {
+    "description": "Headline of the illustrated empty state shown when there is no content"
+  },
   "errStateEmptyBody": "When there's something to show, it'll appear right here.",
-  "@errStateEmptyBody": { "description": "Body copy of the empty illustrated state" },
+  "@errStateEmptyBody": {
+    "description": "Body copy of the empty illustrated state"
+  },
   "errStateGenericTitle": "Something went wrong",
-  "@errStateGenericTitle": { "description": "Headline of the fallback illustrated error state" },
+  "@errStateGenericTitle": {
+    "description": "Headline of the fallback illustrated error state"
+  },
   "errStateGenericBody": "We hit an unexpected hiccup. Try again — it usually works the second time.",
-  "@errStateGenericBody": { "description": "Body copy of the fallback illustrated error state" }
+  "@errStateGenericBody": {
+    "description": "Body copy of the fallback illustrated error state"
+  },
+  "updatePromptTitle": "Update available",
+  "updatePromptBody": "A new version of ClassMate is ready. Update now to get the latest features and fixes.",
+  "updatePromptUpdate": "Update",
+  "updatePromptLater": "Not now"
 }

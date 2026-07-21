@@ -21,7 +21,15 @@ Bump the build number — **must be higher than the last uploaded build** (Play 
 
 ```
 apps/classmate_mobile/pubspec.yaml →  version: 1.0.8+N   (N = N + 1)
+services/api/src/version/version.controller.ts →  FALLBACK_LATEST_MOBILE_BUILD = N
 ```
+
+The second constant drives the in-app "Update available" prompt (`/version` →
+`mobile.latestBuild`; the app compares its own build via package_info_plus and
+nudges once per new build). Env `MOBILE_LATEST_BUILD` on Railway overrides it
+without a deploy; `MOBILE_IOS_UPDATE_URL` / `MOBILE_ANDROID_UPDATE_URL` steer
+the store links (iOS defaults to the TestFlight deep link until the App Store
+launch).
 
 Commit + push:
 

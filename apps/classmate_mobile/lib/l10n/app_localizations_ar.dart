@@ -11538,4 +11538,17 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get errStateGenericBody =>
       'واجهنا خللًا غير متوقع. حاول مرة أخرى — غالبًا ما ينجح الأمر في المحاولة الثانية.';
+
+  @override
+  String get updatePromptTitle => 'يتوفر تحديث';
+
+  @override
+  String get updatePromptBody =>
+      'إصدار جديد من ClassMate جاهز. حدِّث الآن للحصول على أحدث الميزات والإصلاحات.';
+
+  @override
+  String get updatePromptUpdate => 'تحديث';
+
+  @override
+  String get updatePromptLater => 'ليس الآن';
 }

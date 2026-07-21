@@ -12,6 +12,7 @@ import 'router.dart';
 import '../core/theme/theme_controller.dart';
 import '../core/locale/locale_controller.dart';
 import '../core/auth/auth_controller.dart';
+import '../core/update/update_gate.dart';
 import '../features/lifedoc/notifications_local_service.dart';
 import '../features/lifedoc/notifications_provider.dart';
 import '../ui/nav/desktop_chrome_shell.dart';
@@ -123,7 +124,12 @@ class ClassMateApp extends ConsumerWidget {
         // à la Twitter/Instagram web — see AppShell, breakpoint 900px). So we
         // hand off directly and let it fill the window; no extra frame (an
         // earlier max-width wrapper fought the shell and squished the rail).
-        return _NotificationReceiverHost(child: dismissOnDragChild);
+        // UpdateGate paints ABOVE everything (chrome + all routes): the
+        // once-per-release "a new version is ready" card with a jump to the
+        // store — see core/update/update_gate.dart.
+        return _NotificationReceiverHost(
+          child: UpdateGate(child: dismissOnDragChild),
+        );
       },
     );
   }

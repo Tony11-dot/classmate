@@ -11597,4 +11597,17 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get errStateGenericBody =>
       'Произошёл непредвиденный сбой. Попробуйте ещё раз — обычно со второго раза всё получается.';
+
+  @override
+  String get updatePromptTitle => 'Доступно обновление';
+
+  @override
+  String get updatePromptBody =>
+      'Готова новая версия ClassMate. Обновитесь сейчас, чтобы получить последние функции и исправления.';
+
+  @override
+  String get updatePromptUpdate => 'Обновить';
+
+  @override
+  String get updatePromptLater => 'Не сейчас';
 }
