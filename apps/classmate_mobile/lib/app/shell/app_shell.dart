@@ -24,6 +24,7 @@ import '../../features/lifedoc/student_materials_screen.dart';
 import '../../features/consent/consent_gate.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/messages/providers/messages_repository_provider.dart';
+import '../../features/classrooms/providers/classrooms_providers.dart';
 import '../../features/teacher_mobile/ui/teacher_forms_screen.dart';
 import '../../ui/glass/native_glass_view.dart';
 import '../../ui/nav/main_drawer.dart';
@@ -618,8 +619,15 @@ class AppShell extends ConsumerWidget {
           // Both are FutureProvider.autoDispose so they refetch on next render automatically
           break;
         case 'classroom_message':
+          // The open thread refreshes itself, but the classroom INBOX cards
+          // (last-message preview on the home screen) watch
+          // classroomChatProvider and had no invalidation at all — previews
+          // went stale until a manual refresh. Invalidate the whole family:
+          // only currently-watched classrooms refetch.
+          ref.invalidate(classroomChatProvider);
+          break;
         case 'dm_message':
-          // Messages handle their own invalidation in messages screens
+          // The DM inbox screen handles its own invalidation.
           break;
         case 'poll':
           // Web fallback (no SSE streaming on web): periodically refresh the

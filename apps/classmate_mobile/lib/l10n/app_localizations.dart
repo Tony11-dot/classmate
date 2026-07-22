@@ -20126,6 +20126,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get updatePromptLater;
+
+  /// No description provided for @chatPublishAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'New assignment'**
+  String get chatPublishAssignment;
+
+  /// No description provided for @chatPublishMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'New material'**
+  String get chatPublishMaterial;
+
+  /// No description provided for @chatPublishMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'New meeting'**
+  String get chatPublishMeeting;
+
+  /// No description provided for @chatPublishView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get chatPublishView;
+
+  /// No description provided for @settingsAppFont.
+  ///
+  /// In en, this message translates to:
+  /// **'App font'**
+  String get settingsAppFont;
+
+  /// No description provided for @settingsAppFontSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the typeface used across the app'**
+  String get settingsAppFontSubtitle;
+
+  /// No description provided for @settingsAppFontDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get settingsAppFontDefault;
+
+  /// No description provided for @settingsAppFontSpecimen.
+  ///
+  /// In en, this message translates to:
+  /// **'The quick brown fox jumps over the lazy dog'**
+  String get settingsAppFontSpecimen;
 }
 
 class _AppLocalizationsDelegate

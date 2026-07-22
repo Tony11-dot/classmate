@@ -4126,5 +4126,13 @@
   "updatePromptTitle": "Mise à jour disponible",
   "updatePromptBody": "Une nouvelle version de ClassMate est prête. Mettez à jour maintenant pour profiter des dernières nouveautés et corrections.",
   "updatePromptUpdate": "Mettre à jour",
-  "updatePromptLater": "Plus tard"
+  "updatePromptLater": "Plus tard",
+  "chatPublishAssignment": "Nouveau devoir",
+  "chatPublishMaterial": "Nouveau support de cours",
+  "chatPublishMeeting": "Nouvelle réunion",
+  "chatPublishView": "Voir",
+  "settingsAppFont": "Police de l'application",
+  "settingsAppFontSubtitle": "Choisissez la police utilisée dans toute l'application",
+  "settingsAppFontDefault": "Par défaut",
+  "settingsAppFontSpecimen": "Portez ce vieux whisky au juge blond qui fume"
 }

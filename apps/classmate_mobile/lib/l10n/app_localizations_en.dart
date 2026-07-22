@@ -11607,4 +11607,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updatePromptLater => 'Not now';
+
+  @override
+  String get chatPublishAssignment => 'New assignment';
+
+  @override
+  String get chatPublishMaterial => 'New material';
+
+  @override
+  String get chatPublishMeeting => 'New meeting';
+
+  @override
+  String get chatPublishView => 'View';
+
+  @override
+  String get settingsAppFont => 'App font';
+
+  @override
+  String get settingsAppFontSubtitle =>
+      'Choose the typeface used across the app';
+
+  @override
+  String get settingsAppFontDefault => 'Default';
+
+  @override
+  String get settingsAppFontSpecimen =>
+      'The quick brown fox jumps over the lazy dog';
 }

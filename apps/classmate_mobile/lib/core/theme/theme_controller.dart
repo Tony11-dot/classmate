@@ -43,6 +43,37 @@ enum AppTheme {
   ocean,
 }
 
+/// The user-selectable app typefaces (Settings → App font). Every family is
+/// bundled in pubspec with 400/500/700 statics; [family] must match the
+/// pubspec `family:` key exactly. Cabinet Grotesk is the long-standing
+/// default. Arabic/Hebrew glyphs are absent from all of them and fall back
+/// to the platform Noto fonts — identical behaviour to Cabinet today.
+enum AppFont {
+  cabinet('CabinetGrotesk', 'Cabinet Grotesk'),
+  clashGrotesk('ClashGrotesk', 'Clash Grotesk'),
+  clashDisplay('ClashDisplay', 'Clash Display'),
+  satoshi('Satoshi', 'Satoshi'),
+  generalSans('GeneralSans', 'General Sans'),
+  switzer('Switzer', 'Switzer'),
+  chillax('Chillax', 'Chillax'),
+  ranade('Ranade', 'Ranade'),
+  spaceGrotesk('SpaceGrotesk', 'Space Grotesk'),
+  sora('Sora', 'Sora'),
+  outfit('Outfit', 'Outfit'),
+  manrope('Manrope', 'Manrope'),
+  urbanist('Urbanist', 'Urbanist'),
+  plusJakarta('PlusJakartaSans', 'Plus Jakarta Sans'),
+  dmSans('DMSans', 'DM Sans');
+
+  const AppFont(this.family, this.label);
+
+  /// Pubspec font-family key.
+  final String family;
+
+  /// Human name — rendered IN this font in the picker.
+  final String label;
+}
+
 class ThemeState {
   const ThemeState({
     required this.theme,
@@ -50,6 +81,7 @@ class ThemeState {
     required this.density,
     required this.textScale,
     required this.reduceMotion,
+    required this.font,
   });
 
   final AppTheme theme;
@@ -57,6 +89,7 @@ class ThemeState {
   final double density;
   final double textScale;
   final bool reduceMotion;
+  final AppFont font;
 
   ThemeState copyWith({
     AppTheme? theme,
@@ -64,6 +97,7 @@ class ThemeState {
     double? density,
     double? textScale,
     bool? reduceMotion,
+    AppFont? font,
   }) {
     return ThemeState(
       theme: theme ?? this.theme,
@@ -71,6 +105,7 @@ class ThemeState {
       density: density ?? this.density,
       textScale: textScale ?? this.textScale,
       reduceMotion: reduceMotion ?? this.reduceMotion,
+      font: font ?? this.font,
     );
   }
 }
@@ -81,6 +116,7 @@ class ThemeController extends Notifier<ThemeState> {
   static const _kDensity = 'ui_density';
   static const _kTextScale = 'ui_text_scale';
   static const _kReduceMotion = 'ui_reduce_motion';
+  static const _kFont = 'ui_font';
 
   @override
   ThemeState build() {
@@ -91,6 +127,7 @@ class ThemeController extends Notifier<ThemeState> {
       density: 0.0,
       textScale: 1.0,
       reduceMotion: false,
+      font: AppFont.cabinet,
     );
   }
 
@@ -117,13 +154,24 @@ class ThemeController extends Notifier<ThemeState> {
         .toDouble();
     final reduceMotion = prefs.getBool(_kReduceMotion) ?? false;
 
+    final fontRaw = prefs.getString(_kFont) ?? AppFont.cabinet.name;
+    final font = AppFont.values.where((f) => f.name == fontRaw).firstOrNull ??
+        AppFont.cabinet;
+
     state = state.copyWith(
       theme: theme,
       radius: radius,
       density: density,
       textScale: textScale,
       reduceMotion: reduceMotion,
+      font: font,
     );
+  }
+
+  Future<void> setFont(AppFont font) async {
+    state = state.copyWith(font: font);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kFont, font.name);
   }
 
   Future<void> setTheme(AppTheme theme) async {
@@ -655,9 +703,10 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
-    // App-wide UI typeface: Cabinet Grotesk (bundled). Arabic/Hebrew have no
-    // Cabinet glyphs and fall back to the platform / CanvasKit Noto fonts.
-    fontFamily: 'CabinetGrotesk',
+    // App-wide UI typeface — the user's pick from Settings → App font
+    // (Cabinet Grotesk by default). Arabic/Hebrew have no glyphs in any of
+    // the bundled families and fall back to platform / CanvasKit Noto fonts.
+    fontFamily: s.font.family,
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
   );
 

@@ -18,6 +18,8 @@ class ChatAudioBubble extends StatefulWidget {
     this.timeLabel,
     this.delivered = false,
     this.seen = false,
+    this.senderName = '',
+    this.borderRadius,
   });
 
   final String url;
@@ -29,6 +31,14 @@ class ChatAudioBubble extends StatefulWidget {
   final String? timeLabel;
   final bool delivered;
   final bool seen;
+
+  /// Sender display name — drives the trailing avatar's initial + tint.
+  final String senderName;
+
+  /// Outer bubble shape. Passed in by the message bubble so the corner on the
+  /// tail side can be squared and the tail welds into THIS container exactly
+  /// like a text bubble. Defaults to the classic fully-rounded pill.
+  final BorderRadius? borderRadius;
 
   @override
   State<ChatAudioBubble> createState() => _ChatAudioBubbleState();
@@ -172,6 +182,22 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     return '$mm:$ss';
   }
 
+  /// Deterministic pseudo-waveform. Real per-message amplitude data isn't
+  /// stored, so — like WhatsApp — the bars are decorative but STABLE: seeded
+  /// from the url they never re-shuffle on rebuild or between sessions.
+  List<double> _barHeights(int count) {
+    final rnd = math.Random(widget.url.hashCode);
+    final out = <double>[];
+    var prev = 0.45;
+    for (var i = 0; i < count; i++) {
+      // Random walk with pull-to-center: reads as speech, not white noise.
+      final target = 0.15 + rnd.nextDouble() * 0.85;
+      prev = prev * 0.45 + target * 0.55;
+      out.add(prev.clamp(0.12, 1.0));
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -181,133 +207,46 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final posMs = _position.inMilliseconds.clamp(0, totalMs);
     final progress = posMs / totalMs;
 
-    final unreadDot = widget.isUnread && !_playedOnce && !_isPlaying;
-    // Voice-bubble palette tuned per sender + theme for legibility.
+    final unheard = widget.isUnread && !_playedOnce && !_isPlaying;
+    // WhatsApp-parity palette.
     //
-    // Own bubble (background ≈ scheme.primary):
-    //   accent (play circle, active waveform bars, active speed pill) is
-    //   white — maximum contrast on the saturated primary bubble. onAccent
-    //   (icon/text sitting on the accent) is primary — clean white pill
-    //   with a colored icon, no double-stacked white.
-    //
-    // Other bubble (background ≈ scheme.surfaceContainerHigh):
-    //   accent is primary so the play circle pops on the neutral bubble;
-    //   onAccent is onPrimary (system-correct white for both light + dark
-    //   themes).
-    //
-    // Inactive waveform + time text get their own muted colors that aren't
-    // 100% solid — the prior code reused onSurface/Colors.white which
-    // produced a too-saturated track + competing text against the active
-    // accent.
+    // Own bubble (background ≈ scheme.primary): the "ink" (play triangle,
+    // played bars, scrubber, texts) is white with varying opacities.
+    // Other bubble (neutral surface): ink is onSurface greys; the scrubber
+    // dot and unheard-mic badge take the primary accent so they pop the way
+    // WhatsApp's blue dot does on a white bubble.
+    final Color ink = widget.isMine ? Colors.white : scheme.onSurface;
     final Color accent = widget.isMine ? Colors.white : scheme.primary;
-    final Color onAccent = widget.isMine ? scheme.primary : scheme.onPrimary;
-    // For OTHER people's bubbles the background is a light neutral surface in
-    // light mode, where `outlineVariant` (inactive ticks) and
-    // `onSurfaceVariant` (duration text) both wash out and read as barely
-    // visible. Use stronger, onSurface-derived tones so the waveform track
-    // and the duration are clearly legible on either theme.
-    final Color inactiveColor = widget.isMine
-        ? Colors.white.withValues(alpha: 0.35)
-        : scheme.onSurface.withValues(alpha: 0.38);
+    final Color playedBar = widget.isMine
+        ? Colors.white.withValues(alpha: 0.95)
+        : scheme.onSurface.withValues(alpha: 0.62);
+    final Color idleBar = widget.isMine
+        ? Colors.white.withValues(alpha: 0.40)
+        : scheme.onSurface.withValues(alpha: 0.28);
     final Color timeColor = widget.isMine
-        ? Colors.white.withValues(alpha: 0.85)
-        : scheme.onSurface.withValues(alpha: 0.75);
+        ? Colors.white.withValues(alpha: 0.80)
+        : scheme.onSurface.withValues(alpha: 0.60);
 
-    // ── Waveform bars ──────────────────────────────────────────────────────
-    const baseHeights = <double>[5, 9, 14, 18, 12, 8, 16, 10, 15, 6];
-    final pulseBucket = (_position.inMilliseconds ~/ 240) % 2;
-
-    Widget waveformBar(int i, int count) {
-      final frac = (i + 1) / math.max(1, count);
-      final active = frac <= progress;
-      final focusIdx = (progress * math.max(1, count - 1)).round();
-      final isFocus = (i - focusIdx).abs() <= 1;
-      final h = baseHeights[i % baseHeights.length] + (isFocus ? 3 : 0);
-      final color = active ? accent : inactiveColor;
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        width: 3,
-        height: h,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(999),
-        ),
-      );
-    }
-
-    // ── Play/pause button ─────────────────────────────────────────────────
+    // ── Play / pause (plain glyph, no circle — as in the reference) ────────
     final playBtn = GestureDetector(
       onTap: _loading ? null : _togglePlay,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: 1,
-          end: _isPlaying ? (pulseBucket == 0 ? 1.0 : 1.06) : 1,
-        ),
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeInOutCubic,
-        builder: (context, scale, _) => Transform.scale(
-          scale: scale,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: accent,
-              border: Border.all(
-                color: accent.withValues(alpha: unreadDot ? 0.60 : 0.28),
-              ),
-              boxShadow: _isPlaying
-                  ? [
-                      BoxShadow(
-                        color: accent,
-                        blurRadius: 14,
-                        spreadRadius: -6,
-                        offset: const Offset(0, 6),
-                      ),
-                    ]
-                  : null,
-            ),
-            alignment: Alignment.center,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                if (_loading)
-                  CmLoading(size: 18, color: onAccent)
-                else
-                  Icon(
-                    _isPlaying
-                        ? Icons.pause_rounded
-                        : Icons.play_arrow_rounded,
-                    color: onAccent,
-                    size: 22,
-                  ),
-                if (unreadDot)
-                  Positioned(
-                    top: -1,
-                    right: -1,
-                    child: Container(
-                      width: 9,
-                      height: 9,
-                      decoration: BoxDecoration(
-                        color: accent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: widget.bubbleColor,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 36,
+        height: 44,
+        child: Center(
+          child: _loading
+              ? CmLoading(size: 18, color: ink.withValues(alpha: 0.75))
+              : Icon(
+                  _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  color: ink.withValues(alpha: 0.75),
+                  size: 34,
+                ),
         ),
       ),
     );
 
-    // ── Seekable waveform + progress track ───────────────────────────────
-    // GestureDetector is inside LayoutBuilder so findRenderObject() returns
-    // the seekbar's RenderBox — required for accurate tap + drag seeking.
+    // ── Seekable waveform + scrubber dot ───────────────────────────────────
     final seekBar = LayoutBuilder(
       builder: (ctx, constraints) {
         void seekFromGlobal(Offset globalPosition) {
@@ -317,200 +256,276 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
           _seekToRatio(local.dx / math.max(1, box.size.width));
         }
 
-        final usable = constraints.maxWidth;
-        final barCount = math.max(6, (usable / 6).floor());
-
+        const bw = 2.6, gap = 2.0;
+        final count =
+            math.max(12, (constraints.maxWidth / (bw + gap)).floor());
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapDown: (d) => seekFromGlobal(d.globalPosition),
           onHorizontalDragUpdate: (d) => seekFromGlobal(d.globalPosition),
-          onPanUpdate: (d) => seekFromGlobal(d.globalPosition),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: 3,
-                decoration: BoxDecoration(
-                  color: inactiveColor,
-                  borderRadius: BorderRadius.circular(999),
-                ),
+          child: SizedBox(
+            height: 34,
+            child: CustomPaint(
+              size: Size(constraints.maxWidth, 34),
+              painter: _VoiceWavePainter(
+                heights: _barHeights(count),
+                progress: progress.clamp(0.0, 1.0),
+                playedColor: playedBar,
+                idleColor: idleBar,
+                dotColor: widget.isMine ? Colors.white : accent,
+                barWidth: bw,
+                gap: gap,
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FractionallySizedBox(
-                  widthFactor: progress.clamp(0.0, 1.0),
-                  child: Container(
-                    height: 3,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                children: List.generate(
-                  barCount,
-                  (i) => Expanded(child: Center(child: waveformBar(i, barCount))),
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
     );
 
-    // ── Time display ──────────────────────────────────────────────────────
-    // Playing → elapsed time counting up; stopped → total duration.
-    final timeText = _isPlaying
-        ? _fmt(_position)
-        : _fmt(resolved);
-
-    final timeWidget = Text(
-      timeText,
-      style: TextStyle(
-        color: timeColor,
-        fontSize: 11,
-        fontWeight: _isPlaying ? FontWeight.w800 : FontWeight.w600,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      ),
-    );
-
-    // ── Speed control (below bubble) ─────────────────────────────────────
-    //
-    // ONE pill that CYCLES 1× → 1.5× → 2× → 1× on tap, the way WhatsApp,
-    // Instagram and Telegram all do it. The old control was a 3-segment
-    // switch showing every option at once: three tap targets ~24 px wide
-    // (below the 44 px minimum), and two of the three labels always drawn in
-    // a washed-out state on an accent-filled pill just to say "not this one".
-    // A single pill shows only the CURRENT rate, which is the only thing
-    // worth reading, and gives the whole control one comfortable hit box.
+    // ── Trailing: avatar + mic badge, or the speed pill while playing ──────
     const speeds = [1.0, 1.5, 2.0];
     final speedIndex = speeds.indexWhere((s) => (_speed - s).abs() < 0.01);
     final currentSpeed = speedIndex < 0 ? 0 : speedIndex;
     final speedLabel = const ['1×', '1.5×', '2×'][currentSpeed];
-    final isDefaultSpeed = currentSpeed == 0;
 
-    final speedRow = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          onTap: () => _setSpeed(speeds[(currentSpeed + 1) % speeds.length]),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            // Padding (not margin) so the tap target stays finger-sized while
-            // the visible pill stays small.
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              curve: Curves.easeOutCubic,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                // At 1× the pill recedes to a quiet outline — nothing is being
-                // overridden, so it shouldn't compete with the waveform.
-                color: isDefaultSpeed ? Colors.transparent : accent,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: isDefaultSpeed ? accent.withValues(alpha: 0.55) : accent,
-                ),
-              ),
-              child: Text(
-                speedLabel,
-                style: TextStyle(
-                  // At 1× the pill is transparent, so the label takes the
-                  // accent itself — the same colour the filled pill uses as
-                  // its background, which by construction contrasts with the
-                  // bubble on both sides of the conversation.
-                  color: isDefaultSpeed ? accent : onAccent,
-                  fontSize: 10,
-                  fontWeight: isDefaultSpeed ? FontWeight.w600 : FontWeight.w900,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+    // WhatsApp swaps the avatar for the speed pill during playback — the pill
+    // is only actionable while listening, the avatar only informative before.
+    final showSpeed = _isPlaying || _position > Duration.zero;
+
+    final name = widget.senderName.trim();
+    final initial = name.isEmpty ? '' : name.characters.first.toUpperCase();
+    // Stable pastel per sender so the same person's voice notes always carry
+    // the same avatar tint (screenshot: the soft pink circle).
+    final hue = (name.isEmpty ? 210 : (name.hashCode % 360)).toDouble().abs();
+    final avatarBg = HSLColor.fromAHSL(
+      1,
+      hue,
+      0.42,
+      Theme.of(context).brightness == Brightness.dark ? 0.38 : 0.82,
+    ).toColor();
+    final avatarFg = HSLColor.fromAHSL(
+      1,
+      hue,
+      0.45,
+      Theme.of(context).brightness == Brightness.dark ? 0.85 : 0.28,
+    ).toColor();
+
+    final avatar = SizedBox(
+      width: 44,
+      height: 44,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration:
+                  BoxDecoration(color: avatarBg, shape: BoxShape.circle),
+              child: Center(
+                child: initial.isEmpty
+                    ? Icon(Icons.person_rounded, size: 24, color: avatarFg)
+                    : Text(
+                        initial,
+                        style: TextStyle(
+                          color: avatarFg,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
               ),
             ),
           ),
-        ),
-      ],
+          // Mic badge overlapping the avatar's leading-bottom edge — accent
+          // while the note is unheard, muted once played (WhatsApp semantics).
+          PositionedDirectional(
+            start: -7,
+            bottom: 1,
+            child: Icon(
+              Icons.mic_rounded,
+              size: 19,
+              color: unheard
+                  ? (widget.isMine ? Colors.white : scheme.primary)
+                  : timeColor,
+            ),
+          ),
+        ],
+      ),
     );
 
-    // ── Delivery checks ───────────────────────────────────────────────────
-    //
-    // Sizes were too small to read at 12px against a saturated bubble.
-    // Bumping the icon to 16, the seen colour stays the cyan WhatsApp-
-    // style accent (legible on both dark and light primary), and the
-    // pending/delivered colour matches the timestamp text (timeColor) so
-    // it never sits at full-opacity white on a white-ish bubble.
+    final speedPill = GestureDetector(
+      onTap: () => _setSpeed(speeds[(currentSpeed + 1) % speeds.length]),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 44),
+        height: 26,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: widget.isMine
+              ? Colors.white.withValues(alpha: 0.22)
+              : scheme.onSurface.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          speedLabel,
+          style: TextStyle(
+            color: ink.withValues(alpha: 0.85),
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ),
+    );
+
+    final trailing = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 160),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeOutCubic,
+      child: showSpeed
+          ? SizedBox(
+              key: const ValueKey('speed'),
+              width: 48,
+              height: 44,
+              child: Center(child: speedPill),
+            )
+          : KeyedSubtree(key: const ValueKey('avatar'), child: avatar),
+    );
+
+    // ── Times row: elapsed/total under the wave, timestamp + ticks at end ──
+    final durationText = Text(
+      _isPlaying || _position > Duration.zero ? _fmt(_position) : _fmt(resolved),
+      style: TextStyle(
+        color: timeColor,
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
+
     Widget checksWidget = const SizedBox.shrink();
     if (widget.isMine) {
-      checksWidget = ChatTicks(
-        state: ChatTicks.stateOf(
-          delivered: widget.delivered,
-          seen: widget.seen,
+      checksWidget = Padding(
+        padding: const EdgeInsetsDirectional.only(start: 4),
+        child: ChatTicks(
+          state: ChatTicks.stateOf(
+            delivered: widget.delivered,
+            seen: widget.seen,
+          ),
+          onAccentSurface: true,
+          size: 15,
         ),
-        onAccentSurface: true,
-        size: 16,
       );
     }
 
-    // ── Assemble ──────────────────────────────────────────────────────────
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment:
-          widget.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          decoration: BoxDecoration(
-            // Inherit the same bubble color the message uses so the voice
-            // pill is visible against the chat canvas in light mode. The
-            // hairline outline keeps the pill defined when the fill color
-            // is very close to the surrounding surface.
-            color: widget.bubbleColor,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    // ── Assemble — ONE container, shaped by the caller so the bubble tail
+    // welds into it exactly like a text bubble ─────────────────────────────
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 300),
+      padding: const EdgeInsetsDirectional.fromSTEB(4, 6, 8, 4),
+      decoration: BoxDecoration(
+        color: widget.bubbleColor,
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(18),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Row 1: [play] [waveform] [time]
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  playBtn,
-                  const SizedBox(width: 10),
-                  Expanded(child: seekBar),
-                  const SizedBox(width: 8),
-                  timeWidget,
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Row 2: [speed selector] ... [timestamp + checks]
-              Row(
-                children: [
-                  speedRow,
-                  const Spacer(),
-                  if (widget.timeLabel != null) ...[
-                    Text(
-                      widget.timeLabel!,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: timeColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                  ],
-                  checksWidget,
-                ],
-              ),
+              playBtn,
+              const SizedBox(width: 2),
+              Expanded(child: seekBar),
+              const SizedBox(width: 8),
+              trailing,
             ],
           ),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: 8, top: 1),
+            child: Row(
+              children: [
+                durationText,
+                const Spacer(),
+                if (widget.timeLabel != null)
+                  Text(
+                    widget.timeLabel!,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: timeColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                checksWidget,
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+/// Static waveform + progress scrubber. Bars are painted center-aligned in a
+/// single pass; the played portion (and the dot) tint by [progress]. Painted
+/// physically LTR — audio time always advances left→right, as in every
+/// messenger, RTL locales included.
+class _VoiceWavePainter extends CustomPainter {
+  const _VoiceWavePainter({
+    required this.heights,
+    required this.progress,
+    required this.playedColor,
+    required this.idleColor,
+    required this.dotColor,
+    required this.barWidth,
+    required this.gap,
+  });
+
+  final List<double> heights;
+  final double progress;
+  final Color playedColor;
+  final Color idleColor;
+  final Color dotColor;
+  final double barWidth;
+  final double gap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (heights.isEmpty) return;
+    final slot = barWidth + gap;
+    final usable = size.width;
+    final count = math.min(heights.length, (usable / slot).floor());
+    if (count <= 0) return;
+    final midY = size.height / 2;
+    const maxH = 26.0;
+    final playedPaint = Paint()
+      ..color = playedColor
+      ..strokeWidth = barWidth
+      ..strokeCap = StrokeCap.round;
+    final idlePaint = Paint()
+      ..color = idleColor
+      ..strokeWidth = barWidth
+      ..strokeCap = StrokeCap.round;
+    final dotX = (progress * (count - 1)) * slot + barWidth / 2;
+
+    for (var i = 0; i < count; i++) {
+      final x = i * slot + barWidth / 2;
+      final h = math.max(3.0, heights[i] * maxH);
+      final paint = x <= dotX && progress > 0 ? playedPaint : idlePaint;
+      canvas.drawLine(
+          Offset(x, midY - h / 2), Offset(x, midY + h / 2), paint);
+    }
+
+    // Scrubber dot: always visible (at the start when idle) — it doubles as
+    // the drag handle affordance, like WhatsApp's blue dot.
+    final dot = Paint()..color = dotColor;
+    canvas.drawCircle(Offset(dotX.clamp(5.0, usable - 5.0), midY), 5.5, dot);
+  }
+
+  @override
+  bool shouldRepaint(_VoiceWavePainter old) =>
+      old.progress != progress ||
+      old.playedColor != playedColor ||
+      old.idleColor != idleColor ||
+      old.dotColor != dotColor ||
+      old.heights.length != heights.length;
 }

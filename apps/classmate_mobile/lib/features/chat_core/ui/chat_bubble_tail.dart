@@ -30,9 +30,11 @@ class ChatBubbleTail extends StatelessWidget {
   /// How far the tail's base extends INSIDE the bubble. Two anti-aliased
   /// shapes that merely touch leave a hairline seam where the background
   /// bleeds through — the bubble and its tail read as two separate pieces.
-  /// Painting the base a couple of pixels into the bubble (same colour, so
-  /// the overlap is invisible) welds them into one silhouette.
-  static const double overlap = 2.5;
+  /// Painting the base well into the bubble (same colour, so the overlap is
+  /// invisible) welds them into one silhouette. The bubble corner on this
+  /// side is a hard 90° (Radius.zero), so the whole overlapped strip is
+  /// guaranteed to sit on solid bubble fill at every scale factor.
+  static const double overlap = 4.0;
 
   @override
   Widget build(BuildContext context) => SizedBox(

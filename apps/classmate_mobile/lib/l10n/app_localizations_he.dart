@@ -11483,4 +11483,28 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get updatePromptLater => 'לא עכשיו';
+
+  @override
+  String get chatPublishAssignment => 'מטלה חדשה';
+
+  @override
+  String get chatPublishMaterial => 'חומר לימוד חדש';
+
+  @override
+  String get chatPublishMeeting => 'מפגש חדש';
+
+  @override
+  String get chatPublishView => 'צפייה';
+
+  @override
+  String get settingsAppFont => 'גופן האפליקציה';
+
+  @override
+  String get settingsAppFontSubtitle => 'בחרו את הגופן שישמש בכל האפליקציה';
+
+  @override
+  String get settingsAppFontDefault => 'ברירת מחדל';
+
+  @override
+  String get settingsAppFontSpecimen => 'טקסט לדוגמה לתצוגה מקדימה של הגופן';
 }

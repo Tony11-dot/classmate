@@ -4126,5 +4126,13 @@
   "updatePromptTitle": "עדכון זמין",
   "updatePromptBody": "גרסה חדשה של ClassMate מוכנה. עדכנו עכשיו כדי לקבל את החידושים והתיקונים האחרונים.",
   "updatePromptUpdate": "עדכון",
-  "updatePromptLater": "לא עכשיו"
+  "updatePromptLater": "לא עכשיו",
+  "chatPublishAssignment": "מטלה חדשה",
+  "chatPublishMaterial": "חומר לימוד חדש",
+  "chatPublishMeeting": "מפגש חדש",
+  "chatPublishView": "צפייה",
+  "settingsAppFont": "גופן האפליקציה",
+  "settingsAppFontSubtitle": "בחרו את הגופן שישמש בכל האפליקציה",
+  "settingsAppFontDefault": "ברירת מחדל",
+  "settingsAppFontSpecimen": "טקסט לדוגמה לתצוגה מקדימה של הגופן"
 }

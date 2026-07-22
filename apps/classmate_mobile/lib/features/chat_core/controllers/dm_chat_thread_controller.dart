@@ -409,12 +409,21 @@ class DmChatThreadController extends ChatThreadController {
     // IMPORTANT: No kind-match requirement — the server may return kind:'TEXT'
     // for messages that were sent as images/voice, so we match media optimistics
     // by (isOwn + timestamp) rather than (kind + timestamp).
+    // One-to-one matching: each server message may confirm at most ONE
+    // optimistic. Without this, sending the same text twice quickly meant the
+    // first server copy pruned BOTH optimistics and the second message
+    // blinked out until its own copy arrived.
+    final consumedServerIds = <String>{};
     _optimisticMessages.removeWhere((o) {
       if (serverIds.contains(o.id)) return true;
       if (now.difference(o.createdAt).inMinutes > 5) return true;
       for (final s in server) {
+        if (consumedServerIds.contains(s.id)) continue;
         if (o.kind == ChatMessageKind.text) {
-          if (s.text == o.text && s.text.isNotEmpty) return true;
+          if (s.isOwn && s.text == o.text && s.text.isNotEmpty) {
+            consumedServerIds.add(s.id);
+            return true;
+          }
         } else {
           // Media optimistic: only match own server messages that also have
           // a media URL (or non-text kind). Matching plain text messages caused
@@ -422,6 +431,7 @@ class DmChatThreadController extends ChatThreadController {
           if (s.isOwn &&
               s.createdAt.difference(o.createdAt).inSeconds.abs() <= 60 &&
               ((s.mediaUrl ?? '').isNotEmpty || s.kind != ChatMessageKind.text)) {
+            consumedServerIds.add(s.id);
             return true;
           }
         }
@@ -793,8 +803,14 @@ class DmChatThreadController extends ChatThreadController {
         text: text,
         replyToMessageId: replyToMessageId,
       );
-    } finally {
+      // Do NOT remove the optimistic here. The POST returning only means the
+      // server accepted it — the refetch that contains the real copy is still
+      // in flight, and removing now made the message vanish for one round-trip
+      // and pop back in ("blink"). _mergeWithOptimistic() prunes it the moment
+      // the server copy actually appears in fetched data.
+    } catch (_) {
       _optimisticMessages.remove(optimistic);
+      rethrow;
     }
   }
 

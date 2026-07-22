@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.9+236
+version: 1.0.9+237
 
 environment:
   sdk: ^3.10.4
@@ -143,9 +143,12 @@ flutter:
     - assets/images/
     - assets/animations/
 
-  # Cabinet Grotesk (Fontshare, free) — the app's UI typeface. Capped at Bold
-  # (no Extrabold/Black) to keep the overall weight light. Arabic/Hebrew have no
-  # Cabinet glyphs, so they fall back to the platform/CanvasKit Noto fonts.
+  # App typeface lineup (user-selectable in Settings → App font). Cabinet
+  # Grotesk stays the default; the rest are clean grotesks in the same spirit
+  # (Fontshare ITF-FFL + Google Fonts OFL, all free for app embedding). Each
+  # family ships 400/500/700 statics; heavier style weights (w800/w900) snap
+  # to Bold. Arabic/Hebrew have no glyphs in any of these and fall back to the
+  # platform/CanvasKit Noto fonts, exactly as Cabinet always has.
   fonts:
     - family: CabinetGrotesk
       fonts:
@@ -156,6 +159,118 @@ flutter:
         - asset: assets/fonts/CabinetGrotesk-Medium.ttf
           weight: 500
         - asset: assets/fonts/CabinetGrotesk-Bold.ttf
+          weight: 700
+    - family: ClashGrotesk
+      fonts:
+        - asset: assets/fonts/ClashGrotesk-400.otf
+          weight: 400
+        - asset: assets/fonts/ClashGrotesk-500.otf
+          weight: 500
+        - asset: assets/fonts/ClashGrotesk-700.otf
+          weight: 700
+    - family: ClashDisplay
+      fonts:
+        - asset: assets/fonts/ClashDisplay-400.otf
+          weight: 400
+        - asset: assets/fonts/ClashDisplay-500.otf
+          weight: 500
+        - asset: assets/fonts/ClashDisplay-700.otf
+          weight: 700
+    - family: Satoshi
+      fonts:
+        - asset: assets/fonts/Satoshi-400.otf
+          weight: 400
+        - asset: assets/fonts/Satoshi-500.otf
+          weight: 500
+        - asset: assets/fonts/Satoshi-700.otf
+          weight: 700
+    - family: GeneralSans
+      fonts:
+        - asset: assets/fonts/GeneralSans-400.otf
+          weight: 400
+        - asset: assets/fonts/GeneralSans-500.otf
+          weight: 500
+        - asset: assets/fonts/GeneralSans-700.otf
+          weight: 700
+    - family: Switzer
+      fonts:
+        - asset: assets/fonts/Switzer-400.otf
+          weight: 400
+        - asset: assets/fonts/Switzer-500.otf
+          weight: 500
+        - asset: assets/fonts/Switzer-700.otf
+          weight: 700
+    - family: Chillax
+      fonts:
+        - asset: assets/fonts/Chillax-400.otf
+          weight: 400
+        - asset: assets/fonts/Chillax-500.otf
+          weight: 500
+        - asset: assets/fonts/Chillax-700.otf
+          weight: 700
+    - family: Ranade
+      fonts:
+        - asset: assets/fonts/Ranade-400.otf
+          weight: 400
+        - asset: assets/fonts/Ranade-500.otf
+          weight: 500
+        - asset: assets/fonts/Ranade-700.otf
+          weight: 700
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/SpaceGrotesk-400.ttf
+          weight: 400
+        - asset: assets/fonts/SpaceGrotesk-500.ttf
+          weight: 500
+        - asset: assets/fonts/SpaceGrotesk-700.ttf
+          weight: 700
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-400.ttf
+          weight: 400
+        - asset: assets/fonts/Sora-500.ttf
+          weight: 500
+        - asset: assets/fonts/Sora-700.ttf
+          weight: 700
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/Outfit-400.ttf
+          weight: 400
+        - asset: assets/fonts/Outfit-500.ttf
+          weight: 500
+        - asset: assets/fonts/Outfit-700.ttf
+          weight: 700
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-400.ttf
+          weight: 400
+        - asset: assets/fonts/Manrope-500.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-700.ttf
+          weight: 700
+    - family: Urbanist
+      fonts:
+        - asset: assets/fonts/Urbanist-400.ttf
+          weight: 400
+        - asset: assets/fonts/Urbanist-500.ttf
+          weight: 500
+        - asset: assets/fonts/Urbanist-700.ttf
+          weight: 700
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-400.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-500.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-700.ttf
+          weight: 700
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-400.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-500.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-700.ttf
           weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see

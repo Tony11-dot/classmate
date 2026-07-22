@@ -2187,6 +2187,38 @@ export class TeacherService {
     return { ok: true, message: msg };
   }
 
+  /**
+   * Auto-posts a "teacher just published X" message into the classroom chat
+   * whenever a material / meeting / assignment is created or attached. The
+   * text carries a wire marker — `[PUBLISH:<type>:<itemId>] <title>` — that
+   * the app renders as a localized card with a View button deep-linking to
+   * the item. Best-effort: a chat hiccup must never fail the publish itself.
+   */
+  private async postPublishChatMessage(
+    classroomId: string,
+    teacherUserId: string,
+    type: 'assignment' | 'material' | 'meeting',
+    itemId: string,
+    title: string,
+  ) {
+    try {
+      await this.prisma.classroomMessage.create({
+        data: {
+          classroomId,
+          senderUserId: teacherUserId,
+          kind: 'TEXT' as any,
+          text: `[PUBLISH:${type}:${itemId}] ${title}`.trim(),
+        },
+      });
+      void this.emitToClassroomMembers(classroomId, {
+        type: 'classroom_message',
+        classroomId,
+      });
+    } catch {
+      // best-effort only
+    }
+  }
+
   async listClassroomAssignments(user: any, classroomId: string) {
     this.ensureTeacher(user);
     const teacherId = user.id ?? user.sub;
@@ -2213,6 +2245,7 @@ export class TeacherService {
     const dueLabel = dueAt ? ` — due ${dueAt.toLocaleDateString()}` : '';
     await this.notifyClassroomMembers(classroomId, `New assignment: ${title}`, `${cr.name}${dueLabel}`, { type: 'NEW_ASSIGNMENT', assignmentId: item.id, classroomId }, { key: 'assignment', args: { teacher: this._notifierName(user), title, subject: (cr as any).subject ?? cr.name } });
     void this.emitToClassroomMembers(classroomId, { type: 'assignment_created', classroomId });
+    void this.postPublishChatMessage(classroomId, teacherId, 'assignment', item.id, title);
     return { ok: true, item };
   }
 
@@ -2277,6 +2310,7 @@ export class TeacherService {
     });
     await this.notifyClassroomMembers(classroomId, `New material: ${title}`, cr.name, { type: 'NEW_MATERIAL', materialId: item.id, classroomId }, { key: 'material', args: { teacher: this._notifierName(user), title, subject: (cr as any).subject ?? cr.name } });
     void this.emitToClassroomMembers(classroomId, { type: 'material_created', classroomId });
+    void this.postPublishChatMessage(classroomId, teacherId, 'material', item.id, title);
     return { ok: true, item };
   }
 
@@ -2324,6 +2358,7 @@ export class TeacherService {
     const timeLabel = startsAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     await this.notifyClassroomMembers(classroomId, `Meeting: ${title}`, `${cr.name} — ${timeLabel}`, { type: 'NEW_MEETING', meetingId: item.id, classroomId }, { key: 'meeting', args: { teacher: this._notifierName(user), title } });
     void this.emitToClassroomMembers(classroomId, { type: 'meeting_created', classroomId });
+    void this.postPublishChatMessage(classroomId, teacherId, 'meeting', item.id, title);
     return { ok: true, item };
   }
 
@@ -3246,6 +3281,8 @@ export class TeacherService {
           teacherAssignmentId: a.id,
           attachments: Array.isArray(body?.attachments) ? body.attachments : [],
         } as any,
+      }).then((row) => {
+        void this.postPublishChatMessage(classroomId, teacherId, 'assignment', row.id, title);
       }).catch(() => {});
       // Emit real-time to classroom members
       void this.emitToClassroomMembers(classroomId, { type: 'assignment_created', classroomId });
@@ -3603,6 +3640,8 @@ export class TeacherService {
           createdBy: teacherId,
           teacherMaterialId: m.id,
         },
+      }).then((row) => {
+        void this.postPublishChatMessage(classroomId, teacherId, 'material', row.id, title);
       }).catch(() => {});
     }
     if (m.published) {
@@ -3873,6 +3912,7 @@ export class TeacherService {
     // Audience auto-expand: pull in classroom members the material doesn't
     // already target so they see the item in their materials feed too.
     await this.expandTeacherMaterialAudience(material.id, classroomId);
+    void this.postPublishChatMessage(classroomId, teacherId, 'material', created.id, material.title);
     return { ok: true, id: created.id };
   }
 
@@ -3911,6 +3951,7 @@ export class TeacherService {
       } as any,
     });
     await this.expandTeacherAssignmentAudience(src.id, classroomId);
+    void this.postPublishChatMessage(classroomId, teacherId, 'assignment', created.id, src.title);
     return { ok: true, id: created.id };
   }
 
@@ -3944,6 +3985,7 @@ export class TeacherService {
       } as any,
     });
     await this.expandTeacherMeetingAudience(src.id, classroomId);
+    void this.postPublishChatMessage(classroomId, teacherId, 'meeting', created.id, src.title);
     return { ok: true, id: created.id };
   }
 
@@ -4362,6 +4404,8 @@ export class TeacherService {
           createdBy: teacherId,
           teacherMeetingId: m.id,
         },
+      }).then((row) => {
+        void this.postPublishChatMessage(classroomId, teacherId, 'meeting', row.id, title);
       }).catch(() => {});
     }
     try {

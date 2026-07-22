@@ -6242,5 +6242,13 @@
   "updatePromptTitle": "‹‹Update available››",
   "updatePromptBody": "‹‹A new version of ClassMate is ready. Update now to get the latest features and fixes.››",
   "updatePromptUpdate": "‹‹Update››",
-  "updatePromptLater": "‹‹Not now››"
+  "updatePromptLater": "‹‹Not now››",
+  "chatPublishAssignment": "‹‹New assignment››",
+  "chatPublishMaterial": "‹‹New material››",
+  "chatPublishMeeting": "‹‹New meeting››",
+  "chatPublishView": "‹‹View››",
+  "settingsAppFont": "‹‹App font››",
+  "settingsAppFontSubtitle": "‹‹Choose the typeface used across the app››",
+  "settingsAppFontDefault": "‹‹Default››",
+  "settingsAppFontSpecimen": "‹‹The quick brown fox jumps over the lazy dog››"
 }

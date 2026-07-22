@@ -11551,4 +11551,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updatePromptLater => 'ليس الآن';
+
+  @override
+  String get chatPublishAssignment => 'واجب جديد';
+
+  @override
+  String get chatPublishMaterial => 'مادة تعليمية جديدة';
+
+  @override
+  String get chatPublishMeeting => 'اجتماع جديد';
+
+  @override
+  String get chatPublishView => 'عرض';
+
+  @override
+  String get settingsAppFont => 'خط التطبيق';
+
+  @override
+  String get settingsAppFontSubtitle =>
+      'اختر نوع الخط المستخدم في جميع أنحاء التطبيق';
+
+  @override
+  String get settingsAppFontDefault => 'افتراضي';
+
+  @override
+  String get settingsAppFontSpecimen => 'نص تجريبي لمعاينة شكل الخط في التطبيق';
 }

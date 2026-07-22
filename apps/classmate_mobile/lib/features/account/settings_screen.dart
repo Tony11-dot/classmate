@@ -211,6 +211,15 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const _Divider(),
                   _SettingRow(
+                    icon: Icons.text_fields_rounded,
+                    title: l.settingsAppFont,
+                    subtitle: t.font.label,
+                    onTap: () => _showFontPicker(context, t.font, tc.setFont),
+                    trailing: Icon(Icons.chevron_right_rounded,
+                        color: cs.onSurfaceVariant),
+                  ),
+                  const _Divider(),
+                  _SettingRow(
                     icon: Icons.animation_rounded,
                     title: l.settingsReduceMotion,
                     subtitle: l.settingsReduceMotionSubtitle,
@@ -269,6 +278,150 @@ class SettingsScreen extends ConsumerWidget {
       ],
     );
   }
+}
+
+// ── Font picker ─────────────────────────────────────────────────────────────
+
+/// Bottom sheet listing every bundled typeface — each name rendered IN that
+/// font, so choosing is seeing. Selection applies live and persists.
+Future<void> _showFontPicker(
+  BuildContext context,
+  AppFont current,
+  ValueChanged<AppFont> onSelect,
+) async {
+  final l = AppLocalizations.of(context)!;
+  final cs = Theme.of(context).colorScheme;
+  await showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    backgroundColor: cs.surfaceContainerLow,
+    builder: (sheetCtx) => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.62,
+      maxChildSize: 0.92,
+      builder: (ctx, scrollController) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
+            child: Row(
+              children: [
+                Icon(Icons.text_fields_rounded, size: 18, color: cs.primary),
+                const SizedBox(width: 8),
+                Text(
+                  l.settingsAppFont,
+                  style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+            child: Text(
+              l.settingsAppFontSubtitle,
+              style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+              itemCount: AppFont.values.length,
+              itemBuilder: (ctx, i) {
+                final font = AppFont.values[i];
+                final selected = font == current;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      onSelect(font);
+                      Navigator.of(sheetCtx).pop();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? cs.primaryContainer.withValues(alpha: 0.55)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: selected
+                              ? cs.primary.withValues(alpha: 0.55)
+                              : cs.outlineVariant.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // The name IS the specimen — rendered in the
+                                // family it names.
+                                Text(
+                                  font.label,
+                                  style: TextStyle(
+                                    fontFamily: font.family,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: cs.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  l.settingsAppFontSpecimen,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: font.family,
+                                    fontSize: 12.5,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (font == AppFont.cabinet) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: cs.secondaryContainer,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                l.settingsAppFontDefault,
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: cs.onSecondaryContainer,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (selected)
+                            Icon(Icons.check_circle_rounded,
+                                size: 20, color: cs.primary),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 // ── Widgets ─────────────────────────────────────────────────────────────────

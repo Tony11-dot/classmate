@@ -11766,4 +11766,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get updatePromptLater => 'Plus tard';
+
+  @override
+  String get chatPublishAssignment => 'Nouveau devoir';
+
+  @override
+  String get chatPublishMaterial => 'Nouveau support de cours';
+
+  @override
+  String get chatPublishMeeting => 'Nouvelle réunion';
+
+  @override
+  String get chatPublishView => 'Voir';
+
+  @override
+  String get settingsAppFont => 'Police de l\'application';
+
+  @override
+  String get settingsAppFontSubtitle =>
+      'Choisissez la police utilisée dans toute l\'application';
+
+  @override
+  String get settingsAppFontDefault => 'Par défaut';
+
+  @override
+  String get settingsAppFontSpecimen =>
+      'Portez ce vieux whisky au juge blond qui fume';
 }

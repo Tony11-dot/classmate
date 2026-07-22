@@ -12,6 +12,9 @@ class ChatPreviewLabels {
     this.attachment = 'Attachment',
     this.message = 'Message',
     this.deleted = 'This message was deleted',
+    this.newAssignment = 'New assignment',
+    this.newMaterial = 'New material',
+    this.newMeeting = 'New meeting',
   });
 
   factory ChatPreviewLabels.of(AppLocalizations l) => ChatPreviewLabels(
@@ -21,6 +24,9 @@ class ChatPreviewLabels {
         attachment: l.chatPreviewAttachment,
         message: l.chatPreviewMessage,
         deleted: l.chatMessageBubbleDeletedMessage,
+        newAssignment: l.chatPublishAssignment,
+        newMaterial: l.chatPublishMaterial,
+        newMeeting: l.chatPublishMeeting,
       );
 
   final String photo;
@@ -29,6 +35,38 @@ class ChatPreviewLabels {
   final String attachment;
   final String message;
   final String deleted;
+  final String newAssignment;
+  final String newMaterial;
+  final String newMeeting;
+}
+
+/// A server-baked "teacher just published X" marker:
+/// `[PUBLISH:assignment:<id>] <title>` (types: assignment | material |
+/// meeting). The chat renders these as a card with a View button; previews
+/// render them as "📘 New assignment: <title>".
+final RegExp _publishMarkerRe =
+    RegExp(r'^\[PUBLISH:(assignment|material|meeting):([^\]\s]+)\]\s*(.*)$');
+
+({String type, String id, String title})? parsePublishMarker(String raw) {
+  final m = _publishMarkerRe.firstMatch(raw.trim());
+  if (m == null) return null;
+  return (
+    type: m.group(1)!,
+    id: m.group(2)!,
+    title: (m.group(3) ?? '').trim(),
+  );
+}
+
+String publishPreviewText(
+  ({String type, String id, String title}) p,
+  ChatPreviewLabels labels,
+) {
+  final label = switch (p.type) {
+    'assignment' => '📘 ${labels.newAssignment}',
+    'material' => '📚 ${labels.newMaterial}',
+    _ => '📅 ${labels.newMeeting}',
+  };
+  return p.title.isEmpty ? label : '$label: ${p.title}';
 }
 
 const ChatPreviewLabels _en = ChatPreviewLabels();
@@ -109,26 +147,61 @@ String replyPreviewText(String text, {ChatPreviewLabels labels = _en}) {
 /// Recognises the wire-format attachment markers the server bakes into
 /// message text — `[IMAGE] name.png`, `[VOICE] ... [duration:N]`,
 /// `[FILE] doc.pdf` — and returns a human snippet for reply previews.
+/// Media extension → kind classifier working on filenames, absolute device
+/// paths AND full URLs (query strings stripped, last path segment taken). A
+/// preview must NEVER surface a raw path — worst case it says "attachment".
+String? _classifyMediaName(String value, ChatPreviewLabels labels) {
+  var v = value.trim().toLowerCase();
+  if (v.isEmpty) return null;
+  // Strip URL query/fragment, then reduce to the last path segment.
+  final q = v.indexOf('?');
+  if (q != -1) v = v.substring(0, q);
+  final h = v.indexOf('#');
+  if (h != -1) v = v.substring(0, h);
+  final lastSlash = v.lastIndexOf('/');
+  if (lastSlash != -1) v = v.substring(lastSlash + 1);
+  if (!v.contains('.')) return null;
+  final ext = v.split('.').last;
+  if (['m4a', 'aac', 'mp3', 'wav', 'ogg', 'opus', 'caf'].contains(ext)) {
+    return '🎤 ${labels.voice}';
+  }
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'].contains(ext)) {
+    return '📷 ${labels.photo}';
+  }
+  if (['mp4', 'mov', 'm4v', 'webm', 'avi', 'mkv', '3gp'].contains(ext)) {
+    return '🎥 ${labels.video}';
+  }
+  if (ext == 'pdf') return '📄 $v';
+  if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'txt']
+      .contains(ext)) {
+    return '📎 $v';
+  }
+  return null;
+}
+
+bool _looksLikePathOrUrl(String v) =>
+    v.startsWith('http://') ||
+    v.startsWith('https://') ||
+    v.startsWith('file://') ||
+    v.startsWith('/');
+
 String? _formatAttachmentMarker(String raw, ChatPreviewLabels labels) {
-  // Bare media filenames (e.g. "chat-voice-123.m4a", "IMG_2.jpg") that arrive
-  // without a [KIND] marker — classify by extension so a reply to media never
-  // shows a raw filename.
-  final lower = raw.toLowerCase().trim();
+  final trimmed = raw.trim();
+
+  // "Teacher just published X" cards.
+  final publish = parsePublishMarker(trimmed);
+  if (publish != null) return publishPreviewText(publish, labels);
+
+  // Bare media filenames / device paths / CDN URLs (e.g. "IMG_2.jpg",
+  // "/var/…/trim.4AF2.mp4", "https://cdn…/clip.mp4?X-Amz-…") that arrive
+  // without a [KIND] marker — classify by extension so a preview never shows
+  // a raw filename or path.
+  final lower = trimmed.toLowerCase();
   if (!lower.contains(' ') && lower.contains('.')) {
-    final ext = lower.split('.').last;
-    if (['m4a', 'aac', 'mp3', 'wav', 'ogg', 'opus', 'caf'].contains(ext)) {
-      return '🎤 ${labels.voice}';
-    }
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'].contains(ext)) {
-      return '📷 ${labels.photo}';
-    }
-    if (['mp4', 'mov', 'm4v', 'webm', 'avi', 'mkv'].contains(ext)) {
-      return '🎥 ${labels.video}';
-    }
-    if (['pdf'].contains(ext)) return '📄 $raw';
-    if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'txt'].contains(ext)) {
-      return '📎 $raw';
-    }
+    final classified = _classifyMediaName(trimmed, labels);
+    if (classified != null) return classified;
+    // Unclassifiable but clearly a path/URL — say "attachment", never leak it.
+    if (_looksLikePathOrUrl(lower)) return '📎 ${labels.attachment}';
   }
 
   final m = RegExp(r'^\[(IMAGE|VOICE|FILE|VIDEO)\]\s*(.*)$').firstMatch(raw);
@@ -149,9 +222,17 @@ String? _formatAttachmentMarker(String raw, ChatPreviewLabels labels) {
       }
       return '🎤 ${labels.voice}';
     case 'FILE':
-      final filename = rest.isEmpty ? 'file' : rest;
-      final lowerName = filename.toLowerCase();
-      if (lowerName.endsWith('.pdf')) return '📄 $filename';
+      // The remainder is whatever the sender's device produced — often a full
+      // path or CDN URL for classroom video/file sends. Classify it; only show
+      // it verbatim when it's a plain human-looking filename.
+      final filename = rest.isEmpty ? '' : rest;
+      if (filename.isEmpty) return '📎 ${labels.attachment}';
+      final classified = _classifyMediaName(filename, labels);
+      if (classified != null) return classified;
+      if (_looksLikePathOrUrl(filename.toLowerCase()) ||
+          filename.contains('/')) {
+        return '📎 ${labels.attachment}';
+      }
       return '📎 $filename';
     case 'VIDEO':
       return '🎥 ${labels.video}';

@@ -4126,5 +4126,13 @@
   "updatePromptTitle": "يتوفر تحديث",
   "updatePromptBody": "إصدار جديد من ClassMate جاهز. حدِّث الآن للحصول على أحدث الميزات والإصلاحات.",
   "updatePromptUpdate": "تحديث",
-  "updatePromptLater": "ليس الآن"
+  "updatePromptLater": "ليس الآن",
+  "chatPublishAssignment": "واجب جديد",
+  "chatPublishMaterial": "مادة تعليمية جديدة",
+  "chatPublishMeeting": "اجتماع جديد",
+  "chatPublishView": "عرض",
+  "settingsAppFont": "خط التطبيق",
+  "settingsAppFontSubtitle": "اختر نوع الخط المستخدم في جميع أنحاء التطبيق",
+  "settingsAppFontDefault": "افتراضي",
+  "settingsAppFontSpecimen": "نص تجريبي لمعاينة شكل الخط في التطبيق"
 }

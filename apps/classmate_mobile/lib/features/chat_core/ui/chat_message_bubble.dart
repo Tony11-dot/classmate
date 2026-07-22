@@ -50,6 +50,7 @@ class ChatMessageBubble extends StatelessWidget {
     this.previewMaxHeight,
     this.showDeliveryStatus = true,
     this.tail = false,
+    this.onViewPublished,
   });
 
   final BuildContext contextForNavigation;
@@ -84,6 +85,10 @@ class ChatMessageBubble extends StatelessWidget {
   /// Draw the sender pointer. Only true for the first bubble in a run from the
   /// same sender — see [ChatBubbleTail].
   final bool tail;
+
+  /// Tap handler for the View button on published-item cards (messages whose
+  /// text carries a `[PUBLISH:type:id]` marker). Null hides the button.
+  final void Function(String type, String id, String title)? onViewPublished;
 
   bool _isImageByUrl(String v) => RegExp(
     r'\.(jpg|jpeg|png|webp|gif|heic|heif)(\?|$)',
@@ -286,13 +291,14 @@ class ChatMessageBubble extends StatelessWidget {
       isMine != (Directionality.of(context) == TextDirection.rtl);
 
   /// Rounded everywhere except the corner the tail grows out of, which is
-  /// squared off so bubble + tail read as ONE connected shape (the tail's
-  /// base paints a couple px into the bubble to weld the silhouette — see
-  /// [ChatBubbleTail.overlap]). A tailless bubble (mid-run) stays fully
-  /// rounded.
+  /// FULLY squared so the bubble's top edge runs in one continuous straight
+  /// line into the tail's top edge — zero notch, zero gap, one silhouette
+  /// (the tail's base additionally paints a few px into the bubble to weld
+  /// over the anti-aliased boundary — see [ChatBubbleTail.overlap]). A
+  /// tailless bubble (mid-run) stays fully rounded.
   BorderRadius _bubbleRadius(BuildContext context) {
     const r = Radius.circular(18);
-    const tight = Radius.circular(6);
+    const tight = Radius.zero;
     if (!tail) return const BorderRadius.all(r);
     final pointRight = _tailPointsRight(context);
     return BorderRadius.only(
@@ -300,6 +306,160 @@ class ChatMessageBubble extends StatelessWidget {
       topRight: pointRight ? tight : r,
       bottomLeft: r,
       bottomRight: r,
+    );
+  }
+
+  /// "Teacher just published X" card — a real bubble (tail included) with a
+  /// type icon, the localized "New assignment/material/meeting" label, the
+  /// item title, and a View button jumping to the item.
+  Widget _buildPublishCard(
+    BuildContext context,
+    AppLocalizations l,
+    ({String type, String id, String title}) publish, {
+    required Color bubbleColor,
+  }) {
+    final (IconData icon, String label) = switch (publish.type) {
+      'assignment' => (Icons.assignment_rounded, l.chatPublishAssignment),
+      'material' => (Icons.menu_book_rounded, l.chatPublishMaterial),
+      _ => (Icons.video_call_rounded, l.chatPublishMeeting),
+    };
+
+    final card = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+        decoration: BoxDecoration(
+          color: bubbleColor,
+          borderRadius: _bubbleRadius(context),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showName && !isMine) ...[
+              Text(
+                senderLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(icon, size: 20, color: Colors.white),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      if (publish.title.isNotEmpty)
+                        Text(
+                          publish.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                            height: 1.25,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (onViewPublished != null) ...[
+              const SizedBox(height: 9),
+              SizedBox(
+                width: double.infinity,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => onViewPublished!(
+                      publish.type, publish.id, publish.title),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      l.chatPublishView,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 5),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    timeLabel,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 11,
+                    ),
+                  ),
+                  if (isMine && showDeliveryStatus) ...[
+                    const SizedBox(width: 5),
+                    _buildChecks(context),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (previewMode) return card;
+
+    // Same welded tail treatment as every other bubble.
+    final pointRight = _tailPointsRight(context);
+    final Widget pointer = tail
+        ? ChatBubbleTail(color: bubbleColor, pointRight: pointRight)
+        : const SizedBox(width: _kTailWidth);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      textDirection: TextDirection.ltr,
+      children: pointRight
+          ? [Flexible(child: card), pointer]
+          : [pointer, Flexible(child: card)],
     );
   }
 
@@ -460,6 +620,18 @@ class ChatMessageBubble extends StatelessWidget {
     final outgoingBubbleColor = _accentBubbleColor(theme, isMine: true);
     final incomingBubbleColor = _accentBubbleColor(theme, isMine: false);
 
+    // ─── Published-item card: "[PUBLISH:type:id] Title" from the server ──────
+    final publish =
+        (!hasMedia && !isDeletedForEveryone) ? parsePublishMarker(bodyRaw) : null;
+    if (publish != null) {
+      return _buildPublishCard(
+        context,
+        l,
+        publish,
+        bubbleColor: isMine ? outgoingBubbleColor : incomingBubbleColor,
+      );
+    }
+
     if (isNakedMedia) {
       final Widget timeRow = Row(
         mainAxisSize: MainAxisSize.min,
@@ -579,24 +751,43 @@ class ChatMessageBubble extends StatelessWidget {
           ],
         );
       } else if (isVoice) {
+        // Voice notes are REAL bubbles — squared corner + welded tail, one
+        // silhouette, exactly like a text bubble (WhatsApp reference).
+        final Widget audio = ChatAudioBubble(
+          url: resolvedMediaUrl,
+          isMine: isMine,
+          bubbleColor: isMine ? outgoingBubbleColor : incomingBubbleColor,
+          durationSeconds: voiceDurationSeconds,
+          isUnread: voiceUnread,
+          onPlayed: onVoicePlayed,
+          timeLabel: timeLabel,
+          delivered: delivered,
+          seen: seen,
+          senderName: senderLabel,
+          borderRadius: _bubbleRadius(context),
+        );
+        Widget voiceBubble = audio;
+        if (!previewMode) {
+          final tailColor = isMine ? outgoingBubbleColor : incomingBubbleColor;
+          final pointRight = _tailPointsRight(context);
+          final Widget pointer = tail
+              ? ChatBubbleTail(color: tailColor, pointRight: pointRight)
+              : const SizedBox(width: _kTailWidth);
+          voiceBubble = Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: TextDirection.ltr,
+            children: pointRight
+                ? [Flexible(child: audio), pointer]
+                : [pointer, Flexible(child: audio)],
+          );
+        }
         mediaWidget = Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment:
               isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            ChatAudioBubble(
-              url: resolvedMediaUrl,
-              isMine: isMine,
-              bubbleColor: isMine
-                  ? outgoingBubbleColor
-                  : incomingBubbleColor,
-              durationSeconds: voiceDurationSeconds,
-              isUnread: voiceUnread,
-              onPlayed: onVoicePlayed,
-              timeLabel: timeLabel,
-              delivered: delivered,
-              seen: seen,
-            ),
+            voiceBubble,
             // timeRow removed — timestamp now inside the bubble
           ],
         );
@@ -654,8 +845,10 @@ class ChatMessageBubble extends StatelessWidget {
       );
 
       // Media has its own rounded frame and takes no tail, but it still has to
-      // share the same outer edge as the text bubbles around it.
+      // share the same outer edge as the text bubbles around it. Voice notes
+      // are the exception: their tail Row above already reserves that strip.
       if (!previewMode) {
+        if (isVoice) return nakedBubble;
         return Padding(
           padding: EdgeInsetsDirectional.only(
             end: isMine ? _kTailWidth : 0,
@@ -885,6 +1078,7 @@ class ChatMessageBubble extends StatelessWidget {
                     timeLabel: timeLabel,
                     delivered: delivered,
                     seen: seen,
+                    senderName: senderLabel,
                   ),
                   if (showRealUserCaption &&
                       !lowerBody.startsWith('[voice]')) ...[

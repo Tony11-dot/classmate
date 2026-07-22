@@ -495,14 +495,29 @@ class _ClassroomAppleCard extends ConsumerWidget {
                           : null;
                       final localLatest =
                           ClassroomChatThreadController.lastMessage(courseId);
+                      // The local cache only exists to cover the send→confirm
+                      // gap, so it may beat the server ONLY while it is fresh
+                      // (a just-sent message the poll hasn't returned yet).
+                      // Unbounded trust left cards showing long-deleted
+                      // messages — e.g. a raw mp4 path over an empty thread.
+                      final lt = localLatest == null
+                          ? null
+                          : parseFirstChatTimestamp(
+                              [_s(localLatest, 'createdAt')]);
+                      final localFresh = lt != null &&
+                          DateTime.now()
+                                  .toUtc()
+                                  .difference(lt.toUtc())
+                                  .inMinutes <
+                              5;
                       Map<String, dynamic>? latest;
                       if (serverLatest != null && localLatest != null) {
                         final st = parseFirstChatTimestamp([_s(serverLatest, 'createdAt')]);
-                        final lt = parseFirstChatTimestamp([_s(localLatest, 'createdAt')]);
-                        latest = (lt != null && st != null && lt.isAfter(st))
+                        latest = (localFresh && st != null && lt.isAfter(st))
                             ? localLatest : serverLatest;
                       } else {
-                        latest = serverLatest ?? localLatest;
+                        latest =
+                            serverLatest ?? (localFresh ? localLatest : null);
                       }
                       final createdAtRaw = latest == null ? '' : _s(latest, 'createdAt');
                       final createdAt = parseFirstChatTimestamp([createdAtRaw])?.toUtc();

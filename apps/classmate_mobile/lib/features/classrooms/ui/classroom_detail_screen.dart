@@ -274,6 +274,15 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       policy: ChatActionPolicy.classroom(
                         isTeacher: _isCurrentUserTeacher(people),
                       ),
+                      // "View" on a published-item card jumps to the item's
+                      // tab in THIS classroom (1 assignments · 2 materials ·
+                      // 3 meetings) — same surface both roles already know.
+                      onViewPublishedItem: (type, id, title) =>
+                          _tabs.animateTo(switch (type) {
+                        'assignment' => 1,
+                        'material' => 2,
+                        _ => 3,
+                      }),
                     ),
                   ),
                   _listTab(

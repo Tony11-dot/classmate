@@ -11610,4 +11610,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get updatePromptLater => 'Не сейчас';
+
+  @override
+  String get chatPublishAssignment => 'Новое задание';
+
+  @override
+  String get chatPublishMaterial => 'Новый материал';
+
+  @override
+  String get chatPublishMeeting => 'Новая встреча';
+
+  @override
+  String get chatPublishView => 'Открыть';
+
+  @override
+  String get settingsAppFont => 'Шрифт приложения';
+
+  @override
+  String get settingsAppFontSubtitle =>
+      'Выберите шрифт, используемый во всём приложении';
+
+  @override
+  String get settingsAppFontDefault => 'По умолчанию';
+
+  @override
+  String get settingsAppFontSpecimen =>
+      'Съешь же ещё этих мягких французских булок';
 }

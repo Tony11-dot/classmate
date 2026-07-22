@@ -98,6 +98,14 @@ class _TeacherClassroomDetailScreenState
         return ChatThreadView(
           controller: _chatController,
           policy: ChatActionPolicy.classroom(isTeacher: true),
+          // "View" on a published-item card jumps to that item's tab
+          // (1 assignments · 2 materials · 3 meetings).
+          onViewPublishedItem: (type, id, title) =>
+              _tabs.animateTo(switch (type) {
+            'assignment' => 1,
+            'material' => 2,
+            _ => 3,
+          }),
         );
       case 1:
         return _AssignmentsTab(

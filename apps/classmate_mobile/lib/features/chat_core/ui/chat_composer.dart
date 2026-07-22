@@ -334,8 +334,10 @@ class ChatComposer extends StatelessWidget {
   }
 
   /// The hover circle that tracks the finger while a hold-recording is live.
-  /// Rises with the drag; fills red and swaps to a closed padlock as the lock
-  /// threshold is reached (the thread view latches the lock on that crossing).
+  /// Rises with the drag; fills red and swaps to a closed padlock once the
+  /// finger is high enough — a "release to lock" affordance. Nothing latches
+  /// while the finger is down; the thread view resolves lock/cancel/send only
+  /// on release (lock = released high enough, at ANY horizontal position).
   Widget _lockBubble(BuildContext context, double width) {
     final scheme = Theme.of(context).colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;

@@ -4333,5 +4333,13 @@
   "updatePromptTitle": "Доступно обновление",
   "updatePromptBody": "Готова новая версия ClassMate. Обновитесь сейчас, чтобы получить последние функции и исправления.",
   "updatePromptUpdate": "Обновить",
-  "updatePromptLater": "Не сейчас"
+  "updatePromptLater": "Не сейчас",
+  "chatPublishAssignment": "Новое задание",
+  "chatPublishMaterial": "Новый материал",
+  "chatPublishMeeting": "Новая встреча",
+  "chatPublishView": "Открыть",
+  "settingsAppFont": "Шрифт приложения",
+  "settingsAppFontSubtitle": "Выберите шрифт, используемый во всём приложении",
+  "settingsAppFontDefault": "По умолчанию",
+  "settingsAppFontSpecimen": "Съешь же ещё этих мягких французских булок"
 }
