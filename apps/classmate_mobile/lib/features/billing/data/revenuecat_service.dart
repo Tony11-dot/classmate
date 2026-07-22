@@ -114,18 +114,22 @@ class RevenueCatService {
     if (kIsWeb || !_configured) {
       throw StateError('Purchases unavailable on this platform');
     }
-    final result = await Purchases.purchasePackage(package);
-    return result;
+    // v9+ API: purchase(PurchaseParams) returns a PurchaseResult; callers
+    // here only ever consumed the CustomerInfo, so unwrap it.
+    final result =
+        await Purchases.purchase(PurchaseParams.package(package));
+    return result.customerInfo;
   }
 
   /// Purchase a one-time consumable (token top-up). Same as above but
-  /// uses the StoreProduct overload because top-ups aren't packages.
+  /// uses the StoreProduct params because top-ups aren't packages.
   Future<CustomerInfo> purchaseProduct(StoreProduct product) async {
     if (kIsWeb || !_configured) {
       throw StateError('Purchases unavailable on this platform');
     }
-    final result = await Purchases.purchaseStoreProduct(product);
-    return result;
+    final result =
+        await Purchases.purchase(PurchaseParams.storeProduct(product));
+    return result.customerInfo;
   }
 
   /// Restore purchases — required by Apple's review guidelines for any

@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.9+235
+version: 1.0.9+236
 
 environment:
   sdk: ^3.10.4
@@ -42,7 +42,7 @@ dependencies:
   # The public iOS key (appl_*) is safe to ship in source — RC validates
   # it against the app's bundle ID server-side, so a leaked key can't be
   # used by another app.
-  purchases_flutter: ^8.0.0
+  purchases_flutter: ^10.4.2
   flutter:
     sdk: flutter
 
