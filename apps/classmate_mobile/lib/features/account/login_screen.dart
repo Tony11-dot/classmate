@@ -197,6 +197,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         GoRouterState.of(context).uri.queryParameters['add'] == '1';
     return Scaffold(
       body: AnimatedAuroraBackground(
+        // The login page is sparse — let the symbol field breathe a bit more.
+        symbolsSeed: 5,
+        symbolsOpacity: 0.9,
         child: SafeArea(
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),

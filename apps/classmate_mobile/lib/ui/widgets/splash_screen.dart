@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme/theme_controller.dart';
+import 'ambient_symbols.dart';
 import 'cm_splash_screen.dart';
 
 /// Launch splash. If [assets/animations/splash.json] exists in the
@@ -40,6 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
   /// The user's saved theme, read directly from prefs (the theme
   /// controller hasn't loaded yet at splash time).
   AppTheme _theme = AppTheme.light;
+  bool _reduceMotion = false;
 
   @override
   void initState() {
@@ -58,15 +61,18 @@ class _SplashScreenState extends State<SplashScreen> {
       await rootBundle.load('assets/animations/splash-dark.json');
       dark = true;
     } catch (_) {}
+    bool reduceMotion = false;
     try {
       final prefs = await SharedPreferences.getInstance();
       theme = appThemeFromName(prefs.getString('ui_mode'));
+      reduceMotion = prefs.getBool('ui_reduce_motion') ?? false;
     } catch (_) {}
     if (mounted) {
       setState(() {
         _hasLottie = light;
         _hasDarkLottie = dark;
         _theme = theme;
+        _reduceMotion = reduceMotion;
       });
     }
   }
@@ -99,6 +105,7 @@ class _SplashScreenState extends State<SplashScreen> {
         tinted: tinted,
         isDark: isDark,
         background: bg,
+        animateDecor: !_reduceMotion,
       );
     }
     return CmSplashScreen(onDone: widget.onComplete);
@@ -113,6 +120,7 @@ class _LottieSplash extends StatefulWidget {
     required this.tinted,
     required this.isDark,
     required this.background,
+    required this.animateDecor,
   });
 
   final String asset;
@@ -121,6 +129,7 @@ class _LottieSplash extends StatefulWidget {
   final bool tinted;
   final bool isDark;
   final Color background;
+  final bool animateDecor;
 
   @override
   State<_LottieSplash> createState() => _LottieSplashState();
@@ -159,6 +168,10 @@ class _LottieSplashState extends State<_LottieSplash>
           _recolor(decoded, from: _white, to: s.surface);
           _recolor(decoded, from: _navy, to: s.primary);
         }
+        // The monogram itself is an EMBEDDED PNG asset inside the Lottie —
+        // vector recolouring can't reach it, so retint the bitmap's pixels
+        // (srcIn keeps the alpha detail, replaces the colour).
+        await _tintEmbeddedImages(decoded, s.primary);
         bytes = utf8.encode(json.encode(decoded));
       } else {
         bytes = utf8.encode(raw);
@@ -173,6 +186,42 @@ class _LottieSplashState extends State<_LottieSplash>
       }
     }
     if (mounted) setState(() => _bytes = bytes);
+  }
+
+  /// Retints every base64-embedded raster asset in the composition to [to]
+  /// via srcIn (alpha preserved — the mark's shape survives, only the colour
+  /// changes). Best-effort per image; a decode failure leaves that asset as
+  /// shipped.
+  static Future<void> _tintEmbeddedImages(dynamic doc, Color to) async {
+    if (doc is! Map || doc['assets'] is! List) return;
+    for (final asset in doc['assets'] as List) {
+      if (asset is! Map) continue;
+      final p = asset['p'];
+      if (p is! String || !p.startsWith('data:image')) continue;
+      try {
+        final b64 = p.substring(p.indexOf(',') + 1);
+        final srcBytes = base64Decode(b64);
+        final codec = await ui.instantiateImageCodec(srcBytes);
+        final image = (await codec.getNextFrame()).image;
+        final recorder = ui.PictureRecorder();
+        Canvas(recorder).drawImage(
+          image,
+          Offset.zero,
+          Paint()..colorFilter = ColorFilter.mode(to, BlendMode.srcIn),
+        );
+        final tinted = await recorder
+            .endRecording()
+            .toImage(image.width, image.height);
+        final png = await tinted.toByteData(format: ui.ImageByteFormat.png);
+        image.dispose();
+        tinted.dispose();
+        if (png == null) continue;
+        asset['p'] =
+            'data:image/png;base64,${base64Encode(png.buffer.asUint8List())}';
+      } catch (_) {
+        // Leave this asset untinted.
+      }
+    }
   }
 
   /// Recursively replaces static fill/stroke colours that match [from]
@@ -228,10 +277,22 @@ class _LottieSplashState extends State<_LottieSplash>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Decorative shapes filling the dead space around the animation —
-          // soft blobs + hairline rings in the theme's own colours, easing
-          // in so the canvas never feels like a blank sheet.
-          _SplashDecor(scheme: s, isDark: widget.isDark),
+          // Living background filling the dead space around the animation —
+          // floating educational symbols, stars, curved lines, rings, dots
+          // and soft blobs in the theme's colours, each with its own motion.
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 1100),
+            curve: Curves.easeOutCubic,
+            builder: (context, t, child) =>
+                Opacity(opacity: t, child: child),
+            child: AmbientSymbols(
+              scheme: s,
+              animate: widget.animateDecor,
+              seed: 3,
+              density: 1.1,
+            ),
+          ),
           if (_bytes != null)
             Center(
               child: Lottie.memory(
@@ -252,136 +313,4 @@ class _LottieSplashState extends State<_LottieSplash>
       ),
     );
   }
-}
-
-/// The ambient background art behind the splash animation: two large soft
-/// gradient blobs anchored to opposite corners, two thin concentric rings,
-/// and a sprinkle of small dots — all in theme colours at low opacity, all
-/// easing in together so the entrance feels composed, not busy.
-class _SplashDecor extends StatelessWidget {
-  const _SplashDecor({required this.scheme, required this.isDark});
-
-  final ColorScheme scheme;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    // On the pure black/white default splashes the shapes stay quieter so
-    // the brand animation keeps top billing.
-    final blobAlpha = isDark ? 0.20 : 0.35;
-    final ringAlpha = isDark ? 0.22 : 0.28;
-    final dotAlpha = isDark ? 0.30 : 0.38;
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 1100),
-      curve: Curves.easeOutCubic,
-      builder: (context, t, _) => Opacity(
-        opacity: t,
-        child: Transform.scale(
-          scale: 0.94 + 0.06 * t,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final w = constraints.maxWidth;
-              final h = constraints.maxHeight;
-              return Stack(
-                children: [
-                  // Top-start blob.
-                  Positioned(
-                    top: -h * 0.16,
-                    left: -w * 0.28,
-                    child: _blob(w * 0.85, scheme.primary, blobAlpha),
-                  ),
-                  // Bottom-end blob.
-                  Positioned(
-                    bottom: -h * 0.18,
-                    right: -w * 0.32,
-                    child: _blob(w * 0.95, scheme.tertiary, blobAlpha),
-                  ),
-                  // Mid-right accent blob, smaller.
-                  Positioned(
-                    top: h * 0.16,
-                    right: -w * 0.18,
-                    child: _blob(w * 0.45, scheme.secondary, blobAlpha * 0.8),
-                  ),
-                  // Concentric hairline rings around the centre.
-                  Positioned(
-                    top: h * 0.10,
-                    left: w * 0.06,
-                    child: _ring(w * 0.20, scheme.primary, ringAlpha),
-                  ),
-                  Positioned(
-                    bottom: h * 0.14,
-                    left: w * 0.14,
-                    child: _ring(w * 0.12, scheme.tertiary, ringAlpha),
-                  ),
-                  Positioned(
-                    top: h * 0.22,
-                    right: w * 0.10,
-                    child: _ring(w * 0.09, scheme.secondary, ringAlpha),
-                  ),
-                  // Small floating dots.
-                  Positioned(
-                    top: h * 0.32,
-                    left: w * 0.18,
-                    child: _dot(8, scheme.primary, dotAlpha),
-                  ),
-                  Positioned(
-                    bottom: h * 0.30,
-                    right: w * 0.22,
-                    child: _dot(10, scheme.tertiary, dotAlpha),
-                  ),
-                  Positioned(
-                    bottom: h * 0.20,
-                    left: w * 0.42,
-                    child: _dot(6, scheme.secondary, dotAlpha),
-                  ),
-                  Positioned(
-                    top: h * 0.14,
-                    right: w * 0.34,
-                    child: _dot(7, scheme.primary, dotAlpha),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _blob(double size, Color color, double alpha) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              color.withValues(alpha: alpha),
-              color.withValues(alpha: 0),
-            ],
-          ),
-        ),
-      );
-
-  Widget _ring(double size, Color color, double alpha) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: color.withValues(alpha: alpha),
-            width: 1.6,
-          ),
-        ),
-      );
-
-  Widget _dot(double size, Color color, double alpha) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color.withValues(alpha: alpha),
-        ),
-      );
 }

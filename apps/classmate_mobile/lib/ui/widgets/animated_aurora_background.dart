@@ -1,10 +1,17 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+import 'ambient_symbols.dart';
+
 /// A lively, theme-aware animated background: a slowly shifting gradient with
-/// several drifting, colorful "aurora" blobs painted behind content. Designed
-/// to feel alive (clear motion + real color) while staying cheap (one painter,
-/// one ticker) and readable for foreground text/cards.
+/// several drifting, colorful "aurora" blobs — plus a layer of floating
+/// educational symbols (♪ ∫ π `</>` calculators, stars, curved lines…) —
+/// painted behind content. Designed to feel alive (clear motion + real color)
+/// while staying cheap and readable for foreground text/cards.
+///
+/// Honors reduce-motion (Settings → Appearance): when the app's
+/// MediaQuery.disableAnimations flag is on, both the aurora and the symbols
+/// freeze into a static composition.
 ///
 /// Used full-screen on the login screen and the NOVA chat.
 class AnimatedAuroraBackground extends StatefulWidget {
@@ -12,6 +19,9 @@ class AnimatedAuroraBackground extends StatefulWidget {
     super.key,
     required this.child,
     this.intensity = 1.0,
+    this.symbols = true,
+    this.symbolsSeed = 7,
+    this.symbolsOpacity = 1.0,
   });
 
   /// Foreground content rendered above the animated layers.
@@ -20,6 +30,15 @@ class AnimatedAuroraBackground extends StatefulWidget {
   /// Multiplier for blob opacity / liveliness (0..1.5). Lower it where dense
   /// text sits on top (e.g. chat), raise it on sparse screens (e.g. login).
   final double intensity;
+
+  /// Whether to scatter the floating educational symbols over the aurora.
+  final bool symbols;
+
+  /// Per-screen scatter layout — different screens, different sky.
+  final int symbolsSeed;
+
+  /// Opacity multiplier for the symbol layer (drop below 1 on busy screens).
+  final double symbolsOpacity;
 
   @override
   State<AnimatedAuroraBackground> createState() =>
@@ -49,6 +68,15 @@ class _AnimatedAuroraBackgroundState extends State<AnimatedAuroraBackground>
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Reduce-motion: the app-level MediaQuery flag (set from Settings) stops
+    // the drift entirely — the background becomes a still composition.
+    final animate = !MediaQuery.of(context).disableAnimations;
+    if (animate && !_ctrl.isAnimating) {
+      _ctrl.repeat();
+    } else if (!animate && _ctrl.isAnimating) {
+      _ctrl.stop();
+    }
 
     // A vivid palette: blend a few fixed accent hues toward the theme so it's
     // always colorful and lively, not just a faint tint of the primary.
@@ -104,6 +132,17 @@ class _AnimatedAuroraBackgroundState extends State<AnimatedAuroraBackground>
                   ),
                 ),
               ),
+              // Floating educational symbols riding above the aurora —
+              // the aurora already provides the blobs, so blobs: false.
+              if (widget.symbols)
+                ExcludeSemantics(
+                  child: AmbientSymbols(
+                    animate: animate,
+                    seed: widget.symbolsSeed,
+                    opacity: widget.symbolsOpacity,
+                    blobs: false,
+                  ),
+                ),
               widget.child,
             ],
           );

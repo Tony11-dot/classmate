@@ -1952,6 +1952,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     // app bar are transparent so it reads as one smooth surface.
     return AnimatedAuroraBackground(
       intensity: 0.7,
+      // Symbols stay quiet under the message thread — present, not shouting.
+      symbolsSeed: 11,
+      symbolsOpacity: 0.65,
       child: Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: ValueListenableBuilder<bool>(

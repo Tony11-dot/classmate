@@ -737,6 +737,23 @@ class BrandTint extends ThemeExtension<BrandTint> {
   );
 }
 
+/// Zero-motion route transitions for reduce-motion mode: the incoming page
+/// just appears. (Swipe-back is unavailable in this mode — it is itself an
+/// animation; the back button still works everywhere.)
+class _InstantPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _InstantPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) =>
+      child;
+}
+
 ThemeData _buildTheme(_Palette p, ThemeState s) {
   final scheme = p.scheme();
   final brightness = p.brightness;
@@ -782,13 +799,26 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     // (MaterialPageRoute and CupertinoPage alike) — so swipe-back works on
     // every detail screen, NOVA thread, classroom, etc., for free. Top-level
     // TABS override this with a fade via _fadeRoute in router.dart.
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
-        TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
-        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-      },
-    ),
+    //
+    // Reduce-motion (Settings → Appearance) swaps these for INSTANT
+    // transitions — screens appear/disappear with no slide at all. This is
+    // the single most feelable effect of the switch; before, it only set a
+    // MediaQuery flag that almost nothing consumed.
+    pageTransitionsTheme: s.reduceMotion
+        ? const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.iOS: _InstantPageTransitionsBuilder(),
+              TargetPlatform.macOS: _InstantPageTransitionsBuilder(),
+              TargetPlatform.android: _InstantPageTransitionsBuilder(),
+            },
+          )
+        : const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
+              TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+            },
+          ),
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
