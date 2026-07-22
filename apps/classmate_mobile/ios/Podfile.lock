@@ -89,28 +89,28 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleUtilities/AppDelegateSwizzler (8.1.0):
+  - GoogleUtilities/AppDelegateSwizzler (8.1.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Environment (8.1.0):
+  - GoogleUtilities/Environment (8.1.2):
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.0):
+  - GoogleUtilities/Logger (8.1.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Network (8.1.0):
+  - GoogleUtilities/Network (8.1.2):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Privacy
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (8.1.0)":
+  - "GoogleUtilities/NSData+zlib (8.1.2)":
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.0)
-  - GoogleUtilities/Reachability (8.1.0):
+  - GoogleUtilities/Privacy (8.1.2)
+  - GoogleUtilities/Reachability (8.1.2):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/UserDefaults (8.1.0):
+  - GoogleUtilities/UserDefaults (8.1.2):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - image_picker_ios (0.0.1):
@@ -147,15 +147,15 @@ PODS:
     - Flutter
   - printing (1.0.0):
     - Flutter
-  - PromisesObjC (2.4.0)
-  - purchases_flutter (8.11.0):
+  - PromisesObjC (2.4.1)
+  - purchases_flutter (10.4.2):
     - Flutter
-    - PurchasesHybridCommon (= 14.3.0)
-  - PurchasesHybridCommon (14.3.0):
-    - RevenueCat (= 5.32.0)
+    - PurchasesHybridCommon (= 18.22.1)
+  - PurchasesHybridCommon (18.22.1):
+    - RevenueCat (= 5.81.0)
   - record_ios (1.2.0):
     - Flutter
-  - RevenueCat (5.32.0)
+  - RevenueCat (5.81.0)
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
@@ -321,7 +321,7 @@ SPEC CHECKSUMS:
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   get_thumbnail_video: 1a754d46b860dffefcc57b7290a43089cd5d7e58
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
+  GoogleUtilities: 766ace00c6b10d8148408f329d10c4f051931850
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
@@ -331,11 +331,11 @@ SPEC CHECKSUMS:
   pdfium_flutter: 512bc19dbbd80b4287d04869aa19ad729289079d
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   printing: 54ff03f28fe9ba3aa93358afb80a8595a071dd07
-  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: 3570127ba41583a75e553d68a763367007830eff
-  PurchasesHybridCommon: 7f0944cc5411bdcd1ea5d69affa6a6f9aaf87b13
+  PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
+  purchases_flutter: 64c9e64676b8b681ced103755d6989bec7fbad0c
+  PurchasesHybridCommon: 5759975e7b63c093772fd92d8a9e5edbc6a809a8
   record_ios: 412daca2350b228e698fffcd08f1f94ceb1e3844
-  RevenueCat: 7e1d0768fb287c9983173c9b28e39ccbeeb828a9
+  RevenueCat: c692d9b9d123ce98acea28796abcd81f63e9f34a
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   Sentry: 108fdbb76299c4189af12246bf0308c09c278922
   sentry_flutter: 32e67cb4756ce3de42bbd56581fa935922ff328f
@@ -348,6 +348,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
 
-PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
+PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 
 COCOAPODS: 1.16.2
