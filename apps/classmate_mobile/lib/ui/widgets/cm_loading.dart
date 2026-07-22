@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
+import '../../core/theme/theme_controller.dart' show BrandTint;
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  CmLoading — the CM monogram draws itself on, then settles into the REAL
 //  brand icon (icon_light / icon_dark per theme):
@@ -52,7 +54,9 @@ class _CmLoadingState extends State<CmLoading>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tint = widget.color;
+    // Explicit color wins; else the theme's brand tint (tinted themes recolour
+    // the whole mark); else the classic navy/white default.
+    final tint = widget.color ?? BrandTint.of(context);
     final strokeColor =
         tint ?? (isDark ? Colors.white : const Color(0xFF1B2B9E));
 
@@ -90,9 +94,14 @@ class _CmLoadingState extends State<CmLoading>
               Opacity(
                 opacity: iconOpacity,
                 child: Image.asset(
-                  isDark
-                      ? 'assets/images/icon_dark.png'
-                      : 'assets/images/icon_light.png',
+                  // When tinting, always use the clean light asset as the
+                  // alpha source — the dark one has a baked glow that turns
+                  // into a solid halo under srcIn.
+                  tint != null
+                      ? 'assets/images/icon_light.png'
+                      : isDark
+                          ? 'assets/images/icon_dark.png'
+                          : 'assets/images/icon_light.png',
                   fit: BoxFit.contain,
                   color: tint,
                   colorBlendMode: tint != null ? BlendMode.srcIn : null,

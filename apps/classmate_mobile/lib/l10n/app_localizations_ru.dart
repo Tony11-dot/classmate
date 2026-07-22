@@ -6071,18 +6071,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get supportSmsLabel => 'Сообщение';
 
   @override
-  String get supportAiCardTitle => 'Спросить ИИ';
+  String get supportAiCardTitle => 'Спросите NOVA';
 
   @override
   String get supportAiCardSubtitle =>
-      'Мгновенные ответы о работе с ClassMate — в любое время';
+      'NOVA отвечает на любые вопросы о ClassMate — в любое время';
 
   @override
-  String get supportAiSheetTitle => 'Ассистент ClassMate';
+  String get supportAiSheetTitle => 'NOVA';
 
   @override
   String get supportAiGreeting =>
-      'Здравствуйте! Я ассистент ClassMate. Задайте любой вопрос о приложении — вход, расписание, оценки, сообщения и многое другое.';
+      'Привет! Я NOVA, помощница ClassMate. Спрашивайте меня о чём угодно в приложении — вход, расписание, оценки, сообщения и многое другое.';
 
   @override
   String get supportAiInputHint => 'Задайте вопрос…';

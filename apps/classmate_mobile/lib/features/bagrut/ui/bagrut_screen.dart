@@ -32,35 +32,40 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
 
     // No AppBar here — this screen lives inside the AppShell, whose top bar
     // (hamburger / logo / title pill) stays visible, mirroring Solutions.
+    // The search field is a sliver INSIDE the scroll view, so it rides up
+    // and away with the subject grid instead of staying pinned.
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: l.bagrutSearchHint,
-                prefixIcon: const Icon(Icons.search_rounded),
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: l.bagrutSearchHint,
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
+                onChanged: (v) => setState(() => _query = v),
               ),
-              onChanged: (v) => setState(() => _query = v),
             ),
           ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 220,
                 mainAxisExtent: 120,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
-              itemCount: subjects.length,
-              itemBuilder: (context, i) {
+              delegate: SliverChildBuilderDelegate(
+                childCount: subjects.length,
+                (context, i) {
                 final s = subjects[i];
                 return Material(
                   color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
@@ -98,7 +103,8 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
                     ),
                   ),
                 );
-              },
+                },
+              ),
             ),
           ),
         ],

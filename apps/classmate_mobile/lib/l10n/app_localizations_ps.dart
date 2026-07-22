@@ -6169,18 +6169,18 @@ class AppLocalizationsPs extends AppLocalizations {
   String get supportSmsLabel => '‹‹Message››';
 
   @override
-  String get supportAiCardTitle => 'له AI پوښتنه وکړئ';
+  String get supportAiCardTitle => '‹‹Ask NOVA››';
 
   @override
   String get supportAiCardSubtitle =>
-      'د ClassMate د کارولو په اړه سمدستي ځوابونه — هر وخت';
+      '‹‹NOVA answers anything about using ClassMate — any time››';
 
   @override
-  String get supportAiSheetTitle => 'د ClassMate مرستیال';
+  String get supportAiSheetTitle => '‹‹NOVA››';
 
   @override
   String get supportAiGreeting =>
-      'سلام! زه د ClassMate مرستیال یم. د اپ د کارولو په اړه هر څه راڅخه وپوښتئ — ننوتل، ستاسو مهالوېش، نمرې، پیغامونه او نور.';
+      '‹‹Hi! I\'m NOVA, ClassMate\'s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.››';
 
   @override
   String get supportAiInputHint => 'پوښتنه وکړئ…';

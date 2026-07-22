@@ -6130,18 +6130,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportSmsLabel => 'Message';
 
   @override
-  String get supportAiCardTitle => 'Ask AI';
+  String get supportAiCardTitle => 'Ask NOVA';
 
   @override
   String get supportAiCardSubtitle =>
-      'Instant answers about using ClassMate — any time';
+      'NOVA answers anything about using ClassMate — any time';
 
   @override
-  String get supportAiSheetTitle => 'ClassMate Assistant';
+  String get supportAiSheetTitle => 'NOVA';
 
   @override
   String get supportAiGreeting =>
-      'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
+      'Hi! I\'m NOVA, ClassMate\'s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.';
 
   @override
   String get supportAiInputHint => 'Ask a question…';

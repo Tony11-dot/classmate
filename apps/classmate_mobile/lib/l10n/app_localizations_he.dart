@@ -6065,18 +6065,18 @@ class AppLocalizationsHe extends AppLocalizations {
   String get supportSmsLabel => 'הודעה';
 
   @override
-  String get supportAiCardTitle => 'שאלו את ה-AI';
+  String get supportAiCardTitle => 'שאלו את NOVA';
 
   @override
   String get supportAiCardSubtitle =>
-      'תשובות מיידיות על השימוש ב-ClassMate — בכל שעה';
+      'NOVA עונה על כל שאלה על השימוש ב-ClassMate — בכל שעה';
 
   @override
-  String get supportAiSheetTitle => 'העוזר של ClassMate';
+  String get supportAiSheetTitle => 'NOVA';
 
   @override
   String get supportAiGreeting =>
-      'היי! אני העוזר של ClassMate. אפשר לשאול אותי כל דבר על השימוש באפליקציה — התחברות, מערכת השעות, ציונים, הודעות ועוד.';
+      'היי! אני NOVA, העוזרת של ClassMate. שאלו אותי כל דבר על השימוש באפליקציה — התחברות, מערכת השעות, ציונים, הודעות ועוד.';
 
   @override
   String get supportAiInputHint => 'יש לכם שאלה?…';

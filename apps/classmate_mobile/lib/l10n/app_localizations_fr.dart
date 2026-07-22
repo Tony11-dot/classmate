@@ -6224,18 +6224,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get supportSmsLabel => 'Message';
 
   @override
-  String get supportAiCardTitle => 'Demander à l\'IA';
+  String get supportAiCardTitle => 'Demandez à NOVA';
 
   @override
   String get supportAiCardSubtitle =>
-      'Des réponses instantanées sur l\'utilisation de ClassMate — à tout moment';
+      'NOVA répond à toutes vos questions sur ClassMate — à tout moment';
 
   @override
-  String get supportAiSheetTitle => 'Assistant ClassMate';
+  String get supportAiSheetTitle => 'NOVA';
 
   @override
   String get supportAiGreeting =>
-      'Bonjour ! Je suis l\'assistant ClassMate. Posez-moi toutes vos questions sur l\'application — connexion, emploi du temps, notes, messages et plus encore.';
+      'Bonjour ! Je suis NOVA, l\'assistante de ClassMate. Posez-moi vos questions sur l\'application — connexion, emploi du temps, notes, messages et plus encore.';
 
   @override
   String get supportAiInputHint => 'Posez une question…';

@@ -10944,25 +10944,25 @@ abstract class AppLocalizations {
   /// No description provided for @supportAiCardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Ask AI'**
+  /// **'Ask NOVA'**
   String get supportAiCardTitle;
 
   /// No description provided for @supportAiCardSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Instant answers about using ClassMate — any time'**
+  /// **'NOVA answers anything about using ClassMate — any time'**
   String get supportAiCardSubtitle;
 
   /// No description provided for @supportAiSheetTitle.
   ///
   /// In en, this message translates to:
-  /// **'ClassMate Assistant'**
+  /// **'NOVA'**
   String get supportAiSheetTitle;
 
   /// No description provided for @supportAiGreeting.
   ///
   /// In en, this message translates to:
-  /// **'Hi! I\'m the ClassMate assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
+  /// **'Hi! I\'m NOVA, ClassMate\'s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
   String get supportAiGreeting;
 
   /// No description provided for @supportAiInputHint.

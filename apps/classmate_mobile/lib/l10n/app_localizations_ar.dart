@@ -6096,18 +6096,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get supportSmsLabel => 'رسالة';
 
   @override
-  String get supportAiCardTitle => 'اسأل الذكاء الاصطناعي';
+  String get supportAiCardTitle => 'اسأل NOVA';
 
   @override
   String get supportAiCardSubtitle =>
-      'إجابات فورية حول استخدام ClassMate — في أي وقت';
+      'NOVA تجيب عن أي سؤال حول استخدام ClassMate — في أي وقت';
 
   @override
-  String get supportAiSheetTitle => 'مساعد ClassMate';
+  String get supportAiSheetTitle => 'NOVA';
 
   @override
   String get supportAiGreeting =>
-      'مرحبًا! أنا مساعد ClassMate. اسألني عن أي شيء يتعلق باستخدام التطبيق — تسجيل الدخول، جدولك الدراسي، العلامات، الرسائل، وغير ذلك.';
+      'مرحبًا! أنا NOVA، مساعدة ClassMate. اسألني أي شيء عن استخدام التطبيق — تسجيل الدخول، جدولك، العلامات، الرسائل والمزيد.';
 
   @override
   String get supportAiInputHint => 'اطرح سؤالًا…';

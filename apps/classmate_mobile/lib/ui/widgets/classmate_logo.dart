@@ -1,11 +1,19 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+import '../../core/theme/theme_controller.dart' show BrandTint;
+
 /// Full ClassMate logo — loads the brand asset PNG directly.
 /// Light mode → logo_light.png. Dark mode → logo_dark.png.
 /// The PNG itself carries the icon + "ClassMate" wordmark together;
 /// supply [height] or [width] and the other dimension scales to keep
 /// the asset's aspect ratio.
+///
+/// On tinted themes (coffee, matcha, nord, …) the whole mark — monogram AND
+/// wordmark, every glyph detail intact — is recoloured to the theme's brand
+/// tint via srcIn, so the logo matches each theme. The clean light asset is
+/// always the alpha source when tinting (the dark one carries a baked glow
+/// that would flatten badly).
 class ClassMateLogo extends StatelessWidget {
   const ClassMateLogo({super.key, this.height, this.width});
 
@@ -15,20 +23,26 @@ class ClassMateLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tint = BrandTint.of(context);
     return Image.asset(
-      isDark
-          ? 'assets/images/logo_dark.png'
-          : 'assets/images/logo_light.png',
+      tint != null
+          ? 'assets/images/logo_light.png'
+          : isDark
+              ? 'assets/images/logo_dark.png'
+              : 'assets/images/logo_light.png',
       height: height,
       width: width,
       fit: BoxFit.contain,
-      errorBuilder: (_, _, _) =>
-          _FallbackIconMark(size: height ?? width ?? 28, isDark: isDark),
+      color: tint,
+      colorBlendMode: tint != null ? BlendMode.srcIn : null,
+      errorBuilder: (_, _, _) => _FallbackIconMark(
+          size: height ?? width ?? 28, isDark: isDark, color: tint),
     );
   }
 }
 
-/// Just the CM icon mark.
+/// Just the CM icon mark. Follows the theme's [BrandTint] unless an explicit
+/// [color] is given.
 class ClassMateIcon extends StatelessWidget {
   const ClassMateIcon({super.key, this.size = 24, this.color});
 
@@ -38,16 +52,19 @@ class ClassMateIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tint = color ?? BrandTint.of(context);
     return Image.asset(
-      isDark
-          ? 'assets/images/icon_dark.png'
-          : 'assets/images/icon_light.png',
+      tint != null
+          ? 'assets/images/icon_light.png'
+          : isDark
+              ? 'assets/images/icon_dark.png'
+              : 'assets/images/icon_light.png',
       width: size,
       height: size,
       fit: BoxFit.contain,
-      color: color,
-      colorBlendMode: color != null ? BlendMode.srcIn : null,
-      errorBuilder: (_, _, _) => _FallbackIconMark(size: size, isDark: isDark, color: color),
+      color: tint,
+      colorBlendMode: tint != null ? BlendMode.srcIn : null,
+      errorBuilder: (_, _, _) => _FallbackIconMark(size: size, isDark: isDark, color: tint),
     );
   }
 }

@@ -668,6 +668,48 @@ _Palette _concretePalette(AppTheme theme) => switch (theme) {
 bool appThemeIsDark(AppTheme theme) =>
     _concretePalette(theme).brightness == Brightness.dark;
 
+/// Whether [theme] repaints the neutral surfaces (coffee, matcha, nord, …).
+/// The plain System / Light / Dark defaults are NOT tinted — they keep the
+/// original navy/white brand assets.
+bool appThemeIsTinted(AppTheme theme) => _concretePalette(theme).isTinted;
+
+/// Resolves the stored pref value ('ui_mode') back to an [AppTheme].
+AppTheme appThemeFromName(String? raw) =>
+    AppTheme.values.where((t) => t.name == (raw ?? '')).firstOrNull ??
+    AppTheme.light;
+
+/// The concrete [ColorScheme] a theme resolves to — [AppTheme.system] picks
+/// the plain Light/Dark default by [platformBrightness]. Used by surfaces
+/// that render BEFORE the MaterialApp exists (the launch splash).
+ColorScheme appThemeColorScheme(AppTheme theme, Brightness platformBrightness) {
+  final concrete = theme == AppTheme.system
+      ? (platformBrightness == Brightness.dark ? AppTheme.dark : AppTheme.light)
+      : theme;
+  return _concretePalette(concrete).scheme();
+}
+
+/// Theme-carried brand tint. Non-null on tinted themes (coffee, nord, …):
+/// the logo, the CM icon and the loading animation flatten to this colour
+/// (srcIn keeps every detail of the mark + wordmark, just recoloured) so the
+/// brand matches each theme. Null on System/Light/Dark → original assets.
+class BrandTint extends ThemeExtension<BrandTint> {
+  const BrandTint({this.tint});
+
+  final Color? tint;
+
+  static Color? of(BuildContext context) =>
+      Theme.of(context).extension<BrandTint>()?.tint;
+
+  @override
+  BrandTint copyWith({Color? tint}) => BrandTint(tint: tint ?? this.tint);
+
+  @override
+  BrandTint lerp(ThemeExtension<BrandTint>? other, double t) {
+    if (other is! BrandTint) return this;
+    return BrandTint(tint: Color.lerp(tint, other.tint, t));
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Theme building
 // ─────────────────────────────────────────────────────────────────────────────
@@ -708,6 +750,9 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     // the bundled families and fall back to platform / CanvasKit Noto fonts.
     fontFamily: s.font.family,
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
+    extensions: <ThemeExtension<dynamic>>[
+      BrandTint(tint: p.isTinted ? scheme.primary : null),
+    ],
   );
 
   // Tinted themes (coffee, matcha, rosé, …) carry a bespoke text colour in the

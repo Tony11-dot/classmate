@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/nova_avatar.dart';
 import '../data/support_ai_repository.dart';
 import 'support_ai_sheet.dart';
 
@@ -259,15 +260,8 @@ class _AskAiCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.auto_awesome_rounded, size: 20, color: cs.onPrimaryContainer),
-            ),
+            // The card leads with NOVA's face — same identity as the tutor.
+            const NovaAvatar(size: 40),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

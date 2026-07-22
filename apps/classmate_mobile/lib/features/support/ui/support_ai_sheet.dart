@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/nova_avatar.dart';
 import '../data/support_ai_repository.dart';
 
 /// Opens the support assistant as a tall, rounded modal sheet. Self-contained:
@@ -117,7 +118,9 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
             padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
             child: Row(
               children: [
-                Icon(Icons.support_agent_rounded, color: cs.primary, size: 22),
+                // NOVA's actual face + name in the header — the support
+                // assistant IS NOVA, not an anonymous "assistant".
+                const NovaAvatar(size: 26),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
