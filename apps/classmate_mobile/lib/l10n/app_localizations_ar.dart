@@ -8578,6 +8578,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'إعادة ترتيب الأدوات في القائمة الجانبية';
 
   @override
+  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+
+  @override
   String get adminSchoolGradeRangesDescription =>
       'حدّد الصفوف التي تغطيها مدرستك. أضف أكثر من نطاق إذا كانت بعض الصفوف غير موجودة (مثل 4-6 و9-12).';
 

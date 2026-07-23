@@ -8676,6 +8676,9 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Reorder the tools in your side menu››';
 
   @override
+  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+
+  @override
   String get adminSchoolGradeRangesDescription =>
       '‹‹Set which grades your school covers. Add multiple ranges if some grades are skipped (e.g. 4-6 and 9-12).››';
 

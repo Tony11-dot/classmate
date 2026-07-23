@@ -9,7 +9,7 @@ import '../../core/app_restart.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/biometric_service.dart';
 import '../../ui/widgets/classmate_logo.dart';
-import '../../ui/widgets/animated_aurora_background.dart';
+import '../../ui/widgets/ambient_background.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -196,7 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final isAddMode =
         GoRouterState.of(context).uri.queryParameters['add'] == '1';
     return Scaffold(
-      body: AnimatedAuroraBackground(
+      body: AmbientBackground(
         // The login page is sparse — let the symbol field breathe a bit more.
         symbolsSeed: 5,
         symbolsOpacity: 0.9,

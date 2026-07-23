@@ -8746,6 +8746,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Réorganiser les outils du menu latéral';
 
   @override
+  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+
+  @override
   String get adminSchoolGradeRangesDescription =>
       'Définissez les niveaux couverts par votre école. Ajoutez plusieurs plages si certains niveaux sont absents (ex. 4-6 et 9-12).';
 

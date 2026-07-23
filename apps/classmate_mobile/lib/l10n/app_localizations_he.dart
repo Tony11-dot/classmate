@@ -8532,6 +8532,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get reorderToolsSettingsSubtitle => 'סידור הכלים בתפריט הצד';
 
   @override
+  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+
+  @override
   String get adminSchoolGradeRangesDescription =>
       'הגדירו אילו כיתות קיימות בבית הספר. הוסיפו מספר טווחים אם מדלגים על כיתות (למשל 4-6 ו-9-12).';
 

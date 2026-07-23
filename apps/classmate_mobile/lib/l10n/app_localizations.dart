@@ -15177,6 +15177,12 @@ abstract class AppLocalizations {
   /// **'Reorder the tools in your side menu'**
   String get reorderToolsSettingsSubtitle;
 
+  /// No description provided for @drawerHoldToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold an item to drag & reorder'**
+  String get drawerHoldToReorder;
+
   /// No description provided for @adminSchoolGradeRangesDescription.
   ///
   /// In en, this message translates to:

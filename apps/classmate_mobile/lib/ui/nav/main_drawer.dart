@@ -204,6 +204,87 @@ class MainDrawer extends ConsumerWidget {
       );
     }
 
+    // A tiny caption under the "School Tools" header hinting that the section
+    // can be rearranged in place — hold an item, then drag it up/down.
+    Widget reorderHint() {
+      return Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 4),
+        child: Row(
+          children: [
+            Icon(Icons.drag_indicator_rounded,
+                size: 13, color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                l.drawerHoldToReorder,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.85),
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // The reorderable "School Tools" list, rendered INLINE inside the drawer's
+    // scrollable — hold any item for a beat, then drag it up/down to change its
+    // order (WhatsApp / Claude-mobile style). No trip to Settings needed; the
+    // new order persists immediately via [drawerToolsOrderProvider]. shrinkWrap
+    // + NeverScrollable so it lays out as a static block inside the outer list.
+    Widget reorderableTools(List<DrawerTool> tools) {
+      return ReorderableListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        // No visible drag handles — we drive the drag from a long-press on the
+        // whole row (below), which also leaves a normal tap free to navigate.
+        buildDefaultDragHandles: false,
+        padding: EdgeInsets.zero,
+        itemCount: tools.length,
+        // A gentle lift while dragging instead of the default white card, so
+        // the picked-up row keeps the drawer's own styling.
+        proxyDecorator: (child, index, animation) {
+          return AnimatedBuilder(
+            animation: animation,
+            builder: (context, _) {
+              final tt =
+                  Curves.easeInOut.transform(animation.value.clamp(0.0, 1.0));
+              return Transform.scale(
+                scale: 1 + 0.04 * tt,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+        onReorder: (oldIndex, newIndex) {
+          if (newIndex > oldIndex) newIndex -= 1;
+          final next = List<DrawerTool>.from(tools);
+          final moved = next.removeAt(oldIndex);
+          next.insert(newIndex, moved);
+          ref.read(drawerToolsOrderProvider.notifier).setOrder(
+                next.map((t) => t.route).toList(),
+              );
+        },
+        itemBuilder: (context, index) {
+          final t = tools[index];
+          // ReorderableDelayedDragStartListener → long-press starts the drag on
+          // every platform; a quick tap is not claimed, so the row's InkWell
+          // onTap still navigates as usual.
+          return ReorderableDelayedDragStartListener(
+            key: ValueKey(t.route),
+            index: index,
+            child: navItem(icon: t.icon, label: t.label, route: t.route),
+          );
+        },
+      );
+    }
+
     // ── build ─────────────────────────────────────────────────────────────
 
     final inner = SafeArea(
@@ -376,13 +457,13 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     sectionHeader(l.sectionSchoolTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderHint(),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   ] else if (isSecretary) ...[
                     sectionHeader(l.sectionSecretaryTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderHint(),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   ] else if (isPureAdmin) ...[
                     sectionHeader(l.sectionSchoolToolsLabel),
@@ -390,8 +471,8 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
                     sectionHeader(l.sectionAdminTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderHint(),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   // ── Teacher drawer ────────────────────────────────────────
                   ] else if (isTeacherLike) ...[
@@ -404,9 +485,14 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     sectionHeader(l.sectionSchoolTools),
-                    for (final t in orderedTools)
-                      if (t.route != '/teacher/certificates' || isHomeroomTeacher)
-                        navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderHint(),
+                    // Certificates is homeroom-only; filter it out BEFORE the
+                    // reorderable list so drag indices line up with what shows.
+                    reorderableTools([
+                      for (final t in orderedTools)
+                        if (t.route != '/teacher/certificates' || isHomeroomTeacher)
+                          t,
+                    ]),
                     sectionHeader(l.sectionAccount),
                   // ── Student drawer ────────────────────────────────────────
                   ] else ...[
@@ -417,8 +503,8 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     sectionHeader(l.sectionSchoolTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderHint(),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   ],
 

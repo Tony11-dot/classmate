@@ -21,7 +21,7 @@ import '../../../common/widgets/cm_ai_message.dart';
 import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
-import '../../../ui/widgets/animated_aurora_background.dart';
+import '../../../ui/widgets/ambient_background.dart';
 import '../../../ui/widgets/nova_avatar.dart';
 import 'chatgpt_chat_components.dart';
 
@@ -1947,11 +1947,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             },
           );
 
-    // Full-screen living background behind the WHOLE chat — app bar, message
-    // thread, and composer all sit on top of one continuous aurora. Scaffold +
-    // app bar are transparent so it reads as one smooth surface.
-    return AnimatedAuroraBackground(
-      intensity: 0.7,
+    // Full-screen themed background behind the WHOLE chat — app bar, message
+    // thread, and composer all sit on top of one continuous surface. Scaffold +
+    // app bar are transparent so it reads as one smooth themed wash.
+    return AmbientBackground(
       // Symbols stay quiet under the message thread — present, not shouting.
       symbolsSeed: 11,
       symbolsOpacity: 0.65,
