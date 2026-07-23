@@ -82,6 +82,10 @@ class MainDrawer extends ConsumerWidget {
     final toolsOrder = ref.watch(drawerToolsOrderProvider);
     final orderedTools =
         applyDrawerToolsOrder(defaultDrawerTools(toolsRoleKey, l), toolsOrder);
+    // Teachers only see the Certificates tool when they're a homeroom teacher.
+    final teacherTools = orderedTools
+        .where((t) => t.route != '/teacher/certificates' || isHomeroomTeacher)
+        .toList();
 
     // ── helpers ──────────────────────────────────────────────────────────
 
@@ -201,6 +205,59 @@ class MainDrawer extends ConsumerWidget {
             ),
           ),
         ),
+      );
+    }
+
+    // The user-reorderable "School Tools" list. Hold any entry for a moment to
+    // pick it up (a ReorderableDelayedDragStartListener → long-press), then
+    // drag it up/down to change its place in the menu — the same feel as
+    // holding a chat message. The new order persists per-role immediately.
+    // Tapping still just navigates; only the long-press starts a drag.
+    Widget reorderableTools(List<DrawerTool> tools) {
+      return ReorderableListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        buildDefaultDragHandles: false,
+        itemCount: tools.length,
+        proxyDecorator: (child, index, animation) {
+          // Lift the picked-up tile: a soft rounded shadow so it reads as
+          // "held", matching the drawer's rounded card language.
+          return Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.22),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: child,
+            ),
+          );
+        },
+        onReorder: (oldIndex, newIndex) {
+          if (newIndex > oldIndex) newIndex -= 1;
+          final next = List<DrawerTool>.from(tools);
+          final moved = next.removeAt(oldIndex);
+          next.insert(newIndex, moved);
+          ref
+              .read(drawerToolsOrderProvider.notifier)
+              .setOrder(next.map((t) => t.route).toList());
+        },
+        itemBuilder: (context, index) {
+          final t = tools[index];
+          return ReorderableDelayedDragStartListener(
+            key: ValueKey('drawer-tool-${t.route}'),
+            index: index,
+            child: navItem(icon: t.icon, label: t.label, route: t.route),
+          );
+        },
       );
     }
 
@@ -376,13 +433,11 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.chat_bubble_rounded, label: l.navMessages, route: '/messages'),
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     sectionHeader(l.sectionSchoolTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   ] else if (isSecretary) ...[
                     sectionHeader(l.sectionSecretaryTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   ] else if (isPureAdmin) ...[
                     sectionHeader(l.sectionSchoolToolsLabel),
@@ -390,8 +445,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.campaign_rounded, label: l.navAnnouncements, route: '/announcements'),
                     navItem(icon: Icons.notifications_rounded, label: l.navNotifications, route: '/notifications'),
                     sectionHeader(l.sectionAdminTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   // ── Teacher drawer ────────────────────────────────────────
                   ] else if (isTeacherLike) ...[
@@ -404,9 +458,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/teacher/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     sectionHeader(l.sectionSchoolTools),
-                    for (final t in orderedTools)
-                      if (t.route != '/teacher/certificates' || isHomeroomTeacher)
-                        navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderableTools(teacherTools),
                     sectionHeader(l.sectionAccount),
                   // ── Student drawer ────────────────────────────────────────
                   ] else ...[
@@ -417,8 +469,7 @@ class MainDrawer extends ConsumerWidget {
                     navItem(icon: Icons.insights_rounded, label: l.navInsights, route: '/insights'),
                     navItem(icon: Icons.psychology_rounded, label: l.navNova, route: '/tutor'),
                     sectionHeader(l.sectionSchoolTools),
-                    for (final t in orderedTools)
-                      navItem(icon: t.icon, label: t.label, route: t.route),
+                    reorderableTools(orderedTools),
                     sectionHeader(l.sectionAccount),
                   ],
 
