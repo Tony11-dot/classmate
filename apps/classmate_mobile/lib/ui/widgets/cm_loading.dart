@@ -1,12 +1,11 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../core/theme/theme_controller.dart' show BrandTint;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  CmLoading — the CM monogram draws itself on, then settles into the REAL
-//  brand icon (icon_light / icon_dark per theme):
+//  brand icon (the single blue icon_light asset, recoloured to the theme):
 //    1. The C strokes in from its top-right tip, sweeping over the top and
 //       down the left to the bottom edge.
 //    2. The M rises from its bottom-left corner up the stem, down into the
@@ -53,12 +52,11 @@ class _CmLoadingState extends State<CmLoading>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Explicit color wins; else the theme's brand tint (tinted themes recolour
-    // the whole mark); else the classic navy/white default.
-    final tint = widget.color ?? BrandTint.of(context);
-    final strokeColor =
-        tint ?? (isDark ? Colors.white : const Color(0xFF1B2B9E));
+    // Explicit color wins; else the theme's brand tint (always the theme
+    // primary) — one mark, recoloured per theme.
+    final tint =
+        widget.color ?? BrandTint.of(context) ?? Theme.of(context).colorScheme.primary;
+    final strokeColor = tint;
 
     return ExcludeSemantics(
       child: SizedBox(
@@ -87,24 +85,18 @@ class _CmLoadingState extends State<CmLoading>
                     cProgress: cT,
                     mProgress: mT,
                     color: strokeColor,
-                    glow: isDark && tint == null,
                   ),
                 ),
               ),
               Opacity(
                 opacity: iconOpacity,
                 child: Image.asset(
-                  // When tinting, always use the clean light asset as the
-                  // alpha source — the dark one has a baked glow that turns
-                  // into a solid halo under srcIn.
-                  tint != null
-                      ? 'assets/images/icon_light.png'
-                      : isDark
-                          ? 'assets/images/icon_dark.png'
-                          : 'assets/images/icon_light.png',
+                  // One source mark — the blue icon_light — recoloured to the
+                  // theme via srcIn.
+                  'assets/images/icon_light.png',
                   fit: BoxFit.contain,
                   color: tint,
-                  colorBlendMode: tint != null ? BlendMode.srcIn : null,
+                  colorBlendMode: BlendMode.srcIn,
                   errorBuilder: (_, _, _) {
                     // Asset missing — strokes carry the whole loop instead.
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -129,13 +121,11 @@ class _CmDrawPainter extends CustomPainter {
     required this.cProgress,
     required this.mProgress,
     required this.color,
-    required this.glow,
   });
 
   final double cProgress;
   final double mProgress;
   final Color color;
-  final bool glow;
 
   // Traced from assets/images/icon_light.png (512×512) — circle fitted
   // through the ring's outer extremes, M measured from pixel row scans.
@@ -182,19 +172,6 @@ class _CmDrawPainter extends CustomPainter {
       }
     }
 
-    if (glow) {
-      // Soft halo behind the white strokes — matches icon_dark's glow.
-      strokes(
-        Paint()
-          ..color = color.withValues(alpha: 0.55)
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.butt
-          ..strokeJoin = StrokeJoin.miter
-          ..strokeMiterLimit = 8
-          ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 16)
-          ..isAntiAlias = true,
-      );
-    }
     strokes(
       Paint()
         ..color = color
@@ -212,8 +189,7 @@ class _CmDrawPainter extends CustomPainter {
   bool shouldRepaint(_CmDrawPainter old) =>
       old.cProgress != cProgress ||
       old.mProgress != mProgress ||
-      old.color != color ||
-      old.glow != glow;
+      old.color != color;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

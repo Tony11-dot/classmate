@@ -156,10 +156,12 @@ class _CmSplashScreenState extends State<CmSplashScreen>
                         width: iconSize,
                         height: iconSize,
                         child: Image.asset(
-                          isDark
-                              ? 'assets/images/icon_dark.png'
-                              : 'assets/images/icon_light.png',
+                          // Single blue source mark; on a dark OS appearance
+                          // tint it to the foreground so it stays visible.
+                          'assets/images/icon_light.png',
                           fit: BoxFit.contain,
+                          color: isDark ? fg : null,
+                          colorBlendMode: isDark ? BlendMode.srcIn : null,
                         ),
                       ),
                     ),

@@ -3,17 +3,14 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/theme_controller.dart' show BrandTint;
 
-/// Full ClassMate logo — loads the brand asset PNG directly.
-/// Light mode → logo_light.png. Dark mode → logo_dark.png.
-/// The PNG itself carries the icon + "ClassMate" wordmark together;
-/// supply [height] or [width] and the other dimension scales to keep
-/// the asset's aspect ratio.
+/// Full ClassMate logo — one source asset (`logo_light.png`, the original
+/// blue mark) recoloured to the current theme's brand tint. The PNG carries
+/// the icon + "ClassMate" wordmark together; supply [height] or [width] and
+/// the other dimension scales to keep the asset's aspect ratio.
 ///
-/// On tinted themes (coffee, matcha, nord, …) the whole mark — monogram AND
-/// wordmark, every glyph detail intact — is recoloured to the theme's brand
-/// tint via srcIn, so the logo matches each theme. The clean light asset is
-/// always the alpha source when tinting (the dark one carries a baked glow
-/// that would flatten badly).
+/// The whole mark — monogram AND wordmark, every glyph detail intact — is
+/// recoloured to the theme's primary via srcIn, so the logo matches each
+/// theme on every theme (no dark/white asset variants).
 class ClassMateLogo extends StatelessWidget {
   const ClassMateLogo({super.key, this.height, this.width});
 
@@ -22,27 +19,22 @@ class ClassMateLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tint = BrandTint.of(context);
+    final tint = BrandTint.of(context) ?? Theme.of(context).colorScheme.primary;
     return Image.asset(
-      tint != null
-          ? 'assets/images/logo_light.png'
-          : isDark
-              ? 'assets/images/logo_dark.png'
-              : 'assets/images/logo_light.png',
+      'assets/images/logo_light.png',
       height: height,
       width: width,
       fit: BoxFit.contain,
       color: tint,
-      colorBlendMode: tint != null ? BlendMode.srcIn : null,
-      errorBuilder: (_, _, _) => _FallbackIconMark(
-          size: height ?? width ?? 28, isDark: isDark, color: tint),
+      colorBlendMode: BlendMode.srcIn,
+      errorBuilder: (_, _, _) =>
+          _FallbackIconMark(size: height ?? width ?? 28, color: tint),
     );
   }
 }
 
-/// Just the CM icon mark. Follows the theme's [BrandTint] unless an explicit
-/// [color] is given.
+/// Just the CM icon mark — the single blue `icon_light.png` recoloured to the
+/// theme's [BrandTint] (the theme primary) unless an explicit [color] is given.
 class ClassMateIcon extends StatelessWidget {
   const ClassMateIcon({super.key, this.size = 24, this.color});
 
@@ -51,20 +43,16 @@ class ClassMateIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tint = color ?? BrandTint.of(context);
+    final tint =
+        color ?? BrandTint.of(context) ?? Theme.of(context).colorScheme.primary;
     return Image.asset(
-      tint != null
-          ? 'assets/images/icon_light.png'
-          : isDark
-              ? 'assets/images/icon_dark.png'
-              : 'assets/images/icon_light.png',
+      'assets/images/icon_light.png',
       width: size,
       height: size,
       fit: BoxFit.contain,
       color: tint,
-      colorBlendMode: tint != null ? BlendMode.srcIn : null,
-      errorBuilder: (_, _, _) => _FallbackIconMark(size: size, isDark: isDark, color: tint),
+      colorBlendMode: BlendMode.srcIn,
+      errorBuilder: (_, _, _) => _FallbackIconMark(size: size, color: tint),
     );
   }
 }
@@ -74,14 +62,13 @@ class ClassMateIcon extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _FallbackIconMark extends StatelessWidget {
-  const _FallbackIconMark({required this.size, required this.isDark, this.color});
+  const _FallbackIconMark({required this.size, this.color});
   final double size;
-  final bool isDark;
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? (isDark ? Colors.white : Colors.black);
+    final c = color ?? Theme.of(context).colorScheme.primary;
     return SizedBox(width: size, height: size, child: CustomPaint(painter: _CmPainter(color: c)));
   }
 }

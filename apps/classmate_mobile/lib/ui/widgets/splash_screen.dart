@@ -37,7 +37,6 @@ class _SplashScreenState extends State<SplashScreen> {
   /// throws if the asset isn't declared in pubspec OR missing from the
   /// build, which is the signal to fall back to the custom painter.
   bool? _hasLottie;
-  bool _hasDarkLottie = false;
 
   /// The user's saved theme, read directly from prefs (the theme
   /// controller hasn't loaded yet at splash time).
@@ -51,15 +50,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _probe() async {
-    bool light = false, dark = false;
+    bool light = false;
     AppTheme theme = AppTheme.light;
     try {
       await rootBundle.load('assets/animations/splash.json');
       light = true;
-    } catch (_) {}
-    try {
-      await rootBundle.load('assets/animations/splash-dark.json');
-      dark = true;
     } catch (_) {}
     bool reduceMotion = false;
     try {
@@ -70,7 +65,6 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       setState(() {
         _hasLottie = light;
-        _hasDarkLottie = dark;
         _theme = theme;
         _reduceMotion = reduceMotion;
       });
@@ -81,13 +75,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     final platformBrightness = MediaQuery.platformBrightnessOf(context);
     final scheme = appThemeColorScheme(_theme, platformBrightness);
-    final tinted = appThemeIsTinted(_theme);
-    // Tinted themes pin their own brightness; the defaults follow the OS.
-    final isDark = tinted
-        ? scheme.brightness == Brightness.dark
-        : platformBrightness == Brightness.dark;
-    final bg =
-        tinted ? scheme.surface : (isDark ? Colors.black : Colors.white);
+    // One source animation, always recoloured to the theme, so the background
+    // is simply the theme's surface (white on Light, dark on Dark, tinted
+    // elsewhere) — the animation melts into it.
+    final bg = scheme.surface;
 
     if (_hasLottie == null) {
       // Probe still in flight — render a blank surface for one frame.
@@ -97,13 +88,9 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     if (_hasLottie == true) {
       return _LottieSplash(
-        asset: isDark && _hasDarkLottie
-            ? 'assets/animations/splash-dark.json'
-            : 'assets/animations/splash.json',
+        asset: 'assets/animations/splash.json',
         onComplete: widget.onComplete,
         scheme: scheme,
-        tinted: tinted,
-        isDark: isDark,
         background: bg,
         animateDecor: !_reduceMotion,
       );
@@ -117,8 +104,6 @@ class _LottieSplash extends StatefulWidget {
     required this.asset,
     required this.onComplete,
     required this.scheme,
-    required this.tinted,
-    required this.isDark,
     required this.background,
     required this.animateDecor,
   });
@@ -126,8 +111,6 @@ class _LottieSplash extends StatefulWidget {
   final String asset;
   final VoidCallback onComplete;
   final ColorScheme scheme;
-  final bool tinted;
-  final bool isDark;
   final Color background;
   final bool animateDecor;
 
@@ -156,26 +139,20 @@ class _LottieSplashState extends State<_LottieSplash>
     Uint8List bytes;
     try {
       final raw = await rootBundle.loadString(widget.asset);
-      if (widget.tinted) {
-        // Recolour the composition to the theme: the baked white canvas
-        // becomes the theme surface (so the animation melts into the themed
-        // background), and the navy/white mark becomes the theme primary.
-        final s = widget.scheme;
-        final decoded = json.decode(raw);
-        if (widget.isDark) {
-          _recolor(decoded, from: _white, to: s.primary);
-        } else {
-          _recolor(decoded, from: _white, to: s.surface);
-          _recolor(decoded, from: _navy, to: s.primary);
-        }
-        // The monogram itself is an EMBEDDED PNG asset inside the Lottie —
-        // vector recolouring can't reach it, so retint the bitmap's pixels
-        // (srcIn keeps the alpha detail, replaces the colour).
-        await _tintEmbeddedImages(decoded, s.primary);
-        bytes = utf8.encode(json.encode(decoded));
-      } else {
-        bytes = utf8.encode(raw);
-      }
+      // One source animation, ALWAYS recoloured to the theme: the baked white
+      // canvas becomes the theme surface (so the animation melts into the
+      // themed background) and the navy mark becomes the theme primary. On the
+      // plain Light theme (surface white, primary blue) this is near-identity,
+      // so the original blue splash is preserved.
+      final s = widget.scheme;
+      final decoded = json.decode(raw);
+      _recolor(decoded, from: _white, to: s.surface);
+      _recolor(decoded, from: _navy, to: s.primary);
+      // The monogram itself is an EMBEDDED PNG asset inside the Lottie —
+      // vector recolouring can't reach it, so retint the bitmap's pixels
+      // (srcIn keeps the alpha detail, replaces the colour).
+      await _tintEmbeddedImages(decoded, s.primary);
+      bytes = utf8.encode(json.encode(decoded));
     } catch (_) {
       // Any parsing hiccup → play the untouched asset rather than hanging.
       try {

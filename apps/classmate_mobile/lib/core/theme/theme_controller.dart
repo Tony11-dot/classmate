@@ -688,10 +688,11 @@ ColorScheme appThemeColorScheme(AppTheme theme, Brightness platformBrightness) {
   return _concretePalette(concrete).scheme();
 }
 
-/// Theme-carried brand tint. Non-null on tinted themes (coffee, nord, …):
-/// the logo, the CM icon and the loading animation flatten to this colour
-/// (srcIn keeps every detail of the mark + wordmark, just recoloured) so the
-/// brand matches each theme. Null on System/Light/Dark → original assets.
+/// Theme-carried brand tint — ALWAYS the theme's primary colour. There is a
+/// single source mark (the original blue light asset) used everywhere; the
+/// logo, the CM icon and the loading animation flatten to this colour (srcIn
+/// keeps every detail of the mark + wordmark, just recoloured) so the brand
+/// matches each theme's primary on every theme, including System/Light/Dark.
 class BrandTint extends ThemeExtension<BrandTint> {
   const BrandTint({this.tint});
 
@@ -768,7 +769,9 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     fontFamily: s.font.family,
     visualDensity: VisualDensity(horizontal: s.density, vertical: s.density),
     extensions: <ThemeExtension<dynamic>>[
-      BrandTint(tint: p.isTinted ? scheme.primary : null),
+      // One mark, recoloured to the theme's primary on EVERY theme — the
+      // dark/white asset variants are gone; the single blue source is tinted.
+      BrandTint(tint: scheme.primary),
     ],
   );
 
