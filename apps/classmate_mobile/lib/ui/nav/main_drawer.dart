@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -641,17 +643,41 @@ class MainDrawer extends ConsumerWidget {
         ),
       );
 
-    return permanent
-        ? Material(color: cs.surface, child: SizedBox(width: 290, child: inner))
-        : Drawer(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(28),
-                bottomRight: Radius.circular(28),
-              ),
-            ),
+    if (permanent) {
+      return Material(color: cs.surface, child: SizedBox(width: 290, child: inner));
+    }
+
+    const drawerShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topRight: Radius.circular(28),
+        bottomRight: Radius.circular(28),
+      ),
+    );
+    // Liquid glass: the modal drawer floats over the page, so a frosted
+    // backdrop blur reads as real glass (like ClassNotes' glass sidebar).
+    // Reduce-transparency / high-contrast users get the opaque drawer.
+    final reduceTransparency = MediaQuery.of(context).highContrast;
+    if (reduceTransparency) {
+      return Drawer(shape: drawerShape, child: inner);
+    }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Drawer(
+      backgroundColor: Colors.transparent,
+      shape: drawerShape,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: ColoredBox(
+            color: cs.surface.withValues(alpha: isDark ? 0.74 : 0.82),
             child: inner,
-          );
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart'; // CupertinoPageTransitionsBuilder moved here in Flutter 3.44 (decouple-page-transition-builders)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,6 +76,37 @@ enum AppFont {
   final String label;
 }
 
+/// A user-created theme (Settings → Theme → Add theme). Unlike the baked
+/// presets it is nothing more than a seed colour + brightness — fed through the
+/// same `ColorScheme.fromSeed` pipeline as the plain Light/Dark defaults, so a
+/// custom theme is a full, cohesive Material 3 palette generated from one pick.
+@immutable
+class CustomTheme {
+  const CustomTheme({
+    required this.id,
+    required this.name,
+    required this.seed,
+    required this.dark,
+  });
+
+  final String id;
+  final String name;
+  final int seed; // ARGB
+  final bool dark;
+
+  Color get seedColor => Color(seed);
+
+  Map<String, dynamic> toJson() =>
+      {'id': id, 'name': name, 'seed': seed, 'dark': dark};
+
+  factory CustomTheme.fromJson(Map<String, dynamic> j) => CustomTheme(
+        id: j['id'] as String,
+        name: (j['name'] as String?) ?? 'Custom',
+        seed: (j['seed'] as num).toInt(),
+        dark: (j['dark'] as bool?) ?? false,
+      );
+}
+
 class ThemeState {
   const ThemeState({
     required this.theme,
@@ -82,6 +115,8 @@ class ThemeState {
     required this.textScale,
     required this.reduceMotion,
     required this.font,
+    this.customThemes = const <CustomTheme>[],
+    this.customId,
   });
 
   final AppTheme theme;
@@ -91,6 +126,15 @@ class ThemeState {
   final bool reduceMotion;
   final AppFont font;
 
+  /// User-created themes and which one (if any) is currently active. When
+  /// [customId] is non-null it overrides [theme].
+  final List<CustomTheme> customThemes;
+  final String? customId;
+
+  CustomTheme? get activeCustom => customId == null
+      ? null
+      : customThemes.where((c) => c.id == customId).firstOrNull;
+
   ThemeState copyWith({
     AppTheme? theme,
     double? radius,
@@ -98,6 +142,9 @@ class ThemeState {
     double? textScale,
     bool? reduceMotion,
     AppFont? font,
+    List<CustomTheme>? customThemes,
+    String? customId,
+    bool clearCustom = false,
   }) {
     return ThemeState(
       theme: theme ?? this.theme,
@@ -106,6 +153,8 @@ class ThemeState {
       textScale: textScale ?? this.textScale,
       reduceMotion: reduceMotion ?? this.reduceMotion,
       font: font ?? this.font,
+      customThemes: customThemes ?? this.customThemes,
+      customId: clearCustom ? null : (customId ?? this.customId),
     );
   }
 }
@@ -117,6 +166,8 @@ class ThemeController extends Notifier<ThemeState> {
   static const _kTextScale = 'ui_text_scale';
   static const _kReduceMotion = 'ui_reduce_motion';
   static const _kFont = 'ui_font';
+  static const _kCustomThemes = 'ui_custom_themes';
+  static const _kCustomId = 'ui_custom_id';
 
   @override
   ThemeState build() {
@@ -158,6 +209,27 @@ class ThemeController extends Notifier<ThemeState> {
     final font = AppFont.values.where((f) => f.name == fontRaw).firstOrNull ??
         AppFont.cabinet;
 
+    // Custom themes (user-created seed themes) + which one is active.
+    List<CustomTheme> customThemes = const [];
+    final rawCustom = prefs.getString(_kCustomThemes);
+    if (rawCustom != null && rawCustom.isNotEmpty) {
+      try {
+        final decoded = json.decode(rawCustom);
+        if (decoded is List) {
+          customThemes = decoded
+              .whereType<Map<String, dynamic>>()
+              .map(CustomTheme.fromJson)
+              .toList();
+        }
+      } catch (_) {
+        customThemes = const [];
+      }
+    }
+    final storedCustomId = prefs.getString(_kCustomId);
+    final customId = customThemes.any((c) => c.id == storedCustomId)
+        ? storedCustomId
+        : null;
+
     state = state.copyWith(
       theme: theme,
       radius: radius,
@@ -165,7 +237,62 @@ class ThemeController extends Notifier<ThemeState> {
       textScale: textScale,
       reduceMotion: reduceMotion,
       font: font,
+      customThemes: customThemes,
+      customId: customId,
+      clearCustom: customId == null,
     );
+  }
+
+  Future<void> _persistCustom() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _kCustomThemes,
+      json.encode(state.customThemes.map((c) => c.toJson()).toList()),
+    );
+    final id = state.customId;
+    if (id == null) {
+      await prefs.remove(_kCustomId);
+    } else {
+      await prefs.setString(_kCustomId, id);
+    }
+  }
+
+  /// Create a custom theme from a seed colour + brightness and activate it.
+  /// Returns the new theme's id.
+  Future<String> addCustomTheme({
+    required String name,
+    required Color seed,
+    required bool dark,
+  }) async {
+    final id = 'custom-${DateTime.now().microsecondsSinceEpoch}';
+    final theme = CustomTheme(
+      id: id,
+      name: name.trim().isEmpty ? 'Custom' : name.trim(),
+      seed: seed.toARGB32(),
+      dark: dark,
+    );
+    state = state.copyWith(
+      customThemes: [...state.customThemes, theme],
+      customId: id,
+    );
+    await _persistCustom();
+    return id;
+  }
+
+  /// Activate an existing custom theme.
+  Future<void> selectCustom(String id) async {
+    if (!state.customThemes.any((c) => c.id == id)) return;
+    state = state.copyWith(customId: id);
+    await _persistCustom();
+  }
+
+  Future<void> deleteCustom(String id) async {
+    final wasActive = state.customId == id;
+    state = state.copyWith(
+      customThemes: state.customThemes.where((c) => c.id != id).toList(),
+      clearCustom: wasActive,
+    );
+    await _persistCustom();
   }
 
   Future<void> setFont(AppFont font) async {
@@ -175,9 +302,11 @@ class ThemeController extends Notifier<ThemeState> {
   }
 
   Future<void> setTheme(AppTheme theme) async {
-    state = state.copyWith(theme: theme);
+    // Picking a preset deactivates any active custom theme.
+    state = state.copyWith(theme: theme, clearCustom: true);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kMode, theme.name);
+    await prefs.remove(_kCustomId);
   }
 
   Future<void> setRadius(double r) async {
@@ -722,6 +851,22 @@ class BrandTint extends ThemeExtension<BrandTint> {
 ({ThemeData light, ThemeData dark, ThemeMode mode}) resolveAppTheme(
   ThemeState s,
 ) {
+  // An active custom theme wins: build its palette straight from the seed +
+  // brightness (no overrides) — the same pipeline as the plain Light/Dark
+  // defaults, so it's a full cohesive Material 3 scheme from one colour.
+  final custom = s.activeCustom;
+  if (custom != null) {
+    final p = _Palette(
+      brightness: custom.dark ? Brightness.dark : Brightness.light,
+      seed: custom.seedColor,
+    );
+    final td = _buildTheme(p, s);
+    return (
+      light: td,
+      dark: td,
+      mode: custom.dark ? ThemeMode.dark : ThemeMode.light,
+    );
+  }
   if (s.theme == AppTheme.system) {
     return (
       light: _buildTheme(_lightPalette, s),
