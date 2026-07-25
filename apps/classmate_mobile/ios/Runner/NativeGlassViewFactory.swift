@@ -48,25 +48,22 @@ class NativeGlassView: NSObject, FlutterPlatformView {
             container.overrideUserInterfaceStyle = dark ? .dark : .light
         }
 
-        // iOS 26+: the REAL Liquid Glass (UIGlassEffect) — the same native
-        // material SwiftUI's `.glassEffect()` uses, i.e. exactly what ClassNotes
-        // renders. Older iOS falls back to the system blur materials.
-        let effectView: UIVisualEffectView
-        if #available(iOS 26.0, *) {
-            let glass = UIGlassEffect()
-            glass.isInteractive = true
-            effectView = UIVisualEffectView(effect: glass)
+        // Native system-material glass (UIVisualEffectView) — the proven,
+        // crash-free path the nav pill has always used. NOTE: iOS 26's
+        // UIGlassEffect does NOT survive Flutter's platform-view embedding
+        // (it crashed on launch), so we stick to the system materials, which
+        // on iOS 26 still render as the Liquid Glass material.
+        let blurStyle: UIBlurEffect.Style
+        if style == "ultraThin" {
+            blurStyle = .systemUltraThinMaterial
+        } else if style == "regular" {
+            blurStyle = .systemMaterial
         } else {
-            let blurStyle: UIBlurEffect.Style
-            if style == "ultraThin" {
-                blurStyle = .systemUltraThinMaterial
-            } else if style == "regular" {
-                blurStyle = .systemMaterial
-            } else {
-                blurStyle = .systemThinMaterial
-            }
-            effectView = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+            blurStyle = .systemThinMaterial
         }
+
+        let blurEffect = UIBlurEffect(style: blurStyle)
+        let effectView = UIVisualEffectView(effect: blurEffect)
         effectView.frame = frame
         effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
