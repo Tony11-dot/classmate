@@ -49,6 +49,22 @@
 		<string>ClassMate uses your photo library so you can attach media in messages, classrooms, and NOVA.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
+		<!--
+		  iOS 26 SDK makes UIScene lifecycle adoption mandatory: an app built
+		  against this SDK with no UIApplicationSceneManifest hits a fatal
+		  runtime-issue trap at launch (_UIApplicationEvaluateRuntimeIssueForNoScene
+		  LifecycleAdoption → EXC_BREAKPOINT). It only fires with no debugger
+		  attached, so it slips past `flutter run` and only crashes TestFlight/
+		  release builds. Flutter (3.38) hasn't migrated to a scene delegate, so
+		  we declare the MINIMAL manifest — single-scene, no custom scene
+		  configurations — which satisfies the adoption check while UIKit keeps
+		  the app-delegate + Main.storyboard window path Flutter relies on.
+		-->
+		<key>UIApplicationSceneManifest</key>
+		<dict>
+			<key>UIApplicationSupportsMultipleScenes</key>
+			<false/>
+		</dict>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
