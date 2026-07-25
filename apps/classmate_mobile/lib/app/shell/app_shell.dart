@@ -98,7 +98,6 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/practice')) return 2;
     if (loc.startsWith('/insights')) return 3;
     if (loc.startsWith('/tutor')) return 4;
-    if (loc.startsWith('/classnotes')) return 5;
     return 0;
   }
 
@@ -108,7 +107,6 @@ class AppShell extends ConsumerWidget {
     2 => '/practice',
     3 => '/insights',
     4 => '/tutor',
-    5 => '/classnotes',
     _ => '/schedule',
   };
 
@@ -117,7 +115,6 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/teacher/insights')) return 2;
     if (loc.startsWith('/tutor')) return 3;
     if (loc.startsWith('/announcements')) return 4;
-    if (loc.startsWith('/classnotes')) return 5;
     return 0; // /teacher/schedule
   }
 
@@ -127,7 +124,6 @@ class AppShell extends ConsumerWidget {
     2 => '/teacher/insights',
     3 => '/tutor',
     4 => '/announcements',
-    5 => '/classnotes',
     _ => '/teacher/schedule',
   };
 
@@ -151,7 +147,6 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/parent/overview')) return 2;
     if (loc.startsWith('/messages')) return 3;
     if (loc.startsWith('/announcements')) return 4;
-    if (loc.startsWith('/classnotes')) return 5;
     return 0; // /parent/home
   }
 
@@ -161,7 +156,6 @@ class AppShell extends ConsumerWidget {
     2 => '/parent/overview',
     3 => '/messages',
     4 => '/announcements',
-    5 => '/classnotes',
     _ => '/parent/home',
   };
 
@@ -188,7 +182,6 @@ class AppShell extends ConsumerWidget {
 
   // Ordered most-specific prefix first (teacher/student/ before teacher/students)
   static const _teacherPrefixes = <String>[
-    '/classnotes',
     '/teacher/student/',     // must precede /teacher/students
     '/teacher/schedule',
     '/teacher/insights',
@@ -258,7 +251,6 @@ class AppShell extends ConsumerWidget {
   ];
 
   static const _studentPrefixes = <String>[
-    '/classnotes',
     '/classrooms',
     '/cmail',
     '/messages',
@@ -288,7 +280,6 @@ class AppShell extends ConsumerWidget {
   /// Parent gets its own prefix list because the routes are namespaced
   /// under /parent/*. Order matters — most-specific first.
   static const _parentPrefixes = <String>[
-    '/classnotes',
     '/parent/home',
     '/cmail',
     '/parent/schedule',
@@ -350,7 +341,6 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
-    '/classnotes' => 'ClassNotes',
     '/teacher/student/' => l.teacherStudentsLabel,
     '/teacher/schedule' => l.navSchedule,
     '/teacher/insights' => l.navInsights,
@@ -385,7 +375,6 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
-    '/classnotes' => 'ClassNotes',
     '/classrooms' => l.titleClasses,
     '/messages' => l.titleMessages,
     '/cmail' => l.cmailTitle,
@@ -414,7 +403,6 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
-    '/classnotes' => 'ClassNotes',
     '/parent/home' => l.navHome,
     '/parent/schedule' => l.navSchedule,
     '/parent/overview' => l.navInsights,
@@ -960,7 +948,6 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
         _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
         _NavItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, l.navMessages, badge: widget.unreadMessages),
         _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
-        _classNotesNavItem,
       ];
     }
     if (widget.isTeacherLike) {
@@ -974,7 +961,6 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
         _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
         _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
         _NavItem(Icons.campaign_outlined, Icons.campaign_rounded, l.navAnnouncements),
-        _classNotesNavItem,
       ];
     }
     // Student
@@ -984,21 +970,10 @@ class _AppShellScaffoldState extends ConsumerState<_AppShellScaffold> {
       _NavItem(Icons.auto_awesome_outlined, Icons.auto_awesome_rounded, l.navPractice),
       _NavItem(Icons.insights_outlined, Icons.insights_rounded, l.navInsights),
       _NavItem(Icons.psychology_outlined, Icons.psychology_rounded, l.navNova),
-      _classNotesNavItem,
     ];
   }
 }
 
-/// The ClassNotes bottom-nav tab — the CN monogram (tinted per theme) over the
-/// literal "ClassNotes" brand label. Appended last so it never shifts the
-/// existing per-role tab indices. Icons.menu_book_* is the Material fallback
-/// used only on the wide-layout NavigationBar.
-const _NavItem _classNotesNavItem = _NavItem(
-  Icons.menu_book_outlined,
-  Icons.menu_book_rounded,
-  'ClassNotes',
-  assetIcon: 'assets/images/cn_monogram.png',
-);
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1531,14 +1506,7 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
               builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
               child: AnimatedSwitcher(
                 duration: swapDur,
-                child: widget.item.assetIcon != null
-                    ? ImageIcon(
-                        AssetImage(widget.item.assetIcon!),
-                        key: ValueKey('${widget.item.label}_asset'),
-                        size: 22,
-                        color: color,
-                      )
-                    : Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
+                child: Icon(iconData, key: ValueKey('${widget.item.label}_${widget.selected}'), size: 22, color: color),
               ),
             ),
             if (hasBadge)
@@ -1589,18 +1557,12 @@ class _TabLabelState extends State<_TabLabel> with SingleTickerProviderStateMixi
 }
 
 class _NavItem {
-  const _NavItem(this.icon, this.selectedIcon, this.label,
-      {this.badge = 0, this.assetIcon});
+  const _NavItem(this.icon, this.selectedIcon, this.label, {this.badge = 0});
 
   final IconData icon;
   final IconData selectedIcon;
   final String label;
   final int badge;
-
-  /// Optional image asset used INSTEAD of [icon] in the iOS glass pill (tinted
-  /// to the nav colour via srcIn). The Material fallback nav still uses [icon].
-  /// This is how the ClassNotes tab shows the CN monogram.
-  final String? assetIcon;
 }
 
 class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {

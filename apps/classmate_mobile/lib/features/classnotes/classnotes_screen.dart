@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../ui/glass/native_glass_view.dart';
 import 'classnotes_models.dart';
 
-/// The **ClassNotes** tab — a faithful Flutter mirror of the native ClassNotes
-/// library: a horizontal shelf-chip bar, an adaptive grid of notebook covers
-/// (portrait book, spine, gradient cover, contrast title), and a floating
-/// liquid-glass toolbar. Colours/paper come from the current ClassMate theme;
-/// cover colours use ClassNotes' own palette. Data is sample for now — it
-/// swaps for the real synced library later.
+/// The **ClassNotes** screen — a faithful Flutter mirror of the native
+/// ClassNotes library: a horizontal shelf-chip bar and an adaptive grid of
+/// notebook covers (portrait book, spine, gradient cover, contrast title).
+/// Colours/paper come from the current ClassMate theme; cover colours use
+/// ClassNotes' own palette. Opened full-screen from the drawer's School Tools —
+/// no app-shell logo/pill bar — so it reads as its own space. Data is sample for
+/// now; it swaps for the real synced library later.
 class ClassNotesScreen extends StatefulWidget {
   const ClassNotesScreen({super.key});
 
@@ -24,59 +24,92 @@ class _ClassNotesScreenState extends State<ClassNotesScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final visible = _shelfFilter == null
-        ? _all
-        : _all.where((n) => n.shelfId == _shelfFilter).toList()
+    // Most-recently-updated first, in EVERY view (All and per-shelf) — the sort
+    // is applied to a fresh copy so it's consistent, never mutating _all.
+    final visible = (_shelfFilter == null
+        ? List<CnNotebook>.of(_all)
+        : _all.where((n) => n.shelfId == _shelfFilter).toList())
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
-    return ColoredBox(
-      color: cs.surface,
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _ShelfBar(
-                shelves: _shelves,
-                selected: _shelfFilter,
-                onSelect: (id) => setState(() => _shelfFilter = id),
-              ),
-              Expanded(
-                child: visible.isEmpty
-                    ? const _EmptyState()
-                    : GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(24, 12, 24, 150),
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 190,
-                          mainAxisSpacing: 26,
-                          crossAxisSpacing: 26,
-                          childAspectRatio: 0.63,
-                        ),
-                        itemCount: visible.length,
-                        itemBuilder: (context, i) =>
-                            _CoverCell(notebook: visible[i]),
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Header(count: visible.length),
+            _ShelfBar(
+              shelves: _shelves,
+              selected: _shelfFilter,
+              onSelect: (id) => setState(() => _shelfFilter = id),
+            ),
+            Expanded(
+              child: visible.isEmpty
+                  ? const _EmptyState()
+                  : GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 190,
+                        mainAxisSpacing: 26,
+                        crossAxisSpacing: 26,
+                        childAspectRatio: 0.63,
                       ),
-              ),
-            ],
-          ),
-          // Floating glass toolbar, raised to clear the ClassMate nav pill.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 96,
-            child: Center(child: _GlassToolbar(onAction: _notImplemented)),
-          ),
-        ],
+                      itemCount: visible.length,
+                      itemBuilder: (context, i) =>
+                          _CoverCell(notebook: visible[i]),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  void _notImplemented() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text('Your ClassNotes library syncs here soon.'),
+// ─────────────────────────────────────────────────────────────────────────────
+// Header — back affordance + title. This is the screen's OWN chrome, not the
+// app-shell bar (no logo, no tab pill). Swipe-from-edge also dismisses.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _Header extends StatelessWidget {
+  const _Header({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(6, 8, 20, 2),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            color: cs.onSurface,
+            onPressed: () => Navigator.of(context).maybePop(),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            'ClassNotes',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.4,
+              color: cs.onSurface,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -291,59 +324,6 @@ class _NotebookCover extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Floating glass toolbar
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _GlassToolbar extends StatelessWidget {
-  const _GlassToolbar({required this.onAction});
-
-  final VoidCallback onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return NativeGlassView(
-      borderRadius: 30,
-      style: NativeGlassStyle.regular,
-      fallbackColor: cs.surface.withValues(alpha: isDark ? 0.5 : 0.56),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _GlassIconButton(icon: Icons.add_rounded, onTap: onAction),
-            _GlassIconButton(icon: Icons.folder_outlined, onTap: onAction),
-            _GlassIconButton(icon: Icons.settings_outlined, onTap: onAction),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassIconButton extends StatelessWidget {
-  const _GlassIconButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      customBorder: const CircleBorder(),
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Icon(icon, size: 20, color: cs.onSurface),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Empty state
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -377,4 +357,3 @@ class _EmptyState extends StatelessWidget {
     );
   }
 }
-

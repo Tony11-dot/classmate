@@ -40,6 +40,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
     case 'teacher':
       return [
         DrawerTool(route: '/messages', icon: Icons.chat_bubble_rounded, label: l.navMessages),
+        DrawerTool(route: '/classnotes', icon: Icons.menu_book_rounded, label: 'ClassNotes'),
         DrawerTool(route: '/teacher/home', icon: Icons.dashboard_rounded, label: l.navTeacherWorkspace),
         DrawerTool(route: '/teacher/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/teacher/attendance', icon: Icons.fact_check_rounded, label: l.navAttendance),
@@ -59,6 +60,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
       ];
     case 'parent':
       return [
+        DrawerTool(route: '/classnotes', icon: Icons.menu_book_rounded, label: 'ClassNotes'),
         DrawerTool(route: '/parent/attendance', icon: Icons.how_to_reg_rounded, label: l.navAttendance),
         DrawerTool(route: '/parent/grades', icon: Icons.grade_rounded, label: l.navGrades),
         DrawerTool(route: '/parent/exams', icon: Icons.quiz_rounded, label: l.navExams),
@@ -99,6 +101,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
     default: // student
       return [
         DrawerTool(route: '/messages', icon: Icons.chat_bubble_rounded, label: l.navMessages),
+        DrawerTool(route: '/classnotes', icon: Icons.menu_book_rounded, label: 'ClassNotes'),
         DrawerTool(route: '/attendance', icon: Icons.how_to_reg_rounded, label: l.navAttendance),
         DrawerTool(route: '/grades', icon: Icons.grade_rounded, label: l.navGrades),
         DrawerTool(route: '/assignments', icon: Icons.assignment_rounded, label: l.navAssignments),

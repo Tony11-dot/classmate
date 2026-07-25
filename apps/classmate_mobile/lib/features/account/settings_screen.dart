@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -175,8 +176,11 @@ class SettingsScreen extends ConsumerWidget {
                     icon: Icons.palette_rounded,
                     title: l.settingsTheme,
                     subtitle: t.activeCustom?.name ?? _themeLabel(t.theme, l),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
+                    // Full-screen ABOVE the app-shell chrome (no logo/pill bar)
+                    // with iOS edge-swipe to dismiss — pushed on the root
+                    // navigator, ClassNotes-style.
+                    onTap: () => Navigator.of(context, rootNavigator: true).push(
+                      CupertinoPageRoute<void>(
                         builder: (_) => const ThemeGalleryScreen(),
                       ),
                     ),
@@ -860,7 +864,6 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final preview = ColorScheme.fromSeed(
       seedColor: _seed,
       brightness: _dark ? Brightness.dark : Brightness.light,
@@ -903,6 +906,8 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
                   .labelLarge
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
+          // Circular accent dots with a white + hairline selection ring —
+          // matching ClassNotes' CoverPaletteRow exactly.
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -910,21 +915,25 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
               for (final c in _seeds)
                 GestureDetector(
                   onTap: () => setState(() => _seed = c),
-                  child: Container(
-                    width: 38,
-                    height: 38,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
                       color: c,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: _seed == c ? cs.onSurface : Colors.transparent,
-                        width: 2.5,
-                      ),
+                      shape: BoxShape.circle,
+                      border: _seed == c
+                          ? Border.all(color: Colors.white, width: 2.5)
+                          : null,
+                      boxShadow: _seed == c
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                spreadRadius: 0.5,
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: _seed == c
-                        ? Icon(Icons.check_rounded,
-                            size: 18, color: cnPickInk(c))
-                        : null,
                   ),
                 ),
             ],
@@ -955,10 +964,4 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
       ),
     );
   }
-}
-
-/// White vs near-black ink for a checkmark on a coloured swatch.
-Color cnPickInk(Color bg) {
-  final l = 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b;
-  return l > 0.55 ? const Color(0xFF14171A) : Colors.white;
 }
