@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +10,7 @@ import 'package:classmate_mobile/features/certificates/data/certificates_reposit
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
 import 'package:classmate_mobile/ui/dialogs/confirm_logout.dart';
+import 'package:classmate_mobile/ui/glass/native_glass_view.dart';
 import 'package:classmate_mobile/ui/widgets/classmate_logo.dart';
 import 'package:classmate_mobile/ui/widgets/liquid_glass_dropdown.dart';
 import 'package:classmate_mobile/ui/nav/drawer_tools_order.dart';
@@ -664,18 +663,11 @@ class MainDrawer extends ConsumerWidget {
     return Drawer(
       backgroundColor: Colors.transparent,
       shape: drawerShape,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: ColoredBox(
-            color: cs.surface.withValues(alpha: isDark ? 0.74 : 0.82),
-            child: inner,
-          ),
-        ),
+      child: NativeGlassView(
+        borderRadius: 28,
+        style: NativeGlassStyle.regular,
+        fallbackColor: cs.surface.withValues(alpha: isDark ? 0.62 : 0.72),
+        child: inner,
       ),
     );
   }

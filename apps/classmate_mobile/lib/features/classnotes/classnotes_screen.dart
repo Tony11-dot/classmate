@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../../ui/glass/native_glass_view.dart';
 import 'classnotes_models.dart';
 
 /// The **ClassNotes** tab — a faithful Flutter mirror of the native ClassNotes
@@ -302,8 +301,12 @@ class _GlassToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CnGlass(
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return NativeGlassView(
       borderRadius: 30,
+      style: NativeGlassStyle.regular,
+      fallbackColor: cs.surface.withValues(alpha: isDark ? 0.5 : 0.56),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         child: Row(
@@ -375,58 +378,3 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Liquid glass — frosted BackdropFilter surface with an accent tint + hairline,
-// mirroring ClassNotes' `dsGlass`. Kept to the FUNCTIONAL layer only.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class CnGlass extends StatelessWidget {
-  const CnGlass({
-    super.key,
-    required this.child,
-    this.borderRadius = 24,
-    this.blurSigma = 18,
-  });
-
-  final Widget child;
-  final double borderRadius;
-  final double blurSigma;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final radius = BorderRadius.circular(borderRadius);
-    return ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            // Translucent surface + faint accent tint = the frosted glass look.
-            color: cs.surface.withValues(alpha: isDark ? 0.55 : 0.62),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: isDark ? 0.12 : 0.5),
-              width: 0.6,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.18),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              color: cs.primary.withValues(alpha: 0.06),
-            ),
-            child: child,
-          ),
-        ),
-      ),
-    );
-  }
-}

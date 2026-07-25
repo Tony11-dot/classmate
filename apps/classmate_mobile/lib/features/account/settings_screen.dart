@@ -445,7 +445,6 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      glass: true,
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant),
