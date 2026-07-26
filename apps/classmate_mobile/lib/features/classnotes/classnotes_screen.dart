@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/auth/auth_session.dart';
 import 'classnotes_models.dart';
 import 'classnotes_notebook_screen.dart';
 import 'classnotes_repository.dart';
@@ -21,6 +22,36 @@ class ClassNotesScreen extends ConsumerStatefulWidget {
 
 class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
   String? _shelfFilter; // null = "All"
+  AuthSession? _session;
+  bool _hadToken = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // `authSessionProvider` is a plain Provider, so it never notifies Riverpod
+    // when the token hydrates on launch. Listen directly and refetch the moment
+    // we go from "no token" to "signed in", so the tab never sticks on a blank
+    // loading screen.
+    _session = ref.read(authSessionProvider);
+    _hadToken = (_session?.token ?? '').isNotEmpty;
+    _session?.addListener(_onAuthChanged);
+  }
+
+  @override
+  void dispose() {
+    _session?.removeListener(_onAuthChanged);
+    super.dispose();
+  }
+
+  void _onAuthChanged() {
+    if (!mounted) return;
+    final hasToken = (_session?.token ?? '').isNotEmpty;
+    if (hasToken != _hadToken) {
+      _hadToken = hasToken;
+      ref.invalidate(classNotesLibraryProvider);
+    }
+    setState(() {});
+  }
 
   Future<void> _refresh() async {
     ref.invalidate(classNotesLibraryProvider);
@@ -30,16 +61,23 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final libraryAsync = ref.watch(classNotesLibraryProvider);
+    final session = _session;
 
-    return ColoredBox(
-      color: cs.surface,
-      child: libraryAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => _ErrorState(onRetry: _refresh),
-        data: (library) => _libraryView(library),
-      ),
-    );
+    Widget child;
+    if (session != null && !session.ready) {
+      // Auth still restoring — show a branded loader, never a blank surface.
+      child = const _LoadingState();
+    } else if (session != null && (session.token ?? '').isEmpty) {
+      child = const _SignedOutState();
+    } else {
+      child = ref.watch(classNotesLibraryProvider).when(
+            loading: () => const _LoadingState(),
+            error: (_, __) => _ErrorState(onRetry: _refresh),
+            data: _libraryView,
+          );
+    }
+
+    return ColoredBox(color: cs.surface, child: child);
   }
 
   Widget _libraryView(CnLibrary library) {
@@ -346,6 +384,75 @@ class _EmptyState extends StatelessWidget {
             Text(
               'Notebooks you create in ClassNotes appear here — covers, paper '
               'and ink all follow your theme.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/images/cn_monogram.png',
+            width: 46,
+            height: 46,
+            color: cs.primary,
+            colorBlendMode: BlendMode.srcIn,
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2.4, color: cs.primary),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Loading your notebooks…',
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SignedOutState extends StatelessWidget {
+  const _SignedOutState();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock_outline_rounded, size: 44, color: cs.primary),
+            const SizedBox(height: 12),
+            Text(
+              'Sign in to see your notebooks',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Your ClassNotes library is tied to your ClassMate account.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
             ),

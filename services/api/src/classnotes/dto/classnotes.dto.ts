@@ -40,6 +40,39 @@ export class NotebookUpsertDto {
   updatedAt!: string;
 }
 
+/// One prior turn of NOVA note-chat.
+export class AiTurnDto {
+  @IsString()
+  @MaxLength(20)
+  role!: string;
+
+  @IsString()
+  @MaxLength(4000)
+  content!: string;
+}
+
+/// NOVA note-assistant request. `task` selects the behaviour; `text` is the
+/// student's OCR'd note (beautify/explain) or their question (chat).
+export class NotesAiDto {
+  // beautify | explain | chat
+  @IsString()
+  @MaxLength(16)
+  task!: string;
+
+  @IsString()
+  @MaxLength(6000)
+  text!: string;
+
+  // Optional page context for chat (the OCR of the note they're looking at).
+  @IsOptional()
+  @IsString()
+  @MaxLength(6000)
+  pageContext?: string;
+
+  @IsOptional()
+  history?: AiTurnDto[];
+}
+
 /// Upsert payload for one shelf (id in the URL). Mirrors native `Shelf`.
 export class ShelfUpsertDto {
   @IsString()

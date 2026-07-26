@@ -4,15 +4,19 @@ import {
   Delete,
   Get,
   Param,
-  Put,
+  Post,
   Req,
+  Put,
+  ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { ALL_APP_ROLES } from '../auth/roles';
 import { ClassnotesService } from './classnotes.service';
-import { NotebookUpsertDto, ShelfUpsertDto } from './dto/classnotes.dto';
+import { ClassnotesAiService } from './classnotes.ai.service';
+import { NotebookUpsertDto, ShelfUpsertDto, NotesAiDto } from './dto/classnotes.dto';
 
 /// Personal ClassNotes library sync. Any signed-in user manages their OWN
 /// notebooks/shelves — the native ClassNotes app PUTs metadata here on every
@@ -22,7 +26,31 @@ import { NotebookUpsertDto, ShelfUpsertDto } from './dto/classnotes.dto';
 @Roles(...ALL_APP_ROLES)
 @Controller('classnotes')
 export class ClassnotesController {
-  constructor(private readonly svc: ClassnotesService) {}
+  constructor(
+    private readonly svc: ClassnotesService,
+    private readonly ai: ClassnotesAiService,
+  ) {}
+
+  /// NOVA note assistant — explain a highlight, beautify handwriting, or chat.
+  /// Keyless on the client (the model key lives server-side). Throttled: this
+  /// fans out to a third-party model, so it's help, not a firehose.
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @Post('ai')
+  async notesAi(@Body() dto: NotesAiDto) {
+    if (!this.ai.isEnabled()) {
+      throw new ServiceUnavailableException('NOVA is not available right now.');
+    }
+    try {
+      const task = (dto.task || '').toLowerCase();
+      if (task === 'beautify') return await this.ai.beautify(dto.text);
+      if (task === 'explain') return await this.ai.explain(dto.text);
+      return await this.ai.chat(dto.text, dto.history ?? [], dto.pageContext);
+    } catch {
+      throw new ServiceUnavailableException(
+        'NOVA is temporarily unavailable. Please try again in a moment.',
+      );
+    }
+  }
 
   @Get('library')
   library(@Req() req: any) {

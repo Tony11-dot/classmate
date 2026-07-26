@@ -8,17 +8,23 @@ import 'classnotes_models.dart';
 /// Authenticated ClassNotes API — same backend + account as the native
 /// ClassNotes app, which uploads the user's notebooks/shelves. This is the read
 /// side for the ClassMate "ClassNotes" tab.
+///
+/// The token is read LAZILY at request time (not snapshotted at build), because
+/// `authSessionProvider` is a plain Provider that doesn't rebuild when the token
+/// hydrates asynchronously on launch — snapshotting it caused an empty-bearer
+/// request (→ 401 / blank screen) on the first open.
 final classNotesApiProvider = Provider<ClassNotesApi>((ref) {
-  final session = ref.watch(authSessionProvider);
-  return ClassNotesApi(token: (session.token ?? '').trim());
+  return ClassNotesApi(
+    tokenGetter: () => (ref.read(authSessionProvider).token ?? '').trim(),
+  );
 });
 
 class ClassNotesApi {
-  ClassNotesApi({required this.token});
+  ClassNotesApi({required this.tokenGetter});
 
-  final String token;
+  final String Function() tokenGetter;
 
-  CMApi get _api => CMApi(token: token);
+  CMApi get _api => CMApi(token: tokenGetter());
 
   /// `GET /classnotes/library` → the user's shelves + notebooks, already ordered
   /// server-side (shelves by sortIndex, notebooks most-recently-updated first).
@@ -89,5 +95,21 @@ IconData _shelfIcon(String sfSymbol) => switch (sfSymbol) {
       'pencil.and.ruler' => Icons.architecture_rounded,
       'flask' => Icons.science_outlined,
       'paintpalette' => Icons.palette_outlined,
+      'star' => Icons.star_outline_rounded,
+      'heart' => Icons.favorite_outline_rounded,
+      'bookmark' => Icons.bookmark_outline_rounded,
+      'tray.full' => Icons.inbox_outlined,
+      'calendar' => Icons.calendar_today_outlined,
+      'function' => Icons.functions_rounded,
+      'atom' => Icons.hub_outlined,
+      'globe' => Icons.public_outlined,
+      'leaf' => Icons.eco_outlined,
+      'music.note' => Icons.music_note_outlined,
+      'sparkles' => Icons.auto_awesome_outlined,
+      'lightbulb' => Icons.lightbulb_outline_rounded,
+      'briefcase' => Icons.work_outline_rounded,
+      'camera' => Icons.photo_camera_outlined,
+      'gamecontroller' => Icons.sports_esports_outlined,
+      'sportscourt' => Icons.sports_basketball_outlined,
       _ => Icons.shopping_bag_outlined, // bag (default)
     };

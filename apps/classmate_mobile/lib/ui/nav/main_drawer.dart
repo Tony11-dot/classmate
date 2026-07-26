@@ -169,13 +169,27 @@ class MainDrawer extends ConsumerWidget {
                           : cs.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 18,
-                      color: isActive
-                          ? (danger ? cs.onError : cs.onPrimary)
-                          : cs.onSurfaceVariant,
-                    ),
+                    child: route == '/classnotes'
+                        // ClassNotes shows its own CN monogram, tinted to match
+                        // the active/inactive icon color like every other tool.
+                        ? Padding(
+                            padding: const EdgeInsets.all(7),
+                            child: Image.asset(
+                              'assets/images/cn_monogram.png',
+                              color: isActive
+                                  ? (danger ? cs.onError : cs.onPrimary)
+                                  : cs.onSurfaceVariant,
+                              colorBlendMode: BlendMode.srcIn,
+                              fit: BoxFit.contain,
+                            ),
+                          )
+                        : Icon(
+                            icon,
+                            size: 18,
+                            color: isActive
+                                ? (danger ? cs.onError : cs.onPrimary)
+                                : cs.onSurfaceVariant,
+                          ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

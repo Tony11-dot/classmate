@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NOVA_IDENTITY, NOVA_LANGUAGE_RULES } from '../common/nova-identity';
+import {
+  NOVA_IDENTITY,
+  NOVA_LANGUAGE_RULES,
+  NOVA_CLASSNOTES_FACTS,
+} from '../common/nova-identity';
 
 /**
  * A free, self-serve support assistant.
@@ -59,6 +63,8 @@ export class SupportService {
   private systemPrompt(): string {
     return [
       NOVA_IDENTITY,
+      '',
+      NOVA_CLASSNOTES_FACTS,
       '',
       NOVA_LANGUAGE_RULES,
       '',

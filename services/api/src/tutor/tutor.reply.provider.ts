@@ -2,6 +2,7 @@ import { getAnthropicClient } from './providers/openai.provider';
 import {
   NOVA_IDENTITY,
   NOVA_LANGUAGE_RULES,
+  NOVA_CLASSNOTES_FACTS,
   buildFounderFacts,
 } from '../common/nova-identity';
 
@@ -33,6 +34,8 @@ ${NOVA_IDENTITY}
 - Diplomas / Certificates: awards issued to the student. Menu → Diplomas.
 - NOVA Plans: token plans to use NOVA more. Menu → Plans.
 - Profile & Settings: account, language, and preferences. Menu → Profile / Settings.
+
+${NOVA_CLASSNOTES_FACTS}
 
 === FOUNDER PROFILE (facts about Tony Aboud — NOT the current user) ===
 ${buildFounderFacts(now)}
