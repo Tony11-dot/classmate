@@ -16,7 +16,12 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { ALL_APP_ROLES } from '../auth/roles';
 import { ClassnotesService } from './classnotes.service';
 import { ClassnotesAiService } from './classnotes.ai.service';
-import { NotebookUpsertDto, ShelfUpsertDto, NotesAiDto } from './dto/classnotes.dto';
+import {
+  NotebookUpsertDto,
+  NotebookPagesUpsertDto,
+  ShelfUpsertDto,
+  NotesAiDto,
+} from './dto/classnotes.dto';
 
 /// Personal ClassNotes library sync. Any signed-in user manages their OWN
 /// notebooks/shelves — the native ClassNotes app PUTs metadata here on every
@@ -69,6 +74,23 @@ export class ClassnotesController {
   @Delete('notebooks/:id')
   deleteNotebook(@Req() req: any, @Param('id') id: string) {
     return this.svc.deleteNotebook(req.user, id);
+  }
+
+  /// Rendered page images for one owned notebook, ordered by pageIndex.
+  @Get('notebooks/:id/pages')
+  getNotebookPages(@Req() req: any, @Param('id') id: string) {
+    return this.svc.getNotebookPages(req.user, id);
+  }
+
+  /// Upload the rendered page images for one owned notebook. Upserts each page
+  /// and prunes any pages at index >= pageCount (removed pages disappear).
+  @Put('notebooks/:id/pages')
+  putNotebookPages(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: NotebookPagesUpsertDto,
+  ) {
+    return this.svc.upsertNotebookPages(req.user, id, dto);
   }
 
   @Put('shelves/:id')

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Logger,
   Post,
   Res,
   ServiceUnavailableException,
@@ -23,6 +24,8 @@ import { AiService } from './ai.service';
 @Roles(...ALL_APP_ROLES)
 @Controller('ai')
 export class AiController {
+  private readonly logger = new Logger('AiController');
+
   constructor(private readonly ai: AiService) {}
 
   @Throttle({ default: { limit: 30, ttl: 60_000 } })
@@ -40,7 +43,26 @@ export class AiController {
       throw new ServiceUnavailableException('NOVA is temporarily unavailable.');
     }
 
-    if (!upstream.ok || !upstream.body) {
+    // Surface upstream failures instead of streaming a 200 with no tokens
+    // (which the native app reads as an empty reply). Read the error body,
+    // log it, and echo the SAME status so the client shows a real error.
+    if (!upstream.ok) {
+      let detail = '';
+      try {
+        detail = await upstream.text();
+      } catch {
+        // Body already consumed / unreadable — fall back to the status alone.
+      }
+      this.logger.error(
+        `nova_upstream_error status=${upstream.status} body=${detail.slice(0, 500)}`,
+      );
+      res
+        .status(upstream.status)
+        .json({ error: 'nova_upstream_error', status: upstream.status, detail });
+      return;
+    }
+
+    if (!upstream.body) {
       res.status(502).json({ error: 'nova_upstream_error' });
       return;
     }

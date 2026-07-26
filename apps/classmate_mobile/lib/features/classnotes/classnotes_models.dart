@@ -55,6 +55,17 @@ class CnNotebook {
   final int pageCount;
 }
 
+/// One rendered page of a notebook, synced up from the native ClassNotes app.
+/// `dataUrl` is a `data:image/png;base64,...` string; the viewer decodes the
+/// base64 payload and paints it over the paper template.
+@immutable
+class CnPage {
+  const CnPage({required this.pageIndex, required this.dataUrl});
+
+  final int pageIndex;
+  final String dataUrl;
+}
+
 @immutable
 class CnShelf {
   const CnShelf({

@@ -44,6 +44,25 @@ class ClassNotesApi {
     return CnLibrary(shelves: shelves, notebooks: notebooks);
   }
 
+  /// `GET /classnotes/notebooks/:id/pages` → the notebook's rendered page
+  /// images, ordered by pageIndex. Empty for older notebooks that predate the
+  /// page-content sync (the viewer falls back to blank template paper).
+  Future<List<CnPage>> fetchNotebookPages(String id) async {
+    final raw = await _api.getJson('/classnotes/notebooks/$id/pages');
+    final map = raw is Map ? raw : const <String, dynamic>{};
+    final pagesJson = (map['pages'] as List?) ?? const [];
+    return pagesJson
+        .whereType<Map>()
+        .map((e) => _page(Map<String, dynamic>.from(e)))
+        .where((p) => p.dataUrl.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  CnPage _page(Map<String, dynamic> j) => CnPage(
+        pageIndex: (j['pageIndex'] as num?)?.toInt() ?? 0,
+        dataUrl: '${j['dataUrl'] ?? ''}',
+      );
+
   CnShelf _shelf(Map<String, dynamic> j) => CnShelf(
         id: '${j['id']}',
         name: '${j['name'] ?? ''}',

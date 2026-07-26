@@ -42,9 +42,11 @@ async function bootstrap() {
   // can't DoS us by streaming an unbounded JSON or form body. Multer
   // (used by FileInterceptor on upload routes) enforces its OWN
   // per-route `limits.fileSize`, so this only affects JSON / form data.
-  // 5 MB is comfortably larger than any normal API payload we expect.
-  app.use(json({ limit: '5mb' }));
-  app.use(urlencoded({ extended: true, limit: '5mb' }));
+  // 25 MB accommodates the ClassNotes page-content sync (a notebook can carry
+  // a dozen+ base64 PNG data URLs at a few hundred KB each) while still
+  // failing closed on a truly unbounded body.
+  app.use(json({ limit: '25mb' }));
+  app.use(urlencoded({ extended: true, limit: '25mb' }));
 
   // CORS for the Flutter web build. Mobile clients don't enforce CORS,
   // so the iOS/Android apps don't care — this exists purely so that

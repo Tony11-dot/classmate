@@ -12,3 +12,12 @@ final classNotesLibraryProvider =
     FutureProvider.autoDispose<CnLibrary>((ref) async {
   return ref.watch(classNotesApiProvider).fetchLibrary();
 });
+
+/// The rendered page images for one notebook (`GET /classnotes/notebooks/:id/
+/// pages`), keyed by notebook id. Auto-disposes so it re-fetches each time a
+/// notebook is opened. Returns an empty list for older notebooks with no synced
+/// content, in which case the viewer falls back to blank template paper.
+final classNotesPagesProvider =
+    FutureProvider.autoDispose.family<List<CnPage>, String>((ref, id) async {
+  return ref.watch(classNotesApiProvider).fetchNotebookPages(id);
+});

@@ -39,7 +39,8 @@ export class ClassnotesAiService {
   }
 
   private model(): string {
-    return (process.env.SUPPORT_AI_MODEL || 'llama-3.3-70b-versatile').trim();
+    // llama-3.3-70b-versatile was deprecated by Groq on 2026-06-17.
+    return (process.env.SUPPORT_AI_MODEL || 'openai/gpt-oss-120b').trim();
   }
 
   isEnabled(): boolean {

@@ -1,10 +1,13 @@
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsDateString,
   IsInt,
   IsOptional,
   IsString,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 
 /// Upsert payload for one notebook (the id travels in the URL, not the body).
@@ -38,6 +41,32 @@ export class NotebookUpsertDto {
 
   @IsDateString()
   updatedAt!: string;
+}
+
+/// One rendered page in a notebook-pages upload. `dataUrl` is a
+/// `data:image/png;base64,...` string and can be large, so it has no
+/// MaxLength — the global JSON body limit (see main.ts) bounds the request.
+export class ClassNotesPageDto {
+  @IsInt()
+  @Min(0)
+  pageIndex!: number;
+
+  @IsString()
+  dataUrl!: string;
+}
+
+/// PUT /classnotes/notebooks/:id/pages body. `pages` is the set of rendered
+/// pages to upsert; `pageCount` is the notebook's current page count so the
+/// server can prune any rows at pageIndex >= pageCount (removed pages).
+export class NotebookPagesUpsertDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ClassNotesPageDto)
+  pages!: ClassNotesPageDto[];
+
+  @IsInt()
+  @Min(0)
+  pageCount!: number;
 }
 
 /// One prior turn of NOVA note-chat.

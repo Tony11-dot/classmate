@@ -2600,3 +2600,21 @@ model ClassNotesNotebook {
 
   @@index([userId, updatedAt])
 }
+
+// One rendered page image for a ClassNotes notebook. The native app renders
+// each page to a PNG and uploads it as a `data:image/png;base64,...` data URL
+// so the ClassMate "ClassNotes" tab can show real content, not blank paper.
+// Keyed by (notebookId, pageIndex) — client-authoritative like the notebook
+// ids. No FK to the notebook on purpose (same out-of-order-sync reasoning as
+// `shelfId`); the notebook delete handler cleans these up explicitly.
+// `updatedAt` is set server-side on each upsert.
+model ClassNotesPage {
+  notebookId String
+  userId     String
+  pageIndex  Int
+  dataUrl    String   @db.Text
+  updatedAt  DateTime @default(now())
+
+  @@id([notebookId, pageIndex])
+  @@index([userId])
+}

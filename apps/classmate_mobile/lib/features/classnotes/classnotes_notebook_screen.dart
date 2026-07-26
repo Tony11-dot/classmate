@@ -1,23 +1,41 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'classnotes_models.dart';
+import 'classnotes_repository.dart';
 
-/// Full-screen read-only notebook viewer — a vertical scroll of pages rendered
-/// with the notebook's paper template (blank/ruled/grid/dot), mirroring the
-/// native ClassNotes `NotebookViewerScreen`. Opened when a cover is tapped in
-/// the library; there is no ink to show (no synced page content yet), so pages
-/// render as faithful blank paper in the notebook's style.
-class ClassNotesNotebookScreen extends StatelessWidget {
+/// Full-screen read-only notebook viewer — a vertical scroll of the notebook's
+/// pages, mirroring the native ClassNotes `NotebookViewerScreen`. Opened when a
+/// cover is tapped in the library. Pages that have been synced up from the
+/// native app (rendered PNG data URLs) are painted over the paper; pages with
+/// no synced image — and older notebooks with none at all — fall back to blank
+/// paper in the notebook's template style.
+class ClassNotesNotebookScreen extends ConsumerWidget {
   const ClassNotesNotebookScreen({super.key, required this.notebook});
 
   final CnNotebook notebook;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    // Cap the rendered pages — with no ink, a handful conveys the paper style
-    // without an endless empty scroll; the true count still shows in the meta.
-    final rendered = notebook.pageCount.clamp(1, 12);
+    final asyncPages = ref.watch(classNotesPagesProvider(notebook.id));
+    final pages = asyncPages.asData?.value ?? const <CnPage>[];
+    final byIndex = {for (final p in pages) p.pageIndex: p.dataUrl};
+
+    // With real content, show every page (indices are 0-based). Without any
+    // synced image, keep the old cap — a handful of blank pages conveys the
+    // paper style without an endless empty scroll; the true count is in the meta.
+    final highestIndex = byIndex.keys.isEmpty
+        ? -1
+        : byIndex.keys.reduce((a, b) => a > b ? a : b);
+    final rendered = pages.isEmpty
+        ? notebook.pageCount.clamp(1, 12)
+        : (notebook.pageCount > highestIndex + 1
+            ? notebook.pageCount
+            : highestIndex + 1);
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -26,12 +44,27 @@ class ClassNotesNotebookScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _DetailHeader(notebook: notebook),
+            // Subtle progress while the page images are fetched; the paper
+            // placeholders render underneath so the layout never jumps.
+            SizedBox(
+              height: 2,
+              child: asyncPages.isLoading
+                  ? LinearProgressIndicator(
+                      minHeight: 2,
+                      backgroundColor: Colors.transparent,
+                      color: cs.primary.withValues(alpha: 0.5),
+                    )
+                  : null,
+            ),
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
                 itemCount: rendered,
                 separatorBuilder: (_, __) => const SizedBox(height: 20),
-                itemBuilder: (_, i) => _NotebookPage(template: notebook.template),
+                itemBuilder: (_, i) => _NotebookPage(
+                  template: notebook.template,
+                  dataUrl: byIndex[i],
+                ),
               ),
             ),
           ],
@@ -123,12 +156,17 @@ class _DetailHeader extends StatelessWidget {
   }
 }
 
-/// A single blank page in the notebook's paper style: 3:4, rounded, hairline
-/// border + soft shadow, with the template lines painted on paper.
+/// A single page in the notebook's paper style: 3:4, rounded, hairline border
+/// + soft shadow. When [dataUrl] carries a synced PNG it is painted over the
+/// paper (contained); otherwise the template lines are drawn on blank paper as
+/// the placeholder/fallback.
 class _NotebookPage extends StatelessWidget {
-  const _NotebookPage({required this.template});
+  const _NotebookPage({required this.template, this.dataUrl});
 
   final CnTemplate template;
+
+  /// `data:image/png;base64,...` for a synced page, or null for blank paper.
+  final String? dataUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +175,8 @@ class _NotebookPage extends StatelessWidget {
     // Warm off-white / near-black paper, following the theme's mode.
     final paper = isDark ? const Color(0xFF17191C) : const Color(0xFFFCFBF7);
     final lines = cs.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.9);
+
+    final bytes = _decode(dataUrl);
 
     return AspectRatio(
       aspectRatio: 3 / 4,
@@ -155,13 +195,43 @@ class _NotebookPage extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(6),
-          child: CustomPaint(
-            painter: _PagePainter(template: template, lineColor: lines),
-            size: Size.infinite,
-          ),
+          child: bytes == null
+              // No synced image — draw the paper template as the placeholder.
+              ? CustomPaint(
+                  painter: _PagePainter(template: template, lineColor: lines),
+                  size: Size.infinite,
+                )
+              // Synced page image, contained over the paper background.
+              : Image.memory(
+                  bytes,
+                  fit: BoxFit.contain,
+                  width: double.infinity,
+                  height: double.infinity,
+                  gaplessPlayback: true,
+                  // Corrupt/undecodable payload → fall back to blank paper.
+                  errorBuilder: (context, error, stack) => CustomPaint(
+                    painter:
+                        _PagePainter(template: template, lineColor: lines),
+                    size: Size.infinite,
+                  ),
+                ),
         ),
       ),
     );
+  }
+
+  /// Decode the base64 payload of a `data:...,<base64>` URL; null on anything
+  /// missing or unparseable (→ blank-paper fallback).
+  static Uint8List? _decode(String? dataUrl) {
+    if (dataUrl == null || dataUrl.isEmpty) return null;
+    final comma = dataUrl.indexOf(',');
+    final b64 = comma >= 0 ? dataUrl.substring(comma + 1) : dataUrl;
+    if (b64.isEmpty) return null;
+    try {
+      return base64Decode(b64);
+    } catch (_) {
+      return null;
+    }
   }
 }
 

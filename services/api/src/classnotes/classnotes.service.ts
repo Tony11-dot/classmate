@@ -1,6 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotebookUpsertDto, ShelfUpsertDto } from './dto/classnotes.dto';
+import {
+  NotebookUpsertDto,
+  NotebookPagesUpsertDto,
+  ShelfUpsertDto,
+} from './dto/classnotes.dto';
 
 /// Per-user ClassNotes library sync. Every query is scoped to the caller's own
 /// `userId` (derived from the JWT); a client can only read/write its OWN books.
@@ -72,8 +76,59 @@ export class ClassnotesService {
 
   async deleteNotebook(user: any, id: string) {
     const userId = this.uid(user);
-    await this.prisma.classNotesNotebook.deleteMany({ where: { id, userId } });
+    // No FK from ClassNotesPage → notebook (same out-of-order-sync reasoning as
+    // shelfId), so delete the page images explicitly alongside the notebook.
+    await this.prisma.$transaction([
+      this.prisma.classNotesPage.deleteMany({ where: { notebookId: id, userId } }),
+      this.prisma.classNotesNotebook.deleteMany({ where: { id, userId } }),
+    ]);
     return { ok: true };
+  }
+
+  /// Rendered page images for a notebook, ordered by pageIndex. Ownership is
+  /// checked first (a client can only read pages of its OWN notebook).
+  async getNotebookPages(user: any, notebookId: string) {
+    const userId = this.uid(user);
+    await this.assertOwnsNotebook(notebookId, userId);
+    const pages = await this.prisma.classNotesPage.findMany({
+      where: { notebookId, userId },
+      orderBy: { pageIndex: 'asc' },
+      select: { pageIndex: true, dataUrl: true },
+    });
+    return { pages };
+  }
+
+  /// Upsert the uploaded page images, then prune any rows at pageIndex >=
+  /// pageCount so removed pages disappear. Ownership-checked; every row is
+  /// stamped with the caller's userId. `updatedAt` is the server's now().
+  async upsertNotebookPages(
+    user: any,
+    notebookId: string,
+    dto: NotebookPagesUpsertDto,
+  ) {
+    const userId = this.uid(user);
+    await this.assertOwnsNotebook(notebookId, userId);
+    const now = new Date();
+    const upserts = dto.pages.map((p) =>
+      this.prisma.classNotesPage.upsert({
+        where: { notebookId_pageIndex: { notebookId, pageIndex: p.pageIndex } },
+        create: {
+          notebookId,
+          userId,
+          pageIndex: p.pageIndex,
+          dataUrl: p.dataUrl,
+          updatedAt: now,
+        },
+        update: { userId, dataUrl: p.dataUrl, updatedAt: now },
+      }),
+    );
+    await this.prisma.$transaction([
+      ...upserts,
+      this.prisma.classNotesPage.deleteMany({
+        where: { notebookId, userId, pageIndex: { gte: dto.pageCount } },
+      }),
+    ]);
+    return { ok: true, count: dto.pages.length };
   }
 
   async upsertShelf(user: any, id: string, dto: ShelfUpsertDto) {
