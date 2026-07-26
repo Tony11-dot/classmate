@@ -211,6 +211,11 @@ model User {
   tokenBalance  TokenBalance?
   tokenUsages   TokenUsage[]
 
+  // ClassNotes sync — the user's notebook library, mirrored up from the native
+  // ClassNotes app so the ClassMate "ClassNotes" tab shows their real books.
+  classNotebooks ClassNotesNotebook[]
+  classShelves   ClassNotesShelf[]
+
   dmMessageReportsFiled DmMessageReport[] @relation("DmMessageReportsFiled")
   dmMessagesSent        DmMessage[]       @relation("DmMessagesSent")
 
@@ -2555,4 +2560,43 @@ model CMailRecipient {
 
   @@unique([mailId, userId])
   @@index([userId, deletedAt, readAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ClassNotes — per-user notebook library, synced up from the native ClassNotes
+// app so the ClassMate "ClassNotes" tab shows the user's real books. Row ids are
+// the app's own UUIDs (client-authoritative), so records resolve across both
+// apps. `updatedAt` holds the CLIENT's last-edit time (deliberately NOT
+// @updatedAt) so recency ordering matches the device.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ClassNotesShelf {
+  id         String   @id
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String   @default("")
+  colorHex   String   @default("")
+  symbolName String   @default("bag")
+  sortIndex  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([userId, sortIndex])
+}
+
+model ClassNotesNotebook {
+  id            String   @id
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Bare reference (no FK) on purpose: sync upserts can arrive out of order
+  // (a notebook before its shelf), and a hard FK would reject that. The client
+  // matches notebooks to shelves by this id.
+  shelfId       String?
+  title         String   @default("")
+  coverColorHex String   @default("")
+  template      String   @default("ruled")
+  pageCount     Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  @@index([userId, updatedAt])
 }

@@ -22,27 +22,56 @@ class ClassNotesScreen extends ConsumerStatefulWidget {
 class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
   String? _shelfFilter; // null = "All"
 
+  Future<void> _refresh() async {
+    ref.invalidate(classNotesLibraryProvider);
+    await ref.read(classNotesLibraryProvider.future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final library = ref.watch(classNotesLibraryProvider);
-    final visible = library.inShelf(_shelfFilter);
+    final libraryAsync = ref.watch(classNotesLibraryProvider);
 
     return ColoredBox(
       color: cs.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (library.shelves.isNotEmpty)
-            _ShelfBar(
-              shelves: library.shelves,
-              selected: _shelfFilter,
-              onSelect: (id) => setState(() => _shelfFilter = id),
-            ),
-          Expanded(
+      child: libraryAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => _ErrorState(onRetry: _refresh),
+        data: (library) => _libraryView(library),
+      ),
+    );
+  }
+
+  Widget _libraryView(CnLibrary library) {
+    // If the previously-selected shelf vanished on a refetch, fall back to All.
+    final filter = (_shelfFilter != null &&
+            !library.shelves.any((s) => s.id == _shelfFilter))
+        ? null
+        : _shelfFilter;
+    final visible = library.inShelf(filter);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (library.shelves.isNotEmpty)
+          _ShelfBar(
+            shelves: library.shelves,
+            selected: filter,
+            onSelect: (id) => setState(() => _shelfFilter = id),
+          ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _refresh,
             child: visible.isEmpty
-                ? const _EmptyState()
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 100),
+                      _EmptyState(),
+                    ],
+                  )
                 : GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -58,8 +87,8 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
                     ),
                   ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -319,6 +348,49 @@ class _EmptyState extends StatelessWidget {
               'and ink all follow your theme.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.onRetry});
+
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off_rounded, size: 44, color: cs.onSurfaceVariant),
+            const SizedBox(height: 12),
+            Text(
+              "Couldn't load your notebooks",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Check your connection and try again.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Retry'),
             ),
           ],
         ),

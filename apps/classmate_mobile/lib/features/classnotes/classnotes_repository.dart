@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'classnotes_api.dart';
 import 'classnotes_models.dart';
 
-/// The ClassNotes library data layer. Today it serves the sample [CnLibrary]
-/// (there is no notebooks backend yet — the native ClassNotes app stores them
-/// locally on the iPad). It is deliberately a single provider so that when real
-/// sync lands, only this line changes: swap the sample source for a repository
-/// that fetches/streams the user's actual notebooks (e.g. a `FutureProvider` /
-/// `StreamProvider` over a `CnLibraryRepository`). Every widget already reads
-/// through here and re-sorts nothing, so the UI needs no changes.
-final classNotesLibraryProvider = Provider<CnLibrary>((ref) {
-  return CnSampleData.library();
+/// The ClassNotes library for the "ClassNotes" tab — the user's REAL notebooks,
+/// fetched from the ClassMate backend (`GET /classnotes/library`). The native
+/// ClassNotes app syncs them up on every edit; both apps use the same account,
+/// so this returns exactly what the user has. Auto-disposes so it re-fetches
+/// each time the tab is opened, and can be `ref.invalidate`d for pull-to-refresh.
+final classNotesLibraryProvider =
+    FutureProvider.autoDispose<CnLibrary>((ref) async {
+  return ref.watch(classNotesApiProvider).fetchLibrary();
 });

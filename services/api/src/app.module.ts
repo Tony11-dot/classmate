@@ -56,6 +56,7 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { GradeBumpModule } from './grade-bump/grade-bump.module';
 import { SlotSharedMaterialsModule } from './slot-shared-materials/slot-shared-materials.module';
 import { NotesModule } from './notes/notes.module';
+import { ClassnotesModule } from './classnotes/classnotes.module';
 import { CMailModule } from './cmail/cmail.module';
 import { AccountModule } from './account/account.module';
 import { SupportModule } from './support/support.module';
@@ -184,6 +185,7 @@ const seedControllers = [
     GradeBumpModule,
     SlotSharedMaterialsModule,
     NotesModule,
+    ClassnotesModule,
     CMailModule,
     AccountModule,
     BillingModule,
