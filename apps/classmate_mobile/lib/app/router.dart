@@ -15,6 +15,7 @@ import '../features/bagrut/ui/bagrut_screen.dart';
 import '../features/manager/ui/manager_shell.dart';
 import '../features/classrooms/ui/classroom_detail_screen.dart';
 import '../features/classrooms/ui/classrooms_home_screen.dart';
+import '../features/classnotes/classnotes_screen.dart';
 import '../features/insights/insights_screen.dart';
 import '../features/lifedoc/announcements_screen.dart';
 import '../features/lifedoc/assignments_screen.dart';
@@ -226,6 +227,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           || loc == '/settings'
           || loc == '/profile';
       final isCommonSafe =
+          // ClassNotes — opened from the School Tools drawer for every role
+          // that shows it (student / teacher / parent); keep role redirects
+          // from bouncing it.
+          loc.startsWith('/classnotes') ||
           loc.startsWith('/messages') ||
           loc.startsWith('/tutor') ||
           loc == '/exams' ||
@@ -713,6 +718,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
+          _fadeRoute(
+            path: '/classnotes',
+            name: 'classnotes',
+            builder: (context, state) => const ClassNotesScreen(),
+          ),
           _fadeRoute(
             path: '/messages',
             name: 'messages_inbox',

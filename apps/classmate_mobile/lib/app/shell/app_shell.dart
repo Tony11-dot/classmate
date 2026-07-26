@@ -182,6 +182,7 @@ class AppShell extends ConsumerWidget {
 
   // Ordered most-specific prefix first (teacher/student/ before teacher/students)
   static const _teacherPrefixes = <String>[
+    '/classnotes',
     '/teacher/student/',     // must precede /teacher/students
     '/teacher/schedule',
     '/teacher/insights',
@@ -251,6 +252,7 @@ class AppShell extends ConsumerWidget {
   ];
 
   static const _studentPrefixes = <String>[
+    '/classnotes',
     '/classrooms',
     '/cmail',
     '/messages',
@@ -280,6 +282,7 @@ class AppShell extends ConsumerWidget {
   /// Parent gets its own prefix list because the routes are namespaced
   /// under /parent/*. Order matters — most-specific first.
   static const _parentPrefixes = <String>[
+    '/classnotes',
     '/parent/home',
     '/cmail',
     '/parent/schedule',
@@ -341,6 +344,7 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    '/classnotes' => 'ClassNotes',
     '/teacher/student/' => l.teacherStudentsLabel,
     '/teacher/schedule' => l.navSchedule,
     '/teacher/insights' => l.navInsights,

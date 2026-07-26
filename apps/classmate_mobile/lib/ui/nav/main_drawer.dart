@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:classmate_mobile/core/auth/auth_controller.dart';
 import 'package:classmate_mobile/core/auth/accounts_store.dart';
 import 'package:classmate_mobile/features/certificates/data/certificates_repository.dart';
-import 'package:classmate_mobile/features/classnotes/classnotes_screen.dart';
 import 'package:classmate_mobile/features/parent/data/parent_repository.dart';
 import 'package:classmate_mobile/l10n/app_localizations.dart';
 import 'package:classmate_mobile/ui/dialogs/confirm_logout.dart';
@@ -141,18 +139,6 @@ class MainDrawer extends ConsumerWidget {
             borderRadius: BorderRadius.circular(14),
             onTap: () {
               closeDrawer();
-              // ClassNotes opens as a full-screen page pushed ABOVE the shell
-              // (no app-shell logo/pill bar, iOS edge-swipe to exit) — the same
-              // pattern as the Theme gallery. It is intentionally not a
-              // go_router tab, so there is no location/highlight to sync.
-              if (route == '/classnotes') {
-                Navigator.of(navContext, rootNavigator: true).push(
-                  CupertinoPageRoute<void>(
-                    builder: (_) => const ClassNotesScreen(),
-                  ),
-                );
-                return;
-              }
               // Desktop/tablet chrome keeps this sidebar visible even when a
               // full-screen page is stacked over the content pane. Many of
               // those pages (classroom detail, classroom chat, teacher

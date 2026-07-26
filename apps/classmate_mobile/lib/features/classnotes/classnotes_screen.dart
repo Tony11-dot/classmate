@@ -1,115 +1,74 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'classnotes_models.dart';
+import 'classnotes_notebook_screen.dart';
+import 'classnotes_repository.dart';
 
-/// The **ClassNotes** screen — a faithful Flutter mirror of the native
-/// ClassNotes library: a horizontal shelf-chip bar and an adaptive grid of
-/// notebook covers (portrait book, spine, gradient cover, contrast title).
-/// Colours/paper come from the current ClassMate theme; cover colours use
-/// ClassNotes' own palette. Opened full-screen from the drawer's School Tools —
-/// no app-shell logo/pill bar — so it reads as its own space. Data is sample for
-/// now; it swaps for the real synced library later.
-class ClassNotesScreen extends StatefulWidget {
+/// The **ClassNotes** library — a faithful Flutter mirror of the native
+/// ClassNotes `LibraryGridScreen`: a horizontal shelf-chip bar and an adaptive
+/// grid of notebook covers, always most-recently-updated first. Rendered inside
+/// the app shell (regular screen, with the top bar). Tapping a cover opens the
+/// notebook full-screen. Cover colours use ClassNotes' own 19-accent palette;
+/// data comes from [classNotesLibraryProvider] (sample today, real sync later).
+class ClassNotesScreen extends ConsumerStatefulWidget {
   const ClassNotesScreen({super.key});
 
   @override
-  State<ClassNotesScreen> createState() => _ClassNotesScreenState();
+  ConsumerState<ClassNotesScreen> createState() => _ClassNotesScreenState();
 }
 
-class _ClassNotesScreenState extends State<ClassNotesScreen> {
+class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
   String? _shelfFilter; // null = "All"
-  late final List<CnNotebook> _all = CnSampleData.notebooks();
-  final List<CnShelf> _shelves = CnSampleData.shelves;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // Most-recently-updated first, in EVERY view (All and per-shelf) — the sort
-    // is applied to a fresh copy so it's consistent, never mutating _all.
-    final visible = (_shelfFilter == null
-        ? List<CnNotebook>.of(_all)
-        : _all.where((n) => n.shelfId == _shelfFilter).toList())
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final library = ref.watch(classNotesLibraryProvider);
+    final visible = library.inShelf(_shelfFilter);
 
-    return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Header(count: visible.length),
+    return ColoredBox(
+      color: cs.surface,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (library.shelves.isNotEmpty)
             _ShelfBar(
-              shelves: _shelves,
+              shelves: library.shelves,
               selected: _shelfFilter,
               onSelect: (id) => setState(() => _shelfFilter = id),
             ),
-            Expanded(
-              child: visible.isEmpty
-                  ? const _EmptyState()
-                  : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 190,
-                        mainAxisSpacing: 26,
-                        crossAxisSpacing: 26,
-                        childAspectRatio: 0.63,
-                      ),
-                      itemCount: visible.length,
-                      itemBuilder: (context, i) =>
-                          _CoverCell(notebook: visible[i]),
+          Expanded(
+            child: visible.isEmpty
+                ? const _EmptyState()
+                : GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      mainAxisSpacing: 28,
+                      crossAxisSpacing: 28,
+                      childAspectRatio: 0.64,
                     ),
-            ),
-          ],
-        ),
+                    itemCount: visible.length,
+                    itemBuilder: (context, i) => _CoverCell(
+                      notebook: visible[i],
+                      onTap: () => _openNotebook(visible[i]),
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Header — back affordance + title. This is the screen's OWN chrome, not the
-// app-shell bar (no logo, no tab pill). Swipe-from-edge also dismisses.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _Header extends StatelessWidget {
-  const _Header({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 8, 20, 2),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            color: cs.onSurface,
-            onPressed: () => Navigator.of(context).maybePop(),
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          ),
-          const SizedBox(width: 2),
-          Text(
-            'ClassNotes',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.4,
-              color: cs.onSurface,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-        ],
+  void _openNotebook(CnNotebook notebook) {
+    // Full-screen ABOVE the shell (no logo/pill bar) with iOS edge-swipe back —
+    // "enter a notebook → full screen", matching ClassNotes' push viewer.
+    Navigator.of(context, rootNavigator: true).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => ClassNotesNotebookScreen(notebook: notebook),
       ),
     );
   }
@@ -215,28 +174,33 @@ class _ShelfChip extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CoverCell extends StatelessWidget {
-  const _CoverCell({required this.notebook});
+  const _CoverCell({required this.notebook, required this.onTap});
 
   final CnNotebook notebook;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(child: _NotebookCover(notebook: notebook)),
-        const SizedBox(height: 8),
-        Text(
-          _formatDate(notebook.updatedAt),
-          style: TextStyle(
-            fontSize: 11.5,
-            color: cs.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(child: _NotebookCover(notebook: notebook)),
+          const SizedBox(height: 8),
+          Text(
+            _formatDate(notebook.updatedAt),
+            style: TextStyle(
+              fontSize: 11.5,
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -324,7 +288,7 @@ class _NotebookCover extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Empty state
+// Empty state — matches ClassNotes' copy/feel.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _EmptyState extends StatelessWidget {
@@ -334,25 +298,30 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.menu_book_outlined, size: 44, color: cs.primary),
-          const SizedBox(height: 12),
-          Text(
-            'No notebooks here yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: cs.onSurface,
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.menu_book_outlined, size: 44, color: cs.primary),
+            const SizedBox(height: 12),
+            Text(
+              'No notebooks yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Covers, paper and ink all follow your theme.',
-            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              'Notebooks you create in ClassNotes appear here — covers, paper '
+              'and ink all follow your theme.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }
