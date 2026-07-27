@@ -11636,4 +11636,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsAppFontSpecimen =>
       'The quick brown fox jumps over the lazy dog';
+
+  @override
+  String get onbWhatsInside => 'What you can do';
+
+  @override
+  String onbStepOf(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get onbBack => 'Back';
+
+  @override
+  String get onbSwipeHint => 'Swipe to explore';
+
+  @override
+  String get onbDeepWelcome =>
+      'Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here\'s a quick look at what\'s inside.';
+
+  @override
+  String get onbDeepNova =>
+      'Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you\'re stuck on to have it worked through.';
+
+  @override
+  String get onbDeepTrack =>
+      'See today\'s lessons the moment you open the app, check a grade as soon as it\'s published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it\'s due.';
+
+  @override
+  String get onbDeepClassNotes =>
+      'Handwrite notes with your Apple Pencil on iPad — covers, paper styles, tape, photos and voice notes — then read them here, zoom into the handwriting, play the recordings and open whatever you attached.';
+
+  @override
+  String get onbDeepConnect =>
+      'Message a teacher or classmate directly, follow class announcements, join an online meeting from its card, and use your school CMail address — all without leaving the app.';
+
+  @override
+  String get onbDeepTeacherClasses =>
+      'Open a classroom to see who\'s in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort\'s roster tidy.';
+
+  @override
+  String get onbDeepTeacherGrading =>
+      'Enter grades against your own scale, publish when you\'re ready, and let Insights show you who\'s slipping before it becomes a problem.';
+
+  @override
+  String get onbDeepTeacherComms =>
+      'Post an announcement to a whole cohort, message a parent or student directly, schedule a meeting, and collect answers with a form.';
+
+  @override
+  String get onbDeepAdminOps =>
+      'Run the school from one dashboard: build the timetable, set grade scales, review reports and export the data you need.';
+
+  @override
+  String get onbDeepAdminPeople =>
+      'Add students, teachers and parents, sort them into cohorts, link a parent to a child, and issue certificates when the year closes.';
+
+  @override
+  String get onbDeepSecretary =>
+      'Keep the day running: fix the timetable, add or update a person\'s record, issue certificates and get an announcement out fast.';
+
+  @override
+  String get onbDeepParentChild =>
+      'Switch between your children and see each one\'s timetable, grades, attendance and homework — the same picture the school sees.';
+
+  @override
+  String get onbDeepParentAlerts =>
+      'Get told when a grade is published, an absence is recorded or the school posts something — and reply to a teacher in the same place.';
 }

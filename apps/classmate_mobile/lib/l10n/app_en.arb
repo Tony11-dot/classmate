@@ -6305,5 +6305,81 @@
   "settingsAppFont": "App font",
   "settingsAppFontSubtitle": "Choose the typeface used across the app",
   "settingsAppFontDefault": "Default",
-  "settingsAppFontSpecimen": "The quick brown fox jumps over the lazy dog"
+  "settingsAppFontSpecimen": "The quick brown fox jumps over the lazy dog",
+  "onbWhatsInside": "What you can do",
+  "@onbWhatsInside": {
+    "description": "Header above the list of concrete things a feature lets you do."
+  },
+  "onbStepOf": "{current} of {total}",
+  "@onbStepOf": {
+    "description": "Progress counter in the onboarding tour, e.g. 2 of 5.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onbBack": "Back",
+  "@onbBack": {
+    "description": "Button that returns to the previous onboarding slide."
+  },
+  "onbSwipeHint": "Swipe to explore",
+  "@onbSwipeHint": {
+    "description": "Hint telling the user the onboarding slides can be swiped."
+  },
+  "onbDeepWelcome": "Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here's a quick look at what's inside.",
+  "@onbDeepWelcome": {
+    "description": "Onboarding: deeper explanation on the welcome slide."
+  },
+  "onbDeepNova": "Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you're stuck on to have it worked through.",
+  "@onbDeepNova": {
+    "description": "Onboarding: deeper explanation of the NOVA AI tutor."
+  },
+  "onbDeepTrack": "See today's lessons the moment you open the app, check a grade as soon as it's published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it's due.",
+  "@onbDeepTrack": {
+    "description": "Onboarding: deeper explanation of schedule, grades, attendance, assignments."
+  },
+  "onbDeepClassNotes": "Handwrite notes with your Apple Pencil on iPad — covers, paper styles, tape, photos and voice notes — then read them here, zoom into the handwriting, play the recordings and open whatever you attached.",
+  "@onbDeepClassNotes": {
+    "description": "Onboarding: deeper explanation of the ClassNotes handwriting app."
+  },
+  "onbDeepConnect": "Message a teacher or classmate directly, follow class announcements, join an online meeting from its card, and use your school CMail address — all without leaving the app.",
+  "@onbDeepConnect": {
+    "description": "Onboarding: deeper explanation of messages, announcements, meetings, CMail."
+  },
+  "onbDeepTeacherClasses": "Open a classroom to see who's in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort's roster tidy.",
+  "@onbDeepTeacherClasses": {
+    "description": "Onboarding: deeper explanation for teachers — classrooms and rosters."
+  },
+  "onbDeepTeacherGrading": "Enter grades against your own scale, publish when you're ready, and let Insights show you who's slipping before it becomes a problem.",
+  "@onbDeepTeacherGrading": {
+    "description": "Onboarding: deeper explanation for teachers — grading and insights."
+  },
+  "onbDeepTeacherComms": "Post an announcement to a whole cohort, message a parent or student directly, schedule a meeting, and collect answers with a form.",
+  "@onbDeepTeacherComms": {
+    "description": "Onboarding: deeper explanation for teachers — announcements and comms."
+  },
+  "onbDeepAdminOps": "Run the school from one dashboard: build the timetable, set grade scales, review reports and export the data you need.",
+  "@onbDeepAdminOps": {
+    "description": "Onboarding: deeper explanation for admins — school operations."
+  },
+  "onbDeepAdminPeople": "Add students, teachers and parents, sort them into cohorts, link a parent to a child, and issue certificates when the year closes.",
+  "@onbDeepAdminPeople": {
+    "description": "Onboarding: deeper explanation for admins — people management."
+  },
+  "onbDeepSecretary": "Keep the day running: fix the timetable, add or update a person's record, issue certificates and get an announcement out fast.",
+  "@onbDeepSecretary": {
+    "description": "Onboarding: deeper explanation for secretaries."
+  },
+  "onbDeepParentChild": "Switch between your children and see each one's timetable, grades, attendance and homework — the same picture the school sees.",
+  "@onbDeepParentChild": {
+    "description": "Onboarding: deeper explanation for parents — per-child overview."
+  },
+  "onbDeepParentAlerts": "Get told when a grade is published, an absence is recorded or the school posts something — and reply to a teacher in the same place.",
+  "@onbDeepParentAlerts": {
+    "description": "Onboarding: deeper explanation for parents — alerts and replies."
+  }
 }

@@ -11510,4 +11510,70 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get settingsAppFontSpecimen => 'טקסט לדוגמה לתצוגה מקדימה של הגופן';
+
+  @override
+  String get onbWhatsInside => 'מה אפשר לעשות';
+
+  @override
+  String onbStepOf(int current, int total) {
+    return '$current מתוך $total';
+  }
+
+  @override
+  String get onbBack => 'חזרה';
+
+  @override
+  String get onbSwipeHint => 'החלק לגלישה';
+
+  @override
+  String get onbDeepWelcome =>
+      'המערכת, הציונים, שיעורי הבית, ההודעות והמחברות — הכול כאן, עם התחברות אחת לבית הספר. הצצה קצרה למה שיש בפנים.';
+
+  @override
+  String get onbDeepNova =>
+      'שאלו את NOVA כל דבר במילים שלכם וקבלו הסבר שלב אחר שלב. הפכו כל נושא לתרגול, שמרו שאלות לחזרה, וצלמו שאלה שנתקעתם בה כדי לפתור אותה יחד.';
+
+  @override
+  String get onbDeepTrack =>
+      'ראו את השיעורים של היום ברגע שנכנסים, בדקו ציון מיד כשהוא מתפרסם, עקבו אחר הנוכחות, ורכזו כל תאריך הגשה ברשימה אחת — עם תזכורת לפני המועד.';
+
+  @override
+  String get onbDeepClassNotes =>
+      'כתבו בכתב יד עם ה-Apple Pencil באייפד — כריכות, סוגי דף, מסקינג טייפ, תמונות והקלטות — ואז קראו כאן, התקרבו לכתב היד, נגנו את ההקלטות ופתחו כל קובץ שצירפתם.';
+
+  @override
+  String get onbDeepConnect =>
+      'שלחו הודעה למורה או לחבר, עקבו אחר הודעות הכיתה, הצטרפו לפגישה מקוונת מהכרטיס שלה והשתמשו בכתובת ה-CMail של בית הספר — הכול מתוך האפליקציה.';
+
+  @override
+  String get onbDeepTeacherClasses =>
+      'פתחו כיתה כדי לראות מי בה, קחו נוכחות בשתי הקשות, חלקו מטלות וחומרים ושמרו על רשימות מסודרות לכל שכבה.';
+
+  @override
+  String get onbDeepTeacherGrading =>
+      'הזינו ציונים לפי הסקאלה שלכם, פרסמו כשמתאים לכם, ותנו ל-Insights להראות מי מתקשה לפני שזו בעיה.';
+
+  @override
+  String get onbDeepTeacherComms =>
+      'פרסמו הודעה לשכבה שלמה, שלחו הודעה להורה או לתלמיד, קבעו פגישה ואספו תשובות בטופס.';
+
+  @override
+  String get onbDeepAdminOps =>
+      'נהלו את בית הספר מלוח בקרה אחד: בנו מערכת שעות, הגדירו סקאלות ציונים, עברו על דוחות וייצאו את הנתונים שצריך.';
+
+  @override
+  String get onbDeepAdminPeople =>
+      'הוסיפו תלמידים, מורים והורים, שבצו אותם לשכבות, קשרו הורה לילד והנפיקו תעודות בסוף השנה.';
+
+  @override
+  String get onbDeepSecretary =>
+      'שמרו על שגרת היום: תקנו את מערכת השעות, הוסיפו או עדכנו רשומה של אדם, הנפיקו תעודות והוציאו הודעה במהירות.';
+
+  @override
+  String get onbDeepParentChild =>
+      'עברו בין הילדים וראו לכל אחד את המערכת, הציונים, הנוכחות ושיעורי הבית — בדיוק מה שבית הספר רואה.';
+
+  @override
+  String get onbDeepParentAlerts =>
+      'קבלו עדכון כשמתפרסם ציון, נרשמת היעדרות או בית הספר מפרסם משהו — והשיבו למורה מאותו מקום.';
 }

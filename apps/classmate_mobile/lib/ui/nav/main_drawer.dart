@@ -657,7 +657,22 @@ class MainDrawer extends ConsumerWidget {
       );
 
     if (permanent) {
-      return Material(color: cs.surface, child: SizedBox(width: 290, child: inner));
+      // The permanent sidebar is built by MaterialApp.router's `builder`, which
+      // sits ABOVE the router's Navigator — so nothing in this subtree has an
+      // Overlay ancestor. ReorderableListView needs one for the row you pick up
+      // (Overlay.of ends in `result!`, and release builds strip the assert that
+      // would say "No Overlay widget found" — so School Tools came out as
+      // "Null check operator used on a null value" on web and iPad instead of a
+      // list). Its own Overlay gives the sidebar a drag layer, scoped to itself.
+      return Material(
+        color: cs.surface,
+        child: SizedBox(
+          width: 290,
+          child: Overlay(
+            initialEntries: [OverlayEntry(builder: (_) => inner)],
+          ),
+        ),
+      );
     }
 
     const drawerShape = RoundedRectangleBorder(

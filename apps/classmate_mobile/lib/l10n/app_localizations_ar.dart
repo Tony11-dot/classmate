@@ -11579,4 +11579,70 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsAppFontSpecimen => 'نص تجريبي لمعاينة شكل الخط في التطبيق';
+
+  @override
+  String get onbWhatsInside => 'ما يمكنك فعله';
+
+  @override
+  String onbStepOf(int current, int total) {
+    return '$current من $total';
+  }
+
+  @override
+  String get onbBack => 'رجوع';
+
+  @override
+  String get onbSwipeHint => 'اسحب للاستكشاف';
+
+  @override
+  String get onbDeepWelcome =>
+      'جدولك ودرجاتك وواجباتك ورسائلك ودفاترك كلها هنا — تسجيل دخول واحد للمدرسة. هذه نظرة سريعة على ما بالداخل.';
+
+  @override
+  String get onbDeepNova =>
+      'اسأل NOVA أي شيء بكلماتك واحصل على شرح خطوة بخطوة. حوّل أي موضوع إلى أسئلة تدريب، واحفظ ما تريد مراجعته، وصوّر سؤالًا تعطلت فيه ليُحلّ معك.';
+
+  @override
+  String get onbDeepTrack =>
+      'شاهد دروس اليوم بمجرد فتح التطبيق، وتحقق من الدرجة عند نشرها، وتابع حضورك، واحتفظ بكل مواعيد التسليم في قائمة واحدة — مع تذكير قبل الموعد.';
+
+  @override
+  String get onbDeepClassNotes =>
+      'اكتب ملاحظاتك بخط اليد بقلم Apple Pencil على الآيباد — أغلفة وأنماط ورق وأشرطة وصور وملاحظات صوتية — ثم اقرأها هنا وكبّر الخط وشغّل التسجيلات وافتح مرفقاتك.';
+
+  @override
+  String get onbDeepConnect =>
+      'راسل معلمًا أو زميلًا مباشرة، وتابع إعلانات الصف، وانضم إلى اجتماع عبر الإنترنت من بطاقته، واستخدم بريد CMail المدرسي — دون مغادرة التطبيق.';
+
+  @override
+  String get onbDeepTeacherClasses =>
+      'افتح الصف لترى من فيه، وسجّل الحضور بلمستين، ووزّع الواجبات والمواد، واحتفظ بقوائم كل مجموعة منظمة.';
+
+  @override
+  String get onbDeepTeacherGrading =>
+      'أدخل الدرجات وفق مقياسك، وانشرها عندما تكون مستعدًا، ودع التحليلات تُظهر من يتراجع قبل أن تصبح مشكلة.';
+
+  @override
+  String get onbDeepTeacherComms =>
+      'انشر إعلانًا لمجموعة كاملة، وراسل وليّ أمر أو طالبًا مباشرة، وحدّد موعد اجتماع، واجمع الردود عبر نموذج.';
+
+  @override
+  String get onbDeepAdminOps =>
+      'أدر المدرسة من لوحة واحدة: ابنِ الجدول، وحدّد مقاييس الدرجات، وراجع التقارير، وصدّر ما تحتاجه من بيانات.';
+
+  @override
+  String get onbDeepAdminPeople =>
+      'أضف الطلاب والمعلمين وأولياء الأمور، ووزّعهم على المجموعات، واربط وليّ أمر بطفله، وأصدر الشهادات عند انتهاء العام.';
+
+  @override
+  String get onbDeepSecretary =>
+      'أدر اليوم الدراسي: عدّل الجدول، وأضف أو حدّث سجل شخص، وأصدر الشهادات، وانشر إعلانًا بسرعة.';
+
+  @override
+  String get onbDeepParentChild =>
+      'تنقّل بين أبنائك وشاهد لكل واحد جدوله ودرجاته وحضوره وواجباته — الصورة نفسها التي تراها المدرسة.';
+
+  @override
+  String get onbDeepParentAlerts =>
+      'تُبلَّغ عند نشر درجة أو تسجيل غياب أو نشر المدرسة لإعلان — وتردّ على المعلم من المكان نفسه.';
 }

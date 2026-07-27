@@ -4134,5 +4134,22 @@
   "settingsAppFont": "Police de l'application",
   "settingsAppFontSubtitle": "Choisissez la police utilisée dans toute l'application",
   "settingsAppFontDefault": "Par défaut",
-  "settingsAppFontSpecimen": "Portez ce vieux whisky au juge blond qui fume"
+  "settingsAppFontSpecimen": "Portez ce vieux whisky au juge blond qui fume",
+  "onbWhatsInside": "Ce que vous pouvez faire",
+  "onbStepOf": "{current} sur {total}",
+  "onbBack": "Retour",
+  "onbSwipeHint": "Balayez pour explorer",
+  "onbDeepWelcome": "Votre emploi du temps, vos notes, vos devoirs, vos messages et vos cahiers sont ici — une seule connexion pour l'école. Voici un aperçu.",
+  "onbDeepNova": "Posez n'importe quelle question à NOVA avec vos propres mots et obtenez une explication étape par étape. Transformez un sujet en exercices, enregistrez ceux à revoir, et photographiez une question bloquante pour la résoudre.",
+  "onbDeepTrack": "Voyez les cours du jour dès l'ouverture, consultez une note dès sa publication, suivez votre assiduité et gardez toutes les échéances dans une liste — avec un rappel avant la date limite.",
+  "onbDeepClassNotes": "Écrivez à la main avec l'Apple Pencil sur iPad — couvertures, papiers, rubans, photos et notes vocales — puis relisez ici, zoomez sur l'écriture, écoutez les enregistrements et ouvrez vos pièces jointes.",
+  "onbDeepConnect": "Écrivez directement à un enseignant ou un camarade, suivez les annonces, rejoignez une réunion en ligne depuis sa carte et utilisez votre adresse CMail — sans quitter l'application.",
+  "onbDeepTeacherClasses": "Ouvrez une classe pour voir qui y est, faites l'appel en deux touches, distribuez devoirs et supports, et gardez chaque cohorte à jour.",
+  "onbDeepTeacherGrading": "Saisissez les notes selon votre barème, publiez quand vous le souhaitez, et laissez Insights repérer les élèves en difficulté avant qu'il soit tard.",
+  "onbDeepTeacherComms": "Publiez une annonce à toute une cohorte, écrivez à un parent ou un élève, planifiez une réunion et collectez des réponses avec un formulaire.",
+  "onbDeepAdminOps": "Gérez l'école depuis un tableau de bord : construisez l'emploi du temps, définissez les barèmes, consultez les rapports et exportez vos données.",
+  "onbDeepAdminPeople": "Ajoutez élèves, enseignants et parents, répartissez-les en cohortes, liez un parent à un enfant et délivrez les certificats en fin d'année.",
+  "onbDeepSecretary": "Faites tourner la journée : ajustez l'emploi du temps, créez ou mettez à jour une fiche, délivrez des certificats et diffusez une annonce vite.",
+  "onbDeepParentChild": "Passez d'un enfant à l'autre et voyez pour chacun l'emploi du temps, les notes, l'assiduité et les devoirs — la même vue que l'école.",
+  "onbDeepParentAlerts": "Soyez averti dès qu'une note est publiée, une absence enregistrée ou une annonce publiée — et répondez à l'enseignant au même endroit."
 }

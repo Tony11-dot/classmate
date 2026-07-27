@@ -20180,6 +20180,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The quick brown fox jumps over the lazy dog'**
   String get settingsAppFontSpecimen;
+
+  /// Header above the list of concrete things a feature lets you do.
+  ///
+  /// In en, this message translates to:
+  /// **'What you can do'**
+  String get onbWhatsInside;
+
+  /// Progress counter in the onboarding tour, e.g. 2 of 5.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String onbStepOf(int current, int total);
+
+  /// Button that returns to the previous onboarding slide.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get onbBack;
+
+  /// Hint telling the user the onboarding slides can be swiped.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to explore'**
+  String get onbSwipeHint;
+
+  /// Onboarding: deeper explanation on the welcome slide.
+  ///
+  /// In en, this message translates to:
+  /// **'Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here\'s a quick look at what\'s inside.'**
+  String get onbDeepWelcome;
+
+  /// Onboarding: deeper explanation of the NOVA AI tutor.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you\'re stuck on to have it worked through.'**
+  String get onbDeepNova;
+
+  /// Onboarding: deeper explanation of schedule, grades, attendance, assignments.
+  ///
+  /// In en, this message translates to:
+  /// **'See today\'s lessons the moment you open the app, check a grade as soon as it\'s published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it\'s due.'**
+  String get onbDeepTrack;
+
+  /// Onboarding: deeper explanation of the ClassNotes handwriting app.
+  ///
+  /// In en, this message translates to:
+  /// **'Handwrite notes with your Apple Pencil on iPad — covers, paper styles, tape, photos and voice notes — then read them here, zoom into the handwriting, play the recordings and open whatever you attached.'**
+  String get onbDeepClassNotes;
+
+  /// Onboarding: deeper explanation of messages, announcements, meetings, CMail.
+  ///
+  /// In en, this message translates to:
+  /// **'Message a teacher or classmate directly, follow class announcements, join an online meeting from its card, and use your school CMail address — all without leaving the app.'**
+  String get onbDeepConnect;
+
+  /// Onboarding: deeper explanation for teachers — classrooms and rosters.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a classroom to see who\'s in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort\'s roster tidy.'**
+  String get onbDeepTeacherClasses;
+
+  /// Onboarding: deeper explanation for teachers — grading and insights.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter grades against your own scale, publish when you\'re ready, and let Insights show you who\'s slipping before it becomes a problem.'**
+  String get onbDeepTeacherGrading;
+
+  /// Onboarding: deeper explanation for teachers — announcements and comms.
+  ///
+  /// In en, this message translates to:
+  /// **'Post an announcement to a whole cohort, message a parent or student directly, schedule a meeting, and collect answers with a form.'**
+  String get onbDeepTeacherComms;
+
+  /// Onboarding: deeper explanation for admins — school operations.
+  ///
+  /// In en, this message translates to:
+  /// **'Run the school from one dashboard: build the timetable, set grade scales, review reports and export the data you need.'**
+  String get onbDeepAdminOps;
+
+  /// Onboarding: deeper explanation for admins — people management.
+  ///
+  /// In en, this message translates to:
+  /// **'Add students, teachers and parents, sort them into cohorts, link a parent to a child, and issue certificates when the year closes.'**
+  String get onbDeepAdminPeople;
+
+  /// Onboarding: deeper explanation for secretaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the day running: fix the timetable, add or update a person\'s record, issue certificates and get an announcement out fast.'**
+  String get onbDeepSecretary;
+
+  /// Onboarding: deeper explanation for parents — per-child overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between your children and see each one\'s timetable, grades, attendance and homework — the same picture the school sees.'**
+  String get onbDeepParentChild;
+
+  /// Onboarding: deeper explanation for parents — alerts and replies.
+  ///
+  /// In en, this message translates to:
+  /// **'Get told when a grade is published, an absence is recorded or the school posts something — and reply to a teacher in the same place.'**
+  String get onbDeepParentAlerts;
 }
 
 class _AppLocalizationsDelegate

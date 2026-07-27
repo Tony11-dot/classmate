@@ -11702,4 +11702,70 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get settingsAppFontSpecimen =>
       '‹‹The quick brown fox jumps over the lazy dog››';
+
+  @override
+  String get onbWhatsInside => 'تاسو څه کولی شئ';
+
+  @override
+  String onbStepOf(int current, int total) {
+    return '$current د $total';
+  }
+
+  @override
+  String get onbBack => 'بېرته';
+
+  @override
+  String get onbSwipeHint => 'د لیدلو لپاره سوایپ کړئ';
+
+  @override
+  String get onbDeepWelcome =>
+      'ستاسو مهال ویش، نمرې، کورنی کار، پیغامونه او یادښتونه ټول دلته دي — د ښوونځي لپاره یو ننوتل. دا یوه چټکه کتنه ده.';
+
+  @override
+  String get onbDeepNova =>
+      'له NOVA څخه په خپلو کلمو هر څه وپوښتئ او ګام په ګام تشریح ترلاسه کړئ. هر موضوع په تمرین بدل کړئ، هغه پوښتنې وساتئ چې بیا کتل غواړئ، او د یوې ستونزمنې پوښتنې عکس واخلئ تر څو حل شي.';
+
+  @override
+  String get onbDeepTrack =>
+      'د اپلیکېشن په پرانیستو سره د نن ورځې درسونه وګورئ، نمره سمدلاسه وګورئ چې خپره شي، خپله حاضري وګورئ، او ټولې دندې په یوه لیست کې وساتئ — د وخت نه مخکې یادونې سره.';
+
+  @override
+  String get onbDeepClassNotes =>
+      'په iPad کې د Apple Pencil سره په لاس یادښتونه ولیکئ — سرپوښونه، د کاغذ بڼې، ټېپ، عکسونه او غږیز یادښتونه — بیا دلته یې ولولئ، لیکنه لویه کړئ، غږونه واورئ او هر ضمیمه پرانیزئ.';
+
+  @override
+  String get onbDeepConnect =>
+      'مستقیم یو ښوونکي یا همصنفي ته پیغام ولیکئ، د ټولګي اعلانونه تعقیب کړئ، له کارت څخه آنلاین غونډې ته ورشئ، او خپل د ښوونځي CMail وکاروئ — د اپلیکېشن پرېښودو پرته.';
+
+  @override
+  String get onbDeepTeacherClasses =>
+      'ټولګی پرانیزئ چې وګورئ څوک دي، په دوو ټکونو حاضري واخلئ، دندې او مواد ورکړئ، او د هر ګروپ لیست منظم وساتئ.';
+
+  @override
+  String get onbDeepTeacherGrading =>
+      'په خپل معیار نمرې ورکړئ، چې تیار شوئ خپرې کړئ، او پرېږدئ چې Insights وښيي چې څوک وروسته پاتې کیږي — تر ستونزې مخکې.';
+
+  @override
+  String get onbDeepTeacherComms =>
+      'یو اعلان ټول ګروپ ته خپور کړئ، مستقیم یو والدین یا شاګرد ته پیغام ولیکئ، غونډه وټاکئ، او د فورم له لارې ځوابونه راټول کړئ.';
+
+  @override
+  String get onbDeepAdminOps =>
+      'ښوونځی له یوې دشبورډ څخه وچلوئ: مهال ویش جوړ کړئ، د نمرو معیارونه وټاکئ، راپورونه وګورئ او اړین معلومات صادر کړئ.';
+
+  @override
+  String get onbDeepAdminPeople =>
+      'شاګردان، ښوونکي او والدین اضافه کړئ، په ګروپونو ووېشئ، والدین له ماشوم سره ونښلوئ، او د کال په پای کې سندونه ورکړئ.';
+
+  @override
+  String get onbDeepSecretary =>
+      'ورځ روانه وساتئ: مهال ویش سم کړئ، د یو کس ریکارډ اضافه یا نوی کړئ، سندونه ورکړئ او ژر اعلان خپور کړئ.';
+
+  @override
+  String get onbDeepParentChild =>
+      'د خپلو ماشومانو ترمنځ بدلون وکړئ او د هر یو مهال ویش، نمرې، حاضري او کورنی کار وګورئ — هماغه انځور چې ښوونځی ویني.';
+
+  @override
+  String get onbDeepParentAlerts =>
+      'خبر شئ کله چې نمره خپره شي، غیر حاضري ثبت شي یا ښوونځی څه خپروي — او هماغه ځای کې ښوونکي ته ځواب ولیکئ.';
 }
