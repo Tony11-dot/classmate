@@ -171,6 +171,8 @@ class CnShelf {
     required this.color,
     required this.icon,
     required this.sortIndex,
+    this.symbolName = 'bag',
+    this.createdAt,
   });
 
   final String id;
@@ -181,6 +183,33 @@ class CnShelf {
   /// Append/creation order — shelves are shown sorted by this, matching
   /// ClassNotes' `Shelf.sortIndex`.
   final int sortIndex;
+
+  /// The native SF Symbol name this shelf was created with. Kept verbatim so
+  /// editing a shelf from here round-trips through the shared upsert endpoint
+  /// without changing its icon on the iPad.
+  final String symbolName;
+
+  /// The shelf's original creation date, for the same reason.
+  final DateTime? createdAt;
+
+  CnShelf copyWith({String? name, Color? color}) => CnShelf(
+        id: id,
+        name: name ?? this.name,
+        color: color ?? this.color,
+        icon: icon,
+        sortIndex: sortIndex,
+        symbolName: symbolName,
+        createdAt: createdAt,
+      );
+}
+
+/// A [Color] as the `#RRGGBB` the ClassNotes API speaks.
+String cnHex(Color color) {
+  int channel(double v) => (v * 255).round().clamp(0, 255);
+  final r = channel(color.r).toRadixString(16).padLeft(2, '0');
+  final g = channel(color.g).toRadixString(16).padLeft(2, '0');
+  final b = channel(color.b).toRadixString(16).padLeft(2, '0');
+  return '#$r$g$b'.toUpperCase();
 }
 
 /// The whole library, pre-ordered the ClassNotes way. Built by the data layer

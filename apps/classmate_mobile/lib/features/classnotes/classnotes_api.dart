@@ -58,6 +58,57 @@ class ClassNotesApi {
         .toList(growable: false);
   }
 
+  /// `PATCH /classnotes/notebooks/:id` — rename, re-shelve or recolour a notebook
+  /// from here. The server marks it so the iPad's next full push doesn't overwrite
+  /// the change, and pulls it down instead.
+  Future<void> patchNotebook(
+    String id, {
+    String? title,
+    String? coverColorHex,
+    // Two different meanings: `shelfId` absent leaves the shelf alone, while
+    // `clearShelf: true` unfiles the notebook.
+    String? shelfId,
+    bool clearShelf = false,
+  }) async {
+    final body = <String, dynamic>{
+      'title': ?title,
+      'coverColorHex': ?coverColorHex,
+      if (clearShelf) 'shelfId': null else 'shelfId': ?shelfId,
+    };
+    if (body.isEmpty) return;
+    await _api.patchJson('/classnotes/notebooks/$id', body: body);
+  }
+
+  /// `DELETE /classnotes/notebooks/:id` — removes it here AND, on its next
+  /// launch, from the iPad (the server keeps a tombstone until the app applies it).
+  Future<void> deleteNotebook(String id) async {
+    await _api.deleteJson('/classnotes/notebooks/$id');
+  }
+
+  /// `PUT /classnotes/notebooks/order` — the ids in the order they now appear.
+  Future<void> reorderNotebooks(List<String> ids) async {
+    await _api.putJson('/classnotes/notebooks/order', body: {'ids': ids});
+  }
+
+  /// `PUT /classnotes/shelves/:id` — rename / recolour a shelf. The whole shelf
+  /// is sent because the endpoint is an upsert shared with the native app.
+  Future<void> putShelf(CnShelf shelf) async {
+    await _api.putJson('/classnotes/shelves/${shelf.id}', body: {
+      'name': shelf.name,
+      'colorHex': cnHex(shelf.color),
+      'symbolName': shelf.symbolName,
+      'sortIndex': shelf.sortIndex,
+      'createdAt':
+          (shelf.createdAt ?? DateTime.now()).toUtc().toIso8601String(),
+    });
+  }
+
+  /// `DELETE /classnotes/shelves/:id` — the notebooks on it are unfiled, not
+  /// deleted (the server does that in one transaction).
+  Future<void> deleteShelf(String id) async {
+    await _api.deleteJson('/classnotes/shelves/$id');
+  }
+
   CnPage _page(Map<String, dynamic> j) => CnPage(
         pageIndex: (j['pageIndex'] as num?)?.toInt() ?? 0,
         dataUrl: '${j['dataUrl'] ?? ''}',
@@ -82,6 +133,10 @@ class ClassNotesApi {
         color: _hexColor(j['colorHex']) ?? CnPalette.covers.first,
         icon: _shelfIcon('${j['symbolName'] ?? 'bag'}'),
         sortIndex: (j['sortIndex'] as num?)?.toInt() ?? 0,
+        // Kept so editing a shelf here can round-trip through the shared upsert
+        // endpoint without changing its icon or creation date on the iPad.
+        symbolName: '${j['symbolName'] ?? 'bag'}',
+        createdAt: DateTime.tryParse('${j['createdAt']}'),
       );
 
   CnNotebook _notebook(Map<String, dynamic> j) => CnNotebook(

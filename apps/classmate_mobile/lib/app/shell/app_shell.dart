@@ -379,6 +379,10 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    // '/classnotes' is in _studentPrefixes, so a missing case here didn't fall
+    // through to the next prefix — it hit `_` and pinned the title pill to
+    // "Schedule" for the whole ClassNotes tab. Same for parents below.
+    '/classnotes' => 'ClassNotes',
     '/classrooms' => l.titleClasses,
     '/messages' => l.titleMessages,
     '/cmail' => l.cmailTitle,
@@ -407,6 +411,7 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
+    '/classnotes' => 'ClassNotes',
     '/parent/home' => l.navHome,
     '/parent/schedule' => l.navSchedule,
     '/parent/overview' => l.navInsights,

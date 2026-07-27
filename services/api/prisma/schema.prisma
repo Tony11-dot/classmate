@@ -2597,8 +2597,21 @@ model ClassNotesNotebook {
   pageCount     Int      @default(1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now())
+  // Manual order set from the ClassMate ClassNotes tab (drag to reorder). Null
+  // means "never reordered" — those sort after the arranged ones, newest first.
+  sortIndex     Int?
+  // Tombstone. Deleting from the ClassMate tab can't just drop the row: the iPad
+  // pushes its whole library on every launch, so the notebook would come straight
+  // back. The row stays as a marker until the native app has pulled the deletion
+  // and removed its local copy, then acknowledges it (see `remoteEditedAt`).
+  deletedAt     DateTime?
+  // Set when the ClassMate tab edits this notebook (rename / re-shelve). The
+  // native app pulls these, applies them locally and acks; until then the app's
+  // own push must NOT overwrite the newer remote value.
+  remoteEditedAt DateTime?
 
   @@index([userId, updatedAt])
+  @@index([userId, deletedAt])
 }
 
 // One rendered page image for a ClassNotes notebook. The native app renders

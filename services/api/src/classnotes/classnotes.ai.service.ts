@@ -105,6 +105,30 @@ export class ClassnotesAiService {
     return this.complete(this.identity(surface), history, question);
   }
 
+  /**
+   * Belt-and-braces for `reasoning_format: 'hidden'`: strips any chain-of-thought
+   * that still comes back inline, so a "beautify" never replaces the student's
+   * handwriting with the model thinking out loud. Exported for the unit test.
+   */
+  static stripReasoning(raw: string): string {
+    let text = raw;
+    // Complete <think>…</think> (and friends), then any unterminated opener.
+    text = text.replace(
+      /<(think|thinking|reasoning|analysis)>[\s\S]*?<\/\1>/gi,
+      '',
+    );
+    text = text.replace(/<(think|thinking|reasoning|analysis)>[\s\S]*$/i, '');
+    // Harmony channels: keep the final channel's message, drop the rest.
+    const final = text.lastIndexOf('<|channel|>final<|message|>');
+    if (final >= 0) {
+      text = text.slice(final + '<|channel|>final<|message|>'.length);
+    }
+    text = text.replace(/<\|channel\|>[a-z]*(<\|message\|>)?/gi, '');
+    text = text.replace(/<\|(start|end|message|return)\|>/gi, '');
+    text = text.replace(/^\s*(assistant|analysis)\s*[:\n]/i, '');
+    return text.trim();
+  }
+
   /** Shared OpenAI-compatible chat-completions call (non-streaming). */
   private async complete(
     system: string,
@@ -151,6 +175,12 @@ export class ClassnotesAiService {
           model: this.model(),
           temperature: 0.3,
           messages,
+          // See ai.service.ts: gpt-oss narrates its reasoning by default, which
+          // ended up inside `answer` — and for "beautify" that meant the model's
+          // thoughts replacing the student's handwriting. Ignored by non-reasoning
+          // models.
+          reasoning_format: 'hidden',
+          reasoning_effort: 'low',
         }),
         signal: controller.signal,
       });
@@ -158,7 +188,9 @@ export class ClassnotesAiService {
         throw new Error(`AI upstream ${res.status}`);
       }
       const data: any = await res.json();
-      const answer = String(data?.choices?.[0]?.message?.content ?? '').trim();
+      const answer = ClassnotesAiService.stripReasoning(
+        String(data?.choices?.[0]?.message?.content ?? ''),
+      );
       return { answer };
     } finally {
       clearTimeout(timer);

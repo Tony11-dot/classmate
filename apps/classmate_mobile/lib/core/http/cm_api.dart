@@ -183,6 +183,18 @@ class CMApi {
     return _decodeOrNull(res);
   }
 
+  Future<dynamic> putJson(String path, {Object? body}) async {
+    final res = await _sendWithFallback(
+      (uri) => _client.put(
+        uri,
+        headers: _headers(),
+        body: jsonEncode(body ?? const <String, dynamic>{}),
+      ),
+      path: path,
+    );
+    return _decodeOrNull(res);
+  }
+
   Future<dynamic> patchJson(String path, {Object? body}) async {
     final res = await _sendWithFallback(
       (uri) => _client.patch(

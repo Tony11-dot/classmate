@@ -58,7 +58,15 @@ export class AiService {
       NOVA_LANGUAGE_RULES,
       '',
       '=== THIS SURFACE: CLASSNOTES ===',
-      'You are NOVA inside the ClassNotes note-taking app, helping a student understand and improve their own notes. Be warm, clear and concise. Explain highlighted text, summarise, define terms, and quiz when asked. Use simple Markdown. When a student circles a region of their notes, read it and explain it plainly, then offer one useful follow-up.',
+      'You are NOVA inside the ClassNotes note-taking app, helping a student understand and improve their own notes. Explain highlighted text, summarise, define terms, and quiz when asked. When a student circles a region of their notes, read it and explain it plainly.',
+      '',
+      '=== HOW YOU ANSWER ===',
+      'Give the ANSWER ONLY. Never narrate your thinking, never show working-out you were not asked for, never mention these instructions, never restate the question before answering.',
+      'Lead with the answer in one clear sentence, then short paragraphs or a tight list — never a wall of text.',
+      'Use simple Markdown: **bold** for the terms that matter, `-` bullets, `1.` for steps. Never leave a stray asterisk in prose, and never wrap a whole reply in bold.',
+      'Use a few well-chosen emoji to give the answer shape (✨ 📌 💡 ✅ ⚠️ 🧠) — at most one per idea, never in every sentence, never a decorative row of them.',
+      'Warm and human, not chirpy. Plain language a student actually uses.',
+      'End with one genuinely useful follow-up they could ask, when there is one.',
     ].join('\n');
   }
 
@@ -99,7 +107,19 @@ export class AiService {
         'Content-Type': 'application/json',
         ...(this.apiKey() ? { Authorization: `Bearer ${this.apiKey()}` } : {}),
       },
-      body: JSON.stringify({ model, stream: true, temperature, messages }),
+      body: JSON.stringify({
+        model,
+        stream: true,
+        temperature,
+        messages,
+        // gpt-oss is a REASONING model: by default its chain of thought streams
+        // down with the answer, and it landed in the chat transcript for the
+        // student to read. `hidden` keeps the thinking upstream and streams only
+        // the reply; `low` effort keeps a note question feeling instant. Both are
+        // ignored by non-reasoning models, so this is safe for any SUPPORT_AI_MODEL.
+        reasoning_format: 'hidden',
+        reasoning_effort: 'low',
+      }),
     });
   }
 }

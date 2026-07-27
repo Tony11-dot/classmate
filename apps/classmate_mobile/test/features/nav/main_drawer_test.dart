@@ -30,7 +30,7 @@ void main() {
 
   /// The production shape: the drawer built in `MaterialApp`'s `builder`, beside
   /// (not inside) the Navigator that `child` carries.
-  Widget chromeShaped(GoRouter router) {
+  Widget chromeShaped(GoRouter router, {String location = '/home'}) {
     return ProviderScope(
       overrides: [
         isHomeroomTeacherProvider.overrideWith((ref) async => false),
@@ -46,7 +46,7 @@ void main() {
                 MainDrawer(
                   permanent: true,
                   navRouter: router,
-                  currentLocation: '/home',
+                  currentLocation: location,
                 ),
                 const VerticalDivider(width: 1),
                 Expanded(child: child ?? const SizedBox()),
@@ -110,6 +110,35 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the permanent sidebar follows the active route', (tester) async {
+    // The Overlay that gives the sidebar a drag layer must not FREEZE it:
+    // `Overlay(initialEntries: [OverlayEntry(builder: (_) => inner)])` reads its
+    // entries once, so the sidebar rendered its first frame forever — tapping a
+    // tab navigated but the highlight never moved.
+    tester.view.physicalSize = const Size(1600, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final router = throwawayRouter();
+    addTearDown(router.dispose);
+
+    FontWeight? weightOf(String label) =>
+        tester.widget<Text>(find.text(label).first).style?.fontWeight;
+
+    await tester.pumpWidget(chromeShaped(router, location: '/schedule'));
+    await tester.pumpAndSettle();
+    expect(weightOf('ClassNotes'), FontWeight.w500,
+        reason: 'ClassNotes is not the active route yet');
+
+    // Same widget, new location — exactly what DesktopChromeShell does when the
+    // router reports a new configuration.
+    await tester.pumpWidget(chromeShaped(router, location: '/classnotes'));
+    await tester.pumpAndSettle();
+    expect(weightOf('ClassNotes'), FontWeight.w700,
+        reason: 'the sidebar must re-render with the new active route');
+    expect(weightOf('Schedule'), FontWeight.w500);
   });
 
   testWidgets('slide-out drawer still renders School Tools', (tester) async {

@@ -44,6 +44,43 @@ export class NotebookUpsertDto {
   updatedAt!: string;
 }
 
+/// PATCH /classnotes/notebooks/:id — an edit made from the ClassMate ClassNotes
+/// tab (rename, re-shelve, recolour). Every field is optional: only what's sent
+/// changes. Marks the row `remoteEditedAt` so the native app pulls it instead of
+/// pushing over it.
+export class NotebookPatchDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  coverColorHex?: string;
+
+  /// `null` unfiles the notebook; omitted leaves its shelf alone.
+  @IsOptional()
+  @IsString()
+  shelfId?: string | null;
+}
+
+/// PUT /classnotes/notebooks/order — the notebook ids in the order the user
+/// dragged them into. Ids not listed keep their place after the listed ones.
+export class NotebookOrderDto {
+  @IsArray()
+  @IsString({ each: true })
+  ids!: string[];
+}
+
+/// POST /classnotes/changes/ack — the ids the native app has finished applying
+/// locally, so their tombstones can be purged and their remote-edit marks cleared.
+export class ChangesAckDto {
+  @IsArray()
+  @IsString({ each: true })
+  ids!: string[];
+}
+
 /// One playable / openable thing on a page, uploaded alongside the rendered
 /// image so the ClassNotes tab can listen to voice notes and open files and
 /// links instead of just looking at a flat picture of the page.

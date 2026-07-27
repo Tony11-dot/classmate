@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_session.dart';
+import 'classnotes_manage.dart';
 import 'classnotes_models.dart';
 import 'classnotes_notebook_screen.dart';
 import 'classnotes_repository.dart';
@@ -24,6 +25,11 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
   String? _shelfFilter; // null = "All"
   AuthSession? _session;
   bool _hadToken = false;
+  /// Arrange mode: covers become a draggable list.
+  bool _arranging = false;
+  /// The order shown while a drag is being saved, so covers don't snap back to
+  /// the server's order mid-gesture.
+  List<CnNotebook>? _pendingOrder;
 
   @override
   void initState() {
@@ -54,6 +60,9 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
   }
 
   Future<void> _refresh() async {
+    // A refresh is the user asking for the server's truth — drop any local order
+    // we were showing over it.
+    setState(() => _pendingOrder = null);
     ref.invalidate(classNotesLibraryProvider);
     await ref.read(classNotesLibraryProvider.future);
   }
@@ -86,7 +95,9 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
             !library.shelves.any((s) => s.id == _shelfFilter))
         ? null
         : _shelfFilter;
-    final visible = library.inShelf(filter);
+    // While reordering, show the local order — the server round-trip would
+    // otherwise snap the covers back under the finger.
+    final visible = _pendingOrder ?? library.inShelf(filter);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,8 +106,20 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
           _ShelfBar(
             shelves: library.shelves,
             selected: filter,
-            onSelect: (id) => setState(() => _shelfFilter = id),
+            onSelect: (id) => setState(() {
+              _shelfFilter = id;
+              _pendingOrder = null;
+            }),
+            onEditShelf: (shelf) =>
+                CnManage.showShelfActions(context, ref, shelf),
           ),
+        _ManageHint(
+          arranging: _arranging,
+          onToggle: () => setState(() {
+            _arranging = !_arranging;
+            _pendingOrder = null;
+          }),
+        ),
         Expanded(
           child: RefreshIndicator(
             onRefresh: _refresh,
@@ -108,25 +131,72 @@ class _ClassNotesScreenState extends ConsumerState<ClassNotesScreen> {
                       _EmptyState(),
                     ],
                   )
-                : GridView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      mainAxisSpacing: 28,
-                      crossAxisSpacing: 28,
-                      childAspectRatio: 0.64,
-                    ),
-                    itemCount: visible.length,
-                    itemBuilder: (context, i) => _CoverCell(
-                      notebook: visible[i],
-                      onTap: () => _openNotebook(visible[i]),
-                    ),
-                  ),
+                : _arranging
+                    ? _arrangeList(library, visible)
+                    : _coverGrid(library, visible),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _coverGrid(CnLibrary library, List<CnNotebook> visible) {
+    return GridView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 200,
+        mainAxisSpacing: 28,
+        crossAxisSpacing: 28,
+        childAspectRatio: 0.64,
+      ),
+      itemCount: visible.length,
+      itemBuilder: (context, i) => _CoverCell(
+        notebook: visible[i],
+        onTap: () => _openNotebook(visible[i]),
+        onManage: () => _manage(visible[i], library),
+      ),
+    );
+  }
+
+  /// Arrange mode: the covers become a list you can drag. A grid has no
+  /// reorderable equivalent in Flutter, and a list makes the drag target obvious
+  /// — one row, one handle, no guessing which gap you're dropping into.
+  Widget _arrangeList(CnLibrary library, List<CnNotebook> visible) {
+    return ReorderableListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 28),
+      itemCount: visible.length,
+      onReorder: (oldIndex, newIndex) {
+        if (newIndex > oldIndex) newIndex -= 1;
+        final next = List<CnNotebook>.from(visible);
+        next.insert(newIndex, next.removeAt(oldIndex));
+        setState(() => _pendingOrder = next);
+        // The order is saved for the WHOLE library, not just the filtered shelf:
+        // the dragged books keep their new positions and everything else follows.
+        final ids = <String>[
+          for (final n in next) n.id,
+          for (final n in library.notebooks)
+            if (!next.any((v) => v.id == n.id)) n.id,
+        ];
+        CnManage.saveOrder(context, ref, ids);
+      },
+      itemBuilder: (context, i) => _ArrangeRow(
+        key: ValueKey(visible[i].id),
+        index: i,
+        notebook: visible[i],
+        onManage: () => _manage(visible[i], library),
+      ),
+    );
+  }
+
+  void _manage(CnNotebook notebook, CnLibrary library) {
+    CnManage.showNotebookActions(
+      context,
+      ref,
+      notebook: notebook,
+      shelves: library.shelves,
+      onOpen: () => _openNotebook(notebook),
     );
   }
 
@@ -150,11 +220,15 @@ class _ShelfBar extends StatelessWidget {
     required this.shelves,
     required this.selected,
     required this.onSelect,
+    required this.onEditShelf,
   });
 
   final List<CnShelf> shelves;
   final String? selected;
   final ValueChanged<String?> onSelect;
+
+  /// Long-press a shelf chip to rename or delete it.
+  final ValueChanged<CnShelf> onEditShelf;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +254,7 @@ class _ShelfBar extends StatelessWidget {
               color: s.color,
               selected: selected == s.id,
               onTap: () => onSelect(s.id),
+              onLongPress: () => onEditShelf(s),
             ),
           ],
         ],
@@ -195,6 +270,7 @@ class _ShelfChip extends StatelessWidget {
     required this.color,
     required this.selected,
     required this.onTap,
+    this.onLongPress,
   });
 
   final String label;
@@ -202,6 +278,7 @@ class _ShelfChip extends StatelessWidget {
   final Color color;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +290,7 @@ class _ShelfChip extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           child: Row(
@@ -240,23 +318,144 @@ class _ShelfChip extends StatelessWidget {
 // Cover cell
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// A one-line strip above the grid: what you can do here, and the switch into
+/// arrange mode. Without it, drag-to-reorder and the ⋮ menu are invisible.
+class _ManageHint extends StatelessWidget {
+  const _ManageHint({required this.arranging, required this.onToggle});
+
+  final bool arranging;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 2, 16, 2),
+      child: Row(
+        children: [
+          Icon(
+            arranging ? Icons.drag_indicator_rounded : Icons.more_vert_rounded,
+            size: 15,
+            color: cs.onSurfaceVariant,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              arranging
+                  ? 'Drag to reorder your notebooks'
+                  : 'Tap ⋮ on a notebook to rename, download or delete it',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: onToggle,
+            icon: Icon(arranging ? Icons.check_rounded : Icons.swap_vert_rounded, size: 18),
+            label: Text(arranging ? 'Done' : 'Arrange'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One row in arrange mode: a small cover, the title, and the same ⋮ menu.
+class _ArrangeRow extends StatelessWidget {
+  const _ArrangeRow({
+    super.key,
+    required this.index,
+    required this.notebook,
+    required this.onManage,
+  });
+
+  final int index;
+  final CnNotebook notebook;
+  final VoidCallback onManage;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      color: cs.surfaceContainerLow,
+      child: ListTile(
+        leading: SizedBox(
+          width: 34,
+          child: _NotebookCover(notebook: notebook),
+        ),
+        title: Text(
+          notebook.title.isEmpty ? 'Untitled' : notebook.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(
+          '${notebook.pageCount} page${notebook.pageCount == 1 ? '' : 's'}',
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.more_vert_rounded),
+              tooltip: 'Manage',
+              onPressed: onManage,
+            ),
+            ReorderableDragStartListener(
+              index: index,
+              child: Icon(Icons.drag_handle_rounded, color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CoverCell extends StatelessWidget {
-  const _CoverCell({required this.notebook, required this.onTap});
+  const _CoverCell({
+    required this.notebook,
+    required this.onTap,
+    required this.onManage,
+  });
 
   final CnNotebook notebook;
   final VoidCallback onTap;
+  final VoidCallback onManage;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
+      // Long-press anywhere on the cover is the same menu as the ⋮ button, for
+      // anyone who reaches for that first.
+      onLongPress: onManage,
       behavior: HitTestBehavior.opaque,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(child: _NotebookCover(notebook: notebook)),
+          Flexible(
+            child: Stack(
+              children: [
+                Positioned.fill(child: _NotebookCover(notebook: notebook)),
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: _ManageButton(
+                    key: ValueKey('cn-manage-${notebook.id}'),
+                    onTap: onManage,
+                    title: notebook.title,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             _formatDate(notebook.updatedAt),
@@ -277,6 +476,36 @@ class _CoverCell extends StatelessWidget {
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
+  }
+}
+
+/// The ⋮ affordance on a cover. Dark scrim behind it so it reads on every cover
+/// colour, light or dark.
+class _ManageButton extends StatelessWidget {
+  const _ManageButton({super.key, required this.onTap, required this.title});
+
+  final VoidCallback onTap;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Manage ${title.isEmpty ? 'notebook' : title}',
+      child: Material(
+        color: Colors.black.withValues(alpha: 0.28),
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: const SizedBox(
+            width: 30,
+            height: 30,
+            child: Icon(Icons.more_vert_rounded, size: 18, color: Colors.white),
+          ),
+        ),
+      ),
+    );
   }
 }
 

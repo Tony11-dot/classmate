@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   Put,
@@ -17,6 +18,9 @@ import { ALL_APP_ROLES } from '../auth/roles';
 import { ClassnotesService } from './classnotes.service';
 import { ClassnotesAiService } from './classnotes.ai.service';
 import {
+  ChangesAckDto,
+  NotebookOrderDto,
+  NotebookPatchDto,
   NotebookUpsertDto,
   NotebookPagesUpsertDto,
   ShelfUpsertDto,
@@ -62,6 +66,25 @@ export class ClassnotesController {
     return this.svc.getLibrary(req.user);
   }
 
+  /// What the ClassMate tab changed since this client last acknowledged —
+  /// notebooks deleted or renamed there. The native app pulls this on launch,
+  /// BEFORE pushing its own library, then acks.
+  @Get('changes')
+  changes(@Req() req: any) {
+    return this.svc.getChanges(req.user);
+  }
+
+  @Post('changes/ack')
+  ackChanges(@Req() req: any, @Body() dto: ChangesAckDto) {
+    return this.svc.ackChanges(req.user, dto.ids ?? []);
+  }
+
+  /// Declared BEFORE `notebooks/:id` so the literal path wins over the parameter.
+  @Put('notebooks/order')
+  reorderNotebooks(@Req() req: any, @Body() dto: NotebookOrderDto) {
+    return this.svc.reorderNotebooks(req.user, dto.ids ?? []);
+  }
+
   @Put('notebooks/:id')
   putNotebook(
     @Req() req: any,
@@ -69,6 +92,16 @@ export class ClassnotesController {
     @Body() dto: NotebookUpsertDto,
   ) {
     return this.svc.upsertNotebook(req.user, id, dto);
+  }
+
+  /// Rename / re-shelve / recolour from the ClassMate ClassNotes tab.
+  @Patch('notebooks/:id')
+  patchNotebook(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: NotebookPatchDto,
+  ) {
+    return this.svc.patchNotebook(req.user, id, dto);
   }
 
   @Delete('notebooks/:id')

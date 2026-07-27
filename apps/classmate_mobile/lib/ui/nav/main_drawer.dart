@@ -663,15 +663,11 @@ class MainDrawer extends ConsumerWidget {
       // (Overlay.of ends in `result!`, and release builds strip the assert that
       // would say "No Overlay widget found" — so School Tools came out as
       // "Null check operator used on a null value" on web and iPad instead of a
-      // list). Its own Overlay gives the sidebar a drag layer, scoped to itself.
+      // list). [_OverlayHost] gives the sidebar a drag layer scoped to itself —
+      // and, critically, keeps it REBUILDING (see its doc comment).
       return Material(
         color: cs.surface,
-        child: SizedBox(
-          width: 290,
-          child: Overlay(
-            initialEntries: [OverlayEntry(builder: (_) => inner)],
-          ),
-        ),
+        child: SizedBox(width: 290, child: _OverlayHost(child: inner)),
       );
     }
 
@@ -700,6 +696,47 @@ class MainDrawer extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Hosts [child] inside its own [Overlay] so widgets that need an overlay
+/// (ReorderableListView's drag proxy, tooltips, …) work in a subtree that has no
+/// Overlay ancestor — the permanent sidebar lives above the router's Navigator.
+///
+/// Why a StatefulWidget instead of `Overlay(initialEntries: [...])` inline:
+/// `initialEntries` is read ONCE, in `initState`. An inline
+/// `OverlayEntry(builder: (_) => inner)` therefore captures the FIRST `inner`
+/// and renders it forever — the sidebar froze on its first frame, so tapping a
+/// tab navigated but never moved the highlight. The entry here belongs to the
+/// State and its builder reads `widget.child`, so every rebuild of this widget
+/// re-renders the CURRENT sidebar (active route, name, school, child picker).
+/// [didUpdateWidget] marking the entry dirty is belt-and-braces: the entry's own
+/// widget is rebuilt by the enclosing Overlay today, and this keeps it correct
+/// if that ever stops being true.
+class _OverlayHost extends StatefulWidget {
+  const _OverlayHost({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_OverlayHost> createState() => _OverlayHostState();
+}
+
+class _OverlayHostState extends State<_OverlayHost> {
+  late final OverlayEntry _entry = OverlayEntry(
+    builder: (_) => widget.child,
+    // The sidebar IS the content, not a layer floating over one.
+    opaque: true,
+    maintainState: true,
+  );
+
+  @override
+  void didUpdateWidget(_OverlayHost oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.child != widget.child) _entry.markNeedsBuild();
+  }
+
+  @override
+  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
 }
 
 String _initials(String name) {
