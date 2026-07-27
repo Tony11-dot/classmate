@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios latest
+
+```sh
+[bundle exec] fastlane ios latest
+```
+
+Print the build number TestFlight actually has — post-ship verification (read-only, uploads nothing).
+
 ### ios fix_signing
 
 ```sh
