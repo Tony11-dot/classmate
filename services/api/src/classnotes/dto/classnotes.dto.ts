@@ -3,6 +3,7 @@ import {
   IsArray,
   IsDateString,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -43,6 +44,38 @@ export class NotebookUpsertDto {
   updatedAt!: string;
 }
 
+/// One playable / openable thing on a page, uploaded alongside the rendered
+/// image so the ClassNotes tab can listen to voice notes and open files and
+/// links instead of just looking at a flat picture of the page.
+///
+/// `kind` is `audio`, `file` or `link`. Audio and files carry a data URL; links
+/// carry their address. `dataUrl` has no MaxLength for the same reason as the
+/// page render — the global JSON body limit bounds the request.
+export class ClassNotesAttachmentDto {
+  // audio | file | link
+  @IsString()
+  @MaxLength(16)
+  kind!: string;
+
+  @IsString()
+  @MaxLength(300)
+  name!: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  durationSeconds?: number;
+
+  @IsOptional()
+  @IsString()
+  dataUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  url?: string;
+}
+
 /// One rendered page in a notebook-pages upload. `dataUrl` is a
 /// `data:image/png;base64,...` string and can be large, so it has no
 /// MaxLength — the global JSON body limit (see main.ts) bounds the request.
@@ -53,6 +86,13 @@ export class ClassNotesPageDto {
 
   @IsString()
   dataUrl!: string;
+
+  /// The page's voice notes, files and links. Omitted by older clients.
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ClassNotesAttachmentDto)
+  attachments?: ClassNotesAttachmentDto[];
 }
 
 /// PUT /classnotes/notebooks/:id/pages body. `pages` is the set of rendered

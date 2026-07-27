@@ -61,6 +61,19 @@ class ClassNotesApi {
   CnPage _page(Map<String, dynamic> j) => CnPage(
         pageIndex: (j['pageIndex'] as num?)?.toInt() ?? 0,
         dataUrl: '${j['dataUrl'] ?? ''}',
+        attachments: ((j['attachments'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((e) => _attachment(Map<String, dynamic>.from(e)))
+            .where((a) => a.isOpenable)
+            .toList(growable: false),
+      );
+
+  CnAttachment _attachment(Map<String, dynamic> j) => CnAttachment(
+        kind: _attachmentKind('${j['kind'] ?? 'file'}'),
+        name: '${j['name'] ?? ''}',
+        durationSeconds: (j['durationSeconds'] as num?)?.toDouble(),
+        dataUrl: j['dataUrl'] as String?,
+        url: j['url'] as String?,
       );
 
   CnShelf _shelf(Map<String, dynamic> j) => CnShelf(
@@ -95,6 +108,14 @@ Color? _hexColor(dynamic value) {
   final n = int.tryParse(s, radix: 16);
   return n == null ? null : Color(n);
 }
+
+/// The native attachment kind → [CnAttachmentKind] (unknown kinds read as files,
+/// which is the most conservative handling — the system viewer decides).
+CnAttachmentKind _attachmentKind(String raw) => switch (raw) {
+      'audio' => CnAttachmentKind.audio,
+      'link' => CnAttachmentKind.link,
+      _ => CnAttachmentKind.file,
+    };
 
 /// PageTemplate.rawValue → [CnTemplate] (defaults to ruled).
 CnTemplate _template(String raw) => switch (raw) {

@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   NotebookUpsertDto,
@@ -93,9 +94,17 @@ export class ClassnotesService {
     const pages = await this.prisma.classNotesPage.findMany({
       where: { notebookId, userId },
       orderBy: { pageIndex: 'asc' },
-      select: { pageIndex: true, dataUrl: true },
+      select: { pageIndex: true, dataUrl: true, attachments: true },
     });
-    return { pages };
+    // Always hand the client an array, even for pages synced before attachments
+    // existed (attachments is null there).
+    return {
+      pages: pages.map((p) => ({
+        pageIndex: p.pageIndex,
+        dataUrl: p.dataUrl,
+        attachments: Array.isArray(p.attachments) ? p.attachments : [],
+      })),
+    };
   }
 
   /// Upsert the uploaded page images, then prune any rows at pageIndex >=
@@ -109,19 +118,25 @@ export class ClassnotesService {
     const userId = this.uid(user);
     await this.assertOwnsNotebook(notebookId, userId);
     const now = new Date();
-    const upserts = dto.pages.map((p) =>
-      this.prisma.classNotesPage.upsert({
+    const upserts = dto.pages.map((p) => {
+      // An omitted `attachments` means "this client doesn't send them"; an empty
+      // array means "this page has none" and must clear whatever was there.
+      // Cast to Prisma's JSON input type: the DTO is a class array, which
+      // structurally satisfies a JSON array but not its declared type.
+      const attachments = (p.attachments ?? []) as unknown as Prisma.InputJsonValue;
+      return this.prisma.classNotesPage.upsert({
         where: { notebookId_pageIndex: { notebookId, pageIndex: p.pageIndex } },
         create: {
           notebookId,
           userId,
           pageIndex: p.pageIndex,
           dataUrl: p.dataUrl,
+          attachments,
           updatedAt: now,
         },
-        update: { userId, dataUrl: p.dataUrl, updatedAt: now },
-      }),
-    );
+        update: { userId, dataUrl: p.dataUrl, attachments, updatedAt: now },
+      });
+    });
     await this.prisma.$transaction([
       ...upserts,
       this.prisma.classNotesPage.deleteMany({

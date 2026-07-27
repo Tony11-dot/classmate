@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
@@ -55,15 +57,110 @@ class CnNotebook {
   final int pageCount;
 }
 
+/// What kind of extra a page carries: a voice note to play, a file to open, or
+/// a link to follow.
+enum CnAttachmentKind { audio, file, link }
+
+/// One playable / openable thing on a page, synced up from ClassNotes alongside
+/// the page render. Audio and files arrive as `data:` URLs (written to a temp
+/// file before opening); links carry their address.
+@immutable
+class CnAttachment {
+  const CnAttachment({
+    required this.kind,
+    required this.name,
+    this.durationSeconds,
+    this.dataUrl,
+    this.url,
+  });
+
+  final CnAttachmentKind kind;
+  final String name;
+
+  /// Voice-note length in seconds, when known.
+  final double? durationSeconds;
+
+  /// `data:<mime>;base64,...` for audio and files.
+  final String? dataUrl;
+
+  /// The destination, for links.
+  final String? url;
+
+  /// True when there is actually something to play / open.
+  bool get isPlayable =>
+      kind == CnAttachmentKind.audio && (dataUrl?.isNotEmpty ?? false);
+
+  bool get isOpenable => switch (kind) {
+        CnAttachmentKind.link => (url?.isNotEmpty ?? false),
+        _ => (dataUrl?.isNotEmpty ?? false),
+      };
+
+  /// The file extension implied by a data URL's MIME type, for the temp file the
+  /// system viewer opens.
+  String get fileExtension {
+    final mime = mimeType;
+    return switch (mime) {
+      'application/pdf' => 'pdf',
+      'image/png' => 'png',
+      'image/jpeg' => 'jpg',
+      'image/heic' => 'heic',
+      'image/gif' => 'gif',
+      'text/plain' => 'txt',
+      'text/csv' => 'csv',
+      'application/json' => 'json',
+      'audio/m4a' => 'm4a',
+      'audio/mpeg' => 'mp3',
+      'audio/wav' => 'wav',
+      'video/mp4' => 'mp4',
+      'application/zip' => 'zip',
+      _ => 'dat',
+    };
+  }
+
+  /// The MIME type declared in the data URL, or the octet-stream fallback.
+  String get mimeType {
+    final value = dataUrl;
+    if (value == null || !value.startsWith('data:')) {
+      return 'application/octet-stream';
+    }
+    final semicolon = value.indexOf(';');
+    if (semicolon <= 5) return 'application/octet-stream';
+    return value.substring(5, semicolon);
+  }
+
+  /// The decoded payload, or null when there isn't one (a link) or it's corrupt.
+  Uint8List? get bytes => decodeDataUrl(dataUrl);
+}
+
+/// Decodes the base64 payload of a `data:...,<base64>` URL. Null on anything
+/// missing or unparseable, so a corrupt payload degrades instead of throwing.
+Uint8List? decodeDataUrl(String? dataUrl) {
+  if (dataUrl == null || dataUrl.isEmpty) return null;
+  final comma = dataUrl.indexOf(',');
+  final b64 = comma >= 0 ? dataUrl.substring(comma + 1) : dataUrl;
+  if (b64.isEmpty) return null;
+  try {
+    return base64Decode(b64);
+  } catch (_) {
+    return null;
+  }
+}
+
 /// One rendered page of a notebook, synced up from the native ClassNotes app.
 /// `dataUrl` is a `data:image/png;base64,...` string; the viewer decodes the
-/// base64 payload and paints it over the paper template.
+/// base64 payload and paints it over the paper template. `attachments` are the
+/// page's voice notes, files and links, which stay usable here.
 @immutable
 class CnPage {
-  const CnPage({required this.pageIndex, required this.dataUrl});
+  const CnPage({
+    required this.pageIndex,
+    required this.dataUrl,
+    this.attachments = const <CnAttachment>[],
+  });
 
   final int pageIndex;
   final String dataUrl;
+  final List<CnAttachment> attachments;
 }
 
 @immutable

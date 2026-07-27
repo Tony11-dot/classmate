@@ -2613,6 +2613,10 @@ model ClassNotesPage {
   userId     String
   pageIndex  Int
   dataUrl    String   @db.Text
+  // The page's playable/openable extras: voice notes, files and links, as a
+  // JSON array of { kind, name, durationSeconds?, dataUrl?, url? }. Nullable
+  // because pages uploaded before attachments existed simply have none.
+  attachments Json?
   updatedAt  DateTime @default(now())
 
   @@id([notebookId, pageIndex])
