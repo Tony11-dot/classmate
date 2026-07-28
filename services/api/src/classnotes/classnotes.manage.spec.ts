@@ -104,6 +104,59 @@ describe('ClassnotesService — managing notebooks from ClassMate', () => {
     expect(calls.upserts[0].update.title).toBe('From the iPad');
   });
 
+  it('stores the cover render the iPad sends with the notebook', async () => {
+    const { prisma, calls } = fakePrisma({
+      userId: 'user-1',
+      deletedAt: null,
+      remoteEditedAt: null,
+    });
+    const svc = new ClassnotesService(prisma);
+
+    await svc.upsertNotebook(user, 'nb-1', {
+      ...upsertBody,
+      coverImage: 'data:image/png;base64,AAAA',
+    } as any);
+
+    expect(calls.upserts[0].update.coverImage).toBe('data:image/png;base64,AAAA');
+    expect(calls.upserts[0].create.coverImage).toBe('data:image/png;base64,AAAA');
+  });
+
+  it('a push with no render leaves the stored cover alone', async () => {
+    // An older build — or a notebook whose cover hasn't been opened since the
+    // update — omits the field. Writing undefined would blank a good cover.
+    const { prisma, calls } = fakePrisma({
+      userId: 'user-1',
+      deletedAt: null,
+      remoteEditedAt: null,
+    });
+    const svc = new ClassnotesService(prisma);
+
+    await svc.upsertNotebook(user, 'nb-1', upsertBody as any);
+
+    expect(calls.upserts[0].update).not.toHaveProperty('coverImage');
+    expect(calls.upserts[0].create).not.toHaveProperty('coverImage');
+  });
+
+  it('a cover render still lands while a ClassMate rename is pending', async () => {
+    const { prisma, calls } = fakePrisma({
+      userId: 'user-1',
+      deletedAt: null,
+      remoteEditedAt: new Date(),
+    });
+    const svc = new ClassnotesService(prisma);
+
+    await svc.upsertNotebook(user, 'nb-1', {
+      ...upsertBody,
+      coverImage: 'data:image/png;base64,BBBB',
+    } as any);
+
+    // The title is held back, but the artwork isn't a remote edit — it's what
+    // the notebook now looks like.
+    const written = calls.updates[0].data;
+    expect(written.coverImage).toBe('data:image/png;base64,BBBB');
+    expect(written).not.toHaveProperty('title');
+  });
+
   it('a rename is marked so the iPad pulls it', async () => {
     const { prisma, calls } = fakePrisma({
       userId: 'user-1',

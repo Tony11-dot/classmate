@@ -511,6 +511,12 @@ class _ManageButton extends StatelessWidget {
 
 /// The book itself — 3:4 portrait, gradient cover, translucent left spine,
 /// contrast title bottom-left. Mirrors ClassNotes' `NotebookCoverView`.
+///
+/// When the notebook has been opened on an iPad running cover pages, it also
+/// carries a render of its real cover — the chosen design plus anything the user
+/// wrote on it. That render wins, because it IS the cover; the drawn version
+/// stays as the fallback for everything synced before covers were pages, and for
+/// a render that won't decode.
 class _NotebookCover extends StatelessWidget {
   const _NotebookCover({required this.notebook});
 
@@ -519,18 +525,20 @@ class _NotebookCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = notebook.coverColor;
-    final ink = cnContrastingInk(color);
     final darker = HSLColor.fromColor(color)
         .withLightness(
           (HSLColor.fromColor(color).lightness - 0.08).clamp(0.0, 1.0),
         )
         .toColor();
+    final render = notebook.coverImageBytes;
 
     return AspectRatio(
       aspectRatio: 3 / 4,
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
+          // Kept under the render too: it's what shows in the corners of a cover
+          // whose aspect ratio isn't quite 3:4, instead of a bare rectangle.
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -546,39 +554,55 @@ class _NotebookCover extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Stack(
-            children: [
-              // Spine
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: 10,
-                  color: Colors.black.withValues(alpha: 0.14),
+          child: render == null
+              ? _drawnCover(context)
+              : Image.memory(
+                  render,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  // The title is inside the artwork now, so it needs saying out
+                  // loud for anyone who isn't looking at it.
+                  semanticLabel: notebook.title,
+                  errorBuilder: (context, error, stack) => _drawnCover(context),
                 ),
-              ),
-              // Title
-              Positioned(
-                left: 20,
-                right: 12,
-                bottom: 12,
-                child: Text(
-                  notebook.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: ink,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    height: 1.15,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
+    );
+  }
+
+  Widget _drawnCover(BuildContext context) {
+    final ink = cnContrastingInk(notebook.coverColor);
+    return Stack(
+      children: [
+        // Spine
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          child: Container(
+            width: 10,
+            color: Colors.black.withValues(alpha: 0.14),
+          ),
+        ),
+        // Title
+        Positioned(
+          left: 20,
+          right: 12,
+          bottom: 12,
+          child: Text(
+            notebook.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: ink,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              height: 1.15,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

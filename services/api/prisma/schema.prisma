@@ -2593,6 +2593,11 @@ model ClassNotesNotebook {
   shelfId       String?
   title         String   @default("")
   coverColorHex String   @default("")
+  // The cover as the iPad renders it — artwork plus whatever the user drew on
+  // the cover page — as a small `data:image/png;base64,...` URL (~360 px wide).
+  // Null for notebooks last pushed by a build that didn't render covers; the
+  // ClassNotes tab then draws the cover from `coverColorHex` as it always did.
+  coverImage    String?  @db.Text
   template      String   @default("ruled")
   pageCount     Int      @default(1)
   createdAt     DateTime @default(now())

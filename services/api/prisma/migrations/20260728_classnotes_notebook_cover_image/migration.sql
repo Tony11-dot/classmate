@@ -1,0 +1,11 @@
+-- The notebook's cover as the iPad renders it: the cover artwork plus whatever
+-- the user drew on the cover page, as a `data:image/png;base64,...` URL.
+--
+-- TEXT, not bytea: the native app already sends page renders as data URLs and
+-- the ClassNotes tab decodes them the same way, so the cover travels the same
+-- road. The render is capped around 360 px wide on the client, which keeps it
+-- to tens of kilobytes.
+--
+-- Nullable on purpose: notebooks last pushed by an older build have no render,
+-- and the tab falls back to drawing the cover from `coverColorHex`.
+ALTER TABLE "ClassNotesNotebook" ADD COLUMN IF NOT EXISTS "coverImage" TEXT;

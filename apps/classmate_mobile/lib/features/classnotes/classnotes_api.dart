@@ -150,6 +150,7 @@ class ClassNotesApi {
             DateTime.tryParse('${j['updatedAt']}')?.toLocal() ?? DateTime(2020),
         shelfId: j['shelfId'] as String?,
         pageCount: (j['pageCount'] as num?)?.toInt() ?? 1,
+        coverImage: j['coverImage'] as String?,
       );
 }
 

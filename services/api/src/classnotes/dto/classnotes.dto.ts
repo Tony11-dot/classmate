@@ -23,6 +23,15 @@ export class NotebookUpsertDto {
   @MaxLength(20)
   coverColorHex!: string;
 
+  /// The rendered cover as a `data:image/png;base64,...` URL. Omitted by builds
+  /// that predate cover pages. The cap is generous next to the ~360 px render
+  /// the app sends, and still small enough that a bad client can't post a
+  /// megabyte-scale blob on a metadata endpoint.
+  @IsOptional()
+  @IsString()
+  @MaxLength(600_000)
+  coverImage?: string;
+
   // PageTemplate.rawValue — blank | ruled | grid | dotGrid.
   @IsString()
   @MaxLength(16)

@@ -37,11 +37,21 @@ class CnNotebook {
     required this.updatedAt,
     this.shelfId,
     this.pageCount = 1,
+    this.coverImage,
   });
 
   final String id;
   final String title;
   final Color coverColor;
+
+  /// The cover exactly as the iPad draws it — artwork plus anything written on
+  /// the cover page — as a `data:image/png;base64,...` URL. Null for notebooks
+  /// last synced by a build without cover pages, and the tab then falls back to
+  /// drawing the cover from [coverColor].
+  final String? coverImage;
+
+  /// The decoded cover render, or null when there isn't a usable one.
+  Uint8List? get coverImageBytes => decodeDataUrl(coverImage);
 
   /// Paper style of the notebook's pages (the notebook's default template).
   final CnTemplate template;

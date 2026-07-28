@@ -52,6 +52,7 @@ export class ClassnotesService {
         id: n.id,
         title: n.title,
         coverColorHex: n.coverColorHex,
+        coverImage: n.coverImage,
         template: n.template,
         shelfId: n.shelfId,
         pageCount: n.pageCount,
@@ -76,6 +77,9 @@ export class ClassnotesService {
       pageCount: dto.pageCount,
       createdAt: new Date(dto.createdAt),
       updatedAt: new Date(dto.updatedAt),
+      // Only when the push actually carried a render. An older build omits the
+      // field entirely, and that must not erase the cover already stored.
+      ...(dto.coverImage !== undefined ? { coverImage: dto.coverImage } : {}),
     };
     // An unacknowledged ClassMate edit is newer than anything the app knows, so
     // keep the remote title/shelf and take only the rest of the push.
