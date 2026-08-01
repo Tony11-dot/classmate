@@ -405,7 +405,10 @@ export class MessagesService {
     const schoolUsers = await this.prisma.user.findMany({
       where: {
         id: { not: viewerId },
-        ...(schoolId ? { schoolId } : {}),
+        // A caller with no schoolId (e.g. a platform manager) must NOT fall
+        // through to an unfiltered query that returns every user on the
+        // platform. Match a sentinel that no real school id equals → empty.
+        schoolId: schoolId ?? '__no_school__',
         ...studentRoleFilter,
       },
       select: {
@@ -2400,10 +2403,30 @@ async unblockDirectThread(user: AppUser, dto: BlockMessageRequestDto) {
 
     const thread = await (this.prisma as any).dmThread.findUnique({
       where: { inviteCode: code },
-      select: { id: true, type: true, title: true },
+      select: { id: true, type: true, title: true, createdById: true },
     });
     if (!thread) throw new BadRequestException('Invalid or expired invite code');
     if (thread.type !== 'GROUP') throw new BadRequestException('This code is not for a group');
+
+    // Same-school guard — mirrors createGroup / createDirectRequest. The invite
+    // code is a shareable, forwardable 8-char string; without this check anyone
+    // who obtains it could join a group in a DIFFERENT school and immediately
+    // read its history. Only enforce between accounts that both carry a
+    // schoolId, consistent with the other membership paths.
+    const [joinerRow, creatorRow] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: userId }, select: { schoolId: true } }),
+      thread.createdById
+        ? this.prisma.user.findUnique({
+            where: { id: thread.createdById },
+            select: { schoolId: true },
+          })
+        : Promise.resolve(null),
+    ]);
+    const joinerSchoolId = joinerRow?.schoolId ?? null;
+    const groupSchoolId = creatorRow?.schoolId ?? null;
+    if (joinerSchoolId && groupSchoolId && joinerSchoolId !== groupSchoolId) {
+      throw new ForbiddenException('This group belongs to a different school');
+    }
 
     // Blocked users cannot rejoin
     const existing = await this.prisma.dmParticipant.findUnique({

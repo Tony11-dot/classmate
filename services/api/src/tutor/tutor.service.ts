@@ -1194,6 +1194,11 @@ export class TutorService {
   replyToSessionStream(user: any, sessionId: string, opts?: { displayName?: string; novaSettings?: string }): Observable<MessageEvent> {
   const tokens = this.tokens;
   const billingUserId = userIdFromReq(user);
+  // Capture the authenticated user id up-front (before `user` is shadowed by a
+  // local below) so the ownership guard inside the stream can compare against
+  // the session's owner — the streaming path must not trust a client-supplied
+  // sessionId any more loosely than replyToSession does.
+  const authUserId = (user as any)?.id as string | undefined;
   // Capture the authenticated display name up-front (before `user` is shadowed
   // by a local below) so we can derive it server-side instead of trusting the
   // client's URL query param, which would otherwise land in access logs.
@@ -1204,6 +1209,24 @@ export class TutorService {
       let acc = '';
 
       try {
+        // Ownership guard — mirrors replyToSession (line ~1163). Without this,
+        // a caller could pass ANOTHER user's sessionId and both read that
+        // session's content (it is loaded below and used to ground the streamed
+        // reply) and append messages to it. Verify the session belongs to the
+        // caller before doing any billing or generation work.
+        const sessionOwner = await this.prisma.tutorSession.findUnique({
+          where: { id: sessionId },
+          select: { userId: true },
+        });
+        if (!sessionOwner || sessionOwner.userId !== authUserId) {
+          subscriber.next(({
+            id: String(++eventId),
+            data: { type: 'error', message: 'Session not found.' },
+          } as any));
+          subscriber.complete();
+          return;
+        }
+
         // Pre-flight token gate — 402 the user BEFORE we call Anthropic.
         // We surface the error as a normal SSE 'error' event so the
         // client can show the paywall without parsing HTTP status codes.

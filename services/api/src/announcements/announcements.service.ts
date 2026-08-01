@@ -464,9 +464,15 @@ export class AnnouncementsService {
   }
 
   async markSeen(user: any, body: { announcementId?: string }) {
-    const ids = body?.announcementId
-      ? [body.announcementId]
-      : await this.visibleAnnouncementIds(user);
+    let ids: string[];
+    if (body?.announcementId) {
+      // Validate the client-supplied id is actually visible to this user, so we
+      // never persist "seen" rows for arbitrary or cross-school announcement ids.
+      const visible = new Set(await this.visibleAnnouncementIds(user));
+      ids = visible.has(body.announcementId) ? [body.announcementId] : [];
+    } else {
+      ids = await this.visibleAnnouncementIds(user);
+    }
 
     if (!ids.length) return { ok: true, marked: 0 };
 
