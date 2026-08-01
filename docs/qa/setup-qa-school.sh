@@ -68,8 +68,16 @@ STU1_ID=$(mkuser STUDENT  "QA Student One"  qa.student1.cm "$STU1_PASS" ",\"grad
 STU2_ID=$(mkuser STUDENT  "QA Student Two"  qa.student2.cm "$STU2_PASS" ",\"grade\":10"); echo "  student2 ok"
 PAR_ID=$(mkuser PARENT    "QA Parent"       qa.parent.cm   "$PAR_PASS" "");              echo "  parent   ok"
 
+# Apple App Review demo account — FIXED credentials that match what is entered
+# in App Store Connect → App Review Information → Sign-In. A student account is
+# used because it exposes the richest surface (NOVA AI tutor, chat, grades,
+# schedule, ClassNotes, practice). Put it in the same class so the reviewer sees
+# a populated, non-empty experience.
+APPLE_PASS="AppleReview2026!"
+APPLE_ID=$(mkuser STUDENT "Apple Review"  apple-review-student "$APPLE_PASS" ",\"grade\":10"); echo "  apple    ok"
+
 echo "→ cohort membership + parent link"
-curl -sf -X POST "$API/admin/cohorts/$COHORT_ID/students" "${AUTH[@]}" -d "{\"studentIds\":[\"$STU1_ID\",\"$STU2_ID\"]}" >/dev/null
+curl -sf -X POST "$API/admin/cohorts/$COHORT_ID/students" "${AUTH[@]}" -d "{\"studentIds\":[\"$STU1_ID\",\"$STU2_ID\",\"$APPLE_ID\"]}" >/dev/null
 curl -sf -X POST "$API/admin/parent-links" "${AUTH[@]}" -d "{\"parentId\":\"$PAR_ID\",\"studentId\":\"$STU1_ID\"}" >/dev/null
 echo "  ok"
 
@@ -78,11 +86,17 @@ STU_TOKEN=$(curl -sf -X POST "$API/auth/login" -H 'Content-Type: application/jso
   -d "{\"identifier\":\"qa.student1.cm\",\"password\":\"$STU1_PASS\"}" | token)
 curl -sf "$API/auth/me" -H "Authorization: Bearer $STU_TOKEN" >/dev/null && echo "  ok"
 
+echo "→ verify Apple reviewer login"
+APPLE_TOKEN=$(curl -sf -X POST "$API/auth/login" -H 'Content-Type: application/json' \
+  -d "{\"identifier\":\"apple-review-student\",\"password\":\"$APPLE_PASS\"}" | token)
+curl -sf "$API/auth/me" -H "Authorization: Bearer $APPLE_TOKEN" >/dev/null && echo "  ok — Apple can sign in"
+
 cat > "$CRED_FILE" <<EOF
 ClassMate QA School (TESTING ONLY) — tester credentials
 Generated: $(date '+%Y-%m-%d %H:%M')
 Log in with USERNAME (not email), in the normal app login screen.
 
+APPLE REVIEW  apple-review-student  $APPLE_PASS  (grade 10, in QA Class 10-A) ← paste into App Store Connect
 ADMIN     qa.admin.cm     $ADMIN_PASS    (can create more users in-app)
 TEACHER   qa.teacher.cm   $TEACH_PASS    (class: QA Class 10-A)
 STUDENT1  qa.student1.cm  $STU1_PASS     (grade 10, in QA Class 10-A)

@@ -102,6 +102,9 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
 
   Future<void> _purchase() async {
     final l = AppLocalizations.of(context)!;
+    // Snapshot the balance BEFORE buying so we can tell when the server
+    // has actually credited the purchase (tier changed or tokens went up).
+    final pre = ref.read(tokenBalanceProvider).asData?.value;
     setState(() => _purchasing = true);
     try {
       rc.CustomerInfo info;
@@ -112,15 +115,15 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
       } else {
         throw Exception(l.paywallGenericError);
       }
-      // RC fires the webhook server-side which credits tokens via our
-      // /billing/webhooks/revenuecat endpoint. There's a small window
-      // between purchase return and webhook delivery — kick the balance
-      // refresh once now (in case webhook is fast) and again after 3s
-      // as a safety net.
-      ref.invalidate(tokenBalanceProvider);
-      Future<void>.delayed(const Duration(seconds: 3), () {
-        if (mounted) ref.invalidate(tokenBalanceProvider);
-      });
+      // RC credits tokens server-side via our /billing/webhooks/revenuecat
+      // endpoint, which lands a beat AFTER the purchase call returns. A single
+      // immediate invalidate raced that webhook (re-fetching stale FREE/old
+      // balance) and the old 3s "safety net" was dead code — the sheet had
+      // already popped, so `mounted` was false. Instead, poll /billing/me
+      // while the sheet is still up until the credit is reflected, THEN pop.
+      // This drives both the plan pill and the token chip (they share this
+      // one provider), so both update the moment the webhook lands.
+      await _awaitBalanceChange(pre);
       if (!mounted) return;
       final isPaidNow = info.entitlements.active.containsKey('pro_access') ||
           widget.mode == PaywallMode.topup;
@@ -151,9 +154,12 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
   Future<void> _restorePurchases() async {
     final l = AppLocalizations.of(context)!;
     setState(() => _purchasing = true);
+    final pre = ref.read(tokenBalanceProvider).asData?.value;
     try {
       final info = await RevenueCatService.instance.restorePurchases();
-      ref.invalidate(tokenBalanceProvider);
+      // Same webhook race as _purchase(): restoring re-syncs entitlements on
+      // the server, so poll until the balance/tier reflects it.
+      await _awaitBalanceChange(pre);
       if (!mounted) return;
       final restored = info.entitlements.active.containsKey('pro_access');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -170,6 +176,40 @@ class _PaywallSheetState extends ConsumerState<PaywallSheet> {
         _error = l.paywallRestoreFailed(e.toString().replaceFirst('Exception: ', ''));
       });
     }
+  }
+
+  /// Polls the server balance until it reflects the just-completed purchase
+  /// (webhook credit), or a short budget elapses. Refreshing the shared
+  /// [tokenBalanceProvider] updates every watcher (plan pill, NOVA token
+  /// chip) at once. Runs while the sheet is still mounted so it never
+  /// depends on post-pop lifecycle. Best-effort: if the webhook is unusually
+  /// slow we still leave the freshest snapshot cached and pop; the next
+  /// screen build shows the credited value.
+  Future<void> _awaitBalanceChange(BalanceSnapshot? pre) async {
+    const attempts = 6; // ~10s total worst case
+    for (var i = 0; i < attempts; i++) {
+      try {
+        final snap = await ref.refresh(tokenBalanceProvider.future);
+        if (_reflectsPurchase(pre, snap)) return;
+      } catch (_) {
+        // transient network/refresh error — keep polling
+      }
+      if (!mounted) return;
+      if (i < attempts - 1) {
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+    }
+  }
+
+  /// True once the fresh snapshot shows the purchase landed: a new tier
+  /// (subscription) or more tokens than before (top-up). When we had no
+  /// baseline, treat any non-FREE tier / positive balance as success.
+  bool _reflectsPurchase(BalanceSnapshot? pre, BalanceSnapshot snap) {
+    if (pre == null) {
+      return snap.totalRemaining > 0 || snap.activeTier != 'FREE';
+    }
+    return snap.activeTier != pre.activeTier ||
+        snap.totalRemaining > pre.totalRemaining;
   }
 
   String _humanizeError(AppLocalizations l, rc.PurchasesErrorCode code, String? raw) {

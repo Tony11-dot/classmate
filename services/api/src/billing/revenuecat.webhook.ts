@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { timingSafeEqual } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { TokensService } from './tokens.service';
 import {
@@ -56,29 +57,43 @@ export class RevenueCatWebhookService {
       throw new UnauthorizedException('Webhook not configured');
     }
     const sent = (authHeader || '').replace(/^Bearer\s+/i, '').trim();
-    if (sent !== expected) throw new UnauthorizedException('Bad webhook secret');
+    // Constant-time compare so the secret can't be recovered byte-by-byte
+    // via response-timing. Length mismatch short-circuits (safe — it only
+    // reveals the length, not the bytes).
+    if (!this.secretMatches(sent, expected)) {
+      throw new UnauthorizedException('Bad webhook secret');
+    }
 
     const event: RcEvent = body?.event ?? body;
     const eventType = String(event?.type ?? '');
     const eventId = String(event?.id ?? '');
     const userId = String(event?.app_user_id ?? '').trim();
 
-    // Persist the raw event FIRST so even if processing crashes we have
-    // it for replay/inspection. The unique index on rcEventId makes
-    // duplicate deliveries safe.
+    // Idempotency key. Prefer RC's event id; but an event that arrives with
+    // no id would be stored as NULL, and Postgres allows unlimited NULLs in a
+    // unique index — so a retried id-less top-up would DOUBLE-credit. Fall
+    // back to a stable synthetic key from the event's identifying fields so
+    // retries always collapse to a single credit.
+    const dedupKey =
+      eventId ||
+      `syn:${eventType}:${userId}:${event?.original_transaction_id ?? event?.product_id ?? ''}`;
+
+    // Persist the raw event FIRST so even if processing crashes we have it
+    // for replay/inspection. The unique index on rcEventId (now always
+    // non-null) collapses duplicate deliveries.
     try {
       await this.prisma.storeWebhookEvent.create({
         data: {
           provider: 'revenuecat',
           eventType,
-          rcEventId: eventId || null,
+          rcEventId: dedupKey,
           userId: userId || null,
           rawPayload: body as any,
         },
       });
     } catch (e: any) {
       if (e?.code === 'P2002') {
-        // Duplicate eventId — already processed. RC retries on 5xx so this is normal.
+        // Duplicate — already processed. RC retries on 5xx so this is normal.
         return { ok: true };
       }
       // eslint-disable-next-line no-console
@@ -91,52 +106,109 @@ export class RevenueCatWebhookService {
       return { ok: true };
     }
 
-    switch (eventType) {
-      case 'INITIAL_PURCHASE':
-      case 'RENEWAL':
-        // Period boundary — bucket resets to the (possibly new) tier's
-        // monthly quota.
-        await this.applyPurchase(userId, event, 'reset');
-        break;
-      case 'PRODUCT_CHANGE':
-        // Mid-period tier change. NEVER reduce the user's current
-        // bucket — Apple's billing model means the user is paying for
-        // the old tier until the period ends, so they keep those
-        // tokens. On UPGRADE, bump the bucket up to the new (higher)
-        // tier's quota immediately so the user gets what they paid for.
-        // The next RENEWAL event will reset to the new tier's quota
-        // cleanly.
-        await this.applyPurchase(userId, event, 'preserve');
-        break;
-      case 'NON_RENEWING_PURCHASE':
-        await this.applyTopup(userId, event);
-        break;
-      case 'CANCELLATION':
-        await this.markCancelled(userId, event);
-        break;
-      case 'EXPIRATION':
-        await this.markExpired(userId, event);
-        break;
-      case 'BILLING_ISSUE':
-        await this.markBillingIssue(userId, event);
-        break;
-      case 'SUBSCRIPTION_PAUSED':
-        await this.markPaused(userId, event);
-        break;
-      case 'REFUND':
-        await this.handleRefund(userId, event);
-        break;
-      default:
-        // TEST events / unknown types — ignore but keep the raw row.
-        break;
+    // Guard against a grant keyed on an id that isn't a real user (e.g. an
+    // anonymous RC id from a purchase made before identify() ran). Writing
+    // TokenBalance/UserSubscription with such an id FK-throws mid-credit and,
+    // because the event row is already recorded, the grant would be lost
+    // forever. Skip + record loudly for manual reconciliation instead.
+    const known = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!known) {
+      // eslint-disable-next-line no-console
+      console.error('[rc.webhook] app_user_id maps to no user; skipping credit', {
+        eventType,
+        userId,
+      });
+      await this.markProcessed(dedupKey);
+      return { ok: true };
     }
 
-    await this.prisma.storeWebhookEvent.updateMany({
-      where: { rcEventId: eventId },
-      data: { processedAt: new Date() },
-    });
+    let credited = false;
+    try {
+      switch (eventType) {
+        case 'INITIAL_PURCHASE':
+        case 'RENEWAL':
+          // Period boundary — bucket resets to the (possibly new) tier's
+          // monthly quota.
+          await this.applyPurchase(userId, event, 'reset');
+          break;
+        case 'PRODUCT_CHANGE':
+          // Mid-period tier change. NEVER reduce the user's current
+          // bucket — Apple's billing model means the user is paying for
+          // the old tier until the period ends, so they keep those
+          // tokens. On UPGRADE, bump the bucket up to the new (higher)
+          // tier's quota immediately so the user gets what they paid for.
+          // The next RENEWAL event will reset to the new tier's quota
+          // cleanly.
+          await this.applyPurchase(userId, event, 'preserve');
+          break;
+        case 'NON_RENEWING_PURCHASE':
+          await this.applyTopup(userId, event);
+          break;
+        case 'CANCELLATION':
+          await this.markCancelled(userId, event);
+          break;
+        case 'EXPIRATION':
+          await this.markExpired(userId, event);
+          break;
+        case 'BILLING_ISSUE':
+          await this.markBillingIssue(userId, event);
+          break;
+        case 'SUBSCRIPTION_PAUSED':
+          await this.markPaused(userId, event);
+          break;
+        case 'REFUND':
+          await this.handleRefund(userId, event);
+          break;
+        default:
+          // TEST events / unknown types — ignore but keep the raw row.
+          break;
+      }
+      credited = true;
+    } catch (err) {
+      // Crediting failed AFTER the event was recorded. If we leave the
+      // recorded row in place, RC's retry hits the unique constraint and
+      // silently returns 200 — the grant is lost forever (the user paid but
+      // never got tokens). Release the idempotency key and rethrow so RC's
+      // automatic retry reprocesses cleanly. Every credit op is a single
+      // atomic upsert, so a thrown case credited nothing to re-credit.
+      // eslint-disable-next-line no-console
+      console.error('[rc.webhook] processing failed; releasing key for RC retry', err);
+      await this.prisma.storeWebhookEvent
+        .deleteMany({ where: { rcEventId: dedupKey } })
+        .catch(() => {});
+      throw err; // 5xx → RevenueCat retries
+    }
+
+    if (credited) {
+      // Best-effort stamp; if this fails the credit still stands and a
+      // duplicate delivery is caught by the recorded row, so never re-credit.
+      await this.markProcessed(dedupKey).catch((e) => {
+        // eslint-disable-next-line no-console
+        console.error('[rc.webhook] markProcessed failed (non-fatal)', e);
+      });
+    }
 
     return { ok: true };
+  }
+
+  /// Constant-time secret comparison (guards the webhook bearer secret
+  /// against timing side-channels). Length mismatch returns false without
+  /// calling timingSafeEqual (which throws on unequal-length buffers).
+  private secretMatches(sent: string, expected: string): boolean {
+    const a = Buffer.from(sent);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
+  }
+
+  private async markProcessed(dedupKey: string): Promise<void> {
+    await this.prisma.storeWebhookEvent.updateMany({
+      where: { rcEventId: dedupKey },
+      data: { processedAt: new Date() },
+    });
   }
 
   private async applyPurchase(
