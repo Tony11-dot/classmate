@@ -13,8 +13,10 @@ import { GradeBumpService } from './grade-bump.service';
 export class GradeBumpController {
   constructor(private readonly svc: GradeBumpService) {}
 
-  /// Sweeps every school and bumps where due (same logic as the scheduled run).
-  @Roles(Role.ADMIN)
+  /// Sweeps EVERY school and bumps where due — incl. deleting graduating
+  /// students past maxGrade. That is a platform-wide, irreversible action, so
+  /// it is MANAGER-only (platform owner). A per-school ADMIN uses run-mine.
+  @Roles(Role.MANAGER)
   @Post('run-all')
   runAll() {
     return this.svc.checkAll();

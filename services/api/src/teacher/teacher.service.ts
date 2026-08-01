@@ -376,10 +376,13 @@ export class TeacherService {
       throw new ForbiddenException('Not your slot');
     }
 
-    // School isolation: if a cohortId was used without a matching teacher slot
-    // (client supplied it directly), verify this teacher actually teaches it —
-    // otherwise the session could be read for another class/school's cohort.
-    if (cohortId && !slotForTeacher) {
+    // School isolation: verify this teacher actually teaches the effective
+    // cohort, ALWAYS — not only when no slot matched. A teacher can own a
+    // (cohortless, by-grade/direct-student) slot yet pass an arbitrary victim
+    // cohortId; without this guard the read path would build the session +
+    // roster from another class/school's cohort. Mirrors the write paths
+    // (markAttendance / bulkAttendance), which already assert unconditionally.
+    if (cohortId) {
       await this.assertTeacherTeachesCohort(user, cohortId);
     }
 

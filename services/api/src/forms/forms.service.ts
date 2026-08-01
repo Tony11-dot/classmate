@@ -50,37 +50,20 @@ export class FormsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async live(user: any) {
-    // Prefer real DB forms created by teachers; fall back to demo forms for empty schools
-    const schoolId = (user as any)?.schoolId ?? null;
-    const uid = String((user as any)?.sub ?? (user as any)?.id ?? '');
-    // Pull the viewer's cohort + grade so we can filter by audience scope.
-    // Teachers/admins get all published forms in the school (no filter);
-    // students get filtered to forms that target them.
-    const roles: string[] = Array.isArray((user as any)?.roles) ? (user as any).roles : [];
-    const isStudent = roles.includes('STUDENT') && !roles.includes('TEACHER') && !roles.includes('ADMIN');
-    let cohortIds: string[] = [];
-    let grade: number | null = null;
-    if (isStudent && uid) {
-      const [links, profile] = await Promise.all([
-        this.prisma.studentCohort.findMany({
-          where: { studentId: uid },
-          select: { cohortId: true },
-        }),
-        this.prisma.studentProfile.findUnique({
-          where: { userId: uid },
-          select: { grade: true },
-        }),
-      ]);
-      cohortIds = links.map((c) => c.cohortId);
-      grade = profile?.grade ?? null;
-    }
+    // Prefer real DB forms created by teachers; fall back to demo forms for empty schools.
+    // Only same-school staff (teacher/admin/secretary) see every published form; ANY
+    // non-staff viewer — students AND parents — is audience-filtered, so a parent can no
+    // longer read the questions of forms targeted at other students/cohorts. Mirrors
+    // canViewForm(): a parent (no cohorts/grade of their own) sees only true broadcasts.
+    const { isStaff, schoolId, uid, cohortIds, grade } = await this.resolveViewerScope(user);
+    const applyAudienceFilter = !isStaff;
     try {
       const dbForms = await this.prisma.schoolForm.findMany({
         where: {
           published: true,
           acceptingResponses: true,
           ...(schoolId ? { schoolId } : {}),
-          ...(isStudent ? {
+          ...(applyAudienceFilter ? {
             OR: [
               // Gate the broadcast clause to records with NO narrower targeting, so a
               // grade-only item (stored as EVERYONE + targetGrades) no longer leaks

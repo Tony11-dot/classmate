@@ -867,7 +867,9 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async setSubjectDefaults(user: any, dto: any) {
     this.requireAdminOrSecretary(user);
 
-    const schoolId = String(dto?.schoolId ?? user?.schoolId ?? '').trim();
+    // Always the caller's own school — never a client-supplied schoolId, or an
+    // admin could read/overwrite another school's subject catalog.
+    const schoolId = String(user?.schoolId ?? '').trim();
     if (!schoolId) throw new BadRequestException('schoolId required — ensure your account is linked to a school');
     const grade = Number(dto?.grade);
     // Authoritative shape is `subjectsI18n` (array of multilang objects). For
@@ -986,7 +988,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async getSubjectDefaults(user: any, query: { schoolId?: string; grade?: number }) {
     this.requireAdminOrSecretary(user);
 
-    const schoolId = String(query?.schoolId ?? user?.schoolId ?? '').trim();
+    // Own school only — ignore any client-supplied schoolId (cross-tenant read).
+    const schoolId = String(user?.schoolId ?? '').trim();
     const grade = query?.grade;
 
     if (!schoolId) throw new BadRequestException('schoolId required — ensure your account is linked to a school');
@@ -1058,6 +1061,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     this.requireAdminOrSecretary(user);
   
     const userId = await this.resolveUserId(identifier);
+    await this.assertUserInSchool(user, userId);
     const enabled = Boolean(dto?.enabled);
     const subjects = normalizeSubjects(dto?.subjects);
   
@@ -1074,6 +1078,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     this.requireAdminOrSecretary(user);
 
     const userId = await this.resolveUserId(identifier);
+    await this.assertUserInSchool(user, userId);
 
     const row = await this.prisma.studentSubjectOverride.findUnique({
       where: { userId },
@@ -1949,6 +1954,12 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     if (dto?.role !== undefined) {
       const newRole = String(dto.role).toUpperCase();
+      // Whitelist to the same in-school roles as user creation. MANAGER is a
+      // real Role enum value that bypasses school isolation and unlocks the
+      // platform-owner /manager console — never assignable via this route, or
+      // a school admin/secretary could self-promote to platform owner.
+      if (!['STUDENT', 'TEACHER', 'ADMIN', 'PARENT', 'SECRETARY'].includes(newRole))
+        throw new BadRequestException('invalid role');
       await this.prisma.userRole.deleteMany({ where: { userId: id } });
       await this.prisma.userRole.create({ data: { userId: id, role: newRole as any } });
     }

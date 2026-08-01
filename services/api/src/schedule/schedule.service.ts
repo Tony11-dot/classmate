@@ -1053,6 +1053,20 @@ export class ScheduleService {
       })),
     }));
 
+    // One range query for the whole week (mirrors getWeekForCohort) instead
+    // of 7 sequential per-day queries — same result, one DB round-trip.
+    const end = addDaysUTC(start, 7);
+    const weekOverrides = cid
+      ? await this.overridesForCohortRange(cid, start, end)
+      : [];
+    const overridesByDate = new Map<string, any[]>();
+    for (const o of weekOverrides) {
+      const k = ymdUTC(o.date);
+      const arr = overridesByDate.get(k) ?? [];
+      arr.push(o);
+      overridesByDate.set(k, arr);
+    }
+
     const out: ScheduleItem[] = [];
     // Track per-day item counts so we can see which day each slot
     // actually rendered on (and which days came back empty).
@@ -1061,9 +1075,7 @@ export class ScheduleService {
       const d = addDaysUTC(start, i);
       const dateYmd = ymdUTC(d);
 
-      const overrideRows = cid
-        ? await this.overridesForCohortRange(cid, d, addDaysUTC(d, 1))
-        : [];
+      const overrideRows = overridesByDate.get(dateYmd) ?? [];
 
       const items = this.applyOverridesForDate({
         date: d,

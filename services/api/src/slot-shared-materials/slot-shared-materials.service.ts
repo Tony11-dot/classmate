@@ -171,7 +171,17 @@ export class SlotSharedMaterialsService {
     });
     if (!m) throw new NotFoundException('Material not found');
     const me = this.uid(user);
-    const allowed = (m.uploaderId && m.uploaderId === me) || m.teacherId === me || this.isAdmin(user);
+    let allowed = (m.uploaderId && m.uploaderId === me) || m.teacherId === me;
+    // An admin may remove others' material, but only within their OWN school —
+    // otherwise an admin of any school could delete another school's material
+    // by guessing/knowing its id.
+    if (!allowed && this.isAdmin(user)) {
+      const callerSchool = (user as any)?.schoolId ?? null;
+      const owner = m.teacherId
+        ? await this.prisma.user.findUnique({ where: { id: m.teacherId }, select: { schoolId: true } })
+        : null;
+      allowed = !!callerSchool && !!owner?.schoolId && owner.schoolId === callerSchool;
+    }
     if (!allowed) throw new ForbiddenException('You can only remove material you added');
     // Cascade removes the ScheduleSlotMaterial junction rows.
     await this.prisma.teacherMaterial.delete({ where: { id } });
