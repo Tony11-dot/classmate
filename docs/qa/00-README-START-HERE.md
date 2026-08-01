@@ -1,5 +1,10 @@
 # ClassMate QA campaign — START HERE
 
+> ⚠ **Read [`06-BUILD-254-UPDATE.md`](06-BUILD-254-UPDATE.md) first.** This pack was
+> written for build 233; the app is now **build 254** (adds ClassNotes, a 20-theme
+> gallery, menu drag-reorder) and the budget is **400 ILS (~$107)** — file 06
+> supersedes the stale build numbers and the "3 testers at $100–200" budget below.
+
 Everything for the pre-Experis QA round lives in this folder. Status: **documents done; 3 short actions left for you** (listed below — ~15 minutes of your time total, plus one Apple wait).
 
 ## The pack
