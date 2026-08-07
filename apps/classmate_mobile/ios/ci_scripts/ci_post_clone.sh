@@ -19,13 +19,20 @@
 set -e
 
 PROD_API_BASE_URL="https://pacific-enchantment-production-7a80.up.railway.app"
-FLUTTER_CHANNEL="stable"
+# Pin to the SAME Flutter that built the working TestFlight binaries (255–258).
+# Do NOT use "stable" HEAD: newer Flutter (3.44.x) defaults Swift Package Manager
+# ON and tries to migrate plugins (e.g. DKImagePickerController) to SPM, which
+# fails on Xcode Cloud (auto SPM resolution is disabled, no committed
+# Package.resolved). This app ships via CocoaPods.
+FLUTTER_VERSION="3.38.5"
 
-echo "▸ Installing Flutter ($FLUTTER_CHANNEL)…"
-git clone --depth 1 -b "$FLUTTER_CHANNEL" https://github.com/flutter/flutter.git "$HOME/flutter"
+echo "▸ Installing Flutter ($FLUTTER_VERSION)…"
+git clone --depth 1 -b "$FLUTTER_VERSION" https://github.com/flutter/flutter.git "$HOME/flutter"
 export PATH="$PATH:$HOME/flutter/bin"
 
 flutter --version
+# Force CocoaPods, not SPM — matches the local/working build path.
+flutter config --no-enable-swift-package-manager
 flutter precache --ios
 
 echo "▸ Resolving Dart packages…"
