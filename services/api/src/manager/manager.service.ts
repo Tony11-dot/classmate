@@ -299,6 +299,11 @@ export class ManagerService {
       this.prisma.schoolGradeSubjectDefault.deleteMany({ where: { schoolId: id } } as any),
       this.prisma.schoolPeriodDefault.deleteMany({ where: { schoolId: id } } as any),
       this.prisma.user.deleteMany({ where: { schoolId: id } } as any),
+      // Cohorts are NOT FK-cascaded from School (schoolId is a plain nullable
+      // field), so without this an orphan cohort survives the school and keeps
+      // hogging its (school-scoped-unique) name. Children of Cohort all cascade
+      // or set-null, and users (→ StudentProfiles) are already gone above.
+      this.prisma.cohort.deleteMany({ where: { schoolId: id } } as any),
       this.prisma.school.delete({ where: { id } }),
     ]);
 

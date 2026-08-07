@@ -146,12 +146,19 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
       return { cohortId: existingProfile.cohortId };
     }
 
-    const cohort = await this.prisma.cohort.upsert({
+    // Cohort.name is no longer globally unique (now @@unique([schoolId, name])),
+    // so we can't upsert by name alone. This is the dev-only bypass cohort
+    // (null school); find-or-create it.
+    let cohort = await this.prisma.cohort.findFirst({
       where: { name: DEV_COHORT_NAME },
-      update: { grade: 10, grades: [10] },
-      create: { name: DEV_COHORT_NAME, grade: 10, grades: [10] },
       select: { id: true },
     });
+    if (!cohort) {
+      cohort = await this.prisma.cohort.create({
+        data: { name: DEV_COHORT_NAME, grade: 10, grades: [10] },
+        select: { id: true },
+      });
+    }
 
     await this.prisma.studentProfile.upsert({
       where: { userId },

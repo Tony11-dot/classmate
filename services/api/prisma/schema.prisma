@@ -296,7 +296,9 @@ model PasswordResetToken {
 
 model Cohort {
   id                String  @id @default(uuid())
-  name              String  @unique // e.g. "10th-2"
+  name              String  // e.g. "10th-2" — unique PER SCHOOL, not globally
+                            // (see @@unique below): two different schools may
+                            // each have a "10th Grade" cohort.
   /// Primary/representative grade — kept in sync with grades[0] so legacy
   /// readers (announcements, schedule, teacher.service, etc.) keep working.
   grade             Int
@@ -317,6 +319,10 @@ model Cohort {
   scheduleTemplateBinds CohortScheduleTemplate[]
   assessments           Assessment[]
 
+  // Cohort names are unique WITHIN a school, not across the platform. Postgres
+  // treats NULL schoolId rows as distinct, so legacy/global (null-school)
+  // cohorts are unaffected.
+  @@unique([schoolId, name])
   @@index([schoolId])
 }
 
