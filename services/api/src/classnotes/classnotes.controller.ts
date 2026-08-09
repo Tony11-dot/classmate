@@ -53,6 +53,12 @@ export class ClassnotesController {
       const task = (dto.task || '').toLowerCase();
       if (task === 'beautify') return await this.ai.beautify(dto.text);
       if (task === 'explain') return await this.ai.explain(dto.text);
+      // A snip is answered by looking at it. The image decides, not the task
+      // name: a follow-up question about the same snip arrives as a plain chat
+      // and must still be able to see what it is about.
+      if (dto.imageBase64) {
+        return await this.ai.see(dto.text, dto.imageBase64, dto.history ?? [], dto.pageContext);
+      }
       return await this.ai.chat(dto.text, dto.history ?? [], dto.pageContext);
     } catch {
       throw new ServiceUnavailableException(

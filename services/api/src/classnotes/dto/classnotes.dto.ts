@@ -184,6 +184,16 @@ export class NotesAiDto {
   @MaxLength(6000)
   pageContext?: string;
 
+  // A snipped region of the page, as a base64 JPEG/PNG data payload (no data:
+  // prefix needed — either form is accepted). When present the question is
+  // answered by LOOKING at the snip rather than at OCR'd text: a physics diagram
+  // or a worked equation says almost nothing once it has been flattened to a
+  // line of characters.
+  @IsOptional()
+  @IsString()
+  @MaxLength(12_000_000)
+  imageBase64?: string;
+
   @IsOptional()
   history?: AiTurnDto[];
 }

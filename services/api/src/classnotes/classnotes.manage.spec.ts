@@ -254,3 +254,28 @@ describe('ClassnotesAiService.stripReasoning', () => {
     expect(ClassnotesAiService.stripReasoning(raw)).toBe(raw);
   });
 });
+
+describe('ClassnotesAiService — snips', () => {
+  it('accepts raw base64 and turns it into a data URL', () => {
+    expect(ClassnotesAiService.imageDataURL('AAAA')).toBe('data:image/jpeg;base64,AAAA');
+  });
+
+  it('leaves a data URL the client already built alone', () => {
+    const url = 'data:image/png;base64,BBBB';
+    expect(ClassnotesAiService.imageDataURL(url)).toBe(url);
+  });
+
+  it('keeps only real user/assistant turns, most recent first out of the door', () => {
+    const history = [
+      { role: 'system', content: 'ignore me' },
+      { role: 'user', content: '  what is this?  ' },
+      { role: 'assistant', content: '' },
+      { role: 'assistant', content: 'A free-body diagram.' },
+    ];
+    expect(ClassnotesAiService.trimHistory(history as any)).toEqual([
+      { role: 'user', content: 'what is this?' },
+      { role: 'assistant', content: 'A free-body diagram.' },
+    ]);
+    expect(ClassnotesAiService.trimHistory(undefined as any)).toEqual([]);
+  });
+});

@@ -43,6 +43,17 @@ export class ClassnotesAiService {
     return (process.env.SUPPORT_AI_MODEL || 'openai/gpt-oss-120b').trim();
   }
 
+  /**
+   * The model used when the student sends a picture. Kept separate because the
+   * text model can't see: pointing the snip at it returns a confident answer
+   * about nothing.
+   */
+  private visionModel(): string {
+    return (
+      process.env.SUPPORT_AI_VISION_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct'
+    ).trim();
+  }
+
   isEnabled(): boolean {
     if (this.apiKey()) return true;
     const host = this.baseUrl().toLowerCase();
@@ -106,6 +117,35 @@ export class ClassnotesAiService {
   }
 
   /**
+   * "See" — the student snipped a rectangle out of their page and wants to know
+   * what is in it. The snip is sent as an IMAGE, not as OCR'd text, because in
+   * maths and physics the part that carries the meaning is usually the part OCR
+   * throws away: the diagram, the circuit, the graph, the working laid out in
+   * two dimensions.
+   *
+   * Follow-up questions about the same snip come back through here too, with the
+   * conversation so far, so "and why does that term vanish?" still has the
+   * picture in front of it.
+   */
+  async see(
+    question: string,
+    imageBase64: string,
+    history: { role: string; content: string }[] = [],
+    pageContext?: string,
+  ): Promise<{ answer: string }> {
+    const ctx = (pageContext || '').trim().slice(0, ClassnotesAiService.MAX_TEXT_CHARS);
+    const surface = [
+      '=== THIS SURFACE: CLASSNOTES — SNIP ===',
+      'The student cut a rectangle out of their own notes and is showing it to you. LOOK at it.',
+      'It may be handwriting, but it may equally be a diagram, a graph, a circuit, a geometric construction, a table or a worked calculation — read whatever is actually there, including the parts that are drawn rather than written.',
+      'Explain what it shows and what it means, clearly and briefly, like a friendly tutor. Define the key terms. If it is a problem, walk the steps. If something in the snip is wrong, say so kindly.',
+      'Never say you cannot see an image — you can. If part of it is genuinely unreadable, say which part.',
+      ctx ? `\nThe rest of the page reads:\n"""${ctx}"""` : '',
+    ].join('\n');
+    return this.completeWithImage(this.identity(surface), history, question, imageBase64);
+  }
+
+  /**
    * Belt-and-braces for `reasoning_format: 'hidden'`: strips any chain-of-thought
    * that still comes back inline, so a "beautify" never replaces the student's
    * handwriting with the model thinking out loud. Exported for the unit test.
@@ -139,7 +179,56 @@ export class ClassnotesAiService {
       .trim()
       .slice(0, ClassnotesAiService.MAX_TEXT_CHARS);
 
-    const trimmedHistory = (Array.isArray(history) ? history : [])
+    const messages = [
+      { role: 'system', content: system },
+      ...ClassnotesAiService.trimHistory(history),
+      { role: 'user', content: q },
+    ];
+    return this.post(messages, this.model());
+  }
+
+  /**
+   * The same call with the last turn carrying a picture. Only the final user turn
+   * is multimodal — the history stays plain text, which keeps a long conversation
+   * about one snip from re-sending the image on every turn while still letting
+   * the model see it now.
+   */
+  private async completeWithImage(
+    system: string,
+    history: { role: string; content: string }[],
+    user: string,
+    imageBase64: string,
+  ): Promise<{ answer: string }> {
+    const q =
+      String(user ?? '')
+        .trim()
+        .slice(0, ClassnotesAiService.MAX_TEXT_CHARS) || 'Explain this.';
+    const url = ClassnotesAiService.imageDataURL(imageBase64);
+    const messages = [
+      { role: 'system', content: system },
+      ...ClassnotesAiService.trimHistory(history),
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: q },
+          { type: 'image_url', image_url: { url } },
+        ],
+      },
+    ];
+    return this.post(messages, this.visionModel(), false);
+  }
+
+  /** Raw base64 or an existing data URL — both end up as a data URL. */
+  static imageDataURL(imageBase64: string): string {
+    const raw = String(imageBase64 ?? '').trim();
+    return raw.startsWith('data:') ? raw : `data:image/jpeg;base64,${raw}`;
+  }
+
+  /** The turns worth sending: user/assistant only, recent, and bounded. */
+  static trimHistory(
+    history: { role: string; content: string }[],
+  ): { role: string; content: string }[] {
+    return (Array.isArray(history) ? history : [])
       .filter(
         (m) =>
           m &&
@@ -152,13 +241,13 @@ export class ClassnotesAiService {
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content.trim().slice(0, ClassnotesAiService.MAX_HISTORY_CHARS),
       }));
+  }
 
-    const messages = [
-      { role: 'system', content: system },
-      ...trimmedHistory,
-      { role: 'user', content: q },
-    ];
-
+  private async post(
+    messages: unknown[],
+    model: string,
+    reasoning = true,
+  ): Promise<{ answer: string }> {
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(),
@@ -172,15 +261,17 @@ export class ClassnotesAiService {
           ...(this.apiKey() ? { Authorization: `Bearer ${this.apiKey()}` } : {}),
         },
         body: JSON.stringify({
-          model: this.model(),
+          model,
           temperature: 0.3,
           messages,
           // See ai.service.ts: gpt-oss narrates its reasoning by default, which
           // ended up inside `answer` — and for "beautify" that meant the model's
-          // thoughts replacing the student's handwriting. Ignored by non-reasoning
-          // models.
-          reasoning_format: 'hidden',
-          reasoning_effort: 'low',
+          // thoughts replacing the student's handwriting. Sent only to the
+          // reasoning model: Groq rejects the parameter outright on models that
+          // don't support it, which would turn every snip into an upstream 400.
+          ...(reasoning
+            ? { reasoning_format: 'hidden', reasoning_effort: 'low' }
+            : {}),
         }),
         signal: controller.signal,
       });
