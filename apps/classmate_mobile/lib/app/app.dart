@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'router.dart';
@@ -193,7 +192,14 @@ class _NotificationReceiverHostState
     if (clean.isEmpty) return;
     // Payload is 'source|id' (new format) or just 'id' (legacy).
     final route = LocalNotificationsService.routeFromPayload(clean);
-    context.push(route);
+    // Route through the GoRouter INSTANCE, never `context.push`.
+    //
+    // This widget lives in `MaterialApp.router`'s `builder`, which runs ABOVE
+    // the router's own Navigator — so `InheritedGoRouter` is not in this
+    // context and `context.push` throws "No GoRouter found in context". It
+    // only ever threw for someone who actually tapped a notification, which is
+    // why it survived to production: the common path never touches this line.
+    ref.read(routerProvider).push(route);
   }
 
   @override
