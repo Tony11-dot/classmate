@@ -2,6 +2,31 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import type { Request, Response } from 'express';
 import { Sentry } from '../instrument';
 
+/// The status carried by a non-Nest error that already knows its own HTTP code.
+///
+/// Express middleware registered with `app.use()` — the body parser above all —
+/// throws `http-errors` objects, which are NOT `HttpException`s. Reading only
+/// `HttpException` turned every one of them into a 500: a phone that hung up
+/// halfway through uploading a notebook produced `BadRequestError: request
+/// aborted`, which is a client disconnect and a 400, and we reported it to
+/// Sentry as a server fault and told the client the server had crashed.
+function httpErrorStatus(exception: unknown): number | undefined {
+  const raw = (exception as any)?.status ?? (exception as any)?.statusCode;
+  const status = typeof raw === 'number' ? raw : undefined;
+  if (status === undefined) return undefined;
+  return status >= 400 && status <= 599 ? status : undefined;
+}
+
+function describe(exception: unknown) {
+  return {
+    name:
+      (exception as any)?.name ??
+      (exception as any)?.constructor?.name ??
+      'Error',
+    message: (exception as any)?.message ?? String(exception),
+  };
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -17,7 +42,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const isHttp = exception instanceof HttpException;
     const status = isHttp
       ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+      : httpErrorStatus(exception) ?? HttpStatus.INTERNAL_SERVER_ERROR;
 
     const base =
       isHttp ? exception.getResponse() : { message: 'Internal server error' };
@@ -40,6 +65,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     }
 
+    // The socket is already gone when the client hung up mid-upload — writing a
+    // response would throw ERR_STREAM_WRITE_AFTER_END on top of the original
+    // error. Record it for the access log and stop.
+    if (req.destroyed || res.headersSent) {
+      res.locals.error = describe(exception);
+      return;
+    }
+
     if (requestId) res.setHeader('x-request-id', requestId);
 
     if (process.env.NODE_ENV === 'test') {
@@ -54,10 +87,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     }
 
-    res.locals.error = {
-      name: (exception as any)?.name ?? (exception as any)?.constructor?.name ?? "Error",
-      message: (exception as any)?.message ?? String(exception),
-    };
+    res.locals.error = describe(exception);
 
     res.status(status).json({
       statusCode: status,
