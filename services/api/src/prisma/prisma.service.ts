@@ -93,6 +93,34 @@ function decryptDeep(value: unknown, depth = 0): unknown {
   return value;
 }
 
+/**
+ * Append a server-side `statement_timeout` to the connection URL so no runtime
+ * query can hang indefinitely. A wedged boot-time `prisma db push` once left the
+ * User table ACCESS EXCLUSIVE-locked; every `prisma.user.findFirst` (i.e. every
+ * login) then blocked on that lock for the client's full ~60s timeout while
+ * /health and /ready (no User read) stayed green — a silent, day-long login
+ * outage with nothing in Sentry. With a 30s ceiling such a query aborts loudly
+ * ("canceling statement due to statement timeout") instead of hanging, so it
+ * surfaces in logs/Sentry and the request fails fast. The timeout rides on the
+ * URL's libpq `options`, applied to every pooled connection; the standalone
+ * `prisma db push` CLI reads raw env and is unaffected, so migrations still run
+ * untimed. An explicitly-configured `options` is never clobbered.
+ */
+const RUNTIME_STATEMENT_TIMEOUT_MS = 30_000;
+function withStatementTimeout(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  try {
+    const u = new URL(raw);
+    if (!u.searchParams.has('options')) {
+      u.searchParams.set('options', `-c statement_timeout=${RUNTIME_STATEMENT_TIMEOUT_MS}`);
+    }
+    return u.toString();
+  } catch {
+    // Not a parseable URL (shouldn't happen in prod) — leave it untouched.
+    return raw;
+  }
+}
+
 /** The Prisma Client extension implementing transparent PII field crypto. */
 const fieldCryptoExtension = Prisma.defineExtension({
   name: 'pii-field-crypto',
@@ -127,7 +155,10 @@ export class PrismaService
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
-    super();
+    // Bound every runtime query with a statement_timeout (see withStatementTimeout)
+    // so a locked/slow query fails fast instead of hanging the request forever.
+    const url = withStatementTimeout(process.env.DATABASE_URL);
+    super(url ? { datasourceUrl: url } : undefined);
 
     const extended = this.$extends(fieldCryptoExtension) as unknown as PrismaClient;
 
