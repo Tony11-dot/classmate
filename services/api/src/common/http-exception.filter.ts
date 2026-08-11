@@ -65,10 +65,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     }
 
-    // The socket is already gone when the client hung up mid-upload — writing a
-    // response would throw ERR_STREAM_WRITE_AFTER_END on top of the original
-    // error. Record it for the access log and stop.
-    if (req.destroyed || res.headersSent) {
+    // If the RESPONSE can no longer be written — the client hung up mid-request
+    // (its socket is destroyed) or we've already responded — recording the error
+    // for the access log is all we can do; writing would throw
+    // ERR_STREAM_WRITE_AFTER_END on top of the original error.
+    //
+    // Guard on the RESPONSE stream, NOT `req.destroyed`. Under Express 5 the
+    // request's readable side is destroyed the instant its body is fully
+    // consumed, so a normally-completed POST reaches this filter with
+    // `req.destroyed === true` even though its response socket is perfectly
+    // writable. The earlier `req.destroyed` check therefore silently dropped the
+    // response for EVERY errored POST-with-body — every failed login, every
+    // validation 4xx — leaving the client to hang until its own timeout.
+    // `res.destroyed` / `res.writableEnded` / `res.headersSent` are the correct
+    // "can I still send a response?" signals (they also cover the real
+    // hung-up-mid-upload case, where the shared socket — and thus res — is gone).
+    if (res.headersSent || res.writableEnded || res.destroyed) {
       res.locals.error = describe(exception);
       return;
     }
@@ -89,12 +101,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     res.locals.error = describe(exception);
 
-    res.status(status).json({
-      statusCode: status,
-      path: req.originalUrl,
-      method: req.method,
-      requestId,
-      ...payload,
-    });
+    try {
+      res.status(status).json({
+        statusCode: status,
+        path: req.originalUrl,
+        method: req.method,
+        requestId,
+        ...payload,
+      });
+    } catch {
+      // The socket vanished in the race between the guard above and this write
+      // (a genuine client abort). The error is already recorded in
+      // res.locals.error for the access log; there is nothing left to send.
+    }
   }
 }
