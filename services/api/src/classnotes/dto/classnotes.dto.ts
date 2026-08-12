@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsInt,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
@@ -219,4 +220,32 @@ export class ShelfUpsertDto {
 
   @IsDateString()
   createdAt!: string;
+}
+
+/// How one user has the ClassNotes app set up, on its way to or from the
+/// account. The tools themselves are deliberately OPAQUE here: they are the
+/// client's own value, they change every time the app grows a slider, and the
+/// backend never has to read one. Validating their shape would buy nothing and
+/// cost a deploy every release.
+export class ClassNotesSettingsDto {
+  /// The client's own counter, bumped on every change. This — not a timestamp —
+  /// is what decides which of two devices' copies wins: clocks disagree, and a
+  /// phone running an hour behind would otherwise undo the iPad's settings.
+  @IsInt()
+  @Min(0)
+  revision!: number;
+
+  @IsDateString()
+  updatedAt!: string;
+
+  @IsObject()
+  tools!: Record<string, unknown>;
+
+  @IsString()
+  @MaxLength(120)
+  themeSelection!: string;
+
+  @IsString()
+  @MaxLength(60)
+  paperTone!: string;
 }

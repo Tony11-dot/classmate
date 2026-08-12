@@ -215,6 +215,7 @@ model User {
   // ClassNotes app so the ClassMate "ClassNotes" tab shows their real books.
   classNotebooks ClassNotesNotebook[]
   classShelves   ClassNotesShelf[]
+  classSettings  ClassNotesSettings?
 
   dmMessageReportsFiled DmMessageReport[] @relation("DmMessageReportsFiled")
   dmMessagesSent        DmMessage[]       @relation("DmMessagesSent")
@@ -2645,4 +2646,22 @@ model ClassNotesPage {
 
   @@id([notebookId, pageIndex])
   @@index([userId])
+}
+
+// How one user has the ClassNotes app set up: their pens and how each is tuned,
+// the eraser, tape, text boxes, beautification, what the Pencil's gestures do,
+// and their theme. One row per user, so signing in on a second device hands
+// them the app they already configured instead of a factory-fresh one.
+//
+// The payload is stored OPAQUELY, as the client's own JSON. The backend has no
+// business knowing what a pen's taper is, and every slider the app adds would
+// otherwise be a migration here. `revision` is the client's counter and is what
+// arbitrates between two devices — wall clocks disagree, and a phone an hour
+// behind would quietly undo the iPad's settings on every launch.
+model ClassNotesSettings {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payload   Json
+  revision  Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt
 }

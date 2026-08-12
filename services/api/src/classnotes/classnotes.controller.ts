@@ -25,6 +25,7 @@ import {
   NotebookPagesUpsertDto,
   ShelfUpsertDto,
   NotesAiDto,
+  ClassNotesSettingsDto,
 } from './dto/classnotes.dto';
 
 /// Personal ClassNotes library sync. Any signed-in user manages their OWN
@@ -130,6 +131,19 @@ export class ClassnotesController {
     @Body() dto: NotebookPagesUpsertDto,
   ) {
     return this.svc.upsertNotebookPages(req.user, id, dto);
+  }
+
+  /// How this user has the ClassNotes app set up — their pens and tuning, the
+  /// Pencil gestures, the theme. Read on launch so a second device comes up
+  /// configured the way the first one is.
+  @Get('settings')
+  getSettings(@Req() req: any) {
+    return this.svc.getSettings(req.user);
+  }
+
+  @Put('settings')
+  putSettings(@Req() req: any, @Body() dto: ClassNotesSettingsDto) {
+    return this.svc.putSettings(req.user, dto);
   }
 
   @Put('shelves/:id')

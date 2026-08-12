@@ -6,6 +6,7 @@ import {
   NotebookPatchDto,
   NotebookPagesUpsertDto,
   ShelfUpsertDto,
+  ClassNotesSettingsDto,
 } from './dto/classnotes.dto';
 
 /// Per-user ClassNotes library sync. Every query is scoped to the caller's own
@@ -281,6 +282,52 @@ export class ClassnotesService {
       update: data,
     });
     return { ok: true };
+  }
+
+  // MARK: settings
+
+  /// How this user has the ClassNotes app set up. Null when they never saved
+  /// any — the normal first-run answer, and not an error: the device simply
+  /// keeps what it already has.
+  async getSettings(user: any) {
+    const userId = this.uid(user);
+    const row = await this.prisma.classNotesSettings.findUnique({
+      where: { userId },
+    });
+    if (!row) return { settings: null };
+    return {
+      settings: {
+        ...(row.payload as Record<string, unknown>),
+        revision: row.revision,
+        updatedAt: row.updatedAt.toISOString(),
+      },
+    };
+  }
+
+  /// Saves the caller's setup, but ONLY if it is at least as new as what is
+  /// already stored. Two devices push independently, and without this check the
+  /// one that happens to launch last would write its older copy over the newer
+  /// — which is precisely the settings-eating bug the revision exists to stop.
+  async putSettings(user: any, dto: ClassNotesSettingsDto) {
+    const userId = this.uid(user);
+    const existing = await this.prisma.classNotesSettings.findUnique({
+      where: { userId },
+    });
+    if (existing && existing.revision > dto.revision) {
+      return { ok: true, stored: false, revision: existing.revision };
+    }
+    const payload = {
+      tools: dto.tools,
+      themeSelection: dto.themeSelection,
+      paperTone: dto.paperTone,
+    } as Prisma.InputJsonValue;
+    const updatedAt = new Date(dto.updatedAt);
+    await this.prisma.classNotesSettings.upsert({
+      where: { userId },
+      create: { userId, payload, revision: dto.revision, updatedAt },
+      update: { payload, revision: dto.revision, updatedAt },
+    });
+    return { ok: true, stored: true, revision: dto.revision };
   }
 
   async deleteShelf(user: any, id: string) {
