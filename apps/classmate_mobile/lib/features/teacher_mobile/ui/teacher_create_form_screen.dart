@@ -445,10 +445,18 @@ class _QuestionCardState extends State<_QuestionCard> {
             padding: const EdgeInsets.all(4)),
         ]),
         const SizedBox(height: 8),
-        TextField(
-          controller: _textCtrl,
-          decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
-          onChanged: (v) { q.text = v; widget.onChanged(); }),
+        Container(
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: TextField(
+            controller: _textCtrl,
+            decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
+            onChanged: (v) { q.text = v; widget.onChanged(); }),
+        ),
         const SizedBox(height: 8),
         _buildTypeUI(context, cs, theme, q),
         const Divider(height: 20),
@@ -483,19 +491,32 @@ class _QuestionCardState extends State<_QuestionCard> {
             final oi = entry.key;
             final optCtrl = TextEditingController(text: entry.value)
               ..selection = TextSelection.collapsed(offset: entry.value.length);
-            return Row(children: [
-              if (isMC) Icon(Icons.radio_button_unchecked, size: 16, color: cs.onSurfaceVariant)
-              else if (isCB) Icon(Icons.check_box_outline_blank, size: 16, color: cs.onSurfaceVariant)
-              else Text('${oi + 1}.', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-              const SizedBox(width: 6),
-              Expanded(child: TextField(
-                controller: optCtrl,
-                decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                onChanged: (v) => setState(() => q.options[oi] = v))),
-              if (q.options.length > 1)
-                IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close, size: 14), visualDensity: VisualDensity.compact,
-                  onPressed: () => setState(() => q.options.removeAt(oi)), padding: EdgeInsets.zero),
-            ]);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(children: [
+                if (isMC) Icon(Icons.radio_button_unchecked, size: 18, color: cs.onSurfaceVariant)
+                else if (isCB) Icon(Icons.check_box_outline_blank, size: 18, color: cs.onSurfaceVariant)
+                else Text('${oi + 1}.', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                const SizedBox(width: 8),
+                // Give the option a real, boxed field with vertical padding so
+                // it isn't a cramped zero-height line that misaligns with the
+                // checkbox and delete icon.
+                Expanded(child: Container(
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: cs.outlineVariant),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  child: TextField(
+                    controller: optCtrl,
+                    decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+                    onChanged: (v) => setState(() => q.options[oi] = v)))),
+                if (q.options.length > 1)
+                  IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close, size: 16), visualDensity: VisualDensity.compact,
+                    onPressed: () => setState(() => q.options.removeAt(oi)), padding: const EdgeInsets.only(left: 4)),
+              ]),
+            );
           }),
           TextButton.icon(
             onPressed: () => setState(() => q.options.add('')),

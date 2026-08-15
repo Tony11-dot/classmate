@@ -226,7 +226,10 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: published ? cs.primary : cs.onSurfaceVariant,
+                                  // Published badge sits on a cs.primary fill —
+                                  // text must be onPrimary, not primary (that
+                                  // was dark-blue-on-dark-blue = invisible).
+                                  color: published ? cs.onPrimary : cs.onSurfaceVariant,
                                 ),
                               ),
                             ),

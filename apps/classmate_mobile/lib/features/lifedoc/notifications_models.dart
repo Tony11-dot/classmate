@@ -14,6 +14,11 @@ class StudentNotificationItem {
   final String title;
   final String body;
   final String source;
+  /// The deep-link target id resolved from the server row's `data` blob
+  /// (formId / assignmentId / …). Empty when the notification has no specific
+  /// target. Used to route on tap — NOT [id], which is the notification's own
+  /// row id and pointed the deep-link at a non-existent form ("Form not found").
+  final String entityId;
   final DateTime createdAt;
   final StudentNotificationSeverity severity;
   final bool isRead;
@@ -30,6 +35,7 @@ class StudentNotificationItem {
     required this.title,
     required this.body,
     required this.source,
+    this.entityId = '',
     required this.createdAt,
     required this.severity,
     required this.isRead,
@@ -43,6 +49,7 @@ class StudentNotificationItem {
     String? title,
     String? body,
     String? source,
+    String? entityId,
     DateTime? createdAt,
     StudentNotificationSeverity? severity,
     bool? isRead,
@@ -55,6 +62,7 @@ class StudentNotificationItem {
       title: title ?? this.title,
       body: body ?? this.body,
       source: source ?? this.source,
+      entityId: entityId ?? this.entityId,
       createdAt: createdAt ?? this.createdAt,
       severity: severity ?? this.severity,
       isRead: isRead ?? this.isRead,
@@ -70,6 +78,7 @@ class StudentNotificationItem {
       'title': title,
       'body': body,
       'source': source,
+      'entityId': entityId,
       'createdAt': createdAt.toIso8601String(),
       'severity': severity.name,
       'isRead': isRead,
@@ -90,6 +99,7 @@ class StudentNotificationItem {
       title: '${json['title'] ?? ''}',
       body: '${json['body'] ?? ''}',
       source: '${json['source'] ?? 'system'}',
+      entityId: '${json['entityId'] ?? ''}',
       createdAt:
           DateTime.tryParse('${json['createdAt'] ?? ''}') ?? DateTime.now(),
       severity: severity,

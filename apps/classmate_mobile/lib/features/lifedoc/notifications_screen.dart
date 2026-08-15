@@ -536,7 +536,7 @@ class _NotificationDetailScreenState
   /// top pill title, and showing the bottom nav when it's a core tab.
   Widget _redirectButton(StudentNotificationItem item) {
     final route = LocalNotificationsService.routeFromPayload(
-      '${item.source}|${item.id}',
+      '${item.source}|${item.entityId}',
     );
     if (route.isEmpty || route == '/notifications') {
       return const SizedBox.shrink();

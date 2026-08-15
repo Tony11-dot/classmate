@@ -48,6 +48,9 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
     final changed = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      // Without this, a scroll-controlled sheet can extend under the status
+      // bar / header (#12). Keeps it within the safe area.
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _GradeScaleEditorSheet(existing: existing),
     );

@@ -305,6 +305,7 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
         title: announcement.title,
         body: announcement.body,
         source: announcement.source,
+        entityId: announcement.id,
         createdAt: announcement.createdAt,
         severity: severity,
         isRead: false,

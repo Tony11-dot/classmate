@@ -123,7 +123,10 @@ class LocalNotificationsService {
       title: title,
       body: item.body,
       notificationDetails: details,
-      payload: '${item.source}|${item.id}',
+      // Deep-link on the resolved entityId (formId, …), NOT item.id — that's
+      // the notification's own row id and 404'd the form. Empty entityId falls
+      // back to the section list (see routeFromPayload) instead of a dead id.
+      payload: '${item.source}|${item.entityId}',
     );
   }
 

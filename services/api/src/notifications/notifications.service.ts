@@ -26,11 +26,23 @@ export class NotificationsService {
       take,
     });
 
-    const items = rows.map((row: any) => ({
+    const items = rows.map((row: any) => {
+      // The deep-link target lives in the row's `data` blob (formId,
+      // assignmentId, …). It was never serialized, so a tapped notification
+      // fell back to the notification's OWN id → "Form not found". Resolve a
+      // single entityId the client can route on.
+      const d = (row.data ?? {}) as any;
+      const entityId = String(
+        d.formId ?? d.assignmentId ?? d.meetingId ?? d.examId ??
+        d.announcementId ?? d.materialId ?? d.classroomId ??
+        d.diplomaId ?? d.certificateId ?? d.solutionId ?? '',
+      ).trim();
+      return {
       id: String(row.id),
       title: String(row.title ?? row.type ?? 'Notification'),
       body: String(row.body ?? row.message ?? ''),
       source: String(row.type ?? 'system').toLowerCase(),
+      entityId,
       createdAt: row.createdAt,
       isRead: row.seenAt != null,
       severity:
@@ -39,7 +51,8 @@ export class NotificationsService {
           : String(row.type ?? '').toLowerCase().includes('attendance')
               ? 'warning'
               : 'info',
-    }));
+      };
+    });
 
     return {
       ok: true,
