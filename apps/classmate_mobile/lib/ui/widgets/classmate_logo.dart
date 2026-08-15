@@ -13,28 +13,52 @@ import '../../core/theme/theme_controller.dart' show BrandTint;
 /// two-tone into one blue blob and hid the new identity. On dark themes those
 /// navy tones would disappear, so there — and only there — the whole mark is
 /// recoloured to the theme's [onSurface] (a light tone) so it stays legible.
+///
+/// Pass [adaptToTheme] to instead flatten the whole mark to the theme's
+/// [BrandTint] (the theme primary) on EVERY brightness — used by the app-shell
+/// top bar so the logo shifts colour with the selected theme (coffee, matcha,
+/// rosé, …). An explicit [color] overrides both and always wins.
 class ClassMateLogo extends StatelessWidget {
-  const ClassMateLogo({super.key, this.height, this.width});
+  const ClassMateLogo({
+    super.key,
+    this.height,
+    this.width,
+    this.adaptToTheme = false,
+    this.color,
+  });
 
   final double? height;
   final double? width;
+
+  /// Recolour the entire mark to the theme's [BrandTint]/primary on all
+  /// brightnesses, so it tracks the selected theme.
+  final bool adaptToTheme;
+
+  /// Explicit tint. Wins over [adaptToTheme] and the default two-tone rendering.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = scheme.brightness == Brightness.dark;
+
+    // Resolve the tint. Explicit colour first, then theme-adaptive primary,
+    // then the default: null on light (true brand colours), onSurface on dark.
+    final Color? tint = color ??
+        (adaptToTheme
+            ? (BrandTint.of(context) ?? scheme.primary)
+            : (isDark ? scheme.onSurface : null));
+
     return Image.asset(
       'assets/images/logo_light.png',
       height: height,
       width: width,
       fit: BoxFit.contain,
-      // Light themes: no filter → true brand colours. Dark themes: recolour to
-      // a legible light tone.
-      color: isDark ? scheme.onSurface : null,
-      colorBlendMode: isDark ? BlendMode.srcIn : null,
+      color: tint,
+      colorBlendMode: tint == null ? null : BlendMode.srcIn,
       errorBuilder: (_, _, _) => _FallbackIconMark(
         size: height ?? width ?? 28,
-        color: isDark ? scheme.onSurface : scheme.primary,
+        color: tint ?? scheme.primary,
       ),
     );
   }

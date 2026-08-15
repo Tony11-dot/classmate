@@ -10,7 +10,6 @@ import '../practice_mode_specs.dart';
 import '../practice_display_text.dart';
 import '../../../tutor/ui/nova_chat_screen.dart';
 import '../../../../common/widgets/cm_ai_message.dart';
-export '../../../../ui/math/math_view.dart';
 
 typedef SessionResetFn = void Function();
 
