@@ -125,7 +125,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                     children: [
                       Text(l.teacherFormsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
                       const SizedBox(height: 4),
-                      Text('${_forms.length} forms', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                      Text(l.teacherFormsCount(_forms.length), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                     ],
                   ),
                 ),

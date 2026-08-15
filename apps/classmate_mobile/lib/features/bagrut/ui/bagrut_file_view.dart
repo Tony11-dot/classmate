@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
 /// Opens a bagrut file. On web (where flutter_pdfview is unsupported) the file
@@ -155,7 +156,7 @@ class _BagrutFileScreenState extends State<_BagrutFileScreen> {
               FilledButton.icon(
                 onPressed: _openExternally,
                 icon: const Icon(Icons.open_in_new_rounded),
-                label: const Text('Open externally'),
+                label: Text(AppLocalizations.of(context)!.mediaOpenExternally),
               ),
             ],
           ),

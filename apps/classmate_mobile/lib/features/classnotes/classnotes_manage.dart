@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'classnotes_api.dart';
 import 'classnotes_export.dart';
 import 'classnotes_models.dart';
@@ -24,6 +25,7 @@ class CnManage {
     required VoidCallback onOpen,
   }) async {
     final origin = CnExport.originOf(context);
+    final l = AppLocalizations.of(context)!;
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -40,7 +42,7 @@ class CnManage {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   child: Text(
-                    notebook.title.isEmpty ? 'Untitled' : notebook.title,
+                    notebook.title.isEmpty ? l.commonUntitled : notebook.title,
                     style: Theme.of(sheetCtx)
                         .textTheme
                         .titleMedium
@@ -51,7 +53,7 @@ class CnManage {
                 ),
                 ListTile(
                   leading: const Icon(Icons.menu_book_rounded),
-                  title: const Text('Open'),
+                  title: Text(l.examsOpenState),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
                     onOpen();
@@ -59,7 +61,7 @@ class CnManage {
                 ),
                 ListTile(
                   leading: const Icon(Icons.drive_file_rename_outline_rounded),
-                  title: const Text('Rename'),
+                  title: Text(l.adminRenameCohort),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await _rename(context, ref, notebook);
@@ -67,13 +69,13 @@ class CnManage {
                 ),
                 ListTile(
                   leading: const Icon(Icons.shelves),
-                  title: const Text('Move to shelf'),
+                  title: Text(l.cnMoveToShelf),
                   subtitle: Text(
                     shelves
                             .where((s) => s.id == notebook.shelfId)
                             .map((s) => s.name)
                             .firstOrNull ??
-                        'Not on a shelf',
+                        l.cnNotOnShelf,
                   ),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
@@ -83,7 +85,7 @@ class CnManage {
                 const Divider(height: 8),
                 ListTile(
                   leading: const Icon(Icons.picture_as_pdf_rounded),
-                  title: const Text('Download as PDF'),
+                  title: Text(l.cnDownloadAsPdf),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await _export(context, ref, notebook, asPdf: true, origin: origin);
@@ -93,7 +95,7 @@ class CnManage {
                   leading: const Icon(Icons.image_rounded),
                   // On web there's no file share sheet to rely on, so the pages
                   // open as images to save — say so rather than promising a file.
-                  title: Text(kIsWeb ? 'Open pages as PNG' : 'Download pages as PNG'),
+                  title: Text(kIsWeb ? l.cnOpenPagesPng : l.cnDownloadPagesPng),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await _export(context, ref, notebook, asPdf: false, origin: origin);
@@ -102,8 +104,8 @@ class CnManage {
                 const Divider(height: 8),
                 ListTile(
                   leading: Icon(Icons.delete_outline_rounded, color: cs.error),
-                  title: Text('Delete', style: TextStyle(color: cs.error)),
-                  subtitle: const Text('Removes it from ClassNotes on all your devices'),
+                  title: Text(l.chatContextDelete, style: TextStyle(color: cs.error)),
+                  subtitle: Text(l.cnDeleteNotebookSubtitle),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await _delete(context, ref, notebook);
@@ -124,11 +126,12 @@ class CnManage {
     WidgetRef ref,
     CnNotebook notebook,
   ) async {
+    final l = AppLocalizations.of(context)!;
     final next = await _promptForText(
       context,
-      title: 'Rename notebook',
+      title: l.cnRenameNotebook,
       initial: notebook.title,
-      hint: 'Notebook title',
+      hint: l.cnNotebookTitleHint,
     );
     if (next == null || next == notebook.title) return;
     if (!context.mounted) return;
@@ -136,7 +139,7 @@ class CnManage {
       context,
       ref,
       () => ref.read(classNotesApiProvider).patchNotebook(notebook.id, title: next),
-      success: 'Renamed',
+      success: l.cnRenamed,
     );
   }
 
@@ -149,6 +152,7 @@ class CnManage {
     // A sentinel rather than null, so "chose Not on a shelf" is distinguishable
     // from "dismissed the sheet".
     const unfiled = '__unfiled__';
+    final l = AppLocalizations.of(context)!;
     final picked = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -160,7 +164,7 @@ class CnManage {
             children: [
               ListTile(
                 leading: const Icon(Icons.remove_circle_outline_rounded),
-                title: const Text('Not on a shelf'),
+                title: Text(l.cnNotOnShelf),
                 trailing: notebook.shelfId == null
                     ? const Icon(Icons.check_rounded)
                     : null,
@@ -192,7 +196,7 @@ class CnManage {
             shelfId: target,
             clearShelf: target == null,
           ),
-      success: target == null ? 'Taken off the shelf' : 'Moved',
+      success: target == null ? l.cnTakenOffShelf : l.cnMoved,
     );
   }
 
@@ -203,19 +207,16 @@ class CnManage {
     required bool asPdf,
     Rect? origin,
   }) async {
+    final l = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(
-      SnackBar(content: Text(asPdf ? 'Building PDF…' : 'Preparing pages…')),
+      SnackBar(content: Text(asPdf ? l.cnBuildingPdf : l.cnPreparingPages)),
     );
     try {
       final pages = await ref.read(classNotesApiProvider).fetchNotebookPages(notebook.id);
       if (pages.isEmpty) {
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text(
-              'This notebook has no synced pages yet — open it on your iPad once.',
-            ),
-          ),
+          SnackBar(content: Text(l.cnNoSyncedPages)),
         );
         return;
       }
@@ -225,7 +226,7 @@ class CnManage {
         await CnExport.sharePng(pages: pages, title: notebook.title, origin: origin);
       }
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(l.cnExportFailed('$e'))));
     }
   }
 
@@ -235,24 +236,26 @@ class CnManage {
     CnNotebook notebook,
   ) async {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Delete this notebook?'),
+        title: Text(l.cnDeleteNotebookTitle),
         content: Text(
-          '"${notebook.title.isEmpty ? 'Untitled' : notebook.title}" and its '
-          '${notebook.pageCount} page${notebook.pageCount == 1 ? '' : 's'} will be '
-          'removed from ClassNotes on every device. This cannot be undone.',
+          l.cnDeleteNotebookBody(
+            notebook.title.isEmpty ? l.commonUntitled : notebook.title,
+            notebook.pageCount,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l.tutorCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: cs.error),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: const Text('Delete'),
+            child: Text(l.chatContextDelete),
           ),
         ],
       ),
@@ -263,7 +266,7 @@ class CnManage {
       context,
       ref,
       () => ref.read(classNotesApiProvider).deleteNotebook(notebook.id),
-      success: 'Deleted',
+      success: l.cnDeleted,
     );
   }
 
@@ -276,6 +279,7 @@ class CnManage {
     WidgetRef ref,
     CnShelf shelf,
   ) async {
+    final l = AppLocalizations.of(context)!;
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -296,14 +300,14 @@ class CnManage {
               const Divider(height: 8),
               ListTile(
                 leading: const Icon(Icons.drive_file_rename_outline_rounded),
-                title: const Text('Rename shelf'),
+                title: Text(l.cnRenameShelf),
                 onTap: () async {
                   Navigator.of(sheetCtx).pop();
                   final next = await _promptForText(
                     context,
-                    title: 'Rename shelf',
+                    title: l.cnRenameShelf,
                     initial: shelf.name,
-                    hint: 'Shelf name',
+                    hint: l.cnShelfNameHint,
                   );
                   if (next == null || next == shelf.name) return;
                   if (!context.mounted) return;
@@ -313,21 +317,21 @@ class CnManage {
                     () => ref
                         .read(classNotesApiProvider)
                         .putShelf(shelf.copyWith(name: next)),
-                    success: 'Renamed',
+                    success: l.cnRenamed,
                   );
                 },
               ),
               ListTile(
                 leading: Icon(Icons.delete_outline_rounded, color: cs.error),
-                title: Text('Delete shelf', style: TextStyle(color: cs.error)),
-                subtitle: const Text('Its notebooks stay — they just leave the shelf'),
+                title: Text(l.cnDeleteShelf, style: TextStyle(color: cs.error)),
+                subtitle: Text(l.cnDeleteShelfSubtitle),
                 onTap: () async {
                   Navigator.of(sheetCtx).pop();
                   await _run(
                     context,
                     ref,
                     () => ref.read(classNotesApiProvider).deleteShelf(shelf.id),
-                    success: 'Shelf deleted',
+                    success: l.cnShelfDeleted,
                   );
                 },
               ),
@@ -350,8 +354,8 @@ class CnManage {
       await ref.read(classNotesApiProvider).reorderNotebooks(ids);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Couldn't save the new order: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.cnReorderFailed('$e'))));
       ref.invalidate(classNotesLibraryProvider);
     }
   }
@@ -363,6 +367,7 @@ class CnManage {
     required String hint,
   }) async {
     final controller = TextEditingController(text: initial);
+    final l = AppLocalizations.of(context)!;
     final value = await showDialog<String>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -377,11 +382,11 @@ class CnManage {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l.tutorCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogCtx).pop(controller.text),
-            child: const Text('Save'),
+            child: Text(l.profileSave),
           ),
         ],
       ),
@@ -399,6 +404,7 @@ class CnManage {
     Future<void> Function() action, {
     required String success,
   }) async {
+    final l = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     try {
       await action();
@@ -406,7 +412,7 @@ class CnManage {
       messenger.showSnackBar(SnackBar(content: Text(success)));
     } catch (e) {
       ref.invalidate(classNotesLibraryProvider);
-      messenger.showSnackBar(SnackBar(content: Text('That didn\'t work: $e')));
+      messenger.showSnackBar(SnackBar(content: Text(l.cnGenericError('$e'))));
     }
   }
 }

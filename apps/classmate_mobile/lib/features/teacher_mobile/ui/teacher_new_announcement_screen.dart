@@ -861,7 +861,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                     decoration: BoxDecoration(
                         color: cs.primaryContainer,
                         borderRadius: BorderRadius.circular(20)),
-                    child: Text('${_selected.length} selected',
+                    child: Text(AppLocalizations.of(context)!.chatSelectedCount(_selected.length),
                         style: TextStyle(
                             color: cs.onPrimaryContainer,
                             fontWeight: FontWeight.w700,

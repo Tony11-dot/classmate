@@ -11702,4 +11702,177 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onbDeepParentAlerts =>
       'Get told when a grade is published, an absence is recorded or the school posts something — and reply to a teacher in the same place.';
+
+  @override
+  String get settingsAddTheme => 'Add theme';
+
+  @override
+  String get settingsNewTheme => 'New theme';
+
+  @override
+  String get settingsThemeNameHint => 'My theme';
+
+  @override
+  String get settingsThemeAccentLabel => 'Accent';
+
+  @override
+  String get settingsCreateTheme => 'Create theme';
+
+  @override
+  String get cnMoveToShelf => 'Move to shelf';
+
+  @override
+  String get cnNotOnShelf => 'Not on a shelf';
+
+  @override
+  String get cnDownloadAsPdf => 'Download as PDF';
+
+  @override
+  String get cnOpenPagesPng => 'Open pages as PNG';
+
+  @override
+  String get cnDownloadPagesPng => 'Download pages as PNG';
+
+  @override
+  String get cnDeleteNotebookSubtitle =>
+      'Removes it from ClassNotes on all your devices';
+
+  @override
+  String get cnRenameNotebook => 'Rename notebook';
+
+  @override
+  String get cnNotebookTitleHint => 'Notebook title';
+
+  @override
+  String get cnRenamed => 'Renamed';
+
+  @override
+  String get cnTakenOffShelf => 'Taken off the shelf';
+
+  @override
+  String get cnMoved => 'Moved';
+
+  @override
+  String get cnBuildingPdf => 'Building PDF…';
+
+  @override
+  String get cnPreparingPages => 'Preparing pages…';
+
+  @override
+  String get cnNoSyncedPages =>
+      'This notebook has no synced pages yet — open it on your iPad once.';
+
+  @override
+  String cnExportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get cnDeleteNotebookTitle => 'Delete this notebook?';
+
+  @override
+  String cnDeleteNotebookBody(String title, num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString pages',
+      one: '1 page',
+    );
+    return '\"$title\" and its $_temp0 will be removed from ClassNotes on every device. This can\'t be undone.';
+  }
+
+  @override
+  String get cnDeleted => 'Deleted';
+
+  @override
+  String get cnRenameShelf => 'Rename shelf';
+
+  @override
+  String get cnShelfNameHint => 'Shelf name';
+
+  @override
+  String get cnDeleteShelf => 'Delete shelf';
+
+  @override
+  String get cnDeleteShelfSubtitle =>
+      'Its notebooks stay — they just leave the shelf';
+
+  @override
+  String get cnShelfDeleted => 'Shelf deleted';
+
+  @override
+  String cnReorderFailed(String error) {
+    return 'Couldn\'t save the new order: $error';
+  }
+
+  @override
+  String cnGenericError(String error) {
+    return 'That didn\'t work: $error';
+  }
+
+  @override
+  String get cnAllShelf => 'All';
+
+  @override
+  String get cnDragToReorder => 'Drag to reorder your notebooks';
+
+  @override
+  String get cnManageHint =>
+      'Tap ⋮ on a notebook to rename, download or delete it';
+
+  @override
+  String get cnArrange => 'Arrange';
+
+  @override
+  String get cnManage => 'Manage';
+
+  @override
+  String cnManageNamed(String title) {
+    return 'Manage $title';
+  }
+
+  @override
+  String get cnNotebookWord => 'notebook';
+
+  @override
+  String get cnEmptyTitle => 'No notebooks yet';
+
+  @override
+  String get cnEmptyBody =>
+      'Notebooks you create in ClassNotes appear here — covers, paper and ink all follow your theme.';
+
+  @override
+  String get cnLoading => 'Loading your notebooks…';
+
+  @override
+  String get cnSignedOutTitle => 'Sign in to see your notebooks';
+
+  @override
+  String get cnSignedOutBody =>
+      'Your ClassNotes library is tied to your ClassMate account.';
+
+  @override
+  String get cnErrorTitle => 'Couldn\'t load your notebooks';
+
+  @override
+  String get cnErrorBody => 'Check your connection and try again.';
+
+  @override
+  String teacherFormsCount(num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString forms',
+      one: '1 form',
+    );
+    return '$_temp0';
+  }
 }

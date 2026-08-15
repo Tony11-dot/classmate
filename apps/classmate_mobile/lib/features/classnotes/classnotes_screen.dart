@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_session.dart';
+import '../../l10n/app_localizations.dart';
 import 'classnotes_manage.dart';
 import 'classnotes_models.dart';
 import 'classnotes_notebook_screen.dart';
@@ -240,7 +241,7 @@ class _ShelfBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         children: [
           _ShelfChip(
-            label: 'All',
+            label: AppLocalizations.of(context)!.cnAllShelf,
             icon: Icons.grid_view_rounded,
             color: cs.primary,
             selected: selected == null,
@@ -342,8 +343,8 @@ class _ManageHint extends StatelessWidget {
           Expanded(
             child: Text(
               arranging
-                  ? 'Drag to reorder your notebooks'
-                  : 'Tap ⋮ on a notebook to rename, download or delete it',
+                  ? AppLocalizations.of(context)!.cnDragToReorder
+                  : AppLocalizations.of(context)!.cnManageHint,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -356,7 +357,7 @@ class _ManageHint extends StatelessWidget {
           TextButton.icon(
             onPressed: onToggle,
             icon: Icon(arranging ? Icons.check_rounded : Icons.swap_vert_rounded, size: 18),
-            label: Text(arranging ? 'Done' : 'Arrange'),
+            label: Text(arranging ? AppLocalizations.of(context)!.commonDone : AppLocalizations.of(context)!.cnArrange),
           ),
         ],
       ),
@@ -389,7 +390,7 @@ class _ArrangeRow extends StatelessWidget {
           child: _NotebookCover(notebook: notebook),
         ),
         title: Text(
-          notebook.title.isEmpty ? 'Untitled' : notebook.title,
+          notebook.title.isEmpty ? AppLocalizations.of(context)!.commonUntitled : notebook.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.w700),
@@ -402,7 +403,7 @@ class _ArrangeRow extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.more_vert_rounded),
-              tooltip: 'Manage',
+              tooltip: AppLocalizations.of(context)!.cnManage,
               onPressed: onManage,
             ),
             ReorderableDragStartListener(
@@ -489,9 +490,10 @@ class _ManageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
-      label: 'Manage ${title.isEmpty ? 'notebook' : title}',
+      label: l.cnManageNamed(title.isEmpty ? l.cnNotebookWord : title),
       child: Material(
         color: Colors.black.withValues(alpha: 0.28),
         shape: const CircleBorder(),
@@ -626,7 +628,7 @@ class _EmptyState extends StatelessWidget {
             Icon(Icons.menu_book_outlined, size: 44, color: cs.primary),
             const SizedBox(height: 12),
             Text(
-              'No notebooks yet',
+              AppLocalizations.of(context)!.cnEmptyTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -635,8 +637,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Notebooks you create in ClassNotes appear here — covers, paper '
-              'and ink all follow your theme.',
+              AppLocalizations.of(context)!.cnEmptyBody,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
             ),
@@ -672,7 +673,7 @@ class _LoadingState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'Loading your notebooks…',
+            AppLocalizations.of(context)!.cnLoading,
             style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
           ),
         ],
@@ -696,7 +697,7 @@ class _SignedOutState extends StatelessWidget {
             Icon(Icons.lock_outline_rounded, size: 44, color: cs.primary),
             const SizedBox(height: 12),
             Text(
-              'Sign in to see your notebooks',
+              AppLocalizations.of(context)!.cnSignedOutTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -705,7 +706,7 @@ class _SignedOutState extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Your ClassNotes library is tied to your ClassMate account.',
+              AppLocalizations.of(context)!.cnSignedOutBody,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
             ),
@@ -733,7 +734,7 @@ class _ErrorState extends StatelessWidget {
             Icon(Icons.cloud_off_rounded, size: 44, color: cs.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
-              "Couldn't load your notebooks",
+              AppLocalizations.of(context)!.cnErrorTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -742,7 +743,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Check your connection and try again.',
+              AppLocalizations.of(context)!.cnErrorBody,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
             ),
@@ -750,7 +751,7 @@ class _ErrorState extends StatelessWidget {
             FilledButton.tonalIcon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),

@@ -634,7 +634,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
               builder: (_) => const _AddThemeSheet(),
             ),
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Add theme'),
+            label: Text(l.settingsAddTheme),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
             ),
@@ -864,6 +864,7 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final preview = ColorScheme.fromSeed(
       seedColor: _seed,
       brightness: _dark ? Brightness.dark : Brightness.light,
@@ -876,7 +877,7 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('New theme',
+          Text(l.settingsNewTheme,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -890,17 +891,17 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
                 child: TextField(
                   controller: _name,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    hintText: 'My theme',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l.certPdfName,
+                    hintText: l.settingsThemeNameHint,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 18),
-          Text('Accent',
+          Text(l.settingsThemeAccentLabel,
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
@@ -940,9 +941,9 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
           ),
           const SizedBox(height: 18),
           SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('Light'), icon: Icon(Icons.light_mode_rounded)),
-              ButtonSegment(value: true, label: Text('Dark'), icon: Icon(Icons.dark_mode_rounded)),
+            segments: [
+              ButtonSegment(value: false, label: Text(l.settingsThemeLight), icon: const Icon(Icons.light_mode_rounded)),
+              ButtonSegment(value: true, label: Text(l.settingsThemeDark), icon: const Icon(Icons.dark_mode_rounded)),
             ],
             selected: {_dark},
             onSelectionChanged: (s) => setState(() => _dark = s.first),
@@ -958,7 +959,7 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
               if (context.mounted) Navigator.of(context).pop();
             },
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            child: const Text('Create theme'),
+            child: Text(l.settingsCreateTheme),
           ),
         ],
       ),

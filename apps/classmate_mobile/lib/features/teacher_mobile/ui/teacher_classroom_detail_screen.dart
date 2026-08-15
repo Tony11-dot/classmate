@@ -1501,7 +1501,7 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)),
-                    child: Text('${_selected.length} selected',
+                    child: Text(AppLocalizations.of(context)!.chatSelectedCount(_selected.length),
                         style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12)),
                   ),
               ],

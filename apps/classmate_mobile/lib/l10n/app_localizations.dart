@@ -20282,6 +20282,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get told when a grade is published, an absence is recorded or the school posts something — and reply to a teacher in the same place.'**
   String get onbDeepParentAlerts;
+
+  /// No description provided for @settingsAddTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Add theme'**
+  String get settingsAddTheme;
+
+  /// No description provided for @settingsNewTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'New theme'**
+  String get settingsNewTheme;
+
+  /// No description provided for @settingsThemeNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'My theme'**
+  String get settingsThemeNameHint;
+
+  /// No description provided for @settingsThemeAccentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get settingsThemeAccentLabel;
+
+  /// No description provided for @settingsCreateTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Create theme'**
+  String get settingsCreateTheme;
+
+  /// No description provided for @cnMoveToShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to shelf'**
+  String get cnMoveToShelf;
+
+  /// No description provided for @cnNotOnShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on a shelf'**
+  String get cnNotOnShelf;
+
+  /// No description provided for @cnDownloadAsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download as PDF'**
+  String get cnDownloadAsPdf;
+
+  /// No description provided for @cnOpenPagesPng.
+  ///
+  /// In en, this message translates to:
+  /// **'Open pages as PNG'**
+  String get cnOpenPagesPng;
+
+  /// No description provided for @cnDownloadPagesPng.
+  ///
+  /// In en, this message translates to:
+  /// **'Download pages as PNG'**
+  String get cnDownloadPagesPng;
+
+  /// No description provided for @cnDeleteNotebookSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes it from ClassNotes on all your devices'**
+  String get cnDeleteNotebookSubtitle;
+
+  /// No description provided for @cnRenameNotebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename notebook'**
+  String get cnRenameNotebook;
+
+  /// No description provided for @cnNotebookTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Notebook title'**
+  String get cnNotebookTitleHint;
+
+  /// No description provided for @cnRenamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed'**
+  String get cnRenamed;
+
+  /// No description provided for @cnTakenOffShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken off the shelf'**
+  String get cnTakenOffShelf;
+
+  /// No description provided for @cnMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved'**
+  String get cnMoved;
+
+  /// No description provided for @cnBuildingPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Building PDF…'**
+  String get cnBuildingPdf;
+
+  /// No description provided for @cnPreparingPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing pages…'**
+  String get cnPreparingPages;
+
+  /// No description provided for @cnNoSyncedPages.
+  ///
+  /// In en, this message translates to:
+  /// **'This notebook has no synced pages yet — open it on your iPad once.'**
+  String get cnNoSyncedPages;
+
+  /// No description provided for @cnExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String cnExportFailed(String error);
+
+  /// No description provided for @cnDeleteNotebookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this notebook?'**
+  String get cnDeleteNotebookTitle;
+
+  /// No description provided for @cnDeleteNotebookBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" and its {count, plural, one{1 page} other{{count} pages}} will be removed from ClassNotes on every device. This can\'t be undone.'**
+  String cnDeleteNotebookBody(String title, num count);
+
+  /// No description provided for @cnDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get cnDeleted;
+
+  /// No description provided for @cnRenameShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename shelf'**
+  String get cnRenameShelf;
+
+  /// No description provided for @cnShelfNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf name'**
+  String get cnShelfNameHint;
+
+  /// No description provided for @cnDeleteShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete shelf'**
+  String get cnDeleteShelf;
+
+  /// No description provided for @cnDeleteShelfSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Its notebooks stay — they just leave the shelf'**
+  String get cnDeleteShelfSubtitle;
+
+  /// No description provided for @cnShelfDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf deleted'**
+  String get cnShelfDeleted;
+
+  /// No description provided for @cnReorderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the new order: {error}'**
+  String cnReorderFailed(String error);
+
+  /// No description provided for @cnGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t work: {error}'**
+  String cnGenericError(String error);
+
+  /// No description provided for @cnAllShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get cnAllShelf;
+
+  /// No description provided for @cnDragToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder your notebooks'**
+  String get cnDragToReorder;
+
+  /// No description provided for @cnManageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap ⋮ on a notebook to rename, download or delete it'**
+  String get cnManageHint;
+
+  /// No description provided for @cnArrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrange'**
+  String get cnArrange;
+
+  /// No description provided for @cnManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get cnManage;
+
+  /// No description provided for @cnManageNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage {title}'**
+  String cnManageNamed(String title);
+
+  /// No description provided for @cnNotebookWord.
+  ///
+  /// In en, this message translates to:
+  /// **'notebook'**
+  String get cnNotebookWord;
+
+  /// No description provided for @cnEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notebooks yet'**
+  String get cnEmptyTitle;
+
+  /// No description provided for @cnEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notebooks you create in ClassNotes appear here — covers, paper and ink all follow your theme.'**
+  String get cnEmptyBody;
+
+  /// No description provided for @cnLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your notebooks…'**
+  String get cnLoading;
+
+  /// No description provided for @cnSignedOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your notebooks'**
+  String get cnSignedOutTitle;
+
+  /// No description provided for @cnSignedOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ClassNotes library is tied to your ClassMate account.'**
+  String get cnSignedOutBody;
+
+  /// No description provided for @cnErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your notebooks'**
+  String get cnErrorTitle;
+
+  /// No description provided for @cnErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get cnErrorBody;
+
+  /// No description provided for @teacherFormsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 form} other{{count} forms}}'**
+  String teacherFormsCount(num count);
 }
 
 class _AppLocalizationsDelegate

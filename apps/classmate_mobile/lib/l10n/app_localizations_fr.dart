@@ -11862,4 +11862,177 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get onbDeepParentAlerts =>
       'Soyez averti dès qu\'une note est publiée, une absence enregistrée ou une annonce publiée — et répondez à l\'enseignant au même endroit.';
+
+  @override
+  String get settingsAddTheme => 'Ajouter un thème';
+
+  @override
+  String get settingsNewTheme => 'Nouveau thème';
+
+  @override
+  String get settingsThemeNameHint => 'Mon thème';
+
+  @override
+  String get settingsThemeAccentLabel => 'Accent';
+
+  @override
+  String get settingsCreateTheme => 'Créer le thème';
+
+  @override
+  String get cnMoveToShelf => 'Déplacer vers une étagère';
+
+  @override
+  String get cnNotOnShelf => 'Sur aucune étagère';
+
+  @override
+  String get cnDownloadAsPdf => 'Télécharger en PDF';
+
+  @override
+  String get cnOpenPagesPng => 'Ouvrir les pages en PNG';
+
+  @override
+  String get cnDownloadPagesPng => 'Télécharger les pages en PNG';
+
+  @override
+  String get cnDeleteNotebookSubtitle =>
+      'Le supprime de ClassNotes sur tous vos appareils';
+
+  @override
+  String get cnRenameNotebook => 'Renommer le carnet';
+
+  @override
+  String get cnNotebookTitleHint => 'Titre du carnet';
+
+  @override
+  String get cnRenamed => 'Renommé';
+
+  @override
+  String get cnTakenOffShelf => 'Retiré de l\'étagère';
+
+  @override
+  String get cnMoved => 'Déplacé';
+
+  @override
+  String get cnBuildingPdf => 'Création du PDF…';
+
+  @override
+  String get cnPreparingPages => 'Préparation des pages…';
+
+  @override
+  String get cnNoSyncedPages =>
+      'Ce carnet n\'a pas encore de pages synchronisées — ouvrez-le une fois sur votre iPad.';
+
+  @override
+  String cnExportFailed(String error) {
+    return 'Échec de l\'export : $error';
+  }
+
+  @override
+  String get cnDeleteNotebookTitle => 'Supprimer ce carnet ?';
+
+  @override
+  String cnDeleteNotebookBody(String title, num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString pages',
+      one: '1 page',
+    );
+    return '«$title» et ses $_temp0 seront supprimés de ClassNotes sur tous les appareils. Cette action est irréversible.';
+  }
+
+  @override
+  String get cnDeleted => 'Supprimé';
+
+  @override
+  String get cnRenameShelf => 'Renommer l\'étagère';
+
+  @override
+  String get cnShelfNameHint => 'Nom de l\'étagère';
+
+  @override
+  String get cnDeleteShelf => 'Supprimer l\'étagère';
+
+  @override
+  String get cnDeleteShelfSubtitle =>
+      'Les carnets restent — ils quittent seulement l\'étagère';
+
+  @override
+  String get cnShelfDeleted => 'Étagère supprimée';
+
+  @override
+  String cnReorderFailed(String error) {
+    return 'Impossible d\'enregistrer le nouvel ordre : $error';
+  }
+
+  @override
+  String cnGenericError(String error) {
+    return 'Ça n\'a pas marché : $error';
+  }
+
+  @override
+  String get cnAllShelf => 'Tout';
+
+  @override
+  String get cnDragToReorder => 'Faites glisser pour réorganiser vos carnets';
+
+  @override
+  String get cnManageHint =>
+      'Touchez ⋮ sur un carnet pour le renommer, le télécharger ou le supprimer';
+
+  @override
+  String get cnArrange => 'Organiser';
+
+  @override
+  String get cnManage => 'Gérer';
+
+  @override
+  String cnManageNamed(String title) {
+    return 'Gérer $title';
+  }
+
+  @override
+  String get cnNotebookWord => 'carnet';
+
+  @override
+  String get cnEmptyTitle => 'Aucun carnet pour l\'instant';
+
+  @override
+  String get cnEmptyBody =>
+      'Les carnets que vous créez dans ClassNotes apparaissent ici — couvertures, papier et encre suivent votre thème.';
+
+  @override
+  String get cnLoading => 'Chargement de vos carnets…';
+
+  @override
+  String get cnSignedOutTitle => 'Connectez-vous pour voir vos carnets';
+
+  @override
+  String get cnSignedOutBody =>
+      'Votre bibliothèque ClassNotes est liée à votre compte ClassMate.';
+
+  @override
+  String get cnErrorTitle => 'Impossible de charger vos carnets';
+
+  @override
+  String get cnErrorBody => 'Vérifiez votre connexion et réessayez.';
+
+  @override
+  String teacherFormsCount(num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString formulaires',
+      one: '1 formulaire',
+    );
+    return '$_temp0';
+  }
 }

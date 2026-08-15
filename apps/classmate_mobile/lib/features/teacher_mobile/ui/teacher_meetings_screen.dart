@@ -742,7 +742,7 @@ class _MtgCohortSheetState extends State<_MtgCohortSheet> {
       Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 12), decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
       Padding(padding: const EdgeInsets.fromLTRB(20,0,20,12), child: Row(children: [
         Text(widget.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)), const Spacer(),
-        if (_sel.isNotEmpty) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)), child: Text('${_sel.length} selected', style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12))),
+        if (_sel.isNotEmpty) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(20)), child: Text(AppLocalizations.of(context)!.chatSelectedCount(_sel.length), style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 12))),
       ])),
       Expanded(child: ListView.builder(controller: sc, padding: const EdgeInsets.fromLTRB(12,4,12,16), itemCount: widget.items.length, itemBuilder: (ctx, i) {
         final item = widget.items[i]; final isSel = _sel.contains(item.id);

@@ -1406,7 +1406,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.center,
               children: [
-                pw.Text('Created by', style: pw.TextStyle(fontSize: 9, color: brandBlue, fontStyle: pw.FontStyle.italic)),
+                pw.Text(l.certPdfGeneratedBy, style: pw.TextStyle(fontSize: 9, color: brandBlue, fontStyle: pw.FontStyle.italic)),
                 pw.SizedBox(width: 7),
                 pw.SizedBox(width: 16, height: 16, child: pw.Image(cmLogo, fit: pw.BoxFit.contain)),
                 pw.SizedBox(width: 5),

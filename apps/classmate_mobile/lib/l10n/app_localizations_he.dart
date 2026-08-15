@@ -11576,4 +11576,174 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get onbDeepParentAlerts =>
       'קבלו עדכון כשמתפרסם ציון, נרשמת היעדרות או בית הספר מפרסם משהו — והשיבו למורה מאותו מקום.';
+
+  @override
+  String get settingsAddTheme => 'הוספת ערכת נושא';
+
+  @override
+  String get settingsNewTheme => 'ערכת נושא חדשה';
+
+  @override
+  String get settingsThemeNameHint => 'ערכת הנושא שלי';
+
+  @override
+  String get settingsThemeAccentLabel => 'צבע הדגשה';
+
+  @override
+  String get settingsCreateTheme => 'יצירת ערכה';
+
+  @override
+  String get cnMoveToShelf => 'העברה למדף';
+
+  @override
+  String get cnNotOnShelf => 'לא במדף';
+
+  @override
+  String get cnDownloadAsPdf => 'הורדה כ‑PDF';
+
+  @override
+  String get cnOpenPagesPng => 'פתיחת העמודים כ‑PNG';
+
+  @override
+  String get cnDownloadPagesPng => 'הורדת העמודים כ‑PNG';
+
+  @override
+  String get cnDeleteNotebookSubtitle =>
+      'מסיר אותו מ‑ClassNotes בכל המכשירים שלך';
+
+  @override
+  String get cnRenameNotebook => 'שינוי שם המחברת';
+
+  @override
+  String get cnNotebookTitleHint => 'שם המחברת';
+
+  @override
+  String get cnRenamed => 'השם שונה';
+
+  @override
+  String get cnTakenOffShelf => 'הוסר מהמדף';
+
+  @override
+  String get cnMoved => 'הועבר';
+
+  @override
+  String get cnBuildingPdf => 'יוצר PDF…';
+
+  @override
+  String get cnPreparingPages => 'מכין את העמודים…';
+
+  @override
+  String get cnNoSyncedPages =>
+      'אין עדיין עמודים מסונכרנים במחברת הזו — פתחו אותה פעם אחת ב‑iPad.';
+
+  @override
+  String cnExportFailed(String error) {
+    return 'הייצוא נכשל: $error';
+  }
+
+  @override
+  String get cnDeleteNotebookTitle => 'למחוק את המחברת הזו?';
+
+  @override
+  String cnDeleteNotebookBody(String title, num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString עמודים',
+    );
+    return '«$title» ו$_temp0 יימחקו מ‑ClassNotes בכל המכשירים. אי אפשר לבטל את הפעולה.';
+  }
+
+  @override
+  String get cnDeleted => 'נמחק';
+
+  @override
+  String get cnRenameShelf => 'שינוי שם המדף';
+
+  @override
+  String get cnShelfNameHint => 'שם המדף';
+
+  @override
+  String get cnDeleteShelf => 'מחיקת המדף';
+
+  @override
+  String get cnDeleteShelfSubtitle => 'המחברות נשארות — הן רק יוצאות מהמדף';
+
+  @override
+  String get cnShelfDeleted => 'המדף נמחק';
+
+  @override
+  String cnReorderFailed(String error) {
+    return 'לא ניתן היה לשמור את הסדר החדש: $error';
+  }
+
+  @override
+  String cnGenericError(String error) {
+    return 'זה לא עבד: $error';
+  }
+
+  @override
+  String get cnAllShelf => 'הכול';
+
+  @override
+  String get cnDragToReorder => 'גררו כדי לסדר מחדש את המחברות';
+
+  @override
+  String get cnManageHint =>
+      'הקישו על ⋮ שליד מחברת כדי לשנות שם, להוריד או למחוק';
+
+  @override
+  String get cnArrange => 'סידור';
+
+  @override
+  String get cnManage => 'ניהול';
+
+  @override
+  String cnManageNamed(String title) {
+    return 'ניהול $title';
+  }
+
+  @override
+  String get cnNotebookWord => 'מחברת';
+
+  @override
+  String get cnEmptyTitle => 'אין עדיין מחברות';
+
+  @override
+  String get cnEmptyBody =>
+      'מחברות שאתם יוצרים ב‑ClassNotes מופיעות כאן — הכריכות, הנייר והדיו עוקבים אחר ערכת הנושא שלכם.';
+
+  @override
+  String get cnLoading => 'טוען את המחברות שלך…';
+
+  @override
+  String get cnSignedOutTitle => 'היכנסו כדי לראות את המחברות שלכם';
+
+  @override
+  String get cnSignedOutBody =>
+      'ספריית ClassNotes מקושרת לחשבון ClassMate שלכם.';
+
+  @override
+  String get cnErrorTitle => 'לא ניתן היה לטעון את המחברות שלך';
+
+  @override
+  String get cnErrorBody => 'בדקו את החיבור ונסו שוב.';
+
+  @override
+  String teacherFormsCount(num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString טפסים',
+    );
+    return '$_temp0';
+  }
 }

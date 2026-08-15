@@ -11706,4 +11706,175 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get onbDeepParentAlerts =>
       'Узнавайте, когда выставлена оценка, отмечено отсутствие или школа что-то опубликовала — и отвечайте учителю там же.';
+
+  @override
+  String get settingsAddTheme => 'Добавить тему';
+
+  @override
+  String get settingsNewTheme => 'Новая тема';
+
+  @override
+  String get settingsThemeNameHint => 'Моя тема';
+
+  @override
+  String get settingsThemeAccentLabel => 'Акцент';
+
+  @override
+  String get settingsCreateTheme => 'Создать тему';
+
+  @override
+  String get cnMoveToShelf => 'Переместить на полку';
+
+  @override
+  String get cnNotOnShelf => 'Не на полке';
+
+  @override
+  String get cnDownloadAsPdf => 'Скачать как PDF';
+
+  @override
+  String get cnOpenPagesPng => 'Открыть страницы как PNG';
+
+  @override
+  String get cnDownloadPagesPng => 'Скачать страницы как PNG';
+
+  @override
+  String get cnDeleteNotebookSubtitle =>
+      'Удаляет её из ClassNotes на всех ваших устройствах';
+
+  @override
+  String get cnRenameNotebook => 'Переименовать блокнот';
+
+  @override
+  String get cnNotebookTitleHint => 'Название блокнота';
+
+  @override
+  String get cnRenamed => 'Переименовано';
+
+  @override
+  String get cnTakenOffShelf => 'Убрано с полки';
+
+  @override
+  String get cnMoved => 'Перемещено';
+
+  @override
+  String get cnBuildingPdf => 'Создание PDF…';
+
+  @override
+  String get cnPreparingPages => 'Подготовка страниц…';
+
+  @override
+  String get cnNoSyncedPages =>
+      'В этом блокноте пока нет синхронизированных страниц — откройте его один раз на iPad.';
+
+  @override
+  String cnExportFailed(String error) {
+    return 'Не удалось экспортировать: $error';
+  }
+
+  @override
+  String get cnDeleteNotebookTitle => 'Удалить этот блокнот?';
+
+  @override
+  String cnDeleteNotebookBody(String title, num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString',
+    );
+    return '«$title» и его страницы ($_temp0) будут удалены из ClassNotes на всех устройствах. Отменить это нельзя.';
+  }
+
+  @override
+  String get cnDeleted => 'Удалено';
+
+  @override
+  String get cnRenameShelf => 'Переименовать полку';
+
+  @override
+  String get cnShelfNameHint => 'Название полки';
+
+  @override
+  String get cnDeleteShelf => 'Удалить полку';
+
+  @override
+  String get cnDeleteShelfSubtitle =>
+      'Блокноты останутся — они просто покинут полку';
+
+  @override
+  String get cnShelfDeleted => 'Полка удалена';
+
+  @override
+  String cnReorderFailed(String error) {
+    return 'Не удалось сохранить новый порядок: $error';
+  }
+
+  @override
+  String cnGenericError(String error) {
+    return 'Не получилось: $error';
+  }
+
+  @override
+  String get cnAllShelf => 'Все';
+
+  @override
+  String get cnDragToReorder => 'Перетащите, чтобы изменить порядок блокнотов';
+
+  @override
+  String get cnManageHint =>
+      'Нажмите ⋮ на блокноте, чтобы переименовать, скачать или удалить его';
+
+  @override
+  String get cnArrange => 'Упорядочить';
+
+  @override
+  String get cnManage => 'Управление';
+
+  @override
+  String cnManageNamed(String title) {
+    return 'Управление: $title';
+  }
+
+  @override
+  String get cnNotebookWord => 'блокнот';
+
+  @override
+  String get cnEmptyTitle => 'Пока нет блокнотов';
+
+  @override
+  String get cnEmptyBody =>
+      'Блокноты, созданные в ClassNotes, появляются здесь — обложки, бумага и чернила следуют вашей теме.';
+
+  @override
+  String get cnLoading => 'Загрузка ваших блокнотов…';
+
+  @override
+  String get cnSignedOutTitle => 'Войдите, чтобы увидеть свои блокноты';
+
+  @override
+  String get cnSignedOutBody =>
+      'Ваша библиотека ClassNotes связана с вашим аккаунтом ClassMate.';
+
+  @override
+  String get cnErrorTitle => 'Не удалось загрузить ваши блокноты';
+
+  @override
+  String get cnErrorBody => 'Проверьте подключение и повторите попытку.';
+
+  @override
+  String teacherFormsCount(num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString форм',
+    );
+    return '$_temp0';
+  }
 }

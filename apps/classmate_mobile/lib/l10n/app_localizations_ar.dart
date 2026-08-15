@@ -11645,4 +11645,172 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get onbDeepParentAlerts =>
       'تُبلَّغ عند نشر درجة أو تسجيل غياب أو نشر المدرسة لإعلان — وتردّ على المعلم من المكان نفسه.';
+
+  @override
+  String get settingsAddTheme => 'إضافة سمة';
+
+  @override
+  String get settingsNewTheme => 'سمة جديدة';
+
+  @override
+  String get settingsThemeNameHint => 'السمة الخاصة بي';
+
+  @override
+  String get settingsThemeAccentLabel => 'اللون المميّز';
+
+  @override
+  String get settingsCreateTheme => 'إنشاء السمة';
+
+  @override
+  String get cnMoveToShelf => 'نقل إلى رف';
+
+  @override
+  String get cnNotOnShelf => 'ليست على رف';
+
+  @override
+  String get cnDownloadAsPdf => 'تنزيل كملف PDF';
+
+  @override
+  String get cnOpenPagesPng => 'فتح الصفحات كـ PNG';
+
+  @override
+  String get cnDownloadPagesPng => 'تنزيل الصفحات كـ PNG';
+
+  @override
+  String get cnDeleteNotebookSubtitle => 'يزيلها من ClassNotes على كل أجهزتك';
+
+  @override
+  String get cnRenameNotebook => 'إعادة تسمية الدفتر';
+
+  @override
+  String get cnNotebookTitleHint => 'عنوان الدفتر';
+
+  @override
+  String get cnRenamed => 'تمت إعادة التسمية';
+
+  @override
+  String get cnTakenOffShelf => 'أُزيلت من الرف';
+
+  @override
+  String get cnMoved => 'تم النقل';
+
+  @override
+  String get cnBuildingPdf => 'جارٍ إنشاء ملف PDF…';
+
+  @override
+  String get cnPreparingPages => 'جارٍ تجهيز الصفحات…';
+
+  @override
+  String get cnNoSyncedPages =>
+      'لا توجد صفحات متزامنة لهذا الدفتر بعد — افتحه على جهاز iPad مرة واحدة.';
+
+  @override
+  String cnExportFailed(String error) {
+    return 'فشل التصدير: $error';
+  }
+
+  @override
+  String get cnDeleteNotebookTitle => 'حذف هذا الدفتر؟';
+
+  @override
+  String cnDeleteNotebookBody(String title, num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString صفحة',
+    );
+    return 'سيُحذف «$title» و$_temp0 من ClassNotes على كل جهاز. لا يمكن التراجع عن ذلك.';
+  }
+
+  @override
+  String get cnDeleted => 'تم الحذف';
+
+  @override
+  String get cnRenameShelf => 'إعادة تسمية الرف';
+
+  @override
+  String get cnShelfNameHint => 'اسم الرف';
+
+  @override
+  String get cnDeleteShelf => 'حذف الرف';
+
+  @override
+  String get cnDeleteShelfSubtitle => 'تبقى الدفاتر — إنها فقط تغادر الرف';
+
+  @override
+  String get cnShelfDeleted => 'تم حذف الرف';
+
+  @override
+  String cnReorderFailed(String error) {
+    return 'تعذّر حفظ الترتيب الجديد: $error';
+  }
+
+  @override
+  String cnGenericError(String error) {
+    return 'لم ينجح ذلك: $error';
+  }
+
+  @override
+  String get cnAllShelf => 'الكل';
+
+  @override
+  String get cnDragToReorder => 'اسحب لإعادة ترتيب دفاترك';
+
+  @override
+  String get cnManageHint => 'اضغط ⋮ على دفتر لإعادة تسميته أو تنزيله أو حذفه';
+
+  @override
+  String get cnArrange => 'ترتيب';
+
+  @override
+  String get cnManage => 'إدارة';
+
+  @override
+  String cnManageNamed(String title) {
+    return 'إدارة $title';
+  }
+
+  @override
+  String get cnNotebookWord => 'دفتر';
+
+  @override
+  String get cnEmptyTitle => 'لا توجد دفاتر بعد';
+
+  @override
+  String get cnEmptyBody =>
+      'تظهر هنا الدفاتر التي تنشئها في ClassNotes — الأغلفة والورق والحبر تتبع سمتك.';
+
+  @override
+  String get cnLoading => 'جارٍ تحميل دفاترك…';
+
+  @override
+  String get cnSignedOutTitle => 'سجّل الدخول لرؤية دفاترك';
+
+  @override
+  String get cnSignedOutBody =>
+      'مكتبة ClassNotes مرتبطة بحساب ClassMate الخاص بك.';
+
+  @override
+  String get cnErrorTitle => 'تعذّر تحميل دفاترك';
+
+  @override
+  String get cnErrorBody => 'تحقق من اتصالك وحاول مرة أخرى.';
+
+  @override
+  String teacherFormsCount(num count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString نموذج',
+    );
+    return '$_temp0';
+  }
 }
