@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/theme_controller.dart' show BrandTint;
 
-/// Full ClassMate logo — one source asset (`logo_light.png`, the original
-/// blue mark) recoloured to the current theme's brand tint. The PNG carries
-/// the icon + "ClassMate" wordmark together; supply [height] or [width] and
-/// the other dimension scales to keep the asset's aspect ratio.
+/// Full ClassMate logo — the `logo_light.png` open-book mark + "ClassMate"
+/// wordmark. Supply [height] or [width] and the other dimension scales to
+/// keep the asset's aspect ratio.
 ///
-/// The whole mark — monogram AND wordmark, every glyph detail intact — is
-/// recoloured to the theme's primary via srcIn, so the logo matches each
-/// theme on every theme (no dark/white asset variants).
+/// The mark is a two-tone brand asset (navy strokes + a light-blue book base,
+/// navy wordmark). On light backgrounds it renders in its TRUE brand colours;
+/// flattening it to a single tint via srcIn (as we used to) collapsed the
+/// two-tone into one blue blob and hid the new identity. On dark themes those
+/// navy tones would disappear, so there — and only there — the whole mark is
+/// recoloured to the theme's [onSurface] (a light tone) so it stays legible.
 class ClassMateLogo extends StatelessWidget {
   const ClassMateLogo({super.key, this.height, this.width});
 
@@ -19,16 +21,21 @@ class ClassMateLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = BrandTint.of(context) ?? Theme.of(context).colorScheme.primary;
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = scheme.brightness == Brightness.dark;
     return Image.asset(
       'assets/images/logo_light.png',
       height: height,
       width: width,
       fit: BoxFit.contain,
-      color: tint,
-      colorBlendMode: BlendMode.srcIn,
-      errorBuilder: (_, _, _) =>
-          _FallbackIconMark(size: height ?? width ?? 28, color: tint),
+      // Light themes: no filter → true brand colours. Dark themes: recolour to
+      // a legible light tone.
+      color: isDark ? scheme.onSurface : null,
+      colorBlendMode: isDark ? BlendMode.srcIn : null,
+      errorBuilder: (_, _, _) => _FallbackIconMark(
+        size: height ?? width ?? 28,
+        color: isDark ? scheme.onSurface : scheme.primary,
+      ),
     );
   }
 }
