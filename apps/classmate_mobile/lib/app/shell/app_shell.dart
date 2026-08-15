@@ -1619,7 +1619,7 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: const ClassMateLogo(height: 38),
+      title: const ClassMateLogo(height: 44),
       actions: [
         Padding(
           padding: const EdgeInsetsDirectional.only(end: 14),

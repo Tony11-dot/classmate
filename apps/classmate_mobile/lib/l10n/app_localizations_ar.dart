@@ -8578,7 +8578,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'إعادة ترتيب الأدوات في القائمة الجانبية';
 
   @override
-  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+  String get drawerHoldToReorder => 'اضغط مطولاً على عنصر لسحبه وإعادة الترتيب';
 
   @override
   String get adminSchoolGradeRangesDescription =>

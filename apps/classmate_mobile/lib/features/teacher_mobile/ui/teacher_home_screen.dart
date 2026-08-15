@@ -51,7 +51,7 @@ Future<void> _showSlotActionSheet(
                     children: [
                       Text(course.name.isNotEmpty ? course.name : course.subject,
                           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
-                      Text('${cohort.name} · Period ${slot.period}',
+                      Text('${cohort.name} · ${l.teacherPeriod(slot.period)}',
                           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                     ],
                   ),
@@ -467,7 +467,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                       ),
                                       const SizedBox(height: 3),
                                       Text(
-                                        '${slot.cohort?.name ?? ''} · Grade ${slot.cohort?.grade ?? ''}',
+                                        '${slot.cohort?.name ?? ''} · ${l.gradeLevelLabel(slot.cohort?.grade ?? '')}',
                                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                       ),
                                     ],
@@ -479,7 +479,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(8)),
-                                      child: Text(subject.isNotEmpty ? subject : 'Class', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+                                      child: Text(subject.isNotEmpty ? subject : l.scheduleClassFallback, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
                                     ),
                                     const SizedBox(height: 4),
                                     if (actionable)

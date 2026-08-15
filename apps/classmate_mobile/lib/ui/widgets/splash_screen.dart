@@ -123,9 +123,14 @@ class _LottieSplashState extends State<_LottieSplash>
   late final AnimationController _ctrl;
   Uint8List? _bytes;
 
-  // The two colours baked into the shipped animations: the navy mark and the
-  // white canvas (the dark variant has white marks on transparency).
+  // The colours baked into the shipped animations. Both the mark strokes AND
+  // the "ClassMate" wordmark are drawn in a brand blue, so recolouring them to
+  // the theme primary makes the whole animation — logo and text — adapt to the
+  // active theme. `_navy` is the older export's blue; `_brandBlue` (#0F2BB6) is
+  // the current launch animation's. The white canvas maps to the theme surface
+  // so the animation melts into the themed background.
   static const _navy = [0.047, 0.098, 0.576];
+  static const _brandBlue = [0.059, 0.169, 0.714];
   static const _white = [1.0, 1.0, 1.0];
 
   @override
@@ -148,6 +153,9 @@ class _LottieSplashState extends State<_LottieSplash>
       final decoded = json.decode(raw);
       _recolor(decoded, from: _white, to: s.surface);
       _recolor(decoded, from: _navy, to: s.primary);
+      // The current launch animation draws its mark + wordmark in _brandBlue,
+      // which didn't match _navy and so never adapted — recolour it too.
+      _recolor(decoded, from: _brandBlue, to: s.primary);
       // The monogram itself is an EMBEDDED PNG asset inside the Lottie —
       // vector recolouring can't reach it, so retint the bitmap's pixels
       // (srcIn keeps the alpha detail, replaces the colour).

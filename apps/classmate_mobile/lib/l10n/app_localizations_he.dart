@@ -8532,7 +8532,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get reorderToolsSettingsSubtitle => 'סידור הכלים בתפריט הצד';
 
   @override
-  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+  String get drawerHoldToReorder => 'החזיקו פריט כדי לגרור ולסדר מחדש';
 
   @override
   String get adminSchoolGradeRangesDescription =>

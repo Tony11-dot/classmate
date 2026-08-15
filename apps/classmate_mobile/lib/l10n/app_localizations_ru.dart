@@ -8610,7 +8610,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Изменить порядок инструментов в боковом меню';
 
   @override
-  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+  String get drawerHoldToReorder =>
+      'Удерживайте элемент, чтобы перетащить и изменить порядок';
 
   @override
   String get adminSchoolGradeRangesDescription =>
