@@ -1157,10 +1157,12 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
             onPressed: () {
               Navigator.of(context).pop();
               if (mounted) {
-                context.go('/tutor');
+                // Open the plans/upgrade screen — not the Nova home (which is
+                // where the user already is when they hit the limit).
+                context.push('/plans');
               }
             },
-            child: Text(l.tutorReviewPlansInHome),
+            child: Text(l.plansUpgrade),
           ),
         ],
       ),

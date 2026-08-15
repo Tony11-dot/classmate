@@ -3,6 +3,7 @@ import { BadRequestException, ForbiddenException, Injectable, HttpException, Htt
 import { StudentInsightsService } from '../student/student-insights.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { hasAnyRole } from '../auth/permissions';
+import { normalizeFormQuestions } from '../forms/form-questions.util';
 import { RealtimeService } from '../realtime/realtime.service';
 import { NotificationsHubService } from '../notifications/notifications-hub.service';
 import { ParentNotificationsEvents } from '../parent/parent-notifications.events';
@@ -3009,7 +3010,7 @@ export class TeacherService {
         allowMultipleResponses: body.allowMultipleResponses === true,
         published: body.published === true,
         publishedAt: body.published === true ? new Date() : null,
-        questions: Array.isArray(body.questions) ? body.questions : [],
+        questions: normalizeFormQuestions(body.questions),
         targetType: typeof body.targetType === 'string' ? body.targetType : 'EVERYONE',
         targetCohortIds: Array.isArray(body.targetCohortIds) ? body.targetCohortIds : [],
         targetStudentIds: Array.isArray(body.targetStudentIds) ? body.targetStudentIds : [],
@@ -3055,7 +3056,7 @@ export class TeacherService {
           published: Boolean(body.published),
           publishedAt: body.published ? new Date() : null,
         }),
-        ...(body.questions != null && { questions: body.questions }),
+        ...(body.questions != null && { questions: normalizeFormQuestions(body.questions) }),
         ...(body.targetType != null && { targetType: String(body.targetType) }),
         ...(body.targetCohortIds != null && {
           targetCohortIds: Array.isArray(body.targetCohortIds) ? body.targetCohortIds : [],

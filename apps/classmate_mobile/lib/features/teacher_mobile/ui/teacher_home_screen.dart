@@ -426,10 +426,17 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       final slot = entry.value;
                       final subject = slot.course?.subject ?? '';
                       final color = _subjectColor(subject, cs);
+                      // The action sheet needs both a course and a cohort. When
+                      // a slot is missing either, don't show the "⋯" affordance
+                      // or make the row tappable — otherwise the tap silently
+                      // does nothing (reported as "3-dot menu doesn't open").
+                      final actionable = slot.course != null && slot.cohort != null;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: InkWell(
-                          onTap: () => _showSlotActionSheet(context, slot, today?.date ?? ''),
+                          onTap: actionable
+                              ? () => _showSlotActionSheet(context, slot, today?.date ?? '')
+                              : null,
                           borderRadius: BorderRadius.circular(20),
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.all(14),
@@ -475,7 +482,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                       child: Text(subject.isNotEmpty ? subject : 'Class', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
                                     ),
                                     const SizedBox(height: 4),
-                                    Icon(Icons.more_horiz_rounded, size: 16, color: cs.onSurfaceVariant),
+                                    if (actionable)
+                                      Icon(Icons.more_horiz_rounded, size: 16, color: cs.onSurfaceVariant),
                                   ],
                                 ),
                               ],

@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { normalizeFormQuestions } from './form-questions.util';
 import { PrismaService } from '../prisma/prisma.service';
 
 type FormQuestionType =
@@ -92,7 +93,7 @@ export class FormsService {
             allowMultipleResponses: f.allowMultipleResponses,
             published: f.published,
             publishedAt: f.publishedAt?.toISOString() ?? null,
-            questions: Array.isArray(f.questions) ? f.questions : [],
+            questions: normalizeFormQuestions(f.questions),
             summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null },
           })),
         };
@@ -113,7 +114,7 @@ export class FormsService {
         if (!this.canViewForm(dbForm, scope)) {
           throw new NotFoundException('Form not found');
         }
-        return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: 'Teacher', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: Array.isArray(dbForm.questions) ? dbForm.questions : [], summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
+        return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: 'Teacher', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: normalizeFormQuestions(dbForm.questions), summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
       }
     } catch (e: any) {
       if (e?.status === 404) throw e; // surface the audience denial
@@ -138,13 +139,15 @@ export class FormsService {
           throw new NotFoundException('Form not found');
         }
         if (!dbForm.acceptingResponses) return { ok: false, error: 'This form is closed.' };
-        // Validate required questions
-        const questions = Array.isArray(dbForm.questions) ? dbForm.questions as any[] : [];
+        // Validate required questions. Normalize first so `q.id`/`q.title`
+        // exist for forms stored the old way (see form-questions.util) — the
+        // deterministic id matches the one the student's client answered with.
+        const questions = normalizeFormQuestions(dbForm.questions);
         for (const q of questions) {
           if (!q.required) continue;
           const val = answers[q.id];
           if (val === null || val === undefined || (typeof val === 'string' && !val.trim()) || (Array.isArray(val) && !val.length)) {
-            return { ok: false, error: `Required: ${q.title}` };
+            return { ok: false, error: `Required: ${q.title || 'this field'}` };
           }
         }
         // Persist response
@@ -170,7 +173,7 @@ export class FormsService {
       if (!question.required) continue;
       const value = answers[question.id];
       const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && !value.length);
-      if (empty) return { ok: false, error: `Required: ${question.title}` };
+      if (empty) return { ok: false, error: `Required: ${question.title || 'this field'}` };
     }
     return { ok: true, message: 'Response recorded. Thank you!' };
   }

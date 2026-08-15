@@ -95,6 +95,7 @@ import '../features/parent/ui/parent_notifications_screen.dart';
 import '../features/support/ui/support_screen.dart';
 import '../features/tutor/tutor_screen.dart';
 import 'shell/app_shell.dart';
+import 'app.dart';
 
 /// A GoRoute that renders as a native iOS page — horizontal slide with the
 /// finger-following swipe-back gesture. Used for full-screen DETAIL/push
@@ -180,7 +181,7 @@ GoRoute _fadeRoute({
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+  final router = GoRouter(
     refreshListenable: ref.watch(authSessionProvider),
     redirect: (context, state) {
       final session = ref.read(authSessionProvider);
@@ -1039,4 +1040,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  // Toasts (SnackBars) render on the ROOT scaffold messenger, so without this
+  // they linger after you switch tabs or navigate away — reported as a toast
+  // "following" you to another screen. routerDelegate notifies on every route
+  // change (tab switches included), so clear any visible/queued snackbar there,
+  // keeping each toast in the context that raised it.
+  router.routerDelegate.addListener(() {
+    appScaffoldMessengerKey.currentState?.clearSnackBars();
+  });
+  return router;
 });
