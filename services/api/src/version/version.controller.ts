@@ -7,7 +7,7 @@ import { Public } from '../auth/decorators/public.decorator';
 /// Bumped as part of the release runbook (docs/SHIPPING.md) alongside
 /// pubspec.yaml; the MOBILE_LATEST_BUILD env var overrides it so the prompt
 /// can be steered (or silenced with 0 → falls back here) without a deploy.
-const FALLBACK_LATEST_MOBILE_BUILD = 268;
+const FALLBACK_LATEST_MOBILE_BUILD = 269;
 
 @Public()
 @SkipThrottle()
