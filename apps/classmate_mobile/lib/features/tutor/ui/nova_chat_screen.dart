@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:go_router/go_router.dart';
 import '../../chat_core/ui/chat_composer.dart';
 import '../../chat_core/ui/chat_message_bubble.dart';
 import '../../chat_core/ui/chat_recording_tokens.dart';
@@ -32,6 +31,7 @@ import '../data/tutor_repository.dart';
 import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_repository_provider.dart';
 import '../../billing/data/billing_repository.dart';
+import '../../billing/ui/plans_screen.dart';
 
 class _Msg {
   const _Msg({
@@ -603,6 +603,18 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         );
   }
 
+  /// Opens the plans/upgrade screen. NovaChatScreen is pushed on the ROOT
+  /// navigator (see tutor_home_screen), so it sits above go_router's navigator.
+  /// Using `context.push('/plans')` (go_router) would render the plans page
+  /// *underneath* this chat — the user only saw it after navigating back (#8/#23).
+  /// Pushing PlansScreen imperatively on the root navigator stacks it on top.
+  void _openPlans() {
+    if (!mounted) return;
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (_) => const PlansScreen()),
+    );
+  }
+
   void _showOutOfTokensSnackbar() {
     final l = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -611,7 +623,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         duration: const Duration(seconds: 6),
         action: SnackBarAction(
           label: l.plansUpgrade,
-          onPressed: () => context.push('/plans'),
+          onPressed: _openPlans,
         ),
       ),
     );
@@ -1156,11 +1168,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
-              if (mounted) {
-                // Open the plans/upgrade screen — not the Nova home (which is
-                // where the user already is when they hit the limit).
-                context.push('/plans');
-              }
+              _openPlans();
             },
             child: Text(l.plansUpgrade),
           ),
@@ -2008,9 +2016,10 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 padding: const EdgeInsetsDirectional.only(end: 10),
                 child: Center(
                   child: OutlinedButton(
-                    // go (not push) so the shell resolves to /plans and shows
-                    // the NOVA Plans pill with no bottom nav.
-                    onPressed: () => context.go('/plans'),
+                    // Root-push PlansScreen (not context.go) — this chat sits
+                    // above go_router's navigator, so a route change would be
+                    // hidden beneath it (#8/#23).
+                    onPressed: _openPlans,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
@@ -2080,6 +2089,9 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      // Keep the sheet clear of the status bar (top) and the system
+      // navigation bar / home indicator (bottom) — #13.
+      useSafeArea: true,
       showDragHandle: true,
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(

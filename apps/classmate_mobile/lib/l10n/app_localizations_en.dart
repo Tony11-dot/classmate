@@ -18,6 +18,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get certNewCertificate => 'New certificate';
 
   @override
+  String get certChooseStudent => 'Choose a student';
+
+  @override
+  String get certSelectClassFirst => 'Select a class first';
+
+  @override
   String certCertificateCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11839,11 +11845,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cnNotebookWord => 'notebook';
 
   @override
+  String cnPageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cnEmptyTitle => 'No notebooks yet';
 
   @override
   String get cnEmptyBody =>
-      'Notebooks you create in ClassNotes appear here — covers, paper and ink all follow your theme.';
+      'Your ClassNotes notebooks appear here — covers, paper and ink all follow your theme.';
 
   @override
   String get cnLoading => 'Loading your notebooks…';

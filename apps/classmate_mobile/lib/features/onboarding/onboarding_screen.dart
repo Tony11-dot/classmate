@@ -106,7 +106,6 @@ class _OnboardingTourState extends State<OnboardingTour> {
   static const _cBlue = [Color(0xFF0EA5E9), Color(0xFF4F46E5)];
   static const _cViolet = [Color(0xFF7C3AED), Color(0xFFDB2777)];
   static const _cGreen = [Color(0xFF0D9488), Color(0xFF16A34A)];
-  static const _cAmber = [Color(0xFFF59E0B), Color(0xFFEA580C)];
   static const _cOrange = [Color(0xFFEA580C), Color(0xFFE11D48)];
 
   /// Role-tailored tour. Slide 1 is the shared (personalized) welcome; the rest
@@ -120,15 +119,6 @@ class _OnboardingTourState extends State<OnboardingTour> {
       body: l.onboardingSlide1Body,
       detail: l.onbDeepWelcome,
       colors: _cBlue,
-    );
-
-    final classNotes = _Slide(
-      icon: Icons.draw_rounded,
-      // A product name — the same word in every language.
-      title: 'ClassNotes',
-      body: l.onbDeepClassNotes,
-      features: const ['ClassNotes'],
-      colors: _cAmber,
     );
 
     switch (widget.role) {
@@ -159,7 +149,6 @@ class _OnboardingTourState extends State<OnboardingTour> {
             features: [l.navAnnouncements, l.navMessages, l.navMeetings, l.navForms],
             colors: _cOrange,
           ),
-          classNotes,
         ];
       case 'ADMIN':
         return [
@@ -262,7 +251,6 @@ class _OnboardingTourState extends State<OnboardingTour> {
             ],
             colors: _cGreen,
           ),
-          classNotes,
           _Slide(
             icon: Icons.forum_rounded,
             title: l.onboardingSlide4Title,

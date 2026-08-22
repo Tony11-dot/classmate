@@ -420,7 +420,10 @@ class _TeacherNewAnnouncementScreenState
       ),
       body: ListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+        // Add the system navigation-bar / home-indicator inset to the bottom
+        // padding so the last fields aren't hidden behind it (#15).
+        padding: EdgeInsets.fromLTRB(
+            16, 8, 16, 40 + MediaQuery.of(context).viewPadding.bottom),
         children: [
           // ── Content card ────────────────────────────────────────────
           LiquidGlassCard(

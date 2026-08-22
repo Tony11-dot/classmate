@@ -18,6 +18,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get certNewCertificate => 'Новый табель';
 
   @override
+  String get certChooseStudent => 'Выберите ученика';
+
+  @override
+  String get certSelectClassFirst => 'Сначала выберите класс';
+
+  @override
   String certCertificateCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11842,11 +11848,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cnNotebookWord => 'блокнот';
 
   @override
+  String cnPageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count страницы',
+      one: '1 страница',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cnEmptyTitle => 'Пока нет блокнотов';
 
   @override
   String get cnEmptyBody =>
-      'Блокноты, созданные в ClassNotes, появляются здесь — обложки, бумага и чернила следуют вашей теме.';
+      'Ваши тетради ClassNotes появятся здесь — обложки, бумага и чернила следуют вашей теме.';
 
   @override
   String get cnLoading => 'Загрузка ваших блокнотов…';

@@ -273,9 +273,10 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
                     final items = bySubject[subject]!;
                     final avg = _average(items);
                     final isExpanded = _expanded.contains(subject);
-                    // Always show 3 as preview; expand to all regardless of count
-                    final preview = isExpanded ? items : items.take(3).toList();
-                    final remaining = items.length - 3; // can be <=0, handled in _SubjectCard
+                    // Collapsed shows only the subject (name + average). Tapping
+                    // the row reveals all its grades; tapping again hides them
+                    // (#22 — no more "show more/less" preview).
+                    final preview = isExpanded ? items : const <UnifiedGradeInsight>[];
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -285,7 +286,6 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
                         items: preview,
                         onAverageTap: () => showSubjectBreakdown(context, subject, items),
                         totalCount: items.length,
-                        remainingCount: remaining,
                         isExpanded: isExpanded,
                         scoreColor: avg == null ? cs.surfaceContainerHighest : _scoreColor(context, avg),
                         scoreOnColor: avg == null ? cs.onSurfaceVariant : _scoreOnColor(context, avg),
@@ -422,7 +422,6 @@ class _SubjectCard extends StatelessWidget {
     required this.average,
     required this.items,
     required this.totalCount,
-    required this.remainingCount,
     required this.isExpanded,
     required this.scoreColor,
     required this.scoreOnColor,
@@ -439,7 +438,6 @@ class _SubjectCard extends StatelessWidget {
   final VoidCallback? onAverageTap;
   final List<UnifiedGradeInsight> items;
   final int totalCount;
-  final int remainingCount;
   final bool isExpanded;
   final Color scoreColor;
   final Color scoreOnColor;
@@ -534,57 +532,23 @@ class _SubjectCard extends StatelessWidget {
               ),
             ),
           ),
-          Container(height: 1, color: cs.outlineVariant),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-            child: Column(
-              children: [
-                ...items.map((item) => _GradeRow(
-                  item: item,
-                  date: friendlyDate(item.date),
-                  dotColor: gradeDotColor(item.grade),
-                )),
-                if (!isExpanded && remainingCount > 0) ...[
-                  const SizedBox(height: 6),
-                  GestureDetector(
-                    onTap: onToggle,
-                    child: Row(
-                      children: [
-                        Icon(Icons.expand_more_rounded, size: 16, color: cs.primary),
-                        const SizedBox(width: 4),
-                        Text(
-                          l.gradesScreenShowMore(remainingCount),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          // Grades appear only when the subject is expanded. Collapsed = just
+          // the subject row (name + average). Tapping the row toggles it (#22).
+          if (isExpanded && items.isNotEmpty) ...[
+            Container(height: 1, color: cs.outlineVariant),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+              child: Column(
+                children: [
+                  ...items.map((item) => _GradeRow(
+                    item: item,
+                    date: friendlyDate(item.date),
+                    dotColor: gradeDotColor(item.grade),
+                  )),
                 ],
-                if (isExpanded && totalCount > 0) ...[
-                  const SizedBox(height: 6),
-                  GestureDetector(
-                    onTap: onToggle,
-                    child: Row(
-                      children: [
-                        Icon(Icons.expand_less_rounded, size: 16, color: cs.onSurfaceVariant),
-                        const SizedBox(width: 4),
-                        Text(
-                          l.gradesScreenShowLess,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

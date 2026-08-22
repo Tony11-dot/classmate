@@ -18,6 +18,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get certNewCertificate => 'Nouveau bulletin';
 
   @override
+  String get certChooseStudent => 'Choisir un élève';
+
+  @override
+  String get certSelectClassFirst => 'Sélectionnez d\'abord une classe';
+
+  @override
   String certCertificateCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11999,11 +12005,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cnNotebookWord => 'carnet';
 
   @override
+  String cnPageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cnEmptyTitle => 'Aucun carnet pour l\'instant';
 
   @override
   String get cnEmptyBody =>
-      'Les carnets que vous créez dans ClassNotes apparaissent ici — couvertures, papier et encre suivent votre thème.';
+      'Vos carnets ClassNotes apparaissent ici — couvertures, papier et encre suivent votre thème.';
 
   @override
   String get cnLoading => 'Chargement de vos carnets…';

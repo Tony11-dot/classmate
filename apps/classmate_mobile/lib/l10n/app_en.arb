@@ -3,6 +3,8 @@
   "certAddTeacher": "Add teacher",
   "certSearchStudent": "Search students",
   "certNewCertificate": "New certificate",
+  "certChooseStudent": "Choose a student",
+  "certSelectClassFirst": "Select a class first",
   "certCertificateCount": "{count, plural, =0{No certificates} =1{1 certificate} other{{count} certificates}}",
   "@certCertificateCount": {
     "placeholders": {
@@ -6424,8 +6426,10 @@
   "cnManageNamed": "Manage {title}",
   "@cnManageNamed": {"placeholders": {"title": {"type": "String"}}},
   "cnNotebookWord": "notebook",
+  "cnPageCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "@cnPageCount": {"placeholders": {"count": {"type": "int"}}},
   "cnEmptyTitle": "No notebooks yet",
-  "cnEmptyBody": "Notebooks you create in ClassNotes appear here — covers, paper and ink all follow your theme.",
+  "cnEmptyBody": "Your ClassNotes notebooks appear here — covers, paper and ink all follow your theme.",
   "cnLoading": "Loading your notebooks…",
   "cnSignedOutTitle": "Sign in to see your notebooks",
   "cnSignedOutBody": "Your ClassNotes library is tied to your ClassMate account.",

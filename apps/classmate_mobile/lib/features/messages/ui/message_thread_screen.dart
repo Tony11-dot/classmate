@@ -373,7 +373,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                               children: [
                                 CircleAvatar(child: Text(_avatarText(detail))),
                                 const SizedBox(width: 10),
-                                Expanded(
+                                // Flexible (not Expanded) so the title sizes to
+                                // its text and the ">" sits right next to the
+                                // name instead of being pushed to the far edge
+                                // of the row (#11).
+                                Flexible(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment:
@@ -409,6 +413,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                     ],
                                   ),
                                 ),
+                                const SizedBox(width: 4),
                                 Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ],
                             ),

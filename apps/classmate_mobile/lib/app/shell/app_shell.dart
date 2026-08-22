@@ -182,7 +182,6 @@ class AppShell extends ConsumerWidget {
 
   // Ordered most-specific prefix first (teacher/student/ before teacher/students)
   static const _teacherPrefixes = <String>[
-    '/classnotes',
     '/teacher/student/',     // must precede /teacher/students
     '/teacher/schedule',
     '/teacher/insights',
@@ -252,7 +251,6 @@ class AppShell extends ConsumerWidget {
   ];
 
   static const _studentPrefixes = <String>[
-    '/classnotes',
     '/classrooms',
     '/cmail',
     '/messages',
@@ -282,7 +280,6 @@ class AppShell extends ConsumerWidget {
   /// Parent gets its own prefix list because the routes are namespaced
   /// under /parent/*. Order matters — most-specific first.
   static const _parentPrefixes = <String>[
-    '/classnotes',
     '/parent/home',
     '/cmail',
     '/parent/schedule',
@@ -344,7 +341,6 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _teacherTitle(AppLocalizations l, String prefix) => switch (prefix) {
-    '/classnotes' => 'ClassNotes',
     '/teacher/student/' => l.teacherStudentsLabel,
     '/teacher/schedule' => l.navSchedule,
     '/teacher/insights' => l.navInsights,
@@ -379,10 +375,6 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _studentTitle(AppLocalizations l, String prefix) => switch (prefix) {
-    // '/classnotes' is in _studentPrefixes, so a missing case here didn't fall
-    // through to the next prefix — it hit `_` and pinned the title pill to
-    // "Schedule" for the whole ClassNotes tab. Same for parents below.
-    '/classnotes' => 'ClassNotes',
     '/classrooms' => l.titleClasses,
     '/messages' => l.titleMessages,
     '/cmail' => l.cmailTitle,
@@ -411,7 +403,6 @@ class AppShell extends ConsumerWidget {
   };
 
   static String _parentTitle(AppLocalizations l, String prefix) => switch (prefix) {
-    '/classnotes' => 'ClassNotes',
     '/parent/home' => l.navHome,
     '/parent/schedule' => l.navSchedule,
     '/parent/overview' => l.navInsights,

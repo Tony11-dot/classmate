@@ -179,22 +179,29 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
     setState(() => _saving = true);
     try {
       final gradeList = _grades.toList()..sort();
-      await widget.repo.createCohort(
+      final newCohortId = await widget.repo.createCohort(
         name: name,
         grades: gradeList,
         homeroomTeacherId: _homeroom ? _homeroomTeacherId : null,
       );
       if (!mounted) return;
 
-      final allStudents = await widget.repo.getDdlStudents();
-      if (!mounted) return;
+      // Route straight into the working add-students screen with the REAL
+      // cohort id so the selected students actually get added. (Previously
+      // this used a stub screen with no id, so "add" silently did nothing.)
+      if (newCohortId == null || newCohortId.isEmpty) {
+        // Cohort was created but we couldn't read its id — fall back to the
+        // list rather than a dead add screen.
+        Navigator.pop(context, true);
+        return;
+      }
       await Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => _AdminAddStudentsScreen(
+        MaterialPageRoute(builder: (_) => AdminAddStudentsScreen(
           repo: widget.repo,
+          cohortId: newCohortId,
           cohortName: name,
           cohortGrades: gradeList,
-          allStudents: allStudents,
         )),
       );
     } catch (e) {
@@ -359,49 +366,6 @@ class _AdminAddStudentsScreenState extends State<AdminAddStudentsScreen> {
   );
 }
 
-// Same screen but reached from creation flow (no cohortId yet — we already navigated via pushReplacement)
-class _AdminAddStudentsScreen extends StatefulWidget {
-  const _AdminAddStudentsScreen({
-    required this.repo,
-    required this.cohortName,
-    required this.cohortGrades,
-    required this.allStudents,
-  });
-
-  final AdminRepository repo;
-  final String cohortName;
-  final List<int> cohortGrades;
-  final List<Map<String, dynamic>> allStudents;
-
-  @override
-  State<_AdminAddStudentsScreen> createState() => _AdminAddStudentsFromCreateState();
-}
-
-class _AdminAddStudentsFromCreateState extends State<_AdminAddStudentsScreen> {
-  final Set<String> _selected = {};
-  final bool _saving = false;
-
-  Future<void> _save() async {
-    // Can't add students without cohortId — cohort doesn't return id on creation yet.
-    // Just navigate back to cohorts list which will reload.
-    Navigator.popUntil(context, (r) => r.isFirst);
-  }
-
-  @override
-  Widget build(BuildContext context) => _AdminAddStudentsScreenImpl(
-    allStudents: widget.allStudents,
-    cohortId: '',
-    cohortName: widget.cohortName,
-    cohortGrades: widget.cohortGrades,
-    selected: _selected,
-    loading: false,
-    saving: _saving,
-    onToggle: (id) => setState(() => _selected.contains(id) ? _selected.remove(id) : _selected.add(id)),
-    onSave: _save,
-    onBack: () => Navigator.pop(context),
-  );
-}
-
 // Shared implementation widget
 class _AdminAddStudentsScreenImpl extends StatefulWidget {
   const _AdminAddStudentsScreenImpl({
@@ -540,7 +504,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${students.length} student${students.length == 1 ? '' : 's'}',
+                        AppLocalizations.of(context)!.cohortStudentsCount(students.length),
                         style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
@@ -867,7 +831,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                     Icon(Icons.groups_rounded, size: 18, color: cs.primary),
                     const SizedBox(width: 8),
                     Text(
-                      '${students.length} student${students.length == 1 ? '' : 's'}',
+                      AppLocalizations.of(context)!.cohortStudentsCount(students.length),
                       style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary),
                     ),
                   ],

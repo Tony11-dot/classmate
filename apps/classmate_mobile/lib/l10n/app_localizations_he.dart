@@ -18,6 +18,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get certNewCertificate => 'תעודה חדשה';
 
   @override
+  String get certChooseStudent => 'בחר תלמיד';
+
+  @override
+  String get certSelectClassFirst => 'בחר כיתה תחילה';
+
+  @override
   String certCertificateCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11711,11 +11717,22 @@ class AppLocalizationsHe extends AppLocalizations {
   String get cnNotebookWord => 'מחברת';
 
   @override
+  String cnPageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count עמודים',
+      one: 'עמוד אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cnEmptyTitle => 'אין עדיין מחברות';
 
   @override
   String get cnEmptyBody =>
-      'מחברות שאתם יוצרים ב‑ClassNotes מופיעות כאן — הכריכות, הנייר והדיו עוקבים אחר ערכת הנושא שלכם.';
+      'מחברות ClassNotes שלך יופיעו כאן — כריכות, נייר ודיו עוקבים אחר ערכת הנושא שלך.';
 
   @override
   String get cnLoading => 'טוען את המחברות שלך…';

@@ -124,6 +124,18 @@ abstract class AppLocalizations {
   /// **'New certificate'**
   String get certNewCertificate;
 
+  /// No description provided for @certChooseStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a student'**
+  String get certChooseStudent;
+
+  /// No description provided for @certSelectClassFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a class first'**
+  String get certSelectClassFirst;
+
   /// No description provided for @certCertificateCount.
   ///
   /// In en, this message translates to:
@@ -20505,6 +20517,12 @@ abstract class AppLocalizations {
   /// **'notebook'**
   String get cnNotebookWord;
 
+  /// No description provided for @cnPageCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String cnPageCount(int count);
+
   /// No description provided for @cnEmptyTitle.
   ///
   /// In en, this message translates to:
@@ -20514,7 +20532,7 @@ abstract class AppLocalizations {
   /// No description provided for @cnEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Notebooks you create in ClassNotes appear here — covers, paper and ink all follow your theme.'**
+  /// **'Your ClassNotes notebooks appear here — covers, paper and ink all follow your theme.'**
   String get cnEmptyBody;
 
   /// No description provided for @cnLoading.

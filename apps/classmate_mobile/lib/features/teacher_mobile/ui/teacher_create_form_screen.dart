@@ -313,14 +313,20 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
               },
               children: [
                 for (int i = 0; i < _questions.length; i++)
-                  _QuestionCard(
+                  // Key must sit on the direct child of ReorderableListView.
+                  // The bottom margin gives cards real separation instead of
+                  // sitting flush against each other (#25 cramped spacing).
+                  Padding(
                     key: ValueKey('q_$i'),
-                    index: i,
-                    question: _questions[i],
-                    onDelete: () => setState(() => _questions.removeAt(i)),
-                    onChanged: () => setState(() {}),
-                    typeLabel: _typeLabel,
-                    typeIcon: _typeIcon,
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _QuestionCard(
+                      index: i,
+                      question: _questions[i],
+                      onDelete: () => setState(() => _questions.removeAt(i)),
+                      onChanged: () => setState(() {}),
+                      typeLabel: _typeLabel,
+                      typeIcon: _typeIcon,
+                    ),
                   ),
               ],
             ),
@@ -363,7 +369,6 @@ class _GlassCard extends StatelessWidget {
 
 class _QuestionCard extends StatefulWidget {
   const _QuestionCard({
-    super.key,
     required this.index,
     required this.question,
     required this.onDelete,
@@ -405,7 +410,7 @@ class _QuestionCardState extends State<_QuestionCard> {
     final q = widget.question;
 
     return LiquidGlassCard(
-      padding: const EdgeInsets.all(14), borderRadius: BorderRadius.circular(18),
+      padding: const EdgeInsets.all(18), borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -444,7 +449,7 @@ class _QuestionCardState extends State<_QuestionCard> {
             onPressed: widget.onDelete,
             padding: const EdgeInsets.all(4)),
         ]),
-        const SizedBox(height: 8),
+        const SizedBox(height: 14),
         Container(
           decoration: BoxDecoration(
             color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
@@ -457,9 +462,9 @@ class _QuestionCardState extends State<_QuestionCard> {
             decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
             onChanged: (v) { q.text = v; widget.onChanged(); }),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         _buildTypeUI(context, cs, theme, q),
-        const Divider(height: 20),
+        const Divider(height: 28),
         Row(children: [
           Text(AppLocalizations.of(context)!.teacherFormRequiredToggle, style: theme.textTheme.bodySmall),
           const Spacer(),
@@ -492,7 +497,7 @@ class _QuestionCardState extends State<_QuestionCard> {
             final optCtrl = TextEditingController(text: entry.value)
               ..selection = TextSelection.collapsed(offset: entry.value.length);
             return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Row(children: [
                 if (isMC) Icon(Icons.radio_button_unchecked, size: 18, color: cs.onSurfaceVariant)
                 else if (isCB) Icon(Icons.check_box_outline_blank, size: 18, color: cs.onSurfaceVariant)

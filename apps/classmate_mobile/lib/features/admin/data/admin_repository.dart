@@ -190,8 +190,11 @@ class AdminRepository {
     return _l(_m(raw)['cohorts']).map((e) => AdminCohort.fromJson(_m(e))).toList();
   }
 
-  Future<void> createCohort({required String name, required List<int> grades, String? homeroomTeacherId}) async {
-    await _api.postJson('/admin/cohorts', body: {
+  /// Creates a cohort and returns its new id so the caller can immediately add
+  /// students to it. The backend returns the created Cohort row (id at top
+  /// level, or nested under `cohort` on some builds) — tolerate both.
+  Future<String?> createCohort({required String name, required List<int> grades, String? homeroomTeacherId}) async {
+    final res = await _api.postJson('/admin/cohorts', body: {
       'name': name,
       'grades': grades,
       // Legacy single-grade field kept for older API builds and so existing
@@ -199,6 +202,10 @@ class AdminRepository {
       'grade': grades.first,
       'homeroomTeacherId': ?homeroomTeacherId,
     });
+    final map = res is Map ? Map<String, dynamic>.from(res) : const <String, dynamic>{};
+    final nested = map['cohort'];
+    final id = map['id'] ?? (nested is Map ? nested['id'] : null);
+    return id == null ? null : '$id';
   }
 
   Future<void> updateCohort(String id, {String? name, List<int>? grades, String? homeroomTeacherId}) async {

@@ -18,6 +18,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certNewCertificate => 'شهادة جديدة';
 
   @override
+  String get certChooseStudent => 'اختر طالبًا';
+
+  @override
+  String get certSelectClassFirst => 'اختر صفًا أولاً';
+
+  @override
   String certCertificateCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11778,11 +11784,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cnNotebookWord => 'دفتر';
 
   @override
+  String cnPageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صفحة',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get cnEmptyTitle => 'لا توجد دفاتر بعد';
 
   @override
   String get cnEmptyBody =>
-      'تظهر هنا الدفاتر التي تنشئها في ClassNotes — الأغلفة والورق والحبر تتبع سمتك.';
+      'تظهر دفاتر ClassNotes الخاصة بك هنا — الأغلفة والورق والحبر تتبع مظهرك.';
 
   @override
   String get cnLoading => 'جارٍ تحميل دفاترك…';

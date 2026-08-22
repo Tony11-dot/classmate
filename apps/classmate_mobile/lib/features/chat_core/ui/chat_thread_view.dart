@@ -109,7 +109,8 @@ class ChatThreadView extends ConsumerStatefulWidget {
   ConsumerState<ChatThreadView> createState() => _ChatThreadViewState();
 }
 
-class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
+class _ChatThreadViewState extends ConsumerState<ChatThreadView>
+    with WidgetsBindingObserver {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final AudioRecorder _recorder = AudioRecorder();
@@ -239,6 +240,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _scrollController.addListener(_handleScroll);
     _textController.addListener(_handleTextChange);
     // SSE delivers messages in real-time; this poll is only a fallback for a
@@ -273,6 +275,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
   @override
   void dispose() {
     _disposed = true;
+    WidgetsBinding.instance.removeObserver(this);
     _pollTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
@@ -281,6 +284,21 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView> {
     _recordTicker?.cancel();
     _cancelPulseTimers();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    // The keyboard opening/closing resizes the viewport. The message list is
+    // not reversed, so without this the newest messages get hidden behind the
+    // keyboard (#21). Re-pin to the bottom on the next frame — but only when
+    // the user is already near the newest messages, so we never yank them down
+    // while they're scrolled up reading older history.
+    if (!mounted) return;
+    if (!_nearBottom(280)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _scrollToBottom();
+    });
   }
 
   // ─── scroll ──────────────────────────────────────────────────────────────

@@ -28,6 +28,15 @@ class UserProfileSheet extends ConsumerWidget {
     );
   }
 
+  /// Jump from this profile to a related member (a parent or a child) by
+  /// REPLACING the current sheet instead of stacking a new one on top.
+  /// Otherwise walking user → parent → child piles sheets up endlessly (#20).
+  static void showReplacing(BuildContext context, String userId) {
+    final rootCtx = Navigator.of(context, rootNavigator: true).context;
+    Navigator.of(context).pop();
+    show(rootCtx, userId);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
@@ -160,7 +169,7 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 4),
           ...profile.parents.map((p) => _MemberTile(
                 name: p.name,
-                onTap: () => UserProfileSheet.show(context, p.id),
+                onTap: () => UserProfileSheet.showReplacing(context, p.id),
               )),
         ],
         if (profile.children.isNotEmpty) ...[
@@ -175,7 +184,7 @@ class _Body extends StatelessWidget {
           ...profile.children.map((c) => _MemberTile(
                 name: c.name,
                 subtitle: c.grade,
-                onTap: () => UserProfileSheet.show(context, c.id),
+                onTap: () => UserProfileSheet.showReplacing(context, c.id),
               )),
         ],
       ],

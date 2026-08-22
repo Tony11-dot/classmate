@@ -103,6 +103,40 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
     if (mounted) _load();
   }
 
+  /// Top-level "New certificate": pick a class (if not already), pick a
+  /// student, then open the editor straight away — so creating a certificate
+  /// doesn't require knowing to drill into a student first (#5).
+  Future<void> _createNewCertificate() async {
+    final l = AppLocalizations.of(context)!;
+    if (_cohortFilter == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.certSelectClassFirst)));
+      return;
+    }
+    if (_students.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.certNoneYet)));
+      return;
+    }
+    final picked = await showModalBottomSheet<CertStudent>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => _StudentPickerSheet(students: _students, title: l.certChooseStudent),
+    );
+    if (picked == null || !mounted) return;
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => CertificatesFormPage(
+          initialCohortId: _cohortFilter,
+          initialStudentId: picked.id,
+        ),
+      ),
+    );
+    if (changed == true && mounted) _load();
+  }
+
   Future<void> _openPdf(String rawUrl) async {
     var url = rawUrl.trim();
     if (url.isEmpty) return;
@@ -259,6 +293,19 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
               isDense: true,
             ),
           ),
+          if (_canCreate) ...[
+            const SizedBox(height: 12),
+            // Top-level create entry so a certificate can be started without
+            // knowing you must first tap into a student (#5 discoverability).
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _createNewCertificate,
+                icon: const Icon(Icons.add_rounded),
+                label: Text(l.certNewCertificate),
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           if (students.isEmpty)
             Padding(
@@ -499,6 +546,105 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Text(published ? l.certPublished.replaceAll('.', '') : l.certSaveDraft,
           style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: fg)),
+    );
+  }
+}
+
+/// Simple searchable student picker used by the top-level "New certificate"
+/// entry. Returns the chosen [CertStudent] via Navigator.pop.
+class _StudentPickerSheet extends StatefulWidget {
+  const _StudentPickerSheet({required this.students, required this.title});
+  final List<CertStudent> students;
+  final String title;
+
+  @override
+  State<_StudentPickerSheet> createState() => _StudentPickerSheetState();
+}
+
+class _StudentPickerSheetState extends State<_StudentPickerSheet> {
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  static String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
+    return (parts.first.characters.first + parts.last.characters.first).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+    final q = _ctrl.text.trim().toLowerCase();
+    final filtered = q.isEmpty
+        ? widget.students
+        : widget.students.where((s) => s.name.toLowerCase().contains(q)).toList();
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (ctx, scrollCtrl) => Column(
+        children: [
+          const SizedBox(height: 10),
+          Container(
+            width: 40, height: 4,
+            decoration: BoxDecoration(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
+            child: Row(children: [
+              Expanded(child: Text(widget.title,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+            ]),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: TextField(
+              controller: _ctrl,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                hintText: l.certSearchStudent,
+                prefixIcon: const Icon(Icons.search_rounded),
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+            ),
+          ),
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(child: Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant)))
+                : ListView.builder(
+                    controller: scrollCtrl,
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, i) {
+                      final s = filtered[i];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: cs.primaryContainer,
+                          child: Text(_initials(s.name),
+                              style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w800, fontSize: 13)),
+                        ),
+                        title: Text(s.name),
+                        onTap: () => Navigator.of(context).pop(s),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
