@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../core/auth/auth_session.dart';
 import '../../core/semester/school_semester.dart';
 import '../../core/util/friendly_date.dart';
 import '../../ui/glass/liquid_glass_card.dart';
@@ -22,10 +23,22 @@ final meetingsFeedProvider = FutureProvider.autoDispose<List<Map<String, dynamic
     // Parent flow: server pre-aggregates meetings across the child's
     // classrooms into a single response. Skip the per-classroom fan-out
     // that the student path does — same final shape, half the round-trips.
+    //
+    // A PARENT must NEVER fall through to the student branch below: /student/*
+    // 403s for a parent, which surfaced as an infinite loader. If the child
+    // id hasn't resolved yet (picker not restored / children still loading),
+    // AWAIT the children list here instead of hitting student endpoints.
     final viewedStudentId = ref.watch(viewedStudentIdProvider);
-    if (viewedStudentId != null) {
+    final isParent = ref.read(authSessionProvider).roles.contains('PARENT');
+    if (viewedStudentId != null || isParent) {
+      var studentId = viewedStudentId;
+      if (studentId == null || studentId.isEmpty) {
+        final kids = await ref.watch(parentChildrenProvider.future);
+        if (kids.isEmpty) return const <Map<String, dynamic>>[];
+        studentId = kids.first.studentId;
+      }
       final raw = await ref.read(parentRepositoryProvider)
-          .getChildFeed('/parent/meetings', viewedStudentId);
+          .getChildFeed('/parent/meetings', studentId);
       final list = raw is Map && raw['items'] is List ? raw['items'] as List : const [];
       return list
           .whereType<Map>()

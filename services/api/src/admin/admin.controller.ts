@@ -51,7 +51,9 @@ export class AdminController {
 
   // ── School period defaults ───────────────────────────────────────────────────
 
-  @Roles(Role.ADMIN)
+  // SECRETARY gets read-only access — it powers the read-only schedule view
+  // (AdminScheduleScreen readOnly:true). Writes below stay ADMIN-only.
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('period-defaults')
   getPeriodDefaults(@Req() req: any) {
     return this.admin.getSchoolPeriodDefaults(req.user);
@@ -65,7 +67,9 @@ export class AdminController {
 
   // ── Period CRUD ──────────────────────────────────────────────────────────────
 
-  @Roles(Role.ADMIN)
+  // SECRETARY gets read-only access — the schedule grid (read-only for
+  // secretary) is gated entirely behind this GET. Writes below stay ADMIN-only.
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Get('periods')
   listPeriods(@Req() req: any) {
     return this.admin.listPeriods(req.user);

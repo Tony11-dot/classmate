@@ -4,6 +4,7 @@ import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_session.dart';
 import '../../core/realtime/realtime_listener.dart';
 import '../../core/semester/school_semester.dart';
 import '../../core/util/friendly_date.dart';
@@ -30,10 +31,22 @@ final assignmentsFeedProvider = FutureProvider.autoDispose<List<Map<String, dyna
     // Parent flow: /parent/assignments returns the flat list directly
     // (already aggregated server-side), so we skip the per-classroom
     // fan-out the student path does.
+    //
+    // A PARENT must NEVER fall through to the student branch below: /student/*
+    // 403s for a parent, which surfaced as an infinite loader. If the child
+    // id hasn't resolved yet (picker not restored / children still loading),
+    // AWAIT the children list here instead of hitting student endpoints.
     final viewedStudentId = ref.watch(viewedStudentIdProvider);
-    if (viewedStudentId != null) {
+    final isParent = ref.read(authSessionProvider).roles.contains('PARENT');
+    if (viewedStudentId != null || isParent) {
+      var studentId = viewedStudentId;
+      if (studentId == null || studentId.isEmpty) {
+        final kids = await ref.watch(parentChildrenProvider.future);
+        if (kids.isEmpty) return const <Map<String, dynamic>>[];
+        studentId = kids.first.studentId;
+      }
       final raw = await ref.read(parentRepositoryProvider)
-          .getChildFeed('/parent/assignments', viewedStudentId);
+          .getChildFeed('/parent/assignments', studentId);
       final list = raw is Map && raw['items'] is List ? raw['items'] as List : const [];
       return list
           .whereType<Map>()

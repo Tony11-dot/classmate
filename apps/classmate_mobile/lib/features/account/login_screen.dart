@@ -309,7 +309,10 @@ class _LoginCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: const ClassMateLogo(height: 54)),
+          // adaptToTheme so the mark tracks the chosen theme's accent
+          // (coffee, matcha, rosé, dark, …) — matching the app-shell top bar —
+          // instead of staying fixed blue on every theme.
+          Center(child: const ClassMateLogo(height: 54, adaptToTheme: true)),
           const SizedBox(height: 18),
           Text(
             l.loginWelcomeTitle,
