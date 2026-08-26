@@ -76,6 +76,13 @@ export class AdminService {
       throw new ForbiddenException('Admin or Teacher only');
   }
 
+  // Read-only allowance for the secretary: powers the read-only schedule
+  // view (period grid + defaults). Never use this on a write path.
+  private ensureAdminOrSecretary(user: any) {
+    if (!hasAnyRole(user, ['ADMIN', 'SECRETARY']))
+      throw new ForbiddenException('Admin or Secretary only');
+  }
+
   async createCohort(
     user: any,
     body: { name: string; grade?: number; grades?: number[]; homeroomTeacherId?: string | null },
@@ -168,7 +175,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   // ── School period defaults ───────────────────────────────────────────────────
 
   async getSchoolPeriodDefaults(user: any) {
-    this.ensureAdmin(user);
+    this.ensureAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId;
     if (!schoolId) throw new BadRequestException('No school associated with this admin');
     const defaults = await this.prisma.schoolPeriodDefault.findMany({
@@ -197,7 +204,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   // ── Period (ScheduleSlot) CRUD ────────────────────────────────────────────────
 
   async listPeriods(user: any) {
-    this.ensureAdmin(user);
+    this.ensureAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId ?? null;
     const slots = await this.prisma.scheduleSlot.findMany({
       where: schoolId ? { schoolId } : {},
