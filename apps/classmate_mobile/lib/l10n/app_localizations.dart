@@ -15639,11 +15639,11 @@ abstract class AppLocalizations {
   /// **'Period {period}'**
   String adminPeriodOption(Object period);
 
-  /// cohortStudentsCount
+  /// Cohort member count. Singular 'student' for 0-1, plural 'students' for 2+.
   ///
   /// In en, this message translates to:
-  /// **'{count} students'**
-  String cohortStudentsCount(Object count);
+  /// **'{count} student{count, plural, =0{} =1{} other{s}}'**
+  String cohortStudentsCount(int count);
 
   /// diplomasIssuedCount
   ///

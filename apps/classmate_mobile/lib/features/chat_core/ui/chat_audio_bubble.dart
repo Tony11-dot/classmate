@@ -219,10 +219,12 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final Color accent = widget.isMine ? Colors.white : scheme.primary;
     final Color playedBar = widget.isMine
         ? Colors.white.withValues(alpha: 0.95)
-        : scheme.onSurface.withValues(alpha: 0.62);
+        : scheme.onSurface.withValues(alpha: 0.78);
+    // Incoming idle bars were at 0.28 — nearly invisible against the neutral
+    // bubble on some themes (QA #8). Bump the contrast so the waveform reads.
     final Color idleBar = widget.isMine
         ? Colors.white.withValues(alpha: 0.40)
-        : scheme.onSurface.withValues(alpha: 0.28);
+        : scheme.onSurface.withValues(alpha: 0.42);
     final Color timeColor = widget.isMine
         ? Colors.white.withValues(alpha: 0.80)
         : scheme.onSurface.withValues(alpha: 0.60);

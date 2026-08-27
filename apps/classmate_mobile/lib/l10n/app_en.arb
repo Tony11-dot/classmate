@@ -4289,12 +4289,12 @@
       }
     }
   },
-  "cohortStudentsCount": "{count} students",
+  "cohortStudentsCount": "{count} student{count, plural, =0{} =1{} other{s}}",
   "@cohortStudentsCount": {
-    "description": "cohortStudentsCount",
+    "description": "Cohort member count. Singular 'student' for 0-1, plural 'students' for 2+.",
     "placeholders": {
       "count": {
-        "type": "Object"
+        "type": "int"
       }
     }
   },

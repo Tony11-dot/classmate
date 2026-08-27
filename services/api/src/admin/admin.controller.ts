@@ -372,7 +372,10 @@ export class AdminController {
     return this.admin.getUserDetail(req.user, id);
   }
 
-  @Roles(Role.ADMIN)
+  // Secretaries may EDIT existing users (service gates via requireAdminOrSecretary)
+  // but not create/delete/reset-password. Controller must match the service, or
+  // secretary edits 403 at the guard before reaching it. (QA #11/#20)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @Patch('users/:id')
   updateUser(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.admin.updateUser(req.user, id, body);

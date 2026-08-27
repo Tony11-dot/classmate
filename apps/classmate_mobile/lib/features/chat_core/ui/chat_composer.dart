@@ -13,6 +13,7 @@ class ChatComposer extends StatelessWidget {
   const ChatComposer({
     super.key,
     required this.controller,
+    this.focusNode,
     required this.onSend,
     required this.onCamera,
     required this.onAttach,
@@ -51,6 +52,11 @@ class ChatComposer extends StatelessWidget {
   });
 
   final TextEditingController controller;
+  /// Focus node for the text input. Owned by the host so it can re-establish
+  /// the platform keyboard connection after returning from an external picker
+  /// (image_picker / file_picker leave the field in a state where a plain tap
+  /// won't reopen the keyboard on Android — QA #7/#9).
+  final FocusNode? focusNode;
   /// Optional override for the composer bar's fill. Defaults to the theme
   /// surface; NOVA passes a translucent color so the full-screen background
   /// shows through the bottom of the screen.
@@ -556,6 +562,7 @@ class ChatComposer extends StatelessWidget {
                 child: TextField(
                   key: const ValueKey('chat_input'),
                   controller: controller,
+                  focusNode: focusNode,
                   enabled: enabled && !isStreaming,
                   minLines: 1,
                   maxLines: 5,

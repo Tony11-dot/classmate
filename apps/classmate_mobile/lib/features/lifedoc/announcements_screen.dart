@@ -395,7 +395,9 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen> {
             },
             child: ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+              // Extra bottom clearance so the last card isn't hidden behind the
+              // post-announcement FAB (shown for teacher/admin/secretary) — QA #28.
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
                 _HeroCard(
                   title: l.navAnnouncements,

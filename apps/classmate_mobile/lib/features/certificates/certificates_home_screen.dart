@@ -34,6 +34,9 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
   final _searchCtrl = TextEditingController();
   String? _cohortFilter;
   bool _loading = true;
+  // Separate from _loading so building the "Print all" PDF doesn't trip the
+  // full-screen loader that blanks the whole page for 1–2s (QA #24).
+  bool _printing = false;
   String? _error;
 
   CertificatesRepository get _repo => ref.read(certificatesRepositoryProvider);
@@ -150,17 +153,17 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
 
   /// Build ONE combined PDF of every published certificate in the cohort.
   Future<void> _printAll() async {
-    if (_cohortFilter == null) return;
+    if (_cohortFilter == null || _printing) return;
     final l = AppLocalizations.of(context)!;
     setState(() {
-      _loading = true;
+      _printing = true;
       _error = null;
     });
     try {
       final certs = await _repo.printList(_cohortFilter!);
       if (certs.isEmpty) {
         if (mounted) {
-          setState(() => _loading = false);
+          setState(() => _printing = false);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.certNoneYet)));
         }
         return;
@@ -201,12 +204,12 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
       }
       final bytes = await buildCertificatesBundlePdf(list);
       if (!mounted) return;
-      setState(() => _loading = false);
+      setState(() => _printing = false);
       await Printing.layoutPdf(onLayout: (_) async => bytes);
     } catch (e) {
       if (mounted) setState(() {
         _error = '$e';
-        _loading = false;
+        _printing = false;
       });
     }
   }
@@ -243,8 +246,10 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
             if (_cohortFilter != null) ...[
               const SizedBox(height: 10),
               FilledButton.icon(
-                onPressed: _printAll,
-                icon: const Icon(Icons.print_rounded),
+                onPressed: _printing ? null : _printAll,
+                icon: _printing
+                    ? const SizedBox(width: 18, height: 18, child: CmLoading(size: 18))
+                    : const Icon(Icons.print_rounded),
                 label: Text(l.certPrintAll),
               ),
             ],
@@ -289,6 +294,14 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
             decoration: InputDecoration(
               hintText: l.certSearchStudent,
               prefixIcon: const Icon(Icons.search_rounded),
+              // Clear (X) to reset the search (QA #27/#18).
+              suffixIcon: _searchCtrl.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: l.clear,
+                      onPressed: () => setState(() => _searchCtrl.clear()),
+                    ),
               border: const OutlineInputBorder(),
               isDense: true,
             ),

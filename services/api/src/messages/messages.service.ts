@@ -414,7 +414,11 @@ export class MessagesService {
       select: {
         id: true,
         name: true,
-        roles: { select: { role: true }, take: 1 },
+        // Select ALL roles — `take: 1` with no ordering picked a random role,
+        // so a staff member with multiple roles got mis-bucketed and vanished
+        // from the role-filtered New Chat sections (QA #10/#12/#19). We derive
+        // a deterministic primary role below by priority.
+        roles: { select: { role: true } },
         studentProfile: {
           select: {
             cohortId: true,
@@ -451,7 +455,15 @@ export class MessagesService {
         .filter((u) => !existingDirectPeerIds.has(String(u.id ?? '').trim()))
         .map((u) => {
           const displayName = this.displayNameOf(u);
-          const primaryRole = u.roles?.[0]?.role ?? 'STUDENT';
+          // Deterministic primary role: staff roles win over student/parent so
+          // the person lands in the section the viewer expects (an ADMIN who is
+          // also a TEACHER shows under Admins, etc.).
+          const roleSet = new Set(
+            (u.roles ?? []).map((r: any) => String(r?.role ?? '').toUpperCase()),
+          );
+          const rolePriority = ['ADMIN', 'SECRETARY', 'TEACHER', 'PARENT', 'STUDENT'];
+          const primaryRole =
+            rolePriority.find((r) => roleSet.has(r)) ?? 'STUDENT';
           const cohort = u.studentProfile?.cohort;
           const cohortShortName = cohort?.name?.replace(/^\d+\s*-\s*/, '') ?? '';
           const gradeLabel = cohort?.grade ? `Grade ${cohort.grade}${cohortShortName ? ' · ' + cohortShortName : ''}` : '';

@@ -930,6 +930,15 @@ class DmChatThreadController extends ChatThreadController {
           mediaUrl: mediaUrl,
           mediaMimeType: mimeType,
         );
+      } else {
+        // Upload returned no URL — the media never reached the server, so no
+        // message is created and the optimistic bubble would otherwise hang
+        // forever with the local file, looking "sent" (QA #5/#6). Drop the
+        // dangling optimistic and surface the failure to the caller's
+        // catchError so the user gets a real "couldn't send" message.
+        _optimisticMessages.remove(optimistic);
+        invalidate();
+        throw Exception('media upload failed');
       }
     }
   }

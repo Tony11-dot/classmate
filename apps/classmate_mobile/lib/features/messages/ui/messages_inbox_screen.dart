@@ -440,9 +440,19 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    // Real-time: refresh inbox when DM/group message arrives
+    // Real-time: refresh inbox when a DM/group message arrives. A new message
+    // can surface either as a typed `dm_message` event OR as a generic
+    // `notification` push (the case the tester hit — the notification arrived
+    // but the inbox stayed stale until a manual refresh, QA #1). Refresh on
+    // both, plus read/delivered receipt changes so previews/unread stay live.
     ref.listen(realtimeEventProvider, (_, event) {
-      if (event?.type == 'dm_message') ref.invalidate(messagesInboxProvider);
+      final t = event?.type;
+      if (t == 'dm_message' ||
+          t == 'notification' ||
+          t == 'dm_read' ||
+          t == 'dm_delivered') {
+        ref.invalidate(messagesInboxProvider);
+      }
     });
     final inbox = ref.watch(messagesInboxProvider);
     final query = _searchCtl.text.trim().toLowerCase();

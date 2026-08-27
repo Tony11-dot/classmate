@@ -8887,8 +8887,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String cohortStudentsCount(Object count) {
-    return '$count students';
+  String cohortStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+      zero: '',
+    );
+    return '$count student$_temp0';
   }
 
   @override

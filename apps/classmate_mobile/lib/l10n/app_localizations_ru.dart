@@ -8873,7 +8873,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String cohortStudentsCount(Object count) {
+  String cohortStudentsCount(int count) {
     return '$count учеников';
   }
 

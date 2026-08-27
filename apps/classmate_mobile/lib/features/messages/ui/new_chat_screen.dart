@@ -68,7 +68,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     final role = p.role.toLowerCase();
     if (_filter == 'students') return role == 'student';
     if (_filter == 'parents') return role == 'parent';
-    if (_filter == 'teachers') return role == 'teacher' || role == 'secretary';
+    if (_filter == 'teachers') return role == 'teacher';
+    if (_filter == 'secretaries') return role == 'secretary';
     if (_filter == 'admins') return role == 'admin';
     return true;
   }
@@ -102,7 +103,11 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
           children: [
             // Header
             Container(
-              padding: EdgeInsets.fromLTRB(4, MediaQuery.of(context).padding.top + 4, 16, 0),
+              // Symmetric horizontal padding so the search bar / filter chips
+              // have equal blank space on both sides (QA #13). The back button
+              // keeps its own internal padding, so the arrow still sits close
+              // to the edge.
+              padding: EdgeInsets.fromLTRB(8, MediaQuery.of(context).padding.top + 4, 8, 0),
               decoration: const BoxDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,6 +138,14 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                       decoration: InputDecoration(
                         hintText: l.messagesSearchPeopleHint,
                         prefixIcon: Icon(Icons.search_rounded, color: cs.onSurfaceVariant),
+                        // Clear (X) to reset the search (QA #18).
+                        suffixIcon: _searchCtl.text.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: Icon(Icons.close_rounded, color: cs.onSurfaceVariant),
+                                tooltip: l.clear,
+                                onPressed: () => setState(() => _searchCtl.clear()),
+                              ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
@@ -155,6 +168,8 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                           _FilterChip(label: l.teacherParentsLabel, selected: _filter == 'parents', onTap: () => setState(() => _filter = 'parents')),
                           const SizedBox(width: 8),
                           _FilterChip(label: l.teacherTeachersLabel, selected: _filter == 'teachers', onTap: () => setState(() => _filter = 'teachers')),
+                          const SizedBox(width: 8),
+                          _FilterChip(label: l.adminSecretaries, selected: _filter == 'secretaries', onTap: () => setState(() => _filter = 'secretaries')),
                           const SizedBox(width: 8),
                           _FilterChip(label: l.messagesFilterAdmins, selected: _filter == 'admins', onTap: () => setState(() => _filter = 'admins')),
                         ],

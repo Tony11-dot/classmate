@@ -123,11 +123,14 @@ class _TeacherNewAnnouncementScreenState
     setState(() => _loadingPeople = true);
     try {
       final repo = ref.read(teacherMobileRepositoryProvider);
+      // Hard timeout so the audience picker's inline loader can never spin
+      // forever if one of these calls stalls for a secretary (QA #30). On
+      // timeout we fall through to the catch and clear the loading flag.
       final results = await Future.wait([
         repo.fetchAllStudents(),
         repo.fetchCohortsForPicker(),
         repo.fetchAllParents(),
-      ]);
+      ]).timeout(const Duration(seconds: 20));
       if (!mounted) return;
       final cohortMaps = results[1] as List<Map<String, dynamic>>;
       setState(() {

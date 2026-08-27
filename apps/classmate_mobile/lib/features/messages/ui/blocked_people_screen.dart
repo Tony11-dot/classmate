@@ -61,6 +61,9 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
     );
 
     if (!mounted) return;
+    // Refresh the inbox too — the thread was filtered out while blocked, so
+    // without this it stays missing until an app restart (QA #2).
+    ref.invalidate(messagesInboxProvider);
     await _reload();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

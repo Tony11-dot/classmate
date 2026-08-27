@@ -112,6 +112,7 @@ class ChatThreadView extends ConsumerStatefulWidget {
 class _ChatThreadViewState extends ConsumerState<ChatThreadView>
     with WidgetsBindingObserver {
   final TextEditingController _textController = TextEditingController();
+  final FocusNode _composerFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final AudioRecorder _recorder = AudioRecorder();
   final ImagePicker _imagePicker = ImagePicker();
@@ -278,6 +279,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
     WidgetsBinding.instance.removeObserver(this);
     _pollTimer?.cancel();
     _textController.dispose();
+    _composerFocus.dispose();
     _scrollController.dispose();
     _amplitudeSub?.cancel();
     _recorder.dispose();
@@ -929,6 +931,22 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
         .toList();
     if (files.isEmpty) return;
     setState(() => _draftAttachments.addAll(files));
+    // Bring the keyboard up so the user can type a caption immediately — and
+    // recover the input connection torn down by the file picker (QA #9).
+    _focusComposer();
+  }
+
+  /// Re-establishes the platform keyboard connection for the composer after a
+  /// round-trip through an external picker or a pushed media-preview route. On
+  /// Android those tear down the input connection, leaving the field in a state
+  /// where a plain tap won't reopen the keyboard (QA #7/#9). Unfocus first, then
+  /// request focus on the next frame so a fresh connection is created.
+  void _focusComposer() {
+    if (!mounted) return;
+    _composerFocus.unfocus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _composerFocus.requestFocus();
+    });
   }
 
   void _sendMediaResult(ChatMediaPreviewResult result) {
@@ -940,6 +958,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
     final caption =
         result.caption.trim().isEmpty ? null : result.caption.trim();
     _scrollToBottom(jump: true);
+    // Recover the keyboard connection lost to the camera/gallery picker + the
+    // pushed preview route, so the user can keep typing (QA #7).
+    _focusComposer();
     widget.controller
         .sendMedia(files, caption: caption, replyToMessageId: _replyToMessageId)
         .then((_) {
@@ -2067,7 +2088,13 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
       final tid = widget.controller.threadId;
       final isIncomingHere =
           (event.type == 'classroom_message' && event.classroomId == tid) ||
-              (event.type == 'dm_message' && event.threadId == tid);
+              (event.type == 'dm_message' && event.threadId == tid) ||
+              // A new message can also surface as a generic `notification` push
+              // (no threadId). Since the user is actively looking at THIS
+              // thread, refetch and advance the read cursor anyway — otherwise
+              // the message lands late and the sender's ticks never flip to
+              // read (QA #1/#4).
+              (event.type == 'notification');
       if (isIncomingHere) {
         widget.controller.invalidate();
         // The user is LOOKING at this thread, so the arriving message is seen
@@ -2218,6 +2245,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
           _buildDraftAttachmentsPreview(),
           ChatComposer(
                 controller: _textController,
+                focusNode: _composerFocus,
                 enabled: widget.canSend,
                 isRecording: _recording,
                 isVoiceLocked: _voiceLocked,

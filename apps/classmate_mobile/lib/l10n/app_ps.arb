@@ -4234,7 +4234,7 @@
     "description": "cohortStudentsCount",
     "placeholders": {
       "count": {
-        "type": "Object"
+        "type": "int"
       }
     }
   },

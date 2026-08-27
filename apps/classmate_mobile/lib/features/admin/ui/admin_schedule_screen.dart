@@ -728,8 +728,19 @@ class _ScheduleGrid extends StatelessWidget {
               // Header row
               Row(
                 children: [
-                  // Corner
-                  SizedBox(width: _headerW, height: _headerH),
+                  // Corner cell — labels both axes (day columns across, period
+                  // rows down) so the grid's X/Y are never unlabeled (QA #16/#17).
+                  SizedBox(
+                    width: _headerW,
+                    height: _headerH,
+                    child: Center(
+                      child: Icon(
+                        Icons.schedule_rounded,
+                        size: 16,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
                   ...List.generate(_days, (d) => Container(
                     width: _cellW,
                     height: _headerH,
@@ -3119,7 +3130,14 @@ class _AddStudentsSheet extends StatefulWidget {
 
 class _AddStudentsSheetState extends State<_AddStudentsSheet> {
   String _q = '';
+  final TextEditingController _searchCtrl = TextEditingController();
   final Set<String> _picked = {};
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -3178,10 +3196,22 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
+                controller: _searchCtrl,
                 onChanged: (v) => setState(() => _q = v),
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
                   prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                  // Clear (X) to reset the filter (QA #15/#18).
+                  suffixIcon: _q.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          tooltip: AppLocalizations.of(context)!.clear,
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            setState(() => _q = '');
+                          },
+                        ),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
