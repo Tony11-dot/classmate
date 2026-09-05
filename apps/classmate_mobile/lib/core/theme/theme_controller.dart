@@ -286,6 +286,36 @@ class ThemeController extends Notifier<ThemeState> {
     await _persistCustom();
   }
 
+  /// True if a custom theme with this (case-insensitive, trimmed) name already
+  /// exists — used to block duplicate names on create/edit (QA #52).
+  bool customNameExists(String name, {String? excludeId}) {
+    final n = name.trim().toLowerCase();
+    if (n.isEmpty) return false;
+    return state.customThemes
+        .any((c) => c.id != excludeId && c.name.trim().toLowerCase() == n);
+  }
+
+  /// Edit an existing custom theme in place (name / seed / brightness) and keep
+  /// it selected if it was active (QA #55).
+  Future<void> updateCustomTheme({
+    required String id,
+    required String name,
+    required Color seed,
+    required bool dark,
+  }) async {
+    final idx = state.customThemes.indexWhere((c) => c.id == id);
+    if (idx < 0) return;
+    final updated = [...state.customThemes];
+    updated[idx] = CustomTheme(
+      id: id,
+      name: name.trim().isEmpty ? updated[idx].name : name.trim(),
+      seed: seed.toARGB32(),
+      dark: dark,
+    );
+    state = state.copyWith(customThemes: updated);
+    await _persistCustom();
+  }
+
   Future<void> deleteCustom(String id) async {
     final wasActive = state.customId == id;
     state = state.copyWith(

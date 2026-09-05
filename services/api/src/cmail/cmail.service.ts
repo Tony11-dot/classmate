@@ -150,8 +150,13 @@ export class CMailService {
     const { userId, schoolId } = this.staff(user);
     for (const a of dto.attachments ?? []) this.assertOwnUploadUrl(a.url);
 
+    // Broadcasts never notify the sender, but if they deliberately picked
+    // themselves under "Specific people" the mail should still reach their own
+    // inbox (QA #47).
+    const keepSelf =
+      dto.audience === 'USERS' && (dto.userIds ?? []).includes(userId);
     const recipientIds = (await this.resolveRecipients(schoolId, dto)).filter(
-      (id) => id !== userId,
+      (id) => keepSelf || id !== userId,
     );
     if (!recipientIds.length) {
       throw new BadRequestException('This audience has no recipients');
@@ -371,6 +376,47 @@ export class CMailService {
         })),
         createdAt: mail.createdAt.toISOString(),
       },
+    };
+  }
+
+  /// The recipient roster for a mail — sender-only, so the "N recipients"
+  /// chip can be opened to see exactly who it went to (QA #44). Capped so a
+  /// school-wide broadcast can't return an unbounded list.
+  async recipients(user: any, mailId: string) {
+    const { userId, schoolId } = this.me(user);
+    const mail = await this.prisma.cMailMessage.findFirst({
+      where: { id: mailId, ...(schoolId ? { schoolId } : {}) },
+      select: { id: true, senderId: true },
+    });
+    if (!mail) throw new NotFoundException('Mail not found');
+    if (mail.senderId !== userId)
+      throw new ForbiddenException('Only the sender can view recipients');
+
+    const rows = await this.prisma.cMailRecipient.findMany({
+      where: { mailId },
+      select: { userId: true, readAt: true },
+      take: 1000,
+    });
+    const users = rows.length
+      ? await this.prisma.user.findMany({
+          where: { id: { in: rows.map((r) => r.userId) } },
+          select: { id: true, name: true, roles: { select: { role: true } } },
+        })
+      : [];
+    const nameMap = new Map(users.map((u) => [u.id, u]));
+    return {
+      ok: true,
+      recipients: rows
+        .map((r) => {
+          const u = nameMap.get(r.userId);
+          return {
+            id: r.userId,
+            name: u?.name ?? '',
+            role: u?.roles?.[0]?.role ?? null,
+            read: r.readAt != null,
+          };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name)),
     };
   }
 

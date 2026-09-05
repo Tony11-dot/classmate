@@ -51,6 +51,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
               MultiSelectItem(id: '$g', name: l.solutionsGradeLabel(g)),
           ],
           initiallySelected: _grades.map((g) => '$g').toSet(),
+          requireSelection: true,
         );
         if (picked != null) {
           setState(() {
@@ -74,6 +75,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
               ),
           ],
           initiallySelected: _cohortIds,
+          requireSelection: true,
         );
         if (picked != null) {
           setState(() {
@@ -98,6 +100,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
               ),
           ],
           initiallySelected: _userIds,
+          requireSelection: true,
         );
         if (picked != null) {
           setState(() {

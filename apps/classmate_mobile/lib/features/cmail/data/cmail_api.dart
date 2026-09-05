@@ -151,6 +151,26 @@ class CMailDetail {
       );
 }
 
+class CMailRecipient {
+  const CMailRecipient({
+    required this.id,
+    required this.name,
+    this.role,
+    this.read = false,
+  });
+  final String id;
+  final String name;
+  final String? role;
+  final bool read;
+
+  factory CMailRecipient.fromJson(Map<String, dynamic> j) => CMailRecipient(
+        id: '${j['id'] ?? ''}',
+        name: '${j['name'] ?? ''}',
+        role: j['role'] == null ? null : '${j['role']}',
+        read: j['read'] == true,
+      );
+}
+
 class CMailCohort {
   const CMailCohort({required this.id, required this.name, this.grade});
   final String id;
@@ -214,6 +234,16 @@ class CMailApi {
     final mail = raw is Map ? raw['mail'] : null;
     return CMailDetail.fromJson(
         mail is Map ? Map<String, dynamic>.from(mail) : const {});
+  }
+
+  /// Sender-only recipient roster for the "N recipients" chip (QA #44).
+  Future<List<CMailRecipient>> fetchRecipients(String id) async {
+    final raw = await _api.getJson('/cmail/$id/recipients');
+    final list = raw is Map ? raw['recipients'] as List? : null;
+    return (list ?? const [])
+        .whereType<Map>()
+        .map((e) => CMailRecipient.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
   }
 
   Future<CMailDdl> fetchDdl() async {

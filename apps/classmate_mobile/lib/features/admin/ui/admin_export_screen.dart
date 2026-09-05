@@ -1767,6 +1767,59 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     return doc.save();
   }
 
+  /// The three PDF layouts collapsed onto one selector: 0 = compact table,
+  /// 1 = one page per user in a single PDF, 2 = a separate PDF per user. Keeps
+  /// the existing `_eachUserAlone` / `_separateFiles` flags as the source of
+  /// truth so the export dispatch logic is unchanged.
+  int get _layout => !_eachUserAlone ? 0 : (_separateFiles ? 2 : 1);
+
+  void _setLayout(int v) => setState(() {
+        _eachUserAlone = v != 0;
+        _separateFiles = v == 2;
+      });
+
+  Widget _layoutOption({
+    required ThemeData theme,
+    required ColorScheme cs,
+    required int value,
+    required String title,
+    required String subtitle,
+  }) {
+    final selected = _layout == value;
+    return InkWell(
+      onTap: () => _setLayout(value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              size: 20,
+              color: selected ? cs.primary : cs.outline,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  Text(subtitle,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                          color: cs.onSurfaceVariant, height: 1.3)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -1775,7 +1828,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-      child: Column(
+      child: SingleChildScrollView(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1821,68 +1875,58 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               onChanged: (v) => setState(() => _includePasswords = v),
             ),
           ),
-          const SizedBox(height: 10),
-          // ── Each-user-alone toggle ────────────────────────────────────
+          const SizedBox(height: 16),
+          // ── PDF layout — one always-visible choice ────────────────────
+          // Replaced the old nested "each user alone" + "separate files"
+          // switches (which hid options until a parent toggle was on, so the
+          // single-PDF / separate-PDF choices seemed to appear and vanish on
+          // their own). All three modes are now shown up front. (QA #31/#34/#35)
+          Text(
+            l.adminExportLayoutLabel,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
           Container(
             decoration: BoxDecoration(
               color: cs.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: cs.outlineVariant.withValues(alpha: 0.4)),
+              border:
+                  Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
             ),
-            child: SwitchListTile.adaptive(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-              title: Text(
-                l.adminExportScreenEachUserAlone,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                _eachUserAlone
-                    ? l.adminExportScreenEachUserAloneOn
-                    : l.adminExportScreenEachUserAloneOff,
-                style: theme.textTheme.labelSmall
-                    ?.copyWith(color: cs.onSurfaceVariant, height: 1.3),
-              ),
-              value: _eachUserAlone,
-              onChanged: (v) => setState(() {
-                _eachUserAlone = v;
-                if (!v) _separateFiles = false;
-              }),
+            child: Column(
+              children: [
+                _layoutOption(
+                  theme: theme,
+                  cs: cs,
+                  value: 0,
+                  title: l.adminExportLayoutTable,
+                  subtitle: l.adminExportScreenEachUserAloneOff,
+                ),
+                Divider(
+                    height: 1, color: cs.outlineVariant.withValues(alpha: 0.4)),
+                _layoutOption(
+                  theme: theme,
+                  cs: cs,
+                  value: 1,
+                  title: l.adminExportScreenSeparateFilesOff,
+                  subtitle: l.adminExportScreenSeparateFilesOffDesc,
+                ),
+                Divider(
+                    height: 1, color: cs.outlineVariant.withValues(alpha: 0.4)),
+                _layoutOption(
+                  theme: theme,
+                  cs: cs,
+                  value: 2,
+                  title: l.adminExportScreenSeparateFilesOn,
+                  subtitle:
+                      l.adminExportScreenSeparateFilesOnDesc(widget.userCount),
+                ),
+              ],
             ),
           ),
-          if (_eachUserAlone) ...[
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.4)),
-              ),
-              child: SwitchListTile.adaptive(
-                dense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                title: Text(
-                  _separateFiles
-                      ? l.adminExportScreenSeparateFilesOn
-                      : l.adminExportScreenSeparateFilesOff,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  _separateFiles
-                      ? l.adminExportScreenSeparateFilesOnDesc(widget.userCount)
-                      : l.adminExportScreenSeparateFilesOffDesc,
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(color: cs.onSurfaceVariant, height: 1.3),
-                ),
-                value: _separateFiles,
-                onChanged: (v) => setState(() => _separateFiles = v),
-              ),
-            ),
-          ],
           const SizedBox(height: 16),
           Text(
             l.adminExportLanguageLabel,
@@ -1943,6 +1987,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ],
           ),
         ],
+      ),
       ),
     );
   }

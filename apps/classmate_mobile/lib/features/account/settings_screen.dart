@@ -655,6 +655,13 @@ class ThemeGalleryScreen extends ConsumerWidget {
                     label: ct.name,
                     selected: t.customId == ct.id,
                     onTap: () => tc.selectCustom(ct.id),
+                    onEdit: () => showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: cs.surface,
+                      showDragHandle: true,
+                      builder: (_) => _AddThemeSheet(existing: ct),
+                    ),
                     onDelete: () => tc.deleteCustom(ct.id),
                   ),
               ],
@@ -707,6 +714,7 @@ class _ThemeTile extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.onEdit,
     this.onDelete,
   });
 
@@ -714,7 +722,65 @@ class _ThemeTile extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+
+  /// Long-press on a custom theme opens an Edit / Delete menu; Delete asks for
+  /// confirmation first so a theme can't vanish from a stray press (QA #53/#54)
+  /// and stays editable (QA #55). Preset tiles (no callbacks) do nothing.
+  Future<void> _openMenu(BuildContext context) async {
+    if (onEdit == null && onDelete == null) return;
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: cs.surface,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onEdit != null)
+              ListTile(
+                leading: const Icon(Icons.edit_rounded),
+                title: Text(l.commonEdit),
+                onTap: () => Navigator.of(ctx).pop('edit'),
+              ),
+            if (onDelete != null)
+              ListTile(
+                leading: Icon(Icons.delete_outline_rounded, color: cs.error),
+                title: Text(l.commonDelete, style: TextStyle(color: cs.error)),
+                onTap: () => Navigator.of(ctx).pop('delete'),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (action == 'edit') {
+      onEdit?.call();
+    } else if (action == 'delete') {
+      if (!context.mounted) return;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.settingsDeleteThemeTitle),
+          content: Text(l.settingsDeleteThemeBody(label)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l.commonCancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: cs.error),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l.commonDelete),
+            ),
+          ],
+        ),
+      );
+      if (ok == true) onDelete?.call();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -726,7 +792,9 @@ class _ThemeTile extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: onTap,
-            onLongPress: onDelete,
+            onLongPress: (onEdit != null || onDelete != null)
+                ? () => _openMenu(context)
+                : null,
             child: Stack(
               children: [
                 _ThemeSwatch(scheme: scheme, ringColor: selected ? cs.primary : null),
@@ -837,7 +905,11 @@ class _ThemeSwatch extends StatelessWidget {
 /// palette is generated from the seed (like the native ClassNotes editor,
 /// simplified to a one-tap seed).
 class _AddThemeSheet extends ConsumerStatefulWidget {
-  const _AddThemeSheet();
+  const _AddThemeSheet({this.existing});
+
+  /// When non-null the sheet edits this theme in place instead of creating a
+  /// new one (QA #55).
+  final CustomTheme? existing;
 
   @override
   ConsumerState<_AddThemeSheet> createState() => _AddThemeSheetState();
@@ -852,14 +924,52 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
     Color(0xFFBD93F9), Color(0xFFA7C080),
   ];
 
-  final _name = TextEditingController();
-  Color _seed = _seeds.first;
-  bool _dark = false;
+  late final TextEditingController _name;
+  late Color _seed;
+  late bool _dark;
+  String? _error;
+
+  bool get _isEdit => widget.existing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final ex = widget.existing;
+    _name = TextEditingController(text: ex?.name ?? '');
+    _seed = ex != null ? ex.seedColor : _seeds.first;
+    _dark = ex?.dark ?? false;
+  }
 
   @override
   void dispose() {
     _name.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final tc = ref.read(themeControllerProvider.notifier);
+    final name = _name.text.trim();
+    // #51 — a theme must be named.
+    if (name.isEmpty) {
+      setState(() => _error = AppLocalizations.of(context)!.settingsThemeNameRequired);
+      return;
+    }
+    // #52 — names must be unique among the user's custom themes.
+    if (tc.customNameExists(name, excludeId: widget.existing?.id)) {
+      setState(() => _error = AppLocalizations.of(context)!.settingsThemeNameDuplicate);
+      return;
+    }
+    if (_isEdit) {
+      await tc.updateCustomTheme(
+        id: widget.existing!.id,
+        name: name,
+        seed: _seed,
+        dark: _dark,
+      );
+    } else {
+      await tc.addCustomTheme(name: name, seed: _seed, dark: _dark);
+    }
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -877,7 +987,7 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.settingsNewTheme,
+          Text(_isEdit ? l.settingsEditTheme : l.settingsNewTheme,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -891,9 +1001,13 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
                 child: TextField(
                   controller: _name,
                   textCapitalization: TextCapitalization.words,
+                  onChanged: (_) {
+                    if (_error != null) setState(() => _error = null);
+                  },
                   decoration: InputDecoration(
                     labelText: l.certPdfName,
                     hintText: l.settingsThemeNameHint,
+                    errorText: _error,
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -950,16 +1064,9 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
           ),
           const SizedBox(height: 20),
           FilledButton(
-            onPressed: () async {
-              await ref.read(themeControllerProvider.notifier).addCustomTheme(
-                    name: _name.text,
-                    seed: _seed,
-                    dark: _dark,
-                  );
-              if (context.mounted) Navigator.of(context).pop();
-            },
+            onPressed: _submit,
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            child: Text(l.settingsCreateTheme),
+            child: Text(_isEdit ? l.settingsSaveTheme : l.settingsCreateTheme),
           ),
         ],
       ),

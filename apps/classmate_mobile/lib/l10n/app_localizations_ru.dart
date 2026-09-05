@@ -5585,6 +5585,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonSearch => 'Поиск…';
 
   @override
+  String get commonNoResults => 'No results';
+
+  @override
   String get commonShare => 'Поделиться';
 
   @override
@@ -10109,6 +10112,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminSchoolSettingsEnd => 'Конец';
 
   @override
+  String get adminExportLayoutLabel => 'PDF layout';
+
+  @override
+  String get adminExportLayoutTable => 'Compact table';
+
+  @override
   String get adminExportScreenEachUserAlone => 'Каждый пользователь отдельно';
 
   @override
@@ -11727,6 +11736,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsCreateTheme => 'Создать тему';
+
+  @override
+  String get settingsEditTheme => 'Edit theme';
+
+  @override
+  String get settingsSaveTheme => 'Save changes';
+
+  @override
+  String get settingsThemeNameRequired => 'Enter a name for your theme';
+
+  @override
+  String get settingsThemeNameDuplicate =>
+      'You already have a theme with this name';
+
+  @override
+  String get settingsDeleteThemeTitle => 'Delete theme?';
+
+  @override
+  String settingsDeleteThemeBody(String name) {
+    return '“$name” will be removed. This can\'t be undone.';
+  }
 
   @override
   String get cnMoveToShelf => 'Переместить на полку';

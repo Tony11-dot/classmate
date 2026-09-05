@@ -5618,6 +5618,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonSearch => 'بحث…';
 
   @override
+  String get commonNoResults => 'No results';
+
+  @override
   String get commonShare => 'مشاركة';
 
   @override
@@ -10063,6 +10066,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminSchoolSettingsEnd => 'النهاية';
 
   @override
+  String get adminExportLayoutLabel => 'PDF layout';
+
+  @override
+  String get adminExportLayoutTable => 'Compact table';
+
+  @override
   String get adminExportScreenEachUserAlone => 'كل مستخدم على حدة';
 
   @override
@@ -11666,6 +11675,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsCreateTheme => 'إنشاء السمة';
+
+  @override
+  String get settingsEditTheme => 'Edit theme';
+
+  @override
+  String get settingsSaveTheme => 'Save changes';
+
+  @override
+  String get settingsThemeNameRequired => 'Enter a name for your theme';
+
+  @override
+  String get settingsThemeNameDuplicate =>
+      'You already have a theme with this name';
+
+  @override
+  String get settingsDeleteThemeTitle => 'Delete theme?';
+
+  @override
+  String settingsDeleteThemeBody(String name) {
+    return '“$name” will be removed. This can\'t be undone.';
+  }
 
   @override
   String get cnMoveToShelf => 'نقل إلى رف';

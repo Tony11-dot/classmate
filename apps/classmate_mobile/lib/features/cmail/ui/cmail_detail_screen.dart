@@ -50,6 +50,90 @@ class CMailDetailScreen extends ConsumerWidget {
     }
   }
 
+  /// Sender taps the "N recipients" chip to see exactly who received the mail
+  /// and who has read it (QA #44).
+  Future<void> _showRecipients(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          minChildSize: 0.4,
+          builder: (ctx, scroll) => FutureBuilder<List<CMailRecipient>>(
+            future: ref.read(cmailApiProvider).fetchRecipients(mailId),
+            builder: (ctx, snap) {
+              if (snap.connectionState != ConnectionState.done) {
+                return const Center(child: CmLoading());
+              }
+              if (snap.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(snap.error.toString(),
+                        textAlign: TextAlign.center),
+                  ),
+                );
+              }
+              final people = snap.data ?? const <CMailRecipient>[];
+              return ListView.separated(
+                controller: scroll,
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                itemCount: people.length + 1,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (ctx, i) {
+                  if (i == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        l.cmailRecipients(people.length),
+                        style: Theme.of(ctx)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    );
+                  }
+                  final p = people[i - 1];
+                  return ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: cs.primaryContainer,
+                      child: Text(
+                        p.name.isNotEmpty
+                            ? p.name.characters.first.toUpperCase()
+                            : '?',
+                        style: TextStyle(
+                            color: cs.onPrimaryContainer,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    title: Text(p.name),
+                    subtitle: p.role != null ? Text(p.role!) : null,
+                    trailing: Icon(
+                      p.read
+                          ? Icons.mark_email_read_rounded
+                          : Icons.mark_email_unread_outlined,
+                      size: 18,
+                      color: p.read ? cs.primary : cs.outline,
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   static String _attachmentType(CMailAttachment a) {
     final mime = (a.mimeType ?? '').toLowerCase();
     final name = (a.fileName ?? a.url).toLowerCase();
@@ -165,11 +249,24 @@ class CMailDetailScreen extends ConsumerWidget {
                           : audience,
                       colorScheme: cs,
                     ),
-                    _Chip(
-                      icon: Icons.mark_email_read_rounded,
-                      label: l.cmailRecipients(mail.recipientCount),
-                      colorScheme: cs,
-                    ),
+                    // Sender can open the roster; recipients just see the count.
+                    mail.isSender
+                        ? InkWell(
+                            borderRadius: BorderRadius.circular(999),
+                            onTap: () => _showRecipients(context, ref),
+                            child: _Chip(
+                              icon: Icons.mark_email_read_rounded,
+                              label:
+                                  l.cmailRecipients(mail.recipientCount),
+                              colorScheme: cs,
+                              trailing: Icons.chevron_right_rounded,
+                            ),
+                          )
+                        : _Chip(
+                            icon: Icons.mark_email_read_rounded,
+                            label: l.cmailRecipients(mail.recipientCount),
+                            colorScheme: cs,
+                          ),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -215,11 +312,13 @@ class _Chip extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.colorScheme,
+    this.trailing,
   });
 
   final IconData icon;
   final String label;
   final ColorScheme colorScheme;
+  final IconData? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -242,6 +341,10 @@ class _Chip extends StatelessWidget {
                 .labelSmall
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
+          if (trailing != null) ...[
+            const SizedBox(width: 2),
+            Icon(trailing, size: 14, color: cs.onSurfaceVariant),
+          ],
         ],
       ),
     );

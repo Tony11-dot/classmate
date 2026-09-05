@@ -58,6 +58,13 @@ export class CMailController {
     return this.cmail.detail(req.user, id);
   }
 
+  // Sender-only recipient roster for the "N recipients" chip (QA #44).
+  @Get(':id/recipients')
+  @Roles(Role.TEACHER, Role.ADMIN, Role.SECRETARY)
+  recipients(@Req() req: any, @Param('id') id: string) {
+    return this.cmail.recipients(req.user, id);
+  }
+
   @Delete(':id')
   @Roles(Role.STUDENT, Role.TEACHER, Role.ADMIN, Role.PARENT, Role.SECRETARY)
   delete(@Req() req: any, @Param('id') id: string) {

@@ -21,8 +21,12 @@ Future<Set<String>?> showStudentMultiSelectSheet({
   required List<MultiSelectItem> items,
   Set<String>? initiallySelected,
   String? confirmLabel,
+  bool requireSelection = false,
 }) {
   final selected = <String>{...?initiallySelected};
+  // Only long lists get a search bar — grade/short pickers don't need one.
+  final searchable = items.length > 6;
+  final searchCtl = TextEditingController();
   return showModalBottomSheet<Set<String>>(
     context: context,
     isScrollControlled: true,
@@ -32,13 +36,26 @@ Future<Set<String>?> showStudentMultiSelectSheet({
       final cs = Theme.of(ctx).colorScheme;
       final theme = Theme.of(ctx);
       return StatefulBuilder(builder: (ctx, setSheet) {
+        final query = searchCtl.text.trim().toLowerCase();
+        final visible = query.isEmpty
+            ? items
+            : items
+                .where((it) =>
+                    it.name.toLowerCase().contains(query) ||
+                    (it.subtitle?.toLowerCase().contains(query) ?? false))
+                .toList();
         final allSelected = items.isNotEmpty && selected.length >= items.length;
+        // Lift the whole sheet above the keyboard so results and the confirm
+        // button are never covered (QA #41).
+        final keyboardInset = MediaQuery.viewInsetsOf(ctx).bottom;
         return DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.75,
           maxChildSize: 0.95,
           minChildSize: 0.5,
-          builder: (ctx, scroll) => Container(
+          builder: (ctx, scroll) => Padding(
+            padding: EdgeInsets.only(bottom: keyboardInset),
+            child: Container(
             decoration: BoxDecoration(
               color: cs.surface,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -76,14 +93,49 @@ Future<Set<String>?> showStudentMultiSelectSheet({
                   ),
                 ]),
               ),
+              if (searchable)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: TextField(
+                    controller: searchCtl,
+                    onChanged: (_) => setSheet(() {}),
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: l.commonSearch,
+                      prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                      // Clear (X) button — appears once there's text (QA #43).
+                      suffixIcon: query.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.close_rounded, size: 20),
+                              onPressed: () => setSheet(() => searchCtl.clear()),
+                            ),
+                      filled: true,
+                      fillColor: cs.surfaceContainerLow,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
               Expanded(
-                child: ListView.separated(
+                child: visible.isEmpty
+                    ? Center(
+                        child: Text(l.commonNoResults,
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(color: cs.onSurfaceVariant)),
+                      )
+                    : ListView.separated(
                   controller: scroll,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                  itemCount: items.length,
+                  itemCount: visible.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (_, i) {
-                    final it = items[i];
+                    final it = visible[i];
                     final on = selected.contains(it.id);
                     return InkWell(
                       borderRadius: BorderRadius.circular(16),
@@ -135,13 +187,18 @@ Future<Set<String>?> showStudentMultiSelectSheet({
                   child: SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: () => Navigator.pop(ctx, selected),
+                      // Stays disabled until at least one row is picked when the
+                      // caller requires a non-empty selection (QA #45/#46).
+                      onPressed: (requireSelection && selected.isEmpty)
+                          ? null
+                          : () => Navigator.pop(ctx, selected),
                       child: Text(confirmLabel ?? '${l.commonSave} (${selected.length})'),
                     ),
                   ),
                 ),
               ),
             ]),
+          ),
           ),
         );
       });

@@ -552,12 +552,17 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
             ],
           ),
           const SizedBox(height: 16),
-          _PasswordField(controller: _currentCtrl, hint: l.profileCurrentPassword),
+          // Focus the FIRST field (current password) when the sheet opens, so
+          // the user starts at the top rather than mid-form (QA #49).
+          _PasswordField(
+            controller: _currentCtrl,
+            hint: l.profileCurrentPassword,
+            autofocus: true,
+          ),
           const SizedBox(height: 10),
           _PasswordField(
             controller: _newCtrl,
             hint: l.profileNewPassword,
-            autofocus: true,
           ),
           const SizedBox(height: 10),
           _PasswordField(
@@ -1232,13 +1237,22 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
             children: [
               TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.commonCancel)),
               const SizedBox(width: 8),
-              FilledButton(
-                onPressed: () {
-                  final v = _resolveValue();
-                  if (v == null || v.isEmpty) return;
-                  Navigator.pop(context, v);
+              // Continue stays disabled until the field has input (QA #50).
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _ctrl,
+                builder: (context, value, _) {
+                  final enabled = value.text.trim().isNotEmpty;
+                  return FilledButton(
+                    onPressed: enabled
+                        ? () {
+                            final v = _resolveValue();
+                            if (v == null || v.isEmpty) return;
+                            Navigator.pop(context, v);
+                          }
+                        : null,
+                    child: Text(AppLocalizations.of(context)!.accountContinueButton),
+                  );
                 },
-                child: Text(AppLocalizations.of(context)!.accountContinueButton),
               ),
             ],
           ),

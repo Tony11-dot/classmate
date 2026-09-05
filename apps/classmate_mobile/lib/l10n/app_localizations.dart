@@ -10053,6 +10053,12 @@ abstract class AppLocalizations {
   /// **'Search…'**
   String get commonSearch;
 
+  /// No description provided for @commonNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get commonNoResults;
+
   /// No description provided for @commonShare.
   ///
   /// In en, this message translates to:
@@ -17517,6 +17523,18 @@ abstract class AppLocalizations {
   /// **'End'**
   String get adminSchoolSettingsEnd;
 
+  /// No description provided for @adminExportLayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF layout'**
+  String get adminExportLayoutLabel;
+
+  /// No description provided for @adminExportLayoutTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact table'**
+  String get adminExportLayoutTable;
+
   /// No description provided for @adminExportScreenEachUserAlone.
   ///
   /// In en, this message translates to:
@@ -20324,6 +20342,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create theme'**
   String get settingsCreateTheme;
+
+  /// No description provided for @settingsEditTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit theme'**
+  String get settingsEditTheme;
+
+  /// No description provided for @settingsSaveTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get settingsSaveTheme;
+
+  /// No description provided for @settingsThemeNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for your theme'**
+  String get settingsThemeNameRequired;
+
+  /// No description provided for @settingsThemeNameDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a theme with this name'**
+  String get settingsThemeNameDuplicate;
+
+  /// No description provided for @settingsDeleteThemeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete theme?'**
+  String get settingsDeleteThemeTitle;
+
+  /// No description provided for @settingsDeleteThemeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” will be removed. This can\'t be undone.'**
+  String settingsDeleteThemeBody(String name);
 
   /// No description provided for @cnMoveToShelf.
   ///
