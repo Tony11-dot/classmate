@@ -358,6 +358,17 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
                   decoration: InputDecoration(
                     hintText: widget.searchHint ?? l.practiceSetupSearchHint,
                     prefixIcon: const Icon(Icons.search_rounded),
+                    // Clear (X) to wipe the search text (QA #27/#18).
+                    suffixIcon: _q.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: l.clear,
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () {
+                              _ctrl.clear();
+                              setState(() => _q = '');
+                            },
+                          ),
                     filled: true,
                     fillColor: cs.surface,
                     border: OutlineInputBorder(

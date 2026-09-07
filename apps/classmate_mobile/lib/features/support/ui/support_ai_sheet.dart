@@ -203,13 +203,23 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      FilledButton(
-                        onPressed: _sending ? null : _send,
-                        style: FilledButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(14),
-                        ),
-                        child: const Icon(Icons.arrow_upward_rounded, size: 20),
+                      // Send is disabled until there's actual text, so tapping
+                      // an empty field can't look "broken" (QA #56).
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _controller,
+                        builder: (context, value, _) {
+                          final canSend =
+                              !_sending && value.text.trim().isNotEmpty;
+                          return FilledButton(
+                            onPressed: canSend ? _send : null,
+                            style: FilledButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(14),
+                            ),
+                            child:
+                                const Icon(Icons.arrow_upward_rounded, size: 20),
+                          );
+                        },
                       ),
                     ],
                   ),

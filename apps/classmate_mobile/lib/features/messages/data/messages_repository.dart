@@ -405,6 +405,11 @@ class ApiMessagesRepository implements MessagesRepository {
                 .join(),
       schoolName: (json['schoolName'] ?? '').toString(),
       gradeLabel: (json['gradeLabel'] ?? '').toString(),
+      // The backend sends a deterministic lowercase primary role; parsing it
+      // is what makes the New Chat role sections (Admins/Secretaries/etc.) and
+      // the role badges work — it was dropped here, so every section but "All"
+      // came up empty and admins/secretaries never appeared (QA #10/#12/#19).
+      role: (json['role'] ?? '').toString().trim().toLowerCase(),
     );
   }
 

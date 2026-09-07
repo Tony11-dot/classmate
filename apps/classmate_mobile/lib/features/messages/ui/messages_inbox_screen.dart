@@ -542,6 +542,15 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                           decoration: InputDecoration(
                             hintText: l.messagesSearchHint,
                             prefixIcon: const Icon(Icons.search_rounded),
+                            // Clear (X) to wipe the search text (QA #67).
+                            suffixIcon: _searchCtl.text.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.close_rounded),
+                                    tooltip: l.clear,
+                                    onPressed: () =>
+                                        setState(() => _searchCtl.clear()),
+                                  ),
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(18),

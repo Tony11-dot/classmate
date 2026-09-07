@@ -6,6 +6,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../core/config/env.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
@@ -161,8 +162,14 @@ class ChatMessageBubble extends StatelessWidget {
     final uri = Uri.tryParse(value);
     if (uri != null && uri.hasScheme) return value;
 
-    const base = String.fromEnvironment('CM_API_BASE_URL');
-    final normalizedBase = base.trim().replaceAll(RegExp(r'/+$'), '');
+    // Use the app's resolved API base (which has a correct default fallback)
+    // rather than the raw compile-time define — the define is empty on any
+    // build that didn't pass --dart-define, which left relative /uploads/…
+    // image URLs unqualified and unloadable (QA #5/#6). The upload host is the
+    // API host with any /api suffix stripped.
+    final normalizedBase = Env.stripApiSuffix(Env.apiBaseUrl)
+        .trim()
+        .replaceAll(RegExp(r'/+$'), '');
     if (normalizedBase.isEmpty) return value;
 
     final normalizedPath = value.startsWith('/') ? value : '/$value';

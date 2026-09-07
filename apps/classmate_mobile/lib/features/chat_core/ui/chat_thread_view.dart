@@ -923,13 +923,44 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
   }
 
   Future<void> _handleFiles() async {
-    final picked = await FilePicker.platform.pickFiles(allowMultiple: true);
+    // withData so we still get the file even when the platform hands back a
+    // content:// entry with a null path (Android scoped storage) — that null
+    // path was being silently filtered out, so "attach" looked like it did
+    // nothing (QA #9). When there's no path we materialise the bytes into a
+    // temp file the send pipeline can read.
+    final picked = await FilePicker.platform
+        .pickFiles(allowMultiple: true, withData: true);
     if (picked == null || picked.files.isEmpty) return;
-    final files = picked.files
-        .where((f) => (f.path ?? '').trim().isNotEmpty)
-        .map((f) => File(f.path!))
-        .toList();
-    if (files.isEmpty) return;
+    final files = <File>[];
+    for (final f in picked.files) {
+      final path = (f.path ?? '').trim();
+      if (path.isNotEmpty) {
+        files.add(File(path));
+        continue;
+      }
+      final bytes = f.bytes;
+      if (bytes != null && bytes.isNotEmpty) {
+        try {
+          final dir = _voiceTempDir ??= await getTemporaryDirectory();
+          final safeName = f.name.trim().isEmpty
+              ? 'attachment-${DateTime.now().millisecondsSinceEpoch}'
+              : f.name.trim();
+          final tmp = File('${dir.path}/$safeName');
+          await tmp.writeAsBytes(bytes, flush: true);
+          files.add(tmp);
+        } catch (_) {
+          // ignore this one — surfaced by the empty-result guard below
+        }
+      }
+    }
+    if (files.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.chatCouldNotSendMedia)),
+        );
+      }
+      return;
+    }
     setState(() => _draftAttachments.addAll(files));
     // Bring the keyboard up so the user can type a caption immediately — and
     // recover the input connection torn down by the file picker (QA #9).

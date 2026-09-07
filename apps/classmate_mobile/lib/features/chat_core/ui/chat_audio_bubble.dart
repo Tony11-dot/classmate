@@ -517,10 +517,14 @@ class _VoiceWavePainter extends CustomPainter {
           Offset(x, midY - h / 2), Offset(x, midY + h / 2), paint);
     }
 
-    // Scrubber dot: always visible (at the start when idle) — it doubles as
-    // the drag handle affordance, like WhatsApp's blue dot.
-    final dot = Paint()..color = dotColor;
-    canvas.drawCircle(Offset(dotX.clamp(5.0, usable - 5.0), midY), 5.5, dot);
+    // Scrubber dot: only while playing/seeked. At rest it sat pinned at the
+    // far-left edge, printed ON TOP of the first bars — which read as "the dot
+    // and the waves overlap" and hid part of the waveform (QA #8/#64). Drawing
+    // it only once playback has moved keeps the idle waveform clean.
+    if (progress > 0) {
+      final dot = Paint()..color = dotColor;
+      canvas.drawCircle(Offset(dotX.clamp(5.0, usable - 5.0), midY), 5.5, dot);
+    }
   }
 
   @override

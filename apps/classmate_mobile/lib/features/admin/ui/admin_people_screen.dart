@@ -126,6 +126,14 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.adminSearchPeople,
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                // Clear (X) to reset the people search (QA #18).
+                suffixIcon: _search.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close_rounded, size: 20),
+                        tooltip: AppLocalizations.of(context)!.clear,
+                        onPressed: () => _searchCtrl.clear(),
+                      ),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                 isDense: true,

@@ -719,7 +719,11 @@ class _ScheduleTile extends StatelessWidget {
                         Text(title,
                             style: theme.textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.w800)),
-                        if (subject.isNotEmpty) ...[
+                        // Only show the subject when it adds information — when
+                        // it's identical to the title it just read as the same
+                        // name printed twice (QA #73).
+                        if (subject.isNotEmpty &&
+                            subject.toLowerCase() != title.trim().toLowerCase()) ...[
                           const SizedBox(height: 2),
                           Text(subject,
                               style: theme.textTheme.bodyMedium

@@ -435,6 +435,7 @@ class _MultiPickerSheet extends StatefulWidget {
 }
 
 class _MultiPickerSheetState extends State<_MultiPickerSheet> {
+  final _searchCtrl = TextEditingController();
   String _query = '';
   late Set<String> _selected;
 
@@ -442,6 +443,12 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
   void initState() {
     super.initState();
     _selected = Set.from(widget.selected);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   void _toggle(String id) {
@@ -486,10 +493,22 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: TextField(
+            controller: _searchCtrl,
             onChanged: (v) => setState(() => _query = v),
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
               prefixIcon: const Icon(Icons.search_rounded, size: 20),
+              // Clear (X) to reset the search text (QA #65).
+              suffixIcon: _query.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      tooltip: AppLocalizations.of(context)!.clear,
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        setState(() => _query = '');
+                      },
+                    ),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
             ),

@@ -220,6 +220,23 @@ class AboutScreen extends StatelessWidget {
             title: l.aboutContactTitle,
             body: l.aboutContactDescription,
           ),
+          // Tappable support email — the contact copy above mentions it but
+          // was plain text before, so it couldn't be opened (QA #62).
+          _ContactRow(
+            icon: Icons.email_rounded,
+            label: l.supportEmailLabel,
+            value: _supportEmail,
+            onTap: () async {
+              final uri = Uri(scheme: 'mailto', path: _supportEmail);
+              if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.commonCouldNotOpenLink(uri.scheme))),
+                  );
+                }
+              }
+            },
+          ),
           const SizedBox(height: 8),
           // Tiny version stamp at the bottom — still discoverable, no longer
           // a hero block stealing focus.
@@ -367,6 +384,9 @@ class _FaqTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     return ExpansionTile(
+      // Stable key so the expanded/collapsed state is preserved by PageStorage
+      // when the list scrolls or the screen rebuilds (QA #61).
+      key: PageStorageKey<String>(faq.q),
       title: Text(
         faq.q,
         style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
