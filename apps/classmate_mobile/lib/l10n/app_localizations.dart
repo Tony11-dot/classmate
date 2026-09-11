@@ -10959,6 +10959,12 @@ abstract class AppLocalizations {
   /// **'Message'**
   String get supportSmsLabel;
 
+  /// No description provided for @supportContactCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard: {value}'**
+  String supportContactCopied(String value);
+
   /// No description provided for @supportAiCardTitle.
   ///
   /// In en, this message translates to:

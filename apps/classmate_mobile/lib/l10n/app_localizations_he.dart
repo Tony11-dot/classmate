@@ -6074,6 +6074,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get supportSmsLabel => 'הודעה';
 
   @override
+  String supportContactCopied(String value) {
+    return 'Copied to clipboard: $value';
+  }
+
+  @override
   String get supportAiCardTitle => 'שאלו את NOVA';
 
   @override

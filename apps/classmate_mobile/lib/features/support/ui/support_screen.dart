@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,6 +10,27 @@ import 'support_ai_sheet.dart';
 
 const _supportEmail = 'support@classmateapp.org';
 const _supportPhone = '+972525488441';
+
+/// Open a contact URI (mailto:/tel:/sms:), falling back to copying the address
+/// to the clipboard when no handler app is installed. On QA test devices with
+/// no Mail app, `launchUrl('mailto:…')` just returns false and the tap looked
+/// dead (QA #58/#62); copying the address makes the tap always do something
+/// useful.
+Future<void> openContactUri(BuildContext ctx, Uri uri) async {
+  bool launched = false;
+  try {
+    launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (_) {
+    launched = false;
+  }
+  if (launched || !ctx.mounted) return;
+  final value = uri.path.isNotEmpty ? uri.path : uri.toString();
+  await Clipboard.setData(ClipboardData(text: value));
+  if (!ctx.mounted) return;
+  ScaffoldMessenger.of(ctx).showSnackBar(
+    SnackBar(content: Text(AppLocalizations.of(ctx)!.supportContactCopied(value))),
+  );
+}
 
 class SupportScreen extends ConsumerWidget {
   const SupportScreen({super.key});
@@ -85,13 +107,7 @@ class SupportScreen extends ConsumerWidget {
   ];
 
   Future<void> _open(BuildContext ctx, Uri uri) async {
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (ctx.mounted) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(ctx)!.commonCouldNotOpenLink(uri.scheme))),
-        );
-      }
-    }
+    await openContactUri(ctx, uri);
   }
 
   @override
@@ -226,16 +242,10 @@ class AboutScreen extends StatelessWidget {
             icon: Icons.email_rounded,
             label: l.supportEmailLabel,
             value: _supportEmail,
-            onTap: () async {
-              final uri = Uri(scheme: 'mailto', path: _supportEmail);
-              if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l.commonCouldNotOpenLink(uri.scheme))),
-                  );
-                }
-              }
-            },
+            onTap: () => openContactUri(
+              context,
+              Uri(scheme: 'mailto', path: _supportEmail),
+            ),
           ),
           const SizedBox(height: 8),
           // Tiny version stamp at the bottom — still discoverable, no longer

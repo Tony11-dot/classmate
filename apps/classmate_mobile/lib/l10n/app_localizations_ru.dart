@@ -6080,6 +6080,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get supportSmsLabel => 'Сообщение';
 
   @override
+  String supportContactCopied(String value) {
+    return 'Copied to clipboard: $value';
+  }
+
+  @override
   String get supportAiCardTitle => 'Спросите NOVA';
 
   @override

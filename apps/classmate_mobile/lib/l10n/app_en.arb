@@ -2678,6 +2678,10 @@
   "supportEmailLabel": "Email",
   "supportPhoneLabel": "Phone",
   "supportSmsLabel": "Message",
+  "supportContactCopied": "Copied to clipboard: {value}",
+  "@supportContactCopied": {
+    "placeholders": { "value": { "type": "String" } }
+  },
   "supportAiCardTitle": "Ask NOVA",
   "supportAiCardSubtitle": "NOVA answers anything about using ClassMate — any time",
   "supportAiSheetTitle": "NOVA",

@@ -812,6 +812,27 @@ class _ThemeTile extends StatelessWidget {
                           size: 13, color: cs.onPrimary),
                     ),
                   ),
+                // Visible edit/delete affordance for custom themes — long-press
+                // was undiscoverable so testers reported edit "not clickable"
+                // (QA #55). A tap-target in the corner opens the same menu.
+                if (onEdit != null || onDelete != null)
+                  Positioned(
+                    top: 2,
+                    left: 2,
+                    child: Material(
+                      color: cs.surface.withValues(alpha: 0.85),
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => _openMenu(context),
+                        child: Padding(
+                          padding: const EdgeInsets.all(3),
+                          child: Icon(Icons.more_horiz_rounded,
+                              size: 16, color: cs.onSurface),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

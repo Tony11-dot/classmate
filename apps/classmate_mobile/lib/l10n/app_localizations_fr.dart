@@ -6233,6 +6233,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get supportSmsLabel => 'Message';
 
   @override
+  String supportContactCopied(String value) {
+    return 'Copied to clipboard: $value';
+  }
+
+  @override
   String get supportAiCardTitle => 'Demandez à NOVA';
 
   @override
