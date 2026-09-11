@@ -1,6 +1,6 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
@@ -8,6 +8,7 @@ import { join } from 'path';
 import { loadEnv } from './env';
 import { setUploadSafetyHeaders } from './common/upload-safety';
 import { HttpExceptionFilter } from './common/http-exception.filter';
+import { AuthThrottlerGuard } from './common/auth-throttler.guard';
 import { JsonLogger } from './common/logging/json.logger';
 import { RequestMetricsInterceptor } from './common/interceptors/request-metrics.interceptor';
 import { MetricsController } from './common/controllers/metrics.controller';
@@ -218,7 +219,7 @@ const seedControllers = [
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: AuthThrottlerGuard,
     },
     // Order matters — guards run top-to-bottom. JwtAuthGuard sets req.user;
     // RolesGuard reads it. Putting Roles first (the old order) only worked

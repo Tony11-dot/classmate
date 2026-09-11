@@ -19,7 +19,11 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Throttle({ auth: { limit: 5, ttl: 15 * 60_000 } })
+  // Scoped per-account by AuthThrottlerGuard, so this budget is per identifier,
+  // not per IP — a device with several accounts (or a QA tester cycling roles)
+  // never shares one bucket. 20/15min still throttles brute force on any single
+  // account while tolerating normal log-out/log-in churn.
+  @Throttle({ auth: { limit: 20, ttl: 15 * 60_000 } })
   @Post('login')
   async login(@Body() body: any) {
     const identifier = String(body?.identifier ?? body?.email ?? body?.username ?? '').trim().toLowerCase();
