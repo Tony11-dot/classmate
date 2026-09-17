@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
-
 import '../../../core/http/cm_api.dart';
+import 'sse_transport.dart';
 
 class SseClient {
-  final http.Client _client;
-  SseClient({http.Client? client}) : _client = client ?? http.Client();
+  SseClient();
 
   Stream<Map<String, dynamic>> connect(
     Uri uri, {
@@ -19,18 +17,21 @@ class SseClient {
     final isJwtish = token.split('.').length >= 3;
     final isDevTok = token.startsWith('dev-token-');
     final hasToken = token.isNotEmpty && (isJwtish || isDevTok);
-    final req = http.Request('GET', uri);
-    req.headers.addAll(<String, String>{
+    // The transport is picked per platform: `dart:io` streaming on mobile,
+    // Fetch `ReadableStream` on web (XHR can't stream, which is what left NOVA
+    // spinning on the browser). Both keep the token in the Authorization
+    // header, never the URL.
+    final res = await openSseStream(uri, <String, String>{
       'Accept': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
       if (hasToken) 'Authorization': 'Bearer $token',
       ...headers,
     });
-    final res = await _client.send(req);
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      final body = await res.stream.bytesToString();
+      final body = await res.body.transform(utf8.decoder).join();
       // Sanitized toString — never leak the raw response body to the UI.
+      await res.close();
       throw CMApiException(statusCode: res.statusCode, uri: uri, body: body);
     }
 
@@ -58,7 +59,7 @@ class SseClient {
       if (!out.isClosed) out.add(ev);
     }
 
-    final sub = res.stream
+    final sub = res.body
         .transform(utf8.decoder)
         .transform(const LineSplitter())
         .listen(
@@ -110,9 +111,8 @@ class SseClient {
       yield* out.stream;
     } finally {
       await sub.cancel();
+      await res.close();
       if (!out.isClosed) await out.close();
     }
   }
-
-  void close() => _client.close();
 }
