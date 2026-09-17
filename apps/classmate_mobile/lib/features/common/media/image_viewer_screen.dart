@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import 'web_media.dart';
 
 class ImageViewerScreen extends StatelessWidget {
   final String imageUrl;
@@ -28,6 +29,9 @@ class ImageViewerScreen extends StatelessWidget {
   Future<void> _download(BuildContext context) async {
     if (imageUrl.isEmpty) return;
     final messenger = ScaffoldMessenger.of(context);
+    // On web there is no temp dir / native share sheet — open the image in a
+    // new browser tab where the user can save it (fixes "Download Failed").
+    if (await openMediaInBrowserOnWeb(imageUrl)) return;
     try {
       final box = context.findRenderObject() as RenderBox?;
       String localPath;

@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,10 +56,11 @@ Future<void> _addToCalendar(
   final date = _parseDate(exam.dateLabel);
 
   if (date != null) {
-    // Android: open Google Calendar's event-template URL. The Calendar app
-    // (or browser fallback) handles `calendar.google.com/calendar/render`
-    // intents and pre-fills the title + start/end date.
-    if (Platform.isAndroid) {
+    // Web / Android: open Google Calendar's event-template URL. On web
+    // `dart:io Platform` isn't available at all (it throws), so the browser
+    // must take this branch — the Google Calendar render URL opens in a new
+    // tab and pre-fills the title + start/end date (web QA #50).
+    if (kIsWeb || Platform.isAndroid) {
       String pad(int v) => v.toString().padLeft(2, '0');
       final start = '${date.year}${pad(date.month)}${pad(date.day)}T080000';
       final end = '${date.year}${pad(date.month)}${pad(date.day)}T100000';
@@ -69,6 +71,10 @@ Future<void> _addToCalendar(
         if (exam.teacher.isNotEmpty) 'details': 'Teacher: ${exam.teacher}',
       };
       final gcalUri = Uri.https('calendar.google.com', '/calendar/render', params);
+      if (kIsWeb) {
+        await launchUrl(gcalUri, webOnlyWindowName: '_blank');
+        return;
+      }
       if (await canLaunchUrl(gcalUri)) {
         await launchUrl(gcalUri, mode: LaunchMode.externalApplication);
         return;

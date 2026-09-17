@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,9 +80,14 @@ class _ClassMaterialsSectionState extends ConsumerState<ClassMaterialsSection> {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
         allowMultiple: true,
+        // Web has no filesystem path — request the bytes so the upload works.
+        withData: kIsWeb,
       );
       if (result == null || result.files.isEmpty) return;
-      picked = result.files.where((f) => (f.path ?? '').isNotEmpty).toList();
+      // On web a file is valid if it has bytes; on mobile if it has a path.
+      picked = result.files
+          .where((f) => (f.path ?? '').isNotEmpty || (f.bytes != null))
+          .toList();
       if (picked.isEmpty) return;
     } catch (e) {
       if (!mounted) return;
@@ -104,7 +110,12 @@ class _ClassMaterialsSectionState extends ConsumerState<ClassMaterialsSection> {
             title: title.trim(),
             date: widget.date,
             files: picked
-                .map((f) => (path: f.path!, mime: _guessMime(f.name), name: f.name))
+                .map((f) => (
+                      path: f.path,
+                      bytes: f.bytes,
+                      mime: _guessMime(f.name),
+                      name: f.name,
+                    ))
                 .toList(),
           );
       await _load();
@@ -141,6 +152,7 @@ class _ClassMaterialsSectionState extends ConsumerState<ClassMaterialsSection> {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   labelText: l.classMaterialsTitleLabel,
+                  hintText: l.classMaterialsTitleHint,
                   border: const OutlineInputBorder(),
                 ),
                 onSubmitted: (v) => Navigator.of(ctx).pop(v.trim()),

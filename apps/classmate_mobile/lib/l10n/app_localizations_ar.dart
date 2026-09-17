@@ -2590,6 +2590,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'افتح عنوان URL المرفق في متصفحك أو تطبيق الاجتماع.';
 
   @override
+  String get meetingsEndedNote => 'This meeting has already taken place.';
+
+  @override
   String get meetingsJoinAction => 'انضم';
 
   @override
@@ -4876,6 +4879,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chatCouldNotSendMedia => 'تعذر إرسال الوسائط.';
+
+  @override
+  String get chatMediaWebUnsupported =>
+      'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.';
 
   @override
   String get chatCouldNotSendMessage => 'تعذر إرسال الرسالة.';
@@ -7294,6 +7301,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classMaterialsTitleLabel => 'العنوان';
+
+  @override
+  String get classMaterialsTitleHint => 'e.g. Chapter 3 worksheet';
 
   @override
   String classMaterialsFilesCount(int count) {

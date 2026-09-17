@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+
 import '../../../core/config/env.dart';
 
 
@@ -456,72 +459,102 @@ class PracticeGenerator {
   }
 
   Future<List<PracticeQuestion>> _generateFromApi(PracticeFilter filter) async {
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 60);
+    // Routes live at the ROOT (there is NO /api prefix on the server —
+    // /practice/generate is 401 with no auth, /api/practice/generate is
+    // 404). Adding /api was a mistake that made every request 404 → silent
+    // fallback. Post to the root base; auth is sent below.
+    final base = Env.stripApiSuffix(Env.apiBaseUrl);
+    final uri = Uri.parse('$base/practice/generate');
+    final bearer = _bearer;
+    final recent = _getRecent(filter);
+    final payload = <String, Object?>{
+      'subject': practiceSubjectAiName(filter.subject),
+      if (filter.grade != null) 'grade': filter.grade,
+      'topicLabel': filter.topicLabel,
+      'topicPath': filter.topicPath,
+      'topicPathText': filter.topicPath.isEmpty
+          ? filter.topicLabel
+          : filter.topicPath.join(' > '),
+      'mode': filter.mode.name,
+      'difficulty': filter.difficulty.name,
+      'questionCount': filter.questionCount,
+      'timePreferenceSeconds': filter.timePreferenceSeconds,
+      'useAiTiming': filter.useAiTiming,
+      'maxLives': filter.maxLives,
+      'sessionSeed': DateTime.now().millisecondsSinceEpoch,
+      'strictPromptSummary': buildStrictPracticeFilterSection(filter),
+      // Anti-repetition: tell the server which question prompts were already
+      // shown so it generates genuinely new ones.
+      if (recent.isNotEmpty) 'recentPrompts': recent,
+    };
+    final payloadJson = jsonEncode(payload);
 
     try {
-      // Routes live at the ROOT (there is NO /api prefix on the server —
-      // /practice/generate is 401 with no auth, /api/practice/generate is
-      // 404). Adding /api was a mistake that made every request 404 → silent
-      // fallback. Post to the root base; auth is sent below.
-      final base = Env.stripApiSuffix(Env.apiBaseUrl);
-      final uri = Uri.parse('$base/practice/generate');
-      final req = await client
-          .postUrl(uri)
-          .timeout(
+      final int statusCode;
+      final String body;
+      if (kIsWeb) {
+        // dart:io HttpClient doesn't exist on web — use package:http, which
+        // has a browser (XHR) implementation. Without this the practice
+        // "Start Session" threw and never generated (web QA #35).
+        final res = await http
+            .post(
+              uri,
+              headers: <String, String>{
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                if (bearer.isNotEmpty) 'Authorization': 'Bearer $bearer',
+              },
+              body: payloadJson,
+            )
+            .timeout(
+              const Duration(seconds: 180),
+              onTimeout: () => throw TimeoutException(
+                'practice.generate web post timeout after 180s',
+              ),
+            );
+        statusCode = res.statusCode;
+        body = res.body;
+      } else {
+        final client = HttpClient()
+          ..connectionTimeout = const Duration(seconds: 60);
+        try {
+          final req = await client
+              .postUrl(uri)
+              .timeout(
+                const Duration(seconds: 180),
+                onTimeout: () => throw TimeoutException(
+                  'practice.generate postUrl timeout after 180s',
+                ),
+              );
+
+          req.headers.contentType = ContentType.json;
+          req.headers.set(HttpHeaders.acceptHeader, 'application/json');
+          if (bearer.isNotEmpty) {
+            req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $bearer');
+          }
+          req.write(payloadJson);
+
+          final res = await req.close().timeout(
             const Duration(seconds: 180),
             onTimeout: () => throw TimeoutException(
-              'practice.generate postUrl timeout after 180s',
+              'practice.generate close timeout after 180s',
             ),
           );
-
-      req.headers.contentType = ContentType.json;
-      req.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      final bearer = _bearer;
-      if (bearer.isNotEmpty) {
-        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $bearer');
+          statusCode = res.statusCode;
+          body = await utf8
+              .decodeStream(res)
+              .timeout(
+                const Duration(seconds: 60),
+                onTimeout: () => throw TimeoutException(
+                  'practice.generate body timeout after 180s',
+                ),
+              );
+        } finally {
+          client.close(force: true);
+        }
       }
 
-      final recent = _getRecent(filter);
-      final payload = <String, Object?>{
-        'subject': practiceSubjectAiName(filter.subject),
-        if (filter.grade != null) 'grade': filter.grade,
-        'topicLabel': filter.topicLabel,
-        'topicPath': filter.topicPath,
-        'topicPathText': filter.topicPath.isEmpty
-            ? filter.topicLabel
-            : filter.topicPath.join(' > '),
-        'mode': filter.mode.name,
-        'difficulty': filter.difficulty.name,
-        'questionCount': filter.questionCount,
-        'timePreferenceSeconds': filter.timePreferenceSeconds,
-        'useAiTiming': filter.useAiTiming,
-        'maxLives': filter.maxLives,
-        'sessionSeed': DateTime.now().millisecondsSinceEpoch,
-        'strictPromptSummary': buildStrictPracticeFilterSection(filter),
-        // Anti-repetition: tell the server which question prompts were already
-        // shown so it generates genuinely new ones.
-        if (recent.isNotEmpty) 'recentPrompts': recent,
-      };
-
-      req.write(jsonEncode(payload));
-
-      final res = await req.close().timeout(
-        const Duration(seconds: 180),
-        onTimeout: () => throw TimeoutException(
-          'practice.generate close timeout after 180s',
-        ),
-      );
-      final body = await utf8
-          .decodeStream(res)
-          .timeout(
-            const Duration(seconds: 60),
-            onTimeout: () => throw TimeoutException(
-              'practice.generate body timeout after 180s',
-            ),
-          );
-
-      if (res.statusCode < 200 || res.statusCode >= 300) {
+      if (statusCode < 200 || statusCode >= 300) {
         return const [];
       }
 
@@ -557,8 +590,6 @@ class PracticeGenerator {
       return out;
     } catch (e) {
       return const [];
-    } finally {
-      client.close(force: true);
     }
   }
 

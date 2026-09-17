@@ -1,14 +1,17 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import 'web_media.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final String url;
@@ -37,6 +40,13 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   }
 
   Future<void> _prepare() async {
+    // Web: flutter_pdfview / path_provider have no web implementation
+    // ("Missing Plugin"). The Syncfusion viewer renders straight from the
+    // network URL on web, so skip the temp-file download entirely.
+    if (kIsWeb) {
+      setState(() => _loading = false);
+      return;
+    }
     try {
       final uri = Uri.parse(widget.url);
       final res = await http.get(uri).timeout(const Duration(seconds: 20));
@@ -71,6 +81,9 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   }
 
   Future<void> _download() async {
+    // Web: no temp file / share sheet — open the PDF URL in a new tab where
+    // the browser's own viewer offers Save.
+    if (await openMediaInBrowserOnWeb(widget.url)) return;
     // The PDF is already on disk in the temp dir (we wrote it in
     // _prepare). Hand it to the OS share sheet — that gives the user
     // "Save to Files", "Save to Drive", AirDrop, etc.
@@ -115,22 +128,26 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
           Positioned.fill(
             child: _loading
                 ? const Center(child: CmLoading())
-                : (_localPath != null
-                    ? PDFView(
-                        filePath: _localPath!,
-                        enableSwipe: true,
-                        swipeHorizontal: false,
-                        autoSpacing: true,
-                        pageFling: true,
-                        pageSnap: true,
-                        fitPolicy: FitPolicy.BOTH,
-                        preventLinkNavigation: false,
-                      )
-                    : _ErrorBody(
-                        title: resolvedTitle,
-                        error: _error,
-                        onOpen: _openExternally,
-                      )),
+                : kIsWeb
+                    // Web renders directly from the network URL — no native
+                    // PDF plugin, no temp file.
+                    ? SfPdfViewer.network(widget.url)
+                    : (_localPath != null
+                        ? PDFView(
+                            filePath: _localPath!,
+                            enableSwipe: true,
+                            swipeHorizontal: false,
+                            autoSpacing: true,
+                            pageFling: true,
+                            pageSnap: true,
+                            fitPolicy: FitPolicy.BOTH,
+                            preventLinkNavigation: false,
+                          )
+                        : _ErrorBody(
+                            title: resolvedTitle,
+                            error: _error,
+                            onOpen: _openExternally,
+                          )),
           ),
           Positioned(
             top: MediaQuery.paddingOf(context).top + 6,
@@ -141,7 +158,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 _PdfFloatingButton(
                   icon: Icons.file_download_outlined,
                   tooltip: AppLocalizations.of(context)!.commonDownload,
-                  onTap: _localPath == null ? null : _download,
+                  // On web the download opens a new tab (no local file needed).
+                  onTap: (kIsWeb || _localPath != null) ? _download : null,
                 ),
                 const SizedBox(width: 6),
                 _PdfFloatingButton(

@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -75,6 +76,12 @@ class AttachmentPill extends StatelessWidget {
     }
     final uri = Uri.tryParse(resolved);
     if (uri == null) return;
+    // Web can't do an in-app browser view — open the file in a new tab so
+    // docs/other files actually open instead of silently failing.
+    if (kIsWeb) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+      return;
+    }
     await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
   }
 

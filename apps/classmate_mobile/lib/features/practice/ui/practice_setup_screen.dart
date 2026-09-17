@@ -1450,6 +1450,16 @@ class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
                     decoration: InputDecoration(
                       hintText: widget.searchHint,
                       prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: _query.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              tooltip: AppLocalizations.of(context)!.clear,
+                              onPressed: () => setState(() {
+                                _controller.clear();
+                                _query = '';
+                              }),
+                            ),
                       filled: true,
                       fillColor: cs.surfaceContainerHighest.withValues(
                         alpha: 0.65,

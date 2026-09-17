@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +18,24 @@ const _supportPhone = '+972525488441';
 /// dead (QA #58/#62); copying the address makes the tap always do something
 /// useful.
 Future<void> openContactUri(BuildContext ctx, Uri uri) async {
+  final value = uri.path.isNotEmpty ? uri.path : uri.toString();
+  // On web a `mailto:`/`tel:` can open a blank new tab (or nothing) and there's
+  // no reliable way to tell whether a handler took it — the tap looked dead
+  // (web QA #54). So on web we always copy the address AND best-effort trigger
+  // the handler, guaranteeing the tap does something useful.
+  if (kIsWeb) {
+    try {
+      await launchUrl(uri, webOnlyWindowName: '_self');
+    } catch (_) {
+      // ignored — the clipboard copy below is the reliable outcome
+    }
+    await Clipboard.setData(ClipboardData(text: value));
+    if (!ctx.mounted) return;
+    ScaffoldMessenger.of(ctx).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(ctx)!.supportContactCopied(value))),
+    );
+    return;
+  }
   bool launched = false;
   try {
     launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -24,7 +43,6 @@ Future<void> openContactUri(BuildContext ctx, Uri uri) async {
     launched = false;
   }
   if (launched || !ctx.mounted) return;
-  final value = uri.path.isNotEmpty ? uri.path : uri.toString();
   await Clipboard.setData(ClipboardData(text: value));
   if (!ctx.mounted) return;
   ScaffoldMessenger.of(ctx).showSnackBar(

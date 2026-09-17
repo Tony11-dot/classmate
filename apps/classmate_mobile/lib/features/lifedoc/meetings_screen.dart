@@ -705,6 +705,14 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
 
           final link = _stringValue(meeting, 'link');
           final normalizedLink = _normalizedMeetingUri(link);
+          // A meeting is "past" (no longer joinable) once its start time is
+          // more than 2 hours behind now — a generous window that still lets
+          // people join a running session, but blocks joining meetings from
+          // earlier days (web QA #33/#45).
+          final meetingStart = _parseFlexibleDate(_stringValue(meeting, 'startsAt'));
+          final isPastMeeting = meetingStart != null &&
+              meetingStart.add(const Duration(hours: 2)).isBefore(DateTime.now());
+          final canJoin = normalizedLink != null && !isPastMeeting;
           final courseName = _stringValue(meeting, '_courseName');
           final subject = _stringValue(meeting, '_subject');
           final teacherName = _firstNonEmpty([
@@ -851,7 +859,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                                     runSpacing: 10,
                                     children: [
                                       FilledButton.icon(
-                                        onPressed: normalizedLink == null
+                                        onPressed: !canJoin
                                             ? null
                                             : () => _openMeetingLink(link),
                                         icon: _openingLink
@@ -901,9 +909,11 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    normalizedLink == null
-                                        ? l.meetingsNoValidLinkAttached
-                                        : l.meetingsAccessPanelReadyBody,
+                                    isPastMeeting
+                                        ? l.meetingsEndedNote
+                                        : normalizedLink == null
+                                            ? l.meetingsNoValidLinkAttached
+                                            : l.meetingsAccessPanelReadyBody,
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontSize: 12,
@@ -914,7 +924,7 @@ class _MeetingDetailScreenState extends ConsumerState<MeetingDetailScreen> {
                             ),
                             const SizedBox(width: 12),
                             FilledButton.icon(
-                              onPressed: normalizedLink == null
+                              onPressed: !canJoin
                                   ? null
                                   : () => _openMeetingLink(link),
                               icon: const Icon(Icons.video_call_rounded),

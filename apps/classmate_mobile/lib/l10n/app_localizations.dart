@@ -4548,6 +4548,12 @@ abstract class AppLocalizations {
   /// **'Open the attached URL in your browser or meeting app.'**
   String get meetingsAccessPanelReadyBody;
 
+  /// No description provided for @meetingsEndedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This meeting has already taken place.'**
+  String get meetingsEndedNote;
+
   /// No description provided for @meetingsJoinAction.
   ///
   /// In en, this message translates to:
@@ -8654,6 +8660,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not send media.'**
   String get chatCouldNotSendMedia;
+
+  /// No description provided for @chatMediaWebUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.'**
+  String get chatMediaWebUnsupported;
 
   /// No description provided for @chatCouldNotSendMessage.
   ///
@@ -13034,6 +13046,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Title'**
   String get classMaterialsTitleLabel;
+
+  /// No description provided for @classMaterialsTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Chapter 3 worksheet'**
+  String get classMaterialsTitleHint;
 
   /// No description provided for @classMaterialsFilesCount.
   ///

@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+
 import '../../../core/config/env.dart';
 
 String _normalizeIncoming(String s) {
@@ -71,33 +74,55 @@ class BagrutRepository {
     required String subject,
     required String topicLabel,
   }) async {
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 15);
+    // Root base — no /api prefix on the server.
+    final base = Env.stripApiSuffix(Env.apiBaseUrl);
+    final uri = Uri.parse('$base/bagrut/question');
+    final bearer = _bearer;
+    final payloadJson = jsonEncode({'subject': subject, 'topicLabel': topicLabel});
 
     try {
-      // Root base — no /api prefix on the server.
-      final base = Env.stripApiSuffix(Env.apiBaseUrl);
-      final uri = Uri.parse('$base/bagrut/question');
-      final req = await client.postUrl(uri);
-      req.headers.contentType = ContentType.json;
-      req.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      final bearer = _bearer;
-      if (bearer.isNotEmpty) {
-        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $bearer');
+      final int statusCode;
+      final String body;
+      if (kIsWeb) {
+        // dart:io HttpClient / stderr don't exist on web — use package:http.
+        final res = await http
+            .post(
+              uri,
+              headers: <String, String>{
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                if (bearer.isNotEmpty) 'Authorization': 'Bearer $bearer',
+              },
+              body: payloadJson,
+            )
+            .timeout(const Duration(seconds: 60));
+        statusCode = res.statusCode;
+        body = res.body;
+      } else {
+        final client = HttpClient()
+          ..connectionTimeout = const Duration(seconds: 15);
+        try {
+          final req = await client.postUrl(uri);
+          req.headers.contentType = ContentType.json;
+          req.headers.set(HttpHeaders.acceptHeader, 'application/json');
+          if (bearer.isNotEmpty) {
+            req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $bearer');
+          }
+          req.write(payloadJson);
+          final res = await req.close();
+          statusCode = res.statusCode;
+          body = await utf8.decodeStream(res);
+        } finally {
+          client.close(force: true);
+        }
       }
 
-      req.write(jsonEncode({'subject': subject, 'topicLabel': topicLabel}));
-
-      final res = await req.close();
-      final body = await utf8.decodeStream(res);
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        stderr.writeln('bagrut.question http ${res.statusCode}: $body');
+      if (statusCode < 200 || statusCode >= 300) {
+        debugPrint('bagrut.question http $statusCode: $body');
         return null;
       }
       if (body.trim().isEmpty) {
-        stderr.writeln(
-          'bagrut.question empty body with status ${res.statusCode}',
-        );
+        debugPrint('bagrut.question empty body with status $statusCode');
         return null;
       }
 
@@ -105,11 +130,9 @@ class BagrutRepository {
       if (decoded is! Map<String, dynamic>) return null;
       return BagrutQuestionDto.fromJson(decoded);
     } catch (e, st) {
-      stderr.writeln('bagrut.question failed: $e');
-      stderr.writeln('$st');
+      debugPrint('bagrut.question failed: $e');
+      debugPrint('$st');
       return null;
-    } finally {
-      client.close(force: true);
     }
   }
 }

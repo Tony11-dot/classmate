@@ -86,7 +86,7 @@ class ClassMaterialsRepository {
   Future<SlotMaterial> add({
     required String slotId,
     required String title,
-    required List<({String path, String? mime, String name})> files,
+    required List<({String? path, List<int>? bytes, String? mime, String name})> files,
     String date = '',
   }) async {
     final base = Env.stripApiSuffix(Env.apiBaseUrl).replaceAll(RegExp(r'/+$'), '');
@@ -94,7 +94,10 @@ class ClassMaterialsRepository {
 
     final attachments = <Map<String, dynamic>>[];
     for (final f in files) {
-      final up = await _api.multipartUpload(uploadUri, f.path, mimeType: f.mime);
+      // Web hands back in-memory bytes (no path); mobile hands back a path.
+      final up = f.bytes != null
+          ? await _api.multipartUploadBytes(uploadUri, f.bytes!, f.name, mimeType: f.mime)
+          : await _api.multipartUpload(uploadUri, f.path!, mimeType: f.mime);
       attachments.add({
         'url': (up['fileUrl'] ?? up['url'] ?? '').toString(),
         'name': (up['fileName'] ?? f.name).toString(),

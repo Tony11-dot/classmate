@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -107,7 +108,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
       uri = Uri.tryParse('https://$trimmed');
     }
     if (uri == null || !uri.hasScheme) return;
-    if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
+    final launched = kIsWeb
+        ? await launchUrl(uri, webOnlyWindowName: '_blank')
+        : await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    if (!launched) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.classroomsCouldNotOpenLink)),

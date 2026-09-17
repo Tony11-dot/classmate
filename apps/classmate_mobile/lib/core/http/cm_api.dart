@@ -231,6 +231,30 @@ class CMApi {
     return const <String, dynamic>{};
   }
 
+  /// Bytes variant of [multipartUpload] — required on web, where picked files
+  /// have no filesystem path (only in-memory bytes) so `MultipartFile.fromPath`
+  /// can't be used.
+  Future<Map<String, dynamic>> multipartUploadBytes(
+    Uri uri,
+    List<int> bytes,
+    String filename, {
+    String? mimeType,
+  }) async {
+    final t = (token ?? '').trim();
+    final request = http.MultipartRequest('POST', uri)
+      ..headers['Accept'] = 'application/json'
+      ..headers['Authorization'] = 'Bearer $t'
+      ..files.add(http.MultipartFile.fromBytes('file', bytes,
+          filename: filename,
+          contentType: mimeType != null ? _mediaType(mimeType) : null));
+    final streamed = await request.send().timeout(_timeout);
+    final response = await http.Response.fromStream(streamed);
+    _throwIfBad(response, uri);
+    final decoded = _decodeOrNull(response);
+    if (decoded is Map<String, dynamic>) return decoded;
+    return const <String, dynamic>{};
+  }
+
   static MediaType? _mediaType(String mime) {
     try { return MediaType.parse(mime); } catch (_) { return null; }
   }

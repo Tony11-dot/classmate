@@ -96,6 +96,16 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     decoration: InputDecoration(
                       hintText: l.assignmentsSearchSubjects,
                       prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: state.searchQuery.trim().isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              tooltip: l.clear,
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                notifier.search('');
+                              },
+                            ),
                       filled: true,
                       fillColor: cs.surfaceContainerHighest.withValues(
                         alpha: 0.7,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -259,6 +260,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
   /// the press path, so holding the mic doesn't pay for them. Both are pure
   /// reads — neither prompts the user, so this is safe to run on open.
   Future<void> _prewarmVoiceRecording() async {
+    if (kIsWeb) return; // no temp dir on web
     try {
       final dir = await getTemporaryDirectory();
       if (_disposed) return;
@@ -866,63 +868,98 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
 
   // ─── media picking ───────────────────────────────────────────────────────
 
+  /// The chat media pipeline (preview/edit/upload) runs on `dart:io` File +
+  /// path_provider, none of which exist on Flutter web — so picking media in a
+  /// browser used to throw an uncaught exception that white-screened the whole
+  /// tab and forced a refresh (web QA #1-8/#10/#12/#22-30). On web we surface a
+  /// clear message instead of crashing; media send stays a mobile feature.
+  void _showMediaWebUnsupported() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.chatMediaWebUnsupported)),
+    );
+  }
+
+  void _showMediaError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.chatCouldNotSendMedia)),
+    );
+  }
+
   Future<void> _handleCamera() async {
-    final image = await _imagePicker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 92,
-      preferredCameraDevice: CameraDevice.rear,
-    );
-    if (image == null || !mounted) return;
-    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: [image.path], title: AppLocalizations.of(context)!.chatPhoto),
-      ),
-    );
-    if (result == null || !mounted) return;
-    _sendMediaResult(result);
+    if (kIsWeb) return _showMediaWebUnsupported();
+    try {
+      final image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 92,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      if (image == null || !mounted) return;
+      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+        MaterialPageRoute(
+          builder: (_) =>
+              ChatMediaPreviewScreen(initialPaths: [image.path], title: AppLocalizations.of(context)!.chatPhoto),
+        ),
+      );
+      if (result == null || !mounted) return;
+      _sendMediaResult(result);
+    } catch (_) {
+      _showMediaError();
+    }
   }
 
   Future<void> _handleVideo() async {
-    final video = await _imagePicker.pickVideo(
-      source: ImageSource.camera,
-      // Bound the size: a 5-min clip easily exceeds the upload limit and the
-      // request resets mid-upload. ~1 min keeps it well within bounds.
-      maxDuration: const Duration(seconds: 60),
-    );
-    if (video == null || !mounted) return;
-    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: [video.path], title: AppLocalizations.of(context)!.chatVideo),
-      ),
-    );
-    if (result == null || !mounted) return;
-    _sendMediaResult(result);
+    if (kIsWeb) return _showMediaWebUnsupported();
+    try {
+      final video = await _imagePicker.pickVideo(
+        source: ImageSource.camera,
+        // Bound the size: a 5-min clip easily exceeds the upload limit and the
+        // request resets mid-upload. ~1 min keeps it well within bounds.
+        maxDuration: const Duration(seconds: 60),
+      );
+      if (video == null || !mounted) return;
+      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+        MaterialPageRoute(
+          builder: (_) =>
+              ChatMediaPreviewScreen(initialPaths: [video.path], title: AppLocalizations.of(context)!.chatVideo),
+        ),
+      );
+      if (result == null || !mounted) return;
+      _sendMediaResult(result);
+    } catch (_) {
+      _showMediaError();
+    }
   }
 
   Future<void> _handleGallery() async {
-    final picked = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.media,
-    );
-    if (picked == null || picked.files.isEmpty) return;
-    final paths = picked.files
-        .where((f) => (f.path ?? '').trim().isNotEmpty)
-        .map((f) => f.path!)
-        .toList();
-    if (paths.isEmpty || !mounted) return;
-    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: paths, title: AppLocalizations.of(context)!.chatMedia),
-      ),
-    );
-    if (result == null || !mounted) return;
-    _sendMediaResult(result);
+    if (kIsWeb) return _showMediaWebUnsupported();
+    try {
+      final picked = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.media,
+      );
+      if (picked == null || picked.files.isEmpty) return;
+      final paths = picked.files
+          .where((f) => (f.path ?? '').trim().isNotEmpty)
+          .map((f) => f.path!)
+          .toList();
+      if (paths.isEmpty || !mounted) return;
+      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+        MaterialPageRoute(
+          builder: (_) =>
+              ChatMediaPreviewScreen(initialPaths: paths, title: AppLocalizations.of(context)!.chatMedia),
+        ),
+      );
+      if (result == null || !mounted) return;
+      _sendMediaResult(result);
+    } catch (_) {
+      _showMediaError();
+    }
   }
 
   Future<void> _handleFiles() async {
+    if (kIsWeb) return _showMediaWebUnsupported();
     // withData so we still get the file even when the platform hands back a
     // content:// entry with a null path (Android scoped storage) — that null
     // path was being silently filtered out, so "attach" looked like it did
@@ -1031,6 +1068,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
   /// once it is, so the displayed duration still matches the recorded file.
   Future<void> _startRecording({bool locked = false}) async {
     if (_recording || _disposed) return;
+    // Voice notes record to a temp file via path_provider, which doesn't exist
+    // on web — bail with a clear message instead of throwing (web QA #6).
+    if (kIsWeb) return _showMediaWebUnsupported();
 
     final session = ++_voiceSession;
     setState(() {

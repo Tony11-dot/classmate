@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -509,6 +510,11 @@ class ChatMessageBubble extends StatelessWidget {
 
     final uri = Uri.tryParse(url);
     if (uri == null) return;
+    // Web has no in-app browser view — open in a new tab instead.
+    if (kIsWeb) {
+      await launchUrl(uri, webOnlyWindowName: '_blank');
+      return;
+    }
     await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
   }
 

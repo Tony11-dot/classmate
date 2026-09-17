@@ -1203,6 +1203,7 @@
   "meetingsCopyLink": "Copy link",
   "meetingsAccessPanelTitle": "Meeting access",
   "meetingsAccessPanelReadyBody": "Open the attached URL in your browser or meeting app.",
+  "meetingsEndedNote": "This meeting has already taken place.",
   "meetingsJoinAction": "Join",
   "announcementsDetailLoadFailedHint": "Go back and try refreshing the announcements inbox.",
   "announcementsUnavailableTitle": "Announcement unavailable",
@@ -2172,6 +2173,7 @@
   "chatOpenSettings": "Open Settings",
   "chatCopied": "Copied",
   "chatCouldNotSendMedia": "Could not send media.",
+  "chatMediaWebUnsupported": "Taking photos, recording, and attaching files aren't available in the web browser yet — please use the ClassMate mobile app.",
   "chatCouldNotSendMessage": "Could not send message.",
   "chatCouldNotForward": "Could not forward selected messages",
   "chatSelectAll": "Select all",
@@ -3345,6 +3347,7 @@
   "navMaterials": "Materials",
   "classMaterialsAddTitle": "Add material",
   "classMaterialsTitleLabel": "Title",
+  "classMaterialsTitleHint": "e.g. Chapter 3 worksheet",
   "classMaterialsFilesCount": "{count} files",
   "@classMaterialsFilesCount": {
     "placeholders": {
