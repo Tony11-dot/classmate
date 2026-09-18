@@ -251,11 +251,53 @@ export class ClassnotesAiService {
       }));
   }
 
+  private static readonly RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+
+  /**
+   * One retry, for exactly the two shapes of "this should have worked": a
+   * transient upstream status (Groq rate-limited us, or hiccuped with a 5xx)
+   * and a genuinely empty completion (a reasoning model that burned its whole
+   * budget "thinking" and never reached a final answer — `reasoning_format:
+   * hidden` keeps that out of `answer`, but it can still leave `answer`
+   * empty). Both used to reach the student as "NOVA couldn't respond" on an
+   * otherwise perfectly healthy request, indistinguishable from a real outage
+   * or a dead model — which is what every other case in this file actually
+   * is. A non-retryable status (400/401/404 — a contract or auth problem, not
+   * a blip) and a SECOND failure in a row are both treated as the truth, not
+   * tried a third time.
+   */
   private async post(
     messages: unknown[],
     model: string,
     reasoning = true,
   ): Promise<{ answer: string }> {
+    try {
+      const answer = await this.postOnce(messages, model, reasoning);
+      if (answer.trim().length > 0) return { answer };
+      this.logger.warn(`Empty answer from ${model} — retrying once`);
+    } catch (error) {
+      const status = error instanceof UpstreamStatusError ? error.status : undefined;
+      if (status !== undefined && !ClassnotesAiService.RETRYABLE_STATUS.has(status)) {
+        throw new Error(`AI upstream ${status}`);
+      }
+      this.logger.warn(`Upstream ${status ?? 'network'} error from ${model} — retrying once`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    try {
+      const answer = await this.postOnce(messages, model, reasoning);
+      return { answer };
+    } catch (error) {
+      const status = error instanceof UpstreamStatusError ? error.status : undefined;
+      throw new Error(`AI upstream ${status ?? 'network error'}`);
+    }
+  }
+
+  /** One attempt at the upstream call, with no retry logic of its own. */
+  private async postOnce(
+    messages: unknown[],
+    model: string,
+    reasoning: boolean,
+  ): Promise<string> {
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(),
@@ -284,15 +326,21 @@ export class ClassnotesAiService {
         signal: controller.signal,
       });
       if (!res.ok) {
-        throw new Error(`AI upstream ${res.status}`);
+        throw new UpstreamStatusError(res.status);
       }
       const data: any = await res.json();
-      const answer = ClassnotesAiService.stripReasoning(
+      return ClassnotesAiService.stripReasoning(
         String(data?.choices?.[0]?.message?.content ?? ''),
       );
-      return { answer };
     } finally {
       clearTimeout(timer);
     }
+  }
+}
+
+/** Carries the upstream HTTP status through `post`'s retry decision. */
+class UpstreamStatusError extends Error {
+  constructor(readonly status: number) {
+    super(`AI upstream ${status}`);
   }
 }
