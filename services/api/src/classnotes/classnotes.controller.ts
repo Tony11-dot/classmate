@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -36,6 +37,8 @@ import {
 @Roles(...ALL_APP_ROLES)
 @Controller('classnotes')
 export class ClassnotesController {
+  private readonly logger = new Logger('ClassnotesController');
+
   constructor(
     private readonly svc: ClassnotesService,
     private readonly ai: ClassnotesAiService,
@@ -61,7 +64,23 @@ export class ClassnotesController {
         return await this.ai.see(dto.text, dto.imageBase64, dto.history ?? [], dto.pageContext);
       }
       return await this.ai.chat(dto.text, dto.history ?? [], dto.pageContext);
-    } catch {
+    } catch (error) {
+      // This used to be a bare `catch` that threw the 503 below and kept
+      // nothing. Every NOVA failure — a retired model, a rate limit, a
+      // malformed upstream body, a bug in this file — arrived at the student
+      // as the same "NOVA couldn't respond", and left NOTHING behind to tell
+      // them apart afterwards. Two separate model deprecations were diagnosed
+      // by testing Groq by hand instead of by reading a log, because there was
+      // no log. The task and whether a picture was attached are recorded too:
+      // chat and snip take different models down different code paths, and
+      // "text fails while snips work" is only a usable clue if the failures
+      // say which one they were.
+      this.logger.error(
+        `NOVA ${(dto.task || 'chat').toLowerCase()}` +
+          `${dto.imageBase64 ? ' (with image)' : ''} failed: ` +
+          `${error instanceof Error ? error.message : String(error)}`,
+        error instanceof Error ? error.stack : undefined,
+      );
       throw new ServiceUnavailableException(
         'NOVA is temporarily unavailable. Please try again in a moment.',
       );
