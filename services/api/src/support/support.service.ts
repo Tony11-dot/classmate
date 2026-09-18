@@ -20,7 +20,7 @@ import {
  * env vars:
  *   SUPPORT_AI_BASE_URL  (default https://api.groq.com/openai/v1)
  *   SUPPORT_AI_API_KEY   (falls back to GROQ_API_KEY; blank for keyless Ollama)
- *   SUPPORT_AI_MODEL     (default llama-3.3-70b-versatile)
+ *   SUPPORT_AI_MODEL     (default openai/gpt-oss-120b)
  *
  * When no key is configured (and the base URL isn't a keyless local one) the
  * assistant reports itself disabled so the app hides it and keeps showing the

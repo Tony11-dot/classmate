@@ -15,7 +15,7 @@ import {
  * default) — configured purely with env vars, identical to SupportService:
  *   SUPPORT_AI_BASE_URL  (default https://api.groq.com/openai/v1)
  *   SUPPORT_AI_API_KEY   (falls back to GROQ_API_KEY)
- *   SUPPORT_AI_MODEL     (default llama-3.3-70b-versatile)
+ *   SUPPORT_AI_MODEL     (default openai/gpt-oss-120b)
  *
  * Every route is JWT-gated (ALL_APP_ROLES) so it's never an open AI endpoint.
  */
@@ -47,10 +47,18 @@ export class ClassnotesAiService {
    * The model used when the student sends a picture. Kept separate because the
    * text model can't see: pointing the snip at it returns a confident answer
    * about nothing.
+   *
+   * meta-llama/llama-4-scout-17b-16e-instruct (the old default) and
+   * qwen/qwen3.6-27b (what SUPPORT_AI_VISION_MODEL had drifted to in prod) are
+   * BOTH gone from Groq's catalog as of 2026-09-18 — every snip 404'd with
+   * model_not_found regardless of which one was in play, while plain text
+   * chat kept working, since that's a different model entirely. Verified
+   * qwen/qwen3.8-27b directly against Groq (a real image, correctly
+   * described) before making it the fallback here.
    */
   private visionModel(): string {
     return (
-      process.env.SUPPORT_AI_VISION_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct'
+      process.env.SUPPORT_AI_VISION_MODEL || 'qwen/qwen3.8-27b'
     ).trim();
   }
 

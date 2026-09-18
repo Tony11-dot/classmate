@@ -16,7 +16,7 @@ import {
  *
  *   SUPPORT_AI_BASE_URL  (default https://api.groq.com/openai/v1)
  *   SUPPORT_AI_API_KEY   (falls back to GROQ_API_KEY)
- *   SUPPORT_AI_MODEL     (default llama-3.3-70b-versatile)
+ *   SUPPORT_AI_MODEL     (default openai/gpt-oss-120b)
  *   SUPPORT_AI_VISION_MODEL (default a Groq vision model, for the magic pen)
  */
 @Injectable()
@@ -38,9 +38,13 @@ export class AiService {
   }
 
   private visionModel(): string {
-    // Groq multimodal model (text + image). The old llama-4-scout/​maverick and
-    // llama-3.3 models were deprecated by Groq on 2026-06-17.
-    return (process.env.SUPPORT_AI_VISION_MODEL || 'qwen/qwen3.6-27b').trim();
+    // Groq multimodal model (text + image). The old llama-4-scout/maverick and
+    // llama-3.3 models were deprecated by Groq on 2026-06-17, and qwen3.6-27b
+    // (this default until 2026-09-18) followed them — Groq renamed it to
+    // qwen3.8-27b, and the old name 404'd with model_not_found on every call.
+    // Verified qwen3.8-27b directly against Groq (a real image, correctly
+    // described) before making it the default here.
+    return (process.env.SUPPORT_AI_VISION_MODEL || 'qwen/qwen3.8-27b').trim();
   }
 
   isEnabled(): boolean {
