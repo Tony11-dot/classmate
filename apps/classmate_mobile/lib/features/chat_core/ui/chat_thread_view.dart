@@ -23,6 +23,7 @@ import '../domain/chat_message.dart';
 import '../domain/chat_message_kind.dart';
 import '../domain/chat_thread_type.dart';
 import '../domain/forward_target.dart';
+import '../domain/outgoing_media.dart';
 import '../../messages/data/messages_repository.dart';
 import '../../messages/providers/messages_repository_provider.dart';
 import '../models/chat_message_info.dart';
@@ -226,7 +227,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
   bool _disposed = false;
 
   // Drafts
-  final List<File> _draftAttachments = <File>[];
+  final List<OutgoingMedia> _draftAttachments = <OutgoingMedia>[];
 
   bool _markedRead = false;
 
@@ -498,7 +499,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
 
     // ── Send media ──────────────────────────────────────────────────────────
     if (_draftAttachments.isNotEmpty) {
-      final files = List<File>.from(_draftAttachments);
+      final files = List<OutgoingMedia>.from(_draftAttachments);
       final caption = _textController.text.trim();
       final replyId = _replyToMessageId;
       _textController.clear();
@@ -887,29 +888,54 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
     );
   }
 
+  /// Wraps a picked [XFile] as [OutgoingMedia]: bytes on web (dart:io File
+  /// can't read a browser blob), a filesystem path on mobile.
+  Future<OutgoingMedia> _mediaFromXFile(XFile x, {String? fallbackMime}) async {
+    final name = x.name.trim().isNotEmpty ? x.name.trim() : 'attachment';
+    final mime = (x.mimeType ?? '').trim().isNotEmpty
+        ? x.mimeType!.trim()
+        : (lookupMimeType(name) ?? fallbackMime);
+    if (kIsWeb) {
+      final bytes = await x.readAsBytes();
+      return OutgoingMedia(
+          name: name, bytes: bytes, mime: mime, previewUrl: x.path);
+    }
+    return OutgoingMedia(name: name, path: x.path, mime: mime, previewUrl: x.path);
+  }
+
+  Future<void> _previewAndSend(List<OutgoingMedia> media, String title) async {
+    if (media.isEmpty || !mounted) return;
+    final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
+      MaterialPageRoute(
+        builder: (_) =>
+            ChatMediaPreviewScreen(initialMedia: media, title: title),
+      ),
+    );
+    if (result == null || !mounted) return;
+    _sendMediaResult(result);
+  }
+
   Future<void> _handleCamera() async {
-    if (kIsWeb) return _showMediaWebUnsupported();
     try {
+      // On web this opens the file input with `capture` (a camera when the
+      // browser/device supports it, otherwise a file chooser) — no longer a
+      // hard "not supported" (web QA #1/#22).
       final image = await _imagePicker.pickImage(
         source: ImageSource.camera,
         imageQuality: 92,
         preferredCameraDevice: CameraDevice.rear,
       );
       if (image == null || !mounted) return;
-      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-        MaterialPageRoute(
-          builder: (_) =>
-              ChatMediaPreviewScreen(initialPaths: [image.path], title: AppLocalizations.of(context)!.chatPhoto),
-        ),
-      );
-      if (result == null || !mounted) return;
-      _sendMediaResult(result);
+      final media = await _mediaFromXFile(image, fallbackMime: 'image/jpeg');
+      await _previewAndSend([media], AppLocalizations.of(context)!.chatPhoto);
     } catch (_) {
       _showMediaError();
     }
   }
 
   Future<void> _handleVideo() async {
+    // Video preview/trim rely on VideoPlayerController.file + the trimmer,
+    // neither of which works in a browser — keep it degraded on web.
     if (kIsWeb) return _showMediaWebUnsupported();
     try {
       final video = await _imagePicker.pickVideo(
@@ -919,60 +945,79 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
         maxDuration: const Duration(seconds: 60),
       );
       if (video == null || !mounted) return;
-      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-        MaterialPageRoute(
-          builder: (_) =>
-              ChatMediaPreviewScreen(initialPaths: [video.path], title: AppLocalizations.of(context)!.chatVideo),
-        ),
-      );
-      if (result == null || !mounted) return;
-      _sendMediaResult(result);
+      final media = await _mediaFromXFile(video, fallbackMime: 'video/mp4');
+      await _previewAndSend([media], AppLocalizations.of(context)!.chatVideo);
     } catch (_) {
       _showMediaError();
     }
   }
 
   Future<void> _handleGallery() async {
-    if (kIsWeb) return _showMediaWebUnsupported();
     try {
+      if (kIsWeb) {
+        // image_picker's web plugin streams bytes; file_picker media type is
+        // flaky on web. Images only here — videos from the browser stay a
+        // file attachment via the paperclip.
+        final imgs = await _imagePicker.pickMultiImage();
+        if (imgs.isEmpty || !mounted) return;
+        final media = <OutgoingMedia>[];
+        for (final x in imgs) {
+          media.add(await _mediaFromXFile(x, fallbackMime: 'image/jpeg'));
+        }
+        await _previewAndSend(media, AppLocalizations.of(context)!.chatMedia);
+        return;
+      }
       final picked = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.media,
       );
       if (picked == null || picked.files.isEmpty) return;
-      final paths = picked.files
+      final media = picked.files
           .where((f) => (f.path ?? '').trim().isNotEmpty)
-          .map((f) => f.path!)
+          .map((f) =>
+              OutgoingMedia.fromFile(File(f.path!), mime: lookupMimeType(f.path!)))
           .toList();
-      if (paths.isEmpty || !mounted) return;
-      final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
-        MaterialPageRoute(
-          builder: (_) =>
-              ChatMediaPreviewScreen(initialPaths: paths, title: AppLocalizations.of(context)!.chatMedia),
-        ),
-      );
-      if (result == null || !mounted) return;
-      _sendMediaResult(result);
+      if (media.isEmpty || !mounted) return;
+      await _previewAndSend(media, AppLocalizations.of(context)!.chatMedia);
     } catch (_) {
       _showMediaError();
     }
   }
 
   Future<void> _handleFiles() async {
-    if (kIsWeb) return _showMediaWebUnsupported();
     // withData so we still get the file even when the platform hands back a
     // content:// entry with a null path (Android scoped storage) — that null
     // path was being silently filtered out, so "attach" looked like it did
-    // nothing (QA #9). When there's no path we materialise the bytes into a
-    // temp file the send pipeline can read.
+    // nothing (QA #9). On web there is never a path, only bytes.
     final picked = await FilePicker.platform
         .pickFiles(allowMultiple: true, withData: true);
     if (picked == null || picked.files.isEmpty) return;
-    final files = <File>[];
+
+    if (kIsWeb) {
+      final media = <OutgoingMedia>[];
+      for (final f in picked.files) {
+        final bytes = f.bytes;
+        if (bytes == null || bytes.isEmpty) continue;
+        final name = f.name.trim().isEmpty
+            ? 'attachment-${DateTime.now().millisecondsSinceEpoch}'
+            : f.name.trim();
+        media.add(OutgoingMedia(
+            name: name, bytes: bytes, mime: lookupMimeType(name)));
+      }
+      if (media.isEmpty) {
+        _showMediaError();
+        return;
+      }
+      setState(() => _draftAttachments.addAll(media));
+      _focusComposer();
+      return;
+    }
+
+    final files = <OutgoingMedia>[];
     for (final f in picked.files) {
       final path = (f.path ?? '').trim();
       if (path.isNotEmpty) {
-        files.add(File(path));
+        files.add(OutgoingMedia.fromFile(File(path), mime: lookupMimeType(path)));
         continue;
       }
       final bytes = f.bytes;
@@ -984,7 +1029,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
               : f.name.trim();
           final tmp = File('${dir.path}/$safeName');
           await tmp.writeAsBytes(bytes, flush: true);
-          files.add(tmp);
+          files.add(
+              OutgoingMedia.fromFile(tmp, mime: lookupMimeType(safeName)));
         } catch (_) {
           // ignore this one — surfaced by the empty-result guard below
         }
@@ -1018,9 +1064,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
   }
 
   void _sendMediaResult(ChatMediaPreviewResult result) {
-    final files = result.paths
-        .map((p) => File(p))
-        .where((f) => f.existsSync())
+    // Web items carry bytes (no filesystem); mobile items carry a real path we
+    // confirm still exists. The `hasBytes` short-circuit keeps dart:io's
+    // File.existsSync off the web path entirely.
+    final files = result.media
+        .where((m) =>
+            m.hasBytes || ((m.path ?? '').isNotEmpty && File(m.path!).existsSync()))
         .toList();
     if (files.isEmpty) return;
     final caption =
@@ -1904,13 +1953,15 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
           itemCount: _draftAttachments.length,
           separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
-            final file = _draftAttachments[index];
-            final mime = lookupMimeType(file.path) ?? '';
+            final item = _draftAttachments[index];
+            final mime =
+                (item.mime ?? lookupMimeType(item.name) ?? '').toLowerCase();
+            final name = item.name.toLowerCase();
             final isImage = mime.startsWith('image/') ||
-                file.path.toLowerCase().endsWith('.jpg') ||
-                file.path.toLowerCase().endsWith('.jpeg') ||
-                file.path.toLowerCase().endsWith('.png') ||
-                file.path.toLowerCase().endsWith('.webp');
+                name.endsWith('.jpg') ||
+                name.endsWith('.jpeg') ||
+                name.endsWith('.png') ||
+                name.endsWith('.webp');
             return Stack(
               children: [
                 Container(
@@ -1929,7 +1980,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: isImage
-                      ? Image.file(file, fit: BoxFit.cover)
+                      ? (item.hasBytes
+                          ? Image.memory(item.bytes!, fit: BoxFit.cover)
+                          : Image.file(File(item.path!), fit: BoxFit.cover))
                       : Center(
                           child: Icon(
                             mime.startsWith('video/')

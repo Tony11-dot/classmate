@@ -56,6 +56,7 @@ abstract class MessagesRepository {
     String filePath, {
     String? fileName,
     String? mimeType,
+    List<int>? bytes,
   });
 
   Future<void> editMessage({
@@ -735,10 +736,13 @@ class ApiMessagesRepository implements MessagesRepository {
     String filePath, {
     String? fileName,
     String? mimeType,
+    List<int>? bytes,
   }) async {
     final path = filePath.trim();
-    if (path.isEmpty) {
-      throw ArgumentError('filePath cannot be empty');
+    // Web picks media as in-memory bytes (no filesystem path); mobile hands
+    // back a real path. Require one or the other.
+    if (path.isEmpty && (bytes == null || bytes.isEmpty)) {
+      throw ArgumentError('uploadDmMedia needs a filePath or bytes');
     }
 
     final req = http.MultipartRequest('POST', _uri('/uploads/dm-media'));
@@ -750,10 +754,13 @@ class ApiMessagesRepository implements MessagesRepository {
 
     final resolvedName = (fileName ?? '').trim().isNotEmpty
         ? fileName!.trim()
-        : path.split('/').last;
+        : (path.isNotEmpty ? path.split('/').last : 'attachment');
 
     req.files.add(
-      await http.MultipartFile.fromPath('file', path, filename: resolvedName),
+      bytes != null && bytes.isNotEmpty
+          ? http.MultipartFile.fromBytes('file', bytes, filename: resolvedName)
+          : await http.MultipartFile.fromPath('file', path,
+              filename: resolvedName),
     );
 
     final streamed = await req.send().timeout(_timeout);

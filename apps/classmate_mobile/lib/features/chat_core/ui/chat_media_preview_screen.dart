@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:image_editor_plus/options.dart' as o;
@@ -10,23 +11,24 @@ import 'package:video_player/video_player.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../domain/outgoing_media.dart';
 import 'chat_video_trimmer_screen.dart';
 
 class ChatMediaPreviewResult {
-  const ChatMediaPreviewResult({required this.paths, required this.caption});
+  const ChatMediaPreviewResult({required this.media, required this.caption});
 
-  final List<String> paths;
+  final List<OutgoingMedia> media;
   final String caption;
 }
 
 class ChatMediaPreviewScreen extends StatefulWidget {
   const ChatMediaPreviewScreen({
     super.key,
-    required this.initialPaths,
+    required this.initialMedia,
     this.title,
   });
 
-  final List<String> initialPaths;
+  final List<OutgoingMedia> initialMedia;
   final String? title;
 
   @override
@@ -36,11 +38,10 @@ class ChatMediaPreviewScreen extends StatefulWidget {
 class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   late final TextEditingController _captionCtl;
 
-  late List<String> _paths;
+  late List<OutgoingMedia> _media;
   late List<int> _quarterTurns;
   late List<bool> _mirrored;
   int _index = 0;
-
 
   VideoPlayerController? _videoCtl;
   String? _videoPath;
@@ -56,8 +57,10 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     return '${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}';
   }
 
-  bool _isVideo(String path) {
-    final lower = path.toLowerCase();
+  bool _isVideoItem(OutgoingMedia m) {
+    final mime = (m.mime ?? '').toLowerCase();
+    if (mime.startsWith('video/')) return true;
+    final lower = m.name.toLowerCase();
     return lower.endsWith('.mp4') ||
         lower.endsWith('.mov') ||
         lower.endsWith('.m4v') ||
@@ -65,20 +68,24 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         lower.endsWith('.webm');
   }
 
+  bool get _currentIsVideo => _media.isNotEmpty && _isVideoItem(_media[_index]);
+
   @override
   void initState() {
     super.initState();
-    _paths = List<String>.from(
-      widget.initialPaths.where((e) => e.trim().isNotEmpty),
+    _media = List<OutgoingMedia>.from(
+      widget.initialMedia.where((e) => e.hasBytes || (e.path ?? '').trim().isNotEmpty),
     );
-    _quarterTurns = List<int>.filled(_paths.length, 0);
-    _mirrored = List<bool>.filled(_paths.length, false);
+    _quarterTurns = List<int>.filled(_media.length, 0);
+    _mirrored = List<bool>.filled(_media.length, false);
     _captionCtl = TextEditingController();
     _syncVideo();
   }
 
   Future<void> _syncVideo() async {
-    if (_paths.isEmpty) {
+    // Video preview is a mobile-only path (VideoPlayerController.file needs a
+    // filesystem). Web media is images/files only, so this is a no-op there.
+    if (kIsWeb || _media.isEmpty || !_isVideoItem(_media[_index])) {
       if (_videoCtl != null) {
         await _videoCtl!.dispose();
         _videoCtl = null;
@@ -88,17 +95,8 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       return;
     }
 
-    final currentPath = _paths[_index];
-    if (!_isVideo(currentPath)) {
-      if (_videoCtl != null) {
-        await _videoCtl!.dispose();
-        _videoCtl = null;
-        _videoPath = null;
-      }
-      if (mounted) setState(() {});
-      return;
-    }
-
+    final currentPath = _media[_index].path ?? '';
+    if (currentPath.isEmpty) return;
     if (_videoCtl != null && _videoPath == currentPath) return;
 
     if (_videoCtl != null) {
@@ -120,7 +118,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   }
 
   void _rotateCurrent(int delta) {
-    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    if (_media.isEmpty || _currentIsVideo) return;
     setState(() {
       _quarterTurns[_index] = (_quarterTurns[_index] + delta) % 4;
       if (_quarterTurns[_index] < 0) {
@@ -130,14 +128,14 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   }
 
   void _mirrorCurrent() {
-    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    if (_media.isEmpty || _currentIsVideo) return;
     setState(() {
       _mirrored[_index] = !_mirrored[_index];
     });
   }
 
   void _resetCurrentEdits() {
-    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
+    if (_media.isEmpty || _currentIsVideo) return;
     setState(() {
       _quarterTurns[_index] = 0;
       _mirrored[_index] = false;
@@ -145,8 +143,13 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   }
 
   Future<void> _openEditor() async {
-    if (_paths.isEmpty || _isVideo(_paths[_index])) return;
-    final bytes = await File(_paths[_index]).readAsBytes();
+    if (_media.isEmpty || _currentIsVideo) return;
+    final current = _media[_index];
+    // Editor works on bytes on every platform. Mobile reads them from the
+    // file; web already holds them in memory.
+    final Uint8List bytes = current.hasBytes
+        ? current.bytes!
+        : await File(current.path!).readAsBytes();
     if (!mounted) return;
     final result = await Navigator.push<Uint8List>(
       context,
@@ -166,21 +169,39 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       ),
     );
     if (result == null || !mounted) return;
-    final dir = await getTemporaryDirectory();
-    final tmpPath =
-        '${dir.path}/edited_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    await File(tmpPath).writeAsBytes(result);
+
+    OutgoingMedia edited;
+    if (kIsWeb) {
+      // No filesystem — keep the edited bytes in memory.
+      edited = OutgoingMedia(
+        name: 'edited_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        bytes: result,
+        mime: 'image/jpeg',
+      );
+    } else {
+      final dir = await getTemporaryDirectory();
+      final tmpPath =
+          '${dir.path}/edited_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await File(tmpPath).writeAsBytes(result);
+      edited = OutgoingMedia(
+        name: tmpPath.split('/').last,
+        path: tmpPath,
+        mime: 'image/jpeg',
+        previewUrl: tmpPath,
+      );
+    }
     setState(() {
-      _paths = List<String>.from(_paths)..[_index] = tmpPath;
+      _media = List<OutgoingMedia>.from(_media)..[_index] = edited;
       _quarterTurns[_index] = 0;
       _mirrored[_index] = false;
     });
   }
 
   Future<void> _trimCurrent() async {
-    if (_paths.isEmpty) return;
-    final currentPath = _paths[_index];
-    if (!_isVideo(currentPath)) return;
+    if (_media.isEmpty || kIsWeb) return;
+    final current = _media[_index];
+    if (!_isVideoItem(current) || (current.path ?? '').isEmpty) return;
+    final currentPath = current.path!;
 
     // Release the preview player so the trimmer can take exclusive access
     // to the file. Without this the trimmer's own VideoPlayerController
@@ -198,31 +219,37 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     if (!mounted) return;
     if (trimmedPath != null && trimmedPath.isNotEmpty) {
       setState(() {
-        _paths = List<String>.from(_paths)..[_index] = trimmedPath;
+        _media = List<OutgoingMedia>.from(_media)
+          ..[_index] = OutgoingMedia(
+            name: trimmedPath.split('/').last,
+            path: trimmedPath,
+            mime: current.mime,
+            previewUrl: trimmedPath,
+          );
       });
     }
     await _syncVideo();
   }
 
   Future<void> _removeCurrent() async {
-    if (_paths.isEmpty) return;
+    if (_media.isEmpty) return;
 
     setState(() {
-      final idx = _index.clamp(0, _paths.length - 1);
-      _paths = List<String>.from(_paths)..removeAt(idx);
+      final idx = _index.clamp(0, _media.length - 1);
+      _media = List<OutgoingMedia>.from(_media)..removeAt(idx);
       _quarterTurns = List<int>.from(_quarterTurns)..removeAt(idx);
       _mirrored = List<bool>.from(_mirrored)..removeAt(idx);
 
-      if (_paths.isNotEmpty && _index >= _paths.length) {
-        _index = _paths.length - 1;
+      if (_media.isNotEmpty && _index >= _media.length) {
+        _index = _media.length - 1;
       }
     });
 
-    if (_paths.isEmpty) {
+    if (_media.isEmpty) {
       if (mounted) {
         Navigator.of(context).pop(
           ChatMediaPreviewResult(
-            paths: const [],
+            media: const [],
             caption: _captionCtl.text.trim(),
           ),
         );
@@ -269,8 +296,38 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     );
   }
 
-  Widget _buildThumb(String itemPath, int i) {
-    if (_isVideo(itemPath)) {
+  /// Renders a still image for [m] with the given rotation/mirror transform,
+  /// choosing `Image.memory` (web bytes) vs `Image.file` (mobile path).
+  Widget _imageFor(OutgoingMedia m, Matrix4 transform, BoxFit fit) {
+    final broken = Container(
+      color: Colors.black12,
+      alignment: Alignment.center,
+      child: const Icon(Icons.broken_image_outlined, color: Colors.white70),
+    );
+    final Widget img = m.hasBytes
+        ? Image.memory(
+            m.bytes!,
+            fit: fit,
+            errorBuilder: (context, error, stackTrace) => broken,
+          )
+        : Image.file(
+            File(m.path!),
+            fit: fit,
+            errorBuilder: (context, error, stackTrace) => broken,
+          );
+    return Transform(
+      alignment: Alignment.center,
+      transform: transform,
+      child: img,
+    );
+  }
+
+  Matrix4 _transformFor(int i) => Matrix4.identity()
+    ..rotateZ((_quarterTurns[i] % 4) * (math.pi / 2))
+    ..multiply(Matrix4.diagonal3Values(_mirrored[i] ? -1.0 : 1.0, 1.0, 1.0));
+
+  Widget _buildThumb(OutgoingMedia m, int i) {
+    if (_isVideoItem(m)) {
       return Container(
         color: Colors.black,
         alignment: Alignment.center,
@@ -281,46 +338,15 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         ),
       );
     }
-
-    return Transform(
-      alignment: Alignment.center,
-      transform: Matrix4.identity()
-        ..rotateZ((_quarterTurns[i] % 4) * (math.pi / 2))
-        ..multiply(Matrix4.diagonal3Values(_mirrored[i] ? -1.0 : 1.0, 1.0, 1.0)),
-      child: Image.file(
-        File(itemPath),
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          color: Colors.black12,
-          alignment: Alignment.center,
-          child: const Icon(Icons.broken_image_outlined),
-        ),
-      ),
-    );
+    return _imageFor(m, _transformFor(i), BoxFit.cover);
   }
 
-  Widget _buildImagePreview(String currentPath) {
+  Widget _buildImagePreview(OutgoingMedia m) {
     return InteractiveViewer(
       minScale: 0.8,
       maxScale: 4,
       child: Center(
-        child: Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..rotateZ((_quarterTurns[_index] % 4) * (math.pi / 2))
-            ..multiply(Matrix4.diagonal3Values(_mirrored[_index] ? -1.0 : 1.0, 1.0, 1.0)),
-          child: Image.file(
-            File(currentPath),
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => const Center(
-              child: Icon(
-                Icons.broken_image_outlined,
-                color: Colors.white70,
-                size: 40,
-              ),
-            ),
-          ),
-        ),
+        child: _imageFor(m, _transformFor(_index), BoxFit.contain),
       ),
     );
   }
@@ -439,7 +465,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
   }
 
   Widget _buildMainPreview() {
-    if (_paths.isEmpty) {
+    if (_media.isEmpty) {
       return Center(
         child: Text(
           AppLocalizations.of(context)!.chatMediaPreviewEmptyState,
@@ -448,13 +474,15 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
       );
     }
 
-    final currentPath = _paths[_index];
-    return _isVideo(currentPath) ? _buildVideoPreview() : _buildImagePreview(currentPath);
+    final current = _media[_index];
+    return _isVideoItem(current)
+        ? _buildVideoPreview()
+        : _buildImagePreview(current);
   }
 
   Widget _buildToolsTray() {
-    if (_paths.isEmpty) return const SizedBox.shrink();
-    final isVideo = _isVideo(_paths[_index]);
+    if (_media.isEmpty) return const SizedBox.shrink();
+    final isVideo = _currentIsVideo;
     final l = AppLocalizations.of(context)!;
 
     return SizedBox(
@@ -534,7 +562,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
         foregroundColor: Colors.white,
         title: Text(widget.title ?? l.tutorPreviewTitle),
         actions: [
-          if (_paths.isNotEmpty)
+          if (_media.isNotEmpty)
             Container(
               margin: const EdgeInsetsDirectional.only(end: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -543,7 +571,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                '${_index + 1}/${_paths.length}',
+                '${_index + 1}/${_media.length}',
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 12,
@@ -558,16 +586,16 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
           children: [
             Expanded(child: _buildMainPreview()),
             _buildToolsTray(),
-            if (_paths.length > 1)
+            if (_media.length > 1)
               SizedBox(
                 height: 82,
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                   scrollDirection: Axis.horizontal,
-                  itemCount: _paths.length,
+                  itemCount: _media.length,
                   separatorBuilder: (context, index) => const SizedBox(width: 8),
                   itemBuilder: (context, i) {
-                    final itemPath = _paths[i];
+                    final item = _media[i];
                     final active = i == _index;
                     return GestureDetector(
                       onTap: () async {
@@ -586,7 +614,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                             width: active ? 2 : 1,
                           ),
                         ),
-                        child: _buildThumb(itemPath, i),
+                        child: _buildThumb(item, i),
                       ),
                     );
                   },
@@ -649,7 +677,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                       onPressed: () {
                         Navigator.of(context).pop(
                           ChatMediaPreviewResult(
-                            paths: _paths,
+                            media: _media,
                             caption: _captionCtl.text.trim(),
                           ),
                         );

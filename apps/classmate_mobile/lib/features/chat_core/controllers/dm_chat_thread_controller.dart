@@ -14,6 +14,7 @@ import '../domain/chat_message.dart';
 import '../domain/chat_message_kind.dart';
 import '../domain/chat_thread_type.dart';
 import '../domain/forward_target.dart';
+import '../domain/outgoing_media.dart';
 import '../ui/forward_target_picker_sheet.dart';
 import 'chat_thread_controller.dart';
 
@@ -818,8 +819,12 @@ class DmChatThreadController extends ChatThreadController {
   /// optimistic bubble (which paints before the upload finishes and the
   /// server hands back the canonical mime) doesn't render a video as an
   /// image, etc.
-  ({ChatMessageKind kind, String? mime}) _kindFromFile(File f) {
-    final ext = f.path.split('.').last.toLowerCase();
+  ({ChatMessageKind kind, String? mime}) _kindFromMedia(OutgoingMedia f) {
+    final m = (f.mime ?? '').toLowerCase();
+    if (m.startsWith('image/')) return (kind: ChatMessageKind.image, mime: m);
+    if (m.startsWith('video/')) return (kind: ChatMessageKind.file, mime: m);
+    if (m.startsWith('audio/')) return (kind: ChatMessageKind.voice, mime: m);
+    final ext = f.name.split('.').last.toLowerCase();
     const imageExts = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'};
     const videoExts = {'mp4', 'mov', 'm4v', '3gp', 'webm', 'avi', 'mkv'};
     const audioExts = {'m4a', 'aac', 'mp3', 'wav', 'ogg', 'opus', 'caf'};
@@ -850,13 +855,13 @@ class DmChatThreadController extends ChatThreadController {
 
   @override
   Future<void> sendMedia(
-    List<File> files, {
+    List<OutgoingMedia> files, {
     String? caption,
     String? replyToMessageId,
   }) async {
     // Show optimistic messages immediately (local file paths shown while uploading).
     final optimistics = <ChatMessage>[];
-    final guesses = files.map(_kindFromFile).toList();
+    final guesses = files.map(_kindFromMedia).toList();
     // Reply target — only the FIRST optimistic carries the quoted
     // header so it matches what the server returns (reply attaches to
     // one message, not every file in the batch).
@@ -872,7 +877,7 @@ class DmChatThreadController extends ChatThreadController {
         senderName: 'You',
         text: i == 0 ? (caption ?? '') : '',
         kind: g.kind,
-        mediaUrl: file.path,
+        mediaUrl: file.previewUrl ?? file.path ?? '',
         mediaMimeType: g.mime,
         createdAt: DateTime.now(),
         isOwn: true,
@@ -895,9 +900,14 @@ class DmChatThreadController extends ChatThreadController {
       final file = files[i];
       final optimistic = optimistics[i];
       final guess = guesses[i];
-      final uploadResult = await _repo.uploadDmMedia(file.path);
+      final uploadResult = await _repo.uploadDmMedia(
+        file.path ?? '',
+        fileName: file.name,
+        mimeType: file.mime ?? guess.mime,
+        bytes: file.bytes,
+      );
       final mediaUrl = _pickUploadUrl(uploadResult);
-      final mimeType = _pickUploadMime(uploadResult) ?? guess.mime;
+      final mimeType = _pickUploadMime(uploadResult) ?? file.mime ?? guess.mime;
 
       if (mediaUrl != null) {
         // Persist BEFORE sendMessage so the CDN URL is saved even if

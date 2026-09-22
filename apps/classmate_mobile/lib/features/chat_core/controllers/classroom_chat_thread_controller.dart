@@ -13,6 +13,7 @@ import '../domain/chat_message.dart';
 import '../domain/chat_message_kind.dart';
 import '../domain/chat_thread_type.dart';
 import '../domain/forward_target.dart';
+import '../domain/outgoing_media.dart';
 import '../ui/forward_target_picker_sheet.dart';
 import '../utils/chat_reply_codec.dart';
 import 'chat_thread_controller.dart';
@@ -826,7 +827,7 @@ class ClassroomChatThreadController extends ChatThreadController {
 
   @override
   Future<void> sendMedia(
-    List<File> files, {
+    List<OutgoingMedia> files, {
     String? caption,
     String? replyToMessageId,
   }) async {
@@ -842,7 +843,7 @@ class ClassroomChatThreadController extends ChatThreadController {
         'senderName': 'You',
         'isMine': true,
         'kind': 'IMAGE',
-        'mediaUrl': file.path,
+        'mediaUrl': file.previewUrl ?? file.path ?? '',
         'createdAt': DateTime.now().toUtc().toIso8601String(),
       });
     }
@@ -853,19 +854,23 @@ class ClassroomChatThreadController extends ChatThreadController {
     // once the server confirms.  Removing in finally caused the same 0.5 s gap.
     for (var i = 0; i < files.length; i++) {
       final file = files[i];
+      final localRef = file.previewUrl ?? file.path ?? '';
       final now = DateTime.now().toUtc().toIso8601String();
       final result = await _repo.sendChatMedia(
         _courseId,
-        file.path,
+        file.path ?? '',
         text: i == 0 ? caption : null,
         replyToMessageId: i == 0 ? replyToMessageId : null,
+        fileName: file.name,
+        mimeType: file.mime,
+        bytes: file.bytes,
       );
       // Extract CDN URL + confirmed server ID from upload response.
       // The classroom server returns: {ok, item: {id, mediaUrl, createdAt, ...}}
-      final cdnUrl = _pickCdnUrl(result, file.path);
+      final cdnUrl = _pickCdnUrl(result, localRef);
       final confirmedId = _pickConfirmedId(result);
       final confirmedCreatedAt = _pickConfirmedCreatedAt(result);
-      if (cdnUrl.isNotEmpty && cdnUrl != file.path) {
+      if (cdnUrl.isNotEmpty && cdnUrl != localRef) {
         // Remove the optimistic — the locally-saved confirmed entry replaces it.
         // IMPORTANT: do NOT update the optimistic's ID to the real server ID
         // before saving, as that would create two entries with the same ID

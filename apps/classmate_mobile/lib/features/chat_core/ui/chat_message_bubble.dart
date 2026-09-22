@@ -196,7 +196,18 @@ class ChatMessageBubble extends StatelessWidget {
         child: Icon(Icons.broken_image_outlined, color: cs.onSurfaceVariant),
       );
     });
-    if (_isLocalPath(url)) {
+    // Web optimistic previews are blob: URLs (a just-picked local file). They
+    // aren't cacheable and dart:io File can't read them, so go straight to
+    // Image.network, which resolves same-origin blobs.
+    if (kIsWeb && (url.startsWith('blob:') || url.startsWith('data:'))) {
+      return Image.network(
+        url,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (ctx, err, _) => errorPanel,
+      );
+    }
+    if (!kIsWeb && _isLocalPath(url)) {
       final path = url.startsWith('file://') ? Uri.parse(url).toFilePath() : url;
       return Image.file(
         File(path),

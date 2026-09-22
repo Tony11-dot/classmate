@@ -9,6 +9,7 @@ import '../domain/chat_delete_mode.dart';
 import '../domain/chat_message.dart';
 import '../domain/chat_thread_type.dart';
 import '../domain/forward_target.dart';
+import '../domain/outgoing_media.dart';
 
 abstract class ChatThreadController {
   String get threadId;
@@ -25,7 +26,7 @@ abstract class ChatThreadController {
   });
   
   Future<void> sendMedia(
-    List<File> files, {
+    List<OutgoingMedia> files, {
     String? caption,
     String? replyToMessageId,
   });

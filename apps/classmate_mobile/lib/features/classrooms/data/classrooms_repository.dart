@@ -708,15 +708,18 @@ class ClassroomsRepository {
     String? mimeType,
     String? fileName,
     String? replyToMessageId,
+    List<int>? bytes,
   }) async {
     final path = filePath.trim();
-    if (path.isEmpty) {
-      throw ArgumentError('filePath cannot be empty');
+    // Web picks media as in-memory bytes (no filesystem path); mobile hands
+    // back a real path.
+    if (path.isEmpty && (bytes == null || bytes.isEmpty)) {
+      throw ArgumentError('sendChatMedia needs a filePath or bytes');
     }
 
     final resolvedName = (fileName ?? '').trim().isNotEmpty
         ? fileName!.trim()
-        : path.split('/').last;
+        : (path.isNotEmpty ? path.split('/').last : 'attachment');
     final hdrs = await _headers();
 
     for (var index = 0; index < _baseCandidates.length; index++) {
@@ -732,7 +735,10 @@ class ClassroomsRepository {
       }
 
       req.files.add(
-        await http.MultipartFile.fromPath('file', path, filename: resolvedName),
+        bytes != null && bytes.isNotEmpty
+            ? http.MultipartFile.fromBytes('file', bytes, filename: resolvedName)
+            : await http.MultipartFile.fromPath('file', path,
+                filename: resolvedName),
       );
 
       // Media (esp. video) needs a far longer window than the 12s used for

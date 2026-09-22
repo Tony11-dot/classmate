@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../common/media/image_viewer_screen.dart';
 import '../../common/media/pdf_viewer_screen.dart';
 import '../../chat_core/ui/chat_media_preview_screen.dart';
+import '../../chat_core/domain/outgoing_media.dart';
 import '../../../common/widgets/cm_ai_message.dart';
 import '../../../common/widgets/typing_dots.dart';
 import '../../../l10n/app_localizations.dart';
@@ -469,14 +470,22 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final preview = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
         builder: (_) => ChatMediaPreviewScreen(
-          initialPaths: initialPaths,
+          initialMedia: initialPaths
+              .map((p) => OutgoingMedia(
+                  name: p.split('/').last, path: p, previewUrl: p))
+              .toList(),
           title: l.tutorPreviewTitle,
         ),
       ),
     );
     if (!mounted || preview == null) return;
 
-    final paths = preview.paths.isNotEmpty ? preview.paths : initialPaths;
+    final edited = preview.media
+        .map((m) => m.path)
+        .whereType<String>()
+        .where((p) => p.isNotEmpty)
+        .toList();
+    final paths = edited.isNotEmpty ? edited : initialPaths;
     if (paths.isEmpty) return;
 
     await _sendMediaPaths(paths, preview.caption);
@@ -658,14 +667,20 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     if (!mounted) return;
     final result = await Navigator.of(context).push<ChatMediaPreviewResult>(
       MaterialPageRoute(
-        builder: (_) =>
-            ChatMediaPreviewScreen(initialPaths: initial, title: l.tutorPreviewTitle),
+        builder: (_) => ChatMediaPreviewScreen(
+            initialMedia: initial
+                .map((p) => OutgoingMedia(
+                    name: p.split('/').last, path: p, previewUrl: p))
+                .toList(),
+            title: l.tutorPreviewTitle),
       ),
     );
     if (result == null || !mounted) return;
 
     setState(() {
-      for (final path in result.paths) {
+      for (final m in result.media) {
+        final path = m.path ?? '';
+        if (path.isEmpty) continue;
         _draftAttachments.add(
           _DraftAttachment(
             path: path,

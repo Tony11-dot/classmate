@@ -76,6 +76,7 @@ class TeacherCohortsScreen extends ConsumerWidget {
     final nameCtrl = TextEditingController();
     final grades = <int>{};
     final available = ref.read(authSessionProvider).schoolGrades;
+    String? errText;
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => StatefulBuilder(
@@ -92,10 +93,29 @@ class TeacherCohortsScreen extends ConsumerWidget {
               selected: grades,
               onChanged: (next) => setSheet(() => grades..clear()..addAll(next)),
             ),
+            if (errText != null) ...[
+              const SizedBox(height: 10),
+              Text(errText!,
+                  style: TextStyle(
+                      color: Theme.of(d).colorScheme.error, fontSize: 12)),
+            ],
           ]),
           actions: [
             TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
-            FilledButton(onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenCreate)),
+            // Validate WITHOUT closing — the dialog used to pop on any Create
+            // tap and only then toast, so an empty submit dismissed the form
+            // (web QA #68). Now it keeps the dialog open and shows the reason.
+            FilledButton(
+              onPressed: () {
+                if (nameCtrl.text.trim().isEmpty || grades.isEmpty) {
+                  setSheet(() =>
+                      errText = l.teacherCohortsScreenEnterNameAndGrade);
+                  return;
+                }
+                Navigator.pop(d, true);
+              },
+              child: Text(l.teacherCohortsScreenCreate),
+            ),
           ],
         ),
       ),

@@ -770,27 +770,32 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab_add_student_cohort',
-        // Root navigator so AddStudents covers the shell's AppBar + bottom
-        // nav entirely — matches the Add User / Edit User full-screen
-        // pattern the rest of the admin flows use.
-        onPressed: () => Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(builder: (_) => AdminAddStudentsScreen(
-            repo: ref.read(adminRepositoryProvider),
-            cohortId: _cohort.id,
-            cohortName: _cohort.name,
-            cohortGrades: _cohort.grades,
-          )),
-        ).then((added) {
-          if (added == true) {
-            ref.invalidate(_rosterProvider(_cohort.id));
-            ref.invalidate(_cohortsProvider);
-          }
-        }),
-        icon: const Icon(Icons.person_add_rounded),
-        label: Text(AppLocalizations.of(context)!.adminAddStudents),
-      ),
+      // Cohort roster mutations are ADMIN-only server-side (secretary gets a
+      // read-only view per the role spec). Hiding the FAB for secretary stops
+      // the add-student tap from hitting a guaranteed 403 Forbidden (web QA #55).
+      floatingActionButton: isAdmin
+          ? FloatingActionButton.extended(
+              heroTag: 'fab_add_student_cohort',
+              // Root navigator so AddStudents covers the shell's AppBar + bottom
+              // nav entirely — matches the Add User / Edit User full-screen
+              // pattern the rest of the admin flows use.
+              onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(builder: (_) => AdminAddStudentsScreen(
+                  repo: ref.read(adminRepositoryProvider),
+                  cohortId: _cohort.id,
+                  cohortName: _cohort.name,
+                  cohortGrades: _cohort.grades,
+                )),
+              ).then((added) {
+                if (added == true) {
+                  ref.invalidate(_rosterProvider(_cohort.id));
+                  ref.invalidate(_cohortsProvider);
+                }
+              }),
+              icon: const Icon(Icons.person_add_rounded),
+              label: Text(AppLocalizations.of(context)!.adminAddStudents),
+            )
+          : null,
       body: rosterAsync.when(
         loading: () => const Center(child: CmLoading()),
         error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
@@ -842,7 +847,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                 padding: const EdgeInsets.only(bottom: 6),
                 child: _RosterTile(
                   user: s,
-                  onRemove: () => _removeStudent(context, s),
+                  onRemove: isAdmin ? () => _removeStudent(context, s) : null,
                 ),
               )),
             ],
@@ -986,9 +991,11 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
 // ── Roster tile ────────────────────────────────────────────────────────────────
 
 class _RosterTile extends StatelessWidget {
-  const _RosterTile({required this.user, required this.onRemove});
+  const _RosterTile({required this.user, this.onRemove});
   final AdminUser user;
-  final VoidCallback onRemove;
+  // Null for read-only viewers (secretary) — the remove control is hidden so
+  // it can't hit an admin-only 403 (web QA #55).
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -1012,11 +1019,13 @@ class _RosterTile extends StatelessWidget {
         ),
         title: Text(user.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(user.email, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-        trailing: IconButton(
-          icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error, size: 20),
-          tooltip: AppLocalizations.of(context)!.a11yRemove,
-          onPressed: onRemove,
-        ),
+        trailing: onRemove == null
+            ? null
+            : IconButton(
+                icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error, size: 20),
+                tooltip: AppLocalizations.of(context)!.a11yRemove,
+                onPressed: onRemove,
+              ),
       ),
     );
   }
