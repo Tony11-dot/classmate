@@ -4762,6 +4762,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherRemoveMaterial => 'Убрать материал?';
 
   @override
+  String get teacherMaterialRemoved => 'Material removed';
+
+  @override
   String get teacherScheduleMeetingTitle => 'Запланировать встречу';
 
   @override
@@ -5770,6 +5773,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get forgotPasswordSmsButton => 'Отправить ссылку по SMS';
+
+  @override
+  String get forgotPasswordSmsHelper =>
+      'We\'ll text the link to the phone number on this account.';
 
   @override
   String get forgotPasswordLinkExpires =>

@@ -39,6 +39,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   bool _classroomTabsCollapsed = false;
   int _activeClassroomTabIndex = 0;
 
+  // People tab search query (web QA #34 — People section needs a search bar).
+  String _peopleQuery = '';
+  final _peopleSearchController = TextEditingController();
+
   String get _classroomTabsCollapsedPrefsKey =>
       'classroom_tabs_collapsed_${widget.courseId}';
 
@@ -71,6 +75,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
   @override
   void dispose() {
     _tabs.dispose();
+    _peopleSearchController.dispose();
     super.dispose();
   }
 
@@ -521,8 +526,19 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           );
         }
 
-        final teachers = raw.where((p) => p['_isTeacher'] == true).toList();
-        final students = raw.where((p) => p['_isTeacher'] != true).toList();
+        // Filter by the People search query (web QA #34). Match on name+email.
+        final query = _peopleQuery.trim().toLowerCase();
+        bool matches(Map<String, dynamic> p) {
+          if (query.isEmpty) return true;
+          final name = _pick(p, 'name').toLowerCase();
+          final email = _pick(p, 'email').toLowerCase();
+          return name.contains(query) || email.contains(query);
+        }
+
+        final teachers =
+            raw.where((p) => p['_isTeacher'] == true).where(matches).toList();
+        final students =
+            raw.where((p) => p['_isTeacher'] != true).where(matches).toList();
 
         // Derive a 6-char classroom code from the courseId UUID.
         final classCode = widget.courseId
@@ -613,6 +629,35 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 ),
               ]),
             ),
+            // ── People search (web QA #34) ───────────────────────────────
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: TextField(
+                controller: _peopleSearchController,
+                onChanged: (v) => setState(() => _peopleQuery = v),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: l.searchHint,
+                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                  suffixIcon: _peopleQuery.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          onPressed: () {
+                            _peopleSearchController.clear();
+                            setState(() => _peopleQuery = '');
+                          },
+                        ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
             if (teachers.isNotEmpty) ...[
               sectionHeader(l.classroomDetailTeacherSection, teachers.length),
               ...teachers.map(personTile),
@@ -621,6 +666,17 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               sectionHeader(l.classroomDetailStudentsSection, students.length),
               ...students.map(personTile),
             ],
+            if (teachers.isEmpty && students.isEmpty && query.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 32),
+                child: Center(
+                  child: Text(
+                    l.commonNoResults,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                ),
+              ),
           ],
         );
       },

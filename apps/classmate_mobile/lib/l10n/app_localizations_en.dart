@@ -4828,6 +4828,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherRemoveMaterial => 'Remove material?';
 
   @override
+  String get teacherMaterialRemoved => 'Material removed';
+
+  @override
   String get teacherScheduleMeetingTitle => 'Schedule Meeting';
 
   @override
@@ -5831,6 +5834,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotPasswordSmsButton => 'Text me a reset link';
+
+  @override
+  String get forgotPasswordSmsHelper =>
+      'We\'ll text the link to the phone number on this account.';
 
   @override
   String get forgotPasswordLinkExpires =>

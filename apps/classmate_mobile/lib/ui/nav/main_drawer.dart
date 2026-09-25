@@ -737,7 +737,23 @@ String _initials(String name) {
 
 /// Instagram-style account switcher — lists the accounts remembered on this
 /// device, lets you switch instantly, add another, or sign the current one out.
+// Re-entry guard: tapping the Account option several times in quick succession
+// used to stack multiple identical sheets, because each tap awaits
+// rememberCurrentAccount() before the sheet opens (web QA #86). One open at a
+// time.
+bool _accountSwitcherOpen = false;
+
 Future<void> _openAccountSwitcher(BuildContext context, WidgetRef ref) async {
+  if (_accountSwitcherOpen) return;
+  _accountSwitcherOpen = true;
+  try {
+    await _openAccountSwitcherInner(context, ref);
+  } finally {
+    _accountSwitcherOpen = false;
+  }
+}
+
+Future<void> _openAccountSwitcherInner(BuildContext context, WidgetRef ref) async {
   final l = AppLocalizations.of(context)!;
   final controller = ref.read(authControllerProvider);
   // Make sure the currently-signed-in account is in the list (covers sessions

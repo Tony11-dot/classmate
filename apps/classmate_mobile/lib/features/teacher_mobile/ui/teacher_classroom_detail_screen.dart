@@ -788,6 +788,11 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
       } else {
         await repo.deleteClassroomMaterial(widget.courseId, id);
       }
+      if (!mounted) return;
+      // Confirm the delete so it doesn't look like a no-op (web QA #74).
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.teacherMaterialRemoved)),
+      );
       _load();
     } catch (e) {
       if (!mounted) return;
@@ -1113,10 +1118,20 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
   bool _loading = true;
   String? _error;
 
+  // People search query (web QA #34).
+  String _peopleQuery = '';
+  final _peopleSearchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _peopleSearchController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -1162,10 +1177,19 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
             : items['teacher'] is Map
                 ? items['teacher']
                 : null) as Map<String, dynamic>?;
-    final students = items['students'] is List
+    final allStudents = items['students'] is List
         ? (items['students'] as List).map((s) => Map<String, dynamic>.from(s is Map ? s : {})).toList()
         : <Map<String, dynamic>>[];
-    final enrolledIds = students.map((s) => (s['id'] ?? '').toString()).toSet();
+    final enrolledIds = allStudents.map((s) => (s['id'] ?? '').toString()).toSet();
+    // Filter by the People search query (web QA #34). Match on name+email.
+    final peopleQuery = _peopleQuery.trim().toLowerCase();
+    final students = peopleQuery.isEmpty
+        ? allStudents
+        : allStudents.where((s) {
+            final name = (s['name'] ?? '').toString().toLowerCase();
+            final email = (s['email'] ?? '').toString().toLowerCase();
+            return name.contains(peopleQuery) || email.contains(peopleQuery);
+          }).toList();
 
     return CmRefreshIndicator(
       onRefresh: _load,
@@ -1249,7 +1273,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
           // ── Students header ───────────────────────────────────────────
           Row(
             children: [
-              Expanded(child: Text(l.teacherStudentsCount(students.length),
+              Expanded(child: Text(l.teacherStudentsCount(allStudents.length),
                   style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12))),
               TextButton.icon(
                 onPressed: () => _openStudentPicker(context, enrolledIds),
@@ -1260,6 +1284,45 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
             ],
           ),
           const SizedBox(height: 6),
+
+          // ── People search (web QA #34) ────────────────────────────────
+          if (allStudents.length > 4) ...[
+            TextField(
+              controller: _peopleSearchController,
+              onChanged: (v) => setState(() => _peopleQuery = v),
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                isDense: true,
+                hintText: l.searchHint,
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                suffixIcon: _peopleQuery.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear_rounded, size: 18),
+                        onPressed: () {
+                          _peopleSearchController.clear();
+                          setState(() => _peopleQuery = '');
+                        },
+                      ),
+                filled: true,
+                fillColor: cs.surfaceContainerHigh,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (students.isEmpty && peopleQuery.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(l.commonNoResults,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: cs.onSurfaceVariant)),
+              ),
+            ),
 
           // ── Student list ──────────────────────────────────────────────
           ...students.map((s) {

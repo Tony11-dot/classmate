@@ -14,17 +14,23 @@ class LiquidGlassDropdownItem<T> {
   });
 }
 
-/// Opens the same searchable bottom-sheet picker that [LiquidGlassDropdown]
-/// uses internally — handy when you have a custom trigger (chip, icon, etc.)
-/// but want a consistent picker UI.
-Future<T?> showLiquidGlassPicker<T>({
+/// Wraps a picker result so a legitimately-selected null value (e.g. a
+/// "No subject" option whose value is null) is distinguishable from the picker
+/// being dismissed, which also returns null. Without this, tapping such an
+/// option looked like a no-op (web QA #75 — couldn't select "No Subject").
+class _PickResult<T> {
+  final T value;
+  const _PickResult(this.value);
+}
+
+Future<_PickResult<T>?> _showPicker<T>({
   required BuildContext context,
   required String title,
   required T? currentValue,
   required List<LiquidGlassDropdownItem<T>> items,
   String? searchHint,
 }) {
-  return showModalBottomSheet<T>(
+  return showModalBottomSheet<_PickResult<T>>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -36,6 +42,26 @@ Future<T?> showLiquidGlassPicker<T>({
       searchHint: searchHint,
     ),
   );
+}
+
+/// Opens the same searchable bottom-sheet picker that [LiquidGlassDropdown]
+/// uses internally — handy when you have a custom trigger (chip, icon, etc.)
+/// but want a consistent picker UI. Returns null when dismissed.
+Future<T?> showLiquidGlassPicker<T>({
+  required BuildContext context,
+  required String title,
+  required T? currentValue,
+  required List<LiquidGlassDropdownItem<T>> items,
+  String? searchHint,
+}) async {
+  final r = await _showPicker<T>(
+    context: context,
+    title: title,
+    currentValue: currentValue,
+    items: items,
+    searchHint: searchHint,
+  );
+  return r?.value;
 }
 
 class LiquidGlassDropdown<T> extends StatelessWidget {
@@ -120,20 +146,16 @@ class LiquidGlassDropdown<T> extends StatelessWidget {
   }
 
   Future<void> _open(BuildContext context) async {
-    final selected = await showModalBottomSheet<T>(
+    final selected = await _showPicker<T>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      builder: (_) => _LiquidGlassPicker<T>(
-        title: label,
-        value: value,
-        items: items,
-        searchHint: searchHint,
-      ),
+      title: label,
+      currentValue: value,
+      items: items,
+      searchHint: searchHint,
     );
-
-    if (selected != null && selected != value) onChanged(selected);
+    // selected == null → dismissed; selected.value may itself be null (a
+    // "No Subject"-style option) and must still apply (web QA #75).
+    if (selected != null && selected.value != value) onChanged(selected.value);
   }
 }
 
@@ -224,14 +246,14 @@ class LiquidGlassSelectField<T> extends StatelessWidget {
   }
 
   Future<void> _open(BuildContext context) async {
-    final selected = await showLiquidGlassPicker<T>(
+    final selected = await _showPicker<T>(
       context: context,
       title: label,
       currentValue: value,
       items: items,
       searchHint: searchHint,
     );
-    if (selected != null && selected != value) onChanged(selected);
+    if (selected != null && selected.value != value) onChanged(selected.value);
   }
 }
 
@@ -408,7 +430,8 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
                       leading: it.icon != null ? Icon(it.icon) : null,
                       title: Text(it.label),
                       trailing: selected ? const Icon(Icons.check_rounded) : null,
-                      onTap: () => Navigator.of(context).pop<T>(it.value),
+                      onTap: () => Navigator.of(context)
+                          .pop<_PickResult<T>>(_PickResult<T>(it.value)),
                     );
                   },
                 ),

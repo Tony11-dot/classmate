@@ -134,14 +134,22 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Identifier field
+            // Identifier field — the account is always identified by email or
+            // username; in SMS mode the link is texted to the phone ON that
+            // account (web QA #72: make the field reflect the selected mode
+            // instead of always looking like a bare "Email" input).
             TextField(
               controller: _identifierCtrl,
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.loginEmailLabel,
-                prefixIcon: const Icon(Icons.alternate_email_rounded),
+                helperText: _mode == _ResetMode.sms
+                    ? AppLocalizations.of(context)!.forgotPasswordSmsHelper
+                    : null,
+                prefixIcon: Icon(_mode == _ResetMode.sms
+                    ? Icons.sms_outlined
+                    : Icons.alternate_email_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onSubmitted: (_) => _submitChannelReset(),

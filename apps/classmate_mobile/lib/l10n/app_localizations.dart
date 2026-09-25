@@ -8523,6 +8523,12 @@ abstract class AppLocalizations {
   /// **'Remove material?'**
   String get teacherRemoveMaterial;
 
+  /// No description provided for @teacherMaterialRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Material removed'**
+  String get teacherMaterialRemoved;
+
   /// No description provided for @teacherScheduleMeetingTitle.
   ///
   /// In en, this message translates to:
@@ -10394,6 +10400,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Text me a reset link'**
   String get forgotPasswordSmsButton;
+
+  /// No description provided for @forgotPasswordSmsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll text the link to the phone number on this account.'**
+  String get forgotPasswordSmsHelper;
 
   /// No description provided for @forgotPasswordLinkExpires.
   ///
