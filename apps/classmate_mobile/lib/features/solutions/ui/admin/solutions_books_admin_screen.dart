@@ -292,7 +292,13 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
       // Upload the new cover first (if the user picked one).
       String? coverUrl;
       if (_pickedCover != null) {
-        final uploaded = await api.uploadFilesMultipart([_pickedCover!.path]);
+        final uploaded = await api.uploadFilesMultipart([
+          (
+            name: _pickedCover!.path.split('/').last,
+            path: _pickedCover!.path,
+            bytes: null,
+          ),
+        ]);
         if (uploaded.isNotEmpty) coverUrl = '${uploaded.first['url'] ?? ''}';
       }
 

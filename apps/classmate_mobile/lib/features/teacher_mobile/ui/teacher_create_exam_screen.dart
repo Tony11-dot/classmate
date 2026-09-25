@@ -420,10 +420,20 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                       InkWell(
                         borderRadius: BorderRadius.circular(4),
                         onTap: () async {
+                          // An exam can't be scheduled in the past (web QA
+                          // #81). Block earlier dates in the picker; if we're
+                          // editing an exam whose date is already past, allow
+                          // that existing date so initialDate stays valid.
+                          final today = DateTime.now();
+                          final floor = DateTime(today.year, today.month, today.day);
+                          final existingPast =
+                              _selectedDate != null && _selectedDate!.isBefore(floor)
+                                  ? _selectedDate!
+                                  : floor;
                           final picked = await showDatePicker(
                             context: context,
-                            initialDate: _selectedDate ?? DateTime.now(),
-                            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                            initialDate: _selectedDate ?? today,
+                            firstDate: existingPast,
                             lastDate: DateTime(2100),
                           );
                           if (picked != null) setState(() => _selectedDate = picked);

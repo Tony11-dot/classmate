@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -92,25 +93,35 @@ class SolutionsApi {
   }
 
   Future<List<Map<String, dynamic>>> uploadFilesMultipart(
-    List<String> paths,
+    List<({String name, String? path, Uint8List? bytes})> assets,
   ) async {
     final out = <Map<String, dynamic>>[];
 
-    for (final path in paths) {
+    for (final asset in assets) {
       final req = http.MultipartRequest('POST', _uri('/uploads/solution-file'));
       req.headers.addAll(_headers());
 
-      // Explicitly detect MIME type so the backend file-filter accepts the file.
+      // Explicitly detect MIME type so the backend file-filter accepts the
+      // file. Prefer the path/name for the sniff; fall back to octet-stream.
       final detectedMime =
-          lookupMimeType(path) ?? 'application/octet-stream';
+          lookupMimeType(asset.path ?? asset.name) ?? 'application/octet-stream';
       final mediaType = MediaType.parse(detectedMime);
 
+      // Web has no filesystem path — the picker hands back bytes, so build the
+      // multipart part from memory (web QA #77: "Some files failed to upload").
       req.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          path,
-          contentType: mediaType,
-        ),
+        asset.bytes != null
+            ? http.MultipartFile.fromBytes(
+                'file',
+                asset.bytes!,
+                filename: asset.name,
+                contentType: mediaType,
+              )
+            : await http.MultipartFile.fromPath(
+                'file',
+                asset.path!,
+                contentType: mediaType,
+              ),
       );
 
       final streamed = await req.send();

@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,7 @@ import 'package:printing/printing.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../common/media/web_download.dart';
 import '../data/admin_repository.dart';
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -1167,6 +1170,17 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         ];
         buf.writeln(row.join(','));
       }
+      // Web has no temp dir / native share sheet — stream the CSV straight to a
+      // browser download instead (web QA #61: "Missing Plugin" on Export CSV).
+      if (kIsWeb) {
+        Navigator.pop(context);
+        await downloadBytesWeb(
+          '${_exportBaseName(users)}.csv',
+          Uint8List.fromList(utf8.encode(buf.toString())),
+          'text/csv',
+        );
+        return;
+      }
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/${_exportBaseName(users)}.csv');
       await file.writeAsString(buf.toString());
@@ -1250,6 +1264,24 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           bytes: bytes,
           filename: '${_exportBaseName(users)}.pdf',
           bounds: origin,
+        );
+      } else if (kIsWeb) {
+        // Web can't write N temp files or batch-share them (MissingPlugin,
+        // web QA #60). Bundle one page per user into a single PDF and hand it
+        // to the browser download instead.
+        final bytes = await _buildPerUserPdf(
+          users,
+          withPasswords: _includePasswords,
+          schoolName: schoolName,
+          exportedBy: exportedBy,
+          l: l,
+        );
+        if (!mounted) return;
+        Navigator.pop(context);
+        await downloadBytesWeb(
+          '${_exportBaseName(users)}.pdf',
+          bytes,
+          'application/pdf',
         );
       } else {
         // One PDF per user. Write each to a temp file then share them

@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -124,10 +125,14 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
     try {
       for (final f in result.files) {
         if (_attachments.length >= 10) break;
+        // On web file_picker can hand back a non-null blob path that dart:io
+        // can't open ("Unsupported operation", web QA #83) — so upload from
+        // bytes on web and only use the path on mobile.
+        final hasPath = !kIsWeb && (f.path ?? '').isNotEmpty;
         final uploaded = await api.uploadAttachment(
-          f.path,
+          hasPath ? f.path : null,
           fileName: f.name,
-          bytes: f.path == null ? f.bytes : null,
+          bytes: hasPath ? null : f.bytes,
         );
         if (uploaded.url.isNotEmpty) {
           setState(() => _attachments.add(uploaded));

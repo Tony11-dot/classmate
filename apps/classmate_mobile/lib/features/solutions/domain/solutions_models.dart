@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'solution_subjects.dart';
 
 enum SolutionAssetKind { image, pdf }
@@ -8,6 +10,8 @@ class SolutionUploadAsset {
   final String name;
   final SolutionAssetKind kind;
   final String? filePath;
+  /// In-memory bytes for web, where picked files have no filesystem path.
+  final Uint8List? bytes;
   final String? remoteUrl;
 
   const SolutionUploadAsset({
@@ -16,6 +20,7 @@ class SolutionUploadAsset {
     required this.kind,
     this.uploadState = UploadState.queued,
     this.filePath,
+    this.bytes,
     this.remoteUrl,
   });
 }

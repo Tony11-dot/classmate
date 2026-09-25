@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 
@@ -197,6 +198,13 @@ class PhoneField extends StatelessWidget {
       autofocus: autofocus,
       keyboardType: TextInputType.phone,
       autocorrect: false,
+      // keyboardType is only a hint (ignored by hardware keyboards on web), so
+      // restrict input to phone characters at the formatter level — otherwise
+      // letters land in the field and joinE164 silently drops them with no
+      // error shown (web QA #84/#85/#89).
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9+()\- ]')),
+      ],
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: labelText ?? l.phoneFieldLabel,

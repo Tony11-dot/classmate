@@ -69,12 +69,13 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
       final answer =
           await ref.read(supportAiRepositoryProvider).ask(text, history: history);
       if (!mounted) return;
+      final clean = _plainText(answer);
       setState(() {
         _turns.add(SupportTurn(
           role: 'assistant',
-          content: answer.isEmpty
+          content: clean.isEmpty
               ? AppLocalizations.of(context)!.supportAiError
-              : answer,
+              : clean,
         ));
         _sending = false;
       });
@@ -86,6 +87,37 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
       });
     }
     _scrollToEnd();
+  }
+
+  /// The support bubble renders as plain [SelectableText], so any HTML tags or
+  /// markdown the model emits show up as literal characters (web QA #90). Strip
+  /// tags, decode the common entities, and flatten markdown emphasis/headers/
+  /// bullets to clean prose.
+  String _plainText(String raw) {
+    var s = raw;
+    // Fenced/inline code fences → drop the backticks, keep the content.
+    s = s.replaceAll(RegExp(r'```[a-zA-Z]*\n?'), '').replaceAll('`', '');
+    // HTML tags.
+    s = s.replaceAll(RegExp(r'<[^>]+>'), '');
+    // Common HTML entities.
+    const entities = {
+      '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"',
+      '&#39;': "'", '&apos;': "'", '&nbsp;': ' ',
+    };
+    entities.forEach((k, v) => s = s.replaceAll(k, v));
+    // Markdown headers (### Title) → plain line.
+    s = s.replaceAll(RegExp(r'^#{1,6}\s*', multiLine: true), '');
+    // Bold/italic markers (**x**, __x__, *x*, _x_) → bare text.
+    s = s.replaceAllMapped(
+        RegExp(r'(\*\*|__|\*|_)(.+?)\1'), (m) => m.group(2) ?? '');
+    // Markdown links [label](url) → "label (url)".
+    s = s.replaceAllMapped(
+        RegExp(r'\[([^\]]+)\]\(([^)]+)\)'), (m) => '${m[1]} (${m[2]})');
+    // List bullets (- / * at line start) → •.
+    s = s.replaceAll(RegExp(r'^\s*[-*]\s+', multiLine: true), '• ');
+    // Collapse 3+ blank lines to a single blank line.
+    s = s.replaceAll(RegExp(r'\n{3,}'), '\n\n');
+    return s.trim();
   }
 
   @override

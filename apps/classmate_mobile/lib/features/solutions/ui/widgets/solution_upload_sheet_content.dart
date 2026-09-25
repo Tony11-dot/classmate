@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,16 +130,21 @@ class _SolutionUploadSheetBodyState
     final picker = ImagePicker();
     final picked = await picker.pickMultiImage();
     if (picked.isEmpty || !mounted) return;
-    _addFiles(
-      picked.map(
-        (xf) => SolutionUploadAsset(
+    // Web has no filesystem path — read the bytes so the upload has something
+    // to send (web QA #77).
+    final assets = <SolutionUploadAsset>[];
+    for (final xf in picked) {
+      assets.add(
+        SolutionUploadAsset(
           id: 'img-${DateTime.now().microsecondsSinceEpoch}-${xf.name}',
           name: xf.name,
           kind: SolutionAssetKind.image,
-          filePath: xf.path,
+          filePath: kIsWeb ? null : xf.path,
+          bytes: kIsWeb ? await xf.readAsBytes() : null,
         ),
-      ),
-    );
+      );
+    }
+    _addFiles(assets);
   }
 
   Future<void> _pickPdf() async {
@@ -146,17 +152,20 @@ class _SolutionUploadSheetBodyState
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: const ['pdf'],
+      // Pull bytes on web (no path there); mobile keeps using the path.
+      withData: kIsWeb,
     );
     if (result == null || result.files.isEmpty || !mounted) return;
     _addFiles(
       result.files
-          .where((f) => (f.path ?? '').trim().isNotEmpty)
+          .where((f) => (f.path ?? '').trim().isNotEmpty || f.bytes != null)
           .map(
             (f) => SolutionUploadAsset(
               id: 'pdf-${DateTime.now().microsecondsSinceEpoch}-${f.name}',
               name: f.name,
               kind: SolutionAssetKind.pdf,
               filePath: f.path,
+              bytes: f.bytes,
             ),
           ),
     );
@@ -250,12 +259,14 @@ class _SolutionUploadSheetBodyState
       return;
     }
 
-    final filePaths = state.uploadFiles
-        .map((e) => e.filePath)
-        .whereType<String>()
+    // Web assets carry bytes (no path); mobile assets carry a path. Keep
+    // either so the upload works on both (web QA #77).
+    final assets = state.uploadFiles
+        .where((e) => e.bytes != null || (e.filePath ?? '').trim().isNotEmpty)
+        .map((e) => (name: e.name, path: e.filePath, bytes: e.bytes))
         .toList(growable: false);
 
-    if (filePaths.isEmpty) {
+    if (assets.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.solutionsUploadAddOneFile)),
       );
@@ -271,7 +282,7 @@ class _SolutionUploadSheetBodyState
 
     List<Map<String, dynamic>> files;
     try {
-      files = await api.uploadFilesMultipart(filePaths);
+      files = await api.uploadFilesMultipart(assets);
       final uploaded = ref
           .read(solutionsFlowProvider)
           .uploadFiles

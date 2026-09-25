@@ -1,5 +1,6 @@
 // ignore_for_file: use_null_aware_elements
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -1255,13 +1256,22 @@ class TeacherMobileRepository {
 
   /// Uploads a file to the general attachment endpoint and returns
   /// `{ url, fileName, mimeType }` with a server-hosted URL.
-  Future<Map<String, dynamic>> uploadAttachmentFile(String filePath, String fileName) async {
+  ///
+  /// Pass [bytes] on web (picked files have no filesystem path there, so
+  /// `MultipartFile.fromPath` throws); [filePath] is used on mobile.
+  Future<Map<String, dynamic>> uploadAttachmentFile(
+    String? filePath,
+    String fileName, {
+    Uint8List? bytes,
+  }) async {
     final baseUrl = _api.primaryBaseUrl.replaceAll(RegExp(r'/+$'), '');
     final uri = Uri.parse('$baseUrl/uploads/attachment');
     final t = (token).trim();
     final req = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $t'
-      ..files.add(await http.MultipartFile.fromPath('file', filePath, filename: fileName));
+      ..files.add(bytes != null
+          ? http.MultipartFile.fromBytes('file', bytes, filename: fileName)
+          : await http.MultipartFile.fromPath('file', filePath!, filename: fileName));
     final streamed = await req.send().timeout(const Duration(seconds: 60));
     final body = await streamed.stream.bytesToString();
     if (streamed.statusCode >= 400) throw Exception('Upload failed: ${streamed.statusCode}');

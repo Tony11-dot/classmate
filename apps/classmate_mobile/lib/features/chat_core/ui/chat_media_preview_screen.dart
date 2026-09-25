@@ -144,57 +144,69 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
 
   Future<void> _openEditor() async {
     if (_media.isEmpty || _currentIsVideo) return;
-    final current = _media[_index];
-    // Editor works on bytes on every platform. Mobile reads them from the
-    // file; web already holds them in memory.
-    final Uint8List bytes = current.hasBytes
-        ? current.bytes!
-        : await File(current.path!).readAsBytes();
-    if (!mounted) return;
-    final result = await Navigator.push<Uint8List>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ImageEditor(
-          image: bytes,
-          outputFormat: o.OutputFormat.jpeg,
-          cropOption: const o.CropOption(),
-          brushOption: const o.BrushOption(showBackground: true),
-          flipOption: const o.FlipOption(),
-          rotateOption: const o.RotateOption(),
-          filtersOption: null,
-          blurOption: null,
-          emojiOption: null,
-          textOption: null,
-        ),
-      ),
-    );
-    if (result == null || !mounted) return;
-
-    OutgoingMedia edited;
+    // image_editor_plus (Draw & Crop) is not reliable in a browser — its
+    // canvas path throws at render time, which escapes any try/catch here and
+    // white-screens the whole app, forcing a refresh (web QA #4/#25). Keep it
+    // degraded on web, matching the video-trim path; rotate/mirror still work.
     if (kIsWeb) {
-      // No filesystem — keep the edited bytes in memory.
-      edited = OutgoingMedia(
-        name: 'edited_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        bytes: result,
-        mime: 'image/jpeg',
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.chatMediaWebUnsupported),
+        ),
       );
-    } else {
+      return;
+    }
+    final current = _media[_index];
+    try {
+      // Editor works on bytes on every platform. Mobile reads them from the
+      // file; web already holds them in memory.
+      final Uint8List bytes = current.hasBytes
+          ? current.bytes!
+          : await File(current.path!).readAsBytes();
+      if (!mounted) return;
+      final result = await Navigator.push<Uint8List>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ImageEditor(
+            image: bytes,
+            outputFormat: o.OutputFormat.jpeg,
+            cropOption: const o.CropOption(),
+            brushOption: const o.BrushOption(showBackground: true),
+            flipOption: const o.FlipOption(),
+            rotateOption: const o.RotateOption(),
+            filtersOption: null,
+            blurOption: null,
+            emojiOption: null,
+            textOption: null,
+          ),
+        ),
+      );
+      if (result == null || !mounted) return;
+
       final dir = await getTemporaryDirectory();
       final tmpPath =
           '${dir.path}/edited_${DateTime.now().millisecondsSinceEpoch}.jpg';
       await File(tmpPath).writeAsBytes(result);
-      edited = OutgoingMedia(
+      final edited = OutgoingMedia(
         name: tmpPath.split('/').last,
         path: tmpPath,
         mime: 'image/jpeg',
         previewUrl: tmpPath,
       );
+      setState(() {
+        _media = List<OutgoingMedia>.from(_media)..[_index] = edited;
+        _quarterTurns[_index] = 0;
+        _mirrored[_index] = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.chatCouldNotSendMedia),
+        ),
+      );
     }
-    setState(() {
-      _media = List<OutgoingMedia>.from(_media)..[_index] = edited;
-      _quarterTurns[_index] = 0;
-      _mirrored[_index] = false;
-    });
   }
 
   Future<void> _trimCurrent() async {
@@ -500,12 +512,15 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
             const SizedBox(width: 8),
           ],
           if (!isVideo) ...[
-            _toolButton(
-              icon: Icons.draw_rounded,
-              label: l.chatMediaPreviewDrawCropAction,
-              onTap: _openEditor,
-            ),
-            const SizedBox(width: 8),
+            // Draw & Crop is mobile-only — the editor's canvas crashes on web.
+            if (!kIsWeb) ...[
+              _toolButton(
+                icon: Icons.draw_rounded,
+                label: l.chatMediaPreviewDrawCropAction,
+                onTap: _openEditor,
+              ),
+              const SizedBox(width: 8),
+            ],
             _toolButton(
               icon: Icons.rotate_left_rounded,
               label: l.chatMediaPreviewRotateLeftAction,

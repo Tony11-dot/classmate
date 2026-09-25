@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -100,6 +101,9 @@ class _TeacherNewAnnouncementScreenState
         'zip', 'txt',
       ],
       allowMultiple: true,
+      // Web files have no path — pull bytes so the attachment can be uploaded
+      // (web QA: announcement attachments were silently dropped on web).
+      withData: kIsWeb,
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() => _pendingFiles.addAll(result.files));
@@ -239,9 +243,15 @@ class _TeacherNewAnnouncementScreenState
       final repo = ref.read(teacherMobileRepositoryProvider);
       final attachments = <Map<String, dynamic>>[..._uploadedAttachments];
       for (final f in _pendingFiles) {
-        if (f.path == null || f.path!.isEmpty) continue;
+        // Web: no path, upload from bytes. Mobile: upload from the file path.
+        final hasPath = (f.path ?? '').isNotEmpty;
+        if (!hasPath && f.bytes == null) continue;
         try {
-          final res = await repo.uploadAttachmentFile(f.path!, f.name);
+          final res = await repo.uploadAttachmentFile(
+            hasPath ? f.path : null,
+            f.name,
+            bytes: hasPath ? null : f.bytes,
+          );
           final url = (res['url'] ?? res['fileUrl'] ?? '').toString().trim();
           if (url.isNotEmpty) {
             attachments.add({'type': 'file', 'url': url, 'name': f.name});
