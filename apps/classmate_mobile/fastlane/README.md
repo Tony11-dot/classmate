@@ -55,6 +55,14 @@ Upload existing IPA to TestFlight (skip build)
 
 Build, upload, and submit to App Store review (1-command public release)
 
+### ios submit
+
+```sh
+[bundle exec] fastlane ios submit
+```
+
+Submit an ALREADY-UPLOADED build to App Store review — pushes the 'What's New' release notes from fastlane/metadata and submits. No rebuild. Use when `release` uploaded the binary but the version was missing whatsNew (App Store requires release notes on every update).
+
 ----
 
 

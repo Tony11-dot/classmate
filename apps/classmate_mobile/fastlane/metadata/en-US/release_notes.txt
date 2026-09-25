@@ -1,0 +1,8 @@
+Fixes and improvements across web and mobile:
+- Chat: image drawing and cropping, sending, downloads, and gallery previews now work reliably.
+- Export: CSV and PDF export from admin data now download correctly.
+- Uploads: attaching files in Solutions, CMail, and teacher announcements is fixed.
+- Forms: phone number fields now reject letters; exams block past dates with clear validation.
+- Classroom: added a search bar to the People section; the meeting subject picker now accepts No Subject.
+- Support assistant: cleaner, properly formatted answers.
+- Various stability and polish fixes.
