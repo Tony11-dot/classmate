@@ -2,11 +2,17 @@ import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { Public } from '../auth/decorators/public.decorator';
 
-/// Highest mobile build shipped to the stores. The app compares its own build
-/// number against this on launch and offers an update when it's behind.
-/// Bumped as part of the release runbook (docs/SHIPPING.md) alongside
-/// pubspec.yaml; the MOBILE_LATEST_BUILD env var overrides it so the prompt
-/// can be steered (or silenced with 0 → falls back here) without a deploy.
+/// Highest mobile build LIVE on the PUBLIC stores (App Store / Play production),
+/// not merely uploaded. The app compares its own build number against this on
+/// launch and offers an update when it's behind, so it must only advance once a
+/// build is actually downloadable — otherwise users are nudged toward a version
+/// they can't get yet.
+///
+/// The MOBILE_LATEST_BUILD env var overrides this (or silences the prompt with
+/// 0), so the go-live flip needs NO deploy: the moment a build clears App Store
+/// review AND Play production rollout, set MOBILE_LATEST_BUILD=<build> on
+/// Railway and every stale client starts prompting. This constant is only the
+/// floor when the env var is unset — keep it at the last build known public.
 const FALLBACK_LATEST_MOBILE_BUILD = 279;
 
 @Public()
@@ -32,9 +38,14 @@ export class VersionController {
         androidUrl:
           process.env.MOBILE_ANDROID_UPDATE_URL ??
           'https://play.google.com/store/apps/details?id=com.tonyaboud.classmate',
-        // Pre-App-Store phase: deep-link opens the TestFlight app, where the
-        // new build appears with its own Update button.
-        iosUrl: process.env.MOBILE_IOS_UPDATE_URL ?? 'itms-beta://',
+        // ClassMate is publicly on the App Store (id6771313687), so the update
+        // prompt jumps straight to the store listing — iOS opens this https
+        // apps.apple.com link in the App Store app, where the latest approved
+        // build shows its own Update button. Env-overridable to flip back to a
+        // TestFlight deep-link (itms-beta://) during a beta-only phase.
+        iosUrl:
+          process.env.MOBILE_IOS_UPDATE_URL ??
+          'https://apps.apple.com/app/id6771313687',
       },
     };
   }
