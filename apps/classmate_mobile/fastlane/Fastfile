@@ -196,7 +196,7 @@ platform :ios do
       api_key:             key,
       ipa:                 IOS_IPA,
       submit_for_review:   true,    # actually submits for Apple review
-      automatic_release:   false,   # you press "Release" after approval
+      automatic_release:   true,    # auto-goes-live the moment Apple approves
       force:               true,    # skip the HTML preview/confirm prompt
       skip_metadata:       true,    # use the listing already in App Store Connect
       skip_screenshots:    true,
@@ -219,7 +219,7 @@ platform :ios do
       skip_screenshots:    true,
       skip_app_version_update: false,
       submit_for_review:   true,
-      automatic_release:   false,    # you press "Release" after approval
+      automatic_release:   true,     # auto-goes-live the moment Apple approves
       force:               true,
       precheck_include_in_app_purchases: false,
       submission_information: { export_compliance_uses_encryption: false },
@@ -292,12 +292,12 @@ platform :android do
       skip_upload_metadata:    true,
       skip_upload_images:      true,
       skip_upload_screenshots: true,
-      # Staged rollout — bump toward 1.0 as you gain confidence, or remove
-      # this line to release to 100% immediately.
-      rollout:                 "0.2",
+      # Full immediate production rollout — no staged gate.
+      rollout:                 "1.0",
+      release_status:          "completed",
     )
     upload_sentry_symbols   # AFTER the release, so a flaky upload can't block it
-    UI.success "✅ Rolled out to Play production (20%)!"
+    UI.success "✅ Rolled out to Play production (100%)!"
   end
 
 end
