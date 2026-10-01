@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 
 import '../../l10n/app_localizations.dart';
 import 'data/certificates_repository.dart';
+import '../../core/pdf/pdf_fonts.dart';
 
 /// Everything the certificate PDF needs. Built from the form + prefill data.
 class CertificatePdfData {
@@ -94,12 +95,12 @@ class _CertFonts {
 
 Future<_CertFonts> _loadCertFonts() async {
   return _CertFonts(
-    latin: await PdfGoogleFonts.iBMPlexSansRegular(),
-    latinSemi: await PdfGoogleFonts.iBMPlexSansSemiBold(),
-    arabicReg: await PdfGoogleFonts.iBMPlexSansArabicRegular(),
-    arabicSemi: await PdfGoogleFonts.iBMPlexSansArabicSemiBold(),
-    hebrewReg: await PdfGoogleFonts.notoSansHebrewRegular(),
-    hebrewBold: await PdfGoogleFonts.notoSansHebrewBold(),
+    latin: await PdfFonts.ibmPlexSansRegular(),
+    latinSemi: await PdfFonts.ibmPlexSansSemiBold(),
+    arabicReg: await PdfFonts.ibmPlexSansArabicRegular(),
+    arabicSemi: await PdfFonts.ibmPlexSansArabicSemiBold(),
+    hebrewReg: await PdfFonts.notoSansHebrewRegular(),
+    hebrewBold: await PdfFonts.notoSansHebrewBold(),
     cmLogo: pw.MemoryImage((await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List()),
   );
 }

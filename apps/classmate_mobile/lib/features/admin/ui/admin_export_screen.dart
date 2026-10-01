@@ -19,6 +19,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../common/media/web_download.dart';
 import '../data/admin_repository.dart';
+import '../../../core/pdf/pdf_fonts.dart';
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
@@ -1337,12 +1338,12 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     // The base font follows the export language so each script SHAPES correctly:
     // on the pdf engine, an Arabic/Hebrew font that is only a *fallback* renders
     // detached, reversed glyphs, so the primary script must be the theme base.
-    final latin = await PdfGoogleFonts.iBMPlexSansRegular();
-    final latinSemi = await PdfGoogleFonts.iBMPlexSansSemiBold();
-    final arab = await PdfGoogleFonts.iBMPlexSansArabicRegular();
-    final arabSemi = await PdfGoogleFonts.iBMPlexSansArabicSemiBold();
-    final hebrew = await PdfGoogleFonts.notoSansHebrewRegular();
-    final hebrewBold = await PdfGoogleFonts.notoSansHebrewBold();
+    final latin = await PdfFonts.ibmPlexSansRegular();
+    final latinSemi = await PdfFonts.ibmPlexSansSemiBold();
+    final arab = await PdfFonts.ibmPlexSansArabicRegular();
+    final arabSemi = await PdfFonts.ibmPlexSansArabicSemiBold();
+    final hebrew = await PdfFonts.notoSansHebrewRegular();
+    final hebrewBold = await PdfFonts.notoSansHebrewBold();
     // icon_light.png is the blue CM monogram — it renders reliably in the PDF
     // engine (the wide logo_light.png wordmark did not).
     final cmLogo = pw.MemoryImage(
@@ -1608,10 +1609,10 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
     required String exportedBy,
     required AppLocalizations l,
   }) async {
-    final baseFont = await PdfGoogleFonts.notoSansRegular();
-    final baseBold = await PdfGoogleFonts.notoSansBold();
-    final arabicFont = await PdfGoogleFonts.notoSansArabicRegular();
-    final hebrewFont = await PdfGoogleFonts.notoSansHebrewRegular();
+    final baseFont = await PdfFonts.notoSansRegular();
+    final baseBold = await PdfFonts.notoSansBold();
+    final arabicFont = await PdfFonts.notoSansArabicRegular();
+    final hebrewFont = await PdfFonts.notoSansHebrewRegular();
     final cmLogo = pw.MemoryImage(
       (await rootBundle.load('assets/images/icon_light.png')).buffer.asUint8List(),
     );

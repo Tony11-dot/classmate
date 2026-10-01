@@ -7646,7 +7646,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get paywallTermsSubscription =>
-      '‹‹By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Manage anytime in your App Store account.››';
+      '‹‹By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.››';
 
   @override
   String get paywallTermsTopup =>

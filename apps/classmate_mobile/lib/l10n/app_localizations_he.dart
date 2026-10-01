@@ -7521,7 +7521,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get paywallTermsSubscription =>
-      'בהרשמה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. המנויים מתחדשים אוטומטית מדי חודש עד שיבוטלו. ניהול בכל עת מחשבון App Store.';
+      'בהרשמה אתה מסכים לתנאי השימוש ולמדיניות הפרטיות של ClassMate. המנויים מתחדשים אוטומטית מדי חודש עד שיבוטלו. ניהול וביטול בכל עת מחשבון App Store או Google Play, לפחות 24 שעות לפני סוף התקופה הנוכחית.';
 
   @override
   String get paywallTermsTopup =>

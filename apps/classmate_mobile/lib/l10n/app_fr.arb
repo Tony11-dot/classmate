@@ -2874,7 +2874,7 @@
   "paywallWebOnlyTitle": "Achetez sur mobile",
   "paywallWebOnlyBody": "Les abonnements et recharges passent par l'App Store ou Google Play. Ouvrez ClassMate sur votre iPhone, iPad ou téléphone Android pour vous abonner — votre compte et vos jetons sont partagés entre tous les appareils.",
   "paywallWebOnlyDismiss": "Compris",
-  "paywallTermsSubscription": "En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu'à annulation. Gérez à tout moment depuis votre compte App Store.",
+  "paywallTermsSubscription": "En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu'à annulation. Gérez à tout moment depuis votre compte App Store ou Google Play. Annulez au moins 24 heures avant la fin de la période en cours.",
   "paywallTermsTopup": "En achetant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les jetons de recharge ne sont pas remboursables une fois consommés.",
   "paywallTermsLink": "Conditions d'utilisation (EULA)",
   "paywallPrivacyLink": "Politique de confidentialité",

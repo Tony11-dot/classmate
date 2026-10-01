@@ -153,6 +153,7 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    - assets/pdf_fonts/
 
   # App typeface lineup (user-selectable in Settings → App font). Cabinet
   # Grotesk stays the default; the rest are clean grotesks in the same spirit

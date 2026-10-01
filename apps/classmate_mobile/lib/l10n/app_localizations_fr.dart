@@ -7707,7 +7707,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get paywallTermsSubscription =>
-      'En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu\'à annulation. Gérez à tout moment depuis votre compte App Store.';
+      'En vous abonnant, vous acceptez les Conditions et la Politique de confidentialité de ClassMate. Les abonnements se renouvellent automatiquement chaque mois jusqu\'à annulation. Gérez à tout moment depuis votre compte App Store ou Google Play. Annulez au moins 24 heures avant la fin de la période en cours.';
 
   @override
   String get paywallTermsTopup =>

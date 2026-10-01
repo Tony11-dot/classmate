@@ -7559,7 +7559,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paywallTermsSubscription =>
-      'بالاشتراك فإنك توافق على شروط ClassMate وسياسة الخصوصية. تتجدد الاشتراكات شهريًا تلقائيًا حتى يتم إلغاؤها. تتم الإدارة في أي وقت من حساب App Store الخاص بك.';
+      'بالاشتراك فإنك توافق على شروط ClassMate وسياسة الخصوصية. تتجدد الاشتراكات شهريًا تلقائيًا حتى يتم إلغاؤها. تتم الإدارة في أي وقت من حسابك في App Store أو Google Play. يمكنك الإلغاء في أي وقت قبل 24 ساعة على الأقل من نهاية الفترة الحالية.';
 
   @override
   String get paywallTermsTopup =>
