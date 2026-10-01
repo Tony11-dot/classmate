@@ -16,6 +16,14 @@ export interface ModelPricing {
 }
 
 export const MODEL_PRICING: Record<string, ModelPricing> = {
+  // Claude Sonnet 5.5 — selectable for NOVA via NOVA_MODEL. Not the default:
+  // tested 2026-10-01, its tokenizer makes the NOVA prompt ~40% longer, so
+  // per-reply cost came out about even with Sonnet 4.6.
+  'claude-sonnet-5-5': {
+    inputPerM: 2.0,
+    cachedInputPerM: 0.2,
+    outputPerM: 10.0,
+  },
   // Claude Sonnet 4.6 — PRIMARY model for NOVA + Practice (all tiers).
   // Picked over Haiku for substantially better educational content
   // generation. Per-call cost is ~3x Haiku; computeCost() scales

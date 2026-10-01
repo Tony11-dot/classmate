@@ -148,6 +148,19 @@ export interface StreamUsageReport {
   outputTokens: number;
 }
 
+/// Model-specific request options. Sonnet 5.5 can't disable thinking, and
+/// its default adaptive thinking is billed as output; `between_tools` is
+/// its lowest setting (no extended thinking on a tool-less chat turn).
+/// NOVA_THINKING / NOVA_EFFORT override for evaluation.
+export function novaModelOptions(model: string): Record<string, unknown> {
+  if (!model.startsWith('claude-sonnet-5-5')) return {};
+  const adaptive = process.env.NOVA_THINKING === 'adaptive';
+  return {
+    thinking: { type: adaptive ? 'adaptive' : 'between_tools' },
+    output_config: { effort: process.env.NOVA_EFFORT || (adaptive ? 'low' : 'high') },
+  };
+}
+
 export async function* generateAssistantReplyStream(args: {
   system: string;
   user: string;
@@ -171,7 +184,11 @@ export async function* generateAssistantReplyStream(args: {
   // Free tier defaults to Haiku 4.5 — ~3× cheaper than Sonnet and still
   // strong on homework Q&A. Paid tiers stay on Sonnet 4.6 for quality.
   // ANTHROPIC_MODEL env override wins (dev/internal testing).
-  const model = process.env.ANTHROPIC_MODEL
+  // NOVA_MODEL targets NOVA alone — Practice also reads ANTHROPIC_MODEL
+  // and its request shape (temperature, forced tool_choice) doesn't run
+  // on Sonnet 5.5.
+  const model = process.env.NOVA_MODEL
+    || process.env.ANTHROPIC_MODEL
     || (isFree ? 'claude-haiku-4-5' : 'claude-sonnet-4-6');
   // Output is 5× input price, so capping max_tokens is the single
   // biggest free-tier cost lever. 400 keeps free replies tight (a
@@ -231,6 +248,7 @@ export async function* generateAssistantReplyStream(args: {
   const stream = client.messages.stream({
     model,
     max_tokens: maxTokens,
+    ...novaModelOptions(model),
     system: [
       {
         type: 'text',
@@ -251,6 +269,8 @@ export async function* generateAssistantReplyStream(args: {
   // Capture usage as the stream emits — message_start has input / cache
   // counts, message_delta has the running output count. Final values
   // are forwarded to onUsage so the caller can bill the user.
+  let yieldedText = false;
+  let stopReason: string | undefined;
   let inputTokens = 0;
   let cachedInputTokens = 0;
   let cacheWriteTokens = 0;
@@ -267,13 +287,23 @@ export async function* generateAssistantReplyStream(args: {
       const u = (event as any)?.usage ?? {};
       // `output_tokens` on message_delta is cumulative for the message.
       if (typeof u.output_tokens === 'number') outputTokens = u.output_tokens;
+      stopReason = (event as any)?.delta?.stop_reason ?? stopReason;
     } else if (
       event.type === 'content_block_delta' &&
       (event.delta as any).type === 'text_delta'
     ) {
       const text = (event.delta as any).text as string;
-      if (text?.length) yield text;
+      if (text?.length) {
+        yieldedText = true;
+        yield text;
+      }
     }
+  }
+
+  // A safety decline is a normal 200 with stop_reason "refusal" and no
+  // text — give the student a reply instead of an empty bubble.
+  if (stopReason === 'refusal' && !yieldedText) {
+    yield "I can't help with that one. Try asking it another way, or ask me about something else you're studying.";
   }
 
   if (args.onUsage) {
