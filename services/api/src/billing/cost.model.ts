@@ -6,10 +6,8 @@
 // Anthropic dashboard.
 //
 // Cached input is read pricing (10% of standard input). Cache writes
-// charge 1.25x standard input the FIRST time a cache block is written,
-// but we don't track writes separately yet — the overhead amortises
-// across the cache TTL (5 minutes for Anthropic) so for steady-state
-// chats the read price dominates.
+// charge 1.25x standard input the first time a block is written (5-minute
+// TTL); they're priced in computeCost() but not stored as their own column.
 
 export interface ModelPricing {
   inputPerM: number;
@@ -78,6 +76,7 @@ export function pricingForModel(model: string): ModelPricing {
 export interface AnthropicUsage {
   inputTokens: number;
   cachedInputTokens: number;
+  cacheWriteTokens: number;
   outputTokens: number;
 }
 
@@ -88,6 +87,7 @@ export function extractAnthropicUsage(payload: any): AnthropicUsage {
   return {
     inputTokens: Number(u.input_tokens ?? 0),
     cachedInputTokens: Number(u.cache_read_input_tokens ?? 0),
+    cacheWriteTokens: Number(u.cache_creation_input_tokens ?? 0),
     outputTokens: Number(u.output_tokens ?? 0),
   };
 }
@@ -104,16 +104,21 @@ export function computeCost(
   inputTokens: number,
   cachedInputTokens: number,
   outputTokens: number,
+  cacheWriteTokens = 0,
 ): CostBreakdown {
   const p = pricingForModel(model);
   const costUsd =
     (inputTokens / 1_000_000) * p.inputPerM +
     (cachedInputTokens / 1_000_000) * p.cachedInputPerM +
+    (cacheWriteTokens / 1_000_000) * p.inputPerM * 1.25 +
     (outputTokens / 1_000_000) * p.outputPerM;
 
   // Output costs 5x more than input across Anthropic's pricing curve,
   // so 1 output token = 5 charge-tokens. Cached input is dirt cheap
   // (10x cheaper than fresh input), so we count it at 0.2 weight.
+  // Cache writes are in costUsd but NOT charged: the shared NOVA prompt is
+  // re-written whenever the cache goes cold, and whichever student happens
+  // to trigger that shouldn't lose a chunk of their allowance for it.
   const baseCharge =
     inputTokens + cachedInputTokens * 0.2 + outputTokens * 5;
 

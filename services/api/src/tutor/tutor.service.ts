@@ -1290,10 +1290,14 @@ const system =
           // buildSystemPrompt() from the shared NOVA persona — not repeated here.
           `You are NOVA, the AI tutor inside ClassMate.\n\n=== MATH FORMATTING (REQUIRED) ===\n- The app renders LaTeX perfectly. ALWAYS wrap math in delimiters.\n- Inline math: $...$ — use for symbols, variables, expressions within sentences.\n- Block/display math: $$...$$ — use for standalone equations, steps, and final answers.\n- Examples: $x^{2}$, $\\\\frac{a}{b}$, $\\\\sqrt{x}$, $E = mc^{2}$, $$\\\\int_{0}^{\\\\infty} e^{-x}\\\\,dx = 1$$\n- NEVER write bare TeX commands outside delimiters (e.g. never write \\frac without $ around it).\n- NEVER write x^2 or x_1 bare in text — always wrap: $x^{2}$, $x_{1}$.\n- For units and simple numeric results, plain text is fine: 4 kΩ, 20 mA.\n- Prefer short titled sections instead of markdown heading spam.\n\n\n` +
           `Prefer Bagrut-level explanations with mini-quizzes.\n\n` +
-          `Be friendly, clear, accurate, and adaptive to the user's intent. Use tutoring mode only when the user is clearly studying.\n` +
-          (assistantLooksLikeQuiz && userLooksLikeAnswer
-            ? `\n\n=== MODE ===\nGRADE_ONLY: The user is answering an existing quiz. Grade and correct; do NOT create new quiz questions.`
-            : ``);
+          `Be friendly, clear, accurate, and adaptive to the user's intent. Use tutoring mode only when the user is clearly studying.\n`;
+
+        // Per-turn mode goes with the final user message, not the system
+        // prompt — toggling it there would invalidate the shared prompt cache.
+        const turnNote =
+          assistantLooksLikeQuiz && userLooksLikeAnswer
+            ? `=== MODE ===\nGRADE_ONLY: The user is answering an existing quiz. Grade and correct; do NOT create new quiz questions.`
+            : undefined;
 
 
         const user = userText;
@@ -1325,6 +1329,7 @@ const system =
           // back to any client-supplied value for older app builds.
           displayName: authName || opts?.displayName,
           novaSettings: opts?.novaSettings,
+          turnNote,
           tier: activeTier,
           onUsage: (u) => {
             // Fire-and-forget bill — we never want a billing write to
@@ -1336,6 +1341,7 @@ const system =
                 model: u.model,
                 inputTokens: u.inputTokens,
                 cachedInputTokens: u.cachedInputTokens,
+                cacheWriteTokens: u.cacheWriteTokens,
                 outputTokens: u.outputTokens,
               }).catch((e) => console.error('[billing] nova-chat commit failed:', e));
             }

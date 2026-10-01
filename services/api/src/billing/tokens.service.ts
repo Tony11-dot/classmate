@@ -154,12 +154,14 @@ export class TokensService {
     model: string;
     inputTokens: number;
     cachedInputTokens: number;
+    /// Prompt-cache writes; priced into costUsd/tokensCharged, not stored separately.
+    cacheWriteTokens?: number;
     outputTokens: number;
   }): Promise<{ tokensCharged: number; costUsd: number }> {
     const { userId, source, model, inputTokens, cachedInputTokens, outputTokens } = params;
     if (!userId) throw new BadRequestException('userId required for usage logging');
 
-    const cost = computeCost(model, inputTokens, cachedInputTokens, outputTokens);
+    const cost = computeCost(model, inputTokens, cachedInputTokens, outputTokens, params.cacheWriteTokens ?? 0);
 
     // Run inside a transaction so the balance update + usage log are
     // tied to the same DB snapshot. If either fails the whole thing

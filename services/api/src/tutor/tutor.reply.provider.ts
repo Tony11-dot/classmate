@@ -143,6 +143,8 @@ export interface StreamUsageReport {
   model: string;
   inputTokens: number;
   cachedInputTokens: number;
+  /// Tokens written to the prompt cache on this call (billed at 1.25x input).
+  cacheWriteTokens: number;
   outputTokens: number;
 }
 
@@ -152,6 +154,10 @@ export async function* generateAssistantReplyStream(args: {
   messages?: { role: string; content: string }[];
   displayName?: string;
   novaSettings?: string;
+  /// Per-turn instruction (e.g. GRADE_ONLY). Sent after the cache
+  /// breakpoint on the final user message so it never invalidates the
+  /// cached system prompt or conversation history.
+  turnNote?: string;
   /// Active billing tier — drives the model choice. FREE users get
   /// Haiku at a small max_tokens so the $5K/1000-students/year ceiling
   /// holds; paid users get Sonnet at the full reply length.
@@ -205,6 +211,23 @@ export async function* generateAssistantReplyStream(args: {
     args.novaSettings ? `\n=== NOVA SETTINGS (CUSTOMIZABLE) ===\n${args.novaSettings}` : '',
   ].filter(Boolean).join('\n');
 
+  // The caller's history already ends with the latest user message (it's
+  // saved to the DB before we stream) and that copy carries attachment
+  // context the bare `user` string lacks. Only append `user` when the
+  // history doesn't already end with a user turn, so the question isn't
+  // sent — and billed — twice.
+  const last = filteredHistory[filteredHistory.length - 1];
+  const priorTurns = last?.role === 'user' ? filteredHistory.slice(0, -1) : filteredHistory;
+  const finalUserText = last?.role === 'user' ? last.content : args.user;
+
+  // Cache breakpoint #2 sits on the final user message, so the next turn
+  // reads the whole conversation so far at the cache-read price instead of
+  // re-paying full input for every earlier message.
+  const finalUserContent = [
+    { type: 'text' as const, text: finalUserText, cache_control: { type: 'ephemeral' as const } },
+    ...(args.turnNote?.trim() ? [{ type: 'text' as const, text: args.turnNote }] : []),
+  ];
+
   const stream = client.messages.stream({
     model,
     max_tokens: maxTokens,
@@ -220,8 +243,8 @@ export async function* generateAssistantReplyStream(args: {
       }] : []),
     ],
     messages: [
-      ...filteredHistory,
-      { role: 'user', content: args.user },
+      ...priorTurns,
+      { role: 'user', content: finalUserContent },
     ],
   } as any);
 
@@ -230,6 +253,7 @@ export async function* generateAssistantReplyStream(args: {
   // are forwarded to onUsage so the caller can bill the user.
   let inputTokens = 0;
   let cachedInputTokens = 0;
+  let cacheWriteTokens = 0;
   let outputTokens = 0;
 
   for await (const event of stream) {
@@ -237,6 +261,7 @@ export async function* generateAssistantReplyStream(args: {
       const u = (event as any)?.message?.usage ?? {};
       inputTokens = Number(u.input_tokens ?? 0);
       cachedInputTokens = Number(u.cache_read_input_tokens ?? 0);
+      cacheWriteTokens = Number(u.cache_creation_input_tokens ?? 0);
       outputTokens = Number(u.output_tokens ?? 0);
     } else if (event.type === 'message_delta') {
       const u = (event as any)?.usage ?? {};
@@ -252,6 +277,6 @@ export async function* generateAssistantReplyStream(args: {
   }
 
   if (args.onUsage) {
-    args.onUsage({ model, inputTokens, cachedInputTokens, outputTokens });
+    args.onUsage({ model, inputTokens, cachedInputTokens, cacheWriteTokens, outputTokens });
   }
 }
