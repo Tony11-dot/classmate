@@ -44,6 +44,14 @@ export const ALL_APP_ROLES: Role[] = [
   Role.MANAGER,
 ];
 
+/**
+ * ClassNotes' own accounts (`ClassNotesAccount`), which are NOT ClassMate users
+ * and hold no school role. Kept out of `ALL_APP_ROLES` on purpose: a route
+ * tagged with the catch-all must not become reachable by a notebook-app
+ * session, so `/classnotes/*` lists this one explicitly alongside it.
+ */
+export const CLASSNOTES_ROLE = 'CLASSNOTES' as const;
+
 export function isRole(v: unknown): v is AppRole {
   return typeof v === 'string' && (APP_ROLES as readonly string[]).includes(v);
 }

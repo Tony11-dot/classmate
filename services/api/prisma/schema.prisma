@@ -149,17 +149,17 @@ model User {
 
   /// Date of birth (optional). Used to know when an account belongs to a minor
   /// and therefore requires guardian consent (Israel Privacy Amendment 13).
-  birthDate DateTime?
+  birthDate         DateTime?
   /// When the user — or, for a minor, their parent/guardian — accepted the
   /// Privacy Policy + Terms. Null = not yet accepted. This records the lawful
   /// basis for processing the account's data.
   consentAcceptedAt DateTime?
   /// Version of the Privacy Policy / Terms that was accepted, so we can prompt
   /// for re-consent when the policy materially changes.
-  consentVersion String?
+  consentVersion    String?
   /// True when a parent/guardian affirmed permission for a minor's account
   /// (self-signup), or the school attests consent was collected (roster).
-  guardianConsent Boolean @default(false)
+  guardianConsent   Boolean   @default(false)
 
   verificationCodes VerificationCode[]
 
@@ -211,11 +211,12 @@ model User {
   tokenBalance  TokenBalance?
   tokenUsages   TokenUsage[]
 
-  // ClassNotes sync — the user's notebook library, mirrored up from the native
-  // ClassNotes app so the ClassMate "ClassNotes" tab shows their real books.
-  classNotebooks ClassNotesNotebook[]
-  classShelves   ClassNotesShelf[]
-  classSettings  ClassNotesSettings?
+  // ClassNotes sync used to be a relation from this table, back when the only
+  // way into the ClassNotes app was a ClassMate account. ClassNotes now has its
+  // OWN accounts (`ClassNotesAccount`), so the owner of a notebook is no longer
+  // necessarily a row here and the foreign keys had to go — see the note on
+  // `ClassNotesNotebook.userId`. A ClassMate user who also uses the iPad app
+  // still owns their books; nothing about the stored rows changed.
 
   dmMessageReportsFiled DmMessageReport[] @relation("DmMessageReportsFiled")
   dmMessagesSent        DmMessage[]       @relation("DmMessagesSent")
@@ -297,9 +298,9 @@ model PasswordResetToken {
 
 model Cohort {
   id                String  @id @default(uuid())
-  name              String  // e.g. "10th-2" — unique PER SCHOOL, not globally
-                            // (see @@unique below): two different schools may
-                            // each have a "10th Grade" cohort.
+  // e.g. "10th-2" — unique PER SCHOOL, not globally (see @@unique below): two
+  // different schools may each have a "10th Grade" cohort.
+  name              String
   /// Primary/representative grade — kept in sync with grades[0] so legacy
   /// readers (announcements, schedule, teacher.service, etc.) keep working.
   grade             Int
@@ -1873,13 +1874,13 @@ model DmThread {
 }
 
 model DmParticipant {
-  id             String             @id @default(cuid())
-  threadId       String
-  userId         String
-  role           DmParticipantRole  @default(MEMBER)
-  state          DmParticipantState @default(ACCEPTED)
-  isMuted        Boolean            @default(false)
-  lastSeenAt     DateTime?
+  id              String             @id @default(cuid())
+  threadId        String
+  userId          String
+  role            DmParticipantRole  @default(MEMBER)
+  state           DmParticipantState @default(ACCEPTED)
+  isMuted         Boolean            @default(false)
+  lastSeenAt      DateTime?
   // Last instant this user's client actually had the thread's messages in
   // hand. Distinct from lastSeenAt (which means "read"): a message is
   // DELIVERED once it reaches the recipient's device, READ once they open the
@@ -1891,51 +1892,51 @@ model DmParticipant {
   // markedUnreadAt: manually marked unread — cleared on next markThreadRead.
   // clearedAt: messages at/before this instant are hidden from ME ("clear messages").
   // hiddenAt: thread hidden from MY inbox ("delete chat") until a newer message arrives.
-  pinnedAt       DateTime?
-  markedUnreadAt DateTime?
-  clearedAt      DateTime?
-  hiddenAt       DateTime?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  thread         DmThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  pinnedAt        DateTime?
+  markedUnreadAt  DateTime?
+  clearedAt       DateTime?
+  hiddenAt        DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  thread          DmThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@unique([threadId, userId])
   @@index([userId, state])
 }
 
 model DmMessage {
-  id               String              @id @default(cuid())
-  threadId         String
-  senderId         String
-  kind             DmMessageKind       @default(TEXT)
-  text             String?
-  mediaUrl         String?
-  mediaMimeType    String?
-  replyToMessageId String?
-  mediaMode        DmMediaMode?
-  viewLimit        Int?
-  replayLimit      Int?
-  expiresAt        DateTime?
-  isPinned         Boolean             @default(false)
-  editedAt         DateTime?
-  deletedAt        DateTime?
-  deleteMode       DmMessageDeleteMode @default(VISIBLE)
+  id                String              @id @default(cuid())
+  threadId          String
+  senderId          String
+  kind              DmMessageKind       @default(TEXT)
+  text              String?
+  mediaUrl          String?
+  mediaMimeType     String?
+  replyToMessageId  String?
+  mediaMode         DmMediaMode?
+  viewLimit         Int?
+  replayLimit       Int?
+  expiresAt         DateTime?
+  isPinned          Boolean             @default(false)
+  editedAt          DateTime?
+  deletedAt         DateTime?
+  deleteMode        DmMessageDeleteMode @default(VISIBLE)
   // "Delete for me" is per-viewer: the row stays intact for everyone else, and
   // whoever appears here no longer sees the message anywhere — thread, inbox
   // subtitle, or unread count. deletedAt/deleteMode remain for the
   // delete-for-EVERYONE tombstone, which is genuinely global.
-  deletedForUserIds String[]           @default([])
-  forwardedFromId  String?
-  createdAt        DateTime            @default(now())
-  thread           DmThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  sender           User                @relation("DmMessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
-  views            DmMessageView[]
-  reactions        DmReaction[]
-  replyTo          DmMessage?          @relation("DmMessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
-  replies          DmMessage[]         @relation("DmMessageReply")
-  forwardedFrom    DmMessage?          @relation("DmMessageForward", fields: [forwardedFromId], references: [id], onDelete: SetNull)
-  forwardedCopies  DmMessage[]         @relation("DmMessageForward")
-  reports          DmMessageReport[]
+  deletedForUserIds String[]            @default([])
+  forwardedFromId   String?
+  createdAt         DateTime            @default(now())
+  thread            DmThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender            User                @relation("DmMessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+  views             DmMessageView[]
+  reactions         DmReaction[]
+  replyTo           DmMessage?          @relation("DmMessageReply", fields: [replyToMessageId], references: [id], onDelete: SetNull)
+  replies           DmMessage[]         @relation("DmMessageReply")
+  forwardedFrom     DmMessage?          @relation("DmMessageForward", fields: [forwardedFromId], references: [id], onDelete: SetNull)
+  forwardedCopies   DmMessage[]         @relation("DmMessageForward")
+  reports           DmMessageReport[]
 
   @@index([threadId, createdAt])
   @@index([replyToMessageId])
@@ -2580,7 +2581,6 @@ model CMailRecipient {
 model ClassNotesShelf {
   id         String   @id
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name       String   @default("")
   colorHex   String   @default("")
   symbolName String   @default("bag")
@@ -2591,32 +2591,40 @@ model ClassNotesShelf {
 }
 
 model ClassNotesNotebook {
-  id            String   @id
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String    @id
+  /// The OWNER, and NOT a foreign key on purpose. This names either a
+  /// `ClassNotesAccount.id` — the ClassNotes app's own sign-in, which is how
+  /// every new user arrives — or a `User.id`, a ClassMate account that reached
+  /// these books through the ClassNotes tab. Two independent identity spaces
+  /// cannot both be referenced by one column, and the alternative (a parallel
+  /// set of tables per space) would have doubled every query in this file.
+  /// Both sides mint UUIDs, so ids from the two spaces cannot collide. The
+  /// trade-off is that deleting an owner no longer cascades here, so each
+  /// account-deletion path clears its own rows explicitly.
+  userId         String
   // Bare reference (no FK) on purpose: sync upserts can arrive out of order
   // (a notebook before its shelf), and a hard FK would reject that. The client
   // matches notebooks to shelves by this id.
-  shelfId       String?
-  title         String   @default("")
-  coverColorHex String   @default("")
+  shelfId        String?
+  title          String    @default("")
+  coverColorHex  String    @default("")
   // The cover as the iPad renders it — artwork plus whatever the user drew on
   // the cover page — as a small `data:image/png;base64,...` URL (~360 px wide).
   // Null for notebooks last pushed by a build that didn't render covers; the
   // ClassNotes tab then draws the cover from `coverColorHex` as it always did.
-  coverImage    String?  @db.Text
-  template      String   @default("ruled")
-  pageCount     Int      @default(1)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
+  coverImage     String?   @db.Text
+  template       String    @default("ruled")
+  pageCount      Int       @default(1)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
   // Manual order set from the ClassMate ClassNotes tab (drag to reorder). Null
   // means "never reordered" — those sort after the arranged ones, newest first.
-  sortIndex     Int?
+  sortIndex      Int?
   // Tombstone. Deleting from the ClassMate tab can't just drop the row: the iPad
   // pushes its whole library on every launch, so the notebook would come straight
   // back. The row stays as a marker until the native app has pulled the deletion
   // and removed its local copy, then acknowledges it (see `remoteEditedAt`).
-  deletedAt     DateTime?
+  deletedAt      DateTime?
   // Set when the ClassMate tab edits this notebook (rename / re-shelve). The
   // native app pulls these, applies them locally and acks; until then the app's
   // own push must NOT overwrite the newer remote value.
@@ -2634,15 +2642,15 @@ model ClassNotesNotebook {
 // `shelfId`); the notebook delete handler cleans these up explicitly.
 // `updatedAt` is set server-side on each upsert.
 model ClassNotesPage {
-  notebookId String
-  userId     String
-  pageIndex  Int
-  dataUrl    String   @db.Text
+  notebookId  String
+  userId      String
+  pageIndex   Int
+  dataUrl     String   @db.Text
   // The page's playable/openable extras: voice notes, files and links, as a
   // JSON array of { kind, name, durationSeconds?, dataUrl?, url? }. Nullable
   // because pages uploaded before attachments existed simply have none.
   attachments Json?
-  updatedAt  DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   @@id([notebookId, pageIndex])
   @@index([userId])
@@ -2660,8 +2668,57 @@ model ClassNotesPage {
 // behind would quietly undo the iPad's settings on every launch.
 model ClassNotesSettings {
   userId    String   @id
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   payload   Json
   revision  Int      @default(0)
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ClassNotes' OWN accounts.
+//
+// The iPad app used to sign in with a ClassMate account, because ClassMate's
+// backend was already here and already authenticated the library sync. That
+// coupling was wrong in both directions: a student who only wants a notebook
+// app had to be enrolled in a school platform to open it, and every ClassNotes
+// sign-in screen had to explain an account the user had never heard of.
+//
+// These accounts are therefore completely separate from `User`: a different
+// table, a different password hash, a different JWT (marked `kind:
+// 'classnotes'`), and — enforced by the role guard — access to NOTHING on this
+// backend but `/classnotes/*`. A ClassNotes token presented to a school
+// endpoint is denied by default, because it carries no ClassMate role at all.
+// ─────────────────────────────────────────────────────────────────────────────
+model ClassNotesAccount {
+  id                 String    @id @default(uuid())
+  /// The login identifier, always stored lower-cased and trimmed so that
+  /// "Tony@x.com " and "tony@x.com" are one account rather than two.
+  email              String    @unique
+  /// bcrypt, cost 12 — the same cost the ClassMate side uses.
+  passwordHash       String
+  name               String    @default("")
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+  /// Set on a password change or reset: every token issued before this instant
+  /// stops being accepted, so changing a password actually ends the other
+  /// sessions instead of leaving them live for the rest of the 90-day expiry.
+  tokenInvalidBefore DateTime?
+
+  resetTokens ClassNotesPasswordResetToken[]
+
+  @@index([email])
+}
+
+/// A single-use, hashed password-reset token. The raw token is e-mailed and
+/// never stored — only its SHA-256 — so a dump of this table cannot be used to
+/// take an account over.
+model ClassNotesPasswordResetToken {
+  id        String            @id @default(uuid())
+  accountId String
+  account   ClassNotesAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tokenHash String            @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  @@index([accountId])
 }

@@ -15,7 +15,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { ALL_APP_ROLES } from '../auth/roles';
+import { ALL_APP_ROLES, CLASSNOTES_ROLE } from '../auth/roles';
 import { ClassnotesService } from './classnotes.service';
 import { ClassnotesAiService } from './classnotes.ai.service';
 import {
@@ -33,8 +33,13 @@ import {
 /// notebooks/shelves — the native ClassNotes app PUTs metadata here on every
 /// edit, and the ClassMate "ClassNotes" tab GETs the library. Scoped entirely
 /// to `req.user`; never takes another user's id.
+/// Reachable by a ClassNotes account (`CLASSNOTES_ROLE` — the app's own
+/// sign-in, and how every new user arrives) AND by any ClassMate user, whose
+/// ClassNotes tab reads the same library. `CLASSNOTES_ROLE` is listed
+/// explicitly because it is deliberately absent from `ALL_APP_ROLES`: this is
+/// the one controller on the API a notebook-app session may touch.
 @UseGuards(JwtAuthGuard)
-@Roles(...ALL_APP_ROLES)
+@Roles(...ALL_APP_ROLES, CLASSNOTES_ROLE)
 @Controller('classnotes')
 export class ClassnotesController {
   private readonly logger = new Logger('ClassnotesController');

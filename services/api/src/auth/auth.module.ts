@@ -5,12 +5,17 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { ClassNotesAuthModule } from '../classnotes/auth/classnotes-auth.module';
 
 @Module({
   providers: [JwtStrategy, AuthService],
   imports: [
     PassportModule,
     PrismaModule,
+    // `JwtStrategy` verifies BOTH token families: a ClassMate user's and a
+    // ClassNotes account's. The import is one-way — ClassNotesAuthModule
+    // registers its own JwtModule rather than importing this one back.
+    ClassNotesAuthModule,
     // JwtService injected into AuthService.login (signs) and JwtStrategy
     // (verifies). Default 90-day expiry matches the long-lived "stay signed
     // in" UX the mobile clients want; the long window is safe because tokens

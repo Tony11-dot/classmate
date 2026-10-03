@@ -4,7 +4,13 @@ export type Role =
   | 'ADMIN'
   | 'PARENT'
   | 'SECRETARY'
-  | 'MANAGER';
+  | 'MANAGER'
+  // Not a school role, and deliberately not in `ALL_APP_ROLES`: it is the ONLY
+  // role a ClassNotes account carries, and the only route that lists it is
+  // ClassNotes' own. The RolesGuard default-denies an authenticated route whose
+  // @Roles tag it does not match, so that one omission is what keeps a
+  // notebook-app session out of every school endpoint on this API.
+  | 'CLASSNOTES';
 
 type UserLike = { roles?: string[] | undefined } | undefined | null;
 

@@ -7,6 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
+import { CLASSNOTES_ROLE } from './roles';
+import {
+  CLASSNOTES_TOKEN_KIND,
+  ClassNotesAccountService,
+} from '../classnotes/auth/classnotes-account.service';
 
 // Platform-owner allowlist. Any account whose email OR username matches is
 // always granted MANAGER on every request — no DB row required, so it works
@@ -48,6 +53,7 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly classNotesAccounts: ClassNotesAccountService,
   ) {
     super();
   }
@@ -68,6 +74,40 @@ export class JwtStrategy extends PassportStrategy(CustomStrategy, 'jwt') {
     const userId = String(payload?.sub ?? '').trim();
     if (!userId) {
       return null;
+    }
+
+    // A ClassNotes token belongs to a `ClassNotesAccount`, not a `User`. Both
+    // families are signed with the same secret and both put the owner id in
+    // `sub`, so `kind` is the only thing that tells them apart — without this
+    // branch a perfectly valid ClassNotes id would be looked up in `User`, miss,
+    // and throw "Account no longer exists" on every request.
+    //
+    // The hydrated object carries CLASSNOTES and no school role, which is what
+    // confines these sessions to `/classnotes/*`: every other controller lists
+    // only real roles, and the RolesGuard default-denies anything it does not
+    // match. `id`/`sub`/`userId` are all set because downstream code reads
+    // whichever it prefers (`ClassnotesService.uid` takes `id ?? sub`).
+    if (String(payload?.kind ?? '') === CLASSNOTES_TOKEN_KIND) {
+      const account = await this.classNotesAccounts.resolveToken(
+        userId,
+        Number(payload?.iat ?? 0) || undefined,
+      );
+      if (!account) {
+        throw new UnauthorizedException('Session expired — please sign in again');
+      }
+      return {
+        sub: account.id,
+        id: account.id,
+        userId: account.id,
+        email: account.email,
+        username: null,
+        roles: [CLASSNOTES_ROLE],
+        role: CLASSNOTES_ROLE,
+        name: account.name,
+        displayName: account.name,
+        fullName: account.name,
+        isClassNotesAccount: true,
+      };
     }
 
     const user = await this.prisma.user.findUnique({
