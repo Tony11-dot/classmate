@@ -211,13 +211,20 @@ platform :ios do
        "'What's New' release notes from fastlane/metadata and submits. No " \
        "rebuild. Use when `release` uploaded the binary but the version was " \
        "missing whatsNew (App Store requires release notes on every update)."
-  lane :submit do
+  # Pass version:/build: to CREATE the App Store version and attach an
+  # already-uploaded TestFlight build, then submit — e.g.
+  #   fastlane ios submit version:1.1.7 build:286
+  # Without them, deliver only submits a version that already exists in an
+  # editable state (and otherwise fails "Cannot find edit app store version").
+  lane :submit do |options|
     key = asc_api_key
     deliver(
       api_key:             key,
-      skip_binary_upload:  true,     # binary is already up + selected
+      skip_binary_upload:  true,     # binary is already on TestFlight
       skip_screenshots:    true,
       skip_app_version_update: false,
+      app_version:         options[:version],  # nil → edit the current version
+      build_number:        options[:build],    # nil → keep the selected build
       submit_for_review:   true,
       automatic_release:   true,     # auto-goes-live the moment Apple approves
       force:               true,
