@@ -5583,6 +5583,7 @@
   "certPublishing": "Publishing…",
   "certDownload": "Download",
   "certNoneYet": "No certificates yet.",
+  "certNotPublishedYet": "This certificate is still a draft — publish it first to open its PDF.",
   "certMine": "My certificates",
   "certNoHomeroom": "You are not a homeroom teacher of any class yet.",
   "certGrin": "Grades",

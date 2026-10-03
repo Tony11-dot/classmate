@@ -517,12 +517,15 @@ Future<void> _showWebOnlyDialog(BuildContext context) {
   final l = AppLocalizations.of(context)!;
   return showDialog<void>(
     context: context,
-    builder: (_) => AlertDialog(
+    // Pop via the DIALOG's own context, not the screen's — using the outer
+    // context popped the underlying route on web, leaving a blank white page
+    // until a refresh (#66).
+    builder: (dialogCtx) => AlertDialog(
       title: Text(l.paywallWebOnlyTitle),
       content: Text(l.paywallWebOnlyBody),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(dialogCtx).pop(),
           child: Text(l.paywallWebOnlyDismiss),
         ),
       ],

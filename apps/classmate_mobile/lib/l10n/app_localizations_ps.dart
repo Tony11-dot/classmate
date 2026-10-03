@@ -10756,6 +10756,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get certNoneYet => '‹‹No certificates yet.››';
 
   @override
+  String get certNotPublishedYet =>
+      'This certificate is still a draft — publish it first to open its PDF.';
+
+  @override
   String get certMine => '‹‹My certificates››';
 
   @override

@@ -1061,17 +1061,23 @@ class _MeetingsTabState extends ConsumerState<_MeetingsTab> {
                 final startDt = item['startsAt'] != null
                     ? DateTime.tryParse(item['startsAt'].toString())
                     : null;
+                // Hide "Join" once the meeting is over (start + 2h grace so a
+                // live session stays joinable) — past meetings shouldn't be
+                // joinable (#33).
+                final isPast = startDt != null &&
+                    startDt.add(const Duration(hours: 2)).isBefore(DateTime.now());
+                final canJoin = link.isNotEmpty && !isPast;
                 final timeLabel = startDt != null
                     ? '${MaterialLocalizations.of(context).formatMediumDate(startDt)} · ${TimeOfDay.fromDateTime(startDt).format(context)}'
                     : '';
                 return _TeacherCard(
                   title: (item['title'] ?? '').toString(),
-                  subtitle: timeLabel,
+                  subtitle: isPast ? l.meetingsEndedNote : timeLabel,
                   trailing: '',
                   onTap: null,
-                  actionLabel: link.isNotEmpty ? l.teacherJoinMeeting : null,
+                  actionLabel: canJoin ? l.teacherJoinMeeting : null,
                   onDelete: id.isNotEmpty ? () => _delete(id, source: source) : null,
-                  chips: link.isNotEmpty ? [
+                  chips: canJoin ? [
                     _AttachmentPill(
                       label: l.teacherJoinMeeting,
                       icon: Icons.video_call_rounded,

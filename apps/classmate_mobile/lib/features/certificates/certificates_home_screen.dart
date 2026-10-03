@@ -142,7 +142,15 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
 
   Future<void> _openPdf(String rawUrl) async {
     var url = rawUrl.trim();
-    if (url.isEmpty) return;
+    // A draft certificate has no uploaded PDF yet — tapping it used to do
+    // nothing at all (#57). Tell the secretary why instead of silently failing.
+    if (url.isEmpty) {
+      if (mounted) {
+        final l = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.certNotPublishedYet)));
+      }
+      return;
+    }
     if (!url.startsWith('http')) {
       final base = Env.stripApiSuffix(Env.apiBaseUrl).trim().replaceAll(RegExp(r'/+$'), '');
       url = '$base${url.startsWith('/') ? url : '/$url'}';

@@ -10691,6 +10691,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get certNoneYet => 'Пока нет табелей.';
 
   @override
+  String get certNotPublishedYet =>
+      'This certificate is still a draft — publish it first to open its PDF.';
+
+  @override
   String get certMine => 'Мои табели';
 
   @override

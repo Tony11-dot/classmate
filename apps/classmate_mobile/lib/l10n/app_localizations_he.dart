@@ -10571,6 +10571,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get certNoneYet => 'אין עדיין תעודות.';
 
   @override
+  String get certNotPublishedYet =>
+      'This certificate is still a draft — publish it first to open its PDF.';
+
+  @override
   String get certMine => 'התעודות שלי';
 
   @override

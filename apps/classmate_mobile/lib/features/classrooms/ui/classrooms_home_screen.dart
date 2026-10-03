@@ -211,7 +211,11 @@ backgroundColor: cs.surface,
 
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
-                itemCount: filtered.length + 2,
+                // Header + search field + either the rows or a single
+                // "no matches" card. With `filtered.length + 2` an empty search
+                // only built the header + search (count 2), so the empty-state
+                // row at index ≥ 2 never rendered — no "No data" message (#20).
+                itemCount: filtered.isEmpty ? 3 : filtered.length + 2,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return Padding(

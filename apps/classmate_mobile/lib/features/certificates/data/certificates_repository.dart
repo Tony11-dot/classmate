@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/env.dart';
@@ -229,13 +227,14 @@ class CertificatesRepository {
   /// Upload a generated certificate PDF and return its absolute URL (for
   /// students to download). Uses the generic /uploads/attachment endpoint.
   Future<String?> uploadPdf(Uint8List bytes, String filename) async {
-    final dir = await getTemporaryDirectory();
-    final f = File('${dir.path}/$filename');
-    await f.writeAsBytes(bytes);
+    // Upload from the in-memory bytes directly. The old path wrote a temp file
+    // via path_provider + dart:io, which throws MissingPluginException on web
+    // (no filesystem) — so publishing a certificate failed in the browser.
     final base = Env.stripApiSuffix(Env.apiBaseUrl).trim().replaceAll(RegExp(r'/+$'), '');
-    final res = await _api.multipartUpload(
+    final res = await _api.multipartUploadBytes(
       Uri.parse('$base/uploads/attachment'),
-      f.path,
+      bytes,
+      filename,
       mimeType: 'application/pdf',
     );
     var url = (res['url'] ?? res['fileUrl'] ?? '').toString();

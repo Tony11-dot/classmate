@@ -416,15 +416,25 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       final link = _pickFirst(item, [
                         'link', 'joinLink', 'meetingLink', 'url', 'joinUrl',
                       ]);
+                      // Block joining once the meeting is over (start + 2h grace
+                      // so a running session is still joinable) — the old code
+                      // let anyone open a long-past meeting link (#33/#45).
+                      final startRaw = _pickFirst(
+                          item, ['startsAt', 'startAt', 'date', 'scheduledAt']);
+                      final start = DateTime.tryParse(startRaw);
+                      final isPast = start != null &&
+                          start.add(const Duration(hours: 2)).isBefore(DateTime.now());
+                      final canJoin = link.isNotEmpty && !isPast;
                       return _SimpleCard(
                         title: _pick(item, 'title',
                             fallback: l.classroomDetailMeetingFallback),
-                        subtitle: _pickFirst(item, ['agenda', 'description', 'body']),
-                        trailing: _friendlyDateTime(
-                            _pickFirst(item, ['startsAt', 'startAt', 'date', 'scheduledAt'])),
+                        subtitle: isPast
+                            ? l.meetingsEndedNote
+                            : _pickFirst(item, ['agenda', 'description', 'body']),
+                        trailing: _friendlyDateTime(startRaw),
                         leadingIcon: Icons.video_call_rounded,
-                        onTap: link.isNotEmpty ? () => _openUrl(link) : null,
-                        actionLabel: link.isNotEmpty ? l.meetingsJoinAction : null,
+                        onTap: canJoin ? () => _openUrl(link) : null,
+                        actionLabel: canJoin ? l.meetingsJoinAction : null,
                       );
                     },
                   ),

@@ -18483,6 +18483,12 @@ abstract class AppLocalizations {
   /// **'No certificates yet.'**
   String get certNoneYet;
 
+  /// No description provided for @certNotPublishedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'This certificate is still a draft — publish it first to open its PDF.'**
+  String get certNotPublishedYet;
+
   /// No description provided for @certMine.
   ///
   /// In en, this message translates to:

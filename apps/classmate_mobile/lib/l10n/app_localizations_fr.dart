@@ -10844,6 +10844,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get certNoneYet => 'Aucun certificat pour l\'instant.';
 
   @override
+  String get certNotPublishedYet =>
+      'This certificate is still a draft — publish it first to open its PDF.';
+
+  @override
   String get certMine => 'Mes certificats';
 
   @override

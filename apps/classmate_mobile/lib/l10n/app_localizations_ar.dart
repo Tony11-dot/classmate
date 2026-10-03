@@ -10640,6 +10640,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certNoneYet => 'لا توجد شهادات بعد.';
 
   @override
+  String get certNotPublishedYet =>
+      'This certificate is still a draft — publish it first to open its PDF.';
+
+  @override
   String get certMine => 'شهاداتي';
 
   @override
