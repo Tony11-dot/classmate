@@ -1,5 +1,6 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
+import { RequirePermission } from '../permissions/permissions.decorator';
 import {
   Body,
   Controller,
@@ -140,11 +141,13 @@ export class TeacherController {
   // ---- Grades ----
 
   @Post('grades/assessment')
+  @RequirePermission('grades.edit')
   createAssessment(@Req() req: any, @Body() body: any) {
     return this.teacher.createAssessment(req.user, body);
   }
 
   @Post('grades/bulk')
+  @RequirePermission('grades.edit')
   bulkGrades(@Req() req: any, @Body() body: any) {
     return this.teacher.bulkGrades(req.user, body);
   }
@@ -177,6 +180,7 @@ export class TeacherController {
   }
 
   @Patch('grades/assessment/:id')
+  @RequirePermission('grades.edit')
   updateAssessment(
     @Req() req: any,
     @Param('id') id: string,
@@ -187,6 +191,7 @@ export class TeacherController {
 
   // Per-student publish: `studentIds` = whose grade should be visible.
   @Post('grades/assessment/:id/publish')
+  @RequirePermission('grades.edit')
   publishAssessment(
     @Req() req: any,
     @Param('id') id: string,
@@ -196,11 +201,13 @@ export class TeacherController {
   }
 
   @Delete('grades/assessment/:id')
+  @RequirePermission('grades.edit')
   deleteAssessment(@Req() req: any, @Param('id') id: string) {
     return this.teacher.deleteAssessment(req.user, id);
   }
 
   @Delete('grades/assessment/:id/student/:studentId')
+  @RequirePermission('grades.edit')
   deleteGrade(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
     return this.teacher.deleteGrade(req.user, id, studentId);
   }
@@ -273,16 +280,19 @@ export class TeacherController {
   }
 
   @Post('classrooms/:id/assignments')
+  @RequirePermission('assignments.manage')
   createClassroomAssignment(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.teacher.createClassroomAssignment(req.user, id, body);
   }
 
   @Patch('classrooms/:id/assignments/:aId')
+  @RequirePermission('assignments.manage')
   updateClassroomAssignment(@Req() req: any, @Param('id') id: string, @Param('aId') aId: string, @Body() body: any) {
     return this.teacher.updateClassroomAssignment(req.user, id, aId, body);
   }
 
   @Delete('classrooms/:id/assignments/:aId')
+  @RequirePermission('assignments.manage')
   deleteClassroomAssignment(@Req() req: any, @Param('id') id: string, @Param('aId') aId: string) {
     return this.teacher.deleteClassroomAssignment(req.user, id, aId);
   }
@@ -307,11 +317,13 @@ export class TeacherController {
   }
 
   @Post('classrooms/:id/materials')
+  @RequirePermission('materials.manage')
   createClassroomMaterial(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.teacher.createClassroomMaterial(req.user, id, body);
   }
 
   @Delete('classrooms/:id/materials/:mId')
+  @RequirePermission('materials.manage')
   deleteClassroomMaterial(@Req() req: any, @Param('id') id: string, @Param('mId') mId: string) {
     return this.teacher.deleteClassroomMaterial(req.user, id, mId);
   }
@@ -322,11 +334,13 @@ export class TeacherController {
   }
 
   @Post('classrooms/:id/meetings')
+  @RequirePermission('meetings.manage')
   createClassroomMeeting(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.teacher.createClassroomMeeting(req.user, id, body);
   }
 
   @Delete('classrooms/:id/meetings/:mId')
+  @RequirePermission('meetings.manage')
   deleteClassroomMeeting(@Req() req: any, @Param('id') id: string, @Param('mId') mId: string) {
     return this.teacher.deleteClassroomMeeting(req.user, id, mId);
   }
@@ -400,16 +414,19 @@ export class TeacherController {
   }
 
   @Post('forms')
+  @RequirePermission('forms.manage')
   createForm(@Req() req: any, @Body() body: any) {
     return this.teacher.createForm(req.user, body);
   }
 
   @Patch('forms/:id')
+  @RequirePermission('forms.manage')
   updateForm(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.teacher.updateForm(req.user, id, body);
   }
 
   @Delete('forms/:id')
+  @RequirePermission('forms.manage')
   deleteForm(@Req() req: any, @Param('id') id: string) {
     return this.teacher.deleteForm(req.user, id);
   }
@@ -446,12 +463,15 @@ export class TeacherController {
   listTeacherAssignments(@Req() req: any) { return this.teacher.listTeacherAssignments(req.user); }
 
   @Post('assignments')
+  @RequirePermission('assignments.manage')
   createTeacherAssignment(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherAssignment(req.user, body); }
 
   @Patch('assignments/:id')
+  @RequirePermission('assignments.manage')
   updateTeacherAssignment(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.updateTeacherAssignment(req.user, id, body); }
 
   @Delete('assignments/:id')
+  @RequirePermission('assignments.manage')
   deleteTeacherAssignment(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherAssignment(req.user, id); }
 
   @Get('assignments/:id/submissions')
@@ -469,12 +489,15 @@ export class TeacherController {
   listTeacherMaterials(@Req() req: any) { return this.teacher.listTeacherMaterials(req.user); }
 
   @Post('materials')
+  @RequirePermission('materials.manage')
   createTeacherMaterial(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherMaterial(req.user, body); }
 
   @Patch('materials/:id')
+  @RequirePermission('materials.manage')
   updateTeacherMaterial(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.updateTeacherMaterial(req.user, id, body); }
 
   @Delete('materials/:id')
+  @RequirePermission('materials.manage')
   deleteTeacherMaterial(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherMaterial(req.user, id); }
 
   // ── Slot Attachments (attach teacher materials to a schedule slot) ────────
@@ -533,12 +556,15 @@ export class TeacherController {
   listTeacherMeetings(@Req() req: any) { return this.teacher.listTeacherMeetings(req.user); }
 
   @Post('meetings')
+  @RequirePermission('meetings.manage')
   createTeacherMeeting(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherMeeting(req.user, body); }
 
   @Patch('meetings/:id')
+  @RequirePermission('meetings.manage')
   updateTeacherMeeting(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.updateTeacherMeeting(req.user, id, body); }
 
   @Delete('meetings/:id')
+  @RequirePermission('meetings.manage')
   deleteTeacherMeeting(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherMeeting(req.user, id); }
 
   // ── Teacher Exams ─────────────────────────────────────────────────────────
@@ -547,20 +573,24 @@ export class TeacherController {
   listTeacherExams(@Req() req: any) { return this.teacher.listTeacherExams(req.user); }
 
   @Post('exams')
+  @RequirePermission('exams.manage')
   createTeacherExam(@Req() req: any, @Body() body: any) { return this.teacher.createTeacherExam(req.user, body); }
 
   @Patch('exams/:id')
+  @RequirePermission('exams.manage')
   updateTeacherExam(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.teacher.updateTeacherExam(req.user, id, body);
   }
 
   @Delete('exams/:id')
+  @RequirePermission('exams.manage')
   deleteTeacherExam(@Req() req: any, @Param('id') id: string) { return this.teacher.deleteTeacherExam(req.user, id); }
 
   @Get('exams/:id/grades')
   getExamGrades(@Req() req: any, @Param('id') id: string) { return this.teacher.getExamGrades(req.user, id); }
 
   @Post('exams/:id/grades')
+  @RequirePermission('exams.manage')
   saveExamGrades(@Req() req: any, @Param('id') id: string, @Body() body: any) { return this.teacher.saveExamGrades(req.user, id, body); }
 
   // ── Attach existing library material to an exam / assignment ─────────────

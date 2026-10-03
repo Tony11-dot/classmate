@@ -11,6 +11,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
+import { RequirePermission } from '../permissions/permissions.decorator';
 import { CMailService } from './cmail.service';
 import { SendCMailDto } from './dto/send-cmail.dto';
 
@@ -28,8 +29,11 @@ export class CMailController {
     return this.cmail.ddl(req.user);
   }
 
+  // On by default for staff; an admin can disable sending per role via the
+  // admin-managed permissions screen (cmail.send). Admins always pass.
   @Post('send')
   @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @RequirePermission('cmail.send')
   send(@Req() req: any, @Body() dto: SendCMailDto) {
     return this.cmail.send(req.user, dto);
   }

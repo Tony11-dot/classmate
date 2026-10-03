@@ -1,5 +1,6 @@
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
+import { RequirePermission } from '../permissions/permissions.decorator';
 import {
   Header,
   Body,
@@ -30,7 +31,10 @@ import { AdminService } from './admin.service';
 export class AdminController {
   constructor(private readonly admin: AdminService) {}
 
-  @Roles(Role.ADMIN)
+  // Secretaries may create classes only when an admin enables `cohorts.manage`
+  // (admin-managed permissions). Admins always pass.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('cohorts.manage')
   @Post('cohorts')
   createCohort(@Req() req: any, @Body() body: { name: string; grade?: number; grades?: number[] }) {
     return this.admin.createCohort(req.user, body);
@@ -313,7 +317,10 @@ export class AdminController {
     return this.admin.exportCohorts(req.user);
   }
 
-  @Roles(Role.ADMIN)
+  // Admins create any account. A secretary granted `students.create` may reach
+  // this too, but the service forces role=STUDENT (no staff/admin creation).
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('students.create')
   @Post('users')
   createUser(@Req() req: any, @Body() body: any) {
     return this.admin.createUser(req.user, body);
@@ -381,7 +388,10 @@ export class AdminController {
     return this.admin.updateUser(req.user, id, body);
   }
 
-  @Roles(Role.ADMIN)
+  // Admins delete any account. A secretary granted `students.delete` may reach
+  // this too, but the service rejects any non-student target.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('students.delete')
   @Delete('users/:id')
   deleteUser(@Req() req: any, @Param('id') id: string) {
     return this.admin.deleteUser(req.user, id);
@@ -427,16 +437,18 @@ export class AdminController {
     return this.admin.listCohorts(req.user);
   }
 
-  // Cohort mutations are admin-only — secretary sees a read-only view of
-  // cohorts (per role spec). Roster reads are still shared so secretary
-  // can browse membership without holding the keys.
-  @Roles(Role.ADMIN)
+  // Cohort mutations are admin-only by default — a secretary sees a read-only
+  // view unless an admin enables `cohorts.manage` (admin-managed permissions).
+  // Roster reads stay shared so secretaries can always browse membership.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('cohorts.manage')
   @Patch('cohorts/:id')
   updateCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.admin.updateCohort(req.user, id, body);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('cohorts.manage')
   @Delete('cohorts/:id')
   deleteCohort(@Req() req: any, @Param('id') id: string) {
     return this.admin.deleteCohort(req.user, id);
@@ -448,13 +460,17 @@ export class AdminController {
     return this.admin.getCohortRoster(req.user, id);
   }
 
-  @Roles(Role.ADMIN)
+  // Flagship (#55): an admin can enable `cohorts.manageMembers` to let a
+  // secretary add/remove students in classes. Off by default.
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('cohorts.manageMembers')
   @Post('cohorts/:id/students')
   addStudentsToCohort(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.admin.addStudentsToCohort(req.user, id, body);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('cohorts.manageMembers')
   @Delete('cohorts/:id/students/:studentId')
   removeStudentFromCohort(@Req() req: any, @Param('id') id: string, @Param('studentId') studentId: string) {
     return this.admin.removeStudentFromCohort(req.user, id, studentId);

@@ -3,6 +3,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/roles';
+import { RequirePermission } from '../permissions/permissions.decorator';
 import { CertificatesService } from './certificates.service';
 import { CreateCertificateDto } from './dto/certificate.dto';
 
@@ -65,14 +66,19 @@ export class CertificatesController {
     return this.certificates.getOne(req.user, id);
   }
 
+  // Teachers manage certificates by default; secretaries are read-only until an
+  // admin enables `certificates.manage` for them. Admins can also disable it
+  // for teachers. The service still enforces homeroom/school scoping.
   @Post()
-  @Roles(Role.ADMIN, Role.TEACHER) // secretaries are read-only
+  @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @RequirePermission('certificates.manage')
   create(@Req() req: any, @Body() dto: CreateCertificateDto) {
     return this.certificates.create(req.user, dto);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.TEACHER)
+  @Roles(Role.ADMIN, Role.TEACHER, Role.SECRETARY)
+  @RequirePermission('certificates.manage')
   update(@Req() req: any, @Param('id') id: string, @Body() dto: CreateCertificateDto) {
     return this.certificates.update(req.user, id, dto);
   }

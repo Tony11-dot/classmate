@@ -5614,6 +5614,72 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminSettingsTitle => '‹‹Settings››';
 
   @override
+  String get permissionsTitle => 'Permissions';
+
+  @override
+  String get permissionsNavSubtitle =>
+      'Choose what secretaries and teachers can do';
+
+  @override
+  String get permissionsHeaderBlurb =>
+      'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.';
+
+  @override
+  String get permissionsSearchHint => 'Search permissions…';
+
+  @override
+  String get permissionsColSecretary => 'Secretaries';
+
+  @override
+  String get permissionsColTeacher => 'Teachers';
+
+  @override
+  String get permissionsDefaultOn => 'On by default';
+
+  @override
+  String get permissionsDefaultOff => 'Off by default';
+
+  @override
+  String get permissionsChangedBadge => 'Changed';
+
+  @override
+  String get permissionsSave => 'Save changes';
+
+  @override
+  String get permissionsSaved => 'Permissions updated';
+
+  @override
+  String permissionsSaveFailed(Object error) {
+    return 'Couldn\'t save permissions: $error';
+  }
+
+  @override
+  String permissionsLoadFailed(Object error) {
+    return 'Couldn\'t load permissions: $error';
+  }
+
+  @override
+  String permissionsNoResults(Object query) {
+    return 'No permissions match “$query”';
+  }
+
+  @override
+  String get permissionsResetChanges => 'Discard changes';
+
+  @override
+  String get permissionsUnsavedTitle => 'Discard changes?';
+
+  @override
+  String get permissionsUnsavedBody =>
+      'You have unsaved permission changes. Leave without saving?';
+
+  @override
+  String get permissionsLeave => 'Leave';
+
+  @override
+  String get permissionsStay => 'Keep editing';
+
+  @override
   String get adminSettingsBellSchedule => '‹‹Bell Schedule››';
 
   @override

@@ -83,11 +83,29 @@ export class AdminService {
       throw new ForbiddenException('Admin or Secretary only');
   }
 
+  /**
+   * Admin-managed permissions gate (defense-in-depth). ADMIN/MANAGER always
+   * pass; any other role must hold the capability `capKey`. The effective grant
+   * set is computed once per request by PermissionsGuard and attached to
+   * `req.user.grantedPermissions`, so this stays a cheap synchronous check and
+   * the service never has to trust the controller's @Roles tag alone.
+   */
+  private ensureGranted(user: any, capKey: string, action = 'perform this action') {
+    if (hasAnyRole(user, ['ADMIN', 'MANAGER'])) return;
+    const granted: string[] = Array.isArray((user as any)?.grantedPermissions)
+      ? (user as any).grantedPermissions
+      : [];
+    if (granted.includes(capKey)) return;
+    throw new ForbiddenException(
+      `You do not have permission to ${action}. Ask an administrator to enable it.`,
+    );
+  }
+
   async createCohort(
     user: any,
     body: { name: string; grade?: number; grades?: number[]; homeroomTeacherId?: string | null },
   ) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'cohorts.manage', 'create classes');
     if (!body?.name) throw new BadRequestException('name is required');
 
     const grades = normalizeGrades(body?.grades, body?.grade);
@@ -1680,10 +1698,18 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async createUser(user: any, dto: any) {
-    this.requireAdminOrSecretary(user);
-    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
-    const isSecretary = roles.includes('SECRETARY') && !roles.includes('ADMIN');
-    if (isSecretary) throw new ForbiddenException('Secretaries cannot create user accounts');
+    const isAdmin = hasAnyRole(user, ['ADMIN', 'MANAGER']);
+    if (!isAdmin) {
+      // A non-admin may only reach here with the admin-granted capability, and
+      // even then only to create STUDENT accounts — never staff/admin accounts
+      // (that would be a privilege-escalation path). Force the role server-side.
+      this.ensureGranted(user, 'students.create', 'add student accounts');
+      const requested = String(dto?.role ?? 'STUDENT').toUpperCase();
+      if (requested !== 'STUDENT') {
+        throw new ForbiddenException('You can only create student accounts.');
+      }
+      dto = { ...dto, role: 'STUDENT' };
+    }
 
     const schoolId = (user as any)?.schoolId;
     if (!schoolId) throw new BadRequestException('No school associated with this account');
@@ -2013,15 +2039,30 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async deleteUser(user: any, id: string) {
-    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
-    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can delete users');
+    const isAdmin = hasAnyRole(user, ['ADMIN', 'MANAGER']);
+    if (!isAdmin) {
+      // Granted secretaries may delete STUDENT accounts only — never staff.
+      this.ensureGranted(user, 'students.delete', 'delete student accounts');
+    }
     const schoolId = (user as any)?.schoolId;
 
     const target = await this.prisma.user.findFirst({
       where: { id, ...(schoolId ? { schoolId } : {}) },
-      select: { id: true },
+      select: { id: true, roles: true },
     });
     if (!target) throw new NotFoundException('User not found');
+
+    if (!isAdmin) {
+      const targetRoles = Array.isArray((target as any).roles)
+        ? ((target as any).roles as string[]).map((r) => String(r).toUpperCase())
+        : [];
+      const isStudentOnly =
+        targetRoles.includes('STUDENT') &&
+        !targetRoles.some((r) => ['ADMIN', 'TEACHER', 'SECRETARY', 'MANAGER'].includes(r));
+      if (!isStudentOnly) {
+        throw new ForbiddenException('You can only delete student accounts.');
+      }
+    }
 
     await this.prisma.user.delete({ where: { id } });
     return { ok: true };
@@ -2177,7 +2218,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async updateCohort(user: any, id: string, dto: any) {
-    this.requireAdminOrSecretary(user);
+    this.ensureGranted(user, 'cohorts.manage', 'edit classes');
     await this.assertCohortInSchool(user, id);
     const data: any = {};
     if (dto?.name !== undefined) data.name = String(dto.name).trim();
@@ -2201,8 +2242,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async deleteCohort(user: any, id: string) {
-    const roles: string[] = Array.isArray(user?.roles) ? user.roles : [];
-    if (!roles.includes('ADMIN')) throw new ForbiddenException('Only admins can delete cohorts');
+    this.ensureGranted(user, 'cohorts.manage', 'delete classes');
 
     await this.assertCohortInSchool(user, id);
     await this.prisma.studentCohort.deleteMany({ where: { cohortId: id } });
@@ -2211,7 +2251,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async addStudentsToCohort(user: any, cohortId: string, dto: { studentIds: string[] }) {
-    this.requireAdminOrSecretary(user);
+    this.ensureGranted(user, 'cohorts.manageMembers', 'add students to classes');
+    await this.assertCohortInSchool(user, cohortId);
     if (!Array.isArray(dto?.studentIds) || !dto.studentIds.length)
       throw new BadRequestException('studentIds[] is required');
 
@@ -2227,7 +2268,8 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async removeStudentFromCohort(user: any, cohortId: string, studentId: string) {
-    this.requireAdminOrSecretary(user);
+    this.ensureGranted(user, 'cohorts.manageMembers', 'remove students from classes');
+    await this.assertCohortInSchool(user, cohortId);
     await this.assertUserInSchool(user, studentId);
     await this.prisma.studentCohort.delete({
       where: { studentId_cohortId: { studentId, cohortId } },

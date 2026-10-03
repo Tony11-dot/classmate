@@ -52,6 +52,11 @@ model School {
   /// school.  The bump runs at most once per year per school and is idempotent
   /// — see GradeBumpService.
   lastGradeBumpYear Int?
+  /// Admin-managed RBAC overrides, sparse. Shape: { "<ROLE>": { "<capKey>": bool } }.
+  /// Only stores deviations from each capability's default (see
+  /// permissions.catalog.ts); an absent role/key means "use the catalog default".
+  /// Nullable → no migration needed (boot runs `prisma db push`).
+  permissions       Json?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

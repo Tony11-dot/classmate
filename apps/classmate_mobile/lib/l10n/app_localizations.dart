@@ -9927,6 +9927,120 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get adminSettingsTitle;
 
+  /// No description provided for @permissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get permissionsTitle;
+
+  /// No description provided for @permissionsNavSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what secretaries and teachers can do'**
+  String get permissionsNavSubtitle;
+
+  /// No description provided for @permissionsHeaderBlurb.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.'**
+  String get permissionsHeaderBlurb;
+
+  /// No description provided for @permissionsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search permissions…'**
+  String get permissionsSearchHint;
+
+  /// No description provided for @permissionsColSecretary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretaries'**
+  String get permissionsColSecretary;
+
+  /// No description provided for @permissionsColTeacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get permissionsColTeacher;
+
+  /// No description provided for @permissionsDefaultOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On by default'**
+  String get permissionsDefaultOn;
+
+  /// No description provided for @permissionsDefaultOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default'**
+  String get permissionsDefaultOff;
+
+  /// No description provided for @permissionsChangedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed'**
+  String get permissionsChangedBadge;
+
+  /// No description provided for @permissionsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get permissionsSave;
+
+  /// No description provided for @permissionsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions updated'**
+  String get permissionsSaved;
+
+  /// No description provided for @permissionsSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save permissions: {error}'**
+  String permissionsSaveFailed(Object error);
+
+  /// No description provided for @permissionsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load permissions: {error}'**
+  String permissionsLoadFailed(Object error);
+
+  /// No description provided for @permissionsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No permissions match “{query}”'**
+  String permissionsNoResults(Object query);
+
+  /// No description provided for @permissionsResetChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get permissionsResetChanges;
+
+  /// No description provided for @permissionsUnsavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get permissionsUnsavedTitle;
+
+  /// No description provided for @permissionsUnsavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved permission changes. Leave without saving?'**
+  String get permissionsUnsavedBody;
+
+  /// No description provided for @permissionsLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get permissionsLeave;
+
+  /// No description provided for @permissionsStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get permissionsStay;
+
   /// No description provided for @adminSettingsBellSchedule.
   ///
   /// In en, this message translates to:

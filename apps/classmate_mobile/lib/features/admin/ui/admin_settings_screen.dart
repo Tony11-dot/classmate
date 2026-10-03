@@ -47,6 +47,15 @@ class AdminSettingsScreen extends ConsumerWidget {
             subtitle: l.adminSettingsScheduleSubtitle,
             onTap: () => context.push('/admin/periods'),
           ),
+          if (isAdmin) ...[
+            const SizedBox(height: 6),
+            _SettingsNavTile(
+              icon: Icons.admin_panel_settings_rounded,
+              label: l.permissionsTitle,
+              subtitle: l.permissionsNavSubtitle,
+              onTap: () => context.push('/admin/permissions'),
+            ),
+          ],
 
           if (isAdmin) ...[
             const SizedBox(height: 24),

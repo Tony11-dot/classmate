@@ -16,6 +16,8 @@ import { MetricsController } from './common/controllers/metrics.controller';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { DevOverrideGuard } from './auth/dev-override.guard';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { PermissionsModule } from './permissions/permissions.module';
+import { PermissionsGuard } from './permissions/permissions.guard';
 
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -121,6 +123,7 @@ const seedControllers = [
 
 @Module({
   imports: [
+    PermissionsModule,
     MessagesModule,
     FormsModule,
     RealtimeModule,
@@ -237,6 +240,12 @@ const seedControllers = [
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    // Runs after RolesGuard: attaches effective capability grants to req.user
+    // and enforces @RequirePermission(...) (admin-managed permissions).
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
   ],
 })

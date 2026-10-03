@@ -63,7 +63,14 @@ export class CertificatesService {
     if (!cohort) throw new NotFoundException('Cohort not found');
     if (cohort.schoolId && cohort.schoolId !== schoolId) throw new ForbiddenException('Cross-school access denied');
     if (opts.write && this.isSecretaryReadOnly(user)) {
-      throw new ForbiddenException('Secretaries have read-only access to certificates.');
+      // A secretary may write only when an admin granted `certificates.manage`
+      // (admin-managed permissions). The grant set is attached by PermissionsGuard.
+      const granted: string[] = Array.isArray((user as any)?.grantedPermissions)
+        ? (user as any).grantedPermissions
+        : [];
+      if (!granted.includes('certificates.manage')) {
+        throw new ForbiddenException('Secretaries have read-only access to certificates.');
+      }
     }
     if (this.isTeacherScoped(user) && cohort.homeroomTeacherId !== this.userId(user)) {
       throw new ForbiddenException('You can only manage certificates for your homeroom class.');

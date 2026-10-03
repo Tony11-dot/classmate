@@ -81,6 +81,7 @@ import '../features/admin/ui/admin_bell_schedule_screen.dart';
 import '../features/admin/ui/admin_dashboard_screen.dart';
 import '../features/admin/ui/admin_people_screen.dart';
 import '../features/admin/ui/admin_grade_scales_screen.dart';
+import '../features/admin/ui/admin_permissions_screen.dart';
 import '../features/admin/ui/admin_cohorts_screen.dart';
 import '../features/admin/ui/admin_schedule_screen.dart';
 import '../features/admin/ui/admin_school_settings_screen.dart';
@@ -767,6 +768,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           _fadeRoute(
             path: '/admin/grade-scales',
             builder: (context, state) => const AdminGradeScalesScreen(),
+          ),
+          _fadeRoute(
+            path: '/admin/permissions',
+            builder: (context, state) => const AdminPermissionsScreen(),
           ),
           _fadeRoute(
             path: '/admin/bell-schedule',

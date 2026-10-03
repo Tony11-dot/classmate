@@ -571,6 +571,26 @@ class AdminRepository {
   Future<Map<String, dynamic>> resetCohorts() async => _m(await _api.postJson('/admin/cohorts/reset'));
   Future<Map<String, dynamic>> promoteAllGrades() async => _m(await _api.postJson('/admin/grades/promote-all'));
 
+  // ── Permissions (admin-managed RBAC) ──────────────────────────────────────
+
+  /// The full capability catalog with the current effective value per
+  /// configurable role, for the admin Permissions screen.
+  Future<List<PermissionCapability>> fetchPermissions() async {
+    final raw = await _api.getJson('/admin/permissions');
+    final list = _l(_m(raw)['capabilities']);
+    return list.map((e) => PermissionCapability.fromJson(_m(e))).toList();
+  }
+
+  /// Persist the toggles. [overrides] = { ROLE: { capKey: bool } }. The server
+  /// stores only deviations from default and returns the refreshed catalog.
+  Future<List<PermissionCapability>> savePermissions(
+    Map<String, Map<String, bool>> overrides,
+  ) async {
+    final raw = await _api.putJson('/admin/permissions', body: {'overrides': overrides});
+    final list = _l(_m(raw)['capabilities']);
+    return list.map((e) => PermissionCapability.fromJson(_m(e))).toList();
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
   static Map<String, dynamic> _m(dynamic v) =>
@@ -809,6 +829,66 @@ class AdminCohort {
       studentCount: (m['studentCount'] as num?)?.toInt() ?? 0,
     );
   }
+}
+
+/// One capability row from `/admin/permissions`, with the current enabled/default
+/// state for each role an admin may configure (SECRETARY / TEACHER).
+class PermissionCapability {
+  const PermissionCapability({
+    required this.key,
+    required this.module,
+    required this.label,
+    required this.description,
+    required this.configurableRoles,
+    required this.roleStates,
+  });
+
+  final String key;
+  final String module;
+  final String label;
+  final String description;
+
+  /// Roles the admin can toggle for this capability (e.g. ['SECRETARY']).
+  final List<String> configurableRoles;
+
+  /// role → (enabled, default). `enabled` is the current effective value;
+  /// `default` is the catalog default, used to show "changed from default".
+  final Map<String, PermissionRoleState> roleStates;
+
+  bool enabledFor(String role) => roleStates[role]?.enabled ?? false;
+  bool defaultFor(String role) => roleStates[role]?.isDefault ?? false;
+
+  factory PermissionCapability.fromJson(Map<String, dynamic> m) {
+    final rolesRaw = m['configurableRoles'];
+    final roles = rolesRaw is List
+        ? rolesRaw.map((e) => e.toString()).toList()
+        : <String>[];
+    final statesRaw = m['roles'];
+    final states = <String, PermissionRoleState>{};
+    if (statesRaw is Map) {
+      statesRaw.forEach((k, v) {
+        final vm = v is Map ? Map<String, dynamic>.from(v) : const <String, dynamic>{};
+        states[k.toString()] = PermissionRoleState(
+          enabled: vm['enabled'] == true,
+          isDefault: vm['default'] == true,
+        );
+      });
+    }
+    return PermissionCapability(
+      key: m['key']?.toString() ?? '',
+      module: m['module']?.toString() ?? '',
+      label: m['label']?.toString() ?? '',
+      description: m['description']?.toString() ?? '',
+      configurableRoles: roles,
+      roleStates: states,
+    );
+  }
+}
+
+class PermissionRoleState {
+  const PermissionRoleState({required this.enabled, required this.isDefault});
+  final bool enabled;
+  final bool isDefault;
 }
 
 class AdminSchool {
