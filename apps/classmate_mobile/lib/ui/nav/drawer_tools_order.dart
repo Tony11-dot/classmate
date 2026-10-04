@@ -78,10 +78,12 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/admin/schedule', icon: Icons.manage_history_rounded, label: l.adminScheduleTitle),
         DrawerTool(route: '/admin/school', icon: Icons.school_rounded, label: l.adminSchoolSettingsTitle),
         DrawerTool(route: '/admin/grade-scales', icon: Icons.abc_rounded, label: l.navGradeScales),
+        DrawerTool(route: '/admin/permissions', icon: Icons.admin_panel_settings_rounded, label: l.permissionsTitle),
         DrawerTool(route: '/admin/reports', icon: Icons.flag_outlined, label: l.navReports),
         DrawerTool(route: '/admin/certificates', icon: Icons.workspace_premium_rounded, label: l.navCertificates),
         DrawerTool(route: '/admin/export', icon: Icons.download_rounded, label: l.navExportData),
         DrawerTool(route: '/teacher/students', icon: Icons.people_rounded, label: l.teacherStudentsLabel),
+        DrawerTool(route: '/admin/settings', icon: Icons.settings_rounded, label: l.adminSettingsTitle),
         DrawerTool(route: '/cmail', icon: Icons.alternate_email_rounded, label: l.cmailTitle),
       ];
     case 'secretary':
