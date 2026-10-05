@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -112,7 +113,6 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
           LiquidGlassCard(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(l.navMeetings, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
@@ -150,7 +150,12 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
           else if (visible.isEmpty)
             Center(child: Padding(padding: const EdgeInsets.all(40),
               child: Column(children: [
-                Icon(Icons.video_call_outlined, size: 48, color: cs.onSurfaceVariant),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+                  child: Icon(Icons.video_call_rounded, size: 34, color: cs.onPrimaryContainer),
+                ),
                 const SizedBox(height: 16),
                 Text(l.teacherMeetingsEmpty, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
               ])))
@@ -200,15 +205,21 @@ class _MeetingCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: LiquidGlassCard(
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      child: Opacity(
+       opacity: isUpcoming ? 1 : 0.8,
+       child: LiquidGlassCard(
+        padding: const EdgeInsets.fromLTRB(14, 14, 6, 14),
+        borderRadius: BorderRadius.circular(22),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(width: 44, height: 44,
-            decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
-            child: Icon(isUpcoming ? Icons.upcoming_rounded : Icons.history_rounded, size: 22, color: cs.onPrimaryContainer)),
+          Container(width: 48, height: 48,
+            decoration: BoxDecoration(
+              color: isUpcoming ? CmTokens.of(context).goodContainer : cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(15)),
+            child: Icon(isUpcoming ? Icons.videocam_rounded : Icons.history_rounded, size: 24,
+              color: isUpcoming ? CmTokens.of(context).onGoodContainer : cs.onSurfaceVariant)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+            Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             if (subject.isNotEmpty || courseName.isNotEmpty) ...[
               const SizedBox(height: 2),
               Text([subject, courseName].where((s) => s.isNotEmpty).join(' · '),
@@ -226,27 +237,25 @@ class _MeetingCard extends StatelessWidget {
                   if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5))),
+                    color: cs.primary,
+                    borderRadius: BorderRadius.circular(999)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.video_call_rounded, size: 14, color: cs.onPrimaryContainer),
+                    Icon(Icons.video_call_rounded, size: 16, color: cs.onPrimary),
                     const SizedBox(width: 6),
-                    Text(AppLocalizations.of(context)!.teacherJoinMeeting, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+                    Text(AppLocalizations.of(context)!.teacherJoinMeeting, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: cs.onPrimary)),
                   ]),
                 ),
               ),
             ],
           ])),
           Column(mainAxisSize: MainAxisSize.min, children: [
-            IconButton(tooltip: l.a11yEdit, icon: const Icon(Icons.edit_rounded, size: 16), onPressed: onEdit,
-              padding: const EdgeInsets.all(4), constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-            IconButton(tooltip: l.a11yDelete, icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error), onPressed: onDelete,
-              padding: const EdgeInsets.all(4), constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
+            IconButton(tooltip: l.a11yEdit, icon: const Icon(Icons.edit_rounded, size: 19), onPressed: onEdit),
+            IconButton(tooltip: l.a11yDelete, icon: Icon(Icons.delete_outline_rounded, size: 19, color: cs.error), onPressed: onDelete),
           ]),
         ]),
+       ),
       ),
     );
   }

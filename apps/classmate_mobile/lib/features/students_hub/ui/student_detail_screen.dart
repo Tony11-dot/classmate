@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -42,17 +43,38 @@ class StudentDetailScreen extends ConsumerWidget {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          title: Row(
             children: [
-              Text(studentName,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
-              if (subtitleBits.isNotEmpty)
-                Text(
-                  subtitleBits.join(' · '),
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(color: cs.onSurfaceVariant),
+              CircleAvatar(
+                radius: 19,
+                backgroundColor: cs.primaryContainer,
+                child: Text(
+                  studentName.trim().isEmpty
+                      ? '?'
+                      : studentName.trim().characters.first.toUpperCase(),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: cs.onPrimaryContainer),
                 ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(studentName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                    if (subtitleBits.isNotEmpty)
+                      Text(
+                        subtitleBits.join(' · '),
+                        style: theme.textTheme.labelMedium
+                            ?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                  ],
+                ),
+              ),
             ],
           ),
           bottom: TabBar(
@@ -126,14 +148,58 @@ class _InsightsTab extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            if ((d.bestSubject ?? '').isNotEmpty)
-              _KV(label: l.hubBestSubject, value: d.bestSubject!),
-            if ((d.weakestSubject ?? '').isNotEmpty)
-              _KV(label: l.hubWeakestSubject, value: d.weakestSubject!),
-            _KV(
-                label: '${l.navAttendance}',
-                value:
-                    '✓ ${d.present}   ✗ ${d.absent}   ⏰ ${d.late}'),
+            Container(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: CmTokens.of(context).shadowSm,
+              ),
+              child: Column(
+                children: [
+                  if ((d.bestSubject ?? '').isNotEmpty)
+                    _KV(
+                        icon: Icons.emoji_events_rounded,
+                        accent: CmTokens.of(context).good,
+                        label: l.hubBestSubject,
+                        value: d.bestSubject!),
+                  if ((d.weakestSubject ?? '').isNotEmpty)
+                    _KV(
+                        icon: Icons.flag_rounded,
+                        accent: cs.error,
+                        label: l.hubWeakestSubject,
+                        value: d.weakestSubject!),
+                  _KV(
+                    icon: Icons.fact_check_rounded,
+                    accent: cs.primary,
+                    label: l.navAttendance,
+                    value: '',
+                  ),
+                  // Present / absent / late as coloured icon chips.
+                  Row(
+                    children: [
+                      _CountChip(
+                          icon: Icons.check_circle_rounded,
+                          value: d.present,
+                          bg: CmTokens.of(context).goodContainer,
+                          fg: CmTokens.of(context).onGoodContainer),
+                      const SizedBox(width: 8),
+                      _CountChip(
+                          icon: Icons.cancel_rounded,
+                          value: d.absent,
+                          bg: cs.errorContainer,
+                          fg: cs.onErrorContainer),
+                      const SizedBox(width: 8),
+                      _CountChip(
+                          icon: Icons.schedule_rounded,
+                          value: d.late,
+                          bg: CmTokens.of(context).warnContainer,
+                          fg: CmTokens.of(context).onWarnContainer),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             if (d.weakTopics.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(l.hubWeakTopics,
@@ -192,17 +258,26 @@ class _Stat extends StatelessWidget {
     final cs = theme.colorScheme;
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: cs.primary),
-            const SizedBox(height: 6),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(icon, size: 19, color: cs.primary),
+            ),
+            const SizedBox(height: 8),
             Text(value,
-                style: theme.textTheme.titleMedium
+                style: theme.textTheme.titleLarge
                     ?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 2),
             Text(label,
@@ -217,9 +292,16 @@ class _Stat extends StatelessWidget {
 }
 
 class _KV extends StatelessWidget {
-  const _KV({required this.label, required this.value});
+  const _KV({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.accent,
+  });
   final String label;
   final String value;
+  final IconData icon;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -229,6 +311,16 @@ class _KV extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 17, color: accent),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(label,
                 style: theme.textTheme.bodyMedium
@@ -238,6 +330,43 @@ class _KV extends StatelessWidget {
               style: theme.textTheme.bodyMedium
                   ?.copyWith(fontWeight: FontWeight.w800)),
         ],
+      ),
+    );
+  }
+}
+
+/// Icon + count chip (present / absent / late).
+class _CountChip extends StatelessWidget {
+  const _CountChip({
+    required this.icon,
+    required this.value,
+    required this.bg,
+    required this.fg,
+  });
+  final IconData icon;
+  final int value;
+  final Color bg;
+  final Color fg;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: fg),
+            const SizedBox(width: 6),
+            Text('$value',
+                style: TextStyle(
+                    color: fg, fontWeight: FontWeight.w900, fontSize: 16)),
+          ],
+        ),
       ),
     );
   }
