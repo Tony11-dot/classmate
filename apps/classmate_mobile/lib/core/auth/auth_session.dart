@@ -13,6 +13,7 @@ class AuthSession extends ChangeNotifier {
   static const _kToken = 'auth_token_v2';
   static const _kFullName = 'auth_full_name_v1';
   static const _kRoles = 'auth_roles_v1';
+  static const _kPermissions = 'auth_permissions_v1';
   static const _kEmail = 'auth_email_v1';
   static const _kUsername = 'auth_username_v1';
   static const _kSchoolId = 'auth_school_id_v1';
@@ -47,6 +48,8 @@ class AuthSession extends ChangeNotifier {
   // consent gate. Server-driven via /auth/me.consentRequired.
   bool _consentRequired = false;
   List<String> _roles = const <String>[];
+  /// Null = unknown (server didn't send them yet / older backend).
+  List<String>? _permissions;
 
   String? get token {
     if (_token != null && _token!.isNotEmpty) return _token;
@@ -140,6 +143,33 @@ class AuthSession extends ChangeNotifier {
 
   bool get isManager => _roles.contains('MANAGER');
 
+  /// Effective admin-managed capability keys from /auth/me.
+  List<String> get permissions =>
+      List<String>.unmodifiable(_permissions ?? const <String>[]);
+
+  /// Whether the signed-in user may use capability [key] (see the backend
+  /// permissions catalog, e.g. `schedule.edit`, `cohorts.manageMembers`).
+  /// ADMIN / MANAGER always can — mirrors the server, which never gates them.
+  /// Use this — not the role — to decide whether to SHOW a control, so an
+  /// admin's grant in Settings → Permissions actually surfaces in the app.
+  ///
+  /// When the server hasn't reported permissions (an older backend), this
+  /// returns exactly the pre-permissions behavior instead of hiding things:
+  /// staff could always post announcements; everything else that's gated in
+  /// the UI was admin-only.
+  bool can(String key) {
+    if (_roles.contains('ADMIN') || _roles.contains('MANAGER')) return true;
+    final known = _permissions;
+    if (known != null) return known.contains(key);
+    return _legacyCan(key);
+  }
+
+  bool _legacyCan(String key) => switch (key) {
+        'announcements.post' =>
+          _roles.contains('TEACHER') || _roles.contains('SECRETARY'),
+        _ => false,
+      };
+
   bool get isLoggedIn => (token != null && token!.isNotEmpty);
 
   Future<void> _init() async {
@@ -178,6 +208,7 @@ class AuthSession extends ChangeNotifier {
         .map((role) => role.trim().toUpperCase())
         .where((role) => role.isNotEmpty)
         .toList(growable: false);
+    _permissions = prefs.getStringList(_kPermissions); // null = unknown
 
     final saved = prefs.getString(_kToken);
     if (saved != null) {
@@ -321,6 +352,25 @@ class AuthSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// [keys] null = the server didn't report permissions (unknown → legacy
+  /// role behavior). An empty list is a real answer: "nothing granted".
+  Future<void> setPermissions(List<String>? keys) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (keys == null) {
+      _permissions = null;
+      await prefs.remove(_kPermissions);
+    } else {
+      final clean = keys
+          .map((k) => k.trim())
+          .where((k) => k.isNotEmpty)
+          .toSet()
+          .toList(growable: false);
+      _permissions = clean;
+      await prefs.setStringList(_kPermissions, clean);
+    }
+    notifyListeners();
+  }
+
   /// Sets the user's full name (the single name source of truth). Kept under
   /// the old name for call-site compatibility.
   Future<void> setDisplayName(String? name) async {
@@ -428,6 +478,7 @@ class AuthSession extends ChangeNotifier {
     await setSchoolName(null);
     await setSchoolLogoUrl(null);
     await setRoles(const <String>[]);
+    await setPermissions(null);
     // Clear the full name
     await _setFullName(null);
     final prefs = await SharedPreferences.getInstance();
@@ -519,6 +570,7 @@ class AuthSession extends ChangeNotifier {
       if (raw is! Map<String, dynamic>) return;
       final me = AuthMe.fromJson(raw);
       await setRoles(me.roles);
+      await setPermissions(me.permissions);
       await setEmail(me.email);
       // Username comes from /auth/me — defending against transient empty
       // responses (same pattern as the school identity fields below): a

@@ -4083,11 +4083,18 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                       style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: _createNew,
-                    icon: const Icon(Icons.add_rounded, size: 16),
-                    label: Text(AppLocalizations.of(context)!.adminScheduleAddNew),
-                  ),
+                  // Creating a subject edits the school's subject library,
+                  // which stays admin-only — a secretary editing the schedule
+                  // (schedule.edit) picks from the existing subjects.
+                  if (ProviderScope.containerOf(context, listen: false)
+                      .read(authSessionProvider)
+                      .roles
+                      .any((r) => r == 'ADMIN' || r == 'MANAGER'))
+                    TextButton.icon(
+                      onPressed: _createNew,
+                      icon: const Icon(Icons.add_rounded, size: 16),
+                      label: Text(AppLocalizations.of(context)!.adminScheduleAddNew),
+                    ),
                 ],
               ),
             ),

@@ -97,6 +97,10 @@ Future<void> _showSlotActionSheet(
                     });
                   },
                 ),
+                // Posting is an admin-managed permission (on by default).
+                if (ProviderScope.containerOf(context, listen: false)
+                    .read(authSessionProvider)
+                    .can('announcements.post'))
                 _SheetAction(
                   icon: Icons.campaign_rounded,
                   label: l.teacherNewAnnouncementAction,
@@ -390,8 +394,10 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                 Row(
                   children: [
                     Expanded(child: _BigActionButton(icon: Icons.chat_bubble_rounded, label: l.navMessages, color: cs.primary, onTap: () => context.go('/messages'))),
-                    const SizedBox(width: 10),
-                    Expanded(child: _BigActionButton(icon: Icons.campaign_rounded, label: l.teacherAnnounceLabel, color: cs.secondary, onTap: () => context.push('/teacher/announcements/new'))),
+                    if (ref.read(authSessionProvider).can('announcements.post')) ...[
+                      const SizedBox(width: 10),
+                      Expanded(child: _BigActionButton(icon: Icons.campaign_rounded, label: l.teacherAnnounceLabel, color: cs.secondary, onTap: () => context.push('/teacher/announcements/new'))),
+                    ],
                     const SizedBox(width: 10),
                     Expanded(child: _BigActionButton(icon: Icons.quiz_rounded, label: l.navExams, color: cs.tertiary, onTap: () => context.go('/teacher/exams'))),
                   ],

@@ -827,7 +827,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           _fadeRoute(
             path: '/secretary/schedule',
-            builder: (context, state) => const AdminScheduleScreen(readOnly: true),
+            // Read-only unless an admin granted `schedule.edit` in Settings →
+            // Permissions. Listens to the session so a refreshed grant applies
+            // without reopening the screen.
+            builder: (context, state) {
+              final s = ref.read(authSessionProvider);
+              return ListenableBuilder(
+                listenable: s,
+                builder: (context, _) =>
+                    AdminScheduleScreen(readOnly: !s.can('schedule.edit')),
+              );
+            },
           ),
           // Secretary's all-users view: same screen as admin's People,
           // but isAdmin==false auto-hides the FAB + edit/delete actions

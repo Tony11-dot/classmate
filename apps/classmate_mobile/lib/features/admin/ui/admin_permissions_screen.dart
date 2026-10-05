@@ -451,6 +451,7 @@ IconData _moduleIcon(String module) {
   // "Certificates", "Teaching". The rest are forward-compatible guesses.
   if (k.contains('class') || k.contains('cohort')) return Icons.groups_rounded;
   if (k.contains('communic')) return Icons.forum_rounded;
+  if (k.contains('schedul') || k.contains('announce')) return Icons.event_note_rounded;
   if (k.contains('teach')) return Icons.co_present_rounded;
   if (k.contains('student')) return Icons.school_rounded;
   if (k.contains('grade')) return Icons.grade_rounded;

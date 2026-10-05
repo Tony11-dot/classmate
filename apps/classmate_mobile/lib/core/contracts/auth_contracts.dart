@@ -14,6 +14,7 @@ class AuthMe {
     this.schoolMaxGrade,
     this.schoolGradeRanges,
     this.schoolSemesters,
+    this.permissions,
   });
 
   final String? id;
@@ -36,6 +37,10 @@ class AuthMe {
   final String? schoolGradeRanges;
   /// Semester month-ranges, e.g. "9-1,2-6". Null/empty = no semester split.
   final String? schoolSemesters;
+  /// Effective admin-managed capability keys (e.g. `schedule.edit`). NULL
+  /// when the server predates the field — callers then fall back to the
+  /// legacy role behavior (see AuthSession.can), never to "nothing allowed".
+  final List<String>? permissions;
 
   static AuthMe fromJson(Map<String, dynamic> j) {
     final roles0 =
@@ -56,6 +61,8 @@ class AuthMe {
       schoolMaxGrade: (j['schoolMaxGrade'] as num?)?.toInt(),
       schoolGradeRanges: j['schoolGradeRanges']?.toString(),
       schoolSemesters: j['schoolSemesters']?.toString(),
+      permissions:
+          (j['permissions'] as List?)?.map((e) => e.toString()).toList(),
     );
   }
 }

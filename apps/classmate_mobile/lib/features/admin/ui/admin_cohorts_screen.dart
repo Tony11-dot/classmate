@@ -31,11 +31,13 @@ class AdminCohortsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final session = ref.watch(authSessionProvider);
     final isAdmin = session.primaryRole == 'ADMIN';
+    // Create / rename / delete classes — admin-managed permission.
+    final canManage = session.can('cohorts.manage');
     final cohortsAsync = ref.watch(_cohortsProvider);
 
     return Scaffold(
       backgroundColor: cs.surface,
-      floatingActionButton: isAdmin
+      floatingActionButton: canManage
           ? FloatingActionButton.extended(
               heroTag: 'fab_add_cohort',
               onPressed: () => Navigator.push(
@@ -93,7 +95,7 @@ class AdminCohortsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: _CohortCard(
                       cohort: cohort,
-                      isAdmin: isAdmin,
+                      canDelete: canManage,
                       // Root navigator so the detail screen covers the shell
                       // (its own AppBar takes over). MaterialPageRoute (no
                       // fullscreenDialog) preserves iOS edge-swipe-back.
@@ -648,13 +650,13 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
 class _CohortCard extends StatelessWidget {
   const _CohortCard({
     required this.cohort,
-    required this.isAdmin,
+    required this.canDelete,
     required this.onTap,
     required this.onDelete,
   });
 
   final AdminCohort cohort;
-  final bool isAdmin;
+  final bool canDelete;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
@@ -702,7 +704,7 @@ class _CohortCard extends StatelessWidget {
               ),
             ),
             const Icon(Icons.chevron_right_rounded),
-            if (isAdmin)
+            if (canDelete)
               IconButton(
                 icon: Icon(Icons.delete_outline_rounded, color: cs.error, size: 20),
                 tooltip: l.a11yDelete,
@@ -739,7 +741,10 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final session = ref.watch(authSessionProvider);
-    final isAdmin = session.primaryRole == 'ADMIN';
+    // Admin-managed permissions (Settings → Permissions): rename needs
+    // cohorts.manage, roster add/remove needs cohorts.manageMembers.
+    final canManage = session.can('cohorts.manage');
+    final canMembers = session.can('cohorts.manageMembers');
     final rosterAsync = ref.watch(_rosterProvider(_cohort.id));
 
     return Scaffold(
@@ -759,7 +764,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          if (isAdmin)
+          if (canManage)
             IconButton(
               icon: const Icon(Icons.edit_rounded),
               tooltip: AppLocalizations.of(context)!.adminRenameCohort,
@@ -767,10 +772,10 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
             ),
         ],
       ),
-      // Cohort roster mutations are ADMIN-only server-side (secretary gets a
-      // read-only view per the role spec). Hiding the FAB for secretary stops
-      // the add-student tap from hitting a guaranteed 403 Forbidden (web QA #55).
-      floatingActionButton: isAdmin
+      // Roster add/remove follows the cohorts.manageMembers permission: a
+      // secretary sees it only when an admin granted it (web QA #55), so the
+      // tap never hits a guaranteed 403.
+      floatingActionButton: canMembers
           ? FloatingActionButton.extended(
               heroTag: 'fab_add_student_cohort',
               // Root navigator so AddStudents covers the shell's AppBar + bottom
@@ -844,7 +849,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                 padding: const EdgeInsets.only(bottom: 6),
                 child: _RosterTile(
                   user: s,
-                  onRemove: isAdmin ? () => _removeStudent(context, s) : null,
+                  onRemove: canMembers ? () => _removeStudent(context, s) : null,
                 ),
               )),
             ],

@@ -484,6 +484,8 @@ class AppShell extends ConsumerWidget {
     // Secretary can post announcements — allow isAdminLike to reach the FAB logic too
     if (!isTeacherLike && !isAdminLike) return null;
     if (loc == '/announcements') {
+      // Posting is an admin-managed permission (on by default for staff).
+      if (!ref.watch(authSessionProvider).can('announcements.post')) return null;
       return FloatingActionButton(
         heroTag: 'fab_announce',
         backgroundColor: cs.primaryContainer,
