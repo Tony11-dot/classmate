@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
+import '../../core/theme/cm_tokens.dart';
 import '../../core/http/cm_api.dart';
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
@@ -102,6 +103,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final weekAsync = ref.watch(weekScheduleProvider(weekOf));
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final tokens = CmTokens.of(context);
     final l = AppLocalizations.of(context)!;
 
     return CmRefreshIndicator(
@@ -139,6 +141,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: cs.outlineVariant),
+                boxShadow: tokens.shadowSm,
               ),
               child: Row(
                 children: [
@@ -217,12 +220,14 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
     final selectedItems = _itemsForSelectedDate(data);
     final next = selectedItems.isNotEmpty ? selectedItems.first : null;
     final upcomingExam = _nextUpcomingExam();
+    final tokens = CmTokens.of(context);
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(26),
+        boxShadow: tokens.shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,6 +581,7 @@ Widget _statPill(
 }) {
   final theme = Theme.of(context);
   final cs = theme.colorScheme;
+  final tokens = CmTokens.of(context);
 
   final content = Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -583,6 +589,7 @@ Widget _statPill(
       color: cs.surfaceContainerLow,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: cs.outline, width: 1.5),
+      boxShadow: tokens.shadowSm,
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -876,6 +883,7 @@ class _ScheduleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final tokens = CmTokens.of(context);
     final l = AppLocalizations.of(context)!;
 
     // Tile prints just "subject - teacher" (with an optional caption
@@ -920,6 +928,7 @@ class _ScheduleTile extends StatelessWidget {
             color: borderColor,
             width: isCurrent ? 2 : (hasStatus ? 1.5 : 1),
           ),
+          boxShadow: tokens.shadowSm,
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
