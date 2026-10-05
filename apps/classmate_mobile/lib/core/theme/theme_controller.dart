@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'cm_tokens.dart';
+
 final themeControllerProvider = NotifierProvider<ThemeController, ThemeState>(
   ThemeController.new,
 );
@@ -947,6 +949,10 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
       // One mark, recoloured to the theme's primary on EVERY theme — the
       // dark/white asset variants are gone; the single blue source is tinted.
       BrandTint(tint: scheme.primary),
+      // Additive, theme-agnostic design tokens (elevation / spacing / radii /
+      // motion + universal signal colours). No brand colour — screens still
+      // take brand/surface/text from `scheme`, so every palette keeps its look.
+      CmTokens.fromBrightness(brightness),
     ],
   );
 
