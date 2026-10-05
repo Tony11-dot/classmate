@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../ui/widgets/cm_search_field.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
@@ -297,22 +299,9 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
             Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),
           cohortField,
           const SizedBox(height: 12),
-          TextField(
+          CmSearchField(
             controller: _searchCtrl,
-            decoration: InputDecoration(
-              hintText: l.certSearchStudent,
-              prefixIcon: const Icon(Icons.search_rounded),
-              // Clear (X) to reset the search (QA #27/#18).
-              suffixIcon: _searchCtrl.text.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.close_rounded),
-                      tooltip: l.clear,
-                      onPressed: () => setState(() => _searchCtrl.clear()),
-                    ),
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
+            hint: l.certSearchStudent,
           ),
           if (_canCreate) ...[
             const SizedBox(height: 12),
@@ -631,15 +620,10 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: TextField(
+            child: CmSearchField(
               controller: _ctrl,
+              hint: l.certSearchStudent,
               onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: l.certSearchStudent,
-                prefixIcon: const Icon(Icons.search_rounded),
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
             ),
           ),
           Expanded(

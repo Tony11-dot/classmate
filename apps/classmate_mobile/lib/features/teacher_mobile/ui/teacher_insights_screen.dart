@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -208,32 +210,10 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
           const SizedBox(height: 16),
 
           // ── Search bar ───────────────────────────────────────────────────
-          Container(
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outlineVariant),
-            ),
-            child: TextField(
-              controller: _searchCtrl,
-              onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: l.teacherInsightsSearchHint,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                suffixIcon: _query.isNotEmpty
-                    ? IconButton(
-                        tooltip: l.a11yClear,
-                        icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          setState(() => _query = '');
-                        },
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
+          CmSearchField(
+            controller: _searchCtrl,
+            hint: l.teacherInsightsSearchHint,
+            onChanged: (v) => setState(() => _query = v),
           ),
           const SizedBox(height: 16),
 

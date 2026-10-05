@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -2478,15 +2480,9 @@ class _MultiPickerListState extends State<_MultiPickerList> {
 
     return Column(
       children: [
-        TextField(
+        CmSearchField(
+          hint: widget.searchHint,
           onChanged: (v) => setState(() => _q = v),
-          decoration: InputDecoration(
-            hintText: widget.searchHint,
-            prefixIcon: const Icon(Icons.search_rounded, size: 18),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-          ),
         ),
         const SizedBox(height: 4),
         if (widget.selected.isNotEmpty)
@@ -3195,27 +3191,10 @@ class _AddStudentsSheetState extends State<_AddStudentsSheet> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
+              child: CmSearchField(
                 controller: _searchCtrl,
+                hint: AppLocalizations.of(context)!.adminScheduleSearchStudents,
                 onChanged: (v) => setState(() => _q = v),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                  // Clear (X) to reset the filter (QA #15/#18).
-                  suffixIcon: _q.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          tooltip: AppLocalizations.of(context)!.clear,
-                          onPressed: () {
-                            _searchCtrl.clear();
-                            setState(() => _q = '');
-                          },
-                        ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -4116,14 +4095,9 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
             // Search across existing
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
+              child: CmSearchField(
+                hint: AppLocalizations.of(context)!.adminScheduleSearchSubjects,
                 onChanged: (v) => setState(() => _search = v),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.adminScheduleSearchSubjects,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
-                ),
               ),
             ),
             const SizedBox(height: 8),

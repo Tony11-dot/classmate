@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session.dart';
@@ -126,30 +128,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                   ),
                   const SizedBox(height: 12),
                   // Search bar
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cs.outlineVariant),
-                    ),
-                    child: TextField(
-                      controller: _searchCtl,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: l.messagesSearchPeopleHint,
-                        prefixIcon: Icon(Icons.search_rounded, color: cs.onSurfaceVariant),
-                        // Clear (X) to reset the search (QA #18).
-                        suffixIcon: _searchCtl.text.isEmpty
-                            ? null
-                            : IconButton(
-                                icon: Icon(Icons.close_rounded, color: cs.onSurfaceVariant),
-                                tooltip: l.clear,
-                                onPressed: () => setState(() => _searchCtl.clear()),
-                              ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                    ),
+                  CmSearchField(
+                    controller: _searchCtl,
+                    hint: l.messagesSearchPeopleHint,
+                    onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 10),
                   // Filter chips — shown for every role with a mixed

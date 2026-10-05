@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -187,27 +189,16 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
           // ── Search ──────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: TextField(
+            child: CmSearchField(
               controller: _searchCtrl,
-              autofocus: false,
+              hint: AppLocalizations.of(context)!.forwardSearchChatsAndClassrooms,
               onChanged: (v) {
                 _debounce?.cancel();
                 _debounce = Timer(const Duration(milliseconds: 120), () {
                   if (mounted) setState(() => _query = v);
                 });
               },
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.forwardSearchChatsAndClassrooms,
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: _searchCtrl.text.isEmpty
-                    ? null
-                    : IconButton(
-                        tooltip: l.a11yClear,
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () { _searchCtrl.clear(); setState(() => _query = ''); },
-                      ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
-              ),
+              autofocus: false,
             ),
           ),
 

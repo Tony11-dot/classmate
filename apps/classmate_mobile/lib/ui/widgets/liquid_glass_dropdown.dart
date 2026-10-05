@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'cm_search_field.dart';
+
 import '../../l10n/app_localizations.dart';
 import '../glass/liquid_glass_card.dart';
 
@@ -374,44 +376,10 @@ class _LiquidGlassPickerState<T> extends State<_LiquidGlassPicker<T>> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
-                child: TextField(
+                child: CmSearchField(
                   controller: _ctrl,
+                  hint: widget.searchHint ?? l.practiceSetupSearchHint,
                   onChanged: (v) => setState(() => _q = v),
-                  decoration: InputDecoration(
-                    hintText: widget.searchHint ?? l.practiceSetupSearchHint,
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    // Clear (X) to wipe the search text (QA #27/#18).
-                    suffixIcon: _q.isEmpty
-                        ? null
-                        : IconButton(
-                            tooltip: l.clear,
-                            icon: const Icon(Icons.close_rounded),
-                            onPressed: () {
-                              _ctrl.clear();
-                              setState(() => _q = '');
-                            },
-                          ),
-                    filled: true,
-                    fillColor: cs.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: cs.outlineVariant,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: cs.outlineVariant,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: cs.primary,
-                      ),
-                    ),
-                  ),
                 ),
               ),
               Flexible(

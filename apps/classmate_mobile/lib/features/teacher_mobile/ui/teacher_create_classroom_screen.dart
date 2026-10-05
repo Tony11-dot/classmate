@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -492,26 +494,10 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: TextField(
+          child: CmSearchField(
             controller: _searchCtrl,
+            hint: AppLocalizations.of(context)!.teacherMaterialSearchHint,
             onChanged: (v) => setState(() => _query = v),
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
-              prefixIcon: const Icon(Icons.search_rounded, size: 20),
-              // Clear (X) to reset the search text (QA #65).
-              suffixIcon: _query.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 20),
-                      tooltip: AppLocalizations.of(context)!.clear,
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        setState(() => _query = '');
-                      },
-                    ),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-            ),
           ),
         ),
         Expanded(

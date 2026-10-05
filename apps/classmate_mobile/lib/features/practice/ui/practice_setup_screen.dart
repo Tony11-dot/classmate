@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -1444,35 +1446,10 @@ class _SearchPickerSheetState<T> extends State<_SearchPickerSheet<T>> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  CmSearchField(
                     controller: _controller,
+                    hint: widget.searchHint,
                     onChanged: (v) => setState(() => _query = v),
-                    decoration: InputDecoration(
-                      hintText: widget.searchHint,
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      suffixIcon: _query.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.close_rounded),
-                              tooltip: AppLocalizations.of(context)!.clear,
-                              onPressed: () => setState(() {
-                                _controller.clear();
-                                _query = '';
-                              }),
-                            ),
-                      filled: true,
-                      fillColor: cs.surfaceContainerHighest.withValues(
-                        alpha: 0.65,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 12),
                   Flexible(

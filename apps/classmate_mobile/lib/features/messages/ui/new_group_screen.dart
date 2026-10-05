@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,13 +66,10 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: TextField(
+              child: CmSearchField(
                 controller: _searchCtl,
+                hint: l.messagesSearchPeopleHint,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: l.messagesSearchPeopleHint,
-                  prefixIcon: const Icon(Icons.search_rounded),
-                ),
               ),
             ),
             if (_selected.isNotEmpty)

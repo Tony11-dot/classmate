@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -396,14 +398,9 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextField(
+              child: CmSearchField(
+                hint: AppLocalizations.of(context)!.teacherSearchMaterials,
                 onChanged: (v) => setState(() => _query = v),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.teacherSearchMaterials,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  isDense: true,
-                ),
               ),
             ),
             const SizedBox(height: 8),

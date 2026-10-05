@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -967,15 +969,10 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-                child: TextField(
+                child: CmSearchField(
                   controller: _searchCtrl,
+                  hint: AppLocalizations.of(context)!.teacherSearchHintShort,
                   onChanged: (v) => setState(() => _query = v),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    isDense: true,
-                  ),
                 ),
               ),
               Expanded(
@@ -1124,14 +1121,9 @@ class _SinglePickerSheetState extends State<_SinglePickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: TextField(
+          child: CmSearchField(
+            hint: AppLocalizations.of(context)!.teacherSearchHintShort,
             onChanged: (v) => setState(() => _query = v),
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.teacherSearchHintShort,
-              prefixIcon: const Icon(Icons.search_rounded, size: 20),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-            ),
           ),
         ),
         Expanded(

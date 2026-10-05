@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
@@ -485,14 +487,9 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Column(
                 children: [
-                  TextField(
+                  CmSearchField(
+                    hint: AppLocalizations.of(context)!.adminScheduleSearchStudents,
                     onChanged: (v) => setState(() => _search = v),
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)!.adminScheduleSearchStudents,
-                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      isDense: true,
-                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'cm_search_field.dart';
+
 import '../../l10n/app_localizations.dart';
 import '../glass/liquid_glass_card.dart';
 
@@ -96,28 +98,10 @@ Future<Set<String>?> showStudentMultiSelectSheet({
               if (searchable)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: TextField(
+                  child: CmSearchField(
                     controller: searchCtl,
+                    hint: l.commonSearch,
                     onChanged: (_) => setSheet(() {}),
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: l.commonSearch,
-                      prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                      // Clear (X) button — appears once there's text (QA #43).
-                      suffixIcon: query.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.close_rounded, size: 20),
-                              onPressed: () => setSheet(() => searchCtl.clear()),
-                            ),
-                      filled: true,
-                      fillColor: cs.surfaceContainerLow,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
                   ),
                 ),
               Expanded(

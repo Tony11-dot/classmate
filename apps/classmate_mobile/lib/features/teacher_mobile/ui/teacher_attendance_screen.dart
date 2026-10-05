@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -553,15 +555,10 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             ),
             const SizedBox(height: 14),
 
-            TextField(
+            CmSearchField(
               controller: _studentSearchCtrl,
+              hint: l.teacherSearchStudents,
               onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: l.teacherSearchStudents,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              ),
             ),
             const SizedBox(height: 10),
 

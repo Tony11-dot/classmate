@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -764,16 +766,11 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
           Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: TextField(
+            child: CmSearchField(
               controller: _searchCtrl,
-              autofocus: true,
+              hint: l.adminAddManySearchParents,
               onChanged: (v) => setState(() => _q = v.trim()),
-              decoration: InputDecoration(
-                hintText: l.adminAddManySearchParents,
-                prefixIcon: const Icon(Icons.search_rounded),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                isDense: true,
-              ),
+              autofocus: true,
             ),
           ),
           Expanded(

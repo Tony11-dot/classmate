@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 /// — drop it in anywhere a bespoke search `TextField` used to live so every
 /// search bar matches.
 ///
-/// The clear (✕) button appears automatically whenever there's text and wipes
-/// the field + notifies [onChanged] with an empty string, so callers don't have
-/// to wire it up themselves.
-class CmSearchField extends StatelessWidget {
+/// [controller] is optional: callers that only listen via [onChanged] can omit
+/// it and an internal controller is used. The clear (✕) button appears
+/// automatically whenever there's text and wipes the field + notifies
+/// [onChanged] with an empty string, so callers don't have to wire it up.
+class CmSearchField extends StatefulWidget {
   const CmSearchField({
     super.key,
-    required this.controller,
+    this.controller,
     required this.hint,
     this.onChanged,
     this.onSubmitted,
@@ -20,9 +21,10 @@ class CmSearchField extends StatelessWidget {
     this.focusNode,
     this.autofocus = false,
     this.enabled = true,
+    this.onTapOutside,
   });
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String hint;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -33,38 +35,58 @@ class CmSearchField extends StatelessWidget {
   final FocusNode? focusNode;
   final bool autofocus;
   final bool enabled;
+  final TapRegionCallback? onTapOutside;
+
+  @override
+  State<CmSearchField> createState() => _CmSearchFieldState();
+}
+
+class _CmSearchFieldState extends State<CmSearchField> {
+  TextEditingController? _own;
+
+  TextEditingController get _ctrl =>
+      widget.controller ?? (_own ??= TextEditingController());
+
+  @override
+  void dispose() {
+    _own?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     OutlineInputBorder pill([BorderSide? side]) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(999),
-          borderSide: side ?? BorderSide.none,
-        );
+      borderRadius: BorderRadius.circular(999),
+      borderSide: side ?? BorderSide.none,
+    );
 
     return ValueListenableBuilder<TextEditingValue>(
-      valueListenable: controller,
+      valueListenable: _ctrl,
       builder: (context, value, _) {
         final hasText = value.text.isNotEmpty;
         return TextField(
-          controller: controller,
-          focusNode: focusNode,
-          autofocus: autofocus,
-          enabled: enabled,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
+          controller: _ctrl,
+          focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
+          enabled: widget.enabled,
+          onChanged: widget.onChanged,
+          onSubmitted: widget.onSubmitted,
+          onTapOutside: widget.onTapOutside,
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            hintText: hint,
+            hintText: widget.hint,
             prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: hasText
                 ? IconButton(
-                    tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).deleteButtonTooltip,
                     icon: const Icon(Icons.close_rounded),
                     onPressed: () {
-                      controller.clear();
-                      onChanged?.call('');
-                      onClear?.call();
+                      _ctrl.clear();
+                      widget.onChanged?.call('');
+                      widget.onClear?.call();
                     },
                   )
                 : null,
@@ -74,8 +96,10 @@ class CmSearchField extends StatelessWidget {
             enabledBorder: pill(),
             focusedBorder: pill(BorderSide(color: cs.primary, width: 1.5)),
             disabledBorder: pill(),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 12,
+            ),
           ),
         );
       },

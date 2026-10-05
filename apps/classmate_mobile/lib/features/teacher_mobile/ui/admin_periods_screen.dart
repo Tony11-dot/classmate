@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -518,15 +520,9 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                     ),
                 ]),
                 const SizedBox(height: 8),
-                TextField(
+                CmSearchField(
+                  hint: AppLocalizations.of(context)!.adminPeriodsSearchByName,
                   onChanged: (v) => setState(() => _studentSearch = v),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.adminPeriodsSearchByName,
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    isDense: true,
-                  ),
                 ),
                 const SizedBox(height: 6),
                 ...filteredStudents.map((s) {

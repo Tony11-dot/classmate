@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/messages_repository.dart';
@@ -1084,24 +1086,10 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                 ),
                 const SizedBox(height: 12),
                 // Search bar
-                TextField(
+                CmSearchField(
                   controller: _search,
+                  hint: AppLocalizations.of(context)!.messagesSearchByNameOrGrade,
                   autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.messagesSearchByNameOrGrade,
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: _search.text.isNotEmpty
-                        ? IconButton(
-                            tooltip: AppLocalizations.of(context)!.a11yClear,
-                            icon: const Icon(Icons.clear_rounded),
-                            onPressed: () => _search.clear(),
-                          )
-                        : null,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                    filled: true,
-                    fillColor: cs.surfaceContainerHighest,
-                    isDense: true,
-                  ),
                 ),
                 const SizedBox(height: 8),
               ],

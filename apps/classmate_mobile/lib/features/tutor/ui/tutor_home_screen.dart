@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -526,56 +528,12 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: cs.outlineVariant,
-                ),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (_) => setState(() {}),
-                onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                decoration: InputDecoration(
-                  hintText: l.tutorSearchHistoryHint,
-                  hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  prefixIcon: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 4),
-                    child: Icon(
-                      Icons.search_rounded,
-                      size: 18,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 36,
-                    minHeight: 36,
-                  ),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  suffixIcon: _searchController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: l.clear,
-                          visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {});
-                            FocusScope.of(context).unfocus();
-                          },
-                          icon: Icon(
-                            Icons.close_rounded,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                  border: InputBorder.none,
-                ),
-              ),
+            CmSearchField(
+              controller: _searchController,
+              hint: l.tutorSearchHistoryHint,
+              onChanged: (_) => setState(() {}),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              onClear: () => FocusScope.of(context).unfocus(),
             ),
           ],
         ),

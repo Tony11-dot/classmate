@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../ui/widgets/cm_search_field.dart';
+
 import '../../../l10n/app_localizations.dart';
 
 class ChatEmojiPickerSheet extends StatefulWidget {
@@ -91,26 +93,10 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                         ),
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  CmSearchField(
                     controller: _searchCtl,
+                    hint: l.chatEmojiPickerSearchHint,
                     onChanged: (_) => setSheetState(() {}),
-                    decoration: InputDecoration(
-                      hintText: l.chatEmojiPickerSearchHint,
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      suffixIcon: _searchCtl.text.isEmpty
-                          ? null
-                          : IconButton(
-                              tooltip: l.a11yClear,
-                              onPressed: () {
-                                _searchCtl.clear();
-                                setSheetState(() {});
-                              },
-                              icon: const Icon(Icons.close_rounded),
-                            ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 12),
                   Expanded(

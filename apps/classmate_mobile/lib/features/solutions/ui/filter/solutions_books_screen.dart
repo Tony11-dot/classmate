@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -115,19 +117,10 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: TextField(
+            child: CmSearchField(
               controller: _searchCtrl,
+              hint: l.solutionsSearchBooks,
               onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: l.solutionsSearchBooks,
-                prefixIcon: const Icon(Icons.search_rounded),
-                filled: true,
-                fillColor: cs.surfaceContainerHighest,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-              ),
             ),
           ),
           Expanded(

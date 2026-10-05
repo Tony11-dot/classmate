@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -302,48 +304,12 @@ backgroundColor: cs.surface,
                   if (index == 1) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: TextField(
+                      child: CmSearchField(
                         controller: _searchCtl,
+                        hint: l.classroomsSearchHint,
                         onChanged: (_) => setState(() {}),
                         onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                        decoration: InputDecoration(
-                          hintText: l.classroomsSearchHint,
-                          prefixIcon: const Icon(Icons.search_rounded),
-                          suffixIcon: _searchCtl.text.isEmpty
-                              ? null
-                              : IconButton(
-                                  tooltip: l.a11yClose,
-                                  onPressed: () {
-                                    _searchCtl.clear();
-                                    setState(() {});
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                  icon: const Icon(Icons.close_rounded),
-                                ),
-                          filled: true,
-                          fillColor: cs.surfaceContainerHighest.withValues(
-                            alpha: 0.40,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(
-                              color: cs.outlineVariant,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(
-                              color: cs.outlineVariant,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide(
-                              color: cs.primary,
-                              width: 1.25,
-                            ),
-                          ),
-                        ),
+                        onClear: () => FocusScope.of(context).unfocus(),
                       ),
                     );
                   }

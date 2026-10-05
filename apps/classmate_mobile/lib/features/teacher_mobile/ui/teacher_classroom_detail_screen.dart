@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -1293,30 +1295,10 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
 
           // ── People search (web QA #34) ────────────────────────────────
           if (allStudents.length > 4) ...[
-            TextField(
+            CmSearchField(
               controller: _peopleSearchController,
+              hint: l.searchHint,
               onChanged: (v) => setState(() => _peopleQuery = v),
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                isDense: true,
-                hintText: l.searchHint,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                suffixIcon: _peopleQuery.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: () {
-                          _peopleSearchController.clear();
-                          setState(() => _peopleQuery = '');
-                        },
-                      ),
-                filled: true,
-                fillColor: cs.surfaceContainerHigh,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
             ),
             const SizedBox(height: 8),
           ],
@@ -1578,14 +1560,9 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(
+            child: CmSearchField(
+              hint: AppLocalizations.of(context)!.teacherClassroomSearchNameGrade,
               onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.teacherClassroomSearchNameGrade,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-              ),
             ),
           ),
           Expanded(

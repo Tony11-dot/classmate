@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -208,24 +210,10 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          TextField(
+          CmSearchField(
             controller: _searchCtrl,
-            decoration: InputDecoration(
-              hintText: l.gradesHubSearchSubjects,
-              prefixIcon: const Icon(Icons.search_rounded),
-              suffixIcon: _searchCtrl.text.isEmpty
-                  ? null
-                  : IconButton(
-                      tooltip: l.a11yClear,
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        FocusScope.of(context).unfocus();
-                      },
-                    ),
-              filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-            ),
+            hint: l.gradesHubSearchSubjects,
+            onClear: () => FocusScope.of(context).unfocus(),
           ),
           const SizedBox(height: 12),
           if (_error != null) ...[
@@ -802,21 +790,9 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
             Text(l.gradesAvgPickSubtitle(g.subject),
                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
-            TextField(
+            CmSearchField(
               controller: _searchCtrl,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search_rounded),
-                hintText: l.gradesAvgSearchHint,
-                isDense: true,
-                border: const OutlineInputBorder(),
-                suffixIcon: _searchCtrl.text.isEmpty
-                    ? null
-                    : IconButton(
-                        tooltip: l.a11yClear,
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () => _searchCtrl.clear(),
-                      ),
-              ),
+              hint: l.gradesAvgSearchHint,
             ),
             const SizedBox(height: 12),
             Flexible(

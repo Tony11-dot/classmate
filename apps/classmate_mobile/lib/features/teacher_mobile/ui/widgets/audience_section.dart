@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 
+import '../../../../ui/widgets/cm_search_field.dart';
+
 import '../../../../l10n/app_localizations.dart';
 import '../../data/teacher_mobile_repository.dart';
 
@@ -337,7 +339,10 @@ class _MultiPickerSheetState extends State<_MultiPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: TextField(onChanged: (v) => setState(() => _query = v), decoration: InputDecoration(hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint, prefixIcon: const Icon(Icons.search_rounded, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)), contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14))),
+          child: CmSearchField(
+            hint: AppLocalizations.of(context)!.teacherMaterialSearchHint,
+            onChanged: (v) => setState(() => _query = v),
+          ),
         ),
         Expanded(
           child: filtered.isEmpty

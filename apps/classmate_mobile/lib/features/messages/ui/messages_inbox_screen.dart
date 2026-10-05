@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -497,28 +499,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                         _header(context),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                          child: TextField(
+                          child: CmSearchField(
                             controller: _searchCtl,
+                            hint: l.messagesSearchHint,
                             onChanged: (_) => setState(() {}),
-                            decoration: InputDecoration(
-                              hintText: l.messagesSearchHint,
-                              prefixIcon: const Icon(Icons.search_rounded),
-                              // Clear (X) here too — this is the empty/no-results
-                              // branch, which the 273 fix missed (QA #67).
-                              suffixIcon: _searchCtl.text.isEmpty
-                                  ? null
-                                  : IconButton(
-                                      icon: const Icon(Icons.close_rounded),
-                                      tooltip: l.clear,
-                                      onPressed: () =>
-                                          setState(() => _searchCtl.clear()),
-                                    ),
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(18),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
                           ),
                         ),
                         const SizedBox(height: 180),
@@ -546,27 +530,10 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                       _header(context),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                        child: TextField(
+                        child: CmSearchField(
                           controller: _searchCtl,
+                          hint: l.messagesSearchHint,
                           onChanged: (_) => setState(() {}),
-                          decoration: InputDecoration(
-                            hintText: l.messagesSearchHint,
-                            prefixIcon: const Icon(Icons.search_rounded),
-                            // Clear (X) to wipe the search text (QA #67).
-                            suffixIcon: _searchCtl.text.isEmpty
-                                ? null
-                                : IconButton(
-                                    icon: const Icon(Icons.close_rounded),
-                                    tooltip: l.clear,
-                                    onPressed: () =>
-                                        setState(() => _searchCtl.clear()),
-                                  ),
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
                         ),
                       ),
                       if (requests.isNotEmpty) ...[

@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -1237,17 +1239,9 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(
+            child: CmSearchField(
+              hint: AppLocalizations.of(context)!.teacherSearchStudents,
               onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.teacherSearchStudents,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 14),
-              ),
             ),
           ),
           Expanded(
@@ -1436,17 +1430,9 @@ class _CohortPickerSheetState extends State<_CohortPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(
+            child: CmSearchField(
+              hint: AppLocalizations.of(context)!.adminSearchCohorts,
               onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.adminSearchCohorts,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-              ),
             ),
           ),
           Expanded(

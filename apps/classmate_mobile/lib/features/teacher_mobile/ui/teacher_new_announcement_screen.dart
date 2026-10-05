@@ -2,6 +2,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -888,16 +890,9 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(
+            child: CmSearchField(
+              hint: AppLocalizations.of(context)!.teacherMaterialSearchHint,
               onChanged: (v) => setState(() => _query = v),
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.teacherMaterialSearchHint,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-              ),
             ),
           ),
           Expanded(
@@ -1102,23 +1097,9 @@ class _ParentPickerSheetState extends State<_ParentPickerSheet> {
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
+            child: CmSearchField(
               controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.teacherSearchParentsOrChildren,
-                prefixIcon: const Icon(Icons.search_rounded),
-                isDense: true,
-                filled: true,
-                fillColor: cs.surfaceContainerLow,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: cs.outlineVariant),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: cs.outlineVariant),
-                ),
-              ),
+              hint: AppLocalizations.of(context)!.teacherSearchParentsOrChildren,
             ),
           ),
           const SizedBox(height: 8),

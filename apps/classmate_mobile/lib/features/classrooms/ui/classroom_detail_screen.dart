@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -642,30 +644,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             // ── People search (web QA #34) ───────────────────────────────
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: TextField(
+              child: CmSearchField(
                 controller: _peopleSearchController,
+                hint: l.searchHint,
                 onChanged: (v) => setState(() => _peopleQuery = v),
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: l.searchHint,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                  suffixIcon: _peopleQuery.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18),
-                          onPressed: () {
-                            _peopleSearchController.clear();
-                            setState(() => _peopleQuery = '');
-                          },
-                        ),
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
               ),
             ),
             if (teachers.isNotEmpty) ...[

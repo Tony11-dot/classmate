@@ -6,6 +6,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -868,16 +870,9 @@ class _AddFilterSheetState extends State<_AddFilterSheet>
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-          child: TextField(
+          child: CmSearchField(
+            hint: l.adminScheduleSearchStudents,
             onChanged: (v) => setState(() => _userQuery = v),
-            decoration: InputDecoration(
-              hintText: l.adminScheduleSearchStudents,
-              prefixIcon: const Icon(Icons.search_rounded, size: 18),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              isDense: true,
-            ),
           ),
         ),
         Padding(
