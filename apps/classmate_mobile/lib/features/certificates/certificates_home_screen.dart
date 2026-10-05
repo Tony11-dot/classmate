@@ -552,7 +552,7 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Text(published ? l.certPublished.replaceAll('.', '') : l.certSaveDraft,
-          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: fg)),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: fg)),
     );
   }
 }

@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
@@ -254,8 +255,8 @@ class _SummaryCard extends StatelessWidget {
     final aa = _avgAttendance;
     final ag = _avgGrade;
     final attendColor = aa == null ? cs.onSurfaceVariant
-        : aa >= 90 ? Colors.green
-        : aa >= 75 ? Colors.orange
+        : aa >= 90 ? CmTokens.of(context).good
+        : aa >= 75 ? CmTokens.of(context).warn
         : cs.error;
 
     return Container(
@@ -328,7 +329,7 @@ class _SummaryTile extends StatelessWidget {
           ),
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(fontSize: 10),
+            style: theme.textTheme.labelSmall?.copyWith(fontSize: 11),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -379,7 +380,7 @@ class _CohortCard extends StatelessWidget {
     final rate = attendanceRate;
     final rateColor = rate == null
         ? cs.onSurfaceVariant
-        : rate >= 90 ? Colors.green : rate >= 75 ? Colors.orange : cs.error;
+        : rate >= 90 ? CmTokens.of(context).good : rate >= 75 ? CmTokens.of(context).warn : cs.error;
 
     return CmPress(
       onTap: onTap,
@@ -388,7 +389,8 @@ class _CohortCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: Row(
           children: [

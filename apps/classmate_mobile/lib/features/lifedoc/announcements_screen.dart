@@ -890,8 +890,16 @@ class _AnnouncementCard extends StatelessWidget {
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
-        color: isRead ? cs.surfaceContainerLowest : cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        color: isRead
+            ? cs.surfaceContainerLow
+            : Color.alphaBlend(
+                cs.primary.withValues(alpha: 0.06), cs.surfaceContainerLow),
+        border: Border.all(
+          color: isRead
+              ? cs.outlineVariant.withValues(alpha: 0.4)
+              : cs.primary.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -899,10 +907,11 @@ class _AnnouncementCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                borderRadius: BorderRadius.circular(14),
+                color: isRead ? cs.surfaceContainerHigh : cs.primaryContainer,
               ),
-              child: Icon(_sourceIcon(announcement.source), color: cs.onSurface),
+              child: Icon(_sourceIcon(announcement.source),
+                  color: isRead ? cs.onSurfaceVariant : cs.onPrimaryContainer),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -918,7 +927,8 @@ class _AnnouncementCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontWeight: FontWeight.w900,
+                            fontWeight: isRead ? FontWeight.w700 : FontWeight.w800,
+                            fontSize: 16,
                             color: cs.onSurface,
                           ),
                         ),
@@ -949,12 +959,12 @@ class _AnnouncementCard extends StatelessWidget {
                       ),
                       _Chip(
                         label: _sourceLabel(context, announcement.source),
-                        backgroundColor: cs.surface,
+                        backgroundColor: cs.surfaceContainerHigh,
                         foregroundColor: cs.onSurface,
                       ),
                       _Chip(
                         label: _friendlyDateTime(context, announcement.createdAt),
-                        backgroundColor: cs.surface,
+                        backgroundColor: cs.surfaceContainerHigh,
                         foregroundColor: cs.onSurfaceVariant,
                       ),
                     ],
@@ -1131,7 +1141,7 @@ class _MetricTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18),
+          Icon(icon, size: 20, color: cs.primary),
           const SizedBox(height: 10),
           Text(
             value,
@@ -1169,7 +1179,7 @@ class _SignalBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20),
+          Icon(icon, size: 20, color: cs.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1202,9 +1212,10 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      color: backgroundColor ?? cs.surfaceContainerHigh,
+      border: Border.all(color: Colors.transparent, width: 0),
       child: Text(
         label,
         maxLines: 1,

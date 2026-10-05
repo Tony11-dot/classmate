@@ -224,7 +224,7 @@ class _PeriodTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
-              Text(start, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
+              Text(start, style: TextStyle(fontSize: 11, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
             ],
           ),
         ),

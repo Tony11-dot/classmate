@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -1120,7 +1121,8 @@ BoxDecoration _panelDecoration(BuildContext context) {
   return BoxDecoration(
     color: cs.surfaceContainerLow,
     borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+    boxShadow: CmTokens.of(context).shadowSm,
   );
 }
 

@@ -2,6 +2,7 @@
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,7 +80,8 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                    boxShadow: CmTokens.of(context).shadowSm,
                   ),
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -587,7 +589,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(6, 10, 6, 10),
+      padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
       child: Row(
         children: [
           Expanded(
@@ -595,7 +597,7 @@ class _SectionHeader extends StatelessWidget {
               title,
               style: Theme.of(
                 context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
           ),
           Text(
@@ -632,14 +634,15 @@ class _InboxRow extends StatelessWidget {
     final trailingText = trailingLabel.trim().isEmpty
         ? item.lastMessageAt.trim()
         : trailingLabel.trim();
-    final borderColor = isRequest || showUnread
-        ? scheme.primary
-        : scheme.outlineVariant;
+    final highlighted = isRequest || showUnread;
+    final borderColor = highlighted
+        ? scheme.primary.withValues(alpha: 0.45)
+        : scheme.outlineVariant.withValues(alpha: 0.35);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
-        color: scheme.surface,
+        color: Colors.transparent,
         child: CmPress(
           onLongPress: onLongPress,
           onTap: () {
@@ -655,9 +658,15 @@ class _InboxRow extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: scheme.surfaceContainerLowest,
-              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+              color: highlighted
+                  ? Color.alphaBlend(
+                      scheme.primary.withValues(alpha: 0.06),
+                      scheme.surfaceContainerLow,
+                    )
+                  : scheme.surfaceContainerLow,
+              border: Border.all(color: borderColor, width: 0.8),
+              boxShadow: CmTokens.of(context).shadowSm,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,

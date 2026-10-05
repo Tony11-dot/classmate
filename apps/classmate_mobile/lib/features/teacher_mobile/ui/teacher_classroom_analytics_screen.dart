@@ -319,7 +319,7 @@ class _DistributionBar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(b.label, style: TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+                Text(b.label, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
               ],
             ),
           ),

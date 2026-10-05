@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,7 +97,8 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                  boxShadow: CmTokens.of(context).shadowSm,
                 ),
                 child: Row(
                   children: [

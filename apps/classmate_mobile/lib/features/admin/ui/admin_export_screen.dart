@@ -1433,7 +1433,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.center,
               children: [
-                pw.Text(l.certPdfGeneratedBy, style: pw.TextStyle(fontSize: 9, color: brandBlue, fontStyle: pw.FontStyle.italic)),
+                pw.Text(l.certPdfGeneratedBy, style: pw.TextStyle(fontSize: 10, color: brandBlue, fontStyle: pw.FontStyle.italic)),
                 pw.SizedBox(width: 7),
                 pw.SizedBox(width: 16, height: 16, child: pw.Image(cmLogo, fit: pw.BoxFit.contain)),
                 pw.SizedBox(width: 5),
@@ -1508,7 +1508,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             pw.Center(
               child: pw.Text(
                 '$dateStr · ${l.adminExportPdfBy(exportedBy)}',
-                style: const pw.TextStyle(fontSize: 9, color: fieldLabel),
+                style: const pw.TextStyle(fontSize: 10, color: fieldLabel),
               ),
             ),
             pw.SizedBox(height: 16),
@@ -1545,7 +1545,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                   child: pw.Text(
                     _localizedRoleName(l, role),
                     style: pw.TextStyle(
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: pw.FontWeight.bold,
                       color: PdfColors.white,
                       letterSpacing: 0.4,
@@ -1692,9 +1692,9 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
                   pw.Text(l.adminExportPdfUserDirectory, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                  pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-                  pw.Text(l.adminExportPdfBy(exportedBy), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
-                  pw.Text(l.adminExportPdfUsersCount(users.length), style: const pw.TextStyle(fontSize: 10, color: PdfColor(1, 1, 1, 0.7))),
+                  pw.Text(dateStr, style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
+                  pw.Text(l.adminExportPdfBy(exportedBy), style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
+                  pw.Text(l.adminExportPdfUsersCount(users.length), style: const pw.TextStyle(fontSize: 11, color: PdfColor(1, 1, 1, 0.7))),
                 ],
               ),
             ],
@@ -1708,7 +1708,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               decoration: pw.BoxDecoration(color: headerBg, borderRadius: const pw.BorderRadius.only(topLeft: pw.Radius.circular(8), topRight: pw.Radius.circular(8))),
               children: cols.map((c) => pw.Padding(
                 padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 7),
-                child: pw.Text(c.label, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                child: pw.Text(c.label, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
               )).toList(),
             ),
             ...users.asMap().entries.map((entry) {

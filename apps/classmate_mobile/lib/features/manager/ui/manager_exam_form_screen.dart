@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -225,7 +226,7 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: Icon(slot.hasFile ? Icons.check_circle_rounded : Icons.upload_file_rounded,
-            color: slot.hasFile ? Colors.green : null),
+            color: slot.hasFile ? CmTokens.of(context).good : null),
         title: Text(_kindLabel(kind)),
         subtitle: slot.hasFile ? Text(slot.displayName ?? 'Attached', maxLines: 1, overflow: TextOverflow.ellipsis) : null,
         trailing: Row(

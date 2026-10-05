@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
@@ -405,7 +406,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                         decoration: BoxDecoration(
                           color: cs.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                          boxShadow: CmTokens.of(context).shadowSm,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -580,7 +582,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                        boxShadow: CmTokens.of(context).shadowSm,
                       ),
                       child: Row(
                         children: [
@@ -684,7 +687,7 @@ class _AttStatPill extends StatelessWidget {
         child: Column(
           children: [
             Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: textColor, height: 1.1)),
-            Text(label, style: TextStyle(fontSize: 9, color: textColor, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(fontSize: 10, color: textColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

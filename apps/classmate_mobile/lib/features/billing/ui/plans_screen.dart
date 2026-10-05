@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:io' show Platform;
 
@@ -318,7 +319,8 @@ class _TokenExplainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,7 +416,7 @@ class _PlanTile extends StatelessWidget {
                             AppLocalizations.of(context)!.plansCurrentBadge,
                             style: TextStyle(
                               color: cs.onPrimary,
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.5,
                             ),
@@ -547,7 +549,8 @@ class _TopupTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: Row(
           children: [

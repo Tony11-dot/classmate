@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -261,7 +262,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final ok = total == 100;
-    final color = ok ? Colors.green : cs.error;
+    final color = ok ? CmTokens.of(context).good : cs.error;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -735,7 +736,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
     final f = _formats[index];
     final total = _formatTotal(f);
     final ok = total == 100;
-    final totalColor = ok ? Colors.green : cs.error;
+    final totalColor = ok ? CmTokens.of(context).good : cs.error;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),

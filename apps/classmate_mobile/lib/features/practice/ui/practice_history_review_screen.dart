@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -203,7 +204,7 @@ class _PracticeHistoryReviewScreenState
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
                     color: q.isCorrect
-                        ? Colors.green
+                        ? CmTokens.of(context).good
                         : cs.outlineVariant,
                   ),
                 ),
@@ -228,7 +229,7 @@ class _PracticeHistoryReviewScreenState
                           q.isCorrect
                               ? Icons.check_circle_rounded
                               : Icons.cancel_rounded,
-                          color: q.isCorrect ? Colors.green : Colors.red,
+                          color: q.isCorrect ? CmTokens.of(context).good : Colors.red,
                           size: 18,
                         ),
                       ],
@@ -255,7 +256,7 @@ class _PracticeHistoryReviewScreenState
                     Text(
                       l.practiceSessionCorrectAnswer,
                       style: theme.textTheme.labelMedium?.copyWith(
-                        color: Colors.green,
+                        color: CmTokens.of(context).good,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

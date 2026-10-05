@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
@@ -493,19 +494,19 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
   Widget _gridHeader(ColorScheme cs) {
     final l = AppLocalizations.of(context)!;
     Widget h(String t, int flex) => Expanded(flex: flex, child: Text(t.toUpperCase(),
-        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4)));
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4)));
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: Row(children: [
         SizedBox(width: 150, child: Text(l.adminImportUsersScreenRole.toUpperCase(),
-            style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4))),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4))),
         const SizedBox(width: 8),
         h(l.adminImportUsersScreenFullName, 5),
         const SizedBox(width: 8),
         h(l.adminImportUsersScreenUsername, 4),
         const SizedBox(width: 8),
         SizedBox(width: 70, child: Text(l.adminImportUsersScreenGrade.toUpperCase(),
-            style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4))),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: .4))),
         const SizedBox(width: 8),
         h(l.adminAddManyParentLabel, 4),
         const SizedBox(width: 40),
@@ -913,7 +914,8 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(l.adminImportUsersScreenRecognisedColumns, style: const TextStyle(fontWeight: FontWeight.w700)),

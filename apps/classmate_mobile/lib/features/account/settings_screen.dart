@@ -408,7 +408,7 @@ Future<void> _showFontPicker(
                               child: Text(
                                 l.settingsAppFontDefault,
                                 style: TextStyle(
-                                  fontSize: 10.5,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: cs.onSecondaryContainer,
                                 ),
@@ -448,23 +448,22 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: cs.primary),
-              const SizedBox(width: 6),
+              Icon(icon, size: 18, color: cs.primary),
+              const SizedBox(width: 8),
               Text(
                 title,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: cs.primary,
-                  letterSpacing: 0.4,
+                  letterSpacing: 0.2,
                 ),
               ),
             ],
@@ -518,7 +517,7 @@ class _SettingRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 11),
         child: Row(
           children: [
             SizedBox(
@@ -527,6 +526,8 @@ class _SettingRow extends StatelessWidget {
               child: LiquidGlassCard(
                 padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(11),
+                boxShadow: const [],
+                border: Border.all(color: Colors.transparent, width: 0),
                 color: iconColor != null ? cs.errorContainer : cs.primaryContainer,
                 child: Center(
                   child: Icon(icon, size: 20, color: iconColor ?? cs.onPrimaryContainer),
@@ -540,7 +541,7 @@ class _SettingRow extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: titleColor,
                     ),

@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -581,7 +582,8 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                                       decoration: BoxDecoration(
                                         color: cs.surfaceContainerLow,
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                                        boxShadow: CmTokens.of(context).shadowSm,
                                       ),
                                       child: ListTile(
                                         dense: true,

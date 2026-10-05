@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -378,7 +379,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.teacherQuickActions, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
+                Text(l.teacherQuickActions, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 14),
                 // Row 1 — daily actions
                 Row(
@@ -447,18 +448,17 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.all(14),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: color),
                             child: Row(
                               children: [
-                                // Period badge
+                                // Period badge — carries the subject colour.
                                 Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(12)),
+                                  width: 46,
+                                  height: 46,
+                                  decoration: BoxDecoration(color: color.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(14)),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('P${slot.period}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
+                                      Text('P${slot.period}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color.lerp(color, cs.onSurface, 0.35))),
                                     ],
                                   ),
                                 ),
@@ -484,8 +484,8 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(8)),
-                                      child: Text(subject.isNotEmpty ? subject : l.scheduleClassFallback, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
+                                      decoration: BoxDecoration(color: cs.surfaceContainerHigh, borderRadius: BorderRadius.circular(99)),
+                                      child: Text(subject.isNotEmpty ? subject : l.scheduleClassFallback, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
                                     ),
                                     const SizedBox(height: 4),
                                     if (actionable)
@@ -596,8 +596,7 @@ class _StatPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,7 +604,8 @@ class _StatPill extends StatelessWidget {
             Icon(icon, size: 16, color: onColor),
             const SizedBox(height: 6),
             Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: onColor, height: 1)),
-            Text(label, style: TextStyle(fontSize: 10, color: onColor, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 2),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: onColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -627,17 +627,25 @@ class _BigActionButton extends StatelessWidget {
     return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 22, color: cs.onSurface),
-            const SizedBox(height: 6),
-            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurface), textAlign: TextAlign.center),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 21, color: color),
+            ),
+            const SizedBox(height: 8),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: cs.onSurface), textAlign: TextAlign.center),
           ],
         ),
       ),);
@@ -702,7 +710,8 @@ class _ActionChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -64,9 +64,17 @@ class LiquidGlassCard extends StatelessWidget {
     // Screens use a primaryContainer card as their page header ("hero"). Give
     // those a gentle diagonal wash + deeper shadow so they read as the top of
     // the page rather than one more flat slab.
-    final isHero = color != null && fill == cs.primaryContainer;
+    final isHero = color != null &&
+        fill == cs.primaryContainer &&
+        borderRadius.topLeft.x >= 20; // page headers, not small icon tiles
+    // Pills (chips, toggles) stay flat — shadows on tiny capsules read as noise.
+    final isPill = borderRadius.topLeft.x >= 100;
     final shadow = boxShadow ??
-        (isHero ? CmTokens.of(context).shadowMd : CmTokens.of(context).shadowSm);
+        (isHero
+            ? CmTokens.of(context).shadowMd
+            : isPill
+                ? const <BoxShadow>[]
+                : CmTokens.of(context).shadowSm);
 
     return DecoratedBox(
       decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: shadow),

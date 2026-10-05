@@ -466,7 +466,7 @@ class _AttPill extends StatelessWidget {
         child: Column(
           children: [
             Text('$count', style: TextStyle(fontWeight: FontWeight.w900, color: onColor, fontSize: 18)),
-            Text(label, style: TextStyle(fontSize: 10, color: onColor, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(fontSize: 11, color: onColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

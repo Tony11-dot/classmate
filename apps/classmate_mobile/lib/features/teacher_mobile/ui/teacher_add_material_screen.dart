@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -584,7 +585,8 @@ class _TeacherAddMaterialScreenState
                           decoration: BoxDecoration(
                             color: cs.surfaceContainerLow,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                            boxShadow: CmTokens.of(context).shadowSm,
                           ),
                           child: Row(children: [
                             Icon(Icons.link_rounded, size: 16, color: cs.primary),

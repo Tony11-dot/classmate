@@ -181,9 +181,9 @@ class MainDrawer extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       label,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight:
-                            isActive ? FontWeight.w700 : FontWeight.w500,
+                            isActive ? FontWeight.w700 : FontWeight.w600,
                         color: isActive ? tint : (danger ? tint : cs.onSurface),
                       ),
                     ),

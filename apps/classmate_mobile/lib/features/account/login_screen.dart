@@ -296,8 +296,8 @@ class _LoginCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
@@ -312,7 +312,7 @@ class _LoginCard extends StatelessWidget {
           // adaptToTheme so the mark tracks the chosen theme's accent
           // (coffee, matcha, rosé, dark, …) — matching the app-shell top bar —
           // instead of staying fixed blue on every theme.
-          Center(child: const ClassMateLogo(height: 54, adaptToTheme: true)),
+          Center(child: const ClassMateLogo(height: 64, adaptToTheme: true)),
           const SizedBox(height: 18),
           Text(
             l.loginWelcomeTitle,
@@ -410,7 +410,7 @@ class _LoginCard extends StatelessWidget {
 
           const SizedBox(height: 18),
           SizedBox(
-            height: 48,
+            height: 52,
             child: FilledButton(
               onPressed: loading ? null : onSubmit,
               style: FilledButton.styleFrom(

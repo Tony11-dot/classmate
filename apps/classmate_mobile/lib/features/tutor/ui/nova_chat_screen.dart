@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:async';
 import 'dart:io';
@@ -1530,7 +1531,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                           : m.kind.toUpperCase(),
                       style: TextStyle(
                         color: cs.onSurfaceVariant,
-                        fontSize: 10.5,
+                        fontSize: 11,
                         height: 1.2,
                       ),
                     ),
@@ -1838,7 +1839,8 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                boxShadow: CmTokens.of(context).shadowSm,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

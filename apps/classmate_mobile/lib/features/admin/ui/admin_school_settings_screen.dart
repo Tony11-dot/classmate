@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -767,7 +768,8 @@ class _SubjectSection extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: ListTile(
           dense: true,
@@ -1105,7 +1107,7 @@ class _BellTimePicker extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontSize: 10)),
+            Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontSize: 11)),
             Text(hasTime ? time : '--:--',
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: hasTime ? cs.onSurface : cs.error)),
           ],
@@ -1135,7 +1137,8 @@ class _FieldCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: child,
     );

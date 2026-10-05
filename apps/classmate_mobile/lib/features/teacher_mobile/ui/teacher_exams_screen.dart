@@ -312,7 +312,7 @@ class _ExamCard extends StatelessWidget {
                           ),
                           child: Text(
                             published ? AppLocalizations.of(context)!.teacherMaterialPublished : AppLocalizations.of(context)!.teacherMaterialDraft,
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: published ? cs.onPrimaryContainer : cs.onSurfaceVariant),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: published ? cs.onPrimaryContainer : cs.onSurfaceVariant),
                           ),
                         ),
                       ],

@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -476,7 +477,7 @@ class _SolutionReportCard extends StatelessWidget {
         case 'REMOVED':
           return cs.error;
         case 'APPROVED':
-          return Colors.green;
+          return CmTokens.of(context).good;
         default:
           return cs.tertiary;
       }

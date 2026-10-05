@@ -1,5 +1,6 @@
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -287,7 +288,8 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               decoration: BoxDecoration(
                                 color: cs.surfaceContainerLow,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                                boxShadow: CmTokens.of(context).shadowSm,
                               ),
                               alignment: Alignment.center,
                               child: Icon(
@@ -1285,7 +1287,8 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Column(
@@ -1297,7 +1300,7 @@ class _SectionCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -1336,9 +1339,9 @@ class _LiquidField extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.45), width: 0.8),
         ),
         child: Row(
           children: [
@@ -1349,7 +1352,7 @@ class _LiquidField extends StatelessWidget {
                 color: cs.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(leading, size: 20),
+              child: Icon(leading, size: 20, color: cs.onPrimaryContainer),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1376,7 +1379,7 @@ class _LiquidField extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.search_rounded),
+            Icon(Icons.search_rounded, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -1681,8 +1684,8 @@ class _ModeTile extends StatelessWidget {
               border: Border.all(
                 color: selected
                     ? accent
-                    : cs.outlineVariant,
-                width: selected ? 1.8 : 1,
+                    : cs.outlineVariant.withValues(alpha: 0.5),
+                width: selected ? 1.8 : 0.8,
               ),
             ),
             child: ClipRect(
@@ -1723,7 +1726,7 @@ class _ModeTile extends StatelessWidget {
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
                     height: 1.0,
-                    fontSize: 10.5,
+                    fontSize: 11,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -1826,7 +1829,8 @@ class _GlassToggleRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
@@ -1871,7 +1875,8 @@ class _StepperRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Column(
         children: [

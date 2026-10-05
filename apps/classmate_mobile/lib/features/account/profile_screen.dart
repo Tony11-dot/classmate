@@ -945,7 +945,7 @@ class _VerifyBadge extends StatelessWidget {
           const SizedBox(width: 3),
           Text(
             verified ? AppLocalizations.of(context)!.profileVerifiedShort : AppLocalizations.of(context)!.profileUnverified,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: fg),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: fg),
           ),
         ],
       ),

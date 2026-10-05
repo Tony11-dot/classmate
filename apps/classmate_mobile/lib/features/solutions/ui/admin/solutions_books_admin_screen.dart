@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -182,7 +183,8 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                             decoration: BoxDecoration(
                               color: cs.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                              boxShadow: CmTokens.of(context).shadowSm,
                             ),
                             child: Row(
                               children: [
@@ -443,7 +445,7 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
                                     Icon(Icons.add_a_photo_rounded, color: cs.onSecondaryContainer, size: 22),
                                     const SizedBox(height: 4),
                                     Text(l.solutionsBookCoverLabel,
-                                        style: TextStyle(fontSize: 10, color: cs.onSecondaryContainer)),
+                                        style: TextStyle(fontSize: 11, color: cs.onSecondaryContainer)),
                                   ],
                                 ),
                               ),

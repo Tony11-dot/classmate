@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -454,7 +455,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
                         color: isCorrect
-                            ? Colors.green
+                            ? CmTokens.of(context).good
                             : cs.outlineVariant,
                       ),
                     ),
@@ -480,7 +481,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                                   ? Icons.check_circle_rounded
                                   : Icons.radio_button_unchecked_rounded,
                               color: isCorrect
-                                  ? Colors.green
+                                  ? CmTokens.of(context).good
                                   : cs.outlineVariant,
                               size: 18,
                             ),
@@ -512,7 +513,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                               color: isCorrect
-                                  ? Colors.green
+                                  ? CmTokens.of(context).good
                                   : cs.onSurfaceVariant,
                             ),
                           ),
@@ -540,7 +541,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                           Text(
                             l.practiceSessionCorrectAnswer,
                             style: theme.textTheme.labelMedium?.copyWith(
-                              color: Colors.green,
+                              color: CmTokens.of(context).good,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
