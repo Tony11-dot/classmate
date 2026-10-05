@@ -157,6 +157,31 @@ export const PERMISSION_CATALOG: Capability[] = [
     configurableRoles: [Role.TEACHER],
     defaultRoles: [Role.TEACHER],
   },
+
+  // ── Schedule & announcements ─────────────────────────────────────────────
+  // schedule.edit: SECRETARY-grant (off by default). Every schedule write was
+  // ADMIN-only before, so the default preserves today's behavior exactly.
+  {
+    key: 'schedule.edit',
+    module: 'Schedule & Announcements',
+    label: 'Edit the school schedule',
+    description:
+      'Add, change and remove timetable periods, set default period times and make one-off schedule changes.',
+    configurableRoles: [Role.SECRETARY],
+    defaultRoles: [],
+  },
+  // announcements.post: toggle, ON by default for BOTH staff roles — POST
+  // /announcements already allowed SECRETARY + TEACHER, so defaulting off
+  // would silently take an existing ability away (same rule as cmail.send).
+  {
+    key: 'announcements.post',
+    module: 'Schedule & Announcements',
+    label: 'Post announcements',
+    description:
+      'Publish announcements to classes, grades or the whole school.',
+    configurableRoles: [Role.SECRETARY, Role.TEACHER],
+    defaultRoles: [Role.SECRETARY, Role.TEACHER],
+  },
 ];
 
 /** Fast lookup by key. */

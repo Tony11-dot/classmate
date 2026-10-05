@@ -11,6 +11,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role, ALL_APP_ROLES } from '../auth/roles';
 import { AnnouncementsService } from './announcements.service';
+import { RequirePermission } from '../permissions/permissions.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Roles(...ALL_APP_ROLES)
@@ -20,6 +21,7 @@ export class AnnouncementsController {
 
   @Post()
   @Roles(Role.ADMIN, Role.SECRETARY, Role.TEACHER)
+  @RequirePermission('announcements.post')
   create(
     @Req() req: any,
     @Body()

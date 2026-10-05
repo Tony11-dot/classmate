@@ -63,7 +63,8 @@ export class AdminController {
     return this.admin.getSchoolPeriodDefaults(req.user);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('schedule.edit')
   @Post('period-defaults')
   setPeriodDefaults(@Req() req: any, @Body() body: any) {
     return this.admin.setSchoolPeriodDefaults(req.user, body);
@@ -79,19 +80,22 @@ export class AdminController {
     return this.admin.listPeriods(req.user);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('schedule.edit')
   @Post('periods')
   createPeriod(@Req() req: any, @Body() body: any) {
     return this.admin.createPeriod(req.user, body);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('schedule.edit')
   @Patch('periods/:id')
   updatePeriod(@Req() req: any, @Param('id') id: string, @Body() body: any) {
     return this.admin.updatePeriod(req.user, id, body);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('schedule.edit')
   @Delete('periods/:id')
   deletePeriod(@Req() req: any, @Param('id') id: string) {
     return this.admin.deletePeriod(req.user, id);
@@ -158,7 +162,8 @@ export class AdminController {
     return this.admin.getCohortSchedule(req.user, cohortId);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('schedule.edit')
   @Post('schedule/override')
   setOverride(@Req() req: any, @Body() body: { cohortId: string; date: string; period: number }) {
     return this.admin.setScheduleOverride(req.user, body);
@@ -170,7 +175,8 @@ export class AdminController {
     return this.admin.listScheduleOverrides(req.user, { cohortId, from, to });
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
+  @RequirePermission('schedule.edit')
   @Post('schedule/override/delete')
   deleteOverride(@Req() req: any, @Body() body: { cohortId: string; date: string; period: number }) {
     return this.admin.deleteScheduleOverride(req.user, body);

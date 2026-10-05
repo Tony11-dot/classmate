@@ -39,6 +39,8 @@ export const AuthMeResponseSchema = z.object({
   // Privacy Policy/Terms, and whether the app should show the consent gate.
   consentAcceptedAt: z.string().nullable().optional(),
   consentRequired: z.boolean().optional(),
+  /** Effective capability keys for the caller (admin-managed permissions). */
+  permissions: z.array(z.string()).optional(),
 }).passthrough();
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;

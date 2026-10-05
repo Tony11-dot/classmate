@@ -26,6 +26,25 @@ export class AnnouncementsService {
     private readonly hub: NotificationsHubService,
   ) {}
 
+  /**
+   * Publishing gate: staff role (ensureCanPost) AND the admin-managed
+   * `announcements.post` capability (ADMIN/MANAGER always pass). Only CREATE
+   * uses this — "mine" (an author's history) and the audience picker stay
+   * role-based so a teacher whose posting is disabled still sees what they sent.
+   */
+  private ensureCanPublish(user: any) {
+    this.ensureCanPost(user);
+    if (hasAnyRole(user, ['ADMIN', 'MANAGER'])) return;
+    const granted: string[] = Array.isArray((user as any)?.grantedPermissions)
+      ? (user as any).grantedPermissions
+      : [];
+    if (!granted.includes('announcements.post')) {
+      throw new ForbiddenException(
+        'You do not have permission to post announcements. Ask an administrator to enable it.',
+      );
+    }
+  }
+
   private ensureCanPost(user: any) {
     const roles: string[] = user?.roles ?? [];
     if (!hasAnyRole({ roles }, ['ADMIN', 'SECRETARY', 'TEACHER'])) {
@@ -50,7 +69,7 @@ export class AnnouncementsService {
       }[];
     },
   ) {
-    this.ensureCanPost(user);
+    this.ensureCanPublish(user);
 
     const title = (body?.title ?? '').trim();
     const text = (body?.body ?? '').trim();

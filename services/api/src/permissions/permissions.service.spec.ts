@@ -123,4 +123,40 @@ describe('PermissionsService — defaults, overrides, and super-roles', () => {
     const gradesEdit = capabilities.find((c) => c.key === 'grades.edit')!;
     expect(gradesEdit.roles['TEACHER']).toEqual({ enabled: true, default: true });
   });
+
+  // ── Schedule & announcements (added 2026-10-05) ───────────────────────────
+  it('schedule.edit: OFF for secretary by default, never for teacher', async () => {
+    const svc = new PermissionsService(fakePrisma(null));
+    // Every schedule write was ADMIN-only before — the default must keep it so.
+    expect(await svc.can(secretary, 'schedule.edit')).toBe(false);
+    // Not configurable for teachers at all (no override can grant it).
+    const svc2 = new PermissionsService(
+      fakePrisma({ TEACHER: { 'schedule.edit': true } }),
+    );
+    expect(await svc2.can(teacher, 'schedule.edit')).toBe(false);
+    expect(await svc.can(admin, 'schedule.edit')).toBe(true);
+  });
+
+  it('schedule.edit can be granted to a secretary by an admin', async () => {
+    const svc = new PermissionsService(
+      fakePrisma({ SECRETARY: { 'schedule.edit': true } }),
+    );
+    expect(await svc.can(secretary, 'schedule.edit')).toBe(true);
+    expect(await svc.grantedKeysFor(secretary)).toContain('schedule.edit');
+  });
+
+  it('announcements.post: ON by default for teacher AND secretary (no regression)', async () => {
+    const svc = new PermissionsService(fakePrisma(null));
+    expect(await svc.can(teacher, 'announcements.post')).toBe(true);
+    expect(await svc.can(secretary, 'announcements.post')).toBe(true);
+  });
+
+  it('announcements.post can be switched off per role', async () => {
+    const svc = new PermissionsService(
+      fakePrisma({ TEACHER: { 'announcements.post': false } }),
+    );
+    expect(await svc.can(teacher, 'announcements.post')).toBe(false);
+    expect(await svc.can(secretary, 'announcements.post')).toBe(true);
+    expect(await svc.can(admin, 'announcements.post')).toBe(true);
+  });
 });

@@ -10,12 +10,14 @@ import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { deriveUsernameCandidate, ensureUniqueUsername } from '../common/username';
 import { CURRENT_CONSENT_VERSION } from '../common/consent';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
+    private readonly permissions: PermissionsService,
   ) {}
 
   @Public()
@@ -256,6 +258,19 @@ export class AuthController {
       } catch {}
     }
 
+    // Effective admin-managed capabilities, so the app can show controls by
+    // permission (e.g. a secretary granted schedule.edit gets the editor)
+    // instead of guessing from the role. PermissionsGuard already attached
+    // them for this request; compute as a fallback if it didn't.
+    let permissions: string[] = Array.isArray(u.grantedPermissions)
+      ? u.grantedPermissions
+      : [];
+    if (!Array.isArray(u.grantedPermissions)) {
+      try {
+        permissions = await this.permissions.grantedKeysFor(u);
+      } catch {}
+    }
+
     return require('../contracts/auth.contract').AuthMeResponseSchema.parse({
       id: u.id ?? null,
       email: u.email ?? null,
@@ -279,6 +294,7 @@ export class AuthController {
       phoneVerifiedAt,
       consentAcceptedAt,
       consentRequired,
+      permissions,
     });
   }
 

@@ -204,7 +204,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async setSchoolPeriodDefaults(user: any, body: { defaults: { period: number; startTime: string; endTime: string }[] }) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'schedule.edit', 'edit the schedule');
     const schoolId = (user as any)?.schoolId;
     if (!schoolId) throw new BadRequestException('No school associated with this admin');
     if (!Array.isArray(body?.defaults)) throw new BadRequestException('defaults[] is required');
@@ -261,7 +261,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     frequencyWeeks?: number;
     startDate?: string;
   }) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'schedule.edit', 'edit the schedule');
     const schoolId = (user as any)?.schoolId ?? null;
 
     const { dayOfWeek, period, teacherId, classroomId, cohortIds = [], studentIds = [], subject, caption, color, audienceGrade, startTime, endTime, frequencyWeeks = 1, startDate } = body ?? {} as any;
@@ -413,7 +413,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     skipForStudentIds?: string[];
     studentDateSkips?: string[];
   }) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'schedule.edit', 'edit the schedule');
     const slot = await this.prisma.scheduleSlot.findUnique({ where: { id } });
     if (!slot) throw new NotFoundException('Period not found');
 
@@ -500,7 +500,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async deletePeriod(user: any, id: string) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'schedule.edit', 'edit the schedule');
     await this.prisma.scheduleSlot.delete({ where: { id } });
     return { ok: true };
   }
@@ -764,7 +764,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
     user: any,
     body: { cohortId: string; date: string; period: number },
   ) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'schedule.edit', 'edit the schedule');
 
     const { cohortId, date, period } = body ?? ({} as any);
     if (!cohortId) throw new BadRequestException('cohortId is required');
@@ -800,7 +800,7 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   }
 
   async deleteScheduleOverride(user: any, body: { cohortId: string; date: string; period: number }) {
-    this.ensureAdmin(user);
+    this.ensureGranted(user, 'schedule.edit', 'edit the schedule');
     const { cohortId, date, period } = body ?? {} as any;
     if (!cohortId || !date) throw new BadRequestException('cohortId and date are required');
     const dt = new Date(`${date}T00:00:00.000Z`);
