@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -959,14 +960,13 @@ class _MeetingCard extends StatelessWidget {
     final courseName = _stringValue(meeting, '_courseName');
     final subject = _stringValue(meeting, '_subject');
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
+    return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1026,8 +1026,7 @@ class _MeetingCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1049,7 +1048,7 @@ class _HeroCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1088,7 +1087,7 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1199,7 +1198,7 @@ class _Chip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Text(
         label,
         maxLines: 1,
@@ -1232,7 +1231,7 @@ class _EmptyStateCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

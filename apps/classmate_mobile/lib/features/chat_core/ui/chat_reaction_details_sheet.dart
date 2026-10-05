@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -110,8 +111,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                   separatorBuilder: (_, value) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final row = rows[index];
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(18),
+                    return CmPress(
                       onTap: row.isMine
                           ? () => Navigator.of(context).pop('__remove__')
                           : null,
@@ -174,8 +174,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
                               ),
                           ],
                         ),
-                      ),
-                    );
+                      ),);
                   },
                 ),
               ),

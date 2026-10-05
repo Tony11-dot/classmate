@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/contracts/school_subject.dart';
@@ -74,7 +75,6 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
         decoration: InputDecoration(
           labelText: label,
           hintText: AppLocalizations.of(context)!.adminSubjectNameInLang(label),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixText: langCode,
         ),
       ),
@@ -111,8 +111,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
                   constraints: const BoxConstraints.tightFor(width: 36, height: 36),
                 ),
                 const SizedBox(width: 4),
-                InkWell(
-                  borderRadius: BorderRadius.circular(999),
+                CmPress(
                   onTap: () => Navigator.maybePop(context),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -134,8 +133,7 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ),
+                  ),),
               ],
             ),
             const SizedBox(height: 16),
@@ -240,8 +238,7 @@ class _SwatchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
+    return CmPress(
       onTap: onTap,
       child: Container(
         width: 32,
@@ -260,7 +257,6 @@ class _SwatchTile extends StatelessWidget {
         child: icon != null
             ? Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.85))
             : (selected ? const Icon(Icons.check_rounded, size: 18, color: Colors.white) : null),
-      ),
-    );
+      ),);
   }
 }

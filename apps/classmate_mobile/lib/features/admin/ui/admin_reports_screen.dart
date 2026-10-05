@@ -299,7 +299,7 @@ class _MessageReportCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +323,7 @@ class _MessageReportCard extends ConsumerWidget {
             decoration: BoxDecoration(
               color: cs.surface,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../core/theme/cm_tokens.dart';
 import '../../ui/glass/liquid_glass_card.dart';
+import '../../ui/widgets/cm_press.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'providers/insights_providers.dart';
 import 'providers/submissions_provider.dart';
@@ -30,8 +32,9 @@ class InsightsScreen extends ConsumerWidget {
   Color _tone(BuildContext context, double? value, double good, double ok) {
     final cs = Theme.of(context).colorScheme;
     if (value == null) return cs.onSurfaceVariant;
-    if (value >= good) return const Color(0xFF2E7D32);
-    if (value >= ok) return const Color(0xFFE08600);
+    final t = CmTokens.of(context);
+    if (value >= good) return t.good;
+    if (value >= ok) return t.warn;
     return cs.error;
   }
 
@@ -54,6 +57,7 @@ class InsightsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final tokens = CmTokens.of(context);
 
     return CmRefreshIndicator(
       onRefresh: () async {
@@ -113,9 +117,19 @@ class InsightsScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: cs.primaryContainer,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: cs.outlineVariant),
+                  borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      cs.primaryContainer,
+                      Color.alphaBlend(
+                        cs.primary.withValues(alpha: 0.14),
+                        cs.primaryContainer,
+                      ),
+                    ],
+                  ),
+                  boxShadow: tokens.shadowMd,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,6 +165,7 @@ class InsightsScreen extends ConsumerWidget {
                           child: _Metric(
                             label: l.navAttendance,
                             value: _fmtPercent(attendance),
+                            progress: attendance,
                             icon: Icons.how_to_reg_rounded,
                             color: _tone(context, attendance, 90, 80),
                           ),
@@ -160,6 +175,7 @@ class InsightsScreen extends ConsumerWidget {
                           child: _Metric(
                             label: l.insightsOnTimeSubmissions,
                             value: _fmtPercent(onTimeRate),
+                            progress: onTimeRate,
                             icon: Icons.task_alt_rounded,
                             color: _tone(context, onTimeRate, 85, 70),
                           ),
@@ -175,6 +191,7 @@ class InsightsScreen extends ConsumerWidget {
               if (submissions != null && submissions.total > 0) ...[
                 _Card(
                   title: l.insightsSubmissionsTitle,
+                  icon: Icons.assignment_turned_in_rounded,
                   trailing: Text(
                     '${submissions.submitted}/${submissions.total} ${l.insightsHandedInLabel}',
                     style: text.labelLarge?.copyWith(
@@ -189,12 +206,12 @@ class InsightsScreen extends ConsumerWidget {
                       _Pill(
                         label: l.insightsOnTime,
                         count: submissions.onTime,
-                        color: const Color(0xFF2E7D32),
+                        color: tokens.good,
                       ),
                       _Pill(
                         label: l.insightsLate,
                         count: submissions.late,
-                        color: const Color(0xFFE08600),
+                        color: tokens.warn,
                       ),
                       _Pill(
                         label: l.insightsMissing,
@@ -215,6 +232,7 @@ class InsightsScreen extends ConsumerWidget {
               // ── Grades ───────────────────────────────────────────────────
               _Card(
                 title: l.navGrades,
+                icon: Icons.grade_rounded,
                 onTap: () => context.go('/grades'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +245,7 @@ class InsightsScreen extends ConsumerWidget {
                             value: (unified.grades.bestSubject ?? '').trim().isEmpty
                                 ? '—'
                                 : unified.grades.bestSubject!.trim(),
-                            color: const Color(0xFF2E7D32),
+                            color: tokens.good,
                             icon: Icons.trending_up_rounded,
                           ),
                         ),
@@ -238,7 +256,7 @@ class InsightsScreen extends ConsumerWidget {
                             value: (unified.grades.weakestSubject ?? '').trim().isEmpty
                                 ? '—'
                                 : unified.grades.weakestSubject!.trim(),
-                            color: const Color(0xFFE08600),
+                            color: tokens.warn,
                             icon: Icons.trending_down_rounded,
                           ),
                         ),
@@ -274,6 +292,7 @@ class InsightsScreen extends ConsumerWidget {
               // ── Attendance ───────────────────────────────────────────────
               _Card(
                 title: l.navAttendance,
+                icon: Icons.how_to_reg_rounded,
                 onTap: () => context.go('/attendance'),
                 trailing: Text(
                   _fmtPercent(attendance),
@@ -289,12 +308,12 @@ class InsightsScreen extends ConsumerWidget {
                     _Pill(
                       label: l.attendanceMetricPresent,
                       count: unified.attendance.present,
-                      color: const Color(0xFF2E7D32),
+                      color: tokens.good,
                     ),
                     _Pill(
                       label: l.attendanceMetricLate,
                       count: unified.attendance.late,
-                      color: const Color(0xFFE08600),
+                      color: tokens.warn,
                     ),
                     _Pill(
                       label: l.attendanceMetricAbsent,
@@ -309,6 +328,7 @@ class InsightsScreen extends ConsumerWidget {
               // ── Practice ─────────────────────────────────────────────────
               _Card(
                 title: l.insightsPracticeTitle,
+                icon: Icons.fitness_center_rounded,
                 onTap: () => context.go('/practice'),
                 trailing: Text(
                   _fmtPercent(
@@ -374,12 +394,16 @@ class _Metric extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.color,
+    this.progress,
   });
 
   final String label;
   final String value;
   final IconData icon;
   final Color color;
+
+  /// 0–100 — draws a slim meter under the number (percent metrics only).
+  final double? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -388,13 +412,21 @@ class _Metric extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd + 2),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: color),
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 17, color: color),
+          ),
           const SizedBox(height: 8),
           Text(
             value,
@@ -409,10 +441,26 @@ class _Metric extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+            style: TextStyle(
+              color: cs.onSurfaceVariant,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          if (progress != null) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                value: (progress! / 100).clamp(0.0, 1.0),
+                minHeight: 5,
+                color: color,
+                backgroundColor: color.withValues(alpha: 0.15),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -425,24 +473,24 @@ class _Card extends StatelessWidget {
     required this.child,
     this.trailing,
     this.onTap,
+    this.icon,
   });
 
   final String title;
   final Widget child;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: EdgeInsets.zero,
-      borderRadius: BorderRadius.circular(22),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
+    return CmPress(
+      onTap: onTap,
+      child: LiquidGlassCard(
+        padding: EdgeInsets.zero,
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        color: cs.surfaceContainerLow,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -450,12 +498,24 @@ class _Card extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  if (icon != null) ...[
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                   Expanded(
                     child: Text(
                       title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -538,9 +598,8 @@ class _MiniStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant),
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,7 +611,11 @@ class _MiniStat extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                  style: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -620,11 +683,22 @@ class _GradeRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Text(
-            label != null
-                ? label!
-                : '${grade % 1 == 0 ? grade.toInt().toString() : grade.toStringAsFixed(1)} / ${maxGrade ?? 100}',
-            style: TextStyle(fontWeight: FontWeight.w900, color: color),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(99),
+            ),
+            child: Text(
+              label != null
+                  ? label!
+                  : '${grade % 1 == 0 ? grade.toInt().toString() : grade.toStringAsFixed(1)} / ${maxGrade ?? 100}',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: color,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
           ),
         ],
       ),

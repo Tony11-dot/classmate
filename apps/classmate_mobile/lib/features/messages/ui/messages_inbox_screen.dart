@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 
@@ -78,7 +79,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -115,7 +116,6 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                         decoration: InputDecoration(
                           hintText: '• • • • • • • •',
                           hintStyle: TextStyle(color: cs.onSurfaceVariant),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                           filled: true,
                           fillColor: cs.surfaceContainerHighest,
                           errorText: errorMsg,
@@ -640,8 +640,7 @@ class _InboxRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
         color: scheme.surface,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+        child: CmPress(
           onLongPress: onLongPress,
           onTap: () {
             if (isRequest) {
@@ -814,8 +813,7 @@ class _InboxRow extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ),
+          ),),
       ),
     );
   }

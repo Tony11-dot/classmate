@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -286,7 +287,7 @@ class _CenteredTabs extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         borderRadius: BorderRadius.circular(14),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: TabBar(
           controller: controller,
           isScrollable: true,
@@ -297,7 +298,7 @@ class _CenteredTabs extends StatelessWidget {
           indicator: BoxDecoration(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           labelColor: cs.onPrimaryContainer,
           unselectedLabelColor: cs.onSurfaceVariant,
@@ -365,7 +366,7 @@ class _TeacherCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       borderRadius: BorderRadius.circular(16),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -469,7 +470,7 @@ class _CenteredState extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             color: cs.surfaceContainerLow,
             border:
-                Border.all(color: cs.outlineVariant),
+                Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1319,9 +1320,8 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
             final id = (s['id'] ?? '').toString();
             return Padding(
               padding: const EdgeInsets.only(bottom: 2),
-              child: InkWell(
+              child: CmPress(
                 onTap: id.isNotEmpty ? () => context.push('/teacher/student/$id', extra: <String, dynamic>{'name': name}) : null,
-                borderRadius: BorderRadius.circular(14),
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: _panelDecoration(context),
@@ -1350,8 +1350,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
                       ),
                     ],
                   ),
-                ),
-              ),
+                ),),
             );
           }),
 
@@ -1675,7 +1674,7 @@ class _AttachmentPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.primaryContainer,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1702,7 +1701,7 @@ BoxDecoration _panelDecoration(BuildContext context) {
   return BoxDecoration(
     color: cs.surfaceContainerLow,
     borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: cs.outlineVariant),
+    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
   );
 }
 

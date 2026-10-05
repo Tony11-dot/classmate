@@ -441,7 +441,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                         child: InputDecorator(
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.teacherExamDate,
-                            border: const OutlineInputBorder(),
                             suffixIcon: const Icon(Icons.calendar_today_rounded),
                           ),
                           child: Text(
@@ -460,7 +459,6 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.teacherAssignmentMaxGrade,
-                          border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.grade_rounded),
                         ),
                       ),
@@ -505,7 +503,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             borderRadius: BorderRadius.circular(12),
                             color: cs.surfaceContainerLow,
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             child: Row(
                               children: [
                                 Icon(Icons.insert_drive_file_outlined, size: 18, color: cs.primary),
@@ -562,7 +560,7 @@ class _Card extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

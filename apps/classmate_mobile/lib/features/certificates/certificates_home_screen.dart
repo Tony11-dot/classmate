@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../ui/widgets/cm_search_field.dart';
@@ -326,13 +327,12 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
             for (final s in students)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                child: CmPress(
                   onTap: () => _openStudent(s),
                   child: LiquidGlassCard(
                     borderRadius: BorderRadius.circular(16),
                     color: cs.surfaceContainerLow,
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     child: Row(
                       children: [
                         CircleAvatar(
@@ -360,8 +360,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
                         Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
                       ],
                     ),
-                  ),
-                ),
+                  ),),
               ),
         ],
       ),
@@ -504,13 +503,12 @@ class _CertRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
+    return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
         borderRadius: BorderRadius.circular(16),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Row(
           children: [
             Expanded(
@@ -536,8 +534,7 @@ class _CertRow extends StatelessWidget {
                 size: 18, color: cs.onSurfaceVariant),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 

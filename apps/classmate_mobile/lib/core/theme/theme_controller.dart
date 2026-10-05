@@ -963,11 +963,31 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
       ? scheme.onSurface
       : ((brightness == Brightness.dark) ? Colors.white : Colors.black);
 
-  final fixedTextTheme = base.textTheme.apply(
-    bodyColor: on,
-    displayColor: on,
-    decorationColor: on,
-  );
+  // Type hierarchy (UI overhaul): bolder titles/headlines with slightly tighter
+  // tracking read as "pro" in every bundled font; body text is untouched so
+  // long-form reading stays comfortable. Sizes are unchanged (Dynamic Type safe).
+  final fixedTextTheme = base.textTheme
+      .copyWith(
+        headlineLarge: base.textTheme.headlineLarge
+            ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.6),
+        headlineMedium: base.textTheme.headlineMedium
+            ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5),
+        headlineSmall: base.textTheme.headlineSmall
+            ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
+        titleLarge: base.textTheme.titleLarge
+            ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.2),
+        titleMedium: base.textTheme.titleMedium
+            ?.copyWith(fontWeight: FontWeight.w600),
+        titleSmall: base.textTheme.titleSmall
+            ?.copyWith(fontWeight: FontWeight.w600),
+        labelLarge: base.textTheme.labelLarge
+            ?.copyWith(fontWeight: FontWeight.w600),
+      )
+      .apply(
+        bodyColor: on,
+        displayColor: on,
+        decorationColor: on,
+      );
 
   final fixedPrimaryTextTheme = base.primaryTextTheme.apply(
     bodyColor: on,
@@ -1012,10 +1032,136 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
       foregroundColor: scheme.onSurface,
       surfaceTintColor: Colors.transparent,
     ),
+    // Cards: soft layered depth instead of flat slabs. A low elevation with a
+    // faint neutral shadow lifts them on light palettes; the hairline border
+    // carries the edge on dark palettes, where shadows don't read.
     cardTheme: CardThemeData(
-      elevation: 0,
+      elevation: 1,
+      shadowColor: Colors.black.withValues(
+          alpha: brightness == Brightness.dark ? 0.0 : 0.10),
+      surfaceTintColor: Colors.transparent,
+      color: scheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(s.radius),
+        side: BorderSide(
+          color: scheme.outlineVariant.withValues(
+              alpha: brightness == Brightness.dark ? 0.45 : 0.30),
+          width: 0.8,
+        ),
+      ),
+    ),
+    // Sheets: generous top radius, theme surface, a quiet grabber.
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: scheme.surfaceContainerLow,
+      modalBackgroundColor: scheme.surfaceContainerLow,
+      surfaceTintColor: Colors.transparent,
+      dragHandleColor: scheme.onSurfaceVariant.withValues(alpha: 0.35),
+      dragHandleSize: const Size(40, 4.5),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      clipBehavior: Clip.antiAlias,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: scheme.surfaceContainerHigh,
+      surfaceTintColor: Colors.transparent,
+      elevation: 6,
+      shadowColor: Colors.black.withValues(alpha: 0.25),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      titleTextStyle: fixedTextTheme.titleLarge,
+      contentTextStyle:
+          fixedTextTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+    ),
+    // Toasts float as rounded pills above the content (and the tab bar).
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: scheme.inverseSurface,
+      contentTextStyle: TextStyle(
+        color: scheme.onInverseSurface,
+        fontWeight: FontWeight.w600,
+        fontFamily: s.font.family,
+      ),
+      actionTextColor: scheme.inversePrimary,
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      elevation: 3,
+      focusElevation: 4,
+      hoverElevation: 4,
+      highlightElevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      extendedTextStyle: TextStyle(
+        fontWeight: FontWeight.w700,
+        fontFamily: s.font.family,
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      shape: const StadiumBorder(),
+      side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+      labelStyle: TextStyle(fontWeight: FontWeight.w600, color: on),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        shape: const WidgetStatePropertyAll(StadiumBorder()),
+        textStyle: WidgetStatePropertyAll(TextStyle(
+          fontWeight: FontWeight.w600,
+          fontFamily: s.font.family,
+        )),
+        side: WidgetStatePropertyAll(
+          BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelStyle: TextStyle(
+        fontWeight: FontWeight.w700,
+        fontFamily: s.font.family,
+      ),
+      unselectedLabelStyle: TextStyle(
+        fontWeight: FontWeight.w500,
+        fontFamily: s.font.family,
+      ),
+      indicator: UnderlineTabIndicator(
+        borderSide: BorderSide(color: scheme.primary, width: 3),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+      ),
+      dividerColor: scheme.outlineVariant.withValues(alpha: 0.4),
+    ),
+    dividerTheme: DividerThemeData(
+      color: scheme.outlineVariant.withValues(alpha: 0.5),
+      thickness: 0.8,
+    ),
+    expansionTileTheme: const ExpansionTileThemeData(
+      // No hard top/bottom rules when a tile opens — the card edge frames it.
+      shape: RoundedRectangleBorder(side: BorderSide.none),
+      collapsedShape: RoundedRectangleBorder(side: BorderSide.none),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: scheme.inverseSurface,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      textStyle: TextStyle(
+        color: scheme.onInverseSurface,
+        fontWeight: FontWeight.w600,
+        fontFamily: s.font.family,
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(s.radius),
+        ),
+        textStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontFamily: s.font.family,
+        ),
       ),
     ),
     listTileTheme: ListTileThemeData(
@@ -1032,6 +1178,10 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
           borderRadius: BorderRadius.circular(s.radius),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        textStyle: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontFamily: s.font.family,
+        ),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -1078,26 +1228,38 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
         )),
       ),
     ),
+    // Fields: softly filled (a neutral on-surface wash, so it reads on any
+    // palette and on cards/sheets alike) with a quiet edge that turns primary
+    // on focus — the same language as CmSearchField. Borderless inline fields
+    // (composer, note editor, …) opt out with `filled: false`.
     inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: scheme.onSurface.withValues(alpha: 0.045),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(16),
+        borderSide:
+            BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.7)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: scheme.primary, width: 2),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: scheme.primary, width: 1.8),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: scheme.error),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: scheme.error, width: 2),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: scheme.error, width: 1.8),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide:
+            BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),

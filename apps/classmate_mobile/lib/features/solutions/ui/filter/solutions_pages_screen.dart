@@ -96,7 +96,7 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [

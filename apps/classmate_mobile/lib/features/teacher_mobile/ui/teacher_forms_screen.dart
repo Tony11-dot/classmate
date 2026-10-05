@@ -206,7 +206,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                     return false; // We refresh manually
                   },
                   child: LiquidGlassCard(
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

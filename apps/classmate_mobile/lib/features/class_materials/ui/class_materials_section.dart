@@ -153,7 +153,6 @@ class _ClassMaterialsSectionState extends ConsumerState<ClassMaterialsSection> {
                 decoration: InputDecoration(
                   labelText: l.classMaterialsTitleLabel,
                   hintText: l.classMaterialsTitleHint,
-                  border: const OutlineInputBorder(),
                 ),
                 onSubmitted: (v) => Navigator.of(ctx).pop(v.trim()),
               ),

@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -1649,7 +1650,6 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.reportReasonOptional,
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ],
@@ -1891,8 +1891,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                     ? p.text.trim()
                     : _kindToString(p.kind).toLowerCase())
                 .replaceAll('\n', ' ');
-            return InkWell(
-              borderRadius: BorderRadius.circular(999),
+            return CmPress(
               onTap: () => _jumpToMessage(p.id),
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 220),
@@ -1932,8 +1931,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                     ),
                   ],
                 ),
-              ),
-            );
+              ),);
           }).toList(),
         ),
       ),
@@ -1996,9 +1994,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                 Positioned(
                   top: -6,
                   right: -6,
-                  child: InkWell(
+                  child: CmPress(
                     onTap: () => _removeDraftAttachment(index),
-                    borderRadius: BorderRadius.circular(999),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
@@ -2014,8 +2011,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                       child: Icon(Icons.close_rounded,
                           size: 14,
                           color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  ),
+                    ),),
                 ),
               ],
             );

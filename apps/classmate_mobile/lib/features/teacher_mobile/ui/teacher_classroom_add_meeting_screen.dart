@@ -215,7 +215,6 @@ class _TeacherClassroomAddMeetingScreenState
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherMeetingTitleField,
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -226,7 +225,6 @@ class _TeacherClassroomAddMeetingScreenState
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherMeetingLinkField,
                       hintText: AppLocalizations.of(context)!.teacherMeetingLinkHint,
-                      border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.videocam_outlined),
                     ),
                   ),
@@ -274,7 +272,6 @@ class _TeacherClassroomAddMeetingScreenState
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingStartDateRequired,
-                              border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.calendar_today_rounded),
                             ),
                             child: Text(
@@ -300,7 +297,6 @@ class _TeacherClassroomAddMeetingScreenState
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingStartTimeRequired,
-                              border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.access_time_rounded),
                             ),
                             child: Text(
@@ -331,7 +327,6 @@ class _TeacherClassroomAddMeetingScreenState
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingEndDateOptional,
-                              border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.calendar_today_outlined),
                             ),
                             child: Text(
@@ -357,7 +352,6 @@ class _TeacherClassroomAddMeetingScreenState
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingEndTimeOptional,
-                              border: const OutlineInputBorder(),
                               prefixIcon:
                                   const Icon(Icons.access_time_outlined),
                               suffixIcon: _endTime != null

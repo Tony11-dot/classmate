@@ -178,7 +178,7 @@ class _TeacherStudentProfileScreenState
                                   padding: const EdgeInsets.all(16),
                                   borderRadius: BorderRadius.circular(20),
                                   color: cs.surfaceContainerLow,
-                                  border: Border.all(color: cs.outlineVariant),
+                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -221,7 +221,7 @@ class _TeacherStudentProfileScreenState
                                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                       borderRadius: BorderRadius.circular(16),
                                       color: cs.surfaceContainerLow,
-                                      border: Border.all(color: cs.outlineVariant),
+                                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                       child: Row(
                                         children: [
                                           Expanded(
@@ -257,7 +257,7 @@ class _TeacherStudentProfileScreenState
                                   padding: const EdgeInsets.all(16),
                                   borderRadius: BorderRadius.circular(16),
                                   color: cs.surfaceContainerLow,
-                                  border: Border.all(color: cs.outlineVariant),
+                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                   child: Row(
                                     children: [
                                       Icon(Icons.grade_outlined, color: cs.onSurfaceVariant),
@@ -292,7 +292,7 @@ class _SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(16),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -351,7 +351,7 @@ class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

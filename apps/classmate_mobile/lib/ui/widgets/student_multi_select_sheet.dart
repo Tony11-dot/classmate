@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import 'cm_search_field.dart';
@@ -121,8 +122,7 @@ Future<Set<String>?> showStudentMultiSelectSheet({
                   itemBuilder: (_, i) {
                     final it = visible[i];
                     final on = selected.contains(it.id);
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(16),
+                    return CmPress(
                       onTap: () => setSheet(() {
                         if (on) {
                           selected.remove(it.id);
@@ -159,8 +159,7 @@ Future<Set<String>?> showStudentMultiSelectSheet({
                             color: on ? cs.primary : cs.outlineVariant,
                           ),
                         ]),
-                      ),
-                    );
+                      ),);
                   },
                 ),
               ),

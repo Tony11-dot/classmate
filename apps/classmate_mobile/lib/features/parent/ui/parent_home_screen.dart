@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_session.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_press.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/parent_models.dart';
@@ -38,19 +40,45 @@ class ParentHomeScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           children: [
             const SizedBox(height: 4),
-            Text(
-              l.parentHomeGreeting(greetingName),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(
-              session.schoolName.isNotEmpty
-                  ? '${l.roleParent} · ${session.schoolName}'
-                  : l.roleParent,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-              ),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: cs.primaryContainer,
+                  foregroundColor: cs.onPrimaryContainer,
+                  child: Text(
+                    greetingName.characters.isEmpty
+                        ? '?'
+                        : greetingName.characters.first.toUpperCase(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.parentHomeGreeting(greetingName),
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        session.schoolName.isNotEmpty
+                            ? '${l.roleParent} · ${session.schoolName}'
+                            : l.roleParent,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 18),
 
@@ -71,7 +99,7 @@ class ParentHomeScreen extends ConsumerWidget {
 
             Text(
               l.parentYourTools,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -98,7 +126,8 @@ class _ChildrenSection extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
         ),
         child: Row(
           children: [
@@ -194,7 +223,7 @@ class _ToolsGrid extends ConsumerWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 2.1,
+        childAspectRatio: 1.75,
       ),
       itemCount: tiles.length,
       itemBuilder: (ctx, i) {
@@ -235,30 +264,52 @@ class _ToolTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final enabled = onTap != null;
-    return InkWell(
+    final tokens = CmTokens.of(context);
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Ink(
-        decoration: BoxDecoration(
-          color: enabled ? cs.primaryContainer : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      child: AnimatedOpacity(
+        duration: CmTokens.fast,
+        opacity: enabled ? 1 : 0.6,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: 0.35),
+              width: 0.8,
+            ),
+            boxShadow: enabled ? tokens.shadowSm : null,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 26, color: enabled ? cs.onPrimaryContainer : cs.onSurfaceVariant),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: enabled ? cs.primaryContainer : cs.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                ),
+                child: Icon(
+                  icon,
+                  size: 22,
+                  color: enabled ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                ),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: enabled ? cs.onPrimaryContainer : cs.onSurface,
+                      fontSize: 15,
+                      color: cs.onSurface,
                     ),
                   ),
                   if (disabledNote != null)
@@ -266,7 +317,9 @@ class _ToolTile extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         disabledNote!,
-                        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                       ),
                     ),
                 ],
@@ -291,7 +344,7 @@ class _ErrorTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cs.errorContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
       ),
       child: Row(
         children: [

@@ -223,7 +223,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
           decoration: BoxDecoration(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -341,7 +341,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                       // Summary banner
                       LiquidGlassCard(
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: cs.outlineVariant),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                         child: Row(
                           children: [
                             Expanded(

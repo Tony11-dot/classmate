@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../ui/widgets/cm_search_field.dart';
@@ -209,7 +210,7 @@ class _AudienceSectionState extends State<AudienceSection> {
             decoration: BoxDecoration(
               color: cs.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
@@ -264,9 +265,8 @@ class _AudienceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasValue = summary != null;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
@@ -283,8 +283,7 @@ class _AudienceRow extends StatelessWidget {
           const SizedBox(width: 4),
           Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
         ]),
-      ),
-    );
+      ),);
   }
 }
 

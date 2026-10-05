@@ -595,7 +595,6 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
                       decoration: InputDecoration(
                         labelText: l.adminSchoolSemesterN('${i + 1}'),
                         suffixText: '%',
-                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -649,7 +648,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,7 +685,6 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
                                 decoration: InputDecoration(
                                   labelText: l.adminSchoolSemesterN('${s + 1}'),
                                   isDense: true,
-                                  border: const OutlineInputBorder(),
                                 ),
                               ),
                             ),

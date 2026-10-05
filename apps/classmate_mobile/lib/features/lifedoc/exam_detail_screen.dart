@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
@@ -295,7 +296,7 @@ class _ExamDetailBody extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         color: cs.surfaceContainerHigh,
                         padding: EdgeInsets.zero,
-                        border: Border.all(color: cs.outlineVariant),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                         child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
                       ),
                     ),
@@ -318,7 +319,7 @@ class _ExamDetailBody extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             borderRadius: BorderRadius.circular(26),
             color: heroBg,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(
               children: [
                 Expanded(
@@ -571,7 +572,7 @@ class _Section extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -645,15 +646,14 @@ class _MaterialPill extends StatelessWidget {
     final hasUrl = (material.url ?? '').trim().isNotEmpty;
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
+      child: CmPress(
         onTap: hasUrl ? () => _open(context) : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: cs.secondaryContainer,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -681,8 +681,7 @@ class _MaterialPill extends StatelessWidget {
               ],
             ],
           ),
-        ),
-      ),
+        ),),
     );
   }
 }

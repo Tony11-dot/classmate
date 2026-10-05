@@ -163,7 +163,7 @@ class _TeacherClassroomAnalyticsScreenState
                                       padding: const EdgeInsets.all(16),
                                       borderRadius: BorderRadius.circular(20),
                                       color: cs.surfaceContainerLow,
-                                      border: Border.all(color: cs.outlineVariant),
+                                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -233,7 +233,7 @@ class _TeacherClassroomAnalyticsScreenState
                                   padding: const EdgeInsets.all(16),
                                   borderRadius: BorderRadius.circular(16),
                                   color: cs.surfaceContainerLow,
-                                  border: Border.all(color: cs.outlineVariant),
+                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                   child: Row(children: [
                                     Icon(Icons.bar_chart_rounded, color: cs.onSurfaceVariant),
                                     const SizedBox(width: 12),
@@ -266,7 +266,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(16),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

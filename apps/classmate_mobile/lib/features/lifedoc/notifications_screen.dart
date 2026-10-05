@@ -195,7 +195,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   padding: const EdgeInsets.all(18),
                   borderRadius: BorderRadius.circular(26),
                   color: cs.primaryContainer,
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -254,7 +254,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     padding: const EdgeInsets.all(16),
                     borderRadius: BorderRadius.circular(24),
 
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -360,7 +360,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                 padding: EdgeInsets.zero,
                                 borderRadius: BorderRadius.circular(20),
                                 color: _tone(context, item.severity),
-                                border: Border.all(color: cs.outlineVariant),
+                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
@@ -385,7 +385,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                             decoration: BoxDecoration(
                                               color: cs.surfaceContainerLow,
                                               shape: BoxShape.circle,
-                                              border: Border.all(color: cs.outlineVariant),
+                                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                             ),
                                             child: Center(child: Icon(_iconFor(item.source), size: 20)),
                                           ),
@@ -470,7 +470,7 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -701,7 +701,7 @@ class _NotificationDetailBody extends ConsumerWidget {
           child: LiquidGlassCard(
             borderRadius: BorderRadius.circular(999),
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Icon(_iconFor(freshItem.source), size: 28),
           ),
         ),
@@ -731,7 +731,7 @@ class _NotificationDetailBody extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           borderRadius: BorderRadius.circular(22),
           color: cs.surfaceContainerLow,
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Text(
             freshItem.body,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.55),
@@ -775,7 +775,7 @@ class _MetaPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Text(
         label,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
@@ -798,7 +798,7 @@ class _EmptyBody extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Text(
         message,
         style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),

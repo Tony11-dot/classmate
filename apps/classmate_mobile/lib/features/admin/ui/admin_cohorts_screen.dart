@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -243,7 +244,6 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: '${AppLocalizations.of(context)!.adminCohortName} *',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
             ),
             const SizedBox(height: 16),
@@ -666,9 +666,8 @@ class _CohortCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -712,8 +711,7 @@ class _CohortCard extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -919,7 +917,6 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
                   controller: nameCtrl,
                   decoration: InputDecoration(
                     labelText: l.adminCohortName,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
                 const SizedBox(height: 16),

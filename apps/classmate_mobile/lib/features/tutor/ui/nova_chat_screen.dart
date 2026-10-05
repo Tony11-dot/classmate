@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -1491,7 +1492,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
           padding: const EdgeInsets.all(10),
             borderRadius: BorderRadius.circular(13),
             color: accent,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1761,7 +1762,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
         borderRadius: BorderRadius.circular(12),
         color: cs.surfaceContainerHigh,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1837,7 +1838,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -2220,14 +2221,13 @@ class _AssistantActionChip extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
+    return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         borderRadius: BorderRadius.circular(999),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -2242,8 +2242,7 @@ class _AssistantActionChip extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -2314,8 +2313,7 @@ class _PromptSuggestionChip extends StatelessWidget {
     final cleanLabel = label.replaceAll(RegExp(r'\s+'), ' ').trim();
     final isDisabled = onTap == null;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
+    return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
         padding: const EdgeInsets.fromLTRB(10, 8, 12, 8),
@@ -2350,8 +2348,7 @@ class _PromptSuggestionChip extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 

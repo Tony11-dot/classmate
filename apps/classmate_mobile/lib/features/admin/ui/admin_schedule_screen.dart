@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -1697,7 +1698,6 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                 hintText: l.adminScheduleCaptionHint,
                 counterText: '',
                 isDense: true,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onChanged: (_) => setState(() {}),
             ),
@@ -1850,7 +1850,6 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         isDense: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                       ),
                     ),
@@ -3568,8 +3567,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+      child: CmPress(
         onTap: widget.readOnly ? null : widget.onTap,
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
@@ -3856,8 +3854,7 @@ class _MiniSwatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(7),
+    return CmPress(
       onTap: onTap,
       child: Container(
         width: 26,
@@ -3873,8 +3870,7 @@ class _MiniSwatch extends StatelessWidget {
         child: icon != null
             ? Icon(icon, size: 13, color: Colors.white.withValues(alpha: 0.9))
             : (selected ? const Icon(Icons.check_rounded, size: 15, color: Colors.white) : null),
-      ),
-    );
+      ),);
   }
 }
 
@@ -3935,8 +3931,7 @@ class _SubjectPickerField extends StatelessWidget {
     final theme = Theme.of(context);
     final hasValue = (value ?? '').trim().isNotEmpty;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
+    return CmPress(
       onTap: () => _openPicker(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -3971,8 +3966,7 @@ class _SubjectPickerField extends StatelessWidget {
               Icon(Icons.keyboard_arrow_down_rounded, color: cs.onSurfaceVariant),
           ],
         ),
-      ),
-    );
+      ),);
   }
 
   Future<void> _openPicker(BuildContext context) async {
@@ -4142,8 +4136,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                     itemBuilder: (lctx, i) {
                       final s = filtered[i];
                       final selected = widget.currentValue == s.nameEn;
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(12),
+                      return CmPress(
                         onTap: () => Navigator.pop(context, s.nameEn),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -4194,8 +4187,7 @@ class _SubjectPickerSheetState extends State<_SubjectPickerSheet> {
                               if (selected) Icon(Icons.check_circle_rounded, size: 18, color: cs.primary),
                             ],
                           ),
-                        ),
-                      );
+                        ),);
                     },
                   );
                 },

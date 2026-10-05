@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -145,7 +146,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
             padding: const EdgeInsets.all(18),
             borderRadius: BorderRadius.circular(26),
             color: cs.primaryContainer,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -175,7 +176,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: cs.primaryContainer,
+                        color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(Icons.insights_rounded, size: 26, color: cs.onPrimaryContainer),
@@ -187,9 +188,9 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: cs.primaryContainer,
+                      color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -242,7 +243,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
               padding: const EdgeInsets.all(24),
               borderRadius: BorderRadius.circular(20),
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Column(
                 children: [
                   Icon(Icons.person_search_rounded, size: 40, color: cs.onSurfaceVariant),
@@ -261,17 +262,16 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                 final initials = _initials(student.name);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: InkWell(
+                  child: CmPress(
                     onTap: () => context.push(
                       '/teacher/student/${student.studentId}',
                       extra: <String, dynamic>{'name': student.name},
                     ),
-                    borderRadius: BorderRadius.circular(18),
                     child: LiquidGlassCard(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       borderRadius: BorderRadius.circular(18),
                       color: cs.surfaceContainerLow,
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                       child: Row(
                         children: [
                           // Avatar
@@ -313,8 +313,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                           Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
                         ],
                       ),
-                    ),
-                  ),
+                    ),),
                 );
               }).toList(),
             ),

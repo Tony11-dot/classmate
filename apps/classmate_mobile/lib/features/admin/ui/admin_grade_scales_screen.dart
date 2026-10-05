@@ -311,7 +311,6 @@ class _GradeScaleEditorSheetState extends ConsumerState<_GradeScaleEditorSheet> 
                     decoration: InputDecoration(
                       labelText: l.gradeScaleNameLabel,
                       hintText: l.gradeScaleNameHint,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -349,7 +348,6 @@ class _GradeScaleEditorSheetState extends ConsumerState<_GradeScaleEditorSheet> 
                             decoration: InputDecoration(
                               labelText: l.gradeScaleLabelText,
                               isDense: true,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                           ),
                         ),
@@ -362,7 +360,6 @@ class _GradeScaleEditorSheetState extends ConsumerState<_GradeScaleEditorSheet> 
                             decoration: InputDecoration(
                               labelText: l.gradeScaleLabelValue,
                               isDense: true,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                           ),
                         ),

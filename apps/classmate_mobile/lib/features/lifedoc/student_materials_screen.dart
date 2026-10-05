@@ -84,7 +84,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
                 // Hero banner
                 LiquidGlassCard(
                   borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Row(children: [
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
@@ -124,7 +124,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
               // Hero banner
               LiquidGlassCard(
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                 child: Row(children: [
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
@@ -256,7 +256,7 @@ class _MaterialCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -240,7 +240,7 @@ class _TeacherAssignmentsScreenState
                       extra: title,
                     ).then((_) => _load()),
                     child: LiquidGlassCard(
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

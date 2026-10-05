@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -953,8 +954,7 @@ class _PickerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
+    return CmPress(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -998,8 +998,7 @@ class _PickerRow extends StatelessWidget {
                 ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 

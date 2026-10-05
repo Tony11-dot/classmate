@@ -182,7 +182,7 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                             decoration: BoxDecoration(
                               color: cs.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: cs.outlineVariant),
+                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             ),
                             child: Row(
                               children: [
@@ -459,7 +459,6 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
                       textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
                         labelText: l.solutionsBookTitleHint,
-                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -468,7 +467,6 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: l.commonNumberOfPages,
-                        border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.format_list_numbered_rounded),
                       ),
                     ),
@@ -484,7 +482,7 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

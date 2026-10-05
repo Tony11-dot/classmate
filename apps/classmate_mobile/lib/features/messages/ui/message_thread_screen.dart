@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -791,7 +792,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
                   decoration: BoxDecoration(
                     color: cs.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     children: [
@@ -938,9 +939,8 @@ class _ActionPill extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tint = color ?? (active ? cs.primary : cs.onSurfaceVariant);
     final bg = active ? cs.primaryContainer : cs.surfaceContainerHighest;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
@@ -958,8 +958,7 @@ class _ActionPill extends StatelessWidget {
             Text(label, style: TextStyle(color: tint, fontWeight: FontWeight.w700, fontSize: 11)),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1204,7 +1203,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                                               key: const ValueKey('empty'),
                                               width: 28, height: 28,
                                               decoration: BoxDecoration(
-                                                border: Border.all(color: cs.outlineVariant),
+                                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                                 shape: BoxShape.circle,
                                               ),
                                             ),

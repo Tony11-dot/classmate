@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -446,7 +447,7 @@ class _TeacherNewAnnouncementScreenState
             borderRadius: BorderRadius.circular(20),
             color: cs.surfaceContainerLow,
             border:
-                Border.all(color: cs.outlineVariant),
+                Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -529,7 +530,7 @@ class _TeacherNewAnnouncementScreenState
             borderRadius: BorderRadius.circular(20),
             color: cs.surfaceContainerLow,
             border:
-                Border.all(color: cs.outlineVariant),
+                Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -702,7 +703,7 @@ class _TeacherNewAnnouncementScreenState
                     decoration: BoxDecoration(
                       color: cs.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1344,15 +1345,14 @@ class _PickerTrigger extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -1374,8 +1374,7 @@ class _PickerTrigger extends StatelessWidget {
                 color: cs.onSurfaceVariant, size: 20),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1393,7 +1392,7 @@ class _MiniChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

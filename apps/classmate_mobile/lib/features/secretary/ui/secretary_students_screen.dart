@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -380,9 +381,8 @@ class _CohortCard extends StatelessWidget {
         ? cs.onSurfaceVariant
         : rate >= 90 ? Colors.green : rate >= 75 ? Colors.orange : cs.error;
 
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -448,8 +448,7 @@ class _CohortCard extends StatelessWidget {
             const Icon(Icons.chevron_right_rounded, size: 18),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -572,9 +571,8 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
               final initials = _initials(s.name);
               // The card itself shows only name + grade per the spec —
               // anything more lives behind the tap.
-              return InkWell(
+              return CmPress(
                 onTap: () => _openStudentDetail(ctx, ref, s.id, s.name),
-                borderRadius: BorderRadius.circular(14),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -620,8 +618,7 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
                       const Icon(Icons.chevron_right_rounded, size: 18),
                     ],
                   ),
-                ),
-              );
+                ),);
             },
           );
         },

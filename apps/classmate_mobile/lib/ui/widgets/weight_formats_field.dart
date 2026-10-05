@@ -92,7 +92,6 @@ class _WeightFormatsFieldState extends State<WeightFormatsField> {
                       // Single, clear '%' via the suffix — dropped the redundant
                       // leading % icon that made the form read "% everywhere".
                       suffixText: '%',
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),

@@ -244,7 +244,6 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
           labelText: req ? '$label *' : label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
             child: Text(label.split(' ').last, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
@@ -316,7 +315,6 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     decoration: InputDecoration(
                       labelText: l.adminEditUserUsernameLabel,
                       prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -327,7 +325,6 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     decoration: InputDecoration(
                       labelText: l.adminEditUserEmailOptional,
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -344,7 +341,6 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                     decoration: InputDecoration(
                       labelText: l.adminEditUserNationalId,
                       prefixIcon: const Icon(Icons.badge_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 8),

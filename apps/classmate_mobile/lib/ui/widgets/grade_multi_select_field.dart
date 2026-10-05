@@ -77,7 +77,7 @@ class _GradeMultiSelectFieldState extends State<GradeMultiSelectField> {
               cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
             ],
           ),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [

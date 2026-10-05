@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 
@@ -185,13 +186,12 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
                     children: [
                       // New Group option
-                      InkWell(
+                      CmPress(
                         onTap: _creating ? null : () => _openGroupFlow(people),
-                        borderRadius: BorderRadius.circular(18),
                         child: LiquidGlassCard(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: cs.outlineVariant),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                           child: Row(
                             children: [
                               Container(
@@ -213,8 +213,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                               Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
                             ],
                           ),
-                        ),
-                      ),
+                        ),),
                       const SizedBox(height: 16),
 
                       if (filtered.isEmpty)
@@ -241,14 +240,13 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: InkWell(
+                            child: CmPress(
                               onTap: () => _startDm(person),
-                              borderRadius: BorderRadius.circular(18),
                               child: LiquidGlassCard(
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                 borderRadius: BorderRadius.circular(18),
                                 color: cs.surfaceContainerLow,
-                                border: Border.all(color: cs.outlineVariant),
+                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                 child: Row(
                                   children: [
                                     // Avatar — previously had no background
@@ -299,8 +297,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                       Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant),
                                   ],
                                 ),
-                              ),
-                            ),
+                              ),),
                           );
                         }),
                       ],

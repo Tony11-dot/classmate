@@ -282,7 +282,7 @@ class _TeacherAssignmentDetailScreenState
                               padding: const EdgeInsets.all(16),
                               borderRadius: BorderRadius.circular(20),
                               color: cs.surfaceContainerLow,
-                              border: Border.all(color: cs.outlineVariant),
+                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -335,7 +335,7 @@ class _TeacherAssignmentDetailScreenState
                                       decoration: BoxDecoration(
                                         color: cs.surfaceContainerHigh,
                                         borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: cs.outlineVariant),
+                                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                       ),
                                       child: Text(note, style: theme.textTheme.bodySmall),
                                     ),
@@ -431,7 +431,6 @@ class _TeacherAssignmentDetailScreenState
                                           textAlign: TextAlign.center,
                                           decoration: InputDecoration(
                                             labelText: AppLocalizations.of(context)!.teacherGradeFieldLabel,
-                                            border: const OutlineInputBorder(),
                                             isDense: true,
                                           ),
                                         ),
@@ -442,7 +441,6 @@ class _TeacherAssignmentDetailScreenState
                                           controller: _feedbackControllers[sid],
                                           decoration: InputDecoration(
                                             labelText: AppLocalizations.of(context)!.teacherFeedbackOptionalLabel,
-                                            border: const OutlineInputBorder(),
                                             isDense: true,
                                           ),
                                           maxLines: 2,

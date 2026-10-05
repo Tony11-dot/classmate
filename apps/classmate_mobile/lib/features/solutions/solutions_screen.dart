@@ -59,7 +59,7 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     decoration: BoxDecoration(
                       color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(26),
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -414,8 +415,7 @@ class ChatMessageBubble extends StatelessWidget {
               const SizedBox(height: 9),
               SizedBox(
                 width: double.infinity,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
+                child: CmPress(
                   onTap: () => onViewPublished!(
                       publish.type, publish.id, publish.title),
                   child: Container(
@@ -436,8 +436,7 @@ class ChatMessageBubble extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
-                ),
+                  ),),
               ),
             ],
             const SizedBox(height: 5),
@@ -693,9 +692,8 @@ class ChatMessageBubble extends StatelessWidget {
               final users = entry.value;
               if (emoji.isEmpty || users.isEmpty) return const SizedBox.shrink();
               final isMineReaction = users.contains('me');
-              return InkWell(
+              return CmPress(
                 onTap: onReactionTap,
-                borderRadius: BorderRadius.circular(999),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -717,14 +715,12 @@ class ChatMessageBubble extends StatelessWidget {
                       Text(users.length.toString(), style: const TextStyle(fontSize: 11)),
                     ],
                   ),
-                ),
-              );
+                ),);
             }).toList(),
           ),
         ] else if ((reaction ?? '').trim().isNotEmpty) ...[
           const SizedBox(height: 3),
-          InkWell(
-            borderRadius: BorderRadius.circular(999),
+          CmPress(
             onTap: onReactionTap,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -734,8 +730,7 @@ class ChatMessageBubble extends StatelessWidget {
                 border: Border.all(color: Colors.white),
               ),
               child: Text(reaction!.trim(), style: const TextStyle(fontSize: 12)),
-            ),
-          ),
+            ),),
         ],
       ];
 
@@ -1223,9 +1218,8 @@ class ChatMessageBubble extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 final isMineReaction = users.contains('me');
-                return InkWell(
+                return CmPress(
                   onTap: onReactionTap,
-                  borderRadius: BorderRadius.circular(999),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -1256,14 +1250,12 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                );
+                  ),);
               }).toList(),
             ),
           ] else if ((reaction ?? '').trim().isNotEmpty) ...[
             const SizedBox(height: 3),
-            InkWell(
-              borderRadius: BorderRadius.circular(999),
+            CmPress(
               onTap: onReactionTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -1276,8 +1268,7 @@ class ChatMessageBubble extends StatelessWidget {
                   reaction!.trim(),
                   style: const TextStyle(fontSize: 12),
                 ),
-              ),
-            ),
+              ),),
           ],
         ],
       ),

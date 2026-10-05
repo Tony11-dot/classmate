@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -111,7 +112,7 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
           LiquidGlassCard(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(l.navMeetings, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
@@ -120,7 +121,7 @@ class _TeacherMeetingsScreenState extends ConsumerState<TeacherMeetingsScreen> {
                   style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
               ])),
               Container(width: 46, height: 46,
-                decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
+                decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(14)),
                 child: Icon(Icons.video_call_rounded, size: 24, color: cs.onPrimaryContainer)),
             ]),
           ),
@@ -200,7 +201,7 @@ class _MeetingCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: LiquidGlassCard(
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(width: 44, height: 44,
             decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
@@ -229,7 +230,7 @@ class _MeetingCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: cs.primaryContainer,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: cs.outlineVariant)),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5))),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.video_call_rounded, size: 14, color: cs.onPrimaryContainer),
                     const SizedBox(width: 6),
@@ -653,7 +654,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                   const SizedBox(height: 12),
                   TextField(
                     controller: _linkCtrl,
-                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMeetingLinkField, prefixIcon: const Icon(Icons.link_rounded), border: const OutlineInputBorder(), hintText: 'https://meet.google.com/...')),
+                    decoration: InputDecoration(labelText: AppLocalizations.of(context)!.teacherMeetingLinkField, prefixIcon: const Icon(Icons.link_rounded), hintText: 'https://meet.google.com/...')),
                   const SizedBox(height: 12),
                   // Start time
                   InkWell(
@@ -661,8 +662,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     onTap: () => _pickDateTime(isStart: true),
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.teacherMeetingStartTime, border: const OutlineInputBorder(),
-                        suffixIcon: _startsAt != null ? IconButton(tooltip: AppLocalizations.of(context)!.a11yClear, icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
+                        labelText: AppLocalizations.of(context)!.teacherMeetingStartTime,                         suffixIcon: _startsAt != null ? IconButton(tooltip: AppLocalizations.of(context)!.a11yClear, icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _startsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
                         _startsAt != null ? FriendlyDate.dateTime(_startsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickStartTime,
                         style: TextStyle(color: _startsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
@@ -672,8 +672,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
                     onTap: () => _pickDateTime(isStart: false),
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.teacherMeetingEndTime, border: const OutlineInputBorder(),
-                        suffixIcon: _endsAt != null ? IconButton(tooltip: AppLocalizations.of(context)!.a11yClear, icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
+                        labelText: AppLocalizations.of(context)!.teacherMeetingEndTime,                         suffixIcon: _endsAt != null ? IconButton(tooltip: AppLocalizations.of(context)!.a11yClear, icon: const Icon(Icons.clear_rounded, size: 18), onPressed: () => setState(() => _endsAt = null)) : const Icon(Icons.schedule_rounded)),
                       child: Text(
                         _endsAt != null ? FriendlyDate.dateTime(_endsAt!) : AppLocalizations.of(context)!.teacherMeetingsScreenPickEndTime,
                         style: TextStyle(color: _endsAt != null ? cs.onSurface : cs.onSurfaceVariant)))),
@@ -693,7 +692,7 @@ class _MtgAudiencePicker extends StatelessWidget {
   final IconData icon; final String label; final String? summary; final VoidCallback onTap; final ColorScheme cs; final ThemeData theme;
   @override Widget build(BuildContext context) {
     final hasValue = summary != null;
-    return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(12), child: Container(
+    return CmPress(onTap: onTap, child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(color: hasValue ? cs.primaryContainer.withValues(alpha: 0.3) : cs.surfaceContainerLow, borderRadius: BorderRadius.circular(12), border: Border.all(color: hasValue ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant)),
       child: Row(children: [
@@ -771,7 +770,7 @@ class _MembersPreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(AppLocalizations.of(context)!.teacherMeetingsScreenMembersWillReceive(members.length),
@@ -801,7 +800,7 @@ class _SectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16), borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
         const SizedBox(height: 14),

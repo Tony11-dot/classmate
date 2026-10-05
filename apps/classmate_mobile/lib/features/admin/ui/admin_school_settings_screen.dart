@@ -391,7 +391,6 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                     textCapitalization: TextCapitalization.words,
                     onChanged: (_) => setState(() => _dirty = true),
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       hintText: l.adminSchoolName,
                     ),
                   ),
@@ -1237,7 +1236,7 @@ class _GradeStepperState extends State<_GradeStepper> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1268,7 +1267,7 @@ class _GradeStepperState extends State<_GradeStepper> {
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(2),
                   ],
-                  decoration: const InputDecoration(
+                  decoration: const InputDecoration(filled: false, 
                     isDense: true,
                     counterText: '',
                     border: InputBorder.none,

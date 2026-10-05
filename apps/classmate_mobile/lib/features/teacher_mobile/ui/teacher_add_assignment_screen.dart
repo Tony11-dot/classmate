@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -598,7 +599,7 @@ class _TeacherAddAssignmentScreenState
                           decoration: BoxDecoration(
                             color: cs.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -680,7 +681,6 @@ class _TeacherAddAssignmentScreenState
                         textCapitalization: TextCapitalization.sentences,
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.teacherAssignmentTitleField,
-                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -693,7 +693,6 @@ class _TeacherAddAssignmentScreenState
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.teacherAssignmentInstructionsLabel,
                           alignLabelWithHint: true,
-                          border: const OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -713,7 +712,6 @@ class _TeacherAddAssignmentScreenState
                         child: InputDecorator(
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.teacherAssignmentDueDate,
-                            border: const OutlineInputBorder(),
                             prefixIcon: const Icon(Icons.calendar_today_rounded),
                             suffixIcon: _dueDate != null
                                 ? IconButton(
@@ -741,7 +739,6 @@ class _TeacherAddAssignmentScreenState
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.teacherAssignmentMaxGrade,
-                          border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.grade_rounded),
                         ),
                       ),
@@ -796,7 +793,7 @@ class _TeacherAddAssignmentScreenState
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             borderRadius: BorderRadius.circular(12),
                             color: cs.surfaceContainerLow,
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             child: Row(
                               children: [
                                 Icon(Icons.insert_drive_file_outlined, size: 18, color: cs.primary),
@@ -858,7 +855,7 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1042,9 +1039,8 @@ class _AudiencePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasValue = summary != null;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
@@ -1072,8 +1068,7 @@ class _AudiencePicker extends StatelessWidget {
           const SizedBox(width: 4),
           Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
         ]),
-      ),
-    );
+      ),);
   }
 }
 

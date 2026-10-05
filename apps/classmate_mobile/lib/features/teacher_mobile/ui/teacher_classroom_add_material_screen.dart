@@ -213,7 +213,6 @@ class _TeacherClassroomAddMaterialScreenState
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherMaterialTitleLabel,
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -225,7 +224,6 @@ class _TeacherClassroomAddMaterialScreenState
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherMaterialDescriptionLabel,
                       alignLabelWithHint: true,
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ],
@@ -265,7 +263,7 @@ class _TeacherClassroomAddMaterialScreenState
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: cs.outlineVariant),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       child: Row(
@@ -302,7 +300,6 @@ class _TeacherClassroomAddMaterialScreenState
                         labelText: AppLocalizations.of(context)!.teacherMaterialLinkUrlOptional,
                         hintText: 'https://...',
                         prefixIcon: const Icon(Icons.link_rounded),
-                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 10),

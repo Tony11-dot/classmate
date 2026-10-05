@@ -107,7 +107,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
           return LiquidGlassCard(
             borderRadius: BorderRadius.circular(16),
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(
               children: [
                 Container(

@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -457,7 +458,7 @@ class _SubjectCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
@@ -494,9 +495,8 @@ class _SubjectCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   if (average != null)
-                    InkWell(
+                    CmPress(
                       onTap: onAverageTap,
-                      borderRadius: BorderRadius.circular(12),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
@@ -519,8 +519,7 @@ class _SubjectCard extends StatelessWidget {
                             ],
                           ],
                         ),
-                      ),
-                    ),
+                      ),),
                   if (totalCount > 0) ...[
                     const SizedBox(width: 8),
                     Icon(
@@ -720,7 +719,7 @@ class _EmptyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

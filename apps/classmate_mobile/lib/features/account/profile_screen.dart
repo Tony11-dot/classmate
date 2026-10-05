@@ -95,7 +95,7 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
               borderRadius: BorderRadius.circular(24),
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -640,7 +640,7 @@ class _Badge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -681,7 +681,7 @@ class _Section extends StatelessWidget {
     return LiquidGlassCard(
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1061,7 +1061,6 @@ Future<void> _showCodeSheet(
                 decoration: InputDecoration(
                   counterText: '',
                   hintText: '••••••',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               if (error != null) ...[
@@ -1228,7 +1227,6 @@ class _ChangeContactSheetState extends State<_ChangeContactSheet> {
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.profileNewEmail,
                 hintText: 'name@example.com',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           const SizedBox(height: 16),

@@ -331,7 +331,7 @@ class _ParticipantSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: cs.surfaceContainerLow,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: participants.isEmpty && emptyMessage != null
               ? Padding(

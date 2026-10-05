@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../ui/widgets/cm_search_field.dart';
@@ -227,8 +228,7 @@ class _ClassroomLibraryPickerSheetState
                               const SizedBox(height: 4),
                           itemBuilder: (_, i) {
                             if (i == 0) {
-                              return InkWell(
-                                borderRadius: BorderRadius.circular(12),
+                              return CmPress(
                                 onTap: _createNew,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -256,8 +256,7 @@ class _ClassroomLibraryPickerSheetState
                                       ),
                                     ],
                                   ),
-                                ),
-                              );
+                                ),);
                             }
                             final m = filtered[i - 1];
                             final id = (m['id'] ?? '').toString();
@@ -267,8 +266,7 @@ class _ClassroomLibraryPickerSheetState
                             final attached = widget
                                 .alreadyAttachedTeacherIds
                                 .contains(id);
-                            return InkWell(
-                              borderRadius: BorderRadius.circular(12),
+                            return CmPress(
                               onTap: attached
                                   ? null
                                   : () => Navigator.pop(context, id),
@@ -319,8 +317,7 @@ class _ClassroomLibraryPickerSheetState
                                           size: 18, color: cs.primary),
                                   ],
                                 ),
-                              ),
-                            );
+                              ),);
                           },
                         ),
             ),

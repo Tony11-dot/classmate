@@ -151,7 +151,7 @@ class _TeacherFormResponsesScreenState
                           padding: const EdgeInsets.all(20),
                           borderRadius: BorderRadius.circular(22),
                           color: cs.surfaceContainerLow,
-                          border: Border.all(color: cs.outlineVariant),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -234,7 +234,7 @@ class _TeacherFormResponsesScreenState
                                           decoration: BoxDecoration(
                                             color: cs.surfaceContainerLow,
                                             borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: cs.outlineVariant),
+                                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                           ),
                                           child: Text(
                                             answerText.isEmpty ? '—' : answerText,

@@ -169,7 +169,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                             decoration: BoxDecoration(
                               color: cs.surfaceContainerLow.withValues(alpha: 0.75),
                               borderRadius: BorderRadius.circular(22),
-                              border: Border.all(color: cs.outlineVariant),
+                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             ),
                             child: Row(
                               children: [

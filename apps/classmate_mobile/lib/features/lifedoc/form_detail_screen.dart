@@ -370,7 +370,7 @@ class _FormHero extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerHigh,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -393,7 +393,7 @@ class _FormHero extends StatelessWidget {
                           : cs.surfaceContainerHighest)
                       .withValues(alpha: 0.94),
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                 ),
                 child: Text(
                   form.acceptingResponses ? AppLocalizations.of(context)!.formAccepting : AppLocalizations.of(context)!.formClosed,
@@ -454,7 +454,7 @@ class _MetaChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -495,7 +495,7 @@ class _QuestionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(22),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

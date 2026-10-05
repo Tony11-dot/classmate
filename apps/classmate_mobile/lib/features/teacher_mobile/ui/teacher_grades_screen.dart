@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -177,7 +178,7 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
             color: cs.primaryContainer,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(
               children: [
                 Expanded(
@@ -458,7 +459,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                 for (final gs in g.students)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: InkWell(
+                    child: CmPress(
                       onTap: () async {
                         await Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute<void>(
@@ -469,11 +470,10 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                           ),
                         );
                       },
-                      borderRadius: BorderRadius.circular(16),
                       child: LiquidGlassCard(
                         borderRadius: BorderRadius.circular(16),
                         color: cs.surfaceContainerLow,
-                        border: Border.all(color: cs.outlineVariant),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                         child: Row(
                           children: [
                             Container(
@@ -507,8 +507,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                             Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
                           ],
                         ),
-                      ),
-                    ),
+                      ),),
                   ),
               ],
             ),
@@ -525,13 +524,12 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                   for (final a in g.assessments)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: InkWell(
+                      child: CmPress(
                         onTap: () => _editAssessment(a),
-                        borderRadius: BorderRadius.circular(16),
                         child: LiquidGlassCard(
                           borderRadius: BorderRadius.circular(16),
                           color: cs.surfaceContainerLow,
-                          border: Border.all(color: cs.outlineVariant),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                           child: Row(
                             children: [
                               Expanded(
@@ -558,8 +556,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                               Icon(Icons.tune_rounded, size: 18, color: cs.primary),
                             ],
                           ),
-                        ),
-                      ),
+                        ),),
                     ),
               ],
             ),
@@ -623,7 +620,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
         LiquidGlassCard(
           borderRadius: BorderRadius.circular(16),
           color: cs.primaryContainer,
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -662,13 +659,12 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
           for (final a in weighted)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: InkWell(
+              child: CmPress(
                 onTap: () => _editAssessment(a),
-                borderRadius: BorderRadius.circular(16),
                 child: LiquidGlassCard(
                   borderRadius: BorderRadius.circular(16),
                   color: cs.surfaceContainerLow,
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Row(
                     children: [
                       Expanded(
@@ -688,8 +684,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
                       Icon(Icons.tune_rounded, size: 18, color: cs.primary),
                     ],
                   ),
-                ),
-              ),
+                ),),
             ),
       ],
     );
@@ -810,13 +805,12 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
                       separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (_, i) {
                         final a = results[i];
-                        return InkWell(
+                        return CmPress(
                           onTap: () => Navigator.of(context).pop(a),
-                          borderRadius: BorderRadius.circular(14),
                           child: LiquidGlassCard(
                             borderRadius: BorderRadius.circular(14),
                             color: cs.surfaceContainerLow,
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             child: Row(children: [
                               Expanded(
                                 child: Column(
@@ -851,8 +845,7 @@ class _AddToAverageSheetState extends ConsumerState<_AddToAverageSheet> {
                                 Icon(Icons.add_circle_outline_rounded,
                                     size: 20, color: cs.primary),
                             ]),
-                          ),
-                        );
+                          ),);
                       },
                     ),
             ),
@@ -1045,9 +1038,8 @@ class _PublishPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
@@ -1066,7 +1058,6 @@ class _PublishPill extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: published ? cs.onSurfaceVariant : cs.onPrimary)),
         ]),
-      ),
-    );
+      ),);
   }
 }

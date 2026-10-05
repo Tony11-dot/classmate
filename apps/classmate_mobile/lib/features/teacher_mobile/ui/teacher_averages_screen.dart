@@ -624,7 +624,6 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
                     controller: _titleCtrl,
                     decoration: InputDecoration(
                       labelText: l.averagesFieldTitle,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -671,7 +670,6 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
                       decoration: InputDecoration(
                         labelText: l.averagesLabelUnits,
                         isDense: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -767,7 +765,6 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
               decoration: InputDecoration(
                 labelText: l.averagesLabelFormatLabel,
                 isDense: true,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
             const SizedBox(height: 10),
@@ -829,7 +826,6 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
               decoration: InputDecoration(
                 isDense: true,
                 suffixText: '%',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
           ),

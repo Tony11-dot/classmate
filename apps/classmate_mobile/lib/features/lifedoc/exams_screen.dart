@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -159,7 +160,7 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
               padding: const EdgeInsets.all(18),
               borderRadius: BorderRadius.circular(26),
               color: cs.primaryContainer,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -296,7 +297,7 @@ Widget _emptyCard(BuildContext context, ColorScheme cs, AppLocalizations l, {req
     padding: const EdgeInsets.all(20),
     borderRadius: BorderRadius.circular(24),
     color: cs.surfaceContainerLow,
-    border: Border.all(color: cs.outlineVariant),
+    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
     child: Text(msg, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
   );
 }
@@ -398,8 +399,7 @@ class _ExamCard extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+      child: CmPress(
         onTap: () => context.push('/exams/${exam.id}', extra: exam),
         child: LiquidGlassCard(
           padding: const EdgeInsets.all(16),
@@ -448,7 +448,7 @@ class _ExamCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -508,8 +508,7 @@ class _ExamCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
+        ),),
     );
   }
 }
@@ -526,14 +525,13 @@ class _FormCard extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+      child: CmPress(
         onTap: () => context.push('/forms/${form.id}', extra: form),
         child: LiquidGlassCard(
           padding: const EdgeInsets.all(16),
           borderRadius: BorderRadius.circular(22),
           color: cs.surfaceContainerLow,
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -567,7 +565,7 @@ class _FormCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Text(
                       form.acceptingResponses ? l.examsOpenState : l.examsClosedState,
@@ -597,8 +595,7 @@ class _FormCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
+        ),),
     );
   }
 }
@@ -616,7 +613,7 @@ class _SmallChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

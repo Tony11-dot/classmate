@@ -214,7 +214,7 @@ class LiquidGlassSelectField<T> extends StatelessWidget {
                 cs.surfaceContainerHigh.withValues(alpha: isDark ? 0.56 : 0.66),
               ],
             ),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: Row(
             children: [
@@ -290,7 +290,6 @@ class LiquidGlassNameField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
         suffixIcon: options.isEmpty
             ? null
             : IconButton(

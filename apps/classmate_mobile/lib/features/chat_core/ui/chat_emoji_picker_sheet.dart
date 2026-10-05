@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -113,8 +114,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                             ),
                             itemBuilder: (context, index) {
                               final emoji = filtered[index];
-                              return InkWell(
-                                borderRadius: BorderRadius.circular(16),
+                              return CmPress(
                                 onTap: () => Navigator.of(context).pop(emoji),
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -135,8 +135,7 @@ class _ChatEmojiPickerSheetState extends State<ChatEmojiPickerSheet> {
                                     emoji,
                                     style: const TextStyle(fontSize: 28),
                                   ),
-                                ),
-                              );
+                                ),);
                             },
                           ),
                   ),

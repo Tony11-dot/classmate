@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -239,7 +240,6 @@ class _TeacherCreateClassroomScreenState
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.teacherClassroomNameHint,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -286,7 +286,7 @@ class _TeacherCreateClassroomScreenState
                     decoration: BoxDecoration(
                       color: cs.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cs.outlineVariant),
+                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     padding: const EdgeInsets.all(12),
                     child: _cohortsLoading
@@ -386,13 +386,12 @@ class _DDLButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(children: [
@@ -411,8 +410,7 @@ class _DDLButton extends StatelessWidget {
           ),
           Icon(Icons.expand_more_rounded, size: 20, color: cs.onSurfaceVariant),
         ]),
-      ),
-    );
+      ),);
   }
 }
 

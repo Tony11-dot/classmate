@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -560,7 +561,6 @@ class _TeacherAddMaterialScreenState
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.teacherMaterialDescriptionLabel,
                           alignLabelWithHint: true,
-                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ],
@@ -584,7 +584,7 @@ class _TeacherAddMaterialScreenState
                           decoration: BoxDecoration(
                             color: cs.surfaceContainerLow,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                           ),
                           child: Row(children: [
                             Icon(Icons.link_rounded, size: 16, color: cs.primary),
@@ -639,7 +639,6 @@ class _TeacherAddMaterialScreenState
                               decoration: InputDecoration(
                                 hintText: AppLocalizations.of(context)!.teacherAddMaterialScreenLinkHint,
                                 prefixIcon: const Icon(Icons.link_rounded, size: 18),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                                 isDense: true,
                               ),
@@ -710,7 +709,7 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
         const SizedBox(height: 14),
@@ -902,7 +901,7 @@ class _TeacherMaterialsStandaloneScreenState
         children: [
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(l.teacherMaterialListTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
@@ -973,7 +972,7 @@ class _TeacherMaterialsStandaloneScreenState
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: LiquidGlassCard(
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1092,7 +1091,7 @@ class _MatAudiencePicker extends StatelessWidget {
   final IconData icon; final String label; final String? summary; final VoidCallback onTap; final ColorScheme cs; final ThemeData theme;
   @override Widget build(BuildContext context) {
     final hasValue = summary != null;
-    return InkWell(onTap: onTap, borderRadius: BorderRadius.circular(12), child: Container(
+    return CmPress(onTap: onTap, child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(color: hasValue ? cs.primaryContainer.withValues(alpha: 0.3) : cs.surfaceContainerLow, borderRadius: BorderRadius.circular(12), border: Border.all(color: hasValue ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant)),
       child: Row(children: [
@@ -1163,7 +1162,7 @@ class _MembersPreview extends StatelessWidget {
   @override Widget build(BuildContext context) {
     return Container(
       width: double.infinity, padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: cs.surfaceContainerLowest, borderRadius: BorderRadius.circular(12), border: Border.all(color: cs.outlineVariant)),
+      decoration: BoxDecoration(color: cs.surfaceContainerLowest, borderRadius: BorderRadius.circular(12), border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(AppLocalizations.of(context)!.teacherMaterialMembersWillReceive(members.length), style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),

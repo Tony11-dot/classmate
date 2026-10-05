@@ -258,13 +258,13 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
                 controller: _titleCtrl,
                 style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                 textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormTitleHint)),
+                decoration: InputDecoration(filled: false, border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormTitleHint)),
               const Divider(height: 1),
               const SizedBox(height: 8),
               TextField(
                 controller: _descCtrl, maxLines: 3, minLines: 1,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormDescriptionHint)),
+                decoration: InputDecoration(filled: false, border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormDescriptionHint)),
             ])),
           const SizedBox(height: 12),
 
@@ -356,7 +356,7 @@ class _GlassCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16), borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
         const SizedBox(height: 14),
@@ -412,7 +412,7 @@ class _QuestionCardState extends State<_QuestionCard> {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18), borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Text(AppLocalizations.of(context)!.teacherCreateFormScreenQuestionNumber((widget.index + 1).toString()),
@@ -454,12 +454,12 @@ class _QuestionCardState extends State<_QuestionCard> {
           decoration: BoxDecoration(
             color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: TextField(
             controller: _textCtrl,
-            decoration: InputDecoration(border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
+            decoration: InputDecoration(filled: false, border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
             onChanged: (v) { q.text = v; widget.onChanged(); }),
         ),
         const SizedBox(height: 12),
@@ -510,12 +510,12 @@ class _QuestionCardState extends State<_QuestionCard> {
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   child: TextField(
                     controller: optCtrl,
-                    decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+                    decoration: const InputDecoration(filled: false, border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                     onChanged: (v) => setState(() => q.options[oi] = v)))),
                 if (q.options.length > 1)
                   IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close, size: 16), visualDensity: VisualDensity.compact,

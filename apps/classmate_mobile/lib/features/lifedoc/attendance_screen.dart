@@ -613,7 +613,7 @@ class _AttendanceDayGroup extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -815,7 +815,7 @@ class _HeroCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -856,7 +856,7 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -892,7 +892,7 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -930,7 +930,7 @@ class _SignalBanner extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -973,7 +973,7 @@ class _SummaryPill extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         borderRadius: BorderRadius.circular(18),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -1014,7 +1014,7 @@ class _EmptyStateCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1095,7 +1095,7 @@ class _LoadingBanner extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1120,7 +1120,7 @@ class _LoadingSectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

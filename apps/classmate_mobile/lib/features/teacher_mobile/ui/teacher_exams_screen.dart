@@ -141,7 +141,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
           LiquidGlassCard(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(
               children: [
                 Expanded(
@@ -163,7 +163,7 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                 Container(
                   width: 46,
                   height: 46,
-                  decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
+                  decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(14)),
                   child: Icon(Icons.quiz_rounded, size: 24, color: cs.onPrimaryContainer),
                 ),
               ],
@@ -283,7 +283,7 @@ class _ExamCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: LiquidGlassCard(
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

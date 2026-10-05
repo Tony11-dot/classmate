@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -141,8 +142,7 @@ class PhoneField extends StatelessWidget {
                   itemBuilder: (lctx, i) {
                     final c = kDialCodes[i];
                     final selected = c.code == dialCode;
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(12),
+                    return CmPress(
                       onTap: () => Navigator.pop(sCtx, c.code),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -176,8 +176,7 @@ class PhoneField extends StatelessWidget {
                             if (selected) Icon(Icons.check_rounded, size: 18, color: cs.primary),
                           ],
                         ),
-                      ),
-                    );
+                      ),);
                   },
                 ),
               ),
@@ -210,7 +209,6 @@ class PhoneField extends StatelessWidget {
         labelText: labelText ?? l.phoneFieldLabel,
         helperText: helperText ?? l.phoneFieldHelper,
         errorText: errorText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         prefixIcon: InkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: () => _pickDialCode(context),

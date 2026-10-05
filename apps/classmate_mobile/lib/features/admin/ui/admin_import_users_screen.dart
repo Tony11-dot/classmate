@@ -616,7 +616,6 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
         labelText: label,
         hintText: hint,
         isDense: true,
-        border: const OutlineInputBorder(),
         suffixIcon: _statusIcon(row.uStatus),
         suffixIconConstraints: const BoxConstraints(minWidth: 34, minHeight: 0),
       ),
@@ -676,7 +675,6 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
       decoration: InputDecoration(
         labelText: label,
         isDense: true,
-        border: const OutlineInputBorder(),
       ),
       child: Wrap(
         spacing: 6,

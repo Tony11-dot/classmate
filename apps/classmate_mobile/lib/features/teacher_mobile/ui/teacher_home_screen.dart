@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +37,7 @@ Future<void> _showSlotActionSheet(
           child: LiquidGlassCard(
             borderRadius: BorderRadius.circular(24),
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -307,7 +308,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
             color: cs.primaryContainer,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -330,7 +331,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: cs.primaryContainer,
+                        color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(Icons.school_rounded, size: 26, color: cs.onPrimaryContainer),
@@ -345,7 +346,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       icon: Icons.today_rounded,
                       value: '${scheduledSlots.length}',
                       label: l.today,
-                      color: cs.primaryContainer,
+                      color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                     ),
                     const SizedBox(width: 8),
                     _StatPill(
@@ -373,7 +374,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           // ── Quick Actions ───────────────────────────────────────────────
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -439,11 +440,10 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       final actionable = slot.course != null && slot.cohort != null;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
+                        child: CmPress(
                           onTap: actionable
                               ? () => _showSlotActionSheet(context, slot, today?.date ?? '')
                               : null,
-                          borderRadius: BorderRadius.circular(20),
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.all(14),
                             borderRadius: BorderRadius.circular(20),
@@ -454,7 +454,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                 Container(
                                   width: 44,
                                   height: 44,
-                                  decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
+                                  decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(12)),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -484,7 +484,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(8)),
+                                      decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(8)),
                                       child: Text(subject.isNotEmpty ? subject : l.scheduleClassFallback, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
                                     ),
                                     const SizedBox(height: 4),
@@ -494,8 +494,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                 ),
                               ],
                             ),
-                          ),
-                        ),
+                          ),),
                       );
                     }).toList(),
                   ),
@@ -510,7 +509,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                     padding: const EdgeInsets.all(16),
                     borderRadius: BorderRadius.circular(16),
                     color: cs.surfaceContainerLow,
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     child: Row(children: [
                       Icon(Icons.event_busy_rounded, color: cs.onSurfaceVariant),
                       const SizedBox(width: 12),
@@ -523,14 +522,13 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                       final tag = item.isExam ? l.navExams : l.navAssignments;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
+                        child: CmPress(
                           onTap: () => context.go(item.isExam ? '/teacher/exams' : '/teacher/assignments'),
-                          borderRadius: BorderRadius.circular(18),
                           child: LiquidGlassCard(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             borderRadius: BorderRadius.circular(18),
                             color: cs.surfaceContainerLow,
-                            border: Border.all(color: cs.outlineVariant),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             child: Row(
                               children: [
                                 Container(
@@ -562,8 +560,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
                                 Text(dateLabel2, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: cs.tertiary)),
                               ],
                             ),
-                          ),
-                        ),
+                          ),),
                       );
                     }).toList(),
                   ),
@@ -627,15 +624,14 @@ class _BigActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Column(
           children: [
@@ -644,8 +640,7 @@ class _BigActionButton extends StatelessWidget {
             Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurface), textAlign: TextAlign.center),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -679,7 +674,7 @@ class _EmptySlotCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(children: [
         Icon(Icons.event_available_rounded, color: cs.onSurfaceVariant),
         const SizedBox(width: 12),
@@ -707,7 +702,7 @@ class _ActionChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

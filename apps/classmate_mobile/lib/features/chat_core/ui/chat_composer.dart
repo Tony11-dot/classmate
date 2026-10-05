@@ -544,7 +544,7 @@ class ChatComposer extends StatelessWidget {
                     maxLines: 5,
                     textCapitalization: TextCapitalization.sentences,
                     textInputAction: TextInputAction.newline,
-                    decoration: InputDecoration(
+                    decoration: InputDecoration(filled: false, 
                       isCollapsed: true,
                       isDense: true,
                       border: InputBorder.none,

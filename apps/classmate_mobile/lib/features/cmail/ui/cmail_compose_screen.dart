@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -300,18 +301,17 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
             ),
             if (needsSub) ...[
               const SizedBox(height: 8),
-              InkWell(
+              CmPress(
                 onTap: ddl == null
                     ? null
                     : () => _pickSubAudience(_audience!, ddl),
-                borderRadius: BorderRadius.circular(14),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     color: cs.surfaceContainerLow,
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     children: [
@@ -343,8 +343,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
                           color: cs.onSurfaceVariant),
                     ],
                   ),
-                ),
-              ),
+                ),),
             ],
             const SizedBox(height: 14),
             TextField(

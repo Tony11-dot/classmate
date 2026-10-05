@@ -150,7 +150,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 prefixIcon: Icon(_mode == _ResetMode.sms
                     ? Icons.sms_outlined
                     : Icons.alternate_email_rounded),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onSubmitted: (_) => _submitChannelReset(),
             ),

@@ -162,7 +162,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   textInputAction: TextInputAction.next,
                   style: theme.textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.w800),
-                  decoration: InputDecoration(
+                  decoration: InputDecoration(filled: false, 
                     hintText: l.notesTitleHint,
                     border: InputBorder.none,
                   ),
@@ -179,7 +179,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                     textAlignVertical: TextAlignVertical.top,
                     keyboardType: TextInputType.multiline,
                     style: theme.textTheme.bodyLarge,
-                    decoration: InputDecoration(
+                    decoration: InputDecoration(filled: false, 
                       hintText: _canEdit ? l.notesBodyHint : null,
                       border: InputBorder.none,
                     ),

@@ -365,7 +365,6 @@ class _SolutionCard extends ConsumerWidget {
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: l.solutionsReportReasonHint,
-                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -408,7 +407,7 @@ class _SolutionCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -286,7 +287,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                               decoration: BoxDecoration(
                                 color: cs.surfaceContainerLow,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: cs.outlineVariant),
+                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                               ),
                               alignment: Alignment.center,
                               child: Icon(
@@ -832,7 +833,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             decoration: BoxDecoration(
                               color: cs.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: cs.outlineVariant),
+                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                             ),
                             child: Text(
                               _timingMode == TimingMode.ai
@@ -1238,7 +1239,7 @@ class _HeroCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1284,7 +1285,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Column(
@@ -1337,7 +1338,7 @@ class _LiquidField extends StatelessWidget {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -1771,8 +1772,7 @@ class _DifficultyPill extends StatelessWidget {
     // collapse to surface-on-surface in light mode.
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
+      child: CmPress(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
@@ -1800,8 +1800,7 @@ class _DifficultyPill extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
+        ),),
     );
   }
 }
@@ -1827,7 +1826,7 @@ class _GlassToggleRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
@@ -1872,7 +1871,7 @@ class _StepperRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
@@ -1910,7 +1909,7 @@ class _StepperRow extends StatelessWidget {
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: onSubmitted,
-                    decoration: const InputDecoration(
+                    decoration: const InputDecoration(filled: false, 
                       isDense: true,
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,

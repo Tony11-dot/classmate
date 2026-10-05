@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../ui/widgets/cm_loading.dart';
@@ -1218,14 +1219,13 @@ class _AssignmentCard extends StatelessWidget {
     final subject = _stringValue(assignment, '_subject');
     final l = AppLocalizations.of(context)!;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
+    return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1291,8 +1291,7 @@ class _AssignmentCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1314,7 +1313,7 @@ class _HeroCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1353,7 +1352,7 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1389,7 +1388,7 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1427,7 +1426,7 @@ class _SignalBanner extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1466,7 +1465,7 @@ class _Chip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Text(
         label,
         maxLines: 1,
@@ -1499,7 +1498,7 @@ class _EmptyStateCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1623,7 +1622,7 @@ class _DetailTopBar extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(16),
                 color: cs.surfaceContainerLow,
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                 child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
               ),
             ),
@@ -1708,7 +1707,7 @@ class _DraftChip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
       borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1771,7 +1770,7 @@ class _LoadingBanner extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1796,7 +1795,7 @@ class _LoadingSectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

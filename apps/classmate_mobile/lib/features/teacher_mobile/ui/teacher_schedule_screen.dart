@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -149,7 +150,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Row(
                 children: [
@@ -164,7 +165,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                         decoration: BoxDecoration(
                           color: cs.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: cs.outlineVariant),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +267,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -423,7 +424,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
       color: cs.surfaceContainerHigh,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: const Center(child: Padding(padding: EdgeInsets.all(16), child: CmLoading())),
     );
   }
@@ -452,7 +453,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
+        color: cs.onPrimaryContainer.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: cs.primary.withValues(alpha: 0.30)),
       ),
@@ -505,7 +506,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         padding: const EdgeInsets.all(24),
         borderRadius: BorderRadius.circular(20),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Column(
           children: [
             Icon(Icons.event_available_rounded, size: 40, color: cs.onSurfaceVariant),
@@ -577,9 +578,8 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: InkWell(
+          child: CmPress(
             onTap: () => _showSlotSheet(context, slot, l),
-            borderRadius: BorderRadius.circular(20),
             child: LiquidGlassCard(
               padding: const EdgeInsets.all(14),
               borderRadius: BorderRadius.circular(20),
@@ -591,7 +591,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                     width: 62,
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                     decoration: BoxDecoration(
-                      color: cs.primaryContainer,
+                      color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
@@ -681,8 +681,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                   Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
                 ],
               ),
-            ),
-          ),
+            ),),
         );
       }).toList(),
     );
@@ -741,7 +740,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             child: LiquidGlassCard(
               borderRadius: BorderRadius.circular(24),
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.7),
                 child: Column(
@@ -832,7 +831,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             child: LiquidGlassCard(
               borderRadius: BorderRadius.circular(24),
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -959,7 +958,7 @@ Widget _navBtn(BuildContext context, {required IconData icon, required VoidCallb
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Icon(icon, size: 20, color: cs.onSurface),
     ),
@@ -998,7 +997,7 @@ class _SheetAction extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: cs.primaryContainer,
+                color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, size: 18, color: cs.onPrimaryContainer),

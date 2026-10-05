@@ -837,7 +837,7 @@ class _CenteredTabs extends StatelessWidget {
         padding: const EdgeInsets.all(6),
         borderRadius: BorderRadius.circular(14),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: TabBar(
           controller: controller,
           isScrollable: true,
@@ -848,7 +848,7 @@ class _CenteredTabs extends StatelessWidget {
           indicator: BoxDecoration(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           labelColor: cs.onPrimaryContainer,
           unselectedLabelColor: cs.onSurfaceVariant,
@@ -930,7 +930,7 @@ class _SimpleCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(14),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1049,7 +1049,7 @@ class _CenteredState extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             borderRadius: BorderRadius.circular(24),
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1120,7 +1120,7 @@ BoxDecoration _panelDecoration(BuildContext context) {
   return BoxDecoration(
     color: cs.surfaceContainerLow,
     borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: cs.outlineVariant),
+    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
   );
 }
 

@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -126,7 +127,7 @@ class SettingsScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               borderRadius: BorderRadius.circular(24),
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -346,8 +347,7 @@ Future<void> _showFontPicker(
                 final selected = font == current;
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
+                  child: CmPress(
                     onTap: () {
                       onSelect(font);
                       Navigator.of(sheetCtx).pop();
@@ -421,8 +421,7 @@ Future<void> _showFontPicker(
                                 size: 20, color: cs.primary),
                         ],
                       ),
-                    ),
-                  ),
+                    ),),
                 );
               },
             ),
@@ -451,7 +450,7 @@ class _Section extends StatelessWidget {
     return LiquidGlassCard(
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1029,7 +1028,6 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
                     labelText: l.certPdfName,
                     hintText: l.settingsThemeNameHint,
                     errorText: _error,
-                    border: const OutlineInputBorder(),
                   ),
                 ),
               ),

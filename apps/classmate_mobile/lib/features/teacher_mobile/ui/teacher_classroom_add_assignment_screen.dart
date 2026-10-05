@@ -158,7 +158,6 @@ class _TeacherClassroomAddAssignmentScreenState
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherAssignmentTitleField,
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -172,7 +171,6 @@ class _TeacherClassroomAddAssignmentScreenState
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherAssignmentInstructions,
                       alignLabelWithHint: true,
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -193,7 +191,6 @@ class _TeacherClassroomAddAssignmentScreenState
                     child: InputDecorator(
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context)!.teacherAssignmentDueDate,
-                        border: const OutlineInputBorder(),
                         prefixIcon: Icon(
                           Icons.calendar_today_rounded,
                           color: cs.primary,

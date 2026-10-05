@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 
@@ -422,8 +423,7 @@ class _GlassAction extends StatelessWidget {
     final bg = destructive
         ? cs.errorContainer.withValues(alpha: 0.4)
         : cs.surfaceContainerHigh;
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
+    return CmPress(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -447,8 +447,7 @@ class _GlassAction extends StatelessWidget {
             Icon(Icons.chevron_right_rounded, size: 18, color: fg.withValues(alpha: 0.5)),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -877,7 +876,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                               : null),
                       helperText: _uAvailable == true ? l.adminUsernameAvailable : null,
                       helperStyle: TextStyle(color: cs.primary),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   _usernameSuggestions(l, cs),
@@ -891,7 +889,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                       labelText: AppLocalizations.of(context)!.commonEmail,
                       prefixIcon: const Icon(Icons.email_rounded, size: 18),
                       errorText: (_emailTouched && _emailIsInvalid) ? l.adminEmailInvalid : null,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -922,7 +919,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                         tooltip: _obscurePassword ? l.commonShowPassword : l.commonHidePassword,
                         onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -934,7 +930,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.adminEditUserNationalId,
                       prefixIcon: const Icon(Icons.badge_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -947,7 +942,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                     decoration: InputDecoration(
                       labelText: '${l.adminFullNameLabel} *',
                       prefixIcon: const Icon(Icons.person_outline_rounded, size: 18),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   const SizedBox(height: 16),

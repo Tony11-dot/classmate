@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -138,7 +139,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Row(
                 children: [
@@ -160,7 +161,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                         decoration: BoxDecoration(
                           color: cs.surfaceContainerLowest,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: cs.outlineVariant),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +351,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Icon(icon),
       ),
@@ -804,7 +805,7 @@ class _ScheduleTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withValues(alpha: 0.50),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: cs.outlineVariant),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -907,8 +908,7 @@ class _ScheduleTile extends StatelessWidget {
             ? _attendanceColor(context, attendanceStatus).withValues(alpha: 0.60)
             : cs.outlineVariant;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
+    return CmPress(
       onTap: () => _openDetail(context),
       child: Container(
         decoration: BoxDecoration(
@@ -1110,8 +1110,7 @@ class _ScheduleTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1129,7 +1128,7 @@ class _InfoPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1226,7 +1225,7 @@ class _EmptyState extends StatelessWidget {
             decoration: BoxDecoration(
               color: cs.surfaceContainerLow,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

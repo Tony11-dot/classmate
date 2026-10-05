@@ -215,7 +215,7 @@ class ChatGptComposer extends StatelessWidget {
                   minLines: 1,
                   maxLines: 6,
                   textInputAction: TextInputAction.newline,
-                  decoration: InputDecoration(
+                  decoration: InputDecoration(filled: false, 
                     hintText: effectiveHint,
                     border: InputBorder.none,
                     isDense: true,

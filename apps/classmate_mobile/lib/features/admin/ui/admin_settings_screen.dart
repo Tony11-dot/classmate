@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -229,9 +230,8 @@ class _SettingsNavTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final accent = danger ? cs.error : cs.onSurfaceVariant;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
@@ -272,7 +272,6 @@ class _SettingsNavTile extends StatelessWidget {
             const Icon(Icons.chevron_right_rounded, size: 20),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }

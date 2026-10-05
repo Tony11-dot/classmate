@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -972,7 +973,6 @@ class _TeacherAddGradeScreenState
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.commonTitle,
                             hintText: AppLocalizations.of(context)!.teacherGradeTitleHint,
-                            border: const OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -1005,7 +1005,6 @@ class _TeacherAddGradeScreenState
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.teacherGradeOutOfLabel,
                             hintText: AppLocalizations.of(context)!.teacherGradeOutOfHint,
-                            border: const OutlineInputBorder(),
                             // Max grade is a points denominator, not a percentage —
                             // a '#' icon (was a misleading % icon).
                             prefixIcon: const Icon(Icons.tag_rounded),
@@ -1611,7 +1610,6 @@ class _StudentGradeRow extends StatelessWidget {
                   onChanged: (v) { if (v != null) onLabelChanged?.call(v); },
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                 ),
               )
@@ -1679,14 +1677,13 @@ class _PickerTrigger extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -1701,8 +1698,7 @@ class _PickerTrigger extends StatelessWidget {
             Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1720,7 +1716,7 @@ class _Chip extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1793,7 +1789,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       padding: const EdgeInsets.all(16),
       child: child,

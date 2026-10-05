@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -884,14 +885,13 @@ class _AnnouncementCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
+    return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(24),
         color: isRead ? cs.surfaceContainerLowest : cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -900,7 +900,7 @@ class _AnnouncementCard extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Icon(_sourceIcon(announcement.source), color: cs.onSurface),
             ),
@@ -964,8 +964,7 @@ class _AnnouncementCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -1020,7 +1019,7 @@ class _ViewToggle extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       borderRadius: BorderRadius.circular(999),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         children: [
           seg(receivedLabel, _AnnouncementsView.received, Icons.inbox_rounded),
@@ -1049,7 +1048,7 @@ class _HeroCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(26),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1090,7 +1089,7 @@ class _SectionCard extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1128,7 +1127,7 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1166,7 +1165,7 @@ class _SignalBanner extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(20),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1205,7 +1204,7 @@ class _Chip extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Text(
         label,
         maxLines: 1,
@@ -1238,7 +1237,7 @@ class _EmptyStateCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       borderRadius: BorderRadius.circular(24),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

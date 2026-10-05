@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_press.dart';
 import '../data/admin_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
@@ -82,12 +84,16 @@ class AdminDashboardScreen extends ConsumerWidget {
                   children: [
                     Text(
                       l.adminQuickActions,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 2.5,
                       children: [
                         _QuickAction(
                           icon: Icons.person_add_rounded,
@@ -127,7 +133,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               sliver: SliverToBoxAdapter(
                 child: Text(
                   l.adminAttendanceLast30,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ),
@@ -250,7 +256,7 @@ class _SetupGuideState extends State<_SetupGuide> {
         color: allDone
             ? cs.tertiaryContainer.withValues(alpha: 0.25)
             : cs.primaryContainer.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
         border: Border.all(
           color: (allDone ? cs.tertiary : cs.primary).withValues(alpha: 0.25),
         ),
@@ -361,7 +367,7 @@ class _SetupStepTile extends StatelessWidget {
     final theme = Theme.of(context);
     final done = step.done;
 
-    return GestureDetector(
+    return CmPress(
       onTap: () => context.go(step.route),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -469,7 +475,7 @@ class _StatsGrid extends StatelessWidget {
           label: l.navClassrooms,
           value: '${overview.classrooms}',
           icon: Icons.meeting_room_rounded,
-          color: cs.error,
+          color: Color.lerp(cs.primary, cs.tertiary, 0.5)!,
         ),
       ],
     );
@@ -498,8 +504,12 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Row(
         children: [
@@ -523,6 +533,7 @@ class _StatCard extends StatelessWidget {
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w900,
                     height: 1.1,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
                 Text(
@@ -559,7 +570,7 @@ class _StatsGridSkeleton extends StatelessWidget {
         (_) => Container(
           decoration: BoxDecoration(
             color: cs.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(CmTokens.radiusLg),
           ),
         ),
       ),
@@ -587,26 +598,40 @@ class _QuickAction extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.35)),
+          borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.35),
+            width: 0.8,
+          ),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: color,
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
               ),
             ),
           ],
@@ -630,17 +655,21 @@ class _AttendanceTile extends StatelessWidget {
     final rateColor = rate == null
         ? cs.onSurfaceVariant
         : rate >= 90
-            ? Colors.green
+            ? CmTokens.of(context).good
             : rate >= 75
-                ? Colors.orange
+                ? CmTokens.of(context).warn
                 : cs.error;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Row(
         children: [
@@ -675,9 +704,22 @@ class _AttendanceTile extends StatelessWidget {
                   '${item.total} records',
                   style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
+                if (rate != null) ...[
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(99),
+                    child: LinearProgressIndicator(
+                      value: (rate / 100).clamp(0.0, 1.0),
+                      minHeight: 5,
+                      color: rateColor,
+                      backgroundColor: rateColor.withValues(alpha: 0.15),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
+          const SizedBox(width: 12),
           Text(
             rate != null ? '$rate%' : '—',
             style: theme.textTheme.titleMedium?.copyWith(

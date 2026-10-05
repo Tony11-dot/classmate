@@ -95,7 +95,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
                   padding: const EdgeInsets.all(18),
                   borderRadius: BorderRadius.circular(26),
                   color: cs.primaryContainer,
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -314,7 +314,7 @@ class _NotificationTile extends StatelessWidget {
       padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(20),
       color: _toneForType(context, item.type),
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
@@ -326,7 +326,7 @@ class _NotificationTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
                 shape: BoxShape.circle,
-                border: Border.all(color: cs.outlineVariant),
+                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Center(child: Icon(_iconForType(item.type), size: 20)),
             ),
@@ -397,7 +397,7 @@ class _MetaPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant),
+      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Text(
         label,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),

@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -370,7 +371,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           LiquidGlassCard(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -404,7 +405,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                         decoration: BoxDecoration(
                           color: cs.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: cs.outlineVariant),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -469,7 +470,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           const SizedBox(height: 18),
           LiquidGlassCard(
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -511,7 +512,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             const SizedBox(height: 14),
             LiquidGlassCard(
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -549,7 +550,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                 labelText: l.teacherAttendanceClassNotesLabel,
                 hintText: l.teacherAttendanceClassNotesHint,
                 prefixIcon: const Icon(Icons.notes_rounded),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               ),
             ),
@@ -573,15 +573,14 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Material(
                   color: Colors.transparent,
-                  child: InkWell(
+                  child: CmPress(
                     onTap: () => _cycleStatus(student.studentId),
-                    borderRadius: BorderRadius.circular(14),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: cs.outlineVariant),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                       ),
                       child: Row(
                         children: [
@@ -618,8 +617,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                           ),
                         ],
                       ),
-                    ),
-                  ),
+                    ),),
                 ),
               );
             }),

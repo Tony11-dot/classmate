@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -293,8 +294,7 @@ class _AskAiCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
+    return CmPress(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -471,8 +471,7 @@ class _ContactRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
+    return CmPress(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -514,8 +513,7 @@ class _ContactRow extends StatelessWidget {
                 ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 

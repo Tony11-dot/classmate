@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -240,15 +241,14 @@ class _AttachedMaterialTile extends StatelessWidget {
     final title = (material['title'] ?? AppLocalizations.of(context)!.teacherSlotAttachmentsScreenMaterialFallback).toString();
     final desc = (material['description'] ?? '').toString().trim();
     final mime = (material['mime'] ?? '').toString();
-    return InkWell(
+    return CmPress(
       onTap: onOpen,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -276,8 +276,7 @@ class _AttachedMaterialTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 }
 
@@ -420,8 +419,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                           itemBuilder: (_, i) {
                             // First item: Create new material shortcut.
                             if (i == 0) {
-                              return InkWell(
-                                borderRadius: BorderRadius.circular(12),
+                              return CmPress(
                                 onTap: _createNew,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -443,16 +441,14 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                                       ),
                                     ],
                                   ),
-                                ),
-                              );
+                                ),);
                             }
                             final m = filtered[i - 1];
                             final id = (m['id'] ?? '').toString();
                             final title = (m['title'] ?? AppLocalizations.of(context)!.teacherSlotAttachmentsScreenMaterialFallback).toString();
                             final subj = (m['subject'] ?? '').toString();
                             final attached = widget.alreadyAttachedIds.contains(id);
-                            return InkWell(
-                              borderRadius: BorderRadius.circular(12),
+                            return CmPress(
                               onTap: attached ? null : () => Navigator.pop(context, id),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -488,8 +484,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                                       Icon(Icons.check_circle_rounded, size: 18, color: cs.primary),
                                   ],
                                 ),
-                              ),
-                            );
+                              ),);
                           },
                         ),
             ),

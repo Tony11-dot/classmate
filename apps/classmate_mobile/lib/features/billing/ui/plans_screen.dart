@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -317,7 +318,7 @@ class _TokenExplainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,8 +374,7 @@ class _PlanTile extends StatelessWidget {
     // plan, not just the one directly below.
     final isDowngrade = !isCurrent && _rank(plan.tier) < _rank(currentTier);
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
+    return CmPress(
       onTap: plan.isFree
           ? null
           : () => _openPaywall(context, plan: plan),
@@ -490,8 +490,7 @@ class _PlanTile extends StatelessWidget {
             ],
           ],
         ),
-      ),
-    );
+      ),);
   }
 
   void _openPaywall(BuildContext context, {required SubscriptionPlan plan}) {
@@ -541,15 +540,14 @@ class _TopupTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
+    return CmPress(
       onTap: () => _openPaywall(context),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -591,8 +589,7 @@ class _TopupTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 
   void _openPaywall(BuildContext context) {

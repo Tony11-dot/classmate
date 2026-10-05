@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -279,9 +280,8 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
     bool destructive = false,
   }) {
     final fg = destructive ? const Color(0xFFFF7D73) : Colors.white;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
@@ -304,8 +304,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
             ),
           ],
         ),
-      ),
-    );
+      ),);
   }
 
   /// Renders a still image for [m] with the given rotation/mirror transform,

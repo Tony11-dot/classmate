@@ -1,6 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_press.dart';
+
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -133,20 +136,22 @@ class _TeacherClassroomsScreenState
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: LiquidGlassCard(
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(CmTokens.radiusXl),
                 color: cs.primaryContainer,
-                border: Border.all(color: cs.outlineVariant),
+                gradient: null,
+                border: Border.all(color: Colors.transparent, width: 0),
+                boxShadow: CmTokens.of(context).shadowMd,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(2, 2, 0, 2),
                   child: Row(
                     children: [
                       Container(
-                        width: 62, height: 62,
+                        width: 56, height: 56,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22),
-                          color: cs.primaryContainer,
+                          borderRadius: BorderRadius.circular(CmTokens.radiusLg - 4),
+                          color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                         ),
-                        child: Icon(Icons.forum_rounded, size: 30, color: cs.onPrimaryContainer),
+                        child: Icon(Icons.forum_rounded, size: 28, color: cs.onPrimaryContainer),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -159,12 +164,19 @@ class _TeacherClassroomsScreenState
                                   child: Text(
                                     l.navClassrooms,
                                     style: theme.textTheme.headlineSmall
-                                        ?.copyWith(fontWeight: FontWeight.w900),
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          color: cs.onPrimaryContainer,
+                                        ),
                                   ),
                                 ),
-                                IconButton(
+                                IconButton.filledTonal(
                                   tooltip: AppLocalizations.of(context)!.teacherCreateClassroomTooltip,
                                   onPressed: _showCreateClassroomSheet,
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: cs.surface.withValues(alpha: 0.7),
+                                    foregroundColor: cs.onSurface,
+                                  ),
                                   icon: const Icon(Icons.add_rounded),
                                 ),
                               ],
@@ -173,8 +185,10 @@ class _TeacherClassroomsScreenState
                               allCourses.isEmpty
                                   ? l.teacherClassroomsNoCohorts
                                   : '${allCourses.length} ${l.navClassrooms.toLowerCase()}',
-                              style: theme.textTheme.titleMedium
-                                  ?.copyWith(color: cs.onPrimaryContainer),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: cs.onPrimaryContainer.withValues(alpha: 0.8),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -223,67 +237,96 @@ class _TeacherClassroomsScreenState
                   if (course.subject.isNotEmpty) course.subject,
                   if (cohortName.isNotEmpty && cohortName != label) cohortName,
                 ].join(' · ');
-                // Two-part card: colored top (name) + dark bottom (subject)
+                // One lifted card per class: monogram, name, grade chip and
+                // the subject · cohort line.
+                final initial = course.name.characters.isEmpty
+                    ? '?'
+                    : course.name.characters.first.toUpperCase();
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: InkWell(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: CmPress(
                     onTap: () => context.push('/teacher/classroom/${course.id}', extra: <String, dynamic>{
                       'name': course.name,
                       'subject': course.subject,
                       'cohortName': cohortName,
                       'grade': grade ?? 0,
                     }),
-                    borderRadius: BorderRadius.circular(20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                        border: Border.all(
+                          color: cs.outlineVariant.withValues(alpha: 0.35),
+                          width: 0.8,
+                        ),
+                        boxShadow: CmTokens.of(context).shadowSm,
+                      ),
+                      child: Row(
                         children: [
-                          // Top — accent color, classroom name
                           Container(
-                            padding: const EdgeInsets.fromLTRB(16, 13, 16, 13),
-                            color: cs.primaryContainer,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    course.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w800,
-                                      color: cs.onPrimaryContainer,
-                                    ),
-                                  ),
-                                ),
-                                if (label.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: cs.onPrimaryContainer.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(label,
-                                        style: TextStyle(color: cs.onPrimaryContainer, fontSize: 11, fontWeight: FontWeight.w700)),
-                                  ),
-                              ],
+                            width: 52,
+                            height: 52,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer,
+                              borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                             ),
-                          ),
-                          // Bottom — surface / dark, subject info
-                          Container(
-                            padding: const EdgeInsets.fromLTRB(16, 9, 16, 9),
-                            color: cs.surfaceContainerLow,
                             child: Text(
-                              subtitle.isEmpty ? course.subject : subtitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: cs.primary,
-                                fontWeight: FontWeight.w600,
+                              initial,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: cs.onPrimaryContainer,
                               ),
                             ),
                           ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        course.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                    if (label.isNotEmpty)
+                                      Container(
+                                        margin: const EdgeInsetsDirectional.only(start: 8),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: cs.secondaryContainer,
+                                          borderRadius: BorderRadius.circular(99),
+                                        ),
+                                        child: Text(label,
+                                            style: TextStyle(color: cs.onSecondaryContainer, fontSize: 12, fontWeight: FontWeight.w700)),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  subtitle.isEmpty ? course.subject : subtitle,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: cs.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(Icons.chevron_right_rounded,
+                              color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
                         ],
                       ),
                     ),
@@ -431,7 +474,6 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.teacherClassroomNameRequired,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -458,7 +500,6 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.teacherSubjectRequired,
-                      border: const OutlineInputBorder(),
                     ),
                   );
                 }
@@ -485,7 +526,6 @@ class _CreateClassroomSheetState extends ConsumerState<_CreateClassroomSheet> {
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.teacherCustomSubjectLabel,
-                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ],
