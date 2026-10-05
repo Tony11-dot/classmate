@@ -1,12 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../classrooms/ui/classroom_people_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -516,45 +516,6 @@ class _CenteredState extends StatelessWidget {
 // Initials avatar — identical to student's _InitialsAvatar
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _InitialsAvatar extends StatelessWidget {
-  const _InitialsAvatar({required this.name, this.isTeacher = false});
-  final String name;
-  final bool isTeacher;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final bg = isTeacher ? cs.primary : _avatarColorForName(name);
-    final fg = isTeacher
-        ? cs.onPrimary
-        : (ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
-            ? Colors.white
-            : Colors.black87);
-
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: LiquidGlassCard(
-        padding: EdgeInsets.zero,
-        borderRadius: BorderRadius.circular(999),
-        color: bg,
-        border: Border.all(
-          color: Theme.of(context)
-              .colorScheme
-              .outlineVariant
-              .withValues(alpha: 0.25),
-        ),
-        child: Center(
-          child: Text(
-            _initialsForName(name),
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w800, color: fg),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Assignments tab
@@ -1221,96 +1182,25 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + MediaQuery.of(context).viewInsets.bottom),
         children: [
 
-          // ── Join code card ────────────────────────────────────────────
-          LiquidGlassCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            borderRadius: BorderRadius.circular(18),
-            color: cs.secondaryContainer,
-            border: Border.all(color: cs.secondary),
-            child: Row(
+          // ── Join code card (shared with the student view) ─────────────
+          ClassroomCodeCard(code: _classCode),
+
+          // ── Teacher ───────────────────────────────────────────────────
+          if (teacher != null)
+            ClassroomPeopleGroup(
+              title: l.roleTeacher,
               children: [
-                Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(color: cs.secondary, borderRadius: BorderRadius.circular(12)),
-                  child: Icon(Icons.vpn_key_rounded, size: 20, color: cs.onSecondary),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(AppLocalizations.of(context)!.teacherClassroomCodeLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 2),
-                      Text(_classCode, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 3, color: cs.onSecondaryContainer)),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.copy_rounded, size: 18, color: cs.onSecondaryContainer),
-                  onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: _classCode));
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(AppLocalizations.of(context)!.teacherClassroomCodeCopied), duration: const Duration(seconds: 2)),
-                    );
-                  },
-                  tooltip: AppLocalizations.of(context)!.teacherClassroomCopyCodeTooltip,
+                ClassroomPersonRow(
+                  name: (teacher['name'] ?? l.roleTeacher).toString(),
+                  subtitle: (teacher['email'] ?? '').toString(),
+                  isTeacher: true,
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // ── Teacher ───────────────────────────────────────────────────
-          if (teacher != null) ...[
-            Text(l.roleTeacher, style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12)),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: _panelDecoration(context),
-              child: Row(
-                children: [
-                  _InitialsAvatar(name: (teacher['name'] ?? '').toString(), isTeacher: true),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text((teacher['name'] ?? l.roleTeacher).toString(),
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
-                        if ((teacher['email'] ?? '').toString().isNotEmpty)
-                          Text((teacher['email'] ?? '').toString(), style: theme.textTheme.bodySmall),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(8)),
-                    child: Text(l.roleTeacher, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // ── Students header ───────────────────────────────────────────
-          Row(
-            children: [
-              Expanded(child: Text(l.teacherStudentsCount(allStudents.length),
-                  style: TextStyle(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, fontSize: 12))),
-              TextButton.icon(
-                onPressed: () => _openStudentPicker(context, enrolledIds),
-                icon: const Icon(Icons.person_add_rounded, size: 16),
-                label: Text(l.actionAdd),
-                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
 
           // ── People search (web QA #34) ────────────────────────────────
           if (allStudents.length > 4) ...[
+            const SizedBox(height: 16),
             CmSearchField(
               controller: _peopleSearchController,
               hint: l.searchHint,
@@ -1328,46 +1218,42 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
               ),
             ),
 
-          // ── Student list ──────────────────────────────────────────────
-          ...students.map((s) {
-            final name = (s['name'] ?? '').toString();
-            final email = (s['email'] ?? '').toString();
-            final id = (s['id'] ?? '').toString();
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: CmPress(
-                onTap: id.isNotEmpty ? () => context.push('/teacher/student/$id', extra: <String, dynamic>{'name': name}) : null,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: _panelDecoration(context),
-                  child: Row(
-                    children: [
-                      _InitialsAvatar(name: name),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name.isNotEmpty ? name : l.student,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
-                            if (email.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(email, style: theme.textTheme.bodySmall),
-                            ],
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.person_remove_rounded, size: 18, color: cs.error),
-                        onPressed: () => _confirmRemoveStudent(context, id, name),
-                        style: IconButton.styleFrom(padding: const EdgeInsets.all(4), minimumSize: const Size(32, 32)),
-                        tooltip: l.teacherTooltipRemoveStudent,
-                      ),
-                    ],
-                  ),
-                ),),
-            );
-          }),
+          // ── Students ──────────────────────────────────────────────────
+          ClassroomPeopleGroup(
+            title: l.teacherStudentsCount(allStudents.length),
+            trailing: TextButton.icon(
+              onPressed: () => _openStudentPicker(context, enrolledIds),
+              icon: const Icon(Icons.person_add_rounded, size: 16),
+              label: Text(l.actionAdd),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+            children: [
+              for (final s in students)
+                Builder(builder: (context) {
+                  final name = (s['name'] ?? '').toString();
+                  final email = (s['email'] ?? '').toString();
+                  final id = (s['id'] ?? '').toString();
+                  return ClassroomPersonRow(
+                    name: name.isNotEmpty ? name : l.student,
+                    subtitle: email,
+                    onTap: id.isNotEmpty
+                        ? () => context.push('/teacher/student/$id',
+                            extra: <String, dynamic>{'name': name})
+                        : null,
+                    trailing: IconButton(
+                      icon: Icon(Icons.person_remove_rounded,
+                          size: 18, color: cs.error),
+                      onPressed: () => _confirmRemoveStudent(context, id, name),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: l.teacherTooltipRemoveStudent,
+                    ),
+                  );
+                }),
+            ],
+          ),
 
           // ── Danger zone: delete classroom (owner only; API enforces) ────
           const SizedBox(height: 28),
@@ -1712,15 +1598,6 @@ class _AttachmentPill extends StatelessWidget {
   }
 }
 
-BoxDecoration _panelDecoration(BuildContext context) {
-  final cs = Theme.of(context).colorScheme;
-  return BoxDecoration(
-    color: cs.surfaceContainerLow,
-    borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-    boxShadow: CmTokens.of(context).shadowSm,
-  );
-}
 
 IconData _subjectIcon(String subject) {
   final s = subject.toLowerCase();
@@ -1739,32 +1616,4 @@ IconData _subjectIcon(String subject) {
   return Icons.book_rounded;
 }
 
-Color _avatarColorForName(String name) {
-  const palette = <Color>[
-    Color(0xFF9CCC65),
-    Color(0xFF4FC3F7),
-    Color(0xFFFFB74D),
-    Color(0xFFBA68C8),
-    Color(0xFFFF8A65),
-    Color(0xFF4DB6AC),
-    Color(0xFFA1887F),
-    Color(0xFF7986CB),
-  ];
-  final seed =
-      name.trim().toLowerCase().runes.fold<int>(0, (a, b) => a + b);
-  return palette[seed % palette.length];
-}
 
-String _initialsForName(String name) {
-  final parts = name
-      .trim()
-      .split(RegExp(r'\s+'))
-      .where((e) => e.trim().isNotEmpty)
-      .toList();
-  if (parts.isEmpty) return '?';
-  if (parts.length == 1) {
-    final v = parts.first.trim();
-    return v.length >= 2 ? v.substring(0, 2).toUpperCase() : v.toUpperCase();
-  }
-  return (parts.first[0] + parts.last[0]).toUpperCase();
-}

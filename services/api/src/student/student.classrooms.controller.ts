@@ -331,8 +331,13 @@ export class StudentClassroomsController {
   @Get(':id')
   async detail(@Req() req: any, @Param('id') id: string) {
     const cr = await this.assertAccess(req, id);
-    const slotIds = (await this.prisma.scheduleSlotCohort.findMany({ select: { slotId: true }, where: {} })).map(() => ''); // placeholder
-    return { ...cr, announcements: [] };
+    // Members (already checked by assertAccess) see the same server-issued
+    // join code the teacher shows — never a value derived from the id.
+    const row = await this.prisma.classroom.findUnique({
+      where: { id },
+      select: { joinCode: true },
+    });
+    return { ...cr, joinCode: row?.joinCode ?? null, announcements: [] };
   }
 
   @Get(':id/people')

@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +21,7 @@ import '../../chat_core/ui/chat_thread_view.dart';
 import '../data/classrooms_repository.dart';
 import '../providers/classrooms_repo_provider.dart';
 import '../providers/classrooms_providers.dart';
+import 'classroom_people_widgets.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
@@ -442,7 +442,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                       );
                     },
                   ),
-                  _peopleTab(people),
+                  _peopleTab(people, detail),
                 ];
                 // Swipeable tabs with opaque backgrounds so the incoming and
                 // outgoing tabs don't bleed through each other during a swipe.
@@ -463,7 +463,10 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
     );
   }
 
-  Widget _peopleTab(AsyncValue<Map<String, dynamic>> people) {
+  Widget _peopleTab(
+    AsyncValue<Map<String, dynamic>> people,
+    AsyncValue<Map<String, dynamic>> detail,
+  ) {
     final l = AppLocalizations.of(context)!;
     return people.when(
       loading: () => const Center(child: CmLoading()),
@@ -554,99 +557,23 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
         final students =
             raw.where((p) => p['_isTeacher'] != true).where(matches).toList();
 
-        // Derive a 6-char classroom code from the courseId UUID.
-        final classCode = widget.courseId
-            .replaceAll('-', '')
-            .substring(0, widget.courseId.replaceAll('-', '').length >= 6 ? 6 : widget.courseId.replaceAll('-', '').length)
-            .toUpperCase();
+        // The real, server-issued join code — the same one the teacher sees.
+        final classCode =
+            (detail.asData?.value['joinCode'] ?? '').toString().trim();
 
         Widget personTile(Map<String, dynamic> item) {
-          final name = _pick(item, 'name', fallback: l.student);
-          final email = _pick(item, 'email');
           final isT = item['_isTeacher'] == true;
-          final cs = Theme.of(context).colorScheme;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-            decoration: _panelDecoration(context),
-            child: Row(
-              children: [
-                _InitialsAvatar(name: name),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                      if (email.trim().isNotEmpty)
-                        Text(email,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: cs.onSurfaceVariant)),
-                    ],
-                  ),
-                ),
-                if (isT)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                        color: cs.primaryContainer,
-                        borderRadius: BorderRadius.circular(999)),
-                    child: Text(l.roleTeacher,
-                        style: TextStyle(
-                            color: cs.onPrimaryContainer,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700)),
-                  ),
-              ],
-            ),
-          );
-        }
-
-        Widget sectionHeader(String title, int count) {
-          final cs = Theme.of(context).colorScheme;
-          return Padding(
-            padding: const EdgeInsetsDirectional.only(top: 12, bottom: 4, start: 4),
-            child: Text(l.classroomDetailSectionHeader(title, count),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: cs.onSurfaceVariant,
-                    letterSpacing: 0.6)),
+          return ClassroomPersonRow(
+            name: _pick(item, 'name', fallback: isT ? l.roleTeacher : l.student),
+            subtitle: _pick(item, 'email'),
+            isTeacher: isT,
           );
         }
 
         return ListView(
           padding: EdgeInsets.fromLTRB(12, 8, 12, 24 + MediaQuery.of(context).viewInsets.bottom),
           children: [
-            // ── Classroom code ───────────────────────────────────────────
-            LiquidGlassCard(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              borderRadius: BorderRadius.circular(16),
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              border: Border.all(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondary
-                      .withValues(alpha: 0.35)),
-              child: Row(children: [
-                Icon(Icons.vpn_key_rounded, size: 16,
-                    color: Theme.of(context).colorScheme.onSecondaryContainer),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(AppLocalizations.of(context)!.classroomCodeLabel,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w700)),
-                    Text(classCode,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 3,
-                            color: Theme.of(context).colorScheme.onSecondaryContainer)),
-                  ]),
-                ),
-              ]),
-            ),
+            ClassroomCodeCard(code: classCode),
             // ── People search (web QA #34) ───────────────────────────────
             Padding(
               padding: const EdgeInsets.only(top: 12),
@@ -656,14 +583,18 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
                 onChanged: (v) => setState(() => _peopleQuery = v),
               ),
             ),
-            if (teachers.isNotEmpty) ...[
-              sectionHeader(l.classroomDetailTeacherSection, teachers.length),
-              ...teachers.map(personTile),
-            ],
-            if (students.isNotEmpty) ...[
-              sectionHeader(l.classroomDetailStudentsSection, students.length),
-              ...students.map(personTile),
-            ],
+            if (teachers.isNotEmpty)
+              ClassroomPeopleGroup(
+                title: l.classroomDetailSectionHeader(
+                    l.classroomDetailTeacherSection, teachers.length),
+                children: teachers.map(personTile).toList(),
+              ),
+            if (students.isNotEmpty)
+              ClassroomPeopleGroup(
+                title: l.classroomDetailSectionHeader(
+                    l.classroomDetailStudentsSection, students.length),
+                children: students.map(personTile).toList(),
+              ),
             if (teachers.isEmpty && students.isEmpty && query.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 32),
@@ -1113,53 +1044,6 @@ class _CenteredState extends StatelessWidget {
   }
 }
 
-class _InitialsAvatar extends StatelessWidget {
-  const _InitialsAvatar({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final bg = _avatarColorForName(name);
-    final fg = ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
-        ? Colors.white
-        : Colors.black87;
-
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: LiquidGlassCard(
-        padding: EdgeInsets.zero,
-        borderRadius: BorderRadius.circular(999),
-        color: bg,
-        border: Border.all(
-          color: Theme.of(context)
-              .colorScheme
-              .outlineVariant
-              .withValues(alpha: 0.25),
-        ),
-        child: Center(
-          child: Text(
-            _initialsForName(name),
-            style:
-                TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: fg),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-BoxDecoration _panelDecoration(BuildContext context) {
-  final cs = Theme.of(context).colorScheme;
-  return BoxDecoration(
-    color: cs.surfaceContainerLow,
-    borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-    boxShadow: CmTokens.of(context).shadowSm,
-  );
-}
-
 String _pick(dynamic item, String key, {String fallback = ''}) {
   if (item is Map) {
     final value = item[key];
@@ -1198,31 +1082,3 @@ IconData _subjectIcon(String subject) {
   return Icons.book_rounded;
 }
 
-Color _avatarColorForName(String name) {
-  const palette = <Color>[
-    Color(0xFF9CCC65),
-    Color(0xFF4FC3F7),
-    Color(0xFFFFB74D),
-    Color(0xFFBA68C8),
-    Color(0xFFFF8A65),
-    Color(0xFF4DB6AC),
-    Color(0xFFA1887F),
-    Color(0xFF7986CB),
-  ];
-  final seed = name.trim().toLowerCase().runes.fold<int>(0, (a, b) => a + b);
-  return palette[seed % palette.length];
-}
-
-String _initialsForName(String name) {
-  final parts = name
-      .trim()
-      .split(RegExp(r'\s+'))
-      .where((e) => e.trim().isNotEmpty)
-      .toList();
-  if (parts.isEmpty) return '?';
-  if (parts.length == 1) {
-    final v = parts.first.trim();
-    return v.length >= 2 ? v.substring(0, 2).toUpperCase() : v.toUpperCase();
-  }
-  return (parts.first[0] + parts.last[0]).toUpperCase();
-}
