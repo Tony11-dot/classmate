@@ -381,8 +381,13 @@ class _Empty extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Icon(icon, size: 56, color: cs.onSurfaceVariant),
-            const SizedBox(height: 12),
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+              child: Icon(icon, size: 36, color: cs.onPrimaryContainer),
+            ),
+            const SizedBox(height: 14),
             Text(title,
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700)),
@@ -429,31 +434,69 @@ class _MailRow extends StatelessWidget {
         ? DateFormat.jm().format(mail.createdAt)
         : DateFormat.MMMd().format(mail.createdAt);
 
+    final name = leadingName.trim();
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
       child: Material(
-        color: unread ? cs.surfaceContainer : cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
+        color: unread
+            ? Color.alphaBlend(cs.primary.withValues(alpha: 0.06), cs.surfaceContainerLow)
+            : cs.surfaceContainerLow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: unread
+                ? cs.primary.withValues(alpha: 0.35)
+                : cs.outlineVariant.withValues(alpha: 0.3),
+            width: 0.8,
+          ),
+        ),
         child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(top: 6, end: 8),
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: unread ? cs.primary : Colors.transparent,
+                // Sender avatar; unread shows as a dot on its corner.
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: unread ? cs.primaryContainer : cs.surfaceContainerHigh,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        name.isEmpty ? '✉' : name.characters.first.toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 17,
+                          color: unread ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (unread)
+                      PositionedDirectional(
+                        top: -1,
+                        end: -1,
+                        child: Container(
+                          width: 13,
+                          height: 13,
+                          decoration: BoxDecoration(
+                            color: cs.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: cs.surface, width: 2),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

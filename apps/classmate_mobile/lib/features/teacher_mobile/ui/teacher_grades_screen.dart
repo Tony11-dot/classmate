@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -178,7 +179,6 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
           LiquidGlassCard(
             borderRadius: BorderRadius.circular(28),
             color: cs.primaryContainer,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Row(
               children: [
                 Expanded(
@@ -204,8 +204,8 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
                 Container(
                   width: 46,
                   height: 46,
-                  decoration: BoxDecoration(color: cs.secondaryContainer, borderRadius: BorderRadius.circular(14)),
-                  child: Icon(Icons.grade_rounded, size: 24, color: cs.onSecondaryContainer),
+                  decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(14)),
+                  child: Icon(Icons.grade_rounded, size: 24, color: cs.onPrimaryContainer),
                 ),
               ],
             ),
@@ -227,8 +227,17 @@ class _TeacherGradesScreenState extends ConsumerState<TeacherGradesScreen> {
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Text(l.gradesHubEmpty,
-                    style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
+                child: Column(children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+                    child: Icon(Icons.grade_rounded, size: 34, color: cs.onPrimaryContainer),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(l.gradesHubEmpty,
+                      style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
+                ]),
               ),
             )
           else
@@ -252,56 +261,70 @@ class _SubjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final subject = group.subject.trim();
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  color: cs.primaryContainer,
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.menu_book_rounded, size: 20, color: cs.onPrimaryContainer),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          group.subject,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w800, color: cs.onPrimaryContainer),
+      child: CmPress(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
+            boxShadow: CmTokens.of(context).shadowSm,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [cs.primaryContainer, Color.alphaBlend(cs.primary.withValues(alpha: 0.2), cs.primaryContainer)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  subject.isEmpty ? '?' : subject.characters.first.toUpperCase(),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: cs.onPrimaryContainer),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.subject,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.people_alt_rounded, size: 14, color: cs.primary),
+                        const SizedBox(width: 5),
+                        Text(
+                          AppLocalizations.of(context)!.gradesHubStudentCount(group.students.length),
+                          style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
                         ),
-                      ),
-                    ],
-                  ),
+                      ]),
+                    ),
+                  ],
                 ),
-                Container(
-                  width: double.infinity,
-                  color: cs.surfaceContainerLow,
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.people_alt_rounded, size: 15, color: cs.onSurfaceVariant),
-                      const SizedBox(width: 6),
-                      Text(
-                        AppLocalizations.of(context)!.gradesHubStudentCount(group.students.length),
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
-                      ),
-                      const Spacer(),
-                      Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+            ],
           ),
         ),
       ),
@@ -1007,12 +1030,13 @@ class _GradeBadge extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     Color bg;
     Color fg;
+    final t = CmTokens.of(context);
     if (value >= 80) {
-      bg = cs.secondaryContainer;
-      fg = cs.onSecondaryContainer;
+      bg = t.goodContainer;
+      fg = t.onGoodContainer;
     } else if (value >= 60) {
-      bg = const Color(0xFFFFF3CD);
-      fg = const Color(0xFF7B5E00);
+      bg = t.warnContainer;
+      fg = t.onWarnContainer;
     } else {
       bg = cs.errorContainer;
       fg = cs.onErrorContainer;
