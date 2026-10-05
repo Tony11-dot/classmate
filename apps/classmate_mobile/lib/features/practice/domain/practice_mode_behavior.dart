@@ -20,7 +20,7 @@ final Map<PracticeMode, PracticeModeBehavior> practiceModeBehaviors = {
   PracticeMode.practice: const PracticeModeBehavior(
     allowTimer: true,
     allowLives: true,
-    aiTiming: false,
+    aiTiming: true,
     perQuestionTimingOnly: false,
     perQuizTimingOnly: false,
   ),
@@ -28,7 +28,7 @@ final Map<PracticeMode, PracticeModeBehavior> practiceModeBehaviors = {
   PracticeMode.speedRound: const PracticeModeBehavior(
     allowTimer: true,
     allowLives: true,
-    aiTiming: false,
+    aiTiming: true,
     perQuestionTimingOnly: true,
     perQuizTimingOnly: false,
   ),
@@ -36,7 +36,7 @@ final Map<PracticeMode, PracticeModeBehavior> practiceModeBehaviors = {
   PracticeMode.examPrep: const PracticeModeBehavior(
     allowTimer: true,
     allowLives: false,
-    aiTiming: false,
+    aiTiming: true,
     perQuestionTimingOnly: false,
     perQuizTimingOnly: true,
   ),

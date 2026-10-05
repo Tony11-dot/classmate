@@ -6288,6 +6288,18 @@ class AppLocalizationsPs extends AppLocalizations {
       'بښنه غواړو — دا مهال مو ځواب نه شو درکولی. مهرباني وکړئ بیا هڅه وکړئ، یا پورته له ملاتړ سره اړیکه ونیسئ.';
 
   @override
+  String get supportAiSubtitle => 'Help with anything in ClassMate';
+
+  @override
+  String get supportAiSuggestPassword => 'How do I reset my password?';
+
+  @override
+  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+
+  @override
+  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+
+  @override
   String get aboutWhatIsClassmate => '‹‹What is ClassMate?››';
 
   @override

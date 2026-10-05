@@ -349,6 +349,7 @@ class _TeacherAddMaterialScreenState
   Future<void> _openCohortPicker() async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -366,6 +367,7 @@ class _TeacherAddMaterialScreenState
   Future<void> _openClassroomPicker(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -385,6 +387,7 @@ class _TeacherAddMaterialScreenState
 
   Future<void> _openStudentPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -412,6 +415,7 @@ class _TeacherAddMaterialScreenState
 
   Future<void> _openGradePicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

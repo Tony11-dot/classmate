@@ -393,6 +393,7 @@ class _TeacherAddAssignmentScreenState
 
   Future<void> _openCohortPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -420,6 +421,7 @@ class _TeacherAddAssignmentScreenState
 
   Future<void> _openStudentPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -447,6 +449,7 @@ class _TeacherAddAssignmentScreenState
 
   Future<void> _openGradePicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -530,6 +533,7 @@ class _TeacherAddAssignmentScreenState
                             : _courses.where((c) => c.id == _selectedCourseId).map((c) => c.name).firstOrNull ?? _selectedCourseId!,
                         onTap: () async {
                           await showModalBottomSheet<void>(
+      useRootNavigator: true,
                             context: context,
                             isScrollControlled: true,
                             useSafeArea: true,

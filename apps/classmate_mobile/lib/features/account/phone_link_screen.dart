@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/cm_code_field.dart';
 import '../../ui/widgets/cm_loading.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
@@ -38,6 +38,8 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
   final TextEditingController _codeCtl = TextEditingController();
   bool _sending = false;
   bool _verifying = false;
+  CmCodeStatus _codeStatus = CmCodeStatus.idle;
+  String? _codeError;
   String? _sentTo; // E.164 the code went to; null = phone entry stage
 
   @override
@@ -85,18 +87,29 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
     final l = AppLocalizations.of(context)!;
     final code = _codeCtl.text.trim();
     if (code.length != 6 || _sentTo == null) return;
-    setState(() => _verifying = true);
+    setState(() {
+      _verifying = true;
+      _codeStatus = CmCodeStatus.checking;
+      _codeError = null;
+    });
     try {
       await _api.postJson('/me/verify/sms/confirm',
           body: {'code': code, 'newValue': _sentTo});
       if (mounted) {
+        setState(() => _codeStatus = CmCodeStatus.success);
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+        if (!mounted) return;
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(l.phoneLinkDone)));
         Navigator.of(context).pop(true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted) {
+        setState(() {
+          _codeStatus = CmCodeStatus.error;
+          _codeError = e.toString().replaceFirst('Exception: ', '');
+        });
+      }
     } finally {
       if (mounted) setState(() => _verifying = false);
     }
@@ -154,27 +167,21 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
                   onSubmitted: (_) => _sendCode(),
                 )
               else
-                TextField(
+                CmCodeField(
+                  length: 6,
                   controller: _codeCtl,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  autofocus: true,
-                  maxLength: 6,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 10,
-                  ),
-                  decoration: InputDecoration(
-                    counterText: '',
-                    labelText: l.phoneLinkCodeLabel,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  onSubmitted: (_) => _confirm(),
+                  digitsOnly: true,
+                  status: _codeStatus,
+                  errorText: _codeError,
+                  onChanged: (_) {
+                    if (_codeStatus == CmCodeStatus.error) {
+                      setState(() {
+                        _codeStatus = CmCodeStatus.idle;
+                        _codeError = null;
+                      });
+                    }
+                  },
+                  onCompleted: (_) => _confirm(),
                 ),
               const SizedBox(height: 14),
               FilledButton(

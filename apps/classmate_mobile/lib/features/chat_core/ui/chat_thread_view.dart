@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -326,9 +327,11 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
         !widget.controller.isLoadingOlder) {
       widget.controller.loadOlder();
     }
-    // Dismiss keyboard whenever the list scrolls (handles TabBarView contexts
-    // where keyboardDismissBehavior.onDrag alone is insufficient).
-    FocusManager.instance.primaryFocus?.unfocus();
+    // NOTE: no unfocus here. This listener fires for PROGRAMMATIC scrolls
+    // too — including the jump-to-bottom that runs when the keyboard opens
+    // and shrinks the list — so unfocusing here closed the keyboard the
+    // instant it appeared ("can't type in classroom chat"). User-driven
+    // drags are handled by the UserScrollNotification listener on the list.
     final nearBottom = _nearBottom(96);
     if (nearBottom && _newMessagesBelow) {
       if (!mounted) return;
@@ -619,6 +622,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
     ChatDeleteMode mode;
     if (canEveryone) {
       final picked = await showModalBottomSheet<ChatDeleteMode>(
+      useRootNavigator: true,
         context: context,
         showDragHandle: true,
         builder: (ctx) => SafeArea(
@@ -2434,7 +2438,16 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
   ) {
     // Caller (buildBody) already pre-filtered invisible messages.
     // Use the list directly — no further filtering needed here.
-    return ListView.builder(
+    // Dismiss the keyboard only when the USER drags the list (also covers
+    // TabBarView hosts where keyboardDismissBehavior.onDrag alone misses).
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (n) {
+        if (n.direction != ScrollDirection.idle) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
+        return false;
+      },
+      child: ListView.builder(
       controller: _scrollController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       // Always scrollable so a near-empty thread can still be dragged to
@@ -2655,6 +2668,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
           ),
         );
       },
+      ),
     );
   }
 }

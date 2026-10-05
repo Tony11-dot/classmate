@@ -124,6 +124,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
       return;
     }
     final picked = await showModalBottomSheet<CertStudent>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

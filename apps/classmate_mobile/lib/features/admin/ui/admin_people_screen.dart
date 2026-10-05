@@ -418,6 +418,7 @@ Future<void> _openUserActions(
   final theme = Theme.of(context);
   final l = AppLocalizations.of(context)!;
   await showModalBottomSheet<void>(
+      useRootNavigator: true,
     context: context,
     backgroundColor: cs.surface,
     useSafeArea: true,

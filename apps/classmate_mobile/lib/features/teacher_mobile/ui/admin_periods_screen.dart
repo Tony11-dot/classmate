@@ -170,6 +170,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
 
   Future<void> _showCreateSheet(BuildContext context, WidgetRef ref) async {
     final created = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

@@ -919,6 +919,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
     if (!ctx.mounted) return;
 
     final updated = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: ctx,
       isScrollControlled: true,
       showDragHandle: true,

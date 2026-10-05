@@ -23,6 +23,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
     List<String>? pickerAllowedEmojis,
   }) {
     return showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

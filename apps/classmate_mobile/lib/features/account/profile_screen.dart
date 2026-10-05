@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/cm_code_field.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -324,6 +325,7 @@ class ProfileScreen extends ConsumerWidget {
     TextInputType keyboardType = TextInputType.text,
   }) async {
     final result = await showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -350,6 +352,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _changePassword(BuildContext context) async {
     final confirmed = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -987,6 +990,7 @@ Future<void> _editContact(
 }) async {
   final cs = Theme.of(context).colorScheme;
   final newValue = await showModalBottomSheet<String>(
+      useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -1029,8 +1033,10 @@ Future<void> _showCodeSheet(
   final codeCtrl = TextEditingController();
   bool submitting = false;
   String? error;
+  var status = CmCodeStatus.idle;
 
   await showModalBottomSheet<void>(
+      useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -1058,22 +1064,45 @@ Future<void> _showCodeSheet(
                 style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 18),
-              TextField(
-                controller: codeCtrl,
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 8),
-                decoration: InputDecoration(
-                  counterText: '',
-                  hintText: '••••••',
-                ),
-              ),
-              if (error != null) ...[
-                const SizedBox(height: 8),
-                Text(error!, style: TextStyle(color: cs.error, fontSize: 12)),
-              ],
+              Builder(builder: (_) {
+                Future<void> submit() async {
+                  if (submitting) return;
+                  setSt(() { submitting = true; error = null; status = CmCodeStatus.checking; });
+                  try {
+                    final changed = await ref
+                        .read(verifyControllerProvider.notifier)
+                        .confirmVerify(channel, code: codeCtrl.text, newValue: newValue);
+                    if (!ctx.mounted) return;
+                    setSt(() => status = CmCodeStatus.success);
+                    await Future<void>.delayed(const Duration(milliseconds: 700));
+                    if (!ctx.mounted) return;
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(changed ? AppLocalizations.of(context)!.profileUpdatedPendingVerification : AppLocalizations.of(context)!.profileVerified)),
+                    );
+                    if (changed) {
+                      await ref.read(authSessionProvider).reloadFromMe();
+                    }
+                  } catch (e) {
+                    setSt(() { submitting = false; error = _humanizeError(e); status = CmCodeStatus.error; });
+                  }
+                }
+                return Center(
+                  child: CmCodeField(
+                    length: 6,
+                    controller: codeCtrl,
+                    digitsOnly: true,
+                    status: status,
+                    errorText: error,
+                    onChanged: (_) {
+                      if (status == CmCodeStatus.error) {
+                        setSt(() { status = CmCodeStatus.idle; error = null; });
+                      }
+                    },
+                    onCompleted: (_) => submit(),
+                  ),
+                );
+              }),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -1342,6 +1371,7 @@ class _BiometricSectionState extends ConsumerState<_BiometricSection> {
       } else {
         if (!mounted) return;
         final entered = await showModalBottomSheet<String>(
+      useRootNavigator: true,
           context: context,
           isScrollControlled: true,
           useSafeArea: true,

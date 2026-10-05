@@ -289,6 +289,7 @@ class _TeacherNewAnnouncementScreenState
 
   Future<void> _openStudentPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -337,6 +338,7 @@ class _TeacherNewAnnouncementScreenState
 
   Future<void> _openParentPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -358,6 +360,7 @@ class _TeacherNewAnnouncementScreenState
 
   Future<void> _openCohortPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

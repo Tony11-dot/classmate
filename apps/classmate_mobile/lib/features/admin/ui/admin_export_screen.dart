@@ -248,6 +248,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
   // ── Add filter sheet ───────────────────────────────────────────────────────
   Future<void> _openAddFilterSheet() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -284,6 +285,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
       return;
     }
     showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

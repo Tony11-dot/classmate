@@ -6343,6 +6343,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Désolé — je n\'ai pas pu répondre pour le moment. Veuillez réessayer ou contacter l\'assistance ci-dessus.';
 
   @override
+  String get supportAiSubtitle => 'Help with anything in ClassMate';
+
+  @override
+  String get supportAiSuggestPassword => 'How do I reset my password?';
+
+  @override
+  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+
+  @override
+  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+
+  @override
   String get aboutWhatIsClassmate => 'Qu\'est-ce que ClassMate ?';
 
   @override

@@ -25,6 +25,7 @@ Future<bool?> showSolutionBookEditor(
   Map<String, dynamic>? existing,
 }) {
   return showModalBottomSheet<bool>(
+      useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -76,6 +77,7 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
 
   Future<void> _openEditor({Map<String, dynamic>? existing}) async {
     final saved = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

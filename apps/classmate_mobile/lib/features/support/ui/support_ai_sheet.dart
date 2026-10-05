@@ -1,14 +1,21 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_press.dart';
 import '../../../ui/widgets/nova_avatar.dart';
+import '../../chat_core/ui/chat_bubble_tail.dart';
+import '../../chat_core/ui/chat_composer.dart';
 import '../data/support_ai_repository.dart';
 
 /// Opens the support assistant as a tall, rounded modal sheet. Self-contained:
 /// no router wiring, keeps the FAQ screen beneath it.
 Future<void> showSupportAiSheet(BuildContext context) {
   return showModalBottomSheet<void>(
+      useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -120,19 +127,64 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
     return s.trim();
   }
 
+  /// Re-asks the last question after a failure (the user turn is already in
+  /// the list, so only the answer is retried).
+  Future<void> _retry() async {
+    if (_sending || _turns.isEmpty || !_turns.last.isUser) return;
+    final question = _turns.last.content;
+    final history = _turns.sublist(0, _turns.length - 1);
+    setState(() {
+      _sending = true;
+      _errored = false;
+    });
+    _scrollToEnd();
+    try {
+      final answer = await ref
+          .read(supportAiRepositoryProvider)
+          .ask(question, history: history);
+      if (!mounted) return;
+      final clean = _plainText(answer);
+      setState(() {
+        _turns.add(SupportTurn(
+          role: 'assistant',
+          content: clean.isEmpty
+              ? AppLocalizations.of(context)!.supportAiError
+              : clean,
+        ));
+        _sending = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _sending = false;
+        _errored = true;
+      });
+    }
+    _scrollToEnd();
+  }
+
+  void _ask(String q) {
+    _controller.text = q;
+    _send();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    final suggestions = <(IconData, String)>[
+      (Icons.lock_reset_rounded, l.supportAiSuggestPassword),
+      (Icons.vpn_key_rounded, l.supportAiSuggestJoin),
+      (Icons.palette_rounded, l.supportAiSuggestTheme),
+    ];
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: MediaQuery.of(context).size.height * 0.88,
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         children: [
@@ -147,116 +199,181 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 10),
             child: Row(
               children: [
-                // NOVA's actual face + name in the header — the support
-                // assistant IS NOVA, not an anonymous "assistant".
-                const NovaAvatar(size: 26),
-                const SizedBox(width: 8),
+                // NOVA's actual face + name — the support assistant IS NOVA.
+                const NovaAvatar(size: 42),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    l.supportAiSheetTitle,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.supportAiSheetTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: CmTokens.of(context).good,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              l.supportAiSubtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(color: cs.onSurfaceVariant),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 IconButton(
+                  style: IconButton.styleFrom(
+                    backgroundColor: cs.surfaceContainerHigh,
+                  ),
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () => Navigator.of(context).maybePop(),
                 ),
               ],
             ),
           ),
-          Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.4)),
           // ── Messages ─────────────────────────────────────────────────────
           Expanded(
             child: ListView(
               controller: _scroll,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               children: [
-                _Bubble(text: l.supportAiGreeting, fromUser: false),
-                for (final t in _turns)
-                  _Bubble(text: t.content, fromUser: t.isUser),
-                if (_sending)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2.4),
+                _Bubble(text: l.supportAiGreeting, fromUser: false, tail: true),
+                if (_turns.isEmpty) ...[
+                  const SizedBox(height: 6),
+                  for (final (icon, q) in suggestions)
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 8, bottom: 8),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: CmPress(
+                          onTap: () => _ask(q),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: cs.primary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: cs.primary.withValues(alpha: 0.35)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(icon, size: 17, color: cs.primary),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    q,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: cs.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
+                ],
+                for (var i = 0; i < _turns.length; i++)
+                  _Bubble(
+                    text: _turns[i].content,
+                    fromUser: _turns[i].isUser,
+                    tail: i == 0 || _turns[i - 1].isUser != _turns[i].isUser,
                   ),
+                if (_sending) const _TypingBubble(),
                 if (_errored)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      l.supportAiError,
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.error),
+                    padding: const EdgeInsetsDirectional.only(start: 8, top: 4, bottom: 8),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Container(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.8,
+                        ),
+                        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                        decoration: BoxDecoration(
+                          color: cs.errorContainer,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.error_outline_rounded, size: 18, color: cs.onErrorContainer),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                l.supportAiError,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: cs.onErrorContainer,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            TextButton.icon(
+                              onPressed: _retry,
+                              style: TextButton.styleFrom(
+                                foregroundColor: cs.onErrorContainer,
+                              ),
+                              icon: const Icon(Icons.refresh_rounded, size: 18),
+                              label: Text(l.retry),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
               ],
             ),
           ),
-          // ── Disclaimer + input ───────────────────────────────────────────
+          // ── Disclaimer + composer ────────────────────────────────────────
           Padding(
-            padding: EdgeInsets.only(bottom: bottomInset),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-                  child: Text(
-                    l.supportAiDisclaimer,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.labelSmall
-                        ?.copyWith(color: cs.onSurfaceVariant),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _controller,
-                          minLines: 1,
-                          maxLines: 4,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => _send(),
-                          decoration: InputDecoration(
-                            hintText: l.supportAiInputHint,
-                            filled: true,
-                            fillColor: cs.surfaceContainerHigh,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Send is disabled until there's actual text, so tapping
-                      // an empty field can't look "broken" (QA #56).
-                      ValueListenableBuilder<TextEditingValue>(
-                        valueListenable: _controller,
-                        builder: (context, value, _) {
-                          final canSend =
-                              !_sending && value.text.trim().isNotEmpty;
-                          return FilledButton(
-                            onPressed: canSend ? _send : null,
-                            style: FilledButton.styleFrom(
-                              shape: const CircleBorder(),
-                              padding: const EdgeInsets.all(14),
-                            ),
-                            child:
-                                const Icon(Icons.arrow_upward_rounded, size: 20),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(20, 2, 20, 2),
+            child: Text(
+              l.supportAiDisclaimer,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: cs.onSurfaceVariant),
+            ),
+          ),
+          // Same pill composer as every chat in the app — text only here.
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: ChatComposer(
+            controller: _controller,
+            onSend: _send,
+            onCamera: () {},
+            onAttach: () {},
+            onMic: () {},
+            showCamera: false,
+            showAttach: false,
+            showMic: false,
+            enabled: !_sending,
+            hintText: l.supportAiInputHint,
             ),
           ),
         ],
@@ -266,33 +383,122 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
 }
 
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.text, required this.fromUser});
+  const _Bubble({required this.text, required this.fromUser, this.tail = false});
   final String text;
   final bool fromUser;
+  final bool tail;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final pointRight = fromUser != rtl;
+    final color = fromUser ? cs.primary : cs.surfaceContainerHigh;
+    const r = Radius.circular(18);
+    final radius = !tail
+        ? const BorderRadius.all(r)
+        : BorderRadius.only(
+            topLeft: pointRight ? r : Radius.zero,
+            topRight: pointRight ? Radius.zero : r,
+            bottomLeft: r,
+            bottomRight: r,
+          );
+    final bubble = Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.78,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(color: color, borderRadius: radius),
+      child: SelectableText(
+        text,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: fromUser ? cs.onPrimary : cs.onSurface,
+          height: 1.4,
+          fontSize: 15,
+        ),
+      ),
+    );
+    final pointer = tail
+        ? ChatBubbleTail(color: color, pointRight: pointRight)
+        : const SizedBox(width: 8);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 6, top: tail ? 4 : 0),
       child: Align(
-        alignment: fromUser ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: fromUser ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          children: pointRight
+              ? [Flexible(child: bubble), pointer]
+              : [pointer, Flexible(child: bubble)],
+        ),
+      ),
+    );
+  }
+}
+
+/// Three bouncing dots while NOVA is answering.
+class _TypingBubble extends StatefulWidget {
+  const _TypingBubble();
+
+  @override
+  State<_TypingBubble> createState() => _TypingBubbleState();
+}
+
+class _TypingBubbleState extends State<_TypingBubble>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 8, top: 2, bottom: 8),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
         child: Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.78,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: fromUser ? cs.primaryContainer : cs.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+            color: cs.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(18),
           ),
-          child: SelectableText(
-            text,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: fromUser ? cs.onPrimaryContainer : cs.onSurface,
-              height: 1.4,
+          child: AnimatedBuilder(
+            animation: _c,
+            builder: (context, _) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < 3; i++)
+                  Builder(builder: (_) {
+                    final t = (_c.value - i * 0.18) % 1.0;
+                    final up = t < 0.5 ? math.sin(t * 2 * math.pi) : 0.0;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: Transform.translate(
+                        offset: Offset(0, -4 * up.clamp(0.0, 1.0)),
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: cs.onSurfaceVariant
+                                .withValues(alpha: 0.45 + 0.5 * up.clamp(0.0, 1.0)),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+              ],
             ),
           ),
         ),

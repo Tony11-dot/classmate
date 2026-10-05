@@ -31,6 +31,7 @@ class GradeMultiSelectField extends StatefulWidget {
 class _GradeMultiSelectFieldState extends State<GradeMultiSelectField> {
   Future<void> _open() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

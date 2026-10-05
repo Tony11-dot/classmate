@@ -6190,6 +6190,18 @@ class AppLocalizationsRu extends AppLocalizations {
       'Извините — сейчас не удалось ответить. Попробуйте ещё раз или обратитесь в поддержку выше.';
 
   @override
+  String get supportAiSubtitle => 'Help with anything in ClassMate';
+
+  @override
+  String get supportAiSuggestPassword => 'How do I reset my password?';
+
+  @override
+  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+
+  @override
+  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+
+  @override
   String get aboutWhatIsClassmate => 'Что такое ClassMate?';
 
   @override

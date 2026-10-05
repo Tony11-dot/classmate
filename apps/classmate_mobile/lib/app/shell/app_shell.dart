@@ -1584,24 +1584,18 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
       toolbarHeight: 72,
       titleSpacing: 0,
       centerTitle: true,
       leadingWidth: showMenuButton ? 52 : 0,
       automaticallyImplyLeading: false,
-      // Native iOS liquid glass navbar (UIGlassEffect on iOS 26), matching the
-      // glass nav pill and ClassNotes. Content is opaque; the bar is the glass.
-      backgroundColor: Colors.transparent,
+      // Same colour as the page behind it (scaffold = cs.surface) so the bar
+      // reads as part of the screen rather than a separate tinted band.
+      backgroundColor: cs.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      flexibleSpace: NativeGlassView(
-        style: NativeGlassStyle.regular,
-        fallbackColor: cs.surface.withValues(alpha: isDark ? 0.6 : 0.7),
-        child: const SizedBox.expand(),
-      ),
       leading: !showMenuButton
           ? null
           : Builder(

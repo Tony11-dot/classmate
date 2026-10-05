@@ -95,6 +95,7 @@ class _CMailScreenState extends ConsumerState<CMailScreen> {
     final l = AppLocalizations.of(context)!;
     final api = ref.read(cmailApiProvider);
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;

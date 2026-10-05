@@ -55,6 +55,7 @@ class CMailDetailScreen extends ConsumerWidget {
   Future<void> _showRecipients(BuildContext context, WidgetRef ref) async {
     final l = AppLocalizations.of(context)!;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

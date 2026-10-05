@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { getAnthropicClient } from '../tutor/providers/openai.provider';
 import {
   NOVA_IDENTITY,
   NOVA_LANGUAGE_RULES,
@@ -89,6 +90,8 @@ export class SupportService {
       '- Biometric sign-in (Face ID / fingerprint): turn it on in Profile (it only shows on devices that already have it set up); after that the login screen can unlock with it.',
       '- Account switcher: tap your name/avatar at the top of the side menu (drawer) to switch between accounts on this device, Add account, or remove one. Adding an account keeps you signed into the current one.',
       '- Accounts are created by the school administrator. Teachers can add students to a classroom directly or via a join code (Classrooms → "Join with code").',
+      '- Entering a code (classroom join code, group invite code, or a verification code sent by SMS/email): the app shows ONE BOX PER CHARACTER so you can see how long the code is. Type or paste it — it checks automatically once every box is filled: the boxes turn green when the code is valid, or shake and turn red when it is wrong (just retype it). Classroom codes are 6 characters, group invite codes are 8 and ARE case-sensitive, verification codes are 6 digits.',
+      '- App updates: when a newer version is available in your store, ClassMate shows an "Update" card on launch with a button that opens the App Store / Google Play page. If you dismissed it, open the App Store / Play Store and update ClassMate from there.',
       '',
       'GETTING AROUND / APPEARANCE (everyone):',
       '- The side menu (drawer) opens from the menu icon (top-left). It holds your main tabs, a "School Tools" section, and an Account section (Profile, Settings, Support, About).',
@@ -100,7 +103,9 @@ export class SupportService {
       '- Notifications: a banner shows new ones; the Notifications screen has the full list. On Android the hardware back button goes to the home tab first, then press back again to exit.',
       '',
       'MESSAGES / CHAT (students, teachers, parents, admins, secretaries):',
-      '- Messages is a WhatsApp-style chat. Voice notes: press and HOLD the mic to record — slide left to cancel, slide up to lock hands-free, and you can pause/resume or trash it.',
+      '- Messages is a WhatsApp-style chat. The message bar: the camera button on the left takes a photo in one tap; inside the bar there is the mic and a ⊕ button. Tap ⊕ to open a tray with Gallery, Camera, Video and Files (tap the keyboard key that replaces ⊕ to get the keyboard back). When you type, the send button appears.',
+      '- Voice notes: press and HOLD the mic to record — slide left to cancel, slide up to lock hands-free; a quick tap on the mic also starts a hands-free recording. You can pause/resume or trash it.',
+      '- Each bubble shows its time (and, for your messages, the ticks) in its bottom corner.',
       '- Ticks: one grey check = sent, two grey checks = delivered, two BLUE checks = seen. A typing indicator shows when the other person is typing.',
       '- Long-press a message for: react (emoji), reply, edit, delete, copy, forward, pin, report.',
       '- Long-press a chat in the inbox for: pin, mute, mark read/unread, delete chat, block. You can start a new chat or a new group, and manage Blocked People from the inbox.',
@@ -111,10 +116,12 @@ export class SupportService {
       '- "Arrange" turns the grid into a drag-to-reorder list. Changes you make here reach the iPad the next time it is opened. You draw and create notebooks on the iPad; the ClassMate tab is for reading and managing them.',
       '',
       'STUDENTS:',
+      '- Schedule: the top card shows classes today/this week, what is next and your next exam (tap it to open Exams). Under it, a week strip — tap any day — plus ‹ › to step a day and the date to pick from a calendar; swipe left/right on the page to change day too. The day is shown as a timeline, and the class happening right now is marked NOW. Tap a class for details, notes and materials.',
       '- Main tabs: Schedule, Classrooms, Practice, Insights, NOVA (the AI study tutor). More in School Tools: Messages, ClassNotes, Attendance, Grades, Assignments, Materials, Solutions, Bagrut, Meetings, Announcements, Exams, Forms, Saved Questions, Certificates, CMail.',
       '- Classrooms → open a class for its Chat, Assignments, Materials, Meetings/Forms and People tabs. Leave a class from its menu.',
       '- Practice: AI practice across 18 subjects with modes — Practice/Daily, Flashcards, Speed round, Exam prep, Concept builder, Adaptive, and Bagrut — plus 1-v-1 matchmaking against another student. Bookmark questions to Saved Questions.',
-      '- NOVA (study tutor): your AI tutor chats — search or start a new chat; long-press a chat to rename or delete it. NOVA tutoring uses tokens; manage them under Plans (Account section). Insights has "Ask NOVA" shortcuts.',
+      '- Practice timing: choose per-question or whole-quiz timing, then Let AI decide, Custom, or No timer. "Let AI decide" is available in Practice, Speed round, Exam prep and Adaptive (Bagrut always uses the official exam length; Flashcards and Concept builder are untimed).',
+      '- NOVA (study tutor): your AI tutor chats — search or start a new chat (New chat). NOVA names a new chat automatically from what you talked about after its first reply; long-press a chat (or tap ⋯) to rename or delete it. NOVA tutoring uses tokens; manage them under Plans (Account section). Insights has "Ask NOVA" shortcuts.',
       '- Solutions: browse textbook solutions by Subject → Book → Page → Question. Bagrut: a library of past national exams.',
       '',
       'TEACHERS:',
@@ -129,10 +136,12 @@ export class SupportService {
       '- With more than one child, use the child dropdown under your name in the side menu to switch; a "viewing as {child}" banner shows which child every screen is showing. All screens then show that child’s data.',
       '',
       'ADMINISTRATORS:',
-      '- Tools: Dashboard, People (add/edit/delete users; Import Users for bulk), Cohorts, Schedule editor, Bell schedule/Periods, School Settings, Grade Scales, Reports, Certificates, Export Data, Announcements, Messages, CMail. Cohorts group students who share a schedule.',
+      '- Tools: Dashboard, People (add/edit/delete users; Import Users for bulk), Cohorts, Schedule editor, Bell schedule/Periods, School Settings, Grade Scales, Reports, Certificates, Export Data, Announcements, Messages, CMail, Permissions. Cohorts group students who share a schedule.',
+      '- Permissions (Settings → Permissions, or the Permissions tool): the admin decides what Secretaries and Teachers may do. Secretary abilities (off by default unless noted): add/remove students in classes (cohorts), create/edit/delete classes, add student accounts, delete student accounts, send school mail (CMail — on by default), create & edit certificates, edit the school schedule, post announcements. Teacher abilities (on by default; the admin can switch any off): enter & edit grades, manage class materials, assignments, exams, online meetings and forms. Each row has a Secretary and/or Teacher switch; tap Save. Admins always have every ability.',
+      '- In People, tap a person (or ⋯) to edit or delete them.',
       '',
       'SECRETARIES:',
-      '- A view-mostly admin: People, Cohorts, Reports and Schedule are read-only, and Certificates are read-only (can be printed by cohort). Secretaries CAN post announcements and use Messages/CMail and Export Data.',
+      '- By default a view-mostly admin: People, Cohorts, Reports and Schedule are read-only, and Certificates are read-only (can be printed by cohort). Secretaries can use Messages, CMail and Export Data. The school ADMIN can grant secretaries more in Permissions (adding/removing students in classes, managing classes, adding or deleting student accounts, certificates, editing the schedule, posting announcements) — if a button is missing for a secretary, the admin has not enabled that permission.',
       '',
       'CMail (school mail): students have an Inbox; teachers, secretaries and admins also get Sent and Compose.',
       '',
@@ -175,6 +184,49 @@ export class SupportService {
       { role: 'user', content: q },
     ];
 
+    // Primary: the free OpenAI-compatible provider (Groq). Its free tier
+    // rate-limits (429) under load and a reasoning model can spend the whole
+    // budget thinking and return empty content — both surfaced to users as
+    // "couldn't answer". Any such failure now falls back to Claude Haiku so
+    // the helper always replies.
+    try {
+      return await this.askPrimary(messages);
+    } catch (e) {
+      const fallback = await this.askAnthropic(messages).catch(() => null);
+      if (fallback) return fallback;
+      throw e;
+    }
+  }
+
+  private async askAnthropic(
+    messages: { role: string; content: string }[],
+  ): Promise<{ answer: string } | null> {
+    if (!process.env.ANTHROPIC_API_KEY) return null;
+    const system = messages.find((m) => m.role === 'system')?.content ?? '';
+    const turns = messages
+      .filter((m) => m.role !== 'system')
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content,
+      }));
+    const res: any = await getAnthropicClient().messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 700,
+      temperature: 0.3,
+      system,
+      messages: turns,
+    } as any);
+    const answer = String(
+      res?.content?.find?.((c: any) => c?.type === 'text')?.text ?? '',
+    ).trim();
+    if (!answer) return null;
+    this.logger.log('support_ai_fallback_used provider=anthropic');
+    return { answer };
+  }
+
+  private async askPrimary(
+    messages: { role: string; content: string }[],
+  ): Promise<{ answer: string }> {
     const controller = new AbortController();
     const timer = setTimeout(
       () => controller.abort(),
@@ -192,7 +244,10 @@ export class SupportService {
           model: this.model(),
           messages,
           temperature: 0.3,
-          max_tokens: 700,
+          max_tokens: 1200,
+          // gpt-oss is a reasoning model: keep its thinking short so the
+          // answer isn't starved of tokens (ignored by non-reasoning models).
+          ...(/gpt-oss/i.test(this.model()) ? { reasoning_effort: 'low' } : {}),
         }),
         signal: controller.signal,
       });

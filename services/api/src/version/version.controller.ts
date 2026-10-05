@@ -13,7 +13,19 @@ import { Public } from '../auth/decorators/public.decorator';
 /// review AND Play production rollout, set MOBILE_LATEST_BUILD=<build> on
 /// Railway and every stale client starts prompting. This constant is only the
 /// floor when the env var is unset — keep it at the last build known public.
-const FALLBACK_LATEST_MOBILE_BUILD = 279;
+const FALLBACK_LATEST_MOBILE_BUILD = 286;
+
+/// Per-store floors — the two stores don't release in lockstep (App Store
+/// 1.1.8+287 went live 2026-10-04 while Play production is still on 286), so a
+/// single number either nags Android users toward a build Play doesn't have
+/// or leaves iOS users un-nudged. Env: MOBILE_LATEST_BUILD_IOS / _ANDROID.
+const FALLBACK_LATEST_IOS_BUILD = 287;
+const FALLBACK_LATEST_ANDROID_BUILD = 286;
+
+function buildFromEnv(name: string, fallback: number): number {
+  const v = Number(process.env[name] ?? '');
+  return Number.isFinite(v) && v > 0 ? v : fallback;
+}
 
 @Public()
 @SkipThrottle()
@@ -31,7 +43,11 @@ export class VersionController {
       service: 'classmate-api',
       ts: new Date().toISOString(),
       mobile: {
+        // Legacy single value — older app builds only read this one, so keep
+        // it at the build BOTH stores have.
         latestBuild,
+        iosLatestBuild: buildFromEnv('MOBILE_LATEST_BUILD_IOS', FALLBACK_LATEST_IOS_BUILD),
+        androidLatestBuild: buildFromEnv('MOBILE_LATEST_BUILD_ANDROID', FALLBACK_LATEST_ANDROID_BUILD),
         // Store destinations for the in-app update prompt. Env-overridable so
         // e.g. the iOS link can flip from TestFlight to the App Store page on
         // public launch without an app update.

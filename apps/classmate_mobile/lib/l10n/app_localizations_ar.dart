@@ -6215,6 +6215,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'عذرًا — لم أتمكن من الإجابة الآن. يرجى المحاولة مرة أخرى، أو التواصل مع الدعم أعلاه.';
 
   @override
+  String get supportAiSubtitle => 'Help with anything in ClassMate';
+
+  @override
+  String get supportAiSuggestPassword => 'How do I reset my password?';
+
+  @override
+  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+
+  @override
+  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+
+  @override
   String get aboutWhatIsClassmate => 'ما هو ClassMate؟';
 
   @override

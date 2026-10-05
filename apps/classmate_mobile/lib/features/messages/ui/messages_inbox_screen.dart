@@ -2,6 +2,7 @@
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/cm_code_field.dart';
 import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -62,9 +63,36 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   Future<void> _joinGroupByCode() async {
     var joining = false;
     String? errorMsg;
+    var status = CmCodeStatus.idle;
     final codeCtrl = TextEditingController();
 
+    Future<void> submit(BuildContext ctx, StateSetter setS) async {
+      final code = codeCtrl.text.trim();
+      if (code.isEmpty || joining) return;
+      joining = true;
+      setS(() { errorMsg = null; status = CmCodeStatus.checking; });
+      try {
+        final threadId = await (ref.read(messagesRepositoryProvider) as ApiMessagesRepository).joinGroupByCode(code: code);
+        if (!mounted) return;
+        setS(() => status = CmCodeStatus.success);
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+        ref.invalidate(messagesInboxProvider);
+        if (!ctx.mounted) return;
+        Navigator.of(ctx).pop();
+        if (threadId != null && threadId.isNotEmpty && mounted) {
+          context.pushNamed('dm_thread', pathParameters: {'id': threadId});
+        }
+      } catch (e) {
+        joining = false;
+        setS(() {
+          status = CmCodeStatus.error;
+          errorMsg = e.toString().replaceFirst('Exception: ', '');
+        });
+      }
+    }
+
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -109,42 +137,24 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      TextField(
+                      // Group invite codes are 8 chars and CASE-SENSITIVE.
+                      CmCodeField(
+                        length: 8,
                         controller: codeCtrl,
-                        autofocus: true,
-                        textCapitalization: TextCapitalization.characters,
-                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: 4),
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          hintText: '• • • • • • • •',
-                          hintStyle: TextStyle(color: cs.onSurfaceVariant),
-                          filled: true,
-                          fillColor: cs.surfaceContainerHighest,
-                          errorText: errorMsg,
-                        ),
+                        status: status,
+                        errorText: errorMsg,
+                        onChanged: (_) {
+                          if (status == CmCodeStatus.error) {
+                            setS(() { status = CmCodeStatus.idle; errorMsg = null; });
+                          }
+                        },
+                        onCompleted: (_) => submit(ctx, setS),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton.icon(
-                          onPressed: joining ? null : () async {
-                            final code = codeCtrl.text.trim();
-                            if (code.isEmpty) return;
-                            joining = true;
-                            setS(() { errorMsg = null; });
-                            try {
-                              final threadId = await (ref.read(messagesRepositoryProvider) as ApiMessagesRepository).joinGroupByCode(code: code);
-                              if (!mounted) return;
-                              ref.invalidate(messagesInboxProvider);
-                              Navigator.of(ctx).pop();
-                              if (threadId != null && threadId.isNotEmpty) {
-                                context.pushNamed('dm_thread', pathParameters: {'id': threadId});
-                              }
-                            } catch (e) {
-                              joining = false;
-                              setS(() { errorMsg = e.toString().replaceFirst('Exception: ', ''); });
-                            }
-                          },
+                          onPressed: joining ? null : () => submit(ctx, setS),
                           icon: joining
                               ? const CmLoading(size: 18)
                               : const Icon(Icons.group_add_rounded),

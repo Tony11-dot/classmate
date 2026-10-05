@@ -217,6 +217,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
 
   Future<void> _showModeInfoSheet(BuildContext context) async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -647,17 +648,20 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                           setState(() {
                             if (!nextBehavior.allowTimer) {
                               _timingMode = TimingMode.infinite;
-                            } else if (nextBehavior.aiTiming) {
-                              _timingMode = TimingMode.ai;
-                            } else if (nextBehavior.perQuestionTimingOnly) {
-                              _timingScope = TimingScope.perQuestion;
-                              if (_timingMode == TimingMode.ai) {
+                            } else {
+                              // Adaptive is AI-paced by design; the other
+                              // timed modes now OFFER AI timing too but keep
+                              // whatever the student already picked.
+                              if (mode == PracticeMode.adaptive) {
+                                _timingMode = TimingMode.ai;
+                              } else if (!nextBehavior.aiTiming &&
+                                  _timingMode == TimingMode.ai) {
                                 _timingMode = TimingMode.custom;
                               }
-                            } else if (nextBehavior.perQuizTimingOnly) {
-                              _timingScope = TimingScope.exam;
-                              if (_timingMode == TimingMode.ai) {
-                                _timingMode = TimingMode.custom;
+                              if (nextBehavior.perQuestionTimingOnly) {
+                                _timingScope = TimingScope.perQuestion;
+                              } else if (nextBehavior.perQuizTimingOnly) {
+                                _timingScope = TimingScope.exam;
                               }
                             }
 
@@ -1159,6 +1163,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
     String Function(String item)? labelFor,
   }) {
     return showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -1198,6 +1203,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
   }) {
     final l = AppLocalizations.of(context)!;
     return showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

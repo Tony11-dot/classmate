@@ -2120,6 +2120,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       // Keep the sheet clear of the status bar (top) and the system

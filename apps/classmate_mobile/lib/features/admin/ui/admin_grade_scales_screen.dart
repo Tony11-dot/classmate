@@ -46,6 +46,7 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
 
   Future<void> _openEditor({CustomGradeScale? existing}) async {
     final changed = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       // Without this, a scroll-controlled sheet can extend under the status

@@ -764,6 +764,7 @@ Future<void> _openAccountSwitcherInner(BuildContext context, WidgetRef ref) asyn
   final activeId = session.userId;
 
   await showModalBottomSheet<void>(
+      useRootNavigator: true,
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,

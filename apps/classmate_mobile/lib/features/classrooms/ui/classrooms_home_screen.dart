@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_press.dart';
+import '../../../ui/widgets/cm_code_field.dart';
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,6 +41,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
   Future<void> _showJoinSheet(BuildContext context) async {
     final codeCtrl = TextEditingController();
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -48,8 +50,35 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
         // State vars OUTSIDE the builder so they persist across setS() rebuilds
         var joining = false;
         String? errorMsg;
+        var status = CmCodeStatus.idle;
         return StatefulBuilder(
           builder: (ctx, setS) {
+            Future<void> submit() async {
+              final code = codeCtrl.text.trim();
+              if (code.isEmpty || joining) return;
+              setS(() { joining = true; errorMsg = null; status = CmCodeStatus.checking; });
+              try {
+                await ClassroomsRepository().joinByCode(code);
+                if (!mounted) return;
+                setS(() => status = CmCodeStatus.success);
+                // Let the green "valid" animation land before closing.
+                await Future<void>.delayed(const Duration(milliseconds: 700));
+                ref.invalidate(orderedStudentClassroomsProvider);
+                ref.invalidate(studentClassroomsProvider);
+                if (!ctx.mounted) return;
+                Navigator.of(ctx).pop();
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(AppLocalizations.of(context)!.classroomsJoined)),
+                );
+              } catch (e) {
+                setS(() {
+                  joining = false;
+                  status = CmCodeStatus.error;
+                  errorMsg = e.toString().replaceFirst('Exception: ', '');
+                });
+              }
+            }
 
             return Padding(
               padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
@@ -91,62 +120,24 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              TextField(
+                              CmCodeField(
+                                length: 6,
                                 controller: codeCtrl,
-                                autofocus: true,
-                                textCapitalization: TextCapitalization.characters,
-                                maxLength: 10,
-                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: 6),
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  hintText: '• • • • • •',
-                                  hintStyle: TextStyle(color: cs.onSurfaceVariant, letterSpacing: 6),
-                                  filled: true,
-                                  fillColor: cs.surfaceContainerHighest,
-                                  errorText: errorMsg,
-                                  counterText: '',
-                                ),
-                                onSubmitted: (_) async {
-                                  final code = codeCtrl.text.trim();
-                                  if (code.isEmpty) return;
-                                  setS(() { joining = true; errorMsg = null; });
-                                  try {
-                                    await ClassroomsRepository().joinByCode(code);
-                                    if (!mounted) return;
-                                    ref.invalidate(orderedStudentClassroomsProvider);
-                                    ref.invalidate(studentClassroomsProvider);
-                                    Navigator.of(ctx).pop();
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(AppLocalizations.of(context)!.classroomsJoined)),
-                                    );
-                                  } catch (e) {
-                                    setS(() { joining = false; errorMsg = e.toString().replaceFirst('Exception: ', ''); });
+                                upperCase: true,
+                                status: status,
+                                errorText: errorMsg,
+                                onChanged: (_) {
+                                  if (status == CmCodeStatus.error) {
+                                    setS(() { status = CmCodeStatus.idle; errorMsg = null; });
                                   }
                                 },
+                                onCompleted: (_) => submit(),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 20),
                               SizedBox(
                                 width: double.infinity,
                                 child: FilledButton.icon(
-                                  onPressed: joining ? null : () async {
-                                    final code = codeCtrl.text.trim();
-                                    if (code.isEmpty) return;
-                                    setS(() { joining = true; errorMsg = null; });
-                                    try {
-                                      await ClassroomsRepository().joinByCode(code);
-                                      if (!mounted) return;
-                                      ref.invalidate(orderedStudentClassroomsProvider);
-                                      ref.invalidate(studentClassroomsProvider);
-                                      Navigator.of(ctx).pop();
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(AppLocalizations.of(context)!.classroomsJoined)),
-                                      );
-                                    } catch (e) {
-                                      setS(() { joining = false; errorMsg = e.toString().replaceFirst('Exception: ', ''); });
-                                    }
-                                  },
+                                  onPressed: joining ? null : submit,
                                   icon: joining
                                       ? const CmLoading(size: 18)
                                       : const Icon(Icons.login_rounded),

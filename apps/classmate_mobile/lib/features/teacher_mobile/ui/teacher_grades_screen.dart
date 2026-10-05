@@ -723,6 +723,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
 
   Future<void> _editAssessment(TeacherAssessment a) async {
     final changed = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -740,6 +741,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
   /// is what makes it count toward (and be stored in) the average.
   Future<void> _addToAverage(_SubjectGroup g) async {
     final picked = await showModalBottomSheet<TeacherAssessment>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

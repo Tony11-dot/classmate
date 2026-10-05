@@ -302,6 +302,7 @@ Future<void> _showFontPicker(
   final l = AppLocalizations.of(context)!;
   final cs = Theme.of(context).colorScheme;
   await showModalBottomSheet<void>(
+      useRootNavigator: true,
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
@@ -627,6 +628,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
         children: [
           FilledButton.icon(
             onPressed: () => showModalBottomSheet<void>(
+      useRootNavigator: true,
               context: context,
               isScrollControlled: true,
               backgroundColor: cs.surface,
@@ -656,6 +658,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
                     selected: t.customId == ct.id,
                     onTap: () => tc.selectCustom(ct.id),
                     onEdit: () => showModalBottomSheet<void>(
+      useRootNavigator: true,
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: cs.surface,
@@ -733,6 +736,7 @@ class _ThemeTile extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final action = await showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       backgroundColor: cs.surface,
       showDragHandle: true,

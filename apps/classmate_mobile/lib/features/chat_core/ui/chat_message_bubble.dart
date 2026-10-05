@@ -890,6 +890,41 @@ class ChatMessageBubble extends StatelessWidget {
       );
     }
 
+    // Time · edited · ticks — small and soft, WhatsApp style.
+    final metaColor = Colors.white.withValues(alpha: 0.78);
+    final meta = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (edited)
+          Text(
+            l.chatMessageBubbleEdited,
+            style: TextStyle(
+              color: metaColor,
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        if (edited) const SizedBox(width: 5),
+        Text(
+          timeLabel,
+          style: TextStyle(
+            color: metaColor,
+            fontSize: 11,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        if (isMine && showDeliveryStatus) const SizedBox(width: 4),
+        if (isMine && showDeliveryStatus) _buildChecks(context),
+      ],
+    );
+    // Plain text (no media/file/deleted) carries the time inline.
+    final inlineMeta = !isDeletedForEveryone &&
+        !isImage &&
+        !isVoice &&
+        !isVideo &&
+        !(isPdf || isFileLike) &&
+        showRealUserCaption;
+
     // ─── Bubble path: text, files, deleted, media-with-reply/forwarded ────────
     Widget bubble = ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
@@ -900,7 +935,7 @@ class ChatMessageBubble extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
+            padding: const EdgeInsets.fromLTRB(11, 6, 9, 6),
             decoration: BoxDecoration(
               color: isMine ? outgoingBubbleColor : incomingBubbleColor,
               borderRadius: _bubbleRadius(context),
@@ -1176,33 +1211,30 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ),
                 ] else if (showRealUserCaption) ...[
-                  _CollapsibleMessageText(text: body, previewMode: previewMode),
+                  // WhatsApp layout: a short message and its time share one
+                  // line; a long one pushes the time to the trailing edge of
+                  // the line below.
+                  Wrap(
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.end,
+                    spacing: 10,
+                    runSpacing: 2,
+                    children: [
+                      _CollapsibleMessageText(text: body, previewMode: previewMode),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 1),
+                        child: meta,
+                      ),
+                    ],
+                  ),
                 ],
-                const SizedBox(height: 3),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (edited)
-                      Text(
-                        l.chatMessageBubbleEdited,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    if (edited) const SizedBox(width: 6),
-                    Text(
-                      timeLabel,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                      ),
-                    ),
-                    if (isMine && showDeliveryStatus) const SizedBox(width: 6),
-                    if (isMine && showDeliveryStatus) _buildChecks(context),
-                  ],
-                ),
+                // Text-only bubbles float the time inside the text run (see
+                // above); everything else keeps it on its own line, pinned to
+                // the trailing edge like WhatsApp.
+                if (!inlineMeta) ...[
+                  const SizedBox(height: 3),
+                  meta,
+                ],
               ],
             ),
           ),

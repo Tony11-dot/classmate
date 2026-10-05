@@ -18,6 +18,7 @@ class ChatEmojiPickerSheet extends StatefulWidget {
     List<String>? allowedEmojis,
   }) {
     return showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

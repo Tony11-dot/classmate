@@ -70,6 +70,7 @@ class _AudienceSectionState extends State<AudienceSection> {
   Future<void> _openCohortPicker() async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -97,6 +98,7 @@ class _AudienceSectionState extends State<AudienceSection> {
   Future<void> _openStudentPicker() async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -123,6 +125,7 @@ class _AudienceSectionState extends State<AudienceSection> {
   Future<void> _openGradePicker() async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

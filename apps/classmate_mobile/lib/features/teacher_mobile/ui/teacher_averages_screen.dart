@@ -96,6 +96,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
 
   Future<void> _openEditor({SubjectAverage? existing}) async {
     final changed = await showModalBottomSheet<bool>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -141,6 +142,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
 
   Future<void> _openPreview(SubjectAverage a) async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

@@ -267,6 +267,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     }
     if (!mounted) return;
     final result = await showModalBottomSheet<_ParentChoice>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

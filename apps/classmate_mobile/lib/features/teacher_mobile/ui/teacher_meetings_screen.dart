@@ -416,6 +416,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
   Future<void> _openCohortPickerMtg() async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context, isScrollControlled: true, useSafeArea: true,
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
@@ -431,6 +432,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
   Future<void> _openClassroomPickerMtg(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context, isScrollControlled: true, useSafeArea: true,
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
@@ -529,6 +531,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
 
   Future<void> _openStudentPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -549,6 +552,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
 
   Future<void> _openGradePicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

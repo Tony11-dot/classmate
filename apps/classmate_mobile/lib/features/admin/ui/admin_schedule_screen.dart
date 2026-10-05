@@ -337,6 +337,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     if (widget.readOnly) {
       if (slots.isEmpty) return;
       await showModalBottomSheet<_SquareSheetAction>(
+      useRootNavigator: true,
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
@@ -356,6 +357,7 @@ class _AdminScheduleScreenState extends ConsumerState<AdminScheduleScreen> {
     }
     final repo = ref.read(adminRepositoryProvider);
     final action = await showModalBottomSheet<_SquareSheetAction>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -3972,6 +3974,7 @@ class _SubjectPickerField extends StatelessWidget {
   Future<void> _openPicker(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
     final picked = await showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

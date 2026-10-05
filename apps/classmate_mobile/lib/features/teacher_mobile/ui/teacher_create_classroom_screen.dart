@@ -150,6 +150,7 @@ class _TeacherCreateClassroomScreenState
 
   Future<void> _openCohortPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -170,6 +171,7 @@ class _TeacherCreateClassroomScreenState
 
   Future<void> _openStudentPicker() async {
     await showModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

@@ -88,7 +88,13 @@ class _UpdateGateState extends State<UpdateGate> with WidgetsBindingObserver {
       final mobile = raw is Map && raw['mobile'] is Map
           ? Map<String, dynamic>.from(raw['mobile'] as Map)
           : const <String, dynamic>{};
-      final latest = (mobile['latestBuild'] as num?)?.toInt() ?? 0;
+      // Prefer this store's own latest build (the stores release on
+      // different days); fall back to the shared value from older servers.
+      final perStore = (Platform.isIOS
+              ? mobile['iosLatestBuild']
+              : mobile['androidLatestBuild']) as num?;
+      final latest =
+          perStore?.toInt() ?? (mobile['latestBuild'] as num?)?.toInt() ?? 0;
       if (latest <= current) return;
 
       // Deliberately keyed on the user ACKNOWLEDGING the card (tapping either

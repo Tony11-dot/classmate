@@ -314,6 +314,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
   Future<void> _showSessionActions(Map<String, dynamic> session) async {
     final l = AppLocalizations.of(context)!;
     final action = await showModalBottomSheet<String>(
+      useRootNavigator: true,
       context: context,
       showDragHandle: true,
       builder: (context) {

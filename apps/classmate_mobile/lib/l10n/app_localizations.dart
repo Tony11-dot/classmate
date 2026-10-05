@@ -11145,6 +11145,30 @@ abstract class AppLocalizations {
   /// **'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.'**
   String get supportAiError;
 
+  /// No description provided for @supportAiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help with anything in ClassMate'**
+  String get supportAiSubtitle;
+
+  /// No description provided for @supportAiSuggestPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I reset my password?'**
+  String get supportAiSuggestPassword;
+
+  /// No description provided for @supportAiSuggestJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I join a classroom with a code?'**
+  String get supportAiSuggestJoin;
+
+  /// No description provided for @supportAiSuggestTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I change the app\'s theme?'**
+  String get supportAiSuggestTheme;
+
   /// No description provided for @aboutWhatIsClassmate.
   ///
   /// In en, this message translates to:
