@@ -491,14 +491,11 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _idle(BuildContext context, bool hasText) {
-    final scheme = Theme.of(context).colorScheme;
     final canSend =
         enabled && (hasText || hasDraft) && !isStreaming && !isRecording;
-    // Attach (+) stays available even while typing — you can add a file to a
-    // message that already has a caption. It used to vanish the moment you
-    // typed, forcing you to clear the text first. Only recording/streaming
-    // hide it.
     final showAddButton =
+        !hasText &&
+        !hasDraft &&
         !isStreaming &&
         !isRecording &&
       (showCamera || showAttach || onVideo != null || onGallery != null);
@@ -506,20 +503,7 @@ class ChatComposer extends StatelessWidget {
     return _shell(
       context,
       key: const ValueKey('idle'),
-      // Idle input lives in its own rounded pill (surface + hairline), matching
-      // the recording/locked HUDs so the composer reads as one consistent
-      // control instead of a bare row floating on the bar.
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: scheme.outlineVariant),
-        ),
-        child: Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AnimatedSwitcher(
@@ -651,7 +635,6 @@ class ChatComposer extends StatelessWidget {
             ),
           ),
         ],
-      ),
       ),
     );
   }
