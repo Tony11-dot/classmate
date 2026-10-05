@@ -491,102 +491,73 @@ class ChatComposer extends StatelessWidget {
   }
 
   Widget _idle(BuildContext context, bool hasText) {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     final canSend =
         enabled && (hasText || hasDraft) && !isStreaming && !isRecording;
-    final showAddButton =
-        !hasText &&
-        !hasDraft &&
-        !isStreaming &&
-        !isRecording &&
-      (showCamera || showAttach || onVideo != null || onGallery != null);
+    // Nothing typed or staged and not busy — the state that shows the quick
+    // actions on the right (mic · gallery · +). Same rule as before for +.
+    final idleEmpty = !hasText && !hasDraft && !isStreaming && !isRecording;
+    final showAddButton = idleEmpty &&
+        (showCamera || showAttach || onVideo != null || onGallery != null);
+    final showGallery = idleEmpty && onGallery != null;
 
+    // Instagram-DM layout — one filled pill:
+    //   (📷)  Message…            🎙  🖼  ＋      ← nothing typed
+    //   (📷)  Hello there                  ➤     ← typing
+    // The camera is one tap (it used to live only behind +), gallery is one
+    // tap, and + still opens the full menu (camera / video / gallery / files),
+    // so nothing that was reachable before has moved out of reach. The mic is
+    // the same _MicPressDetector as before — the press / hold / slide / lock
+    // plumbing is untouched (guarded by chat_composer_gesture_test.dart).
     return _shell(
       context,
       key: const ValueKey('idle'),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 160),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeOutCubic,
-            child: showAddButton
-                ? Builder(
-                    key: const ValueKey('left_add_button'),
-                    builder: (buttonContext) => Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 6),
-                      child: SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Center(
-                          child: _circleBtn(
-                            context,
-                            icon: Icons.add_rounded,
-                            onTap: enabled
-                                ? () {
-                                    final box = buttonContext.findRenderObject()
-                                        as RenderBox?;
-                                    final overlay = Overlay.of(context)
-                                        .context
-                                        .findRenderObject() as RenderBox?;
-                                    if (box == null || overlay == null) {
-                                      _showComposerActions(
-                                        context,
-                                        const Rect.fromLTWH(16, 0, 44, 44),
-                                      );
-                                      return;
-                                    }
-                                    final offset = box.localToGlobal(
-                                      Offset.zero,
-                                      ancestor: overlay,
-                                    );
-                                    _showComposerActions(
-                                      context,
-                                      offset & box.size,
-                                    );
-                                  }
-                                : null,
-                            compact: true,
-                          ),
-                        ),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: scheme.surfaceContainerHigh),
+        ),
+        child: Row(
+          // Buttons hug the bottom edge as the text grows to several lines.
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (showCamera && !isStreaming)
+              _cameraBtn(context)
+            else
+              const SizedBox(width: 10),
+            Expanded(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 40),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                  child: TextField(
+                    key: const ValueKey('chat_input'),
+                    controller: controller,
+                    focusNode: focusNode,
+                    enabled: enabled && !isStreaming,
+                    minLines: 1,
+                    maxLines: 5,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.newline,
+                    decoration: InputDecoration(
+                      isCollapsed: true,
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: _resolvedHint(context),
+                      hintStyle: TextStyle(
+                        color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
-                    ),
-                  )
-                : const SizedBox(key: ValueKey('left_add_button_empty')),
-          ),
-          Expanded(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 36),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
-                child: TextField(
-                  key: const ValueKey('chat_input'),
-                  controller: controller,
-                  focusNode: focusNode,
-                  enabled: enabled && !isStreaming,
-                  minLines: 1,
-                  maxLines: 5,
-                  textCapitalization: TextCapitalization.sentences,
-                  textInputAction: TextInputAction.newline,
-                  decoration: InputDecoration(
-                    isCollapsed: true,
-                    isDense: true,
-                    border: InputBorder.none,
-                    hintText: _resolvedHint(context),
-                    hintStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant
-                          .withValues(alpha: 0.55),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: AnimatedSwitcher(
+            AnimatedSwitcher(
               duration: const Duration(milliseconds: 140),
               switchInCurve: Curves.easeOutCubic,
               switchOutCurve: Curves.easeOutCubic,
@@ -600,41 +571,152 @@ class ChatComposer extends StatelessWidget {
                       large: true,
                     )
                   : canSend
-                  ? _sendBtn(
-                      context,
-                      key: const ValueKey('send_btn'),
-                      icon: Icons.send_rounded,
-                      active: true,
-                      onTap: onSend,
-                      large: true,
-                    )
-                  : showMic
-                  ? _MicPressDetector(
-                      key: const ValueKey('mic_btn'),
-                      enabled: enabled && !forceMicOnlyTap,
-                      onPressStart: onMicPressStart,
-                      child: Center(
-                        child: _circleBtn(
+                      ? _sendBtn(
                           context,
-                          icon: Icons.mic_none_rounded,
-                          // Tap-only fallback surfaces (no press-to-record)
-                          // still get a plain tap to open a locked take.
-                          onTap: enabled && forceMicOnlyTap ? onMic : null,
-                          prominent: true,
-                        ),
-                      ),
-                    )
-                  : _sendBtn(
-                      context,
-                      key: const ValueKey('disabled_send_btn'),
-                      icon: Icons.send_rounded,
-                      active: false,
-                      onTap: null,
-                      large: true,
-                    ),
+                          key: const ValueKey('send_btn'),
+                          icon: Icons.send_rounded,
+                          active: true,
+                          onTap: onSend,
+                          large: true,
+                        )
+                      : (showMic || showGallery || showAddButton)
+                          ? Row(
+                              key: const ValueKey('idle_actions'),
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (showMic)
+                                  _MicPressDetector(
+                                    key: const ValueKey('mic_btn'),
+                                    enabled: enabled && !forceMicOnlyTap,
+                                    onPressStart: onMicPressStart,
+                                    child: _pillIcon(
+                                      context,
+                                      icon: Icons.mic_none_rounded,
+                                      label: l.chatComposerMicHint,
+                                      // Tap-only fallback surfaces (no
+                                      // press-to-record) still get a plain tap
+                                      // to open a locked take.
+                                      onTap: enabled && forceMicOnlyTap
+                                          ? onMic
+                                          : null,
+                                    ),
+                                  ),
+                                if (showGallery)
+                                  _pillIcon(
+                                    context,
+                                    icon: Icons.photo_library_outlined,
+                                    label: l.tutorChooseFromGallery,
+                                    onTap: enabled ? onGallery : null,
+                                  ),
+                                if (showAddButton)
+                                  Builder(
+                                    builder: (buttonContext) => _pillIcon(
+                                      context,
+                                      icon: Icons.add_circle_outline_rounded,
+                                      label: l.a11yMore,
+                                      onTap: enabled
+                                          ? () {
+                                              final box = buttonContext
+                                                  .findRenderObject() as RenderBox?;
+                                              final overlay = Overlay.of(context)
+                                                  .context
+                                                  .findRenderObject() as RenderBox?;
+                                              if (box == null || overlay == null) {
+                                                _showComposerActions(
+                                                  context,
+                                                  const Rect.fromLTWH(16, 0, 44, 44),
+                                                );
+                                                return;
+                                              }
+                                              final offset = box.localToGlobal(
+                                                Offset.zero,
+                                                ancestor: overlay,
+                                              );
+                                              _showComposerActions(
+                                                context,
+                                                offset & box.size,
+                                              );
+                                            }
+                                          : null,
+                                    ),
+                                  ),
+                              ],
+                            )
+                          : _sendBtn(
+                              context,
+                              key: const ValueKey('disabled_send_btn'),
+                              icon: Icons.send_rounded,
+                              active: false,
+                              onTap: null,
+                              large: true,
+                            ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Leading camera button — the filled brand-colour circle Instagram uses.
+  /// One tap straight to the camera.
+  Widget _cameraBtn(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      label: AppLocalizations.of(context)!.tutorTakePhoto,
+      child: InkResponse(
+        onTap: enabled ? onCamera : null,
+        radius: 22,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: enabled
+                ? scheme.primary
+                : scheme.onSurface.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
           ),
-        ],
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.photo_camera_rounded,
+            size: 21,
+            color: enabled
+                ? scheme.onPrimary
+                : scheme.onSurface.withValues(alpha: 0.38),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Bare 40×40 icon inside the pill (mic / gallery / +). No outline or fill —
+  /// the pill is the container, like Instagram's trailing icons.
+  Widget _pillIcon(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback? onTap,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 22,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(
+            icon,
+            size: 24,
+            color: enabled
+                ? scheme.onSurface
+                : scheme.onSurface.withValues(alpha: 0.38),
+          ),
+        ),
       ),
     );
   }
@@ -661,11 +743,13 @@ class ChatComposer extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 48),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
+          color: scheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(28),
+          // Invisible at rest (same as the fill), turning red as the drag
+          // approaches the cancel threshold.
           border: Border.all(
-            color: Color.lerp(
-                scheme.outlineVariant, scheme.error, 0.6 * cancelProgress)!,
+            color: Color.lerp(scheme.surfaceContainerHigh, scheme.error,
+                0.6 * cancelProgress)!,
           ),
         ),
         child: Row(
@@ -738,9 +822,9 @@ class ChatComposer extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 48),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerLow,
+            color: scheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: scheme.outlineVariant),
+            border: Border.all(color: scheme.surfaceContainerHigh),
           ),
           child: Row(
             children: [
@@ -837,40 +921,6 @@ class ChatComposer extends StatelessWidget {
   // _recordingActionButton). The new _holding/_locked widgets above use a
   // single minimal pill (red dot · elapsed · slide-to-cancel · lock-or-
   // actions) modelled on Instagram's recorder, replacing all of them.
-
-  Widget _circleBtn(
-    BuildContext context, {
-    required IconData icon,
-    required VoidCallback? onTap,
-    bool compact = false,
-    bool prominent = false,
-  }) {
-    final scheme = Theme.of(context).colorScheme;
-    final size = compact ? 24.0 : (prominent ? 36.0 : 30.0);
-    return InkWell(
-      borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOutCubic,
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: prominent
-              ? scheme.surfaceContainerHigh
-              : scheme.surfaceContainerLow,
-          shape: BoxShape.circle,
-          border: Border.all(color: scheme.outlineVariant),
-        ),
-        alignment: Alignment.center,
-        child: Icon(
-          icon,
-          size: compact ? 14 : (prominent ? 18 : 16),
-          color: prominent ? scheme.onSurface : scheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
 
   Widget _sendBtn(
     BuildContext context, {
