@@ -155,8 +155,16 @@ class _BalanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primaryContainer,
+            Color.alphaBlend(cs.tertiary.withValues(alpha: 0.18), cs.primaryContainer),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: CmTokens.of(context).shadowMd,
       ),
       child: balanceAsync.when(
         loading: () => const SizedBox(
@@ -192,15 +200,26 @@ class _BalanceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const Spacer(),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: cs.onPrimaryContainer.withValues(alpha: 0.10),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.bolt_rounded, color: cs.onPrimaryContainer),
+                  ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               Text(
                 formatted,
                 style: theme.textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.w900,
                   color: cs.onPrimaryContainer,
                   letterSpacing: -1.0,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
               Text(
@@ -383,25 +402,50 @@ class _PlanTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isCurrent ? cs.primaryContainer.withValues(alpha: 0.4) : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(20),
+          color: isCurrent
+              ? Color.alphaBlend(cs.primary.withValues(alpha: 0.08), cs.surfaceContainerLow)
+              : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(CmTokens.radiusLg),
           border: Border.all(
-            color: isCurrent ? cs.primary : cs.outlineVariant,
-            width: isCurrent ? 2 : 1,
+            color: isCurrent ? cs.primary : cs.outlineVariant.withValues(alpha: 0.3),
+            width: isCurrent ? 2 : 0.8,
           ),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  margin: const EdgeInsetsDirectional.only(end: 12),
+                  decoration: BoxDecoration(
+                    color: isCurrent ? cs.primary : cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Icon(
+                    switch (plan.tier) {
+                      'BUDGET' => Icons.eco_rounded,
+                      'BALANCE' => Icons.auto_awesome_rounded,
+                      'COMMITMENT' => Icons.rocket_launch_rounded,
+                      _ => Icons.spa_rounded,
+                    },
+                    color: isCurrent ? cs.onPrimary : cs.onPrimaryContainer,
+                  ),
+                ),
                 Expanded(
                   child: Row(
                     children: [
-                      Text(
-                        plan.labelLocalized(AppLocalizations.of(context)!),
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
+                      Flexible(
+                        child: Text(
+                          plan.labelLocalized(AppLocalizations.of(context)!),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                       if (isCurrent) ...[
@@ -452,13 +496,22 @@ class _PlanTile extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.bolt_rounded, size: 16, color: cs.secondary),
-                const SizedBox(width: 4),
-                Text(
-                  plan.tokensLabelLocalized(AppLocalizations.of(context)!),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(999),
                   ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.bolt_rounded, size: 15, color: cs.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      plan.tokensLabelLocalized(AppLocalizations.of(context)!),
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ]),
                 ),
               ],
             ),

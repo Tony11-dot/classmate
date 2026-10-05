@@ -1,3 +1,5 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../ui/widgets/cm_search_field.dart';
@@ -57,34 +59,49 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(26),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          cs.primaryContainer,
+                          Color.alphaBlend(cs.primary.withValues(alpha: 0.14), cs.primaryContainer),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: CmTokens.of(context).shadowMd,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.lightbulb_rounded,
-                              color: cs.onPrimaryContainer,
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: cs.onPrimaryContainer.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(Icons.lightbulb_rounded, color: cs.onPrimaryContainer),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              l.titleSolutions,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.w900),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                l.titleSolutions,
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.4,
+                                      color: cs.onPrimaryContainer,
+                                    ),
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 10),
                         Text(
                           l.savedQuestionsOpenSolutionsSubtitle,
                           style: TextStyle(
-                            color: cs.onSurfaceVariant,
+                            color: cs.onPrimaryContainer.withValues(alpha: 0.75),
                             height: 1.4,
                           ),
                         ),
@@ -114,67 +131,71 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
               ),
             )
           else
+            // Subjects as a 2-column grid of big icon tiles.
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-              sliver: SliverList.separated(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
+              sliver: SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.95,
+                ),
                 itemCount: subjects.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final subject = subjects[index];
-                  return Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(22),
-                      onTap: () {
-                        notifier.selectSubject(subject);
-                        context.push('/solutions/books');
-                      },
-                      child: Ink(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: cs.surfaceContainerLow.withValues(
-                            alpha: 0.75,
-                          ),
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: cs.outlineVariant,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundColor: cs.primaryContainer,
-                              child: Icon(
-                                solutionSubjectIcon(subject.id),
-                                size: 22,
-                                color: cs.onPrimaryContainer,
-                              ),
+                  return CmPress(
+                    onTap: () {
+                      notifier.selectSubject(subject);
+                      context.push('/solutions/books');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
+                        boxShadow: CmTokens.of(context).shadowSm,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    solutionSubjectTitle(l, subject.id),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l.solutionsBookCount(subject.books.length),
-                                    style: TextStyle(
-                                      color: cs.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            child: Icon(
+                              solutionSubjectIcon(subject.id),
+                              size: 26,
+                              color: cs.onPrimaryContainer,
                             ),
-                            const Icon(Icons.chevron_right_rounded),
-                          ],
-                        ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            solutionSubjectTitle(l, subject.id),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, height: 1.2),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(Icons.menu_book_rounded, size: 14, color: cs.primary),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  l.solutionsBookCount(subject.books.length),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   );

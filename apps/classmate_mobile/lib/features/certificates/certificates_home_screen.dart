@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 
 import '../../ui/widgets/cm_search_field.dart';
@@ -268,7 +269,18 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
             if (_items.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Center(child: Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant))),
+                child: Center(
+                  child: Column(children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+                      child: Icon(Icons.workspace_premium_rounded, size: 34, color: cs.onPrimaryContainer),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant)),
+                  ]),
+                ),
               )
             else
               for (final c in _items)
@@ -330,17 +342,17 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
                 child: CmPress(
                   onTap: () => _openStudent(s),
                   child: LiquidGlassCard(
-                    borderRadius: BorderRadius.circular(16),
+                    padding: const EdgeInsets.all(14),
+                    borderRadius: BorderRadius.circular(20),
                     color: cs.surfaceContainerLow,
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     child: Row(
                       children: [
                         CircleAvatar(
-                          radius: 20,
+                          radius: 23,
                           backgroundColor: cs.primaryContainer,
                           child: Text(
                             _initials(s.name),
-                            style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w800),
+                            style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w900, fontSize: 15),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -349,11 +361,16 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(s.name,
-                                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-                              Text(
-                                l.certCertificateCount(_certCountFor(s.id)),
-                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                              ),
+                                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, fontSize: 15)),
+                              const SizedBox(height: 4),
+                              Row(children: [
+                                Icon(Icons.workspace_premium_rounded, size: 14, color: cs.primary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  l.certCertificateCount(_certCountFor(s.id)),
+                                  style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                                ),
+                              ]),
                             ],
                           ),
                         ),
@@ -466,7 +483,18 @@ class _StudentCertificatesStaffPageState extends ConsumerState<StudentCertificat
                     if (_certs.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 40),
-                        child: Center(child: Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant))),
+                        child: Center(
+                  child: Column(children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+                      child: Icon(Icons.workspace_premium_rounded, size: 34, color: cs.onPrimaryContainer),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(l.certNoneYet, style: TextStyle(color: cs.onSurfaceVariant)),
+                  ]),
+                ),
                       )
                     else
                       for (final c in _certs)
@@ -506,11 +534,26 @@ class _CertRow extends StatelessWidget {
     return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(16),
+        padding: const EdgeInsets.all(14),
+        borderRadius: BorderRadius.circular(20),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
         child: Row(
           children: [
+            Container(
+              width: 46,
+              height: 46,
+              margin: const EdgeInsetsDirectional.only(end: 12),
+              decoration: BoxDecoration(
+                color: cert['published'] == true
+                    ? CmTokens.of(context).goodContainer
+                    : cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(Icons.workspace_premium_rounded,
+                  color: cert['published'] == true
+                      ? CmTokens.of(context).onGoodContainer
+                      : cs.onSurfaceVariant),
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,8 +589,8 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    final bg = published ? cs.primaryContainer : cs.surfaceContainerHighest;
-    final fg = published ? cs.onPrimaryContainer : cs.onSurfaceVariant;
+    final bg = published ? CmTokens.of(context).goodContainer : cs.surfaceContainerHighest;
+    final fg = published ? CmTokens.of(context).onGoodContainer : cs.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,10 +63,15 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
                 (context, i) {
                 final s = subjects[i];
                 return Material(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(18),
+                  color: cs.surfaceContainerLow,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
+                  ),
+                  elevation: 1,
+                  shadowColor: Colors.black.withValues(alpha: 0.12),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                     // Root navigator → full-screen (covers the shell top bar);
                     // Cupertino route → back chevron + edge-swipe to leave.
                     onTap: () => Navigator.of(context, rootNavigator: true).push(
@@ -79,9 +85,13 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundColor: cs.primaryContainer,
+                          Container(
+                            width: 46,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: cs.primaryContainer,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                             child: Icon(s.icon, color: cs.onPrimaryContainer),
                           ),
                           Text(
@@ -89,7 +99,7 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w800,
                                 ),
                           ),
                         ],
