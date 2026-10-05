@@ -330,7 +330,7 @@ class _MetricTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18),
+          Icon(icon, size: 20, color: cs.primary),
           const SizedBox(height: 10),
           Text(
             value,

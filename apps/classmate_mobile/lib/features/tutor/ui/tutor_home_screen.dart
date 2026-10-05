@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -434,15 +436,26 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.alphaBlend(
+                        cs.primary.withValues(alpha: 0.10), cs.surfaceContainerLow),
+                    cs.surfaceContainerLow,
+                  ],
+                ),
+                border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                boxShadow: CmTokens.of(context).shadowMd,
               ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const NovaAvatar(size: 56),
+                    const NovaAvatar(size: 64),
                     const SizedBox(height: 12),
                     Text(
                       'NOVA',
@@ -492,7 +505,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                               horizontal: 16,
                               vertical: 11,
                             ),
-                            minimumSize: const Size(0, 42),
+                            minimumSize: const Size(0, 44),
                             visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             shape: RoundedRectangleBorder(
@@ -513,7 +526,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                               horizontal: 14,
                               vertical: 11,
                             ),
-                            minimumSize: const Size(0, 42),
+                            minimumSize: const Size(0, 44),
                             visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             shape: RoundedRectangleBorder(
@@ -604,7 +617,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                               color: cs.surfaceContainerLow,
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: cs.outlineVariant,
+                                color: cs.outlineVariant.withValues(alpha: 0.4),
                               ),
                             ),
                             child: Padding(
@@ -617,16 +630,14 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                     height: 46,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: cs.outlineVariant,
-                                      ),
+                                      color: cs.primaryContainer,
                                     ),
                                     child: Icon(
                                       _searchController.text.trim().isEmpty
                                           ? Icons.forum_rounded
                                           : Icons.search_off_rounded,
                                       size: 22,
-                                      color: cs.onSurface,
+                                      color: cs.onPrimaryContainer,
                                     ),
                                   ),
                                   const SizedBox(height: 12),
@@ -657,7 +668,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                     icon: const Icon(Icons.add_comment_rounded, size: 16),
                                     label: Text(l.tutorCreateFirstChat),
                                     style: FilledButton.styleFrom(
-                                      minimumSize: const Size(0, 40),
+                                      minimumSize: const Size(0, 44),
                                       visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                       shape: RoundedRectangleBorder(
@@ -677,18 +688,19 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                           final subtitle = _subtitleFor(context, session);
                           final timeLabel = _sessionTimeLabel(context, session);
                           return Padding(
-                            padding: EdgeInsets.fromLTRB(16, index == 0 ? 4 : 0, 16, 6),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
+                            padding: EdgeInsets.fromLTRB(16, index == 0 ? 6 : 0, 16, 8),
+                            child: CmPress(
                               onTap: () => _openSession(session),
                               onLongPress: () => _showSessionActions(session),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   color: cs.surfaceContainerLow,
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(CmTokens.radiusLg - 2),
                                   border: Border.all(
-                                    color: cs.outlineVariant,
+                                    color: cs.outlineVariant.withValues(alpha: 0.35),
+                                    width: 0.8,
                                   ),
+                                  boxShadow: CmTokens.of(context).shadowSm,
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
@@ -696,14 +708,11 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Container(
-                                        width: 36,
-                                        height: 36,
+                                        width: 42,
+                                        height: 42,
                                         decoration: BoxDecoration(
-                                          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
-                                          border: Border.all(
-                                            color: cs.outlineVariant,
-                                          ),
+                                          color: cs.primaryContainer,
+                                          borderRadius: BorderRadius.circular(13),
                                         ),
                                         child: Center(
                                           child: Text(
@@ -713,7 +722,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                                 .titleSmall
                                                 ?.copyWith(
                                                   fontWeight: FontWeight.w900,
-                                                  color: cs.onSurface,
+                                                  color: cs.onPrimaryContainer,
                                                 ),
                                           ),
                                         ),
@@ -776,8 +785,8 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                       IconButton(
                                         tooltip: l.menu,
                                         constraints: const BoxConstraints.tightFor(
-                                          width: 32,
-                                          height: 32,
+                                          width: 40,
+                                          height: 40,
                                         ),
                                         padding: EdgeInsets.zero,
                                         splashRadius: 18,

@@ -1392,7 +1392,7 @@ class _MetricTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18),
+          Icon(icon, size: 20, color: cs.primary),
           const SizedBox(height: 10),
           Text(
             value,
@@ -1430,7 +1430,7 @@ class _SignalBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20),
+          Icon(icon, size: 20, color: cs.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1463,9 +1463,10 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      color: backgroundColor ?? cs.surfaceContainerHigh,
+      border: Border.all(color: Colors.transparent, width: 0),
       child: Text(
         label,
         maxLines: 1,
