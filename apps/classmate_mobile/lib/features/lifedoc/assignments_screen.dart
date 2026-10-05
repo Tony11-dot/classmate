@@ -1,5 +1,6 @@
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import '../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -287,7 +288,7 @@ Color _statusTone(BuildContext context, String status) {
     case _assignmentStateOverdue:
       return cs.errorContainer;
     case _assignmentStateDueSoon:
-      return cs.tertiaryContainer;
+      return CmTokens.of(context).warnContainer;
     case _assignmentStateUpcoming:
       return cs.secondaryContainer;
     default:
@@ -1219,79 +1220,113 @@ class _AssignmentCard extends StatelessWidget {
     final subject = _stringValue(assignment, '_subject');
     final l = AppLocalizations.of(context)!;
 
+    final submitted = assignment['submitted'] == true;
+    final tokens = CmTokens.of(context);
+    // Leading tile carries the state at a glance (handed in / overdue / …).
+    final tileBg = submitted ? tokens.goodContainer : _statusTone(context, status);
+    final tileFg = submitted
+        ? tokens.onGoodContainer
+        : switch (status) {
+            _assignmentStateOverdue => cs.onErrorContainer,
+            _assignmentStateDueSoon => tokens.onWarnContainer,
+            _assignmentStateGraded => cs.onPrimaryContainer,
+            _assignmentStateUpcoming => cs.onSecondaryContainer,
+            _ => cs.onSurfaceVariant,
+          };
+    final tileIcon = submitted
+        ? Icons.task_alt_rounded
+        : switch (status) {
+            _assignmentStateOverdue => Icons.error_outline_rounded,
+            _assignmentStateDueSoon => Icons.hourglass_bottom_rounded,
+            _assignmentStateGraded => Icons.grade_rounded,
+            _ => Icons.assignment_rounded,
+          };
+
     return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
-        padding: const EdgeInsets.all(16),
-        borderRadius: BorderRadius.circular(24),
+        padding: const EdgeInsets.all(14),
+        borderRadius: BorderRadius.circular(22),
         color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    _stringValue(assignment, 'title').isEmpty
-                        ? l.classroomDetailAssignmentFallback
-                        : _stringValue(assignment, 'title'),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: tileBg,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(tileIcon, color: tileFg),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _stringValue(assignment, 'title').isEmpty
+                              ? l.classroomDetailAssignmentFallback
+                              : _stringValue(assignment, 'title'),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _previewBody(context, assignment),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w900),
+                    style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _previewBody(context, assignment),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (assignment['submitted'] == true)
-                  _Chip(
-                    label: l.studentAssignmentHandedInBadge,
-                    backgroundColor: const Color(0xFF22C55E).withValues(alpha: 0.15),
-                    foregroundColor: const Color(0xFF22C55E),
-                  )
-                else
-                  _Chip(
-                    label: _statusLabel(context, status),
-                    backgroundColor: _statusTone(context, status),
-                    foregroundColor: cs.onSurface,
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (submitted)
+                        _Chip(
+                          label: l.studentAssignmentHandedInBadge,
+                          backgroundColor: tokens.goodContainer,
+                          foregroundColor: tokens.onGoodContainer,
+                        )
+                      else
+                        _Chip(
+                          label: _statusLabel(context, status),
+                          backgroundColor: tileBg,
+                          foregroundColor: tileFg,
+                        ),
+                      _Chip(
+                        icon: Icons.event_rounded,
+                        label: _friendlyDateLabel(context, _stringValue(assignment, 'dueAt')),
+                      ),
+                      if (subject.isNotEmpty)
+                        _Chip(icon: Icons.menu_book_rounded, label: subject),
+                      if (courseName.isNotEmpty && courseName != subject)
+                        _Chip(
+                          icon: Icons.class_rounded,
+                          label: courseName,
+                          foregroundColor: cs.onSurfaceVariant,
+                        ),
+                    ],
                   ),
-                if (subject.isNotEmpty)
-                  _Chip(
-                    label: subject,
-                    backgroundColor: cs.surface,
-                    foregroundColor: cs.onSurface,
-                  ),
-                if (courseName.isNotEmpty)
-                  _Chip(
-                    label: courseName,
-                    backgroundColor: cs.surface,
-                    foregroundColor: cs.onSurfaceVariant,
-                  ),
-                _Chip(
-                  label: _friendlyDateLabel(context, _stringValue(assignment, 'dueAt')),
-                  backgroundColor: cs.surface,
-                  foregroundColor: cs.onSurfaceVariant,
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
-      ),);
+      ),
+    );
   }
 }
 
@@ -1311,15 +1346,18 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(28),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.4,
+                  color: cs.onPrimaryContainer,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1388,11 +1426,18 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: cs.primary),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(icon, size: 19, color: cs.primary),
+          ),
           const SizedBox(height: 10),
           Text(
             value,
@@ -1453,11 +1498,13 @@ class _Chip extends StatelessWidget {
     required this.label,
     this.backgroundColor,
     this.foregroundColor,
+    this.icon,
   });
 
   final String label;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -1467,15 +1514,26 @@ class _Chip extends StatelessWidget {
       borderRadius: BorderRadius.circular(999),
       color: backgroundColor ?? cs.surfaceContainerHigh,
       border: const Border.fromBorderSide(BorderSide.none),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: foregroundColor ?? cs.onSurface,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 13, color: cs.primary),
+            const SizedBox(width: 5),
+          ],
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: foregroundColor ?? cs.onSurface,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -143,53 +144,47 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             const SizedBox(height: 16),
 
             // ── Day picker ─────────────────────────────────────────────────
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOutCubic,
-              padding: const EdgeInsets.all(8),
+            Container(
+              padding: const EdgeInsets.fromLTRB(6, 6, 6, 10),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+                boxShadow: CmTokens.of(context).shadowSm,
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Semantics(button: true, label: l.a11yPrevious, child: _navBtn(context, icon: Icons.chevron_left_rounded, onTap: () => _shiftDay(-1))),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () => _pickDate(context),
-                      child: Ink(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: cs.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.calendar_month_rounded, size: 18),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                _friendlyDate(context, _selectedDate, locale),
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.2,
+                  Row(
+                    children: [
+                      Semantics(button: true, label: l.a11yPrevious, child: _navBtn(context, icon: Icons.chevron_left_rounded, onTap: () => _shiftDay(-1))),
+                      Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => _pickDate(context),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.calendar_month_rounded, size: 18, color: cs.primary),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    _friendlyDate(context, _selectedDate, locale),
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
+                      Semantics(button: true, label: l.a11yNext, child: _navBtn(context, icon: Icons.chevron_right_rounded, onTap: () => _shiftDay(1))),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  Semantics(button: true, label: l.a11yNext, child: _navBtn(context, icon: Icons.chevron_right_rounded, onTap: () => _shiftDay(1))),
+                  const SizedBox(height: 6),
+                  _weekStrip(context, weekAsync.asData?.value, locale),
                 ],
               ),
             ),
@@ -246,6 +241,89 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
     return h * 60 + m;
   }
 
+  /// Sun–Sat strip of the selected week; dots = periods that day (max 3).
+  Widget _weekStrip(BuildContext context, Map<String, dynamic>? data, String locale) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final start = DateTime.parse(_weekStartYmd(_selectedDate));
+    final today = _ymd(_dateOnly(DateTime.now()));
+    return Row(
+      children: [
+        for (var i = 0; i < 7; i++)
+          Builder(builder: (context) {
+            final day = _dateOnly(start.add(Duration(days: i)));
+            final ymd = _ymd(day);
+            final selected = ymd == _ymd(_selectedDate);
+            final isToday = ymd == today;
+            final n = data == null ? 0 : _slotsForDay(data, ymd).length;
+            String wd;
+            try {
+              wd = DateFormat.E(locale).format(day);
+            } catch (_) {
+              wd = DateFormat.E().format(day);
+            }
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: CmPress(
+                  onTap: () => setState(() => _selectedDate = day),
+                  child: AnimatedContainer(
+                    duration: CmTokens.medium,
+                    curve: Curves.easeOutCubic,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: selected ? cs.primary : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isToday && !selected ? cs.primary : Colors.transparent,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(wd,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: selected ? cs.onPrimary.withValues(alpha: 0.85) : cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            )),
+                        const SizedBox(height: 4),
+                        Text('${day.day}',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: selected ? cs.onPrimary : cs.onSurface,
+                              fontWeight: FontWeight.w800,
+                            )),
+                        const SizedBox(height: 5),
+                        SizedBox(
+                          height: 5,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (var k = 0; k < (n > 3 ? 3 : n); k++)
+                                Container(
+                                  width: 5,
+                                  height: 5,
+                                  margin: const EdgeInsets.symmetric(horizontal: 1),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: selected ? cs.onPrimary : cs.primary.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
   Widget _buildHeroCard(BuildContext context, Map<String, dynamic> data, String locale) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -265,19 +343,34 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(CmTokens.radiusXl),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l.navSchedule,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.4,
-              color: cs.onPrimaryContainer,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: cs.onPrimaryContainer.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.event_note_rounded, color: cs.onPrimaryContainer),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l.navSchedule,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.4,
+                    color: cs.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
           Row(
@@ -304,15 +397,14 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
           if (nextUp != null) ...[
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+                color: cs.surface.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.arrow_forward_rounded, size: 16, color: cs.primary),
+                  _heroIcon(context, Icons.schedule_rounded),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -334,9 +426,9 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                             if ((nextUp['startTime'] ?? '').toString().isNotEmpty)
                               '${nextUp['startTime']} – ${nextUp['endTime'] ?? ''}',
                           ].where((s) => s.isNotEmpty).join('  ·  '),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: cs.onPrimaryContainer,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: cs.onSurface,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -368,15 +460,14 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
         : '${FriendlyDate.date(exam.dateLabel, Localizations.localeOf(context).toString())} • ${exam.title}';
 
     final content = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
-          Icon(Icons.quiz_rounded, size: 16, color: cs.primary),
+          _heroIcon(context, Icons.quiz_rounded),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -392,9 +483,9 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                 ),
                 Text(
                   value,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: cs.onPrimaryContainer,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -407,15 +498,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       ),
     );
 
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () => context.go('/teacher/exams'),
-        child: content,
-      ),
-    );
+    return CmPress(onTap: () => context.go('/teacher/exams'), child: content);
   }
 
   Widget _buildHeroLoading(BuildContext context) {
@@ -451,22 +534,21 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
   Widget _statPill(BuildContext context, {required IconData icon, required String label, required String value}) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.onPrimaryContainer.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.30)),
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: cs.onPrimaryContainer),
-          const SizedBox(width: 8),
+          _heroIcon(context, icon),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer, fontWeight: FontWeight.w600)),
-                Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: cs.onPrimaryContainer, height: 1.1)),
+                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
+                Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: cs.onSurface, height: 1.1)),
               ],
             ),
           ),
@@ -576,39 +658,80 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
           ),
         );
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+        // Timeline row: time rail │ subject-coloured node │ card.
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                width: 50,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        startTime.isNotEmpty ? startTime : 'P$period',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      if (endTime.isNotEmpty)
+                        Text(endTime,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            )),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 28,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 18),
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color,
+                        border: Border.all(color: cs.surface, width: 2),
+                      ),
+                    ),
+                    if (!identical(slot, slots.last))
+                      Expanded(
+                        child: Container(
+                          width: 2,
+                          margin: const EdgeInsets.only(top: 4),
+                          color: cs.outlineVariant.withValues(alpha: 0.5),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
           child: CmPress(
             onTap: () => _showSlotSheet(context, slot, l),
             child: LiquidGlassCard(
-              padding: const EdgeInsets.all(14),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: color),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+              borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+              child: IntrinsicHeight(
+               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Time square (start time on top, end time below).
-                  Container(
-                    width: 62,
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: cs.onPrimaryContainer.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          startTime.isNotEmpty ? startTime : 'P$period',
-                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer),
-                        ),
-                        if (endTime.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(endTime, style: TextStyle(fontSize: 10, color: cs.onPrimaryContainer.withValues(alpha: 0.70))),
-                        ],
-                      ],
-                    ),
-                  ),
+                  // Subject colour edge.
+                  Container(width: 5, color: color),
                   const SizedBox(width: 12),
+                  Expanded(
+                   child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    child: Row(
+                     children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -631,7 +754,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                             Flexible(
                               child: Text(
                                 subjectLabel,
-                                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -678,10 +801,19 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.chevron_right_rounded, size: 16, color: cs.onSurfaceVariant),
+                  Icon(Icons.chevron_right_rounded, size: 20, color: cs.onSurfaceVariant),
+                     ],
+                    ),
+                   ),
+                  ),
                 ],
+               ),
               ),
             ),),
+                ),
+              ),
+            ],
+          ),
         );
       }).toList(),
     );
@@ -950,18 +1082,27 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
 Widget _navBtn(BuildContext context, {required IconData icon, required VoidCallback onTap}) {
   final cs = Theme.of(context).colorScheme;
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Icon(icon, size: 20, color: cs.onSurface),
+  return IconButton(
+    onPressed: onTap,
+    style: IconButton.styleFrom(
+      backgroundColor: cs.surfaceContainerHigh,
+      fixedSize: const Size(44, 44),
     ),
+    icon: Icon(icon, color: cs.onSurface),
+  );
+}
+
+/// Small tinted icon tile used inside the hero's stat cards.
+Widget _heroIcon(BuildContext context, IconData icon) {
+  final cs = Theme.of(context).colorScheme;
+  return Container(
+    width: 34,
+    height: 34,
+    decoration: BoxDecoration(
+      color: cs.primary.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(11),
+    ),
+    child: Icon(icon, size: 18, color: cs.primary),
   );
 }
 

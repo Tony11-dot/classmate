@@ -1,5 +1,7 @@
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -158,29 +160,41 @@ class _ExamsScreenState extends ConsumerState<ExamsScreen> {
           children: [
             LiquidGlassCard(
               padding: const EdgeInsets.all(18),
-              borderRadius: BorderRadius.circular(26),
+              borderRadius: BorderRadius.circular(28),
               color: cs.primaryContainer,
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(headerIcon, color: cs.onPrimaryContainer),
-                      const SizedBox(width: 8),
-                      Text(
-                        headerTitle,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: cs.onPrimaryContainer,
-                            ),
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: cs.onPrimaryContainer.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(headerIcon, color: cs.onPrimaryContainer),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          headerTitle,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.4,
+                                color: cs.onPrimaryContainer,
+                              ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     headerCopy,
-                    style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
+                    style: TextStyle(
+                        color: cs.onPrimaryContainer.withValues(alpha: 0.75),
+                        height: 1.4),
                   ),
                   const SizedBox(height: 14),
                   if (isFormsOnly)
@@ -298,7 +312,17 @@ Widget _emptyCard(BuildContext context, ColorScheme cs, AppLocalizations l, {req
     borderRadius: BorderRadius.circular(24),
     color: cs.surfaceContainerLow,
     border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-    child: Text(msg, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+    child: Column(children: [
+      Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+        child: Icon(isForms ? Icons.article_rounded : Icons.event_available_rounded,
+            size: 28, color: cs.onPrimaryContainer),
+      ),
+      const SizedBox(height: 12),
+      Text(msg, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+    ]),
   );
 }
 
@@ -319,13 +343,19 @@ class _HeaderStat extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(12),
       borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
+      color: Color.alphaBlend(cs.surface.withValues(alpha: 0.72), cs.primaryContainer),
+      border: const Border.fromBorderSide(BorderSide.none),
+      boxShadow: const [],
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: cs.primaryContainer,
-            child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(icon, size: 18, color: cs.primary),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -337,7 +367,11 @@ class _HeaderStat extends StatelessWidget {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 22,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
                 ),
                 Text(
                   label,
@@ -370,25 +404,48 @@ class _ExamCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    Color statusColor;
-    IconData statusIcon;
+    // Status drives the ticket's accent: today = urgent, upcoming = primary,
+    // past = muted.
+    final Color accent;
+    final Color accentBg;
+    final Color accentFg;
+    final IconData statusIcon;
     switch (status) {
       case _ExamStatus.today:
-        statusColor = cs.onErrorContainer;
+        accent = cs.error;
+        accentBg = cs.errorContainer;
+        accentFg = cs.onErrorContainer;
         statusIcon = Icons.today_rounded;
       case _ExamStatus.past:
-        statusColor = cs.onSurfaceVariant;
+        accent = cs.outline;
+        accentBg = cs.surfaceContainerHighest;
+        accentFg = cs.onSurfaceVariant;
         statusIcon = Icons.check_circle_outline_rounded;
       case _ExamStatus.upcoming:
-        statusColor = cs.onTertiaryContainer;
+        accent = cs.primary;
+        accentBg = cs.primaryContainer;
+        accentFg = cs.onPrimaryContainer;
         statusIcon = Icons.upcoming_rounded;
     }
 
     final locale = Localizations.localeOf(context).toString();
+    // Exam dates are calendar days (UTC midnight) — read them as-is.
+    final when = DateTime.tryParse(exam.dateLabel);
+    String month = '';
+    String weekday = '';
+    if (when != null) {
+      try {
+        month = DateFormat.MMM(locale).format(when).toUpperCase();
+        weekday = DateFormat.E(locale).format(when);
+      } catch (_) {
+        month = DateFormat.MMM().format(when).toUpperCase();
+        weekday = DateFormat.E().format(when);
+      }
+    }
     final metaLine = [
-          // dateLabel is a raw ISO string (kept raw for sorting); format it for
-          // display so it never shows as "2026-06-20T00:00:00.000Z".
-          FriendlyDate.date(exam.dateLabel, locale),
+          // Date lives in the ticket block; when it couldn't be parsed fall
+          // back to the formatted label so nothing is lost.
+          if (when == null) FriendlyDate.date(exam.dateLabel, locale),
           exam.hourLabel,
           exam.periodLabel,
           exam.durationLabel,
@@ -396,119 +453,166 @@ class _ExamCard extends StatelessWidget {
         .where((v) => (v ?? '').trim().isNotEmpty)
         .cast<String>()
         .join(' • ');
+    final past = status == _ExamStatus.past;
 
-    return Material(
-      color: Colors.transparent,
-      child: CmPress(
-        onTap: () => context.push('/exams/${exam.id}', extra: exam),
+    return CmPress(
+      onTap: () => context.push('/exams/${exam.id}', extra: exam),
+      child: Opacity(
+        opacity: past ? 0.78 : 1,
         child: LiquidGlassCard(
-          padding: const EdgeInsets.all(16),
-          borderRadius: BorderRadius.circular(22),
-          color: status == _ExamStatus.today
-              ? cs.errorContainer
-              : cs.surfaceContainerHighest,
-          border: Border.all(
-            color: status == _ExamStatus.today
-                ? cs.error
-                : cs.outlineVariant,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 26,
-                backgroundColor: cs.primaryContainer,
-                child: Icon(
-                  _subjectIcon(exam.subject),
-                  size: 24,
-                  color: cs.onPrimaryContainer,
+          padding: const EdgeInsets.all(12),
+          borderRadius: BorderRadius.circular(24),
+          color: cs.surfaceContainerLow,
+          border: status == _ExamStatus.today
+              ? Border.all(color: cs.error.withValues(alpha: 0.6), width: 1.4)
+              : null,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Ticket stub: weekday · big day · month (or subject icon).
+                Container(
+                  width: 68,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: accentBg,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: when == null
+                      ? Icon(_subjectIcon(exam.subject), size: 28, color: accentFg)
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(weekday,
+                                style: TextStyle(
+                                    color: accentFg.withValues(alpha: 0.8),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700)),
+                            Text('${when.day}',
+                                style: TextStyle(
+                                  color: accentFg,
+                                  fontSize: 28,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w900,
+                                  fontFeatures: const [FontFeature.tabularFigures()],
+                                )),
+                            Text(month,
+                                style: TextStyle(
+                                    color: accentFg,
+                                    fontSize: 12,
+                                    letterSpacing: 0.8,
+                                    fontWeight: FontWeight.w800)),
+                          ],
+                        ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            exam.title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              color: status == _ExamStatus.past
-                                  ? cs.onSurfaceVariant
-                                  : cs.onSurface,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(statusIcon, size: 11, color: statusColor),
-                              const SizedBox(width: 4),
-                              Text(
-                                countdown,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                exam.title,
                                 style: TextStyle(
-                                  fontSize: 11,
                                   fontWeight: FontWeight.w800,
-                                  color: statusColor,
+                                  fontSize: 16,
+                                  color: past ? cs.onSurfaceVariant : cs.onSurface,
                                 ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: accent.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(statusIcon, size: 13, color: accent),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    countdown,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: accent,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(_subjectIcon(exam.subject), size: 15, color: cs.primary),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: Text(
+                                exam.topic == null || exam.topic!.trim().isEmpty
+                                    ? exam.subject
+                                    : '${exam.subject} · ${exam.topic}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (metaLine.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.schedule_rounded, size: 15, color: cs.onSurfaceVariant),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: Text(metaLine,
+                                    style: TextStyle(color: cs.onSurfaceVariant)),
                               ),
                             ],
                           ),
+                        ],
+                        if ((exam.caption ?? '').trim().isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            exam.caption!,
+                            style: TextStyle(color: cs.onSurface, height: 1.4),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _SmallChip(icon: Icons.groups_rounded, label: exam.audience.label),
+                            if (exam.materials.isNotEmpty)
+                              _SmallChip(
+                                icon: Icons.attach_file_rounded,
+                                label: l.examsMaterialsCount(exam.materials.length),
+                              ),
+                            if (exam.teacher.trim().isNotEmpty)
+                              _SmallChip(icon: Icons.person_outline_rounded, label: exam.teacher),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      exam.topic == null || exam.topic!.trim().isEmpty
-                          ? exam.subject
-                          : '${exam.subject} · ${exam.topic}',
-                      style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
-                    ),
-                    if (metaLine.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(metaLine, style: TextStyle(color: cs.onSurfaceVariant)),
-                    ],
-                    if ((exam.caption ?? '').trim().isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        exam.caption!,
-                        style: TextStyle(color: cs.onSurface, height: 1.4),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        _SmallChip(icon: Icons.groups_rounded, label: exam.audience.label),
-                        if (exam.materials.isNotEmpty)
-                          _SmallChip(
-                            icon: Icons.attach_file_rounded,
-                            label: l.examsMaterialsCount(exam.materials.length),
-                          ),
-                        if (exam.teacher.trim().isNotEmpty)
-                          _SmallChip(icon: Icons.person_outline_rounded, label: exam.teacher),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),),
+        ),
+      ),
     );
   }
 }
@@ -538,9 +642,13 @@ class _FormCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 26,
-                    backgroundColor: cs.secondaryContainer,
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: cs.secondaryContainer,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Icon(Icons.assignment_rounded, color: cs.onSecondaryContainer),
                   ),
                   const SizedBox(width: 14),
@@ -550,7 +658,7 @@ class _FormCard extends StatelessWidget {
                       children: [
                         Text(
                           form.title,
-                          style: const TextStyle(fontWeight: FontWeight.w900),
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -565,13 +673,17 @@ class _FormCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                      color: form.acceptingResponses
+                          ? CmTokens.of(context).goodContainer
+                          : cs.surfaceContainerHighest,
                     ),
                     child: Text(
                       form.acceptingResponses ? l.examsOpenState : l.examsClosedState,
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: form.acceptingResponses ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                        color: form.acceptingResponses
+                            ? CmTokens.of(context).onGoodContainer
+                            : cs.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -610,10 +722,10 @@ class _SmallChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        color: cs.surfaceContainerHigh,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
