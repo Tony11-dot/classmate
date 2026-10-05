@@ -1199,7 +1199,7 @@ class _Chip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       borderRadius: BorderRadius.circular(999),
       color: backgroundColor ?? cs.surfaceContainerHigh,
-      border: Border.all(color: Colors.transparent, width: 0),
+      border: const Border.fromBorderSide(BorderSide.none),
       child: Text(
         label,
         maxLines: 1,

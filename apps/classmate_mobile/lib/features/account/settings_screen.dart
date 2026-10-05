@@ -527,7 +527,7 @@ class _SettingRow extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(11),
                 boxShadow: const [],
-                border: Border.all(color: Colors.transparent, width: 0),
+                border: const Border.fromBorderSide(BorderSide.none),
                 color: iconColor != null ? cs.errorContainer : cs.primaryContainer,
                 child: Center(
                   child: Icon(icon, size: 20, color: iconColor ?? cs.onPrimaryContainer),

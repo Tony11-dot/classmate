@@ -1235,32 +1235,30 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: scheme.onSurface.withValues(alpha: 0.045),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: scheme.outlineVariant),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide:
-            BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.7)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: scheme.primary, width: 1.8),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: scheme.error),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: scheme.error, width: 1.8),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide:
-            BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.4)),
-      ),
+      // ONE state-aware border instead of enabled/focused/… slots: a field
+      // that sets its own `border` (e.g. InputBorder.none in the chat
+      // composer, or an underline) then fully overrides the theme. With
+      // separate theme slots, `enabledBorder` silently beat a local
+      // `border: InputBorder.none` and boxed every inline field.
+      border: WidgetStateInputBorder.resolveWith((states) {
+        final Color color;
+        double width = 1;
+        if (states.contains(WidgetState.error)) {
+          color = scheme.error;
+          if (states.contains(WidgetState.focused)) width = 1.8;
+        } else if (states.contains(WidgetState.disabled)) {
+          color = scheme.outlineVariant.withValues(alpha: 0.4);
+        } else if (states.contains(WidgetState.focused)) {
+          color = scheme.primary;
+          width = 1.8;
+        } else {
+          color = scheme.outlineVariant.withValues(alpha: 0.7);
+        }
+        return OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: color, width: width),
+        );
+      }),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
   );

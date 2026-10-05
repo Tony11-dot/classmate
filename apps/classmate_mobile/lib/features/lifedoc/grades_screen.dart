@@ -181,18 +181,20 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
     return out;
   }
 
+  // Semantic signal colours (good / ok / needs work) read the same on every
+  // theme — the old secondary/tertiary containers meant different hues per theme.
   Color _scoreColor(BuildContext context, double score) {
-    final cs = Theme.of(context).colorScheme;
-    if (score >= 85) return cs.secondaryContainer;
-    if (score >= 70) return cs.tertiaryContainer;
-    return cs.errorContainer;
+    final t = CmTokens.of(context);
+    if (score >= 85) return t.goodContainer;
+    if (score >= 70) return t.warnContainer;
+    return Theme.of(context).colorScheme.errorContainer;
   }
 
   Color _scoreOnColor(BuildContext context, double score) {
-    final cs = Theme.of(context).colorScheme;
-    if (score >= 85) return cs.onSecondaryContainer;
-    if (score >= 70) return cs.onTertiaryContainer;
-    return cs.onErrorContainer;
+    final t = CmTokens.of(context);
+    if (score >= 85) return t.onGoodContainer;
+    if (score >= 70) return t.onWarnContainer;
+    return Theme.of(context).colorScheme.onErrorContainer;
   }
 
   double? _average(List<UnifiedGradeInsight> items) => bestFormatAverage(items);
@@ -321,8 +323,17 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primaryContainer,
+            Color.alphaBlend(
+                cs.primary.withValues(alpha: 0.14), cs.primaryContainer),
+          ],
+        ),
         borderRadius: BorderRadius.circular(24),
+        boxShadow: CmTokens.of(context).shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,6 +372,18 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
               ],
             ],
           ),
+          if (avg != null) ...[
+            const SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: (avg / 100).clamp(0.0, 1.0),
+                minHeight: 7,
+                backgroundColor: cs.onPrimaryContainer.withValues(alpha: 0.12),
+                valueColor: AlwaysStoppedAnimation(cs.primary),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -371,14 +394,14 @@ class _GradesScreenState extends ConsumerState<GradesScreen> {
                   icon: Icons.workspace_premium_rounded,
                   label: best,
                   // White translucent bg on primaryContainer → text contrasts.
-                  color: Colors.white.withValues(alpha: 0.25),
+                  color: cs.onPrimaryContainer.withValues(alpha: 0.10),
                   textColor: cs.onPrimaryContainer,
                 ),
               if (weak != null && weak != best)
                 _HeroPill(
                   icon: Icons.flag_rounded,
                   label: weak,
-                  color: cs.error.withValues(alpha: 0.30),
+                  color: cs.error.withValues(alpha: 0.16),
                   textColor: cs.onPrimaryContainer,
                 ),
             ],
@@ -468,9 +491,29 @@ class _SubjectCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             onTap: totalCount > 0 ? onToggle : null,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
               child: Row(
                 children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: scoreColor,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      subject.trim().isEmpty
+                          ? '?'
+                          : subject.trim().characters.first.toUpperCase(),
+                      style: TextStyle(
+                        color: scoreOnColor,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,8 +525,21 @@ class _SubjectCard extends StatelessWidget {
                             letterSpacing: -0.2,
                           ),
                         ),
+                        if (average != null) ...[
+                          const SizedBox(height: 7),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(999),
+                            child: LinearProgressIndicator(
+                              value: (average! / 100).clamp(0.0, 1.0),
+                              minHeight: 5,
+                              backgroundColor: cs.surfaceContainerHighest,
+                              valueColor: AlwaysStoppedAnimation(
+                                  Color.lerp(scoreColor, scoreOnColor, 0.35)!),
+                            ),
+                          ),
+                        ],
                         if (isBest || isWeak) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 7),
                           Row(
                             children: [
                               if (isBest) _SmallBadge(label: l.savedQuestionsTopSubjectMetric, color: cs.secondaryContainer, textColor: cs.onSecondaryContainer),
@@ -503,7 +559,7 @@ class _SubjectCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: scoreColor,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(999),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -513,6 +569,7 @@ class _SubjectCard extends StatelessWidget {
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w900,
                                 color: scoreOnColor,
+                                fontFeatures: const [FontFeature.tabularFigures()],
                               ),
                             ),
                             if (onAverageTap != null) ...[
@@ -523,10 +580,13 @@ class _SubjectCard extends StatelessWidget {
                         ),
                       ),),
                   if (totalCount > 0) ...[
-                    const SizedBox(width: 8),
-                    Icon(
-                      isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-                      color: cs.onSurfaceVariant,
+                    const SizedBox(width: 6),
+                    AnimatedRotation(
+                      turns: isExpanded ? 0.5 : 0,
+                      duration: CmTokens.medium,
+                      curve: Curves.easeOutCubic,
+                      child: Icon(Icons.expand_more_rounded,
+                          color: cs.onSurfaceVariant),
                     ),
                   ],
                 ],
@@ -536,7 +596,7 @@ class _SubjectCard extends StatelessWidget {
           // Grades appear only when the subject is expanded. Collapsed = just
           // the subject row (name + average). Tapping the row toggles it (#22).
           if (isExpanded && items.isNotEmpty) ...[
-            Container(height: 1, color: cs.outlineVariant),
+            Divider(height: 1, indent: 14, endIndent: 14, color: cs.outlineVariant.withValues(alpha: 0.5)),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: Column(
@@ -564,17 +624,17 @@ class _GradeRow extends StatelessWidget {
   final Color dotColor;
 
   Color _gradeColor(BuildContext context, double score) {
-    final cs = Theme.of(context).colorScheme;
-    if (score >= 80) return cs.secondaryContainer;
-    if (score >= 60) return const Color(0xFFF59E0B); // amber
-    return cs.errorContainer;
+    final t = CmTokens.of(context);
+    if (score >= 80) return t.goodContainer;
+    if (score >= 60) return t.warnContainer;
+    return Theme.of(context).colorScheme.errorContainer;
   }
 
   Color _gradeOnColor(BuildContext context, double score) {
-    final cs = Theme.of(context).colorScheme;
-    if (score >= 80) return cs.onSecondaryContainer;
-    if (score >= 60) return Colors.white;
-    return cs.onErrorContainer;
+    final t = CmTokens.of(context);
+    if (score >= 80) return t.onGoodContainer;
+    if (score >= 60) return t.onWarnContainer;
+    return Theme.of(context).colorScheme.onErrorContainer;
   }
 
   @override
@@ -593,7 +653,7 @@ class _GradeRow extends StatelessWidget {
     final chipFg = _gradeOnColor(context, score);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
           Container(
@@ -611,7 +671,8 @@ class _GradeRow extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 if (date.isNotEmpty)
                   Text(
@@ -627,10 +688,10 @@ class _GradeRow extends StatelessWidget {
           const SizedBox(width: 10),
           // Colored grade chip
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: chipBg,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               // Custom-scale grades show the label (e.g. "A+"); otherwise show
@@ -641,6 +702,7 @@ class _GradeRow extends StatelessWidget {
                 color: chipFg,
                 fontWeight: FontWeight.w800,
                 fontSize: 13,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ),
@@ -666,10 +728,10 @@ class _HeroPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -701,7 +763,7 @@ class _SmallBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(999)),
       child: Text(label, style: TextStyle(color: textColor, fontSize: 11, fontWeight: FontWeight.w700)),
     );
   }
@@ -727,7 +789,15 @@ class _EmptyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.school_rounded, size: 32, color: cs.onSurfaceVariant),
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+                color: cs.primaryContainer, shape: BoxShape.circle),
+            alignment: Alignment.center,
+            child: Icon(Icons.school_rounded,
+                size: 26, color: cs.onPrimaryContainer),
+          ),
           const SizedBox(height: 12),
           Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
           const SizedBox(height: 6),

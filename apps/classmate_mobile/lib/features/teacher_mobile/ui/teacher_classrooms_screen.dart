@@ -139,7 +139,7 @@ class _TeacherClassroomsScreenState
                 borderRadius: BorderRadius.circular(CmTokens.radiusXl),
                 color: cs.primaryContainer,
                 gradient: null,
-                border: Border.all(color: Colors.transparent, width: 0),
+                border: const Border.fromBorderSide(BorderSide.none),
                 boxShadow: CmTokens.of(context).shadowMd,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(2, 2, 0, 2),

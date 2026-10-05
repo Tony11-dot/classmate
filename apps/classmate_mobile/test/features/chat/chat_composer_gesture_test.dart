@@ -164,22 +164,37 @@ void main() {
     expect(log, contains('camera'));
   });
 
-  testWidgets('gallery is one tap', (tester) async {
+  testWidgets('+ opens the inline tray (album · camera · files)',
+      (tester) async {
     final log = await _pumpHost(tester);
-    await tester.tap(find.byIcon(Icons.photo_library_outlined));
-    await tester.pumpAndSettle();
-    expect(log, contains('gallery'));
-  });
-
-  testWidgets('+ still opens the full menu (files reachable)', (tester) async {
-    final log = await _pumpHost(tester);
-    await tester.tap(find.byIcon(Icons.add_circle_outline_rounded));
+    await tester.tap(find.byIcon(Icons.add_rounded));
     await tester.pumpAndSettle();
     final l = AppLocalizations.of(tester.element(find.byType(_Host)))!;
+    expect(find.text(l.chatCameraGalleryAction), findsOneWidget);
     expect(find.text(l.commonFiles), findsOneWidget);
+    // ⊕ turned into a keyboard key while the tray is open.
+    expect(find.byIcon(Icons.keyboard_rounded), findsOneWidget);
+    await tester.tap(find.text(l.chatCameraGalleryAction));
+    await tester.pumpAndSettle();
+    expect(log, contains('gallery'));
+    // Picking an action folds the tray away.
+    expect(find.text(l.commonFiles), findsNothing);
+    await tester.tap(find.byIcon(Icons.add_rounded));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l.commonFiles));
     await tester.pumpAndSettle();
     expect(log, contains('attach'));
+  });
+
+  testWidgets('keyboard key closes the tray', (tester) async {
+    await _pumpHost(tester);
+    await tester.tap(find.byIcon(Icons.add_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.keyboard_rounded));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+    final l = AppLocalizations.of(tester.element(find.byType(_Host)))!;
+    expect(find.text(l.commonFiles), findsNothing);
   });
 
   testWidgets('typing hides the quick actions; clearing brings them back',
@@ -187,12 +202,11 @@ void main() {
     await _pumpHost(tester);
     await tester.enterText(find.byType(TextField), 'hi');
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.photo_library_outlined), findsNothing);
-    expect(find.byIcon(Icons.add_circle_outline_rounded), findsNothing);
+    expect(find.byIcon(Icons.add_rounded), findsNothing);
     expect(find.byIcon(Icons.photo_camera_rounded), findsOneWidget);
     await tester.enterText(find.byType(TextField), '');
     await tester.pumpAndSettle();
     expect(_mic, findsOneWidget);
-    expect(find.byIcon(Icons.photo_library_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.add_rounded), findsOneWidget);
   });
 }

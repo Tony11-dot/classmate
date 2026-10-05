@@ -1374,7 +1374,16 @@ const system =
           sources,
         };
 
-        subscriber.next(({ id: String(++eventId), data: { type: 'done', assistantMessage, sources } } as any));
+        // Auto-name untitled chats from their content after the first reply.
+        // Best-effort: a failure here must never break the finished stream.
+        let sessionTitle: string | undefined;
+        try {
+          sessionTitle = await this.autoTitleSession(sessionId, userText, acc, billingUserId);
+        } catch (_) {
+          sessionTitle = undefined;
+        }
+
+        subscriber.next(({ id: String(++eventId), data: { type: 'done', assistantMessage, sources, ...(sessionTitle ? { sessionTitle } : {}) } } as any));
         subscriber.complete();
       } catch (e: any) {
         subscriber.next(({ id: String(++eventId), data: { type: 'error', message: String(e?.message ?? e) } } as any));
@@ -2180,6 +2189,70 @@ const system =
       },
       file,
     );
+  }
+
+  /**
+   * Gives an untitled NOVA chat a short content-based name (ChatGPT-style).
+   * Runs once: only while the stored title is empty or the generic "NOVA"
+   * placeholder, so user/seeded titles are never overwritten. Uses the cheap
+   * Haiku model and bills the caller like every other AI call.
+   */
+  private async autoTitleSession(
+    sessionId: string,
+    userText: string,
+    assistantText: string,
+    billingUserId?: string | null,
+  ): Promise<string | undefined> {
+    const row = await this.prisma.tutorSession.findUnique({
+      where: { id: sessionId },
+      select: { title: true },
+    });
+    const current = String(row?.title ?? '').trim();
+    if (current && current.toUpperCase() !== 'NOVA') return undefined;
+
+    const model = 'claude-haiku-4-5-20251001';
+    const res = await getAnthropicClient().messages.create({
+      model,
+      max_tokens: 30,
+      temperature: 0.3,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            'Write a short title (2-5 words) for this tutoring chat, in the same language the student wrote in.',
+            'Name the topic, not the action (e.g. "Quadratic equations", "Photosynthesis basics").',
+            'Return ONLY the title — no quotes, no punctuation at the end, no emoji.',
+            '',
+            `Student: ${userText.slice(0, 600)}`,
+            `Tutor: ${assistantText.slice(0, 800)}`,
+          ].join('\n'),
+        },
+      ],
+    } as any);
+
+    if (billingUserId) {
+      await this.tokens
+        .chargeAnthropicResponse({ userId: billingUserId, source: 'nova-title', model, response: res })
+        .catch(() => undefined);
+    }
+
+    const raw = (res.content[0]?.type === 'text' ? res.content[0].text : '').trim();
+    const title = raw
+      .split('\n')[0]
+      .replace(/^["'“”«»]+|["'“”«».!?]+$/g, '')
+      .trim()
+      .slice(0, 60);
+    if (!title) return undefined;
+
+    // Conditional write: if the title changed meanwhile, leave it alone.
+    const updated = await this.prisma.tutorSession.updateMany({
+      where: {
+        id: sessionId,
+        OR: [{ title: null }, { title: '' }, { title: 'NOVA' }],
+      },
+      data: { title },
+    });
+    return updated.count > 0 ? title : undefined;
   }
 
   async generateFollowupSuggestions(

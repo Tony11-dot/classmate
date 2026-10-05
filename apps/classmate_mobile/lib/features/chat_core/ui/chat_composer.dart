@@ -1,10 +1,8 @@
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
 import 'chat_live_waveform.dart';
 import 'chat_recording_tokens.dart';
 import '../utils/chat_reply_codec.dart';
@@ -118,122 +116,34 @@ class ChatComposer extends StatelessWidget {
 
   double _clamp01(double v) => v < 0 ? 0 : (v > 1 ? 1 : v);
 
-  Future<void> _showComposerActions(BuildContext context, Rect anchor) async {
+  /// The attachment actions the ⊕ tray offers, in Instagram's order.
+  List<({IconData icon, String label, VoidCallback onTap})> _trayActions(
+      BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final actions = <({IconData icon, String label, VoidCallback onTap})>[
-      (
-        icon: Icons.photo_camera_back_rounded,
-        label: l.tutorTakePhoto,
-        onTap: onCamera,
-      ),
-      if (onVideo != null)
-        (
-          icon: Icons.videocam_rounded,
-          label: l.tutorRecordVideo,
-          onTap: onVideo!,
-        ),
+    return [
       if (onGallery != null)
         (
           icon: Icons.photo_library_rounded,
-          label: l.tutorChooseFromGallery,
+          label: l.chatCameraGalleryAction,
           onTap: onGallery!,
         ),
-      (
-        icon: Icons.attach_file_rounded,
-        label: l.commonFiles,
-        onTap: onAttach,
-      ),
+      if (showCamera)
+        (icon: Icons.photo_camera_rounded, label: l.a11yCamera, onTap: onCamera),
+      if (onVideo != null)
+        (icon: Icons.videocam_rounded, label: l.chatVideo, onTap: onVideo!),
+      if (showAttach)
+        (icon: Icons.attach_file_rounded, label: l.commonFiles, onTap: onAttach),
     ];
-
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
-    final overlaySize = overlay?.size ?? MediaQuery.sizeOf(context);
-    final mediaQuery = MediaQuery.of(context);
-    final popoverWidth = (overlaySize.width - 24).clamp(196.0, 224.0);
-    final popoverHeight = (actions.length * 54.0) + 22.0;
-    final left = (anchor.left - 4).clamp(
-      12.0,
-      overlaySize.width - popoverWidth - 12.0,
-    );
-    final minTop = mediaQuery.padding.top + 10.0;
-    final maxTop = overlaySize.height - popoverHeight - mediaQuery.padding.bottom - 10.0;
-    final spaceAbove = anchor.top - minTop;
-    final spaceBelow = maxTop - anchor.bottom;
-    final showAbove = spaceAbove >= popoverHeight || spaceAbove >= spaceBelow;
-    final top = showAbove
-        ? (anchor.top - popoverHeight - 12).clamp(minTop, maxTop)
-        : (anchor.bottom + 12).clamp(minTop, maxTop);
-    final scaleAlignment = showAbove ? Alignment.bottomLeft : Alignment.topLeft;
-
-    await showGeneralDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 180),
-      // NO SafeArea around this Stack. A BackdropFilter blurs exactly its own
-      // layout bounds, so wrapping it in a SafeArea inset the backdrop by
-      // MediaQuery.padding and left the status-bar strip and the home-indicator
-      // strip sharp AND untinted — the screen looked blocky, blurred in the
-      // middle with two crisp bands. The popover doesn't need the SafeArea
-      // either: minTop/maxTop above already clamp against padding.top/.bottom,
-      // so the outer inset was only double-counting them.
-      pageBuilder: (dialogContext, animation, secondaryAnimation) => Stack(
-        children: [
-          // Blurred backdrop instead of solid black — edge to edge.
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: animation,
-              builder: (_, __) => BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 6 * animation.value,
-                  sigmaY: 6 * animation.value,
-                ),
-                child: ColoredBox(
-                  color: Colors.black.withValues(alpha: 0.28 * animation.value),
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Navigator.of(dialogContext).pop(),
-            ),
-          ),
-          Positioned(
-            left: left,
-            top: top,
-            width: popoverWidth,
-            child: _ComposerActionPopover(
-              actions: actions,
-              onSelect: (action) {
-                Navigator.of(dialogContext).pop();
-                action.onTap();
-              },
-            ),
-          ),
-        ],
-      ),
-      transitionBuilder: (context, animation, _, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.92, end: 1).animate(curved),
-            alignment: scaleAlignment,
-            child: child,
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    return _TrayHost(
+      builder: (context, trayOpen) => _build(context, trayOpen),
+    );
+  }
+
+  Widget _build(BuildContext context, ValueNotifier<bool> trayOpen) {
     return SafeArea(
       top: false,
       child: Column(
@@ -319,7 +229,7 @@ class ChatComposer extends StatelessWidget {
                         ? _holding(context)
                         : isRecording && isVoiceLocked
                         ? _locked(context)
-                        : _idle(context, hasText),
+                        : _idle(context, hasText, trayOpen),
                   );
                 },
                     ),
@@ -332,6 +242,24 @@ class ChatComposer extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+          ),
+          ValueListenableBuilder<bool>(
+            valueListenable: trayOpen,
+            builder: (context, open, _) => AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: open && !isRecording && enabled
+                  ? _AttachTray(
+                      actions: _trayActions(context),
+                      background: backgroundColor,
+                      onSelect: (action) {
+                        trayOpen.value = false;
+                        action.onTap();
+                      },
+                    )
+                  : const SizedBox(width: double.infinity),
             ),
           ),
         ],
@@ -490,7 +418,8 @@ class ChatComposer extends StatelessWidget {
     );
   }
 
-  Widget _idle(BuildContext context, bool hasText) {
+  Widget _idle(
+      BuildContext context, bool hasText, ValueNotifier<bool> trayOpen) {
     final scheme = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
     final canSend =
@@ -500,35 +429,39 @@ class ChatComposer extends StatelessWidget {
     final idleEmpty = !hasText && !hasDraft && !isStreaming && !isRecording;
     final showAddButton = idleEmpty &&
         (showCamera || showAttach || onVideo != null || onGallery != null);
-    final showGallery = idleEmpty && onGallery != null;
+    // Typing (or anything that hides ⊕) folds the tray away.
+    if (!showAddButton && trayOpen.value) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => trayOpen.value = false);
+    }
 
-    // Instagram-DM layout — one filled pill:
-    //   (📷)  Message…            🎙  🖼  ＋      ← nothing typed
-    //   (📷)  Hello there                  ➤     ← typing
-    // The camera is one tap (it used to live only behind +), gallery is one
-    // tap, and + still opens the full menu (camera / video / gallery / files),
-    // so nothing that was reachable before has moved out of reach. The mic is
-    // the same _MicPressDetector as before — the press / hold / slide / lock
-    // plumbing is untouched (guarded by chat_composer_gesture_test.dart).
+    // Instagram-DM layout:
+    //   📷  ( Message…               🎙  ⊕ )   ← nothing typed
+    //   📷  ( Hello there                  ➤ )   ← typing
+    // Camera sits outside the pill (one tap). ⊕ opens an inline tray below
+    // (gallery · camera · video · files) and turns into a keyboard key that
+    // brings the keyboard back. The mic is the same _MicPressDetector as
+    // before — press / hold / slide / lock plumbing is untouched (guarded by
+    // chat_composer_gesture_test.dart).
     return _shell(
       context,
       key: const ValueKey('idle'),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.all(4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (showCamera && !isStreaming) _cameraBtn(context),
+          Expanded(
+            child: Container(
+        constraints: const BoxConstraints(minHeight: 50),
+        padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: scheme.surfaceContainerHigh),
         ),
         child: Row(
           // Buttons hug the bottom edge as the text grows to several lines.
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (showCamera && !isStreaming)
-              _cameraBtn(context)
-            else
-              const SizedBox(width: 10),
             Expanded(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 40),
@@ -544,9 +477,12 @@ class ChatComposer extends StatelessWidget {
                     maxLines: 5,
                     textCapitalization: TextCapitalization.sentences,
                     textInputAction: TextInputAction.newline,
+                    onTap: () => trayOpen.value = false,
+                    style: const TextStyle(fontSize: 16),
                     decoration: InputDecoration(filled: false, 
                       isCollapsed: true,
                       isDense: true,
+                      contentPadding: EdgeInsets.zero,
                       border: InputBorder.none,
                       hintText: _resolvedHint(context),
                       hintStyle: TextStyle(
@@ -579,7 +515,7 @@ class ChatComposer extends StatelessWidget {
                           onTap: onSend,
                           large: true,
                         )
-                      : (showMic || showGallery || showAddButton)
+                      : (showMic || showAddButton)
                           ? Row(
                               key: const ValueKey('idle_actions'),
                               mainAxisSize: MainAxisSize.min,
@@ -601,41 +537,23 @@ class ChatComposer extends StatelessWidget {
                                           : null,
                                     ),
                                   ),
-                                if (showGallery)
-                                  _pillIcon(
-                                    context,
-                                    icon: Icons.photo_library_outlined,
-                                    label: l.tutorChooseFromGallery,
-                                    onTap: enabled ? onGallery : null,
-                                  ),
                                 if (showAddButton)
-                                  Builder(
-                                    builder: (buttonContext) => _pillIcon(
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable: trayOpen,
+                                    builder: (context, open, _) => _plusBtn(
                                       context,
-                                      icon: Icons.add_circle_outline_rounded,
-                                      label: l.a11yMore,
+                                      open: open,
                                       onTap: enabled
                                           ? () {
-                                              final box = buttonContext
-                                                  .findRenderObject() as RenderBox?;
-                                              final overlay = Overlay.of(context)
-                                                  .context
-                                                  .findRenderObject() as RenderBox?;
-                                              if (box == null || overlay == null) {
-                                                _showComposerActions(
-                                                  context,
-                                                  const Rect.fromLTWH(16, 0, 44, 44),
-                                                );
-                                                return;
+                                              if (open) {
+                                                trayOpen.value = false;
+                                                focusNode?.requestFocus();
+                                              } else {
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus();
+                                                trayOpen.value = true;
                                               }
-                                              final offset = box.localToGlobal(
-                                                Offset.zero,
-                                                ancestor: overlay,
-                                              );
-                                              _showComposerActions(
-                                                context,
-                                                offset & box.size,
-                                              );
                                             }
                                           : null,
                                     ),
@@ -654,11 +572,13 @@ class ChatComposer extends StatelessWidget {
           ],
         ),
       ),
+          ),
+        ],
+      ),
     );
   }
 
-  /// Leading camera button — the filled brand-colour circle Instagram uses.
-  /// One tap straight to the camera.
+  /// Leading camera glyph, outside the pill like Instagram. One tap.
   Widget _cameraBtn(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
@@ -666,25 +586,59 @@ class ChatComposer extends StatelessWidget {
       label: AppLocalizations.of(context)!.tutorTakePhoto,
       child: InkResponse(
         onTap: enabled ? onCamera : null,
-        radius: 22,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          curve: Curves.easeOutCubic,
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: enabled
-                ? scheme.primary
-                : scheme.onSurface.withValues(alpha: 0.12),
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
+        radius: 24,
+        child: SizedBox(
+          width: 46,
+          height: 50,
           child: Icon(
             Icons.photo_camera_rounded,
-            size: 21,
+            size: 28,
             color: enabled
-                ? scheme.onPrimary
+                ? scheme.onSurface
                 : scheme.onSurface.withValues(alpha: 0.38),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Filled ⊕ — becomes a keyboard key while the tray is open.
+  Widget _plusBtn(BuildContext context,
+      {required bool open, required VoidCallback? onTap}) {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Semantics(
+      button: true,
+      label: l.a11yMore,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 22,
+        child: SizedBox(
+          width: 44,
+          height: 40,
+          child: Center(
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: enabled
+                    ? scheme.onSurface
+                    : scheme.onSurface.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 160),
+                transitionBuilder: (c, a) =>
+                    ScaleTransition(scale: a, child: c),
+                child: Icon(
+                  open ? Icons.keyboard_rounded : Icons.add_rounded,
+                  key: ValueKey(open),
+                  size: open ? 18 : 22,
+                  color: scheme.surface,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -960,79 +914,97 @@ class ChatComposer extends StatelessWidget {
 }
 
 
-class _ComposerActionPopover extends StatelessWidget {
-  const _ComposerActionPopover({
+/// Owns the ⊕ tray's open state so [ChatComposer] can stay stateless.
+class _TrayHost extends StatefulWidget {
+  const _TrayHost({required this.builder});
+
+  final Widget Function(BuildContext context, ValueNotifier<bool> trayOpen)
+      builder;
+
+  @override
+  State<_TrayHost> createState() => _TrayHostState();
+}
+
+class _TrayHostState extends State<_TrayHost> {
+  final _open = ValueNotifier<bool>(false);
+
+  @override
+  void dispose() {
+    _open.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _open);
+}
+
+/// Instagram-style inline attachment tray: big round buttons with labels,
+/// sitting where the keyboard was.
+class _AttachTray extends StatelessWidget {
+  const _AttachTray({
     required this.actions,
     required this.onSelect,
+    this.background,
   });
 
   final List<({IconData icon, String label, VoidCallback onTap})> actions;
-  final ValueChanged<({IconData icon, String label, VoidCallback onTap})> onSelect;
+  final ValueChanged<({IconData icon, String label, VoidCallback onTap})>
+      onSelect;
+  final Color? background;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    return Material(
-      color: Colors.transparent,
-      child: LiquidGlassCard(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        borderRadius: BorderRadius.circular(24),
-        color: scheme.surface,
-        border: Border.all(
-          color: scheme.outlineVariant,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final action in actions)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
-                  onTap: () => onSelect(action),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: scheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: scheme.primary.withValues(alpha: 0.30),
-                              ),
-                            ),
-                            child: Icon(
-                              action.icon,
-                              size: 18,
-                              color: scheme.onPrimaryContainer,
-                            ),
-                          ),
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(8, 2, 8, 8),
+      padding: const EdgeInsets.fromLTRB(8, 22, 8, 22),
+      decoration: BoxDecoration(
+        color: background ?? scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final a in actions)
+            Expanded(
+              child: Semantics(
+                button: true,
+                label: a.label,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onSelect(a),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest,
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            action.label,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                        alignment: Alignment.center,
+                        child: Icon(a.icon,
+                            size: 28, color: scheme.onSurfaceVariant),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        a.label,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

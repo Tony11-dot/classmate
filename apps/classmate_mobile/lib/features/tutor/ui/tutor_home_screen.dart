@@ -428,110 +428,70 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
 
+    // Spacious NOVA landing: a calm hero (avatar + one line), two big icon
+    // actions, then the search and the chat history. Same content as
+    // before, with less text and more room.
     Widget topSection() {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+                borderRadius: BorderRadius.circular(CmTokens.radiusXl + 4),
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
                     Color.alphaBlend(
-                        cs.primary.withValues(alpha: 0.10), cs.surfaceContainerLow),
-                    cs.surfaceContainerLow,
+                        cs.primary.withValues(alpha: 0.16), cs.surfaceContainerLow),
+                    Color.alphaBlend(
+                        cs.tertiary.withValues(alpha: 0.08), cs.surfaceContainerLow),
                   ],
                 ),
-                border: Border.all(
-                    color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
                 boxShadow: CmTokens.of(context).shadowMd,
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+                padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const NovaAvatar(size: 64),
-                    const SizedBox(height: 12),
-                    Text(
-                      'NOVA',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.1,
-                            color: cs.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
+                    const NovaAvatar(size: 88),
+                    const SizedBox(height: 18),
                     ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 260),
+                      constraints: const BoxConstraints(maxWidth: 280),
                       child: Text(
                         l.tutorEmptyStateTitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.w900,
-                              letterSpacing: -0.8,
-                              height: 0.96,
+                              letterSpacing: -0.6,
+                              height: 1.1,
                             ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 280),
-                      child: Text(
-                        l.tutorTapToOpenHistory,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 10,
-                      runSpacing: 10,
+                    const SizedBox(height: 24),
+                    Row(
                       children: [
-                        FilledButton.icon(
-                          onPressed: _createFreshChat,
-                          icon: const Icon(Icons.auto_awesome_rounded, size: 16),
-                          label: Text(l.tutorStartFreshConversation),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 11,
-                            ),
-                            minimumSize: const Size(0, 44),
-                            visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                        Expanded(
+                          child: _NovaAction(
+                            icon: Icons.auto_awesome_rounded,
+                            label: l.tutorNewChat,
+                            primary: true,
+                            onTap: _createFreshChat,
                           ),
                         ),
-                        OutlinedButton.icon(
-                          // go (not push): /plans lives in the same ShellRoute,
-                          // so push would keep the shell's location on /tutor —
-                          // pill/bottom-nav/drawer wouldn't update. go re-resolves
-                          // the shell to /plans (NOVA Plans pill, no bottom nav).
-                          onPressed: () => context.go('/plans'),
-                          icon: const Icon(Icons.workspace_premium_rounded, size: 16),
-                          label: Text(l.tutorYourNovaPlanTitle),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 11,
-                            ),
-                            minimumSize: const Size(0, 44),
-                            visualDensity: const VisualDensity(horizontal: -1, vertical: -2),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _NovaAction(
+                            icon: Icons.workspace_premium_rounded,
+                            label: l.tutorPlansTitle,
+                            // go (not push): /plans lives in the same ShellRoute,
+                            // so push would keep the shell's location on /tutor —
+                            // pill/bottom-nav/drawer wouldn't update. go re-resolves
+                            // the shell to /plans (NOVA Plans pill, no bottom nav).
+                            onTap: () => context.go('/plans'),
                           ),
                         ),
                       ],
@@ -540,7 +500,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 18),
             CmSearchField(
               controller: _searchController,
               hint: l.tutorSearchHistoryHint,
@@ -548,6 +508,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
               onClear: () => FocusScope.of(context).unfocus(),
             ),
+            const SizedBox(height: 8),
           ],
         ),
       );
@@ -685,41 +646,52 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                         ...List.generate(items.length, (index) {
                           final session = items[index];
                           final title = _displayTitle(context, session);
-                          final subtitle = _subtitleFor(context, session);
+                          final subject =
+                              (session['subject'] ?? session['topic'] ?? '')
+                                  .toString()
+                                  .trim();
                           final timeLabel = _sessionTimeLabel(context, session);
                           return Padding(
-                            padding: EdgeInsets.fromLTRB(16, index == 0 ? 6 : 0, 16, 8),
+                            padding: EdgeInsets.fromLTRB(16, index == 0 ? 8 : 0, 16, 12),
                             child: CmPress(
                               onTap: () => _openSession(session),
                               onLongPress: () => _showSessionActions(session),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   color: cs.surfaceContainerLow,
-                                  borderRadius: BorderRadius.circular(CmTokens.radiusLg - 2),
+                                  borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                                   border: Border.all(
-                                    color: cs.outlineVariant.withValues(alpha: 0.35),
+                                    color: cs.outlineVariant.withValues(alpha: 0.3),
                                     width: 0.8,
                                   ),
                                   boxShadow: CmTokens.of(context).shadowSm,
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
+                                  padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 8, 16),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Container(
-                                        width: 42,
-                                        height: 42,
+                                        width: 48,
+                                        height: 48,
                                         decoration: BoxDecoration(
-                                          color: cs.primaryContainer,
-                                          borderRadius: BorderRadius.circular(13),
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              cs.primaryContainer,
+                                              Color.alphaBlend(
+                                                  cs.primary.withValues(alpha: 0.18),
+                                                  cs.primaryContainer),
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(16),
                                         ),
                                         child: Center(
                                           child: Text(
                                             _sessionInitial(title),
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .titleSmall
+                                                .titleMedium
                                                 ?.copyWith(
                                                   fontWeight: FontWeight.w900,
                                                   color: cs.onPrimaryContainer,
@@ -727,77 +699,53 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
+                                      const SizedBox(width: 14),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    title,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleSmall
-                                                        ?.copyWith(
-                                                          fontWeight: FontWeight.w800,
-                                                          letterSpacing: -0.1,
-                                                        ),
-                                                  ),
-                                                ),
-                                                if (timeLabel.isNotEmpty) ...[
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    timeLabel,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .labelSmall
-                                                        ?.copyWith(
-                                                          color: cs.onSurfaceVariant,
-                                                          fontWeight: FontWeight.w700,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                            const SizedBox(height: 3),
                                             Text(
-                                              subtitle,
+                                              title,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .bodySmall
+                                                  .titleMedium
                                                   ?.copyWith(
-                                                    color: cs.onSurfaceVariant,
-                                                    fontWeight: FontWeight.w600,
-                                                    height: 1.15,
+                                                    fontWeight: FontWeight.w700,
+                                                    letterSpacing: -0.2,
                                                   ),
                                             ),
+                                            if (timeLabel.isNotEmpty || subject.isNotEmpty) ...[
+                                              const SizedBox(height: 6),
+                                              Wrap(
+                                                spacing: 10,
+                                                runSpacing: 4,
+                                                crossAxisAlignment: WrapCrossAlignment.center,
+                                                children: [
+                                                  if (timeLabel.isNotEmpty)
+                                                    _MetaBit(
+                                                      icon: Icons.schedule_rounded,
+                                                      text: timeLabel,
+                                                    ),
+                                                  if (subject.isNotEmpty)
+                                                    _MetaBit(
+                                                      icon: Icons.menu_book_rounded,
+                                                      text: subject,
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(width: 4),
                                       IconButton(
                                         tooltip: l.menu,
-                                        constraints: const BoxConstraints.tightFor(
-                                          width: 40,
-                                          height: 40,
-                                        ),
-                                        padding: EdgeInsets.zero,
-                                        splashRadius: 18,
-                                        visualDensity: const VisualDensity(
-                                          horizontal: -4,
-                                          vertical: -4,
-                                        ),
                                         onPressed: () => _showSessionActions(session),
                                         icon: Icon(
                                           Icons.more_horiz_rounded,
-                                          size: 20,
+                                          size: 22,
                                           color: cs.onSurfaceVariant,
                                         ),
                                       ),
@@ -813,6 +761,91 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 );
               },
             ),
+    );
+  }
+}
+
+/// Big icon action in the NOVA hero (new chat · plans).
+class _NovaAction extends StatelessWidget {
+  const _NovaAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.primary = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool primary;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bg = primary ? cs.primary : cs.surface.withValues(alpha: 0.85);
+    final fg = primary ? cs.onPrimary : cs.onSurface;
+    return CmPress(
+      onTap: onTap,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+            boxShadow: primary ? CmTokens.of(context).shadowSm : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 26, color: primary ? fg : cs.primary),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: fg,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small icon + text meta line on a chat row (time · subject).
+class _MetaBit extends StatelessWidget {
+  const _MetaBit({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: cs.onSurfaceVariant),
+        const SizedBox(width: 4),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 160),
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ),
+      ],
     );
   }
 }

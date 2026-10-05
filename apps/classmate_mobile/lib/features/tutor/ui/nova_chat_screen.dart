@@ -211,6 +211,19 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
   TutorRepository get _repo => ref.read(tutorRepositoryProvider);
 
+  /// The server names an untitled chat after its first reply. Adopt it only
+  /// while the header still shows a placeholder — never over a user's name.
+  void _applyAutoTitle(dynamic raw, AppLocalizations l) {
+    final next = (raw ?? '').toString().trim();
+    if (next.isEmpty) return;
+    final placeholder = _headerTitle == _untitledSentinel ||
+        _headerTitle == 'NOVA' ||
+        _headerTitle == l.tutorNewChat ||
+        _headerTitle == l.tutorUntitledChat;
+    if (!placeholder) return;
+    setState(() => _headerTitle = next);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -559,6 +572,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
             if (type == 'done') {
               final assistant = ev['assistantMessage'];
+              _applyAutoTitle(ev['sessionTitle'], l);
               final content = assistant is Map
                   ? (assistant['content'] ?? '').toString()
                   : buffer.toString();
@@ -1014,6 +1028,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
 
               if (type == 'done') {
                 final assistant = ev['assistantMessage'];
+                _applyAutoTitle(ev['sessionTitle'], l);
                 final content = assistant is Map
                     ? (assistant['content'] ?? '').toString()
                     : buffer.toString();

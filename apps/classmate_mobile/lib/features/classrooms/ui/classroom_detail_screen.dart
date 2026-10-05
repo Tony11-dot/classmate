@@ -3,6 +3,7 @@ import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../../ui/widgets/cm_press.dart';
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -565,8 +566,8 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
           final isT = item['_isTeacher'] == true;
           final cs = Theme.of(context).colorScheme;
           return Container(
-            margin: const EdgeInsets.only(bottom: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
             decoration: _panelDecoration(context),
             child: Row(
               children: [
@@ -622,7 +623,11 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               borderRadius: BorderRadius.circular(16),
               color: Theme.of(context).colorScheme.secondaryContainer,
-              border: Border.all(color: Theme.of(context).colorScheme.secondary),
+              border: Border.all(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .secondary
+                      .withValues(alpha: 0.35)),
               child: Row(children: [
                 Icon(Icons.vpn_key_rounded, size: 16,
                     color: Theme.of(context).colorScheme.onSecondaryContainer),
@@ -707,7 +712,7 @@ class _ClassroomDetailScreenState extends ConsumerState<ClassroomDetailScreen>
             24 + MediaQuery.of(context).viewInsets.bottom,
           ),
           itemCount: raw.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 2),
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
           itemBuilder: (context, index) => itemBuilder(raw[index]),
         );
       },
@@ -742,19 +747,27 @@ class _TopHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
       child: LiquidGlassCard(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        borderRadius: BorderRadius.circular(16),
-        color: cs.surface,
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35)),
+        padding: const EdgeInsetsDirectional.fromSTEB(4, 10, 6, 10),
+        borderRadius: BorderRadius.circular(20),
+        color: cs.surfaceContainerLow,
         child: Row(
           children: [
             IconButton(
               onPressed: onBack,
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-              visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
               tooltip: AppLocalizations.of(context)!.commonBack,
             ),
-            const SizedBox(width: 4),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, size: 22, color: cs.onPrimaryContainer),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -766,10 +779,11 @@ class _TopHeader extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 17,
                         ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     subtitle.trim().isEmpty ? ' ' : subtitle.trim(),
                     maxLines: 1,
@@ -835,10 +849,10 @@ class _CenteredTabs extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: LiquidGlassCard(
-        padding: const EdgeInsets.all(6),
-        borderRadius: BorderRadius.circular(14),
-        color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        padding: const EdgeInsets.all(5),
+        borderRadius: BorderRadius.circular(999),
+        color: cs.surfaceContainerHigh,
+        border: const Border.fromBorderSide(BorderSide.none),
         child: TabBar(
           controller: controller,
           isScrollable: true,
@@ -847,13 +861,12 @@ class _CenteredTabs extends StatelessWidget {
           labelPadding: const EdgeInsets.symmetric(horizontal: 6),
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
-            color: cs.primaryContainer,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+            color: cs.primary,
+            borderRadius: BorderRadius.circular(999),
           ),
-          labelColor: cs.onPrimaryContainer,
+          labelColor: cs.onPrimary,
           unselectedLabelColor: cs.onSurfaceVariant,
-          splashBorderRadius: BorderRadius.circular(28),
+          splashBorderRadius: BorderRadius.circular(999),
           tabs: [
             Tab(
               child: _TabChipLabel(
@@ -928,25 +941,24 @@ class _SimpleCard extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final card = LiquidGlassCard(
-      padding: const EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(14),
+      padding: const EdgeInsets.all(14),
+      borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (leadingIcon != null) ...[
             Container(
-              width: 36,
-              height: 36,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(13),
               ),
               alignment: Alignment.center,
-              child: Icon(leadingIcon, size: 18, color: cs.onPrimaryContainer),
+              child: Icon(leadingIcon, size: 21, color: cs.onPrimaryContainer),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
           ],
           Expanded(
             child: Column(
@@ -957,7 +969,7 @@ class _SimpleCard extends StatelessWidget {
                   title.trim().isEmpty
                       ? AppLocalizations.of(context)!.classroomDetailUntitled
                       : title,
-                  style: const TextStyle(fontWeight: FontWeight.w800),
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -971,12 +983,30 @@ class _SimpleCard extends StatelessWidget {
                   ),
                 ],
                 if (trailing.trim().isNotEmpty) ...[
-                  const SizedBox(height: 3),
-                  Text(
-                    trailing,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.schedule_rounded,
+                          size: 13, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          trailing,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
+                      ),
+                    ]),
                   ),
                 ],
                 if (attachmentPills != null) ...[
@@ -1017,11 +1047,7 @@ class _SimpleCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: card,
-      );
+      return CmPress(onTap: onTap, child: card);
     }
     return card;
   }
@@ -1050,21 +1076,29 @@ class _CenteredState extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             borderRadius: BorderRadius.circular(24),
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 40, color: cs.onSurfaceVariant),
-                const SizedBox(height: 14),
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(icon, size: 30, color: cs.onPrimaryContainer),
+                ),
+                const SizedBox(height: 16),
                 Text(
                   title,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 6),
                 Text(
                   subtitle,
                   textAlign: TextAlign.center,
