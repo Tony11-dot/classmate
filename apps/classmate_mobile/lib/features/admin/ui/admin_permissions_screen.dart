@@ -6,6 +6,7 @@ import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
+import '../../../ui/widgets/cm_search_field.dart';
 import '../data/admin_repository.dart';
 
 /// Admin-managed permissions. A searchable checklist of capabilities, each with
@@ -173,47 +174,44 @@ class _AdminPermissionsScreenState extends ConsumerState<AdminPermissionsScreen>
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: Column(
-        children: [
-          _SearchField(
-            controller: _searchCtrl,
-            hint: l.permissionsSearchHint,
-            onChanged: (v) => setState(() => _query = v),
-            onClear: () => setState(() { _searchCtrl.clear(); _query = ''; }),
-          ),
-          Expanded(
-            child: CmRefreshIndicator(
-              onRefresh: _load,
-              child: filtered.isEmpty
-                  ? ListView(
-                      children: [
-                        const SizedBox(height: 80),
-                        Icon(Icons.search_off_rounded, size: 40, color: cs.onSurfaceVariant),
-                        const SizedBox(height: 12),
-                        Center(child: Text(l.permissionsNoResults(_query))),
-                      ],
-                    )
-                  : ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
-                      children: [
-                        if (_query.isEmpty) _HeaderBlurb(text: l.permissionsHeaderBlurb),
-                        for (final m in modules) ...[
-                          const SizedBox(height: 18),
-                          _ModuleHeader(label: m),
-                          const SizedBox(height: 8),
-                          for (final c in byModule[m]!) _CapabilityCard(
-                            cap: c,
-                            state: _state[c.key] ?? const {},
-                            onToggle: (role, val) => setState(() {
-                              (_state[c.key] ??= {})[role] = val;
-                            }),
-                          ),
-                        ],
-                      ],
-                    ),
+      // Single scrolling list: the search bar is the first item so it scrolls
+      // away with the page (was pinned above the list before).
+      body: CmRefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+          children: [
+            CmSearchField(
+              controller: _searchCtrl,
+              hint: l.permissionsSearchHint,
+              onChanged: (v) => setState(() => _query = v),
             ),
-          ),
-        ],
+            if (filtered.isEmpty) ...[
+              const SizedBox(height: 80),
+              Icon(Icons.search_off_rounded, size: 40, color: cs.onSurfaceVariant),
+              const SizedBox(height: 12),
+              Center(child: Text(l.permissionsNoResults(_query))),
+            ] else ...[
+              if (_query.isEmpty) ...[
+                const SizedBox(height: 12),
+                _HeaderBlurb(text: l.permissionsHeaderBlurb),
+              ],
+              for (final m in modules) ...[
+                const SizedBox(height: 18),
+                _ModuleHeader(label: m),
+                const SizedBox(height: 8),
+                for (final c in byModule[m]!)
+                  _CapabilityCard(
+                    cap: c,
+                    state: _state[c.key] ?? const {},
+                    onToggle: (role, val) => setState(() {
+                      (_state[c.key] ??= {})[role] = val;
+                    }),
+                  ),
+              ],
+            ],
+          ],
+        ),
       ),
       bottomNavigationBar: _dirty ? _SaveBar(
         saving: _saving,
@@ -250,57 +248,6 @@ class _HeaderBlurb extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SearchField extends StatelessWidget {
-  const _SearchField({
-    required this.controller,
-    required this.hint,
-    required this.onChanged,
-    required this.onClear,
-  });
-  final TextEditingController controller;
-  final String hint;
-  final ValueChanged<String> onChanged;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: const Icon(Icons.search_rounded),
-          suffixIcon: controller.text.isEmpty
-              ? null
-              : IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: onClear,
-                ),
-          filled: true,
-          fillColor: cs.surfaceContainerHigh,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(999),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(999),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(999),
-            borderSide: BorderSide(color: cs.primary, width: 1.5),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        ),
       ),
     );
   }

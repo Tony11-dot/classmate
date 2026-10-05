@@ -1576,7 +1576,7 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showMenuButton;
 
   @override
-  Size get preferredSize => const Size.fromHeight(60);
+  Size get preferredSize => const Size.fromHeight(72);
 
   @override
   Widget build(BuildContext context) {
@@ -1584,7 +1584,7 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
-      toolbarHeight: 60,
+      toolbarHeight: 72,
       titleSpacing: 0,
       centerTitle: true,
       leadingWidth: showMenuButton ? 52 : 0,
@@ -1612,7 +1612,7 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: const ClassMateLogo(height: 44, adaptToTheme: true),
+      title: const ClassMateLogo(height: 58, adaptToTheme: true),
       actions: [
         Padding(
           padding: const EdgeInsetsDirectional.only(end: 14),
