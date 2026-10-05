@@ -99,7 +99,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(AppLocalizations.of(context)!.adminPeriodsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),

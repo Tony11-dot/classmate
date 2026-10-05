@@ -356,7 +356,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                 AppBar(
                   automaticallyImplyLeading: false,
                   titleSpacing: 0,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  backgroundColor: Colors.transparent,
                   surfaceTintColor: Colors.transparent,
                   elevation: 0,
                   scrolledUnderElevation: 0,

@@ -620,7 +620,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
       backgroundColor: cs.surface,
       appBar: AppBar(
         title: Text(l.settingsTheme),
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
       ),
       body: ListView(

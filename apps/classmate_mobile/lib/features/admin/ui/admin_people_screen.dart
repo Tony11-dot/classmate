@@ -902,11 +902,12 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
         label: Text(l.adminCreateUser),
       ),
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 100 + MediaQuery.paddingOf(context).bottom),
                 children: [
                   // ── Back chevron + title — no AppBar, so this header is
                   // the only visual entry point back to the previous screen.

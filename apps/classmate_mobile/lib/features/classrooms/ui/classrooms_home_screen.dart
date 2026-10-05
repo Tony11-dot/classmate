@@ -174,6 +174,7 @@ backgroundColor: cs.surface,
         onTap: () => FocusScope.of(context).unfocus(),
         onVerticalDragStart: (_) => FocusScope.of(context).unfocus(),
         child: SafeArea(
+          bottom: false,
           child: CmRefreshIndicator(
           onRefresh: () async {
             ref.invalidate(orderedStudentClassroomsProvider);
@@ -204,7 +205,7 @@ backgroundColor: cs.surface,
                     ScrollViewKeyboardDismissBehavior.onDrag,
 
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 130),
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 130 + MediaQuery.paddingOf(context).bottom),
                 // Header + search field + either the rows or a single
                 // "no matches" card. With `filtered.length + 2` an empty search
                 // only built the header + search (count 2), so the empty-state

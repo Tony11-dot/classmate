@@ -65,6 +65,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Scaffold(
       backgroundColor: cs.surface,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             Padding(
@@ -133,7 +134,7 @@ class _MessagesTab extends ConsumerWidget {
             await ref.read(_messageReportsProvider('OPEN').future);
           },
           child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom),
             itemCount: reports.length,
             itemBuilder: (ctx, i) =>
                 _MessageReportCard(report: reports[i], actionable: true),

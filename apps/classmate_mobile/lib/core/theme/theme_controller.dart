@@ -1026,9 +1026,10 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     appBarTheme: AppBarTheme(
       elevation: 0,
       scrolledUnderElevation: 0,
-      // Use the exact same surface color as the scaffold body so every
-      // AppBar blends seamlessly with the page beneath it.
-      backgroundColor: scheme.surface,
+      // Fully transparent: every AppBar shows whatever the page paints
+      // behind it, so top bars never read as a separate band.
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       foregroundColor: scheme.onSurface,
       surfaceTintColor: Colors.transparent,
     ),

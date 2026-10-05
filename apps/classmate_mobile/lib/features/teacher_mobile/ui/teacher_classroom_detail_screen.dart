@@ -1451,6 +1451,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
     if (!mounted) return;
 
     final picked = await showModalBottomSheet<List<TeacherStudentWithLevel>>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

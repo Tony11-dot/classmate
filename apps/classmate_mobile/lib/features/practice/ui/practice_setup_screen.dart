@@ -97,32 +97,6 @@ String _modeHelpText(BuildContext context, PracticeMode mode) {
   }
 }
 
-String _buildPracticePromptSummary(BuildContext context, PracticeFilter filter) {
-  final l = AppLocalizations.of(context)!;
-  final timing = filter.useAiTiming
-      ? l.practiceSetupAiTiming
-      : l.practiceSetupSecondsShort(filter.timePreferenceSeconds ?? 15);
-  final lives = filter.hasInfiniteLives
-      ? l.practiceSetupInfiniteLives
-      : l.practiceSetupLivesCount(filter.maxLives);
-
-  return [
-    l.practiceSetupSummarySubject(
-      localizedPracticeSubject(context, filter.subject),
-    ),
-    l.practiceSetupSummaryTopic(
-      localizedPracticeTopicPath(context, filter.topicPath),
-    ),
-    l.practiceSetupSummaryMode(_practiceModeLabel(context, filter.mode)),
-    l.practiceSetupSummaryDifficulty(
-      practiceDifficultyLabel(context, filter.difficulty),
-    ),
-    l.practiceSetupSummaryQuestions(filter.questionCount),
-    l.practiceSetupSummaryTiming(timing),
-    l.practiceSetupSummaryLives(lives),
-  ].join(' • ');
-}
-
 class PracticeSetupScreen extends ConsumerStatefulWidget {
   const PracticeSetupScreen({super.key});
 
@@ -203,16 +177,6 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
   int _modeGridCount(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     return width >= 420 ? 3 : 2;
-  }
-
-  double _modeChildAspectRatio(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    // Square-ish tiles. The previous 1.18–1.28 ratios made tiles
-    // shorter than the content (icon + label + 2-line subtitle +
-    // preview + footer bar = ~135px min height), which produced the
-    // red OVERFLOWED-BY-17px banners. ~0.92 gives plenty of room
-    // without making the grid feel sparse.
-    return width >= 420 ? 0.95 : 0.92;
   }
 
   Future<void> _showModeInfoSheet(BuildContext context) async {
@@ -370,9 +334,10 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 24 + MediaQuery.paddingOf(context).bottom),
           children: [
             _HeroCard(
               title: l.practiceSetupHeroTitle,
@@ -429,20 +394,13 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _buildPracticePromptSummary(context, filter),
-                    style: text.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      height: 1.45,
-                    ),
-                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
             _SectionCard(
               title: l.practiceSetupSectionSubjectTopic,
+              icon: Icons.menu_book_rounded,
               child: Column(
                 children: [
                   Align(
@@ -606,6 +564,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: l.practiceSetupSectionMode,
+              icon: Icons.style_rounded,
               trailing: Semantics(
                 button: true,
                 label: l.a11yInfo,
@@ -625,16 +584,9 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 2),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                  _ModeRows(
+                    columns: _modeGridCount(context),
                     itemCount: PracticeMode.values.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: _modeGridCount(context),
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                      childAspectRatio: _modeChildAspectRatio(context),
-                    ),
                     itemBuilder: (context, index) {
                       final mode = PracticeMode.values[index];
                       return _ModeTile(
@@ -684,6 +636,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: l.practiceSetupSectionDifficulty,
+              icon: Icons.speed_rounded,
               child: Wrap(
                 spacing: 6,
                 runSpacing: 6,
@@ -700,6 +653,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
             const SizedBox(height: 16),
             _SectionCard(
               title: l.practiceSetupSectionControls,
+              icon: Icons.tune_rounded,
               child: Column(
                 children: [
                   _StepperRow(
@@ -731,10 +685,11 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                       decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
+                        color: cs.surface,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                          color: cs.outlineVariant,
+                          color: cs.outlineVariant.withValues(alpha: 0.35),
+                          width: 0.8,
                         ),
                       ),
                       child: Column(
@@ -1183,6 +1138,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
     String Function(List<String> item)? labelFor,
   }) {
     return showModalBottomSheet<List<String>>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -1244,26 +1200,58 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primaryContainer,
+            Color.alphaBlend(
+                cs.primary.withValues(alpha: 0.16), cs.primaryContainer),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        boxShadow: CmTokens.of(context).shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(Icons.auto_awesome_rounded,
+                    color: cs.onPrimary, size: 26),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: cs.onPrimaryContainer,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: cs.onPrimaryContainer.withValues(alpha: 0.75),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
           child,
@@ -1274,9 +1262,15 @@ class _HeroCard extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child, this.trailing});
+  const _SectionCard({
+    required this.title,
+    required this.child,
+    this.trailing,
+    this.icon,
+  });
 
   final String title;
+  final IconData? icon;
   final Widget child;
   final Widget? trailing;
 
@@ -1292,16 +1286,28 @@ class _SectionCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
         boxShadow: CmTokens.of(context).shadowSm,
       ),
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              if (icon != null) ...[
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 17, color: cs.onPrimaryContainer),
+                ),
+                const SizedBox(width: 10),
+              ],
               Expanded(
                 child: Text(
                   title,
@@ -1313,7 +1319,7 @@ class _SectionCard extends StatelessWidget {
               ..._maybeTrailing(trailing),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           child,
         ],
       ),
@@ -1339,7 +1345,10 @@ class _LiquidField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
+    // Own Material so the Ink fill paints above the section card.
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
       child: Ink(
@@ -1389,6 +1398,7 @@ class _LiquidField extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -1681,12 +1691,12 @@ class _ModeTile extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color: selected
                   ? tint
-                  : cs.surfaceContainerHighest,
+                  : cs.surface,
               border: Border.all(
                 color: selected
                     ? accent
@@ -1700,10 +1710,10 @@ class _ModeTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  width: 32,
-                  height: 32,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
-                    color: selected ? accent : cs.surfaceContainerLow,
+                    color: selected ? accent : accent.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
@@ -1713,7 +1723,7 @@ class _ModeTile extends StatelessWidget {
                     color: selected ? Colors.white : accent,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
                 Text(
                   label,
                   maxLines: 1,
@@ -1731,25 +1741,12 @@ class _ModeTile extends StatelessWidget {
                   softWrap: true,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: cs.onSurfaceVariant,
-                    height: 1.0,
+                    height: 1.2,
                     fontSize: 11,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Flexible(fit: FlexFit.loose, child: practiceModePreview(mode, accent)),
-                const SizedBox(height: 4),
-
-                Align(
-                  alignment: AlignmentDirectional.bottomStart,
-                  child: Container(
-                    height: 3,
-                    width: selected ? 52 : 28,
-                    decoration: BoxDecoration(
-                      color: cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 10),
+                practiceModePreview(mode, accent),
               ],
             ),
             ),
@@ -1833,7 +1830,7 @@ class _GlassToggleRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
         boxShadow: CmTokens.of(context).shadowSm,
@@ -1879,7 +1876,7 @@ class _StepperRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 7),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
         boxShadow: CmTokens.of(context).shadowSm,
@@ -1910,7 +1907,7 @@ class _StepperRow extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerLow,
+                    color: cs.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: TextFormField(
@@ -1975,21 +1972,21 @@ class _MiniPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(10),
+        color: cs.surface.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 13, color: cs.onSurfaceVariant),
+            Icon(icon, size: 13, color: cs.primary),
             const SizedBox(width: 6),
           ],
           Text(
             label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                  color: cs.onPrimaryContainer,
                   fontSize: 12,
                 ),
           ),
@@ -2033,5 +2030,44 @@ class _AIDisclaimerBanner extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Two-column (or N-column) rows whose height follows the tallest tile in the
+/// row — no fixed aspect ratio, so tiles never carry dead space or overflow.
+class _ModeRows extends StatelessWidget {
+  const _ModeRows({
+    required this.columns,
+    required this.itemCount,
+    required this.itemBuilder,
+  });
+
+  final int columns;
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    const gap = 10.0;
+    final rows = <Widget>[];
+    for (var start = 0; start < itemCount; start += columns) {
+      if (start > 0) rows.add(const SizedBox(height: gap));
+      rows.add(IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var c = 0; c < columns; c++) ...[
+              if (c > 0) const SizedBox(width: gap),
+              Expanded(
+                child: start + c < itemCount
+                    ? itemBuilder(context, start + c)
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ],
+        ),
+      ));
+    }
+    return Column(children: rows);
   }
 }

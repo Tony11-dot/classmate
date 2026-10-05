@@ -205,7 +205,7 @@ class _TeacherCreateClassroomScreenState
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(

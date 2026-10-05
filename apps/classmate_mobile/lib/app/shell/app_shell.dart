@@ -1144,6 +1144,11 @@ class _PlatformCoreBottomNavState extends State<_PlatformCoreBottomNav>
     // self-describing — matches the iOS pill, which labels its tabs too.
     if (kIsWeb || (!Platform.isIOS && !Platform.isMacOS)) {
       return NavigationBar(
+        // Transparent like the top bar — no tinted band behind the tabs.
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        elevation: 0,
         selectedIndex: widget.index,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: (i) {
@@ -1590,9 +1595,9 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leadingWidth: showMenuButton ? 52 : 0,
       automaticallyImplyLeading: false,
-      // Same colour as the page behind it (scaffold = cs.surface) so the bar
-      // reads as part of the screen rather than a separate tinted band.
-      backgroundColor: cs.surface,
+      // Fully transparent — the bar is part of the screen, not a band.
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,

@@ -1593,8 +1593,9 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         label: Text(l.adminScheduleSave),
       ),
       body: SafeArea(
+        bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+          padding: EdgeInsets.fromLTRB(20, 8, 20, 100 + MediaQuery.paddingOf(context).bottom),
           children: [
             // ── Back chevron — no AppBar, so this is the only way back ─────
             Row(
@@ -2988,6 +2989,7 @@ class _AudienceEditorState extends State<_AudienceEditor> {
         })
         .toList();
     final picked = await showModalBottomSheet<List<Map<String, String>>>(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

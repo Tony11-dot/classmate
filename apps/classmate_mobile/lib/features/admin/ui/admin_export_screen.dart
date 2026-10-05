@@ -325,10 +325,11 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
             )
           : null,
       body: SafeArea(
+        bottom: false,
         child: _loading
             ? const Center(child: CmLoading())
             : ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 120 + MediaQuery.paddingOf(context).bottom),
                 children: [
                   // Header
                   Text(

@@ -31,6 +31,7 @@ Future<Set<String>?> showStudentMultiSelectSheet({
   final searchable = items.length > 6;
   final searchCtl = TextEditingController();
   return showModalBottomSheet<Set<String>>(
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,

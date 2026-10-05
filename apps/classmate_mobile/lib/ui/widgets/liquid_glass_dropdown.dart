@@ -33,6 +33,7 @@ Future<_PickResult<T>?> _showPicker<T>({
   String? searchHint,
 }) {
   return showModalBottomSheet<_PickResult<T>>(
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,

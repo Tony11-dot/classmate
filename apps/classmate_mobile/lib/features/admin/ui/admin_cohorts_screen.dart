@@ -769,7 +769,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(

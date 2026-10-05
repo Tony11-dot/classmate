@@ -52,6 +52,7 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
+        bottom: false,
         child: students.when(
           loading: () => const Center(child: CmLoading()),
           error: (e, _) => Center(
@@ -77,7 +78,7 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                 ),
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 136),
+                padding: EdgeInsets.fromLTRB(12, 0, 12, 136 + MediaQuery.paddingOf(context).bottom),
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),

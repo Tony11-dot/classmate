@@ -468,10 +468,11 @@ class _StudentCertificatesStaffPageState extends ConsumerState<StudentCertificat
           label: Text(l.certNewCertificate),
         ),
         body: SafeArea(
+          bottom: false,
           child: _loading
               ? const Center(child: CmLoading())
               : ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 100 + MediaQuery.paddingOf(context).bottom),
                   children: [
                     if (_error != null)
                       Padding(

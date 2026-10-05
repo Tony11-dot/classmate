@@ -25,6 +25,7 @@ Future<List<ForwardTarget>?> showForwardTargetPicker(
 }) async {
   if (!context.mounted) return null;
   return showModalBottomSheet<List<ForwardTarget>>(
+    useRootNavigator: true,
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
