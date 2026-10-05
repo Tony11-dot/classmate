@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -87,18 +89,10 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                    child: TextField(
+                    child: CmSearchField(
                       controller: _searchCtl,
+                      hint: l.notesSearchStudents,
                       onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: l.notesSearchStudents,
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        filled: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
                     ),
                   ),
                   if (filtered.isEmpty)

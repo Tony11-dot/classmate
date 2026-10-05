@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/realtime/realtime_listener.dart';
@@ -112,19 +114,9 @@ class _SecretaryStudentsScreenState
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverToBoxAdapter(
-                child: TextField(
+                child: CmSearchField(
                   controller: _searchCtrl,
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.adminSearchPeople,
-                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 14),
-                    isDense: true,
-                    filled: true,
-                    fillColor: cs.surfaceContainerLow,
-                  ),
+                  hint: AppLocalizations.of(context)!.adminSearchPeople,
                 ),
               ),
             ),

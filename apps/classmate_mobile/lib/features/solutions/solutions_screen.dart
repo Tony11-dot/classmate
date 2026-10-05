@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,31 +92,10 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  TextField(
+                  CmSearchField(
                     controller: _searchCtrl,
+                    hint: l.assignmentsSearchSubjects,
                     onChanged: notifier.search,
-                    decoration: InputDecoration(
-                      hintText: l.assignmentsSearchSubjects,
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      suffixIcon: state.searchQuery.trim().isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.close_rounded),
-                              tooltip: l.clear,
-                              onPressed: () {
-                                _searchCtrl.clear();
-                                notifier.search('');
-                              },
-                            ),
-                      filled: true,
-                      fillColor: cs.surfaceContainerHighest.withValues(
-                        alpha: 0.7,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 14),
                 ],

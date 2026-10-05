@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -121,25 +123,9 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: TextField(
+            child: CmSearchField(
               controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.adminSearchPeople,
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                // Clear (X) to reset the people search (QA #18).
-                suffixIcon: _search.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.close_rounded, size: 20),
-                        tooltip: AppLocalizations.of(context)!.clear,
-                        onPressed: () => _searchCtrl.clear(),
-                      ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-                isDense: true,
-                filled: true,
-                fillColor: cs.surfaceContainerLow,
-              ),
+              hint: AppLocalizations.of(context)!.adminSearchPeople,
             ),
           ),
           Expanded(
