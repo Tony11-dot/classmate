@@ -1,3 +1,4 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -320,43 +321,38 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   subtitle: l.attendanceHeroSubtitle,
                   child: Column(
                     children: [
+                      // Rate ring + present / late / absent tiles.
                       Row(
                         children: [
-                          Expanded(
-                            child: _MetricTile(
-                              icon: Icons.event_available_rounded,
-                              label: l.attendanceMetricRate,
-                              value: attendance?.attendanceRate == null
-                                  ? '—'
-                                  : '${attendance!.attendanceRate!.toStringAsFixed(1)}%',
-                            ),
+                          _RateRing(
+                            rate: attendance?.attendanceRate,
+                            label: l.attendanceMetricRate,
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 14),
                           Expanded(
-                            child: _MetricTile(
-                              icon: Icons.fact_check_rounded,
-                              label: l.attendanceMetricPresent,
-                              value: '${attendance?.present ?? 0}',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _MetricTile(
-                              icon: Icons.warning_amber_rounded,
-                              label: l.attendanceMetricLate,
-                              value: '${attendance?.late ?? 0}',
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _MetricTile(
-                              icon: Icons.cancel_outlined,
-                              label: l.attendanceMetricAbsent,
-                              value: '${attendance?.absent ?? 0}',
+                            child: Column(
+                              children: [
+                                _MetricTile(
+                                  icon: Icons.fact_check_rounded,
+                                  label: l.attendanceMetricPresent,
+                                  value: '${attendance?.present ?? 0}',
+                                  accent: CmTokens.of(context).good,
+                                ),
+                                const SizedBox(height: 8),
+                                _MetricTile(
+                                  icon: Icons.schedule_rounded,
+                                  label: l.attendanceMetricLate,
+                                  value: '${attendance?.late ?? 0}',
+                                  accent: CmTokens.of(context).warn,
+                                ),
+                                const SizedBox(height: 8),
+                                _MetricTile(
+                                  icon: Icons.cancel_rounded,
+                                  label: l.attendanceMetricAbsent,
+                                  value: '${attendance?.absent ?? 0}',
+                                  accent: Theme.of(context).colorScheme.error,
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -589,18 +585,18 @@ class _AttendanceDayGroup extends StatelessWidget {
   Color _tone(BuildContext context, String status) {
     final cs = Theme.of(context).colorScheme;
     final normalized = _normalizedStatus(status);
-    if (normalized == 'PRESENT') return cs.secondaryContainer;
-    if (normalized == 'LATE') return cs.tertiaryContainer;
+    if (normalized == 'PRESENT') return CmTokens.of(context).goodContainer;
+    if (normalized == 'LATE') return CmTokens.of(context).warnContainer;
     if (normalized == 'ABSENT') return cs.errorContainer;
     if (normalized == 'EXCUSED') return cs.primaryContainer;
     return cs.surfaceContainerHighest;
   }
 
   // Semantic foreground that always contrasts with the _tone() background.
-  Color _toneForeground(ColorScheme cs, String status) {
+  Color _toneForeground(BuildContext context, ColorScheme cs, String status) {
     final normalized = _normalizedStatus(status);
-    if (normalized == 'PRESENT') return cs.onSecondaryContainer;
-    if (normalized == 'LATE') return cs.onTertiaryContainer;
+    if (normalized == 'PRESENT') return CmTokens.of(context).onGoodContainer;
+    if (normalized == 'LATE') return CmTokens.of(context).onWarnContainer;
     if (normalized == 'ABSENT') return cs.onErrorContainer;
     if (normalized == 'EXCUSED') return cs.onPrimaryContainer;
     return cs.onSurfaceVariant;
@@ -613,7 +609,6 @@ class _AttendanceDayGroup extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -624,7 +619,7 @@ class _AttendanceDayGroup extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(date, style: const TextStyle(fontWeight: FontWeight.w900)),
+                    Text(date, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
                     const SizedBox(height: 4),
                     Text(headline, style: TextStyle(color: cs.onSurfaceVariant)),
                   ],
@@ -634,35 +629,40 @@ class _AttendanceDayGroup extends StatelessWidget {
               _StatusChip(
                 label: _statusLabel(context, statusForTone),
                 backgroundColor: _tone(context, statusForTone),
-                foregroundColor: _toneForeground(cs, statusForTone),
+                foregroundColor: _toneForeground(context, cs, statusForTone),
               ),
             ],
           ),
           const SizedBox(height: 10),
           ...items.map(
             (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: LiquidGlassCard(
-                padding: const EdgeInsets.all(12),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: cs.outlineVariant,
+              padding: const EdgeInsets.only(top: 8),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHigh.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: cs.surface,
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: _tone(context, item.status),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.center,
                       child: Text(
                         item.period <= 0 ? '—' : '${item.period}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          color: _toneForeground(context, cs, item.status),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -675,27 +675,23 @@ class _AttendanceDayGroup extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: FontWeight.w800),
                           ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              _StatusChip(
-                                label: _statusLabel(context, item.status),
-                                backgroundColor: cs.surface,
-                                foregroundColor: cs.onSurface,
-                              ),
-                              _StatusChip(
-                                label: (item.subject ?? '').trim().isEmpty
-                                    ? AppLocalizations.of(context)!.editProfileSchool
-                                    : item.subject!.trim(),
-                                backgroundColor: cs.surface,
-                                foregroundColor: cs.onSurfaceVariant,
-                              ),
-                            ],
+                          const SizedBox(height: 2),
+                          Text(
+                            (item.subject ?? '').trim().isEmpty
+                                ? AppLocalizations.of(context)!.editProfileSchool
+                                : item.subject!.trim(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    _StatusChip(
+                      label: _statusLabel(context, item.status),
+                      backgroundColor: _tone(context, item.status),
+                      foregroundColor: _toneForeground(context, cs, item.status),
                     ),
                   ],
                 ),
@@ -813,17 +809,18 @@ class _HeroCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(28),
       color: cs.primaryContainer,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, color: cs.onPrimaryContainer),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.4,
+                  color: cs.onPrimaryContainer,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -860,8 +857,8 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 6),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
+          const SizedBox(height: 4),
           Text(
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
@@ -879,33 +876,116 @@ class _MetricTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.accent,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(14),
-      borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final a = accent ?? cs.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
         children: [
-          Icon(icon, size: 20, color: cs.primary),
-          const SizedBox(height: 10),
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: a.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 17, color: a),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
+          ),
           Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
           ),
-          const SizedBox(height: 2),
-          Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Big attendance-rate ring for the hero.
+class _RateRing extends StatelessWidget {
+  const _RateRing({required this.rate, required this.label});
+
+  final double? rate;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final t = CmTokens.of(context);
+    final r = rate;
+    final color = r == null
+        ? cs.outline
+        : r >= 90
+            ? t.good
+            : r >= 75
+                ? t.warn
+                : cs.error;
+    return SizedBox(
+      width: 116,
+      height: 116,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox.expand(
+            child: CircularProgressIndicator(
+              value: r == null ? 0 : (r / 100).clamp(0.0, 1.0),
+              strokeWidth: 10,
+              strokeCap: StrokeCap.round,
+              backgroundColor: cs.onPrimaryContainer.withValues(alpha: 0.10),
+              valueColor: AlwaysStoppedAnimation(color),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                r == null ? '—' : '${r.toStringAsFixed(0)}%',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: cs.onPrimaryContainer,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -1053,7 +1133,7 @@ class _StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
       color: backgroundColor,
-      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      border: const Border.fromBorderSide(BorderSide.none),
       child: Text(
         label,
         maxLines: 1,

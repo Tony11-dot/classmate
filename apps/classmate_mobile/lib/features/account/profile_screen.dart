@@ -91,61 +91,68 @@ class ProfileScreen extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            // Centered identity hero: big ringed avatar, name, handle, badges.
             child: LiquidGlassCard(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-              borderRadius: BorderRadius.circular(24),
-              color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 22),
+              borderRadius: BorderRadius.circular(28),
+              color: cs.primaryContainer,
+              child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: cs.primaryContainer,
-                    child: Text(
-                      initials,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: cs.onPrimaryContainer,
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [cs.primary, cs.tertiary],
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 46,
+                      backgroundColor: cs.surface,
+                      child: Text(
+                        initials,
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          color: cs.primary,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          displayName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w900),
+                  const SizedBox(height: 14),
+                  Text(
+                    displayName,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.4,
+                          color: cs.onPrimaryContainer,
                         ),
-                        if (username.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            '@$username',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: cs.primary),
+                  ),
+                  if (username.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '@$username',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: cs.primary,
+                            fontWeight: FontWeight.w700,
                           ),
-                        ],
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            _Badge(label: roleLabel, icon: Icons.badge_rounded),
-                            if (session.schoolName.isNotEmpty)
-                              _Badge(label: session.schoolName, icon: Icons.location_city_rounded),
-                            if (session.cohortName.isNotEmpty)
-                              _Badge(label: session.cohortName, icon: Icons.groups_rounded),
-                          ],
-                        ),
-                      ],
                     ),
+                  ],
+                  const SizedBox(height: 14),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _Badge(label: roleLabel, icon: Icons.badge_rounded),
+                      if (session.schoolName.isNotEmpty)
+                        _Badge(label: session.schoolName, icon: Icons.location_city_rounded),
+                      if (session.cohortName.isNotEmpty)
+                        _Badge(label: session.cohortName, icon: Icons.groups_rounded),
+                    ],
                   ),
                 ],
               ),
@@ -637,25 +644,25 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(999),
+        color: cs.surface.withValues(alpha: 0.75),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: cs.primary),
-          const SizedBox(width: 4),
+          Icon(icon, size: 14, color: cs.primary),
+          const SizedBox(width: 5),
           Flexible(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: cs.primary,
+                color: cs.onSurface,
               ),
             ),
           ),
@@ -679,28 +686,25 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
       color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: cs.primary),
-              const SizedBox(width: 6),
+              Icon(icon, size: 18, color: cs.primary),
+              const SizedBox(width: 8),
               Text(
                 title,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: cs.primary,
-                  letterSpacing: 0.4,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           child,
         ],
       ),
@@ -715,9 +719,10 @@ class _Divider extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 2),
     child: Divider(
       height: 1,
+      indent: 52,
       color: Theme.of(
         context,
-      ).colorScheme.outlineVariant,
+      ).colorScheme.outlineVariant.withValues(alpha: 0.5),
     ),
   );
 }
@@ -748,12 +753,14 @@ class _InfoRow extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               child: LiquidGlassCard(
                 padding: EdgeInsets.zero,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 color: locked ? cs.surfaceContainerHigh : cs.primaryContainer,
+                border: const Border.fromBorderSide(BorderSide.none),
+                boxShadow: const [],
                 child: Center(
                   child: Icon(
                     icon,
@@ -776,7 +783,7 @@ class _InfoRow extends StatelessWidget {
                   ),
                   Text(
                     value,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -786,7 +793,7 @@ class _InfoRow extends StatelessWidget {
             if (locked)
               Icon(Icons.lock_outline_rounded, size: 16, color: cs.outlineVariant)
             else
-              Icon(Icons.edit_outlined, size: 16, color: cs.primary),
+              Icon(Icons.chevron_right_rounded, size: 22, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -915,7 +922,7 @@ class _VerifiableRow extends ConsumerWidget {
                 child: Text(AppLocalizations.of(context)!.accountVerifyButton),
               )
             else
-              Icon(Icons.edit_outlined, size: 16, color: cs.primary),
+              Icon(Icons.chevron_right_rounded, size: 22, color: cs.onSurfaceVariant),
           ],
         ),
       ),

@@ -1,4 +1,6 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -111,9 +113,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       case StudentNotificationSeverity.critical:
         return cs.errorContainer;
       case StudentNotificationSeverity.warning:
-        return cs.tertiaryContainer;
+        return CmTokens.of(context).warnContainer;
       case StudentNotificationSeverity.info:
-        return cs.surfaceContainerHighest;
+        return cs.primaryContainer;
+    }
+  }
+
+  Color _toneFg(BuildContext context, StudentNotificationSeverity severity) {
+    final cs = Theme.of(context).colorScheme;
+    switch (severity) {
+      case StudentNotificationSeverity.critical:
+        return cs.onErrorContainer;
+      case StudentNotificationSeverity.warning:
+        return CmTokens.of(context).onWarnContainer;
+      case StudentNotificationSeverity.info:
+        return cs.onPrimaryContainer;
     }
   }
 
@@ -193,23 +207,23 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               children: [
                 LiquidGlassCard(
                   padding: const EdgeInsets.all(18),
-                  borderRadius: BorderRadius.circular(26),
+                  borderRadius: BorderRadius.circular(28),
                   color: cs.primaryContainer,
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         l.navNotifications,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w900,
+                          letterSpacing: -0.4,
                           color: cs.onPrimaryContainer,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         heroSubtitle,
-                        style: TextStyle(color: cs.onPrimaryContainer, height: 1.35),
+                        style: TextStyle(color: cs.onPrimaryContainer.withValues(alpha: 0.75), height: 1.35),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -253,8 +267,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   LiquidGlassCard(
                     padding: const EdgeInsets.all(16),
                     borderRadius: BorderRadius.circular(24),
-
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -351,43 +363,50 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w900)),
+                            child: Text(entry.key,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                           ),
                           ...entry.value.map(
                             (item) => Padding(
                               padding: const EdgeInsets.only(bottom: 10),
-                              child: LiquidGlassCard(
+                              child: CmPress(
+                                onTap: () {
+                                  // Always open the detail screen first; it
+                                  // shows the full notification and a
+                                  // "redirect" button to the relevant tab.
+                                  context.push(
+                                    '/notifications/${Uri.encodeComponent(item.id)}',
+                                    extra: item,
+                                  );
+                                },
+                                child: LiquidGlassCard(
                                 padding: EdgeInsets.zero,
-                                borderRadius: BorderRadius.circular(20),
-                                color: _tone(context, item.severity),
-                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                borderRadius: BorderRadius.circular(22),
+                                color: item.isRead
+                                    ? cs.surfaceContainerLow
+                                    : Color.alphaBlend(cs.primary.withValues(alpha: 0.06), cs.surfaceContainerLow),
+                                border: item.isRead
+                                    ? null
+                                    : Border.all(color: cs.primary.withValues(alpha: 0.4)),
                                 child: Material(
                                   color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(20),
-                                    onTap: () {
-                                      // Always open the detail screen first; it
-                                      // shows the full notification and a
-                                      // "redirect" button to the relevant tab.
-                                      context.push(
-                                        '/notifications/${Uri.encodeComponent(item.id)}',
-                                        extra: item,
-                                      );
-                                    },
-                                    child: Padding(
+                                  child: Padding(
                                       padding: const EdgeInsets.all(14),
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          // Severity lives in the icon tile.
                                           Container(
-                                            width: 44,
-                                            height: 44,
+                                            width: 46,
+                                            height: 46,
                                             decoration: BoxDecoration(
-                                              color: cs.surfaceContainerLow,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                              color: _tone(context, item.severity),
+                                              borderRadius: BorderRadius.circular(15),
                                             ),
-                                            child: Center(child: Icon(_iconFor(item.source), size: 20)),
+                                            child: Center(
+                                              child: Icon(_iconFor(item.source),
+                                                  size: 22, color: _toneFg(context, item.severity)),
+                                            ),
                                           ),
                                           const SizedBox(width: 12),
                                           Expanded(
@@ -400,7 +419,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                     Expanded(
                                                       child: Text(
                                                         _notificationTitleLocalized(context, item),
-                                                        style: const TextStyle(fontWeight: FontWeight.w900),
+                                                        style: TextStyle(
+                                                          fontWeight: item.isRead ? FontWeight.w700 : FontWeight.w900,
+                                                          fontSize: 15,
+                                                        ),
                                                       ),
                                                     ),
                                                     if (!item.isRead)
@@ -466,24 +488,44 @@ class _MetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(14),
-      borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
         children: [
-          Icon(icon, size: 20, color: cs.primary),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(icon, size: 18, color: cs.primary),
           ),
-          const SizedBox(height: 2),
-          Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                ),
+                Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -774,8 +816,8 @@ class _MetaPill extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      color: cs.surfaceContainerHigh,
+      border: const Border.fromBorderSide(BorderSide.none),
       child: Text(
         label,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),

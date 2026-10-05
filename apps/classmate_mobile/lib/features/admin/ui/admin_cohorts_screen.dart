@@ -682,7 +682,14 @@ class _CohortCard extends StatelessWidget {
             Container(
               width: 52, height: 52,
               padding: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [cs.primaryContainer, Color.alphaBlend(cs.primary.withValues(alpha: 0.2), cs.primaryContainer)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -698,9 +705,21 @@ class _CohortCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(cohort.name, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 2),
-                  Text(l.cohortStudentsCount(cohort.studentCount), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  Text(cohort.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.people_alt_rounded, size: 14, color: cs.primary),
+                      const SizedBox(width: 5),
+                      Text(l.cohortStudentsCount(cohort.studentCount),
+                          style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700)),
+                    ]),
+                  ),
                 ],
               ),
             ),

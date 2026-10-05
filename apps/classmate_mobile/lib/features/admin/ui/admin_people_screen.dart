@@ -117,11 +117,32 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
       body: Column(
         children: [
           // Tab bar sits flush under the shell's top bar — same as teacher screens
-          TabBar(
-            controller: _tabs,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: _roleLabels(l).map((label) => Tab(text: label)).toList(),
+          // Role switcher as a pill track (same as the classroom tabs).
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: TabBar(
+                controller: _tabs,
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                dividerColor: Colors.transparent,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                labelColor: cs.onPrimary,
+                unselectedLabelColor: cs.onSurfaceVariant,
+                splashBorderRadius: BorderRadius.circular(999),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                tabs: _roleLabels(l).map((label) => Tab(height: 38, text: label)).toList(),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -214,8 +235,13 @@ class _UserTab extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.people_outline_rounded, size: 56, color: cs.outlineVariant),
-                const SizedBox(height: 12),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(color: cs.primaryContainer, shape: BoxShape.circle),
+                  child: Icon(Icons.people_alt_rounded, size: 34, color: cs.onPrimaryContainer),
+                ),
+                const SizedBox(height: 14),
                 Text(
                   search.isEmpty
                       ? AppLocalizations.of(context)!.adminNoRoleYet(role.toLowerCase())
@@ -231,7 +257,7 @@ class _UserTab extends ConsumerWidget {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
           itemCount: filtered.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 6),
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (ctx, i) => _UserTile(
             user: filtered[i],
             isAdmin: isAdmin,
@@ -311,29 +337,67 @@ class _UserTile extends StatelessWidget {
     final theme = Theme.of(context);
     final initials = _initials(user.name);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-        boxShadow: CmTokens.of(context).shadowSm,
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-        leading: Container(
-          width: 42, height: 42,
-          decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
-          child: Center(child: Text(initials, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: cs.onPrimaryContainer))),
+    // Stable per-person avatar tint so a long list is easy to scan.
+    final palette = [cs.primaryContainer, cs.secondaryContainer, cs.tertiaryContainer];
+    final onPalette = [cs.onPrimaryContainer, cs.onSecondaryContainer, cs.onTertiaryContainer];
+    final k = user.name.runes.fold<int>(0, (a, b) => a + b) % palette.length;
+    void openActions() =>
+        _openUserActions(context, isAdmin: isAdmin, onEdit: onEdit, onDelete: onDelete);
+
+    return CmPress(
+      onTap: openActions,
+      child: Container(
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 4, 10),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
-        title: Text(user.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-        subtitle: Text(
-          user.email.isNotEmpty ? user.email : AppLocalizations.of(context)!.adminNoEmailPlaceholder,
-          style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.more_vert_rounded),
-          tooltip: AppLocalizations.of(context)!.a11yMore,
-          onPressed: () => _openUserActions(context, isAdmin: isAdmin, onEdit: onEdit, onDelete: onDelete),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(color: palette[k], shape: BoxShape.circle),
+              child: Center(
+                child: Text(initials,
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: onPalette[k])),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(user.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, fontSize: 15)),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(Icons.alternate_email_rounded, size: 13, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          user.email.isNotEmpty ? user.email : AppLocalizations.of(context)!.adminNoEmailPlaceholder,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.more_horiz_rounded, color: cs.onSurfaceVariant),
+              tooltip: AppLocalizations.of(context)!.a11yMore,
+              onPressed: openActions,
+            ),
+          ],
         ),
       ),
     );
