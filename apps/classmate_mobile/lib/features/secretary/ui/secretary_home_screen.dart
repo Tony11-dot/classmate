@@ -1,3 +1,5 @@
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
+import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,23 +65,64 @@ class SecretaryHomeScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
-          const SizedBox(height: 4),
-          Text(
-            l.secretaryWelcomeGreeting(greetingName),
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+          // Greeting hero.
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  cs.primaryContainer,
+                  Color.alphaBlend(cs.primary.withValues(alpha: 0.14), cs.primaryContainer),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+              boxShadow: CmTokens.of(context).shadowMd,
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: cs.surface,
+                  child: Text(
+                    greetingName.trim().isEmpty ? '?' : greetingName.trim().characters.first.toUpperCase(),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: cs.primary),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.secretaryWelcomeGreeting(greetingName),
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: cs.onPrimaryContainer,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        session.schoolName.isNotEmpty
+                            ? '${l.roleSecretary} · ${session.schoolName}'
+                            : l.roleSecretary,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onPrimaryContainer.withValues(alpha: 0.75),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          Text(
-            session.schoolName.isNotEmpty
-                ? '${l.roleSecretary} · ${session.schoolName}'
-                : l.roleSecretary,
-            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           Text(
             l.secretaryYourTools,
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -87,7 +130,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 2.1,
+              childAspectRatio: 1.45,
             ),
             itemCount: tiles.length,
             itemBuilder: (ctx, i) {
@@ -95,6 +138,7 @@ class SecretaryHomeScreen extends ConsumerWidget {
               return _ToolTile(
                 icon: t.icon,
                 label: t.label,
+                tone: i % 3,
                 onTap: () => context.push(t.route),
               );
             },
@@ -113,38 +157,51 @@ class _ToolDef {
 }
 
 class _ToolTile extends StatelessWidget {
-  const _ToolTile({required this.icon, required this.label, required this.onTap});
+  const _ToolTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.tone = 0,
+  });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final int tone;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
+    // Rotate through the scheme's three container hues so the grid isn't a
+    // wall of one colour.
+    final bg = [cs.primaryContainer, cs.secondaryContainer, cs.tertiaryContainer][tone];
+    final fg = [cs.onPrimaryContainer, cs.onSecondaryContainer, cs.onTertiaryContainer][tone];
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Ink(
+      child: Container(
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: cs.primaryContainer,
-          borderRadius: BorderRadius.circular(16),
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, size: 26, color: cs.onPrimaryContainer),
-              Text(
-                label,
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  color: cs.onPrimaryContainer,
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+              child: Icon(icon, size: 23, color: fg),
+            ),
+            Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: cs.onSurface),
+            ),
+          ],
         ),
       ),
     );

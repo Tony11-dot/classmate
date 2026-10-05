@@ -26,14 +26,39 @@ String _friendlyError(BuildContext context, String? error) {
   return raw;
 }
 
+// Status chips use container/on-container pairs from the theme's signal
+// tokens so text always contrasts (the old solid amber + white text didn't).
 Color _statusColor(BuildContext context, String status) {
   final cs = Theme.of(context).colorScheme;
+  final t = CmTokens.of(context);
   switch (status.trim().toUpperCase()) {
-    case AttendanceStatus.present: return const Color(0xFF22C55E);
-    case AttendanceStatus.absent: return cs.error;
-    case AttendanceStatus.late: return const Color(0xFFF59E0B);
-    case AttendanceStatus.excused: return const Color(0xFF60A5FA);
+    case AttendanceStatus.present: return t.goodContainer;
+    case AttendanceStatus.absent: return cs.errorContainer;
+    case AttendanceStatus.late: return t.warnContainer;
+    case AttendanceStatus.excused: return cs.secondaryContainer;
+    default: return cs.surfaceContainerHighest;
+  }
+}
+
+Color _statusOnColor(BuildContext context, String status) {
+  final cs = Theme.of(context).colorScheme;
+  final t = CmTokens.of(context);
+  switch (status.trim().toUpperCase()) {
+    case AttendanceStatus.present: return t.onGoodContainer;
+    case AttendanceStatus.absent: return cs.onErrorContainer;
+    case AttendanceStatus.late: return t.onWarnContainer;
+    case AttendanceStatus.excused: return cs.onSecondaryContainer;
     default: return cs.onSurfaceVariant;
+  }
+}
+
+IconData _statusIcon(String status) {
+  switch (status.trim().toUpperCase()) {
+    case AttendanceStatus.present: return Icons.check_circle_rounded;
+    case AttendanceStatus.absent: return Icons.cancel_rounded;
+    case AttendanceStatus.late: return Icons.schedule_rounded;
+    case AttendanceStatus.excused: return Icons.verified_user_rounded;
+    default: return Icons.radio_button_unchecked_rounded;
   }
 }
 
@@ -372,7 +397,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           LiquidGlassCard(
             color: cs.primaryContainer,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -426,13 +450,13 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                   // Progress stats
                   Row(
                     children: [
-                      _AttStatPill(value: '$presentCount', label: AppLocalizations.of(context)!.attendanceStatusPresent, color: cs.secondaryContainer, textColor: cs.onSecondaryContainer),
+                      _AttStatPill(value: '$presentCount', label: AppLocalizations.of(context)!.attendanceStatusPresent, color: CmTokens.of(context).goodContainer, textColor: CmTokens.of(context).onGoodContainer),
                       const SizedBox(width: 8),
                       _AttStatPill(value: '$absentCount', label: AppLocalizations.of(context)!.attendanceStatusAbsent, color: cs.errorContainer, textColor: cs.onErrorContainer),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: AppLocalizations.of(context)!.teacherAttendanceOther, color: cs.tertiaryContainer, textColor: cs.onTertiaryContainer),
+                      _AttStatPill(value: '${markedCount - presentCount - absentCount}', label: AppLocalizations.of(context)!.teacherAttendanceOther, color: CmTokens.of(context).warnContainer, textColor: CmTokens.of(context).onWarnContainer),
                       const SizedBox(width: 8),
-                      _AttStatPill(value: '$markedCount', label: AppLocalizations.of(context)!.teacherTotal, color: cs.surfaceContainerLow, textColor: cs.onSurfaceVariant),
+                      _AttStatPill(value: '$markedCount', label: AppLocalizations.of(context)!.teacherTotal, color: cs.surface.withValues(alpha: 0.72), textColor: cs.onSurface),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -444,18 +468,18 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(AppLocalizations.of(context)!.teacherAttendanceRateLabel, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
-                          Text('${(attPct * 100).round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: attPct >= 0.85 ? const Color(0xFF22C55E) : attPct >= 0.7 ? const Color(0xFFF59E0B) : cs.error)),
+                          Text('${(attPct * 100).round()}%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: attPct >= 0.85 ? CmTokens.of(context).good : attPct >= 0.7 ? CmTokens.of(context).warn : cs.error)),
                         ],
                       ),
                       const SizedBox(height: 6),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(999),
                         child: LinearProgressIndicator(
                           value: attPct,
-                          minHeight: 8,
-                          backgroundColor: cs.outlineVariant,
+                          minHeight: 9,
+                          backgroundColor: cs.onPrimaryContainer.withValues(alpha: 0.12),
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            attPct >= 0.85 ? const Color(0xFF22C55E) : attPct >= 0.7 ? const Color(0xFFF59E0B) : cs.error,
+                            attPct >= 0.85 ? CmTokens.of(context).good : attPct >= 0.7 ? CmTokens.of(context).warn : cs.error,
                           ),
                         ),
                       ),
@@ -472,7 +496,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           const SizedBox(height: 18),
           LiquidGlassCard(
             color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -514,7 +537,6 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             const SizedBox(height: 14),
             LiquidGlassCard(
               color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -534,10 +556,10 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _BulkStatusButton(label: l.attendanceStatusPresent, onTap: () => _setAllStatus(AttendanceStatus.present)),
-                      _BulkStatusButton(label: l.attendanceStatusAbsent, onTap: () => _setAllStatus(AttendanceStatus.absent)),
-                      _BulkStatusButton(label: l.attendanceStatusLate, onTap: () => _setAllStatus(AttendanceStatus.late)),
-                      _BulkStatusButton(label: l.attendanceStatusExcused, onTap: () => _setAllStatus(AttendanceStatus.excused)),
+                      _BulkStatusButton(status: AttendanceStatus.present, label: l.attendanceStatusPresent, onTap: () => _setAllStatus(AttendanceStatus.present)),
+                      _BulkStatusButton(status: AttendanceStatus.absent, label: l.attendanceStatusAbsent, onTap: () => _setAllStatus(AttendanceStatus.absent)),
+                      _BulkStatusButton(status: AttendanceStatus.late, label: l.attendanceStatusLate, onTap: () => _setAllStatus(AttendanceStatus.late)),
+                      _BulkStatusButton(status: AttendanceStatus.excused, label: l.attendanceStatusExcused, onTap: () => _setAllStatus(AttendanceStatus.excused)),
                     ],
                   ),
                 ],
@@ -570,52 +592,56 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
             }).map((student) {
               final draft = _draftFor(student);
               final statusColor = _statusColor(context, draft.status);
+              final statusOn = _statusOnColor(context, draft.status);
               final initial = student.name.trim().isNotEmpty ? student.name[0].toUpperCase() : '?';
               return Padding(
-                padding: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Material(
                   color: Colors.transparent,
                   child: CmPress(
                     onTap: () => _cycleStatus(student.studentId),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
                         boxShadow: CmTokens.of(context).shadowSm,
                       ),
                       child: Row(
                         children: [
                           Container(
-                            width: 36, height: 36,
+                            width: 42, height: 42,
                             decoration: BoxDecoration(
-                              color: cs.primaryContainer,
-                              borderRadius: BorderRadius.circular(10),
+                              color: statusColor,
+                              shape: BoxShape.circle,
                             ),
-                            child: Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: cs.onPrimaryContainer))),
+                            child: Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: statusOn))),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               student.name,
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
                           GestureDetector(
                             onTap: () => _cycleStatus(student.studentId),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 120),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
                                 color: statusColor,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: statusColor, width: 1.5),
+                                borderRadius: BorderRadius.circular(999),
                               ),
-                              child: Text(
-                                _statusLabel(context, draft.status),
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
-                              ),
+                              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                Icon(_statusIcon(draft.status), size: 15, color: statusOn),
+                                const SizedBox(width: 5),
+                                Text(
+                                  _statusLabel(context, draft.status),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: statusOn),
+                                ),
+                              ]),
                             ),
                           ),
                         ],
@@ -646,23 +672,29 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
 }
 
 class _BulkStatusButton extends StatelessWidget {
-  const _BulkStatusButton({required this.label, required this.onTap});
+  const _BulkStatusButton({required this.status, required this.label, required this.onTap});
 
+  final String status;
   final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        backgroundColor: cs.surface,
-        side: BorderSide(color: cs.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    final fg = _statusOnColor(context, status);
+    return CmPress(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: _statusColor(context, status),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(_statusIcon(status), size: 17, color: fg),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: fg)),
+        ]),
       ),
-      child: Text(label),
     );
   }
 }
@@ -678,16 +710,15 @@ class _AttStatPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
             Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: textColor, height: 1.1)),
-            Text(label, style: TextStyle(fontSize: 10, color: textColor, fontWeight: FontWeight.w600)),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: textColor, fontWeight: FontWeight.w700)),
           ],
         ),
       ),

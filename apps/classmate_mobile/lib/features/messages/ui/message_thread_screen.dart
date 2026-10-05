@@ -374,7 +374,17 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 6),
                             child: Row(
                               children: [
-                                CircleAvatar(child: Text(_avatarText(detail))),
+                                CircleAvatar(
+                                  radius: 21,
+                                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                  child: Text(
+                                    _avatarText(detail),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    ),
+                                  ),
+                                ),
                                 const SizedBox(width: 10),
                                 // Flexible (not Expanded) so the title sizes to
                                 // its text and the ">" sits right next to the
@@ -390,7 +400,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                         detail.title,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontWeight: FontWeight.w700),
+                                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                                       ),
                                       if (detail.subtitle.trim().isNotEmpty)
                                         Text(
