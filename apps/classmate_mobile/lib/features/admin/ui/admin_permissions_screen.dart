@@ -447,7 +447,11 @@ class _RoleChip extends StatelessWidget {
 /// get a sensible icon (falls back to a generic "tune" glyph).
 IconData _moduleIcon(String module) {
   final k = module.toLowerCase();
-  if (k.contains('cohort')) return Icons.groups_rounded;
+  // Real catalog modules: "Classes & Students", "Communication",
+  // "Certificates", "Teaching". The rest are forward-compatible guesses.
+  if (k.contains('class') || k.contains('cohort')) return Icons.groups_rounded;
+  if (k.contains('communic')) return Icons.forum_rounded;
+  if (k.contains('teach')) return Icons.co_present_rounded;
   if (k.contains('student')) return Icons.school_rounded;
   if (k.contains('grade')) return Icons.grade_rounded;
   if (k.contains('material')) return Icons.folder_rounded;
