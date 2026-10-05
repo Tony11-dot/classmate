@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -287,10 +288,18 @@ class _SearchField extends StatelessWidget {
           filled: true,
           fillColor: cs.surfaceContainerHigh,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(999),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 4),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(999),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(999),
+            borderSide: BorderSide(color: cs.primary, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         ),
       ),
     );
@@ -303,15 +312,31 @@ class _ModuleHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsetsDirectional.only(start: 4),
-      child: Text(
-        label.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w800,
-          color: cs.onSurfaceVariant,
-          letterSpacing: 1.2,
-        ),
+      padding: const EdgeInsetsDirectional.only(start: 2, bottom: 2),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_moduleIcon(label), size: 17, color: cs.primary),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.1,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -332,6 +357,7 @@ class _CapabilityCard extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final tokens = CmTokens.of(context);
 
     String roleLabel(String r) => switch (r) {
       'SECRETARY' => l.permissionsColSecretary,
@@ -339,90 +365,153 @@ class _CapabilityCard extends StatelessWidget {
       _ => r,
     };
 
+    bool roleVal(String r) => state[r] ?? cap.enabledFor(r);
+    bool roleChanged(String r) => roleVal(r) != cap.defaultFor(r);
+    final anyChanged = cap.configurableRoles.any(roleChanged);
+    final roles = cap.configurableRoles.toList();
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.fromLTRB(14, 12, 10, 8),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
+        boxShadow: tokens.shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(cap.label,
-              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 2),
-          Text(cap.description,
-              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-          const SizedBox(height: 4),
-          for (final role in cap.configurableRoles)
-            _RoleToggleRow(
-              label: roleLabel(role),
-              value: state[role] ?? cap.enabledFor(role),
-              isDefault: (state[role] ?? cap.enabledFor(role)) == cap.defaultFor(role),
-              changedLabel: l.permissionsChangedBadge,
-              onChanged: (v) => onToggle(role, v),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoleToggleRow extends StatelessWidget {
-  const _RoleToggleRow({
-    required this.label,
-    required this.value,
-    required this.isDefault,
-    required this.changedLabel,
-    required this.onChanged,
-  });
-  final String label;
-  final bool value;
-  final bool isDefault;
-  final String changedLabel;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Expanded(
-          child: Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(cap.label,
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text(cap.description,
+                        style: theme.textTheme.labelSmall
+                            ?.copyWith(color: cs.onSurfaceVariant)),
+                  ],
                 ),
               ),
-              if (!isDefault) ...[
-                const SizedBox(width: 8),
+              if (anyChanged) ...[
+                const SizedBox(width: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: cs.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    color: tokens.warnContainer,
+                    borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    changedLabel,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: cs.onTertiaryContainer,
-                      fontWeight: FontWeight.w700,
+                    l.permissionsChangedBadge,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: tokens.onWarnContainer,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
               ],
             ],
           ),
-        ),
-        Switch(value: value, onChanged: onChanged),
-      ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              for (var i = 0; i < roles.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Expanded(
+                  child: _RoleChip(
+                    label: roleLabel(roles[i]),
+                    value: roleVal(roles[i]),
+                    changed: roleChanged(roles[i]),
+                    onChanged: (v) => onToggle(roles[i], v),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
     );
   }
+}
+
+/// Compact per-role toggle — the two (Secretary / Teacher) sit side by side so
+/// an admin compares both roles for a capability at a glance. A changed-from-
+/// default chip gets an amber outline (mirrors the card's "Changed" badge).
+class _RoleChip extends StatelessWidget {
+  const _RoleChip({
+    required this.label,
+    required this.value,
+    required this.changed,
+    required this.onChanged,
+  });
+  final String label;
+  final bool value;
+  final bool changed;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tokens = CmTokens.of(context);
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
+      decoration: BoxDecoration(
+        color: value ? cs.surfaceContainerHigh : cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+        border: Border.all(
+          color: changed
+              ? tokens.warn.withValues(alpha: 0.7)
+              : cs.outlineVariant.withValues(alpha: 0.5),
+          width: changed ? 1.5 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: value ? cs.onSurface : cs.onSurfaceVariant,
+                  ),
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Maps a permission module name to a representative icon for its section
+/// header. Matched loosely on the module string so new backend modules still
+/// get a sensible icon (falls back to a generic "tune" glyph).
+IconData _moduleIcon(String module) {
+  final k = module.toLowerCase();
+  if (k.contains('cohort')) return Icons.groups_rounded;
+  if (k.contains('student')) return Icons.school_rounded;
+  if (k.contains('grade')) return Icons.grade_rounded;
+  if (k.contains('material')) return Icons.folder_rounded;
+  if (k.contains('assign')) return Icons.assignment_rounded;
+  if (k.contains('exam')) return Icons.quiz_rounded;
+  if (k.contains('meet')) return Icons.event_rounded;
+  if (k.contains('form')) return Icons.description_rounded;
+  if (k.contains('cert')) return Icons.workspace_premium_rounded;
+  if (k.contains('mail')) return Icons.alternate_email_rounded;
+  if (k.contains('message') || k.contains('chat')) return Icons.chat_bubble_rounded;
+  return Icons.tune_rounded;
 }
 
 class _SaveBar extends StatelessWidget {
