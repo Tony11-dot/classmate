@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
 import '../../../ui/widgets/semester_select_field.dart';
@@ -362,6 +362,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
               children: [
                 // ── Targeting ──────────────────────────────────────────────
                 _Card(
+                  icon: Icons.groups_rounded,
                   title: AppLocalizations.of(context)!.teacherAudienceSectionTitle,
                   child: AudienceSection(
                     cohorts: _cohorts,
@@ -389,6 +390,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
                 // ── Exam details ────────────────────────────────────────────
                 _Card(
+                  icon: Icons.edit_note_rounded,
                   title: AppLocalizations.of(context)!.teacherExamDetailsSection,
                   child: Column(
                     children: [
@@ -490,6 +492,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 
                 // ── Materials ────────────────────────────────────────────────
                 _Card(
+                  icon: Icons.menu_book_rounded,
                   title: AppLocalizations.of(context)!.teacherExamStudyMaterialsWithCount(_attachments.length),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,25 +502,10 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                         final mat = entry.value;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: LiquidGlassCard(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            borderRadius: BorderRadius.circular(12),
-                            color: cs.surfaceContainerLow,
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                            child: Row(
-                              children: [
-                                Icon(Icons.insert_drive_file_outlined, size: 18, color: cs.primary),
-                                const SizedBox(width: 10),
-                                Expanded(child: Text(mat['title'] as String? ?? '', overflow: TextOverflow.ellipsis)),
-                                IconButton(
-                                  tooltip: l.a11yRemove,
-                                  icon: Icon(Icons.close_rounded, size: 16, color: cs.error),
-                                  onPressed: () => setState(() => _attachments.removeAt(i)),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                ),
-                              ],
-                            ),
+                          child: CmFileRow(
+                            name: mat['title'] as String? ?? '',
+                            removeTooltip: l.a11yRemove,
+                            onRemove: () => setState(() => _attachments.removeAt(i)),
                           ),
                         );
                       }),
@@ -549,27 +537,13 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
 // ── Shared card ────────────────────────────────────────────────────────────────
 
 class _Card extends StatelessWidget {
-  const _Card({required this.title, required this.child});
+  const _Card({required this.title, required this.child, this.icon});
   final String title;
   final Widget child;
+  final IconData? icon;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(20),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-          const SizedBox(height: 14),
-          child,
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      CmFormSection(title: title, icon: icon, child: child);
 }
 

@@ -14,7 +14,7 @@ Update this file in the same commit as each screen's redesign.
 - ✅ Theme: cards, sheets, dialogs, snackbars, chips, tabs, inputs
 - ✅ All 50 search bars → `CmSearchField`; code entry → `CmCodeField`
 - ✅ Chat composer (Instagram style) + WhatsApp-style bubble timestamps
-- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy`, `CmDateStub`, `CmIconAction` (40px footer action), `CmSectionHeader`, `CmMonogram` (stable-colour initials avatar) — use these for new redesigns
+- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy`, `CmDateStub`, `CmIconAction` (40px footer action), `CmSectionHeader`, `CmMonogram` (stable-colour initials avatar), `CmFormSection`/`CmFormSectionHeader`, `CmPickerRow`, `CmFileRow` — use these for new redesigns
 - ✅ Top bar same colour as screen; bigger logo; sheets open above the nav bar
 
 ## Student
@@ -64,7 +64,8 @@ Update this file in the same commit as each screen's redesign.
 | Grades, Attendance, Meetings | ✅ |
 | Forms list / create / responses | ✅ |
 | Insights / New announcement | ✅ / ✅ |
-| Add grade / assignment / material, Create classroom / exam | 🎨 |
+| Add grade / assignment / material, Create classroom / exam | ✅ (shared `CmFormSection`, `CmPickerRow`, `CmFileRow`) |
+| Materials list | ✅ |
 | Exams, Assignments | ✅ |
 | Assignment detail, Exam grades | ✅ |
 | Student profile, Student grade detail, Averages, Analytics | 🎨 |
@@ -95,7 +96,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 teacher create/add forms (add grade / assignment / material, create classroom / exam, classroom add *)
+1. 🎨 classroom add assignment / meeting / material
 2. 🎨 teacher student profile / grade detail / averages / analytics, slot attachments
 3. 🎨 admin settings screens, students hub, reports etc.
 4. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications

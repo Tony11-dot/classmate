@@ -1,5 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import '../../../../ui/widgets/cm_surfaces.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../ui/widgets/cm_search_field.dart';
@@ -265,29 +265,10 @@ class _AudienceRow extends StatelessWidget {
   final ColorScheme cs;
   final ThemeData theme;
 
-  @override
-  Widget build(BuildContext context) {
-    final hasValue = summary != null;
-    return CmPress(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: hasValue ? cs.primaryContainer.withValues(alpha: 0.3) : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: hasValue ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant),
-        ),
-        child: Row(children: [
-          Icon(icon, size: 18, color: hasValue ? cs.primary : cs.onSurfaceVariant),
-          const SizedBox(width: 10),
-          Text(label, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
-          const SizedBox(width: 8),
-          if (hasValue) Expanded(child: Text(summary!, textAlign: TextAlign.end, style: theme.textTheme.bodyMedium?.copyWith(color: cs.primary, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis)) else const Spacer(),
-          const SizedBox(width: 4),
-          Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
-        ]),
-      ),);
-  }
+    @override
+  Widget build(BuildContext context) =>
+      CmPickerRow(icon: icon, label: label, summary: summary, onTap: onTap);
+
 }
 
 class _MultiPickerSheet extends StatefulWidget {

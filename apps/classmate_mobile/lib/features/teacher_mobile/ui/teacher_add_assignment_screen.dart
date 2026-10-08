@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -9,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
 import '../../../ui/widgets/semester_select_field.dart';
@@ -520,6 +519,7 @@ class _TeacherAddAssignmentScreenState
               children: [
                 // ── Targeting card ──────────────────────────────────────────
                 _SectionCard(
+                  icon: Icons.groups_rounded,
                   title: AppLocalizations.of(context)!.teacherAudienceSectionTitle,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,6 +648,7 @@ class _TeacherAddAssignmentScreenState
 
                 // ── Details card ────────────────────────────────────────────
                 _SectionCard(
+                  icon: Icons.edit_note_rounded,
                   title: AppLocalizations.of(context)!.teacherMaterialDetailsTitle,
                   child: Column(
                     children: [
@@ -768,6 +769,7 @@ class _TeacherAddAssignmentScreenState
 
                 // ── Attachments card ────────────────────────────────────────
                 _SectionCard(
+                  icon: Icons.attach_file_rounded,
                   title: AppLocalizations.of(context)!.teacherAttachmentsWithCount(_attachments.length),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -793,31 +795,10 @@ class _TeacherAddAssignmentScreenState
                             .toString();
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: LiquidGlassCard(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            borderRadius: BorderRadius.circular(12),
-                            color: cs.surfaceContainerLow,
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                            child: Row(
-                              children: [
-                                Icon(Icons.insert_drive_file_outlined, size: 18, color: cs.primary),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    label,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: l.a11yRemove,
-                                  icon: Icon(Icons.close_rounded, size: 16, color: cs.error),
-                                  onPressed: () => setState(() => _attachments.removeAt(i)),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                ),
-                              ],
-                            ),
+                          child: CmFileRow(
+                            name: label,
+                            removeTooltip: l.a11yRemove,
+                            onRemove: () => setState(() => _attachments.removeAt(i)),
                           ),
                         );
                       }),
@@ -848,28 +829,14 @@ class _TeacherAddAssignmentScreenState
 // ── Shared section card ────────────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({required this.title, required this.child, this.icon});
   final String title;
   final Widget child;
+  final IconData? icon;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(20),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-          const SizedBox(height: 14),
-          child,
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      CmFormSection(title: title, icon: icon, child: child);
 }
 
 // ── Person picker bottom sheet ────────────────────────────────────────────────
@@ -1040,40 +1007,10 @@ class _AudiencePicker extends StatelessWidget {
   final ColorScheme cs;
   final ThemeData theme;
 
-  @override
-  Widget build(BuildContext context) {
-    final hasValue = summary != null;
-    return CmPress(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: hasValue ? cs.primaryContainer.withValues(alpha: 0.3) : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: hasValue ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant),
-        ),
-        child: Row(children: [
-          Icon(icon, size: 18, color: hasValue ? cs.primary : cs.onSurfaceVariant),
-          const SizedBox(width: 10),
-          Text(label, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: hasValue ? Text(
-              summary!,
-              textAlign: TextAlign.end,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.primary,
-                fontWeight: FontWeight.w700,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ) : const SizedBox.shrink(),
-          ),
-          const SizedBox(width: 4),
-          Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
-        ]),
-      ),);
-  }
+    @override
+  Widget build(BuildContext context) =>
+      CmPickerRow(icon: icon, label: label, summary: summary, onTap: onTap);
+
 }
 
 // ── Single-select picker sheet ────────────────────────────────────────────────

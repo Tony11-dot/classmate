@@ -1,12 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:classmate_mobile/core/theme/cm_tokens.dart';
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -264,8 +264,7 @@ class _TeacherCreateClassroomScreenState
 
                 // ── Cohorts DDL ────────────────────────────────────────────────
                 Row(children: [
-                  _SectionHeader(icon: Icons.groups_rounded, title: AppLocalizations.of(context)!.teacherAddByCohortSection),
-                  const Spacer(),
+                  Expanded(child: _SectionHeader(icon: Icons.groups_rounded, title: AppLocalizations.of(context)!.teacherAddByCohortSection)),
                   if (_selectedCohortIds.isNotEmpty)
                     _CountPill(count: _selectedCohortIds.length, cs: cs),
                 ]),
@@ -329,8 +328,7 @@ class _TeacherCreateClassroomScreenState
 
                 // ── Students DDL ───────────────────────────────────────────────
                 Row(children: [
-                  _SectionHeader(icon: Icons.person_add_rounded, title: AppLocalizations.of(context)!.teacherAddIndividualStudentsSection),
-                  const Spacer(),
+                  Expanded(child: _SectionHeader(icon: Icons.person_add_rounded, title: AppLocalizations.of(context)!.teacherAddIndividualStudentsSection)),
                   if (_selectedStudentIds.isNotEmpty)
                     _CountPill(count: _selectedStudentIds.length, cs: cs),
                 ]),
@@ -388,34 +386,14 @@ class _DDLButton extends StatelessWidget {
   final ColorScheme cs;
   final ThemeData theme;
 
-  @override
-  Widget build(BuildContext context) {
-    return CmPress(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(children: [
-          Icon(icon, size: 18, color: cs.onSurfaceVariant),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: label.endsWith('…') ? cs.onSurfaceVariant : cs.onSurface,
-                fontWeight: label.endsWith('…') ? FontWeight.w400 : FontWeight.w600,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Icon(Icons.expand_more_rounded, size: 20, color: cs.onSurfaceVariant),
-        ]),
-      ),);
-  }
+    @override
+  Widget build(BuildContext context) => CmPickerRow(
+        icon: icon,
+        label: label,
+        onTap: onTap,
+        trailingIcon: Icons.expand_more_rounded,
+      );
+
 }
 
 // ── Multi-picker sheet ─────────────────────────────────────────────────────────
@@ -579,13 +557,6 @@ class _SectionHeader extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    return Row(children: [
-      Icon(icon, size: 18, color: cs.primary),
-      const SizedBox(width: 8),
-      Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-    ]);
-  }
+  Widget build(BuildContext context) =>
+      CmFormSectionHeader(icon: icon, title: title);
 }

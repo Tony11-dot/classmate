@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:classmate_mobile/core/theme/cm_tokens.dart';
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/attachment_pill.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
@@ -481,6 +480,7 @@ class _TeacherAddMaterialScreenState
               children: [
                 // ── Audience first ──────────────────────────────────────────
                 _SectionCard(
+                  icon: Icons.groups_rounded,
                   title: l.teacherMaterialAudienceTitle,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -536,6 +536,7 @@ class _TeacherAddMaterialScreenState
 
                 // ── Title + Description ──────────────────────────────────────
                 _SectionCard(
+                  icon: Icons.edit_note_rounded,
                   title: l.teacherMaterialDetailsTitle,
                   child: Column(
                     children: [
@@ -575,6 +576,7 @@ class _TeacherAddMaterialScreenState
 
                 // ── Attachments (multiple links + files) ───────────────────
                 _SectionCard(
+                  icon: Icons.attach_file_rounded,
                   title: (_links.isNotEmpty || _files.isNotEmpty)
                       ? l.teacherMaterialAttachmentsWithCount(_links.length + _files.length)
                       : l.teacherMaterialAttachmentsTitle,
@@ -584,52 +586,20 @@ class _TeacherAddMaterialScreenState
                       // ── Existing links ────────────────────────────────────
                       ..._links.asMap().entries.map((e) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                          decoration: BoxDecoration(
-                            color: cs.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                            boxShadow: CmTokens.of(context).shadowSm,
-                          ),
-                          child: Row(children: [
-                            Icon(Icons.link_rounded, size: 16, color: cs.primary),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(e.value, overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600))),
-                            IconButton(
-                              tooltip: l.a11yRemove,
-                              icon: Icon(Icons.close_rounded, size: 14, color: cs.error),
-                              onPressed: () => setState(() => _links.removeAt(e.key)),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                            ),
-                          ]),
+                        child: CmFileRow(
+                          name: e.value,
+                          icon: Icons.link_rounded,
+                          removeTooltip: l.a11yRemove,
+                          onRemove: () => setState(() => _links.removeAt(e.key)),
                         ),
                       )),
                       // ── Existing files ────────────────────────────────────
                       ..._files.asMap().entries.map((e) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                          decoration: BoxDecoration(
-                            color: cs.primaryContainer.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: cs.primary.withValues(alpha: 0.35)),
-                          ),
-                          child: Row(children: [
-                            Icon(Icons.insert_drive_file_rounded, size: 16, color: cs.primary),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(e.value.name, overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600))),
-                            IconButton(
-                              tooltip: l.a11yRemove,
-                              icon: Icon(Icons.close_rounded, size: 14, color: cs.error),
-                              onPressed: () => setState(() => _files.removeAt(e.key)),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                            ),
-                          ]),
+                        child: CmFileRow(
+                          name: e.value.name,
+                          removeTooltip: l.a11yRemove,
+                          onRemove: () => setState(() => _files.removeAt(e.key)),
                         ),
                       )),
                       // ── Inline link input ─────────────────────────────────
@@ -704,25 +674,14 @@ class _TeacherAddMaterialScreenState
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({required this.title, required this.child, this.icon});
   final String title;
   final Widget child;
+  final IconData? icon;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(20),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 14),
-        child,
-      ]),
-    );
-  }
+  Widget build(BuildContext context) =>
+      CmFormSection(title: title, icon: icon, child: child);
 }
 
 class _PickerItem {
@@ -905,18 +864,18 @@ class _TeacherMaterialsStandaloneScreenState
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
-          LiquidGlassCard(
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          CmCard(
+            tint: cs.primary,
+            radius: CmTokens.radiusXl,
+            padding: const EdgeInsets.all(18),
             child: Row(children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(l.teacherMaterialListTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(l.teacherMaterialTotalCount(_materials.length), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
               ])),
-              Container(width: 46, height: 46,
-                decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(14)),
-                child: Icon(Icons.folder_rounded, size: 24, color: cs.onPrimary)),
+              const SizedBox(width: 12),
+              const CmIconTile(icon: Icons.folder_rounded, size: 52, filled: true),
             ]),
           ),
           const SizedBox(height: 16),
@@ -928,7 +887,13 @@ class _TeacherMaterialsStandaloneScreenState
             onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
           ),
           if (_error != null)
-            LiquidGlassCard(color: cs.errorContainer,
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+              decoration: BoxDecoration(
+                color: cs.errorContainer,
+                borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+              ),
               child: Row(children: [
                 Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                 const SizedBox(width: 10),
@@ -938,12 +903,7 @@ class _TeacherMaterialsStandaloneScreenState
           if (_loading && _materials.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (visible.isEmpty)
-            Center(child: Padding(padding: const EdgeInsets.all(40),
-              child: Column(children: [
-                Icon(Icons.folder_open_rounded, size: 48, color: cs.onSurfaceVariant),
-                const SizedBox(height: 16),
-                Text(l.teacherMaterialNoMaterials, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
-              ])))
+            CmEmptyState(icon: Icons.folder_open_rounded, title: l.teacherMaterialNoMaterials)
           else
             ...visible.map((m) {
               final id = m['id'] as String? ?? '';
@@ -977,18 +937,16 @@ class _TeacherMaterialsStandaloneScreenState
               }
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: LiquidGlassCard(
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                child: CmCard(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Container(width: 44, height: 44,
-                          decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(12)),
-                          child: Icon(Icons.folder_rounded, size: 22, color: cs.onPrimary)),
+                        const CmIconTile(icon: Icons.folder_rounded),
                         const SizedBox(width: 12),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                          Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, height: 1.2)),
                           if (subject.isNotEmpty || courseName.isNotEmpty) ...[
                             const SizedBox(height: 2),
                             Text([subject, courseName].where((s) => s.isNotEmpty).join(' · '),
@@ -1030,34 +988,30 @@ class _TeacherMaterialsStandaloneScreenState
                               ]);
                             }),
                           ],
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: (published ? cs.primary : cs.surfaceContainerHighest),
-                              borderRadius: BorderRadius.circular(6)),
-                            child: Text(published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700,
-                                color: published ? cs.onPrimary : cs.onSurfaceVariant))),
+                          const SizedBox(height: 6),
+                          CmPill(
+                            icon: published ? Icons.check_circle_rounded : Icons.edit_note_rounded,
+                            label: published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
+                            color: published ? CmTokens.of(context).good : CmTokens.of(context).warn,
+                          ),
                         ])),
                         // Action buttons replace the chevron — edit and
                         // delete sit at the top-right so each is a
                         // single tap (no swipe required).
-                        IconButton(
-                          icon: const Icon(Icons.edit_rounded, size: 18),
+                        CmIconAction(
+                          icon: Icons.edit_rounded,
                           tooltip: l.commonEdit,
                           onPressed: () => context.push('/teacher/materials/add', extra: {...m, '_edit': true}).then((_) => _load()),
-                          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
+                        CmIconAction(
+                          icon: Icons.delete_outline_rounded,
                           tooltip: l.commonDelete,
                           onPressed: () => _delete(id),
-                          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+                          color: cs.error,
                         ),
                       ]),
                       if (atts.isNotEmpty) ...[
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         // Shared AttachmentPills: resolves relative /uploads
                         // URLs and opens PDFs/images in-app (so student-attached
                         // files open correctly for the teacher too).
@@ -1095,19 +1049,10 @@ class _PickerItem2 { const _PickerItem2({required this.id, required this.label, 
 class _MatAudiencePicker extends StatelessWidget {
   const _MatAudiencePicker({required this.icon, required this.label, required this.summary, required this.onTap, required this.cs, required this.theme});
   final IconData icon; final String label; final String? summary; final VoidCallback onTap; final ColorScheme cs; final ThemeData theme;
-  @override Widget build(BuildContext context) {
-    final hasValue = summary != null;
-    return CmPress(onTap: onTap, child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(color: hasValue ? cs.primaryContainer.withValues(alpha: 0.3) : cs.surfaceContainerLow, borderRadius: BorderRadius.circular(12), border: Border.all(color: hasValue ? cs.primary.withValues(alpha: 0.4) : cs.outlineVariant)),
-      child: Row(children: [
-        Icon(icon, size: 18, color: hasValue ? cs.primary : cs.onSurfaceVariant), const SizedBox(width: 10),
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)), const SizedBox(width: 8),
-        if (hasValue) Expanded(child: Text(summary!, textAlign: TextAlign.end, style: theme.textTheme.bodyMedium?.copyWith(color: cs.primary, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis)) else const Spacer(),
-        const SizedBox(width: 4), Icon(Icons.chevron_right_rounded, size: 18, color: cs.onSurfaceVariant),
-      ]),
-    ));
-  }
+    @override
+  Widget build(BuildContext context) =>
+      CmPickerRow(icon: icon, label: label, summary: summary, onTap: onTap);
+
 }
 
 class _MatSinglePickerSheet extends StatefulWidget {

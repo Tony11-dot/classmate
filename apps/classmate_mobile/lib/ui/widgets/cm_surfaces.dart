@@ -447,3 +447,207 @@ class CmMonogram extends StatelessWidget {
     );
   }
 }
+
+/// Header row for a form section: tinted icon tile + bold title, with an
+/// optional trailing widget (count pill, action button).
+class CmFormSectionHeader extends StatelessWidget {
+  const CmFormSectionHeader({
+    super.key,
+    required this.title,
+    this.icon,
+    this.trailing,
+  });
+
+  final String title;
+  final IconData? icon;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (icon != null) ...[
+          CmIconTile(icon: icon!, size: 34),
+          const SizedBox(width: 10),
+        ],
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        ?trailing,
+      ],
+    );
+  }
+}
+
+/// A form section: card with a [CmFormSectionHeader] above [child].
+class CmFormSection extends StatelessWidget {
+  const CmFormSection({
+    super.key,
+    required this.title,
+    required this.child,
+    this.icon,
+    this.trailing,
+  });
+
+  final String title;
+  final Widget child;
+  final IconData? icon;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return CmCard(
+      radius: CmTokens.radiusXl,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CmFormSectionHeader(title: title, icon: icon, trailing: trailing),
+          const SizedBox(height: 14),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+/// One attached file in a form: type tile, name, and a remove action.
+class CmFileRow extends StatelessWidget {
+  const CmFileRow({
+    super.key,
+    required this.name,
+    required this.onRemove,
+    required this.removeTooltip,
+    this.icon,
+  });
+
+  final String name;
+  final VoidCallback onRemove;
+  final String removeTooltip;
+
+  /// Defaults to a type icon guessed from [name]'s extension.
+  final IconData? icon;
+
+  static IconData iconFor(String name) {
+    final n = name.toLowerCase();
+    if (n.endsWith('.pdf')) return Icons.picture_as_pdf_rounded;
+    for (final ext in ['.png', '.jpg', '.jpeg', '.webp', '.heic', '.gif']) {
+      if (n.endsWith(ext)) return Icons.image_rounded;
+    }
+    for (final ext in ['.mp4', '.mov', '.webm']) {
+      if (n.endsWith(ext)) return Icons.movie_rounded;
+    }
+    if (n.startsWith('http')) return Icons.link_rounded;
+    return Icons.insert_drive_file_rounded;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 2, 6),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+      ),
+      child: Row(
+        children: [
+          CmIconTile(icon: icon ?? iconFor(name), size: 36, color: cs.tertiary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          CmIconAction(
+            icon: Icons.close_rounded,
+            tooltip: removeTooltip,
+            onPressed: onRemove,
+            color: cs.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tappable form row that opens a picker: icon tile, label, the current
+/// selection (if any) on the trailing side, and a chevron.
+class CmPickerRow extends StatelessWidget {
+  const CmPickerRow({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.summary,
+    this.trailingIcon = Icons.chevron_right_rounded,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  /// Current selection; null shows the row in its empty state.
+  final String? summary;
+  final IconData trailingIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final hasValue = summary != null && summary!.isNotEmpty;
+    return CmPress(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: CmTokens.fast,
+        padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 10, 8),
+        decoration: BoxDecoration(
+          color: hasValue
+              ? cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.08)
+              : cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+        ),
+        child: Row(
+          children: [
+            CmIconTile(icon: icon, size: 36, filled: hasValue),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: t.bodyMedium?.copyWith(
+                color: hasValue ? cs.onSurface : cs.onSurfaceVariant,
+                fontWeight: hasValue ? FontWeight.w700 : FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: hasValue
+                  ? Text(
+                      summary!,
+                      textAlign: TextAlign.end,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t.bodyMedium?.copyWith(
+                        color: cs.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            const SizedBox(width: 4),
+            Icon(trailingIcon, size: 22, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+}

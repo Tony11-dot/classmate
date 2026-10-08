@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:classmate_mobile/core/theme/cm_tokens.dart';
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -11,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/contracts/grade_scale.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/weight_formats_field.dart';
@@ -1676,33 +1676,10 @@ class _PickerTrigger extends StatelessWidget {
   final VoidCallback onTap;
   final IconData icon;
 
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    return CmPress(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: cs.primary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
-          ],
-        ),
-      ),);
-  }
+    @override
+  Widget build(BuildContext context) =>
+      CmPickerRow(icon: icon, label: label, onTap: onTap);
+
 }
 
 class _Chip extends StatelessWidget {
@@ -1786,19 +1763,11 @@ class _SectionCard extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-        boxShadow: CmTokens.of(context).shadowSm,
-      ),
-      padding: const EdgeInsets.all(16),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => CmCard(
+        radius: CmTokens.radiusXl,
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+        child: child,
+      );
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -1807,19 +1776,6 @@ class _SectionHeader extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: cs.primary),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: theme.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.w700),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) =>
+      CmFormSectionHeader(icon: icon, title: title);
 }
