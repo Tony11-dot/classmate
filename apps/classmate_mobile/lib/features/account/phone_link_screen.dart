@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/cm_surfaces.dart';
 
 /// Post-login 2FA linking step: shown when the freshly signed-in account has
 /// no phone number on file. Sends a 6-digit SMS to the number the user types
@@ -130,7 +131,7 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Icon(Icons.phonelink_lock_rounded, size: 56, color: cs.primary),
+              const Center(child: CmIconTile(icon: Icons.phonelink_lock_rounded, size: 64, filled: true)),
               const SizedBox(height: 18),
               Text(
                 l.phoneLinkTitle,
@@ -158,11 +159,6 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
                     labelText: l.phoneLinkFieldLabel,
                     hintText: '+972 50 123 4567',
                     prefixIcon: const Icon(Icons.phone_rounded),
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
                   onSubmitted: (_) => _sendCode(),
                 )
@@ -190,11 +186,7 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
                     : codeStage
                         ? _confirm
                         : _sendCode,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                 child: (_sending || _verifying)
                     ? const CmLoading(size: 20)
                     : Text(

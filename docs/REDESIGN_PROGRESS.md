@@ -52,7 +52,7 @@ Update this file in the same commit as each screen's redesign.
 | Plans (billing) | ✅ |
 | Support | 🎨 |
 | Login | ✅ (already polished) |
-| Forgot password / phone link | 🎨 |
+| Forgot password / phone link | ✅ / ✅ |
 | Onboarding | ⬜ |
 | Drawer tools order / classroom order | ✅ |
 | Image viewer / PDF viewer / video trimmer / media preview / splash | ➖ |

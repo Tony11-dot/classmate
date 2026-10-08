@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/http/cm_api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/cm_surfaces.dart';
+import '../../core/theme/cm_tokens.dart';
 
 enum _ResetMode { email, sms }
 
@@ -113,15 +115,22 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
               children: [
+            const Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: CmIconTile(icon: Icons.lock_reset_rounded, size: 60, filled: true),
+            ),
+            const SizedBox(height: 18),
             Text(AppLocalizations.of(context)!.forgotPasswordTitle,
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
             Text(headerCopy,
                 style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant, height: 1.45)),
             const SizedBox(height: 24),
 
             // Mode picker
-            SegmentedButton<_ResetMode>(
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<_ResetMode>(
               segments: [
                 ButtonSegment(value: _ResetMode.email, label: Text(AppLocalizations.of(context)!.forgotPasswordModeEmail), icon: const Icon(Icons.mail_outline_rounded)),
                 ButtonSegment(value: _ResetMode.sms,   label: Text(AppLocalizations.of(context)!.forgotPasswordModeSms),   icon: const Icon(Icons.sms_outlined)),
@@ -131,6 +140,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 _mode = s.first;
                 _message = null;
               }),
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -163,7 +173,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               label: Text(_mode == _ResetMode.email
                   ? AppLocalizations.of(context)!.forgotPasswordEmailButton
                   : AppLocalizations.of(context)!.forgotPasswordSmsButton),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
             ),
 
             if (_message != null) ...[
@@ -171,20 +181,20 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: (_success ? cs.tertiaryContainer : cs.errorContainer).withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _success ? cs.tertiary : cs.error),
+                  color: (_success ? CmTokens.of(context).good : cs.error)
+                      .withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.10),
+                  borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(_success ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-                        color: _success ? cs.tertiary : cs.error, size: 20),
+                        color: _success ? CmTokens.of(context).good : cs.error, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(_message!,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: _success ? cs.onTertiaryContainer : cs.onErrorContainer,
+                            color: cs.onSurface,
                             height: 1.4,
                           )),
                     ),
@@ -194,9 +204,17 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ],
 
             const SizedBox(height: 24),
-            Text(
-              'The link expires in 1 hour and can only be used once.',
-              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            Row(
+              children: [
+                Icon(Icons.timer_outlined, size: 16, color: cs.onSurfaceVariant),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'The link expires in 1 hour and can only be used once.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ),
+              ],
             ),
               ],
             ),
