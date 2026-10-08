@@ -83,7 +83,7 @@ Update this file in the same commit as each screen's redesign.
 | Edit user | ✅ |
 | Import users | ✅ |
 | School settings (info, subjects, bell tab) | ✅ |
-| Export (main screen) / export options sheet | ✅ / 🎨 |
+| Export (main screen) / export options sheet | ✅ / ✅ (sheet not previewed) |
 | Grade scales, Subject detail | ✅ |
 | Reports | ✅ |
 | Periods | ✅ (not previewed: private data provider) |
@@ -103,8 +103,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. Export options sheet, admin dashboard detail pass
-2. Onboarding (low priority)
+1. Onboarding
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired

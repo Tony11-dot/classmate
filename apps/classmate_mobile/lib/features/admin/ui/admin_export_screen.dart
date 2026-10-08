@@ -1849,11 +1849,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
         children: [
           Row(
             children: [
+              const CmIconTile(icon: Icons.download_rounded, size: 46, filled: true),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l.adminExportOptionsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(l.adminExportOptionsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
                     Text(l.adminExportUsersSelected(widget.userCount), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   ],
                 ),
@@ -1863,9 +1865,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: _includePasswords ? cs.errorContainer.withValues(alpha: 0.2) : cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _includePasswords ? cs.error.withValues(alpha: 0.4) : cs.outlineVariant.withValues(alpha: 0.4)),
+              color: _includePasswords
+                  ? cs.error.withValues(alpha: cs.brightness == Brightness.dark ? 0.16 : 0.08)
+                  : cs.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+              border: Border.all(color: _includePasswords ? cs.error.withValues(alpha: 0.45) : Colors.transparent),
             ),
             child: SwitchListTile.adaptive(
               dense: true,
@@ -1895,20 +1899,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
           // switches (which hid options until a parent toggle was on, so the
           // single-PDF / separate-PDF choices seemed to appear and vanish on
           // their own). All three modes are now shown up front. (QA #31/#34/#35)
-          Text(
-            l.adminExportLayoutLabel,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: cs.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 6),
+          CmFormSectionHeader(icon: Icons.picture_as_pdf_rounded, title: l.adminExportLayoutLabel),
+          const SizedBox(height: 8),
           Container(
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+              borderRadius: BorderRadius.circular(CmTokens.radiusMd),
             ),
             child: Column(
               children: [
@@ -1942,14 +1939,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            l.adminExportLanguageLabel,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: cs.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 6),
+          CmFormSectionHeader(icon: Icons.translate_rounded, title: l.adminExportLanguageLabel),
+          const SizedBox(height: 8),
           // SingleChildScrollView lets the 5 chips fit on narrow phones
           // without overflowing — the segment row would otherwise hard-
           // wrap or shrink labels into illegible glyphs.
@@ -1980,6 +1971,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             children: [
               Expanded(
                 child: FilledButton.icon(
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
                   onPressed: _exporting ? null : _exportCsv,
                   icon: _exporting
                       ? const CmLoading(size: 14, color: Colors.white)
@@ -1991,9 +1983,13 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _exporting ? null : _exportPdf,
-                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C3AED), foregroundColor: Colors.white),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: cs.tertiary,
+                    foregroundColor: cs.onTertiary,
+                    minimumSize: const Size.fromHeight(50),
+                  ),
                   icon: _exporting
-                      ? const CmLoading(size: 14, color: Colors.white)
+                      ? CmLoading(size: 14, color: cs.onTertiary)
                       : const Icon(Icons.picture_as_pdf_rounded, size: 16),
                   label: Text(l.adminExportPdfButton),
                 ),
