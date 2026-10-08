@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/nova_avatar.dart';
 import '../data/support_ai_repository.dart';
 import 'support_ai_sheet.dart';
@@ -147,25 +149,21 @@ class SupportScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         children: [
           // ── Contact CTAs ─────────────────────────────────────────────────
-          Container(
+          CmCard(
+            tint: cs.primary,
+            radius: CmTokens.radiusXl,
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: cs.primaryContainer.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.support_agent_rounded, color: cs.primary, size: 22),
-                    const SizedBox(width: 8),
-                    Text(
-                      AppLocalizations.of(context)!.supportContactTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: cs.primary,
+                    const CmIconTile(icon: Icons.support_agent_rounded, size: 44, filled: true),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.supportContactTitle,
+                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                       ),
                     ),
                   ],
@@ -296,13 +294,9 @@ class _AskAiCard extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     return CmPress(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cs.primaryContainer.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
-        ),
+      child: CmCard(
+        tint: cs.tertiary,
+        padding: const EdgeInsets.all(14),
         child: Row(
           children: [
             // The card leads with NOVA's face — same identity as the tutor.
@@ -360,33 +354,16 @@ class _CategoryBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(top: 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(category.icon, size: 18, color: cs.primary),
-              const SizedBox(width: 8),
-              Text(
-                category.title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.primary,
-                ),
-              ),
-            ],
-          ),
+          CmFormSectionHeader(icon: category.icon, title: category.title),
           const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-            ),
+          CmCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: faqs.asMap().entries.map((e) => Column(
                 children: [
@@ -474,22 +451,14 @@ class _ContactRow extends StatelessWidget {
     return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          color: cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface,
+          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
         ),
         child: Row(
           children: [
-            Container(
-              width: 32, height: 32,
-              decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, size: 18, color: cs.onPrimaryContainer),
-            ),
+            CmIconTile(icon: icon, size: 38),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -504,12 +473,11 @@ class _ContactRow extends StatelessWidget {
               Icon(Icons.arrow_forward_ios_rounded, size: 14, color: cs.onSurfaceVariant)
             else
               for (final a in trailingActions)
-                IconButton(
+                CmIconAction(
+                  icon: a.icon,
                   tooltip: a.tooltip,
-                  icon: Icon(a.icon, size: 20),
-                  color: cs.primary,
-                  visualDensity: VisualDensity.compact,
                   onPressed: a.onTap,
+                  color: cs.primary,
                 ),
           ],
         ),

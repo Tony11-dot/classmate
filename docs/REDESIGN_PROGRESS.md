@@ -50,7 +50,7 @@ Update this file in the same commit as each screen's redesign.
 | Profile | ✅ |
 | Settings | ✅ |
 | Plans (billing) | ✅ |
-| Support | 🎨 |
+| Support | ✅ |
 | Login | ✅ (already polished) |
 | Forgot password / phone link | ✅ / ✅ |
 | Onboarding | ⬜ |
@@ -103,9 +103,8 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 support, forgot password / phone link, parent notifications
-2. Export options sheet, admin dashboard detail pass
-3. Onboarding (low priority)
+1. Export options sheet, admin dashboard detail pass
+2. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired
