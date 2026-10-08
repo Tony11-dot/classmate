@@ -5,6 +5,7 @@ import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/students_hub_api.dart';
 import 'student_detail_screen.dart';
@@ -56,17 +57,18 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
         child: students.when(
           loading: () => const Center(child: CmLoading()),
           error: (e, _) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(e.toString(), textAlign: TextAlign.center),
+            child: CmEmptyState(
+              icon: Icons.error_outline_rounded,
+              title: l.commonError,
+              message: e.toString(),
             ),
           ),
           data: (items) {
             final filtered = query.isEmpty
                 ? items
                 : items
-                    .where((s) => s.name.toLowerCase().contains(query))
-                    .toList();
+                      .where((s) => s.name.toLowerCase().contains(query))
+                      .toList();
             return CmRefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(hubStudentsProvider);
@@ -78,18 +80,24 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                 ),
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: EdgeInsets.fromLTRB(12, 0, 12, 136 + MediaQuery.paddingOf(context).bottom),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  0,
+                  16,
+                  136 + MediaQuery.paddingOf(context).bottom,
+                ),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+                    padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
                     child: Text(
                       l.teacherStudentsLabel,
-                      style: theme.textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w900),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
                     child: CmSearchField(
                       controller: _searchCtl,
                       hint: l.notesSearchStudents,
@@ -97,12 +105,14 @@ class _StudentsHubScreenState extends ConsumerState<StudentsHubScreen> {
                     ),
                   ),
                   if (filtered.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 120),
-                      child: Center(child: Text(l.notesNoStudents)),
+                    CmEmptyState(
+                      icon: Icons.person_search_rounded,
+                      title: l.notesNoStudents,
                     )
                   else
-                    ...filtered.map((s) => _Row(student: s, onTap: () => _open(s))),
+                    ...filtered.map(
+                      (s) => _Row(student: s, onTap: () => _open(s)),
+                    ),
                 ],
               ),
             );
@@ -124,79 +134,54 @@ class _Row extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final initial =
-        student.name.isNotEmpty ? student.name.characters.first : '?';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-      child: Material(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 21,
-                  backgroundColor: cs.primaryContainer,
-                  child: Text(
-                    initial.toUpperCase(),
-                    style: TextStyle(
-                      color: cs.onPrimaryContainer,
+      padding: const EdgeInsets.only(bottom: 8),
+      child: CmCard(
+        onTap: onTap,
+        padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+        child: Row(
+          children: [
+            CmMonogram(name: student.name),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    student.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        student.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                      if ((student.cohortName ?? '').isNotEmpty)
-                        Text(
-                          student.cohortName!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
-                        ),
-                    ],
-                  ),
-                ),
-                if (student.grade != null) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      l.solutionsGradeLabel(student.grade!),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: cs.primary,
+                  if ((student.cohortName ?? '').isNotEmpty)
+                    Text(
+                      student.cohortName!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
-                  ),
                 ],
-                const SizedBox(width: 4),
-                Icon(Icons.chevron_right_rounded,
-                    color: cs.onSurfaceVariant, size: 22),
-              ],
+              ),
             ),
-          ),
+            if (student.grade != null) ...[
+              const SizedBox(width: 8),
+              CmPill(
+                label: l.solutionsGradeLabel(student.grade!),
+                color: cs.primary,
+              ),
+            ],
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: cs.onSurfaceVariant,
+              size: 22,
+            ),
+          ],
         ),
       ),
     );
