@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -133,15 +134,15 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
     return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
           // Hero
-          LiquidGlassCard(
-            color: cs.primaryContainer,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          CmCard(
+            tint: cs.primary,
+            radius: CmTokens.radiusXl,
+            padding: const EdgeInsets.all(18),
             child: Row(
               children: [
                 Expanded(
@@ -150,22 +151,32 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                     children: [
                       Text(
                         l.teacherExamsTitle,
-                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${upcoming.length} ${l.teacherExamsUpcoming}  ·  ${past.length} ${l.teacherExamsPast}',
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          CmPill(
+                            icon: Icons.upcoming_rounded,
+                            label: '${upcoming.length} ${l.teacherExamsUpcoming}',
+                            color: cs.primary,
+                          ),
+                          CmPill(
+                            icon: Icons.history_edu_rounded,
+                            label: '${past.length} ${l.teacherExamsPast}',
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(color: cs.onPrimaryContainer.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(14)),
-                  child: Icon(Icons.quiz_rounded, size: 24, color: cs.onPrimaryContainer),
-                ),
+                const SizedBox(width: 12),
+                const CmIconTile(icon: Icons.quiz_rounded, size: 52, filled: true),
               ],
             ),
           ),
@@ -176,7 +187,10 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
               showingPrevious: _showingPrevious,
               selectedPast: _selectedPast,
               onPastChanged: (w) => setState(() => _selectedPast = w),
-              onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+              onChanged: (v) => setState(() {
+                _showingPrevious = v;
+                if (!v) _selectedPast = null;
+              }),
             ),
             const SizedBox(height: 4),
           ],
@@ -184,38 +198,21 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: LiquidGlassCard(
-                color: cs.errorContainer,
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
-                    const SizedBox(width: 10),
-                    Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                    TextButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
-                  ],
-                ),
-              ),
+              child: _ErrorBanner(message: _error!, onRetry: _load),
             ),
 
           if (_loading && _exams.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_exams.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  children: [
-                    Icon(Icons.quiz_outlined, size: 48, color: cs.onSurfaceVariant),
-                    const SizedBox(height: 16),
-                    Text(l.teacherExamsEmpty, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-            )
+            CmEmptyState(icon: Icons.quiz_outlined, title: l.teacherExamsEmpty)
           else ...[
             if (upcoming.isNotEmpty) ...[
-              _SectionHeader(label: l.teacherExamsUpcoming, icon: Icons.upcoming_rounded, color: cs.primary),
-              const SizedBox(height: 8),
+              CmSectionHeader(
+                label: l.teacherExamsUpcoming,
+                icon: Icons.upcoming_rounded,
+                count: upcoming.length,
+                color: cs.primary,
+              ),
               ...upcoming.map((e) => _ExamCard(
                     exam: e,
                     isUpcoming: true,
@@ -227,8 +224,11 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
               const SizedBox(height: 8),
             ],
             if (past.isNotEmpty) ...[
-              _SectionHeader(label: l.teacherExamsPast, icon: Icons.history_edu_rounded, color: cs.secondary),
-              const SizedBox(height: 8),
+              CmSectionHeader(
+                label: l.teacherExamsPast,
+                icon: Icons.history_edu_rounded,
+                count: past.length,
+              ),
               ...past.map((e) => _ExamCard(
                     exam: e,
                     isUpcoming: false,
@@ -239,6 +239,33 @@ class _TeacherExamsScreenState extends ConsumerState<TeacherExamsScreen> {
                   )),
             ],
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+      decoration: BoxDecoration(
+        color: cs.errorContainer,
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: TextStyle(color: cs.onErrorContainer))),
+          TextButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.commonRetry)),
         ],
       ),
     );
@@ -265,9 +292,9 @@ class _ExamCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tk = CmTokens.of(context);
     final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
-    final accentColor = isUpcoming ? cs.primary : cs.secondary;
 
     final title = exam['title'] as String? ?? '';
     final subject = exam['subject'] as String? ?? '';
@@ -276,154 +303,109 @@ class _ExamCard extends StatelessWidget {
     final gradedCount = exam['gradedCount'] as int? ?? 0;
     final maxGrade = exam['maxGrade'] as int?;
     final dateRaw = exam['date'] as String? ?? '';
-    DateTime? date = dateRaw.isNotEmpty ? DateTime.tryParse(dateRaw) : null;
+    final date = dateRaw.isNotEmpty ? DateTime.tryParse(dateRaw) : null;
+    final meta = [subject, courseName].where((s) => s.isNotEmpty).join(' · ');
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: GestureDetector(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: CmCard(
         onTap: onTap,
-        child: LiquidGlassCard(
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: cs.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CmDateStub(
+                  date: date,
+                  color: isUpcoming ? cs.primary : cs.onSurfaceVariant,
                 ),
-                child: Icon(isUpcoming ? Icons.upcoming_rounded : Icons.history_edu_rounded, size: 22, color: cs.onPrimaryContainer),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800))),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: published ? cs.primaryContainer : cs.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            published ? AppLocalizations.of(context)!.teacherMaterialPublished : AppLocalizations.of(context)!.teacherMaterialDraft,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: published ? cs.onPrimaryContainer : cs.onSurfaceVariant),
-                          ),
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, height: 1.2),
                         ),
+                        if (meta.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            meta,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                        if (date != null) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            FriendlyDate.date(date),
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: isUpcoming ? cs.primary : cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                    if (subject.isNotEmpty || courseName.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        [subject, courseName].where((s) => s.isNotEmpty).join(' · '),
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                      ),
-                    ],
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        if (date != null)
-                          _Chip(label: FriendlyDate.date(date), color: accentColor),
-                        if (maxGrade != null)
-                          _Chip(label: '/ $maxGrade', color: cs.tertiary),
-                        if (gradedCount > 0)
-                          _GradedChip(label: AppLocalizations.of(context)!.teacherExamsScreenGradedCount(gradedCount), cs: cs),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (!published && onPublish != null)
-                    IconButton(
-                      icon: Icon(Icons.publish_rounded, size: 16, color: cs.primary),
-                      tooltip: AppLocalizations.of(context)!.teacherPublishTooltip,
-                      onPressed: onPublish,
-                      padding: const EdgeInsets.all(4),
-                      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                    ),
-                  IconButton(
-                    tooltip: l.a11yEdit,
-                    icon: const Icon(Icons.edit_rounded, size: 16),
-                    onPressed: onEdit,
-                    padding: const EdgeInsets.all(4),
-                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2, right: 4),
+                  child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      CmPill(
+                        icon: published ? Icons.check_circle_rounded : Icons.edit_note_rounded,
+                        label: published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
+                        color: published ? tk.good : tk.warn,
+                      ),
+                      if (maxGrade != null)
+                        CmPill(icon: Icons.grade_rounded, label: '/ $maxGrade'),
+                      if (gradedCount > 0)
+                        CmPill(
+                          icon: Icons.done_all_rounded,
+                          label: l.teacherExamsScreenGradedCount(gradedCount),
+                          color: cs.tertiary,
+                        ),
+                    ],
                   ),
-                  IconButton(
-                    tooltip: l.a11yDelete,
-                    icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error),
-                    onPressed: onDelete,
-                    padding: const EdgeInsets.all(4),
-                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                ),
+                if (!published && onPublish != null)
+                  CmIconAction(
+                    icon: Icons.publish_rounded,
+                    tooltip: l.teacherPublishTooltip,
+                    onPressed: onPublish,
+                    color: cs.primary,
                   ),
-                ],
-              ),
-            ],
-          ),
+                CmIconAction(icon: Icons.edit_rounded, tooltip: l.a11yEdit, onPressed: onEdit),
+                CmIconAction(
+                  icon: Icons.delete_outline_rounded,
+                  tooltip: l.a11yDelete,
+                  onPressed: onDelete,
+                  color: cs.error,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.label, required this.icon, required this.color});
-  final String label;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800, color: color, letterSpacing: 0.3),
-        ),
-        const SizedBox(width: 8),
-        Expanded(child: Divider(color: color)),
-      ],
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.color});
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
-      child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white)),
-    );
-  }
-}
-
-class _GradedChip extends StatelessWidget {
-  const _GradedChip({required this.label, required this.cs});
-  final String label;
-  final ColorScheme cs;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: cs.tertiaryContainer, borderRadius: BorderRadius.circular(6)),
-      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onTertiaryContainer)),
     );
   }
 }

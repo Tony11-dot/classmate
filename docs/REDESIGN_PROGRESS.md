@@ -14,7 +14,7 @@ Update this file in the same commit as each screen's redesign.
 - ✅ Theme: cards, sheets, dialogs, snackbars, chips, tabs, inputs
 - ✅ All 50 search bars → `CmSearchField`; code entry → `CmCodeField`
 - ✅ Chat composer (Instagram style) + WhatsApp-style bubble timestamps
-- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy` — use these for new redesigns
+- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy`, `CmDateStub`, `CmIconAction` (40px footer action), `CmSectionHeader` — use these for new redesigns
 - ✅ Top bar same colour as screen; bigger logo; sheets open above the nav bar
 
 ## Student
@@ -62,9 +62,10 @@ Update this file in the same commit as each screen's redesign.
 | Home, Classrooms, Classroom detail, Schedule | ✅ |
 | Grades, Attendance, Meetings | ✅ |
 | Forms list / create / responses | ✅ |
-| Insights, New announcement | 🎨 |
+| Insights / New announcement | ✅ / 🎨 |
 | Add grade / assignment / material, Create classroom / exam | 🎨 |
-| Exams, Assignments, Assignment detail, Exam grades | 🎨 |
+| Exams, Assignments | ✅ |
+| Assignment detail, Exam grades | 🎨 |
 | Student profile, Student grade detail, Averages, Analytics | 🎨 |
 | Slot attachments, Classroom add assignment / meeting / material | 🎨 |
 | Attendance history, Cohorts | ✅ |
@@ -93,7 +94,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
+1. 🎨 screens with the most traffic: message thread, CMail compose/detail, teacher assignment detail / exam grades
 2. Onboarding (low priority)
 
 ## Known open items (not redesign)

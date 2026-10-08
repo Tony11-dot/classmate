@@ -1,4 +1,3 @@
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
@@ -6,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -142,69 +142,41 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
         padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).padding.bottom + 100),
         children: [
           // ── Hero card ────────────────────────────────────────────────────
-          LiquidGlassCard(
+          CmCard(
+            tint: cs.primary,
+            radius: CmTokens.radiusXl,
             padding: const EdgeInsets.all(18),
-            borderRadius: BorderRadius.circular(26),
-            color: cs.primaryContainer,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l.teacherInsightsTitle,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.4,
-                              color: cs.onPrimaryContainer,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l.teacherInsightsSubtitle,
-                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onPrimaryContainer),
-                          ),
-                        ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.teacherInsightsTitle,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                        ),
                       ),
-                    ),
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: cs.onPrimaryContainer.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(14),
+                      const SizedBox(height: 6),
+                      Text(
+                        l.teacherInsightsSubtitle,
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
-                      child: Icon(Icons.insights_rounded, size: 26, color: cs.onPrimaryContainer),
-                    ),
-                  ],
-                ),
-                if (!_loading && _error == null) ...[
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: cs.onPrimaryContainer.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.people_rounded, size: 16, color: cs.onPrimaryContainer),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${_all.length} ${l.teacherStudentsLabel}',
-                          style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer, fontSize: 13),
+                      if (!_loading && _error == null) ...[
+                        const SizedBox(height: 10),
+                        CmPill(
+                          icon: Icons.people_rounded,
+                          label: '${_all.length} ${l.teacherStudentsLabel}',
+                          color: cs.primary,
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                ],
+                ),
+                const SizedBox(width: 12),
+                const CmIconTile(icon: Icons.insights_rounded, size: 52, filled: true),
               ],
             ),
           ),
@@ -224,101 +196,81 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
               child: Padding(padding: EdgeInsets.all(32), child: CmLoading()),
             )
           else if (_error != null)
-            LiquidGlassCard(
-              padding: const EdgeInsets.all(18),
-              borderRadius: BorderRadius.circular(20),
-              color: cs.errorContainer,
-              border: Border.all(color: cs.error),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 10, 12),
+              decoration: BoxDecoration(
+                color: cs.errorContainer,
+                borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+              ),
+              child: Row(
                 children: [
-                  Text(l.teacherCouldNotLoad, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
+                  Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l.teacherCouldNotLoad,
+                      style: TextStyle(fontWeight: FontWeight.w700, color: cs.onErrorContainer),
+                    ),
+                  ),
                   FilledButton(onPressed: _load, child: Text(l.retry)),
                 ],
               ),
             )
           else if (filtered.isEmpty)
-            LiquidGlassCard(
-              padding: const EdgeInsets.all(24),
-              borderRadius: BorderRadius.circular(20),
-              color: cs.surfaceContainerLow,
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-              child: Column(
-                children: [
-                  Icon(Icons.person_search_rounded, size: 40, color: cs.onSurfaceVariant),
-                  const SizedBox(height: 12),
-                  Text(
-                    l.teacherInsightsNoStudents,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            )
+            CmEmptyState(icon: Icons.person_search_rounded, title: l.teacherInsightsNoStudents)
           else
-            Column(
-              children: filtered.map((student) {
-                final initials = _initials(student.name);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: CmPress(
-                    onTap: () => context.push(
-                      '/teacher/student/${student.studentId}',
-                      extra: <String, dynamic>{'name': student.name},
-                    ),
-                    child: LiquidGlassCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      borderRadius: BorderRadius.circular(18),
-                      color: cs.surfaceContainerLow,
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                      child: Row(
-                        children: [
-                          // Avatar
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: cs.primaryContainer,
-                              borderRadius: BorderRadius.circular(13),
-                            ),
-                            child: Center(
-                              child: Text(
-                                initials,
-                                style: TextStyle(
-                                  color: cs.onPrimaryContainer,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  student.name,
-                                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                if (student.cohortName.isNotEmpty)
-                                  Text(
-                                    student.cohortName,
-                                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
-                        ],
+            ...filtered.map((student) {
+              final tone = _avatarTone(student.name, cs);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: CmCard(
+                  onTap: () => context.push(
+                    '/teacher/student/${student.studentId}',
+                    extra: <String, dynamic>{'name': student.name},
+                  ),
+                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: tone.withValues(alpha: cs.brightness == Brightness.dark ? 0.24 : 0.14),
+                        child: Text(
+                          _initials(student.name),
+                          style: TextStyle(color: tone, fontWeight: FontWeight.w900, fontSize: 15),
+                        ),
                       ),
-                    ),),
-                );
-              }).toList(),
-            ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              student.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            if (student.cohortName.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              CmPill(icon: Icons.groups_rounded, label: student.cohortName),
+                            ],
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+                    ],
+                  ),
+                ),
+              );
+            }),
         ],
       ),
     );
+  }
+
+  /// Stable per-name avatar colour from the theme's own accents.
+  Color _avatarTone(String name, ColorScheme cs) {
+    final tones = [cs.primary, cs.secondary, cs.tertiary];
+    return tones[name.hashCode.abs() % tones.length];
   }
 }

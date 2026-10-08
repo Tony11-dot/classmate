@@ -217,7 +217,7 @@ class _SessionCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _DateStub(date: dateObj, color: color),
+            CmDateStub(date: dateObj, color: color),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -296,45 +296,6 @@ class _SessionCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Day-of-month badge tinted by the session's subject colour.
-class _DateStub extends StatelessWidget {
-  const _DateStub({required this.date, required this.color});
-
-  final DateTime? date;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final dark = cs.brightness == Brightness.dark;
-    final t = Theme.of(context).textTheme;
-    return Container(
-      width: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: dark ? 0.22 : 0.14),
-        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
-      ),
-      child: Column(
-        children: [
-          Text(
-            date == null ? '—' : DateFormat('EEE').format(date!).toUpperCase(),
-            style: t.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w800),
-          ),
-          Text(
-            date == null ? '' : '${date!.day}',
-            style: t.titleLarge?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
-          ),
-          Text(
-            date == null ? '' : DateFormat('MMM').format(date!),
-            style: t.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-          ),
-        ],
       ),
     );
   }

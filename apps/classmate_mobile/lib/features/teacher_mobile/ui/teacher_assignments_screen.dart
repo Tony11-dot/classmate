@@ -7,7 +7,8 @@ import '../../../core/realtime/realtime_listener.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -112,17 +113,21 @@ class _TeacherAssignmentsScreenState
       _selectedPast,
     );
 
+    final l = AppLocalizations.of(context)!;
+    final publishedCount = _assignments.where((a) => a['published'] == true).length;
+
     return CmRefreshIndicator(
       onRefresh: _load,
       child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
           // Hero
-          LiquidGlassCard(
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.secondary),
+          CmCard(
+            tint: cs.secondary,
+            radius: CmTokens.radiusXl,
+            padding: const EdgeInsets.all(18),
             child: Row(
               children: [
                 Expanded(
@@ -130,29 +135,19 @@ class _TeacherAssignmentsScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.teacherAssignmentsScreenTitle,
+                        l.teacherAssignmentsScreenTitle,
                         style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
-                        AppLocalizations.of(context)!.teacherAssignmentsScreenSummary(
-                          _assignments.length,
-                          _assignments.where((a) => a['published'] == true).length,
-                        ),
+                        l.teacherAssignmentsScreenSummary(_assignments.length, publishedCount),
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: cs.secondary,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(Icons.assignment_rounded, size: 24, color: cs.onSecondary),
-                ),
+                const SizedBox(width: 12),
+                CmIconTile(icon: Icons.assignment_rounded, color: cs.secondary, size: 52, filled: true),
               ],
             ),
           ),
@@ -163,20 +158,27 @@ class _TeacherAssignmentsScreenState
             showingPrevious: _showingPrevious,
             selectedPast: _selectedPast,
             onPastChanged: (w) => setState(() => _selectedPast = w),
-            onChanged: (v) => setState(() { _showingPrevious = v; if (!v) _selectedPast = null; }),
+            onChanged: (v) => setState(() {
+              _showingPrevious = v;
+              if (!v) _selectedPast = null;
+            }),
           ),
 
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: LiquidGlassCard(
-                color: cs.errorContainer,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+                decoration: BoxDecoration(
+                  color: cs.errorContainer,
+                  borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                ),
                 child: Row(
                   children: [
                     Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
                     const SizedBox(width: 10),
                     Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
-                    TextButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
+                    TextButton(onPressed: _load, child: Text(l.commonRetry)),
                   ],
                 ),
               ),
@@ -185,39 +187,14 @@ class _TeacherAssignmentsScreenState
           if (_loading && _assignments.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (!_loading && visible.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Column(
-                  children: [
-                    Icon(Icons.assignment_outlined, size: 48, color: cs.onSurfaceVariant),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.teacherAssignmentsScreenEmpty,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-            )
+            CmEmptyState(icon: Icons.assignment_outlined, title: l.teacherAssignmentsScreenEmpty)
           else
             ...visible.map((a) {
               final id = a['id'] as String? ?? '';
               final title = a['title'] as String? ?? '';
-              final subject = a['subject'] as String? ?? '';
-              final courseName = a['courseName'] as String? ?? '';
-              final dueAtRaw = a['dueAt'] as String? ?? '';
-              final submissionsCount = a['submissionsCount'] as int? ?? 0;
-              final gradedCount = a['gradedCount'] as int? ?? 0;
               final published = a['published'] as bool? ?? false;
-
-              DateTime? dueDate;
-              if (dueAtRaw.isNotEmpty) dueDate = DateTime.tryParse(dueAtRaw);
-              final overdue = dueDate != null && dueDate.isBefore(now);
-
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: Dismissible(
                   key: ValueKey('ta_$id'),
                   direction: DismissDirection.endToStart,
@@ -227,115 +204,36 @@ class _TeacherAssignmentsScreenState
                   },
                   background: Container(
                     alignment: AlignmentDirectional.centerEnd,
-                    padding: const EdgeInsetsDirectional.only(end: 20),
+                    padding: const EdgeInsetsDirectional.only(end: 24),
                     decoration: BoxDecoration(
                       color: cs.errorContainer,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                     ),
                     child: Icon(Icons.delete_outline_rounded, color: cs.onErrorContainer),
                   ),
-                  child: GestureDetector(
+                  child: _AssignmentCard(
+                    assignment: a,
+                    now: now,
                     onTap: () => context.push(
                       '/teacher/assignments/$id/detail',
                       extra: title,
                     ).then((_) => _load()),
-                    child: LiquidGlassCard(
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: cs.secondary,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(Icons.assignment_rounded, size: 22, color: cs.onSecondary),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  title,
-                                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                                ),
-                                if (subject.isNotEmpty || courseName.isNotEmpty) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    [subject, courseName].where((s) => s.isNotEmpty).join(' · '),
-                                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                                  ),
-                                ],
-                                const SizedBox(height: 6),
-                                Wrap(
-                                  spacing: 6,
-                                  runSpacing: 4,
-                                  children: [
-                                    // Published badge
-                                    _Chip(
-                                      label: published ? AppLocalizations.of(context)!.teacherMaterialPublished : AppLocalizations.of(context)!.teacherMaterialDraft,
-                                      color: published ? cs.primary : cs.surfaceContainerHighest,
-                                      textColor: published ? cs.onPrimary : cs.onSurfaceVariant,
-                                    ),
-                                    if (dueDate != null)
-                                      _Chip(
-                                        label: FriendlyDate.date(dueDate),
-                                        color: overdue ? cs.errorContainer : cs.secondaryContainer,
-                                        textColor: overdue ? cs.onErrorContainer : cs.onSecondaryContainer,
-                                      ),
-                                    if (submissionsCount > 0)
-                                      _Chip(
-                                        label: AppLocalizations.of(context)!.teacherAssignmentsScreenSubmitted(submissionsCount),
-                                        color: cs.tertiaryContainer,
-                                        textColor: cs.onTertiaryContainer,
-                                      ),
-                                    if (gradedCount > 0)
-                                      _Chip(
-                                        label: AppLocalizations.of(context)!.teacherExamsScreenGradedCount(gradedCount),
-                                        color: cs.primaryContainer,
-                                        textColor: cs.onPrimaryContainer,
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 20),
-                            IconButton(
-                              tooltip: AppLocalizations.of(context)!.teacherEditTooltip,
-                              icon: Icon(Icons.edit_rounded, size: 16, color: cs.primary),
-                              onPressed: () => context.push('/teacher/assignments/add', extra: <String, dynamic>{'initialAssignment': a}).then((_) => _load()),
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-                            if (!published)
-                              IconButton(
-                                tooltip: AppLocalizations.of(context)!.teacherPublishTooltip,
-                                icon: Icon(Icons.publish_rounded, size: 16, color: cs.primary),
-                                onPressed: () async {
-                                  try {
-                                    await ref.read(teacherMobileRepositoryProvider).updateTeacherAssignment(id, {'published': true});
-                                    _load();
-                                  } catch (e) {
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-                                  }
-                                },
-                                padding: const EdgeInsets.all(4),
-                                constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-                            IconButton(
-                              tooltip: AppLocalizations.of(context)!.teacherDeleteTooltip,
-                              icon: Icon(Icons.delete_outline_rounded, size: 16, color: cs.error),
-                              onPressed: () => _delete(id),
-                              padding: const EdgeInsets.all(4),
-                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28)),
-                          ]),
-                        ],
-                      ),
-                    ),
+                    onEdit: () => context.push(
+                      '/teacher/assignments/add',
+                      extra: <String, dynamic>{'initialAssignment': a},
+                    ).then((_) => _load()),
+                    onPublish: published
+                        ? null
+                        : () async {
+                            try {
+                              await ref.read(teacherMobileRepositoryProvider).updateTeacherAssignment(id, {'published': true});
+                              _load();
+                            } catch (e) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                            }
+                          },
+                    onDelete: () => _delete(id),
                   ),
                 ),
               );
@@ -346,21 +244,159 @@ class _TeacherAssignmentsScreenState
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.color, required this.textColor});
-  final String label;
-  final Color color;
-  final Color textColor;
+class _AssignmentCard extends StatelessWidget {
+  const _AssignmentCard({
+    required this.assignment,
+    required this.now,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+    this.onPublish,
+  });
+
+  final Map<String, dynamic> assignment;
+  final DateTime now;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final VoidCallback? onPublish;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(6),
+    final cs = Theme.of(context).colorScheme;
+    final tk = CmTokens.of(context);
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
+    final a = assignment;
+
+    final title = a['title'] as String? ?? '';
+    final subject = a['subject'] as String? ?? '';
+    final courseName = a['courseName'] as String? ?? '';
+    final dueAtRaw = a['dueAt'] as String? ?? '';
+    final submissionsCount = a['submissionsCount'] as int? ?? 0;
+    final gradedCount = a['gradedCount'] as int? ?? 0;
+    final published = a['published'] as bool? ?? false;
+    final dueDate = dueAtRaw.isNotEmpty ? DateTime.tryParse(dueAtRaw) : null;
+    final overdue = dueDate != null && dueDate.isBefore(now);
+    final dueColor = overdue ? cs.error : cs.secondary;
+    final meta = [subject, courseName].where((s) => s.isNotEmpty).join(' · ');
+
+    return CmCard(
+      onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (dueDate != null)
+                CmDateStub(date: dueDate, color: dueColor)
+              else
+                CmIconTile(icon: Icons.assignment_rounded, color: cs.secondary, size: 50),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, height: 1.2),
+                      ),
+                      if (meta.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          meta,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                      if (dueDate != null) ...[
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            Icon(
+                              overdue ? Icons.schedule_rounded : Icons.event_rounded,
+                              size: 14,
+                              color: overdue ? cs.error : cs.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              FriendlyDate.date(dueDate),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: overdue ? cs.error : cs.onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 2, right: 4),
+                child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    CmPill(
+                      icon: published ? Icons.check_circle_rounded : Icons.edit_note_rounded,
+                      label: published ? l.teacherMaterialPublished : l.teacherMaterialDraft,
+                      color: published ? tk.good : tk.warn,
+                    ),
+                    if (submissionsCount > 0)
+                      CmPill(
+                        icon: Icons.upload_file_rounded,
+                        label: l.teacherAssignmentsScreenSubmitted(submissionsCount),
+                        color: cs.tertiary,
+                      ),
+                    if (gradedCount > 0)
+                      CmPill(
+                        icon: Icons.done_all_rounded,
+                        label: l.teacherExamsScreenGradedCount(gradedCount),
+                        color: cs.primary,
+                      ),
+                  ],
+                ),
+              ),
+              CmIconAction(
+                icon: Icons.edit_rounded,
+                tooltip: l.teacherEditTooltip,
+                onPressed: onEdit,
+                color: cs.primary,
+              ),
+              if (onPublish != null)
+                CmIconAction(
+                  icon: Icons.publish_rounded,
+                  tooltip: l.teacherPublishTooltip,
+                  onPressed: onPublish,
+                  color: cs.primary,
+                ),
+              CmIconAction(
+                icon: Icons.delete_outline_rounded,
+                tooltip: l.teacherDeleteTooltip,
+                onPressed: onDelete,
+                color: cs.error,
+              ),
+            ],
+          ),
+        ],
       ),
-      child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textColor)),
     );
   }
 }

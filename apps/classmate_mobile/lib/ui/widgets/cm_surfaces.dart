@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/theme/cm_tokens.dart';
 import 'cm_press.dart';
@@ -267,4 +268,134 @@ Widget cmReorderProxy(Widget child, int index, Animation<double> animation) {
     },
     child: child,
   );
+}
+
+/// Calendar-page badge: weekday, day number and month, tinted by [color].
+class CmDateStub extends StatelessWidget {
+  const CmDateStub({super.key, required this.date, required this.color});
+
+  final DateTime? date;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final dark = cs.brightness == Brightness.dark;
+    final t = Theme.of(context).textTheme;
+    final d = date;
+    return Container(
+      width: 50,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: dark ? 0.22 : 0.14),
+        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+      ),
+      child: Column(
+        children: [
+          Text(
+            d == null ? '—' : DateFormat('EEE').format(d).toUpperCase(),
+            style: t.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          Text(
+            d == null ? '' : '${d.day}',
+            style: t.titleLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+              height: 1.1,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          Text(
+            d == null ? '' : DateFormat('MMM').format(d),
+            style: t.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Compact icon action for card footers, with a full 40px hit area.
+class CmIconAction extends StatelessWidget {
+  const CmIconAction({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.color,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20, color: color),
+      style: IconButton.styleFrom(
+        minimumSize: const Size(40, 40),
+        fixedSize: const Size(40, 40),
+        padding: EdgeInsets.zero,
+      ),
+    );
+  }
+}
+
+/// Section label with an optional count pill and a hairline that runs to
+/// the end of the row.
+class CmSectionHeader extends StatelessWidget {
+  const CmSectionHeader({
+    super.key,
+    required this.label,
+    this.icon,
+    this.count,
+    this.color,
+  });
+
+  final String label;
+  final IconData? icon;
+  final int? count;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tone = color ?? cs.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, bottom: 10),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 17, color: tone),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: tone,
+              letterSpacing: 0.3,
+            ),
+          ),
+          if (count != null) ...[
+            const SizedBox(width: 8),
+            CmPill(label: '$count', color: tone),
+          ],
+          const SizedBox(width: 10),
+          Expanded(
+            child: Divider(
+              height: 1,
+              color: cs.outlineVariant.withValues(alpha: 0.5),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
