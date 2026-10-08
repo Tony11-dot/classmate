@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
@@ -113,10 +112,18 @@ class _TeacherFormResponsesScreenState
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.assignment_turned_in_outlined,
-                            size: 64,
-                            color: cs.onSurfaceVariant,
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              color: cs.surfaceContainerHigh,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.assignment_turned_in_outlined,
+                              size: 34,
+                              color: cs.onSurfaceVariant,
+                            ),
                           ),
                           const SizedBox(height: 20),
                           Text(
@@ -148,11 +155,14 @@ class _TeacherFormResponsesScreenState
                             ? submittedAt.split('T').first
                             : '';
 
-                        return LiquidGlassCard(
-                          padding: const EdgeInsets.all(20),
-                          borderRadius: BorderRadius.circular(22),
-                          color: cs.surfaceContainerLow,
-                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+                            boxShadow: CmTokens.of(context).shadowSm,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -160,18 +170,18 @@ class _TeacherFormResponsesScreenState
                               Row(
                                 children: [
                                   CircleAvatar(
-                                    radius: 22,
+                                    radius: 20,
                                     backgroundColor: cs.primaryContainer,
                                     child: Text(
                                       name.isNotEmpty ? name[0].toUpperCase() : 'S',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 16,
+                                        fontSize: 15,
                                         color: cs.onPrimaryContainer,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 14),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,17 +199,18 @@ class _TeacherFormResponsesScreenState
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: cs.primaryContainer,
+                                      color: cs.surfaceContainerHigh,
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     child: Text(
-                                      '${i + 1}',
+                                      '#${i + 1}',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 13,
-                                        color: cs.onPrimaryContainer,
+                                        fontSize: 12,
+                                        color: cs.onSurfaceVariant,
+                                        fontFeatures: const [FontFeature.tabularFigures()],
                                       ),
                                     ),
                                   ),
@@ -207,9 +218,9 @@ class _TeacherFormResponsesScreenState
                               ),
 
                               if (answers is Map && answers.isNotEmpty) ...[
-                                const SizedBox(height: 18),
-                                Divider(color: cs.outlineVariant),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 14),
+                                Divider(height: 1, thickness: 0.6, color: cs.outlineVariant.withValues(alpha: 0.45)),
+                                const SizedBox(height: 14),
                                 ...answers.entries.map((entry) {
                                   final q = entry.key.toString();
                                   final a = entry.value;
@@ -217,7 +228,7 @@ class _TeacherFormResponsesScreenState
                                       ? a.join(', ')
                                       : a?.toString() ?? '—';
                                   return Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
+                                    padding: const EdgeInsets.only(bottom: 12),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -233,10 +244,8 @@ class _TeacherFormResponsesScreenState
                                           width: double.infinity,
                                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                           decoration: BoxDecoration(
-                                            color: cs.surfaceContainerLow,
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                                            boxShadow: CmTokens.of(context).shadowSm,
+                                            color: cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface,
+                                            borderRadius: BorderRadius.circular(CmTokens.radiusSm),
                                           ),
                                           child: Text(
                                             answerText.isEmpty ? '—' : answerText,

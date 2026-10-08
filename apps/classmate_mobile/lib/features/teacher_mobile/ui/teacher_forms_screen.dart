@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/semester/school_semester.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -114,9 +114,21 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
           // Hero banner
-          LiquidGlassCard(
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: cs.secondary),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  cs.secondary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                  cs.surfaceContainerLow,
+                ],
+              ),
+              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+              boxShadow: CmTokens.of(context).shadowSm,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -132,7 +144,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                 Container(
                   width: 46,
                   height: 46,
-                  decoration: BoxDecoration(color: cs.secondary, borderRadius: BorderRadius.circular(14)),
+                  decoration: BoxDecoration(color: cs.secondary, borderRadius: BorderRadius.circular(CmTokens.radiusSm)),
                   child: Icon(Icons.assignment_turned_in_rounded, size: 24, color: cs.onSecondary),
                 ),
               ],
@@ -151,8 +163,12 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: LiquidGlassCard(
-                color: cs.errorContainer,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+                decoration: BoxDecoration(
+                  color: cs.errorContainer,
+                  borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+                ),
                 child: Row(
                   children: [
                     Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
@@ -197,7 +213,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                     padding: const EdgeInsetsDirectional.only(end: 20),
                     decoration: BoxDecoration(
                       color: cs.errorContainer,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                     ),
                     child: Icon(Icons.delete_rounded, color: cs.onErrorContainer),
                   ),
@@ -205,67 +221,140 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
                     await _delete(id, title);
                     return false; // We refresh manually
                   },
-                  child: LiquidGlassCard(
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: (published ? cs.primary : cs.outline),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                published ? l.teacherFormsPublished : l.teacherFormsDraft,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  // Published badge sits on a cs.primary fill —
-                                  // text must be onPrimary, not primary (that
-                                  // was dark-blue-on-dark-blue = invisible).
-                                  color: published ? cs.onPrimary : cs.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (subject.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(subject, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                        ],
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Icon(Icons.people_outline_rounded, size: 14, color: cs.onSurfaceVariant),
-                            const SizedBox(width: 4),
-                            Text(
-                              l.teacherFormsResponses(responsesCount),
-                              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                            ),
-                            const Spacer(),
-                            TextButton.icon(
-                              onPressed: () => _viewResponses(id, title),
-                              icon: const Icon(Icons.visibility_outlined, size: 16),
-                              label: Text(l.teacherFormsViewResponses, style: const TextStyle(fontSize: 12)),
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  child: _FormCard(
+                    title: title,
+                    subject: subject,
+                    published: published,
+                    responsesCount: responsesCount,
+                    onViewResponses: () => _viewResponses(id, title),
                   ),
                 ),
               );
             })),
+        ],
+      ),
+    );
+  }
+}
+
+/// One form row: icon tile, title + subject, status pill, responses count and
+/// the "View responses" action.
+class _FormCard extends StatelessWidget {
+  const _FormCard({
+    required this.title,
+    required this.subject,
+    required this.published,
+    required this.responsesCount,
+    required this.onViewResponses,
+  });
+
+  final String title;
+  final String subject;
+  final bool published;
+  final int responsesCount;
+  final VoidCallback onViewResponses;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final dark = cs.brightness == Brightness.dark;
+    final good = CmTokens.of(context).good;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 10, 10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.secondary.withValues(alpha: dark ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                ),
+                child: Icon(Icons.assignment_rounded, size: 20, color: cs.secondary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    if (subject.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(subject, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: published
+                      ? good.withValues(alpha: dark ? 0.20 : 0.12)
+                      : cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      published ? Icons.circle : Icons.edit_outlined,
+                      size: published ? 7 : 12,
+                      color: published ? good : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      published ? l.teacherFormsPublished : l.teacherFormsDraft,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const SizedBox(width: 52),
+              Icon(Icons.people_outline_rounded, size: 15, color: cs.onSurfaceVariant),
+              const SizedBox(width: 5),
+              Text(
+                l.teacherFormsResponses(responsesCount),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              FilledButton.tonalIcon(
+                onPressed: onViewResponses,
+                icon: const Icon(Icons.visibility_outlined, size: 16),
+                label: Text(l.teacherFormsViewResponses, style: const TextStyle(fontSize: 12.5)),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: const Size(0, 36),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

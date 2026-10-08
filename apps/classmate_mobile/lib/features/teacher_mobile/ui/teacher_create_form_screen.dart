@@ -1,11 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -296,7 +296,11 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
           Row(children: [
             Text(AppLocalizations.of(context)!.teacherFormQuestionsSection, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
             const Spacer(),
-            Text('${_questions.length}', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(color: cs.surfaceContainerHigh, borderRadius: BorderRadius.circular(999)),
+              child: Text('${_questions.length}', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w800)),
+            ),
           ]),
           const SizedBox(height: 8),
 
@@ -332,16 +336,20 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
             ),
 
           const SizedBox(height: 8),
-          OutlinedButton.icon(
+          FilledButton.tonalIcon(
             onPressed: _addQuestion,
             icon: const Icon(Icons.add_rounded),
             label: Text(AppLocalizations.of(context)!.teacherFormAddQuestionButton),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 44))),
+            style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 50))),
         ],
       ),
     );
   }
 }
+
+/// Input well inside a surfaceContainerLow card.
+Color _wellBg(ColorScheme cs) =>
+    cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface;
 
 // ── Glass card wrapper ─────────────────────────────────────────────────────────
 
@@ -353,13 +361,17 @@ class _GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(16), borderRadius: BorderRadius.circular(20),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 14),
+        Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
+        const SizedBox(height: 12),
         child,
       ]));
   }
@@ -409,15 +421,31 @@ class _QuestionCardState extends State<_QuestionCard> {
     final l = AppLocalizations.of(context)!;
     final q = widget.question;
 
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(18), borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 8, 10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Text(AppLocalizations.of(context)!.teacherCreateFormScreenQuestionNumber((widget.index + 1).toString()),
-            style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-          const SizedBox(width: 8),
+          Semantics(
+            label: AppLocalizations.of(context)!.teacherCreateFormScreenQuestionNumber((widget.index + 1).toString()),
+            child: Container(
+              width: 28,
+              height: 28,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Text('${widget.index + 1}',
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: cs.primary)),
+            ),
+          ),
+          const SizedBox(width: 10),
           // Liquid searchable type DDL
           Expanded(
             child: LiquidGlassDropdown<String>(
@@ -440,7 +468,7 @@ class _QuestionCardState extends State<_QuestionCard> {
               searchHint: AppLocalizations.of(context)!.teacherSearchQuestionTypes,
             ),
           ),
-          const Icon(Icons.drag_handle_rounded, size: 20),
+          Icon(Icons.drag_handle_rounded, size: 20, color: cs.onSurfaceVariant),
           const SizedBox(width: 4),
           IconButton(
             tooltip: l.a11yDelete,
@@ -451,12 +479,13 @@ class _QuestionCardState extends State<_QuestionCard> {
         ]),
         const SizedBox(height: 14),
         Container(
+          margin: const EdgeInsetsDirectional.only(end: 6),
           decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+            color: _wellBg(cs),
+            borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4), width: 0.8),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: TextField(
             controller: _textCtrl,
             decoration: InputDecoration(filled: false, border: InputBorder.none, hintText: AppLocalizations.of(context)!.teacherFormQuestionPlaceholder((widget.index + 1).toString()), isDense: true, contentPadding: EdgeInsets.zero),
@@ -464,7 +493,7 @@ class _QuestionCardState extends State<_QuestionCard> {
         ),
         const SizedBox(height: 12),
         _buildTypeUI(context, cs, theme, q),
-        const Divider(height: 28),
+        Divider(height: 24, thickness: 0.6, endIndent: 6, color: cs.outlineVariant.withValues(alpha: 0.45)),
         Row(children: [
           Text(AppLocalizations.of(context)!.teacherFormRequiredToggle, style: theme.textTheme.bodySmall),
           const Spacer(),
@@ -508,9 +537,9 @@ class _QuestionCardState extends State<_QuestionCard> {
                 // checkbox and delete icon.
                 Expanded(child: Container(
                   decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                    color: _wellBg(cs),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4), width: 0.8),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   child: TextField(
