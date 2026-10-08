@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../bagrut/data/bagrut_api.dart';
 import '../../bagrut/domain/bagrut_models.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
@@ -26,7 +28,7 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
   }
 
   void _reload() {
-    setState(() => _future = ref.read(bagrutApiProvider).fetchExams(widget.subjectKey));
+    setState(() { _future = ref.read(bagrutApiProvider).fetchExams(widget.subjectKey); });
   }
 
   void _snack(String m) {
@@ -52,7 +54,7 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
           ),
@@ -87,36 +89,94 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
           final exams = snap.data ?? const <BagrutExam>[];
           if (exams.isEmpty) {
             return ListView(children: const [
-              Padding(padding: EdgeInsets.all(48), child: Center(child: Text('No exams yet. Tap "New exam".'))),
+              CmEmptyState(
+                icon: Icons.description_outlined,
+                title: 'No exams yet',
+                message: 'Tap "New exam".',
+              ),
             ]);
           }
+          final cs = Theme.of(context).colorScheme;
           return ListView.separated(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             itemCount: exams.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (context, i) {
               final e = exams[i];
-              return Card(
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  title: Text(e.title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text([
-                    e.year.toString(),
-                    if (e.term.trim().isNotEmpty) e.term.replaceAll('_', ' '),
-                    '${e.files.length} files',
-                  ].join(' · ')),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(icon: const Icon(Icons.edit_rounded), onPressed: () => _addOrEdit(e)),
-                      IconButton(icon: const Icon(Icons.delete_outline_rounded, color: Colors.red), onPressed: () => _delete(e)),
-                    ],
-                  ),
+              return CmCard(
+                padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+                child: Row(
+                  children: [
+                    _YearStub(year: e.year),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            e.title,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [
+                              if (e.term.trim().isNotEmpty) CmPill(label: e.term.replaceAll('_', ' ')),
+                              CmPill(
+                                icon: Icons.attach_file_rounded,
+                                label: '${e.files.length} files',
+                                color: e.files.isEmpty ? null : CmTokens.of(context).good,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Edit',
+                      icon: const Icon(Icons.edit_rounded),
+                      onPressed: () => _addOrEdit(e),
+                    ),
+                    IconButton(
+                      tooltip: 'Delete',
+                      icon: Icon(Icons.delete_outline_rounded, color: cs.error),
+                      onPressed: () => _delete(e),
+                    ),
+                  ],
                 ),
               );
             },
           );
         },
+      ),
+    );
+  }
+}
+
+/// Year as a calendar-like stub on the left of each exam row.
+class _YearStub extends StatelessWidget {
+  const _YearStub({required this.year});
+
+  final int year;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: 54,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+      ),
+      child: Text(
+        '$year',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: cs.primary,
+              fontWeight: FontWeight.w900,
+            ),
       ),
     );
   }

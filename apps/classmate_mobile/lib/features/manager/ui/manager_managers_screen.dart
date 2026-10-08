@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/manager_api.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
@@ -22,7 +24,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
   }
 
   void _reload() {
-    setState(() => _future = ref.read(managerApiProvider).listManagers());
+    setState(() { _future = ref.read(managerApiProvider).listManagers(); });
   }
 
   ManagerApi get _api => ref.read(managerApiProvider);
@@ -99,7 +101,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Remove'),
           ),
@@ -135,32 +137,64 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
             final managers = snap.data ?? const [];
             if (managers.isEmpty) {
               return ListView(children: const [
-                Padding(padding: EdgeInsets.all(48), child: Center(child: Text('No managers.'))),
+                CmEmptyState(icon: Icons.manage_accounts_rounded, title: 'No managers.'),
               ]);
             }
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               itemCount: managers.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, i) {
                 final m = managers[i];
                 final isOwner = m['isOwner'] == true;
-                return Card(
-                  margin: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: CircleAvatar(child: Icon(isOwner ? Icons.star_rounded : Icons.person_rounded)),
-                    title: Text(m['name']?.toString() ?? '—', style: const TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: Text([
-                      if ((m['email'] ?? '').toString().isNotEmpty) m['email'],
-                      if ((m['username'] ?? '').toString().isNotEmpty) '@${m['username']}',
-                      if (isOwner) 'Owner',
-                    ].join(' · ')),
-                    trailing: isOwner
-                        ? const Chip(label: Text('Owner'))
-                        : IconButton(
-                            icon: const Icon(Icons.remove_circle_outline_rounded, color: Colors.red),
-                            onPressed: () => _revoke(m),
+                final cs = Theme.of(context).colorScheme;
+                final meta = [
+                  if ((m['email'] ?? '').toString().isNotEmpty) m['email'],
+                  if ((m['username'] ?? '').toString().isNotEmpty) '@${m['username']}',
+                ].join(' · ');
+                return CmCard(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                  child: Row(
+                    children: [
+                      CmIconTile(
+                        icon: isOwner ? Icons.star_rounded : Icons.person_rounded,
+                        color: isOwner ? CmTokens.of(context).warn : cs.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              m['name']?.toString() ?? '—',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            if (meta.isNotEmpty)
+                              Text(
+                                meta,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (isOwner)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: CmPill(
+                            icon: Icons.star_rounded,
+                            label: 'Owner',
+                            color: CmTokens.of(context).warn,
                           ),
+                        )
+                      else
+                        IconButton(
+                          tooltip: 'Remove manager',
+                          icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
+                          onPressed: () => _revoke(m),
+                        ),
+                    ],
                   ),
                 );
               },
