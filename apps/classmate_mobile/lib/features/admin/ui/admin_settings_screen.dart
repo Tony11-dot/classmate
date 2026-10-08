@@ -219,7 +219,7 @@ class _Group extends StatelessWidget {
     final tone = danger ? cs.error : cs.primary;
     return CmCard(
       radius: CmTokens.radiusXl,
-      padding: const EdgeInsets.fromLTRB(16, 16, 12, 6),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 12, 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

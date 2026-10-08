@@ -139,7 +139,7 @@ class _Row extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: CmCard(
         onTap: onTap,
-        padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 10, 10),
         child: Row(
           children: [
             CmMonogram(name: student.name),

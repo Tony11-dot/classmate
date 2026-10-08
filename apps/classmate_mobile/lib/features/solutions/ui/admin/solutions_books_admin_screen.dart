@@ -179,7 +179,7 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                               : int.tryParse('${b['pages'] ?? ''}') ?? 0;
                           return CmCard(
                             onTap: () => _openEditor(existing: b),
-                            padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+                            padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 4, 10),
                             child: Row(
                               children: [
                                 ClipRRect(

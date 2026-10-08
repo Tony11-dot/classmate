@@ -106,7 +106,7 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
           final gold = CmTokens.of(context).warn;
           return CmCard(
             tint: gold,
-            padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 10, 12),
             child: Row(
               children: [
                 CmIconTile(icon: Icons.workspace_premium_rounded, color: gold, size: 48, filled: true),

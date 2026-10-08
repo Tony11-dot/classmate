@@ -258,7 +258,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                       CmCard(
                         tint: cs.primary,
                         onTap: _creating ? null : () => _openGroupFlow(people),
-                        padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+                        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 10, 12),
                         child: Row(
                           children: [
                             const CmIconTile(

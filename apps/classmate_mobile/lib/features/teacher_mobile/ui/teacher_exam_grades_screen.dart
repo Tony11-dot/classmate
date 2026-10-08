@@ -426,7 +426,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                             child: AnimatedContainer(
                               duration: CmTokens.fast,
                               curve: CmTokens.easeOut,
-                              padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                              padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 10, 10),
                               decoration: BoxDecoration(
                                 color: isDirty
                                     ? Color.alphaBlend(

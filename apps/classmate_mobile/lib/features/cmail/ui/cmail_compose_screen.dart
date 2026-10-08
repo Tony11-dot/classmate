@@ -305,7 +305,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
                           ? null
                           : () => _pickSubAudience(_audience!, ddl),
                       child: Container(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 10, 8),
+                        padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 10, 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(CmTokens.radiusSm),
                           color: summary.isEmpty
@@ -382,7 +382,7 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
                   if (_attachments.isNotEmpty) ...[
                     Divider(height: 1, indent: 16, endIndent: 16, color: cs.outlineVariant.withValues(alpha: 0.5)),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 8, 4, 0),
+                      padding: const EdgeInsetsDirectional.fromSTEB(10, 8, 4, 0),
                       child: Column(
                         children: [
                           for (var i = 0; i < _attachments.length; i++)

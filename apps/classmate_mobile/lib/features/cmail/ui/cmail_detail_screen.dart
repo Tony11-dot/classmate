@@ -344,7 +344,7 @@ class _RecipientsPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.fromLTRB(9, 4, 5, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(9, 4, 5, 4),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(999),

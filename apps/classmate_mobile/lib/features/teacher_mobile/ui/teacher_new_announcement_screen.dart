@@ -1356,7 +1356,7 @@ class _PickerTrigger extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: CmTokens.fast,
-        padding: const EdgeInsets.fromLTRB(8, 8, 10, 8),
+        padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 10, 8),
         decoration: BoxDecoration(
           color: hasSelection
               ? cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.08)

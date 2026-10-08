@@ -194,7 +194,7 @@ class _SessionCard extends StatelessWidget {
     final cs = theme.colorScheme;
     final color = _subjectColor(session.subject, cs);
     final dateObj = DateTime.tryParse(session.date);
-    final dayLabel = dateObj != null ? DateFormat('EEEE, MMM d').format(dateObj) : session.date;
+    final dayLabel = dateObj != null ? DateFormat('EEEE, MMM d', DateFormat.localeExists(Localizations.localeOf(context).languageCode) ? Localizations.localeOf(context).languageCode : 'en').format(dateObj) : session.date;
     final periodLabel = '${_ordinalPeriod(session.period)} period';
     final gradeLabel = session.grade != null ? 'Grade ${session.grade} · ' : '';
     final total = session.totalStudents;

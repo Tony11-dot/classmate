@@ -889,7 +889,7 @@ class _TeacherMaterialsStandaloneScreenState
           if (_error != null)
             Container(
               margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+              padding: const EdgeInsetsDirectional.fromSTEB(14, 8, 8, 8),
               decoration: BoxDecoration(
                 color: cs.errorContainer,
                 borderRadius: BorderRadius.circular(CmTokens.radiusLg),
@@ -938,7 +938,7 @@ class _TeacherMaterialsStandaloneScreenState
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: CmCard(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 6, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

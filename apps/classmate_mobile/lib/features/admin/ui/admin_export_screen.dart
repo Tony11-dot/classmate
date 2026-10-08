@@ -499,7 +499,7 @@ class _PillsBar extends StatelessWidget {
     }
 
     return CmCard(
-      padding: const EdgeInsets.fromLTRB(14, 10, 8, 14),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 8, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

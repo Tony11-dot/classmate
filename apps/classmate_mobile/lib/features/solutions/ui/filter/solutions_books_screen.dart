@@ -150,7 +150,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                           notifier.selectBook(book);
                           context.push('/solutions/pages');
                         },
-                        padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+                        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 6, 12),
                         child: Row(
                           children: [
                             _BookCover(book: book),
@@ -185,7 +185,7 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                               )
                             else
                               Padding(
-                                padding: const EdgeInsets.only(right: 6),
+                                padding: const EdgeInsetsDirectional.only(end: 6),
                                 child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
                               ),
                           ],

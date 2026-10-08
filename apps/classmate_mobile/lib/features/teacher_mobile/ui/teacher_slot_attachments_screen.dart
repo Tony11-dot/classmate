@@ -232,7 +232,7 @@ class _AttachedMaterialTile extends StatelessWidget {
     final mime = (material['mime'] ?? '').toString();
     return CmCard(
       onTap: onOpen,
-      padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 6, 10),
       child: Row(
         children: [
           CmIconTile(icon: _iconFor(mime), color: cs.tertiary),

@@ -190,7 +190,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
             )
           else if (_error != null)
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 10, 12),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 10, 12),
               decoration: BoxDecoration(
                 color: cs.errorContainer,
                 borderRadius: BorderRadius.circular(CmTokens.radiusLg),
@@ -220,7 +220,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                     '/teacher/student/${student.studentId}',
                     extra: <String, dynamic>{'name': student.name},
                   ),
-                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 10, 10),
                   child: Row(
                     children: [
                       CmMonogram(name: student.name),

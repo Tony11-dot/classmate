@@ -408,7 +408,7 @@ class _SolutionCard extends ConsumerWidget {
     final meta = _authorMeta(l);
     return CmCard(
       radius: CmTokens.radiusXl,
-      padding: const EdgeInsets.fromLTRB(14, 14, 6, 14),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 6, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

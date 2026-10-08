@@ -330,7 +330,7 @@ class _TeacherStudentGradeDetailScreenState
                                   const EdgeInsets.only(bottom: 14),
                               child: CmCard(
                                 radius: CmTokens.radiusXl,
-                                padding: const EdgeInsets.fromLTRB(14, 14, 10, 12),
+                                padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 10, 12),
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,

@@ -81,7 +81,7 @@ class _TeacherStudentProfileScreenState
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
+              padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 16, 12),
               child: Row(
                 children: [
                   IconButton(
@@ -213,7 +213,7 @@ class _TeacherStudentProfileScreenState
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
                                     child: CmCard(
-                                      padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+                                      padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 10, 10),
                                       child: Row(
                                         children: [
                                           Expanded(

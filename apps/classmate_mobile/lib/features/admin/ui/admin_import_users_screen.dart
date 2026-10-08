@@ -572,7 +572,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: CmCard(
-        padding: const EdgeInsets.fromLTRB(12, 10, 4, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 4, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Container(

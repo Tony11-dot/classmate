@@ -311,7 +311,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: CmCard(
-        padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
         child: Row(
           children: [
             CmIconTile(

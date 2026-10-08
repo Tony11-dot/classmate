@@ -224,7 +224,7 @@ class _MaterialCard extends StatelessWidget {
     final attachments = _allAttachments;
 
     return CmCard(
-      padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

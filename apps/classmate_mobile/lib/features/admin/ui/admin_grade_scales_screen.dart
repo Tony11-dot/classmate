@@ -125,7 +125,7 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
                               padding: const EdgeInsets.only(bottom: 12),
                               child: CmCard(
                                 onTap: () => _openEditor(existing: s),
-                                padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+                                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 6, 12),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [

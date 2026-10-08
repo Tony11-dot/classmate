@@ -213,7 +213,7 @@ class CmReorderTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: CmCard(
-        padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 14, 10),
         child: Row(
           children: [
             lead,
@@ -283,6 +283,12 @@ class CmDateStub extends StatelessWidget {
     final dark = cs.brightness == Brightness.dark;
     final t = Theme.of(context).textTheme;
     final d = date;
+    // Weekday/month in the app's language (falls back to English when intl
+    // has no date data for the locale).
+    final tag = Localizations.localeOf(context).toLanguageTag();
+    final loc = DateFormat.localeExists(tag)
+        ? tag
+        : (DateFormat.localeExists(tag.split('-').first) ? tag.split('-').first : 'en');
     return Container(
       width: 50,
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -293,7 +299,7 @@ class CmDateStub extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            d == null ? '—' : DateFormat('EEE').format(d).toUpperCase(),
+            d == null ? '—' : DateFormat('EEE', loc).format(d).toUpperCase(),
             style: t.labelSmall?.copyWith(
               color: cs.onSurfaceVariant,
               fontWeight: FontWeight.w800,
@@ -308,7 +314,7 @@ class CmDateStub extends StatelessWidget {
             ),
           ),
           Text(
-            d == null ? '' : DateFormat('MMM').format(d),
+            d == null ? '' : DateFormat('MMM', loc).format(d),
             style: t.labelSmall?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],

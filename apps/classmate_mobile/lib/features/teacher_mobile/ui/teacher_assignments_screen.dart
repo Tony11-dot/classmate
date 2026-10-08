@@ -168,7 +168,7 @@ class _TeacherAssignmentsScreenState
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+                padding: const EdgeInsetsDirectional.fromSTEB(14, 8, 8, 8),
                 decoration: BoxDecoration(
                   color: cs.errorContainer,
                   borderRadius: BorderRadius.circular(CmTokens.radiusLg),
@@ -283,7 +283,7 @@ class _AssignmentCard extends StatelessWidget {
 
     return CmCard(
       onTap: onTap,
-      padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 6, 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -341,7 +341,7 @@ class _AssignmentCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 2, right: 4),
+                padding: const EdgeInsetsDirectional.only(top: 2, end: 4),
                 child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
               ),
             ],

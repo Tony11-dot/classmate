@@ -213,7 +213,7 @@ class _PeriodTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: CmCard(
-        padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+        padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 4, 10),
         child: Row(
           children: [
             Container(
