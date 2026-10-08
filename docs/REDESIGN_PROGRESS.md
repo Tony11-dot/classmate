@@ -66,7 +66,7 @@ Update this file in the same commit as each screen's redesign.
 | Insights / New announcement | ✅ / 🎨 |
 | Add grade / assignment / material, Create classroom / exam | 🎨 |
 | Exams, Assignments | ✅ |
-| Assignment detail, Exam grades | 🎨 |
+| Assignment detail, Exam grades | ✅ |
 | Student profile, Student grade detail, Averages, Analytics | 🎨 |
 | Slot attachments, Classroom add assignment / meeting / material | 🎨 |
 | Attendance history, Cohorts | ✅ |
@@ -95,7 +95,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 teacher assignment detail / exam grades / new announcement, new chat / new group
+1. 🎨 new chat / new group, teacher new announcement
 2. 🎨 remaining teacher create/add forms, admin settings screens
 3. Onboarding (low priority)
 

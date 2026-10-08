@@ -6,7 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/realtime/realtime_listener.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/attachment_pill.dart';
@@ -139,6 +140,7 @@ class _TeacherAssignmentDetailScreenState
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final tk = CmTokens.of(context);
 
     // Refresh when student submits (teacher sees new submission live)
     ref.listen(realtimeEventProvider, (_, event) {
@@ -179,110 +181,67 @@ class _TeacherAssignmentDetailScreenState
           ? const Center(child: CmLoading())
           : _error != null
               ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
-                        const SizedBox(height: 12),
-                        Text(_error!, textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        FilledButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
-                      ],
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CmEmptyState(
+                        icon: Icons.error_outline_rounded,
+                        title: l.commonError,
+                        message: _error,
+                      ),
+                      FilledButton(onPressed: _load, child: Text(l.commonRetry)),
+                    ],
                   ),
                 )
               : _submissions.isEmpty
                   ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(40),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.inbox_rounded, size: 56, color: cs.onSurfaceVariant),
-                            const SizedBox(height: 16),
-                            Text(
-                              AppLocalizations.of(context)!.teacherAssignmentDetailScreenNoSubmissions,
-                              style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant),
-                            ),
-                          ],
-                        ),
+                      child: CmEmptyState(
+                        icon: Icons.inbox_rounded,
+                        title: l.teacherAssignmentDetailScreenNoSubmissions,
                       ),
                     )
                   : ListView(
-                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
                       children: [
+                        _SummaryHero(
+                          submitted: _submissions.length,
+                          graded: _submissions.where((s) => s['grade'] != null).length,
+                        ),
                         // Assignment attachments (files / links the teacher added)
                         if (_assignmentAttachments.isNotEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(AppLocalizations.of(context)!.commonAttachments, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
-                                const SizedBox(height: 6),
-                                AttachmentPills(attachments: _assignmentAttachments),
-                              ],
-                            ),
+                          const SizedBox(height: 14),
+                          CmSectionHeader(
+                            label: l.commonAttachments,
+                            icon: Icons.attach_file_rounded,
+                            count: _assignmentAttachments.length,
                           ),
+                          AttachmentPills(attachments: _assignmentAttachments),
                         ],
-                        // Hero
-                        LiquidGlassCard(
-                          padding: const EdgeInsets.all(16),
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: cs.secondary),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      AppLocalizations.of(context)!.teacherAssignmentDetailScreenSubmissionCount(_submissions.length),
-                                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      AppLocalizations.of(context)!.teacherAssignmentDetailScreenGradedCount(_submissions.where((s) => s['grade'] != null).length),
-                                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: 46,
-                                height: 46,
-                                decoration: BoxDecoration(
-                                  color: cs.secondary,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Icon(Icons.rate_review_rounded, size: 24, color: cs.onSecondary),
-                              ),
-                            ],
-                          ),
+                        const SizedBox(height: 14),
+                        CmSectionHeader(
+                          label: l.teacherAssignmentDetailScreenSubmissionCount(_submissions.length),
+                          icon: Icons.inbox_rounded,
                         ),
-                        const SizedBox(height: 16),
 
                         // Submissions
                         ..._submissions.map((sub) {
                           final sid = sub['studentId'] as String? ?? '';
-                          final name = sub['studentName'] as String? ?? AppLocalizations.of(context)!.teacherAssignmentDetailScreenStudentFallback;
+                          final name = sub['studentName'] as String? ?? l.teacherAssignmentDetailScreenStudentFallback;
                           final submittedAt = sub['submittedAt'] as String? ?? '';
                           final note = sub['note'] as String? ?? '';
                           final gradedAt = sub['gradedAt'] as String? ?? '';
-
-                          DateTime? submittedDate;
-                          if (submittedAt.isNotEmpty) submittedDate = DateTime.tryParse(submittedAt);
+                          final returned = ((sub['status'] ?? '') as String).toUpperCase() == 'RETURNED';
+                          final submittedDate = submittedAt.isNotEmpty ? DateTime.tryParse(submittedAt) : null;
+                          final rawFiles = sub['files'];
+                          final fileList = rawFiles is List
+                              ? rawFiles.whereType<Map>().map((f) => Map<String, dynamic>.from(f)).toList()
+                              : const <Map<String, dynamic>>[];
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
-                            child: LiquidGlassCard(
-                              padding: const EdgeInsets.all(16),
-                              borderRadius: BorderRadius.circular(20),
-                              color: cs.surfaceContainerLow,
-                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                            child: CmCard(
+                              padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -290,11 +249,11 @@ class _TeacherAssignmentDetailScreenState
                                   Row(
                                     children: [
                                       CircleAvatar(
-                                        radius: 18,
-                                        backgroundColor: cs.secondaryContainer,
+                                        radius: 20,
+                                        backgroundColor: cs.secondary.withValues(alpha: cs.brightness == Brightness.dark ? 0.24 : 0.14),
                                         child: Text(
-                                          name.isNotEmpty ? name[0].toUpperCase() : 'S',
-                                          style: TextStyle(fontWeight: FontWeight.w700, color: cs.onSecondaryContainer),
+                                          _initials(name),
+                                          style: TextStyle(fontWeight: FontWeight.w900, color: cs.secondary, fontSize: 14),
                                         ),
                                       ),
                                       const SizedBox(width: 10),
@@ -302,78 +261,115 @@ class _TeacherAssignmentDetailScreenState
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(name, style: const TextStyle(fontWeight: FontWeight.w800)),
+                                            Text(
+                                              name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                            ),
                                             if (submittedDate != null)
                                               Text(
-                                                AppLocalizations.of(context)!.teacherAssignmentDetailScreenSubmittedOn(FriendlyDate.date(submittedDate)),
+                                                l.teacherAssignmentDetailScreenSubmittedOn(FriendlyDate.date(submittedDate)),
                                                 style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                               ),
+                                            if (returned || gradedAt.isNotEmpty) ...[
+                                              const SizedBox(height: 6),
+                                              Wrap(
+                                                spacing: 6,
+                                                runSpacing: 6,
+                                                children: [
+                                                  if (gradedAt.isNotEmpty)
+                                                    CmPill(
+                                                      icon: Icons.check_circle_rounded,
+                                                      label: l.teacherAssignmentGradedStatus,
+                                                      color: tk.good,
+                                                    ),
+                                                  if (returned)
+                                                    CmPill(
+                                                      icon: Icons.replay_rounded,
+                                                      label: l.teacherAssignmentReturnedStatus,
+                                                      color: tk.warn,
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),
-                                      if (gradedAt.isNotEmpty)
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF22C55E).withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: const Color(0xFF22C55E).withValues(alpha: 0.4)),
-                                          ),
-                                          child: Text(
-                                            AppLocalizations.of(context)!.teacherAssignmentGradedStatus,
-                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF22C55E)),
-                                          ),
-                                        ),
                                     ],
                                   ),
-
                                   if (note.isNotEmpty) ...[
                                     const SizedBox(height: 10),
                                     Container(
                                       width: double.infinity,
-                                      padding: const EdgeInsets.all(10),
+                                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                                       decoration: BoxDecoration(
                                         color: cs.surfaceContainerHigh,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
                                       ),
-                                      child: Text(note, style: theme.textTheme.bodySmall),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Icon(Icons.format_quote_rounded, size: 16, color: cs.onSurfaceVariant),
+                                          const SizedBox(width: 6),
+                                          Expanded(child: Text(note, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4))),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                   // Submitted file attachments — rendered with
                                   // AttachmentPills so the teacher opens them
                                   // IN-APP (same viewer as everywhere else),
                                   // not bounced to an external browser.
-                                  () {
-                                    final rawFiles = sub['files'];
-                                    final fileList = rawFiles is List
-                                        ? rawFiles
-                                            .whereType<Map>()
-                                            .map((f) => Map<String, dynamic>.from(f))
-                                            .toList()
-                                        : const <Map<String, dynamic>>[];
-                                    if (fileList.isEmpty) return const SizedBox.shrink();
-                                    return Padding(
+                                  if (fileList.isNotEmpty)
+                                    Padding(
                                       padding: const EdgeInsets.only(top: 10),
                                       child: AttachmentPills(attachments: fileList),
-                                    );
-                                  }(),
-
-                                  if (((sub['status'] ?? '') as String).toUpperCase() == 'RETURNED') ...[
-                                    const SizedBox(height: 10),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
-                                      ),
-                                      child: Text(AppLocalizations.of(context)!.teacherAssignmentReturnedStatus,
-                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFB45309))),
                                     ),
-                                  ],
+
                                   const SizedBox(height: 12),
-                                  const Divider(height: 1),
+                                  // Grade input
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.12 : 0.05),
+                                      borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: 84,
+                                          child: TextField(
+                                            controller: _gradeControllers[sid],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            style: theme.textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w900,
+                                              fontFeatures: const [FontFeature.tabularFigures()],
+                                            ),
+                                            decoration: InputDecoration(
+                                              labelText: l.teacherGradeFieldLabel,
+                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                              isDense: true,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: TextField(
+                                            controller: _feedbackControllers[sid],
+                                            decoration: InputDecoration(
+                                              labelText: l.teacherFeedbackOptionalLabel,
+                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                              isDense: true,
+                                            ),
+                                            maxLines: 2,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   // Return for re-solution — keeps the student's
                                   // work on record, flags it RETURNED, attaches
                                   // the feedback note, and reopens the student's
@@ -381,12 +377,9 @@ class _TeacherAssignmentDetailScreenState
                                   Align(
                                     alignment: AlignmentDirectional.centerEnd,
                                     child: TextButton.icon(
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: const Color(0xFFB45309),
-                                        textStyle: const TextStyle(fontSize: 12),
-                                      ),
-                                      icon: const Icon(Icons.replay_rounded, size: 14),
-                                      label: Text(AppLocalizations.of(context)!.teacherAssignmentReturnAction),
+                                      style: TextButton.styleFrom(foregroundColor: tk.warn),
+                                      icon: const Icon(Icons.replay_rounded, size: 18),
+                                      label: Text(l.teacherAssignmentReturnAction),
                                       onPressed: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
@@ -417,37 +410,6 @@ class _TeacherAssignmentDetailScreenState
                                       },
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-
-                                  // Grade input
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: 80,
-                                        child: TextField(
-                                          controller: _gradeControllers[sid],
-                                          keyboardType: TextInputType.number,
-                                          textAlign: TextAlign.center,
-                                          decoration: InputDecoration(
-                                            labelText: AppLocalizations.of(context)!.teacherGradeFieldLabel,
-                                            isDense: true,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: TextField(
-                                          controller: _feedbackControllers[sid],
-                                          decoration: InputDecoration(
-                                            labelText: AppLocalizations.of(context)!.teacherFeedbackOptionalLabel,
-                                            isDense: true,
-                                          ),
-                                          maxLines: 2,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),
@@ -455,6 +417,72 @@ class _TeacherAssignmentDetailScreenState
                         }),
                       ],
                     ),
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return 'S';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+}
+
+/// Submitted / graded counts with a progress bar of how much is graded.
+class _SummaryHero extends StatelessWidget {
+  const _SummaryHero({required this.submitted, required this.graded});
+
+  final int submitted;
+  final int graded;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final tk = CmTokens.of(context);
+    final frac = submitted == 0 ? 0.0 : graded / submitted;
+    return CmCard(
+      tint: cs.secondary,
+      radius: CmTokens.radiusXl,
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.teacherAssignmentDetailScreenSubmissionCount(submitted),
+                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l.teacherAssignmentDetailScreenGradedCount(graded),
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              CmIconTile(icon: Icons.rate_review_rounded, color: cs.secondary, size: 52, filled: true),
+            ],
+          ),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: frac,
+              minHeight: 8,
+              backgroundColor: cs.outlineVariant.withValues(alpha: 0.35),
+              valueColor: AlwaysStoppedAnimation<Color>(frac >= 1 ? tk.good : cs.secondary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

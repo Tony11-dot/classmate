@@ -6,7 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_press.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -209,7 +211,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     final pills = raw.whereType<Map>().map((a) {
       final title = (a['title'] ?? a['name'] ?? 'File').toString();
       final url = (a['url'] ?? '').toString();
-      return GestureDetector(
+      return CmPress(
         onTap: url.isNotEmpty
             ? () async {
                 final uri = Uri.tryParse(url);
@@ -219,27 +221,29 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
               }
             : null,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: cs.primaryContainer,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+            color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.08),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.insert_drive_file_rounded, size: 14, color: cs.onPrimaryContainer),
+              Icon(Icons.insert_drive_file_rounded, size: 15, color: cs.primary),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
                   title,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: cs.onPrimaryContainer,
-                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                    fontWeight: FontWeight.w700,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4),
+              Icon(Icons.open_in_new_rounded, size: 13, color: cs.primary),
             ],
           ),
         ),
@@ -258,6 +262,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final tk = CmTokens.of(context);
 
     final exam = widget.exam;
     final title = exam['title'] as String? ?? 'Exam';
@@ -281,7 +286,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             if (subject.isNotEmpty || date != null)
               Text(
                 [subject, if (date != null) FriendlyDate.date(date)]
@@ -292,15 +297,6 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
           ],
         ),
         actions: [
-          if (_published)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              child: Chip(
-                visualDensity: VisualDensity.compact,
-                avatar: Icon(Icons.check_circle_rounded, size: 16, color: cs.primary),
-                label: Text(l.examGradesPublishedShort),
-              ),
-            ),
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),
             child: OutlinedButton.icon(
@@ -320,13 +316,11 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: Text(_error!, textAlign: TextAlign.center),
+                      CmEmptyState(
+                        icon: Icons.error_outline_rounded,
+                        title: l.commonError,
+                        message: _error,
                       ),
-                      const SizedBox(height: 16),
                       FilledButton(onPressed: _load, child: Text(l.teacherRetry)),
                     ],
                   ),
@@ -339,39 +333,67 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
                     children: [
                       // Summary banner
-                      LiquidGlassCard(
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                        child: Row(
+                      CmCard(
+                        tint: cs.primary,
+                        radius: CmTokens.radiusXl,
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${_students.length} ${l.teacherExamGradesStudents}',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      height: 1.1,
-                                    ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${_students.length} ${l.teacherExamGradesStudents}',
+                                        style: theme.textTheme.headlineSmall?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        children: [
+                                          CmPill(
+                                            icon: Icons.done_all_rounded,
+                                            label: '$gradedCount ${l.teacherExamGradesGraded}',
+                                            color: cs.primary,
+                                          ),
+                                          if (maxGrade != null)
+                                            CmPill(icon: Icons.grade_rounded, label: '/ $maxGrade'),
+                                          if (_published)
+                                            CmPill(
+                                              icon: Icons.check_circle_rounded,
+                                              label: l.examGradesPublishedShort,
+                                              color: tk.good,
+                                            ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '$gradedCount ${l.teacherExamGradesGraded}${maxGrade != null ? ' · Max $maxGrade' : ''}',
-                                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                ),
+                                const SizedBox(width: 12),
+                                const CmIconTile(icon: Icons.quiz_rounded, size: 52, filled: true),
+                              ],
+                            ),
+                            if (_students.isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(999),
+                                child: LinearProgressIndicator(
+                                  value: gradedCount / _students.length,
+                                  minHeight: 8,
+                                  backgroundColor: cs.outlineVariant.withValues(alpha: 0.35),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    gradedCount >= _students.length ? tk.good : cs.primary,
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              width: 46,
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: cs.primary,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(Icons.quiz_rounded, size: 24, color: cs.onPrimary),
-                            ),
+                            ],
                           ],
                         ),
                       ),
@@ -381,31 +403,15 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                       ..._buildAttachmentPills(exam),
 
                       if (_students.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(40),
-                            child: Column(
-                              children: [
-                                Icon(Icons.people_outline_rounded, size: 48, color: cs.onSurfaceVariant),
-                                const SizedBox(height: 16),
-                                Text(
-                                  l.teacherExamGradesNoStudents,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: cs.onSurfaceVariant),
-                                ),
-                              ],
-                            ),
-                          ),
+                        CmEmptyState(
+                          icon: Icons.people_outline_rounded,
+                          title: l.teacherExamGradesNoStudents,
                         )
                       else ...[
-                        Text(
-                          l.teacherExamGradesEnterGrades,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: cs.onSurfaceVariant,
-                          ),
+                        CmSectionHeader(
+                          label: l.teacherExamGradesEnterGrades,
+                          icon: Icons.edit_note_rounded,
                         ),
-                        const SizedBox(height: 10),
                         ..._students.map((s) {
                           final ctrl = _ctrls[s.studentId]!;
                           final saved = _savedGrades[s.studentId];
@@ -413,34 +419,46 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                           final currentVal = int.tryParse(currentText);
                           final isDirty = currentVal != null && currentVal != saved;
                           final isGraded = saved != null;
+                          final dark = cs.brightness == Brightness.dark;
 
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: LiquidGlassCard(
-                              padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-                              borderRadius: BorderRadius.circular(18),
-                              color: isDirty
-                                  ? cs.primaryContainer
-                                  : cs.surface,
-                              border: Border.all(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: AnimatedContainer(
+                              duration: CmTokens.fast,
+                              curve: CmTokens.easeOut,
+                              padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                              decoration: BoxDecoration(
                                 color: isDirty
-                                    ? cs.primary
-                                    : cs.outlineVariant,
+                                    ? Color.alphaBlend(
+                                        cs.primary.withValues(alpha: dark ? 0.16 : 0.07),
+                                        cs.surfaceContainerLow,
+                                      )
+                                    : cs.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                                border: Border.all(
+                                  color: isDirty
+                                      ? cs.primary.withValues(alpha: 0.7)
+                                      : cs.outlineVariant.withValues(alpha: 0.35),
+                                  width: isDirty ? 1.4 : 0.8,
+                                ),
+                                boxShadow: tk.shadowSm,
                               ),
                               child: Row(
                                 children: [
                                   CircleAvatar(
                                     radius: 20,
                                     backgroundColor: isGraded
-                                        ? cs.primaryContainer
+                                        ? tk.good.withValues(alpha: dark ? 0.24 : 0.14)
                                         : cs.surfaceContainerHigh,
-                                    child: Text(
-                                      s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: isGraded ? cs.onPrimaryContainer : cs.onSurface,
-                                      ),
-                                    ),
+                                    child: isGraded
+                                        ? Icon(Icons.check_rounded, size: 20, color: tk.good)
+                                        : Text(
+                                            s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                          ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -449,7 +467,9 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                                       children: [
                                         Text(
                                           s.name,
-                                          style: const TextStyle(fontWeight: FontWeight.w700),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                                         ),
                                         if (s.cohortName.isNotEmpty)
                                           Text(
@@ -470,7 +490,8 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                                       textAlign: TextAlign.center,
                                       onChanged: (_) => setState(() {}),
                                       style: theme.textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w900,
+                                        fontFeatures: const [FontFeature.tabularFigures()],
                                       ),
                                       decoration: InputDecoration(
                                         hintText: maxGrade != null ? '/ $maxGrade' : '—',
@@ -483,7 +504,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                                           vertical: 12,
                                         ),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(CmTokens.radiusSm),
                                         ),
                                       ),
                                     ),
@@ -496,32 +517,34 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                         // Class average for this exam (mean of entered grades).
                         Builder(builder: (_) {
                           final avg = _classAverage;
-                          return Container(
-                            margin: const EdgeInsets.only(top: 2, bottom: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            decoration: BoxDecoration(
-                              color: cs.primaryContainer,
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.bar_chart_rounded, color: cs.onPrimaryContainer, size: 20),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(l.teacherExamClassAverage,
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                          fontWeight: FontWeight.w700, color: cs.onPrimaryContainer)),
-                                ),
-                                Text(
-                                  avg == null ? '—' : (avg == avg.roundToDouble() ? avg.toInt().toString() : avg.toStringAsFixed(1)),
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w900, color: cs.onPrimaryContainer),
-                                ),
-                              ],
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 4, bottom: 12),
+                            child: CmCard(
+                              tint: cs.primary,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              child: Row(
+                                children: [
+                                  CmIconTile(icon: Icons.bar_chart_rounded, size: 38, color: cs.primary),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      l.teacherExamClassAverage,
+                                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                                    ),
+                                  ),
+                                  Text(
+                                    avg == null ? '—' : (avg == avg.roundToDouble() ? avg.toInt().toString() : avg.toStringAsFixed(1)),
+                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: cs.primary,
+                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         }),
-                        const SizedBox(height: 4),
                         Row(
                           children: [
                             Expanded(
