@@ -83,7 +83,7 @@ Update this file in the same commit as each screen's redesign.
 | Edit user | ✅ |
 | Import users | ✅ |
 | School settings (info, subjects, bell tab) | ✅ |
-| Export | 🎨 |
+| Export (main screen) / export options sheet | ✅ / 🎨 |
 | Grade scales, Subject detail | ✅ |
 | Reports | ✅ |
 | Periods | ✅ (not previewed: private data provider) |

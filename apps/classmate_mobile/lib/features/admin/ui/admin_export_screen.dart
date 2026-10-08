@@ -18,7 +18,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../common/media/web_download.dart';
 import '../data/admin_repository.dart';
@@ -332,56 +334,47 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                 padding: EdgeInsets.fromLTRB(16, 16, 16, 120 + MediaQuery.paddingOf(context).bottom),
                 children: [
                   // Header
-                  Text(
-                    l.adminExportHeaderTitle,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  CmCard(
+                    tint: cs.primary,
+                    radius: CmTokens.radiusXl,
+                    padding: const EdgeInsets.all(18),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l.adminExportHeaderTitle,
+                                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                l.adminExportHeaderSubtitle,
+                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const CmIconTile(icon: Icons.download_rounded, size: 52, filled: true),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l.adminExportHeaderSubtitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // Add filter button
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _openAddFilterSheet,
-                      icon: const Icon(Icons.add_rounded),
-                      label: Text(l.adminExportAddFilter),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
+                  FilledButton.tonalIcon(
+                    onPressed: _openAddFilterSheet,
+                    icon: const Icon(Icons.add_rounded),
+                    label: Text(l.adminExportAddFilter),
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                   ),
                   const SizedBox(height: 14),
 
                   // Pills bar
                   if (!_hasFilters)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(Icons.filter_list_rounded, size: 36, color: cs.onSurfaceVariant),
-                          const SizedBox(height: 8),
-                          Text(
-                            l.adminExportEmptyState,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    )
+                    CmEmptyState(icon: Icons.filter_list_rounded, title: l.adminExportEmptyState)
                   else
                     _PillsBar(
                       selectedRoles: _selectedRoles,
@@ -400,19 +393,15 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
                   // Preview card
                   if (_hasFilters) ...[
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
-                      ),
+                    CmCard(
+                      tint: cs.primary,
+                      padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
                           if (_previewing)
-                            const CmLoading(size: 18)
+                            const SizedBox(width: 44, height: 44, child: Center(child: CmLoading(size: 20)))
                           else
-                            Icon(Icons.people_alt_rounded, color: cs.primary),
+                            const CmIconTile(icon: Icons.people_alt_rounded),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -509,13 +498,8 @@ class _PillsBar extends StatelessWidget {
       ));
     }
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
-      ),
+    return CmCard(
+      padding: const EdgeInsets.fromLTRB(14, 10, 8, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -559,7 +543,7 @@ class _Pill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Material(
-      color: cs.primaryContainer,
+      color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.2 : 0.1),
       borderRadius: BorderRadius.circular(999),
       child: InkWell(
         onTap: onRemove,
@@ -569,18 +553,18 @@ class _Pill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 14, color: cs.onPrimaryContainer),
+              Icon(icon, size: 14, color: cs.primary),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
-                  color: cs.onPrimaryContainer,
+                  color: cs.primary,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.close_rounded, size: 16, color: cs.onPrimaryContainer),
+              Icon(Icons.close_rounded, size: 16, color: cs.primary),
             ],
           ),
         ),
