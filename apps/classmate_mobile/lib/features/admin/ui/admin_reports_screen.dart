@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_session.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../solutions/data/solutions_api.dart';
 import '../../solutions/data/solutions_live_mapper.dart';
@@ -18,32 +19,32 @@ import '../../../ui/widgets/cm_refresh_indicator.dart';
 ///   • Resolved  — everything already actioned, from BOTH sources (read-only)
 final _messageReportsProvider = FutureProvider.autoDispose
     .family<List<Map<String, dynamic>>, String>((ref, status) {
-  return ref.watch(adminRepositoryProvider).listReports(status: status);
-});
+      return ref.watch(adminRepositoryProvider).listReports(status: status);
+    });
 
 /// Handled message reports — resolved AND dismissed, merged for the
 /// "Resolved" tab.
 final _resolvedMessageReportsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  final repo = ref.watch(adminRepositoryProvider);
-  final resolved = await repo.listReports(status: 'RESOLVED');
-  final dismissed = await repo.listReports(status: 'DISMISSED');
-  return [...resolved, ...dismissed];
-});
+      final repo = ref.watch(adminRepositoryProvider);
+      final resolved = await repo.listReports(status: 'RESOLVED');
+      final dismissed = await repo.listReports(status: 'DISMISSED');
+      return [...resolved, ...dismissed];
+    });
 
 /// All solution reports (pending + handled) — the screen splits them by
 /// status into the Solutions and Resolved tabs.
 final _solutionReportsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  final res = await ref.watch(solutionsApiProvider).fetchReports();
-  final list = res['items'];
-  return list is List
-      ? list
-          .whereType<Map>()
-          .map((e) => e.map((k, v) => MapEntry('$k', v)))
-          .toList()
-      : const <Map<String, dynamic>>[];
-});
+      final res = await ref.watch(solutionsApiProvider).fetchReports();
+      final list = res['items'];
+      return list is List
+          ? list
+                .whereType<Map>()
+                .map((e) => e.map((k, v) => MapEntry('$k', v)))
+                .toList()
+          : const <Map<String, dynamic>>[];
+    });
 
 enum _ReportsTab { messages, solutions, resolved }
 
@@ -69,28 +70,43 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: SegmentedButton<_ReportsTab>(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<_ReportsTab>(
                 segments: [
                   ButtonSegment(
                     value: _ReportsTab.messages,
-                    label: Text(l.titleMessages,
-                        maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
+                    label: Text(
+                      l.titleMessages,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                    ),
                   ),
                   ButtonSegment(
                     value: _ReportsTab.solutions,
-                    label: Text(l.titleSolutions,
-                        maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
+                    label: Text(
+                      l.titleSolutions,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                    ),
                   ),
                   ButtonSegment(
                     value: _ReportsTab.resolved,
-                    label: Text(l.adminReportsResolvedTab,
-                        maxLines: 1, softWrap: false, overflow: TextOverflow.fade),
+                    label: Text(
+                      l.adminReportsResolvedTab,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                    ),
                   ),
                 ],
                 selected: {_tab},
                 showSelectedIcon: false,
                 onSelectionChanged: (s) => setState(() => _tab = s.first),
+              ),
               ),
             ),
             Expanded(child: _body(context)),
@@ -126,7 +142,10 @@ class _MessagesTab extends ConsumerWidget {
       error: (e, _) => Center(child: Text(l.commonErrorWith(e))),
       data: (reports) {
         if (reports.isEmpty) {
-          return _EmptyState(icon: Icons.inbox_outlined, label: l.adminReportsNoOpen);
+          return _EmptyState(
+            icon: Icons.inbox_outlined,
+            label: l.adminReportsNoOpen,
+          );
         }
         return CmRefreshIndicator(
           onRefresh: () async {
@@ -134,7 +153,12 @@ class _MessagesTab extends ConsumerWidget {
             await ref.read(_messageReportsProvider('OPEN').future);
           },
           child: ListView.builder(
-            padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom),
+            padding: EdgeInsets.fromLTRB(
+              20,
+              8,
+              20,
+              40 + MediaQuery.paddingOf(context).bottom,
+            ),
             itemCount: reports.length,
             itemBuilder: (ctx, i) =>
                 _MessageReportCard(report: reports[i], actionable: true),
@@ -164,7 +188,9 @@ class _SolutionsTab extends ConsumerWidget {
             .toList();
         if (pending.isEmpty) {
           return _EmptyState(
-              icon: Icons.verified_user_rounded, label: l.solutionsReportsEmpty);
+            icon: Icons.verified_user_rounded,
+            label: l.solutionsReportsEmpty,
+          );
         }
         return CmRefreshIndicator(
           onRefresh: () async {
@@ -178,10 +204,20 @@ class _SolutionsTab extends ConsumerWidget {
             itemBuilder: (context, i) => _SolutionReportCard(
               report: pending[i],
               onApprove: isAdmin
-                  ? () => _resolveSolution(context, ref, '${pending[i]['id']}', 'approve')
+                  ? () => _resolveSolution(
+                      context,
+                      ref,
+                      '${pending[i]['id']}',
+                      'approve',
+                    )
                   : null,
               onRemove: isAdmin
-                  ? () => _resolveSolution(context, ref, '${pending[i]['id']}', 'remove')
+                  ? () => _resolveSolution(
+                      context,
+                      ref,
+                      '${pending[i]['id']}',
+                      'remove',
+                    )
                   : null,
             ),
           ),
@@ -218,7 +254,9 @@ class _ResolvedTab extends ConsumerWidget {
 
     if (messages.isEmpty && solutions.isEmpty) {
       return _EmptyState(
-          icon: Icons.inbox_outlined, label: l.adminReportsNoInView);
+        icon: Icons.inbox_outlined,
+        label: l.adminReportsNoInView,
+      );
     }
 
     return CmRefreshIndicator(
@@ -252,21 +290,11 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
       children: [
-        const SizedBox(height: 60),
-        Icon(icon, size: 64, color: cs.outlineVariant),
-        const SizedBox(height: 12),
-        Center(
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ),
+        const SizedBox(height: 20),
+        CmEmptyState(icon: icon, title: label),
       ],
     );
   }
@@ -295,96 +323,121 @@ class _MessageReportCard extends ConsumerWidget {
     final text = (message['text'] ?? '').toString().trim();
     final mediaUrl = (message['mediaUrl'] ?? '').toString().trim();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.flag_rounded, size: 18, color: cs.error),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  '${reporter['name'] ?? 'Someone'} reported ${sender['name'] ?? 'a user'}',
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: cs.surface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (text.isNotEmpty)
-                  Text(text, style: theme.textTheme.bodyMedium),
-                if (mediaUrl.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsets.only(top: text.isEmpty ? 0 : 6),
-                    child: Text(
-                      AppLocalizations.of(context)!.adminReportsMediaAttachment,
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(fontStyle: FontStyle.italic),
-                    ),
-                  ),
-                if (text.isEmpty && mediaUrl.isEmpty)
-                  Text(
-                    AppLocalizations.of(context)!.adminReportsEmptyMessage,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: cs.onSurfaceVariant),
-                  ),
-              ],
-            ),
-          ),
-          if (reason.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context)!.adminReportsReason(reason),
-              style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-            ),
-          ],
-          const SizedBox(height: 10),
-          Text(
-            'Reported ${report['createdAt']?.toString().split('T').first ?? ''}',
-            style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
-          ),
-          if (actionable) ...[
-            const SizedBox(height: 12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: CmCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                    label: Text(AppLocalizations.of(context)!.adminReportsDismiss),
-                    onPressed: () => _act(context, ref, 'dismiss'),
-                  ),
-                ),
+                CmIconTile(icon: Icons.flag_rounded, color: cs.error, size: 36),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.check_rounded, size: 18),
-                    label: Text(AppLocalizations.of(context)!.adminReportsResolve),
-                    onPressed: () => _act(context, ref, 'resolve'),
+                  child: Text(
+                    '${reporter['name'] ?? 'Someone'} reported ${sender['name'] ?? 'a user'}',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh,
+                borderRadius: const BorderRadiusDirectional.only(
+                  topStart: Radius.circular(6),
+                  topEnd: Radius.circular(18),
+                  bottomStart: Radius.circular(18),
+                  bottomEnd: Radius.circular(18),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (text.isNotEmpty)
+                    Text(text, style: theme.textTheme.bodyMedium),
+                  if (mediaUrl.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.only(top: text.isEmpty ? 0 : 6),
+                      child: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.adminReportsMediaAttachment,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  if (text.isEmpty && mediaUrl.isEmpty)
+                    Text(
+                      AppLocalizations.of(context)!.adminReportsEmptyMessage,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                if (reason.isNotEmpty)
+                  CmPill(
+                    icon: Icons.info_outline_rounded,
+                    label: AppLocalizations.of(
+                      context,
+                    )!.adminReportsReason(reason),
+                    color: cs.error,
+                  ),
+                CmPill(
+                  icon: Icons.schedule_rounded,
+                  label:
+                      'Reported ${report['createdAt']?.toString().split('T').first ?? ''}',
+                ),
+              ],
+            ),
+            if (actionable) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(46),
+                      ),
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      label: Text(
+                        AppLocalizations.of(context)!.adminReportsDismiss,
+                      ),
+                      onPressed: () => _act(context, ref, 'dismiss'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(46),
+                      ),
+                      icon: const Icon(Icons.check_rounded, size: 18),
+                      label: Text(
+                        AppLocalizations.of(context)!.adminReportsResolve,
+                      ),
+                      onPressed: () => _act(context, ref, 'resolve'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -404,7 +457,9 @@ class _MessageReportCard extends ConsumerWidget {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.commonFailedWith(e))),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.commonFailedWith(e)),
+        ),
       );
     }
   }
@@ -414,7 +469,11 @@ class _MessageReportCard extends ConsumerWidget {
 //  Solution-report card (moved here from the old standalone screen)
 // ─────────────────────────────────────────────────────────────────────────
 Future<void> _resolveSolution(
-    BuildContext context, WidgetRef ref, String id, String action) async {
+  BuildContext context,
+  WidgetRef ref,
+  String id,
+  String action,
+) async {
   final l = AppLocalizations.of(context)!;
   try {
     await ref.read(solutionsApiProvider).resolveReport(id: id, action: action);
@@ -422,14 +481,18 @@ Future<void> _resolveSolution(
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(
-              action == 'remove' ? l.solutionsReportRemoved : l.solutionsReportApproved)),
+        content: Text(
+          action == 'remove'
+              ? l.solutionsReportRemoved
+              : l.solutionsReportApproved,
+        ),
+      ),
     );
   } catch (e) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l.solutionsBookSaveFailed('$e'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.solutionsBookSaveFailed('$e'))));
   }
 }
 
@@ -450,7 +513,9 @@ class _SolutionReportCard extends StatelessWidget {
     final name = '${person['name'] ?? ''}'.trim();
     if (name.isNotEmpty) parts.add(name);
     final gradeRaw = person['grade'];
-    final grade = gradeRaw is int ? gradeRaw : int.tryParse('${gradeRaw ?? ''}');
+    final grade = gradeRaw is int
+        ? gradeRaw
+        : int.tryParse('${gradeRaw ?? ''}');
     final school = '${person['schoolName'] ?? ''}'.trim();
     final sub = <String>[];
     if (grade != null) sub.add(l.solutionsGradeLabel(grade));
@@ -469,7 +534,9 @@ class _SolutionReportCard extends StatelessWidget {
     final showActions = isPending && onApprove != null && onRemove != null;
     final uploadRaw = report['upload'];
     final card = uploadRaw is Map
-        ? SolutionsLiveMapper.mapUpload(uploadRaw.map((k, v) => MapEntry('$k', v)))
+        ? SolutionsLiveMapper.mapUpload(
+            uploadRaw.map((k, v) => MapEntry('$k', v)),
+          )
         : null;
     final reason = '${report['reason'] ?? ''}'.trim();
 
@@ -495,29 +562,35 @@ class _SolutionReportCard extends StatelessWidget {
       }
     }
 
-    return Container(
+    return CmCard(
+      tint: isPending ? cs.tertiary : null,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: isPending ? cs.tertiary.withValues(alpha: 0.5) : cs.outlineVariant),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.flag_rounded, size: 18, color: statusColor()),
-              const SizedBox(width: 6),
-              Text(statusLabel(),
-                  style: TextStyle(fontWeight: FontWeight.w800, color: statusColor())),
+              CmIconTile(
+                icon: Icons.flag_rounded,
+                color: statusColor(),
+                size: 36,
+              ),
+              const SizedBox(width: 10),
+              CmPill(label: statusLabel(), color: statusColor()),
             ],
           ),
           const SizedBox(height: 12),
-          _row(context, l.solutionsReportPostedBy, _meta(l, report['poster'] as Map?)),
+          _row(
+            context,
+            l.solutionsReportPostedBy,
+            _meta(l, report['poster'] as Map?),
+          ),
           const SizedBox(height: 4),
-          _row(context, l.solutionsReportReportedBy, _meta(l, report['reporter'] as Map?)),
+          _row(
+            context,
+            l.solutionsReportReportedBy,
+            _meta(l, report['reporter'] as Map?),
+          ),
           if (reason.isNotEmpty) ...[
             const SizedBox(height: 4),
             _row(context, l.solutionsReportReasonLabel, reason),
@@ -528,7 +601,10 @@ class _SolutionReportCard extends StatelessWidget {
               Text(card.caption, style: const TextStyle(height: 1.35)),
             const SizedBox(height: 4),
             Text(
-              l.solutionsPageQuestionSummary(card.pageNumber, card.questionNumber),
+              l.solutionsPageQuestionSummary(
+                card.pageNumber,
+                card.questionNumber,
+              ),
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
             ),
             const SizedBox(height: 10),
@@ -540,6 +616,9 @@ class _SolutionReportCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(46),
+                    ),
                     onPressed: onApprove,
                     icon: const Icon(Icons.check_rounded),
                     label: Text(l.solutionsReportKeepAction),
@@ -548,7 +627,11 @@ class _SolutionReportCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton.icon(
-                    style: FilledButton.styleFrom(backgroundColor: cs.error),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: cs.error,
+                      foregroundColor: cs.onError,
+                      minimumSize: const Size.fromHeight(46),
+                    ),
                     onPressed: onRemove,
                     icon: const Icon(Icons.delete_outline_rounded),
                     label: Text(l.solutionsReportRemoveAction),
@@ -568,8 +651,14 @@ class _SolutionReportCard extends StatelessWidget {
       text: TextSpan(
         style: DefaultTextStyle.of(context).style,
         children: [
-          TextSpan(text: '$label  ', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-          TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w600)),
+          TextSpan(
+            text: '$label  ',
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+          ),
+          TextSpan(
+            text: value,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

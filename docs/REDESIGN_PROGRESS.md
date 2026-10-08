@@ -82,7 +82,8 @@ Update this file in the same commit as each screen's redesign.
 | Settings | ✅ |
 | School settings, Edit user, Import users, Export | 🎨 |
 | Grade scales, Subject detail | ✅ |
-| Reports, Periods | 🎨 |
+| Reports | ✅ |
+| Periods | 🎨 |
 | Bell schedule | ✅ |
 | Solutions books admin | 🎨 |
 
