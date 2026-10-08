@@ -88,7 +88,7 @@ Update this file in the same commit as each screen's redesign.
 | Reports | ✅ |
 | Periods | ✅ (not previewed: private data provider) |
 | Bell schedule | ✅ |
-| Solutions books admin | 🎨 |
+| Solutions books admin | ✅ (not previewed: loads via raw HTTP) |
 
 ## Parent
 | Screen | Status |
@@ -103,8 +103,8 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 admin settings screens, students hub, reports etc.
-2. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications
+1. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications
+2. Export options sheet, admin dashboard detail pass
 3. Onboarding (low priority)
 
 ## Known open items (not redesign)

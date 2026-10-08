@@ -1,4 +1,3 @@
-import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/config/env.dart';
 import '../../../../core/http/cm_api.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/cm_loading.dart';
+import '../../../../ui/widgets/cm_surfaces.dart';
 import '../../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../data/solutions_api.dart';
 import '../../domain/solution_subjects.dart';
@@ -158,16 +159,12 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
           ),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CmLoading())
                 : _books.isEmpty
                     ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(28),
-                          child: Text(
-                            l.solutionsNoBooksManageHint,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: cs.onSurfaceVariant),
-                          ),
+                        child: CmEmptyState(
+                          icon: Icons.menu_book_rounded,
+                          title: l.solutionsNoBooksManageHint,
                         ),
                       )
                     : ListView.separated(
@@ -180,14 +177,9 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                           final pages = b['pages'] is int
                               ? b['pages'] as int
                               : int.tryParse('${b['pages'] ?? ''}') ?? 0;
-                          return Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: cs.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                              boxShadow: CmTokens.of(context).shadowSm,
-                            ),
+                          return CmCard(
+                            onTap: () => _openEditor(existing: b),
+                            padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
                             child: Row(
                               children: [
                                 ClipRRect(
@@ -197,9 +189,8 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                                     height: 58,
                                     child: cover.isEmpty
                                         ? Container(
-                                            color: cs.secondaryContainer,
-                                            child: Icon(Icons.menu_book_rounded,
-                                                color: cs.onSecondaryContainer, size: 20),
+                                            color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                                            child: Icon(Icons.menu_book_rounded, color: cs.primary, size: 22),
                                           )
                                         : CachedNetworkImage(imageUrl: cover, fit: BoxFit.cover),
                                   ),
@@ -210,22 +201,22 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text('${b['title'] ?? ''}',
-                                          style: const TextStyle(fontWeight: FontWeight.w800)),
-                                      const SizedBox(height: 3),
-                                      Text(l.solutionsBookPagesCount(pages),
-                                          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5)),
+                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                                      const SizedBox(height: 6),
+                                      CmPill(icon: Icons.description_rounded, label: l.solutionsBookPagesCount(pages)),
                                     ],
                                   ),
                                 ),
-                                IconButton(
+                                CmIconAction(
+                                  icon: Icons.edit_rounded,
                                   tooltip: l.a11yEdit,
-                                  icon: const Icon(Icons.edit_rounded),
                                   onPressed: () => _openEditor(existing: b),
                                 ),
-                                IconButton(
+                                CmIconAction(
+                                  icon: Icons.delete_outline_rounded,
                                   tooltip: l.a11yDelete,
-                                  icon: Icon(Icons.delete_outline_rounded, color: cs.error),
                                   onPressed: () => _delete(b),
+                                  color: cs.error,
                                 ),
                               ],
                             ),
