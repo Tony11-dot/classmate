@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 
@@ -112,19 +114,19 @@ class AdminPeriodsScreen extends ConsumerWidget {
       ),
       body: periodsAsync.when(
         loading: () => const Center(child: CmLoading()),
-        error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()))),
+        error: (e, _) => Center(
+          child: CmEmptyState(
+            icon: Icons.error_outline_rounded,
+            title: AppLocalizations.of(context)!.teacherClassroomGenericError(e.toString()),
+          ),
+        ),
         data: (periods) {
           if (periods.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.event_note_rounded, size: 64, color: cs.outlineVariant),
-                  const SizedBox(height: 12),
-                  Text(AppLocalizations.of(context)!.adminPeriodsNoPeriods, style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 6),
-                  Text(AppLocalizations.of(context)!.adminPeriodsTapToAdd, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                ],
+              child: CmEmptyState(
+                icon: Icons.event_note_rounded,
+                title: AppLocalizations.of(context)!.adminPeriodsNoPeriods,
+                message: AppLocalizations.of(context)!.adminPeriodsTapToAdd,
               ),
             );
           }
@@ -143,14 +145,12 @@ class AdminPeriodsScreen extends ConsumerWidget {
               final daySlots = byDay[dow]!..sort((a, b) => ((a['period'] as num?)?.toInt() ?? 0).compareTo((b['period'] as num?)?.toInt() ?? 0));
               return [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
-                  child: Text(
-                    (dow >= 0 && dow <= 6) ? _shortDayName(context, dow) : AppLocalizations.of(context)!.adminPeriodsScreenDayN(dow),
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: cs.primary,
-                      letterSpacing: 0.5,
-                    ),
+                  padding: const EdgeInsets.only(top: 8),
+                  child: CmSectionHeader(
+                    label: (dow >= 0 && dow <= 6) ? _shortDayName(context, dow) : AppLocalizations.of(context)!.adminPeriodsScreenDayN(dow),
+                    icon: Icons.calendar_today_rounded,
+                    count: daySlots.length,
+                    color: cs.primary,
                   ),
                 ),
                 ...daySlots.map((slot) => _PeriodTile(
@@ -207,42 +207,51 @@ class _PeriodTile extends StatelessWidget {
         .where((n) => n.isNotEmpty)
         .join(', ');
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: cs.surfaceContainerLow,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: cs.outlineVariant),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.fromLTRB(14, 6, 8, 6),
-        leading: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: cs.onPrimaryContainer)),
-              Text(start, style: TextStyle(fontSize: 11, color: cs.onPrimaryContainer.withValues(alpha: 0.75))),
-            ],
-          ),
-        ),
-        title: Text(
-          classroom.isNotEmpty ? classroom : (subject.isNotEmpty ? subject : AppLocalizations.of(context)!.adminPeriodsScreenPeriodN(period)),
-          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        subtitle: Text(
-          [if (teacherName.isNotEmpty) teacherName, if (cohortNames.isNotEmpty) cohortNames, '$start – $end'].join(' · '),
-          style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: IconButton(
-          tooltip: l.a11yDelete,
-          icon: Icon(Icons.delete_outline_rounded, color: cs.error),
-          onPressed: onDelete,
+    final title = classroom.isNotEmpty ? classroom : (subject.isNotEmpty ? subject : l.adminPeriodsScreenPeriodN(period));
+    final meta = [if (teacherName.isNotEmpty) teacherName, if (cohortNames.isNotEmpty) cohortNames].join(' · ');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: CmCard(
+        padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+        child: Row(
+          children: [
+            Container(
+              width: 54,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+              ),
+              child: Column(
+                children: [
+                  Text('P$period', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: cs.primary)),
+                  Text(start, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant, fontFeatures: const [FontFeature.tabularFigures()])),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  if (meta.isNotEmpty)
+                    Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                  const SizedBox(height: 4),
+                  CmPill(icon: Icons.schedule_rounded, label: '$start – $end'),
+                ],
+              ),
+            ),
+            CmIconAction(
+              icon: Icons.delete_outline_rounded,
+              tooltip: l.a11yDelete,
+              onPressed: onDelete,
+              color: cs.error,
+            ),
+          ],
         ),
       ),
     );
@@ -560,12 +569,12 @@ class _TimePill extends StatelessWidget {
     return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-          borderRadius: BorderRadius.circular(12),
+          color: cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(CmTokens.radiusSm),
         ),
-        child: Text(time, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+        child: Text(time, textAlign: TextAlign.center, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, fontFeatures: const [FontFeature.tabularFigures()])),
       ),);
   }
 }
