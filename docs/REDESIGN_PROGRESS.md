@@ -63,7 +63,7 @@ Update this file in the same commit as each screen's redesign.
 | Home, Classrooms, Classroom detail, Schedule | ✅ |
 | Grades, Attendance, Meetings | ✅ |
 | Forms list / create / responses | ✅ |
-| Insights / New announcement | ✅ / 🎨 |
+| Insights / New announcement | ✅ / ✅ |
 | Add grade / assignment / material, Create classroom / exam | 🎨 |
 | Exams, Assignments | ✅ |
 | Assignment detail, Exam grades | ✅ |
@@ -95,9 +95,11 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 teacher new announcement
-2. 🎨 remaining teacher create/add forms, admin settings screens
-3. Onboarding (low priority)
+1. 🎨 teacher create/add forms (add grade / assignment / material, create classroom / exam, classroom add *)
+2. 🎨 teacher student profile / grade detail / averages / analytics, slot attachments
+3. 🎨 admin settings screens, students hub, reports etc.
+4. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications
+5. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired

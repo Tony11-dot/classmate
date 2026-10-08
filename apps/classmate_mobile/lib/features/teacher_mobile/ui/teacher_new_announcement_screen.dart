@@ -10,7 +10,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../lifedoc/announcements_provider.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -445,19 +446,15 @@ class _TeacherNewAnnouncementScreenState
             16, 8, 16, 40 + MediaQuery.of(context).viewPadding.bottom),
         children: [
           // ── Content card ────────────────────────────────────────────
-          LiquidGlassCard(
-            padding: const EdgeInsets.all(16),
-            borderRadius: BorderRadius.circular(20),
-            color: cs.surfaceContainerLow,
-            border:
-                Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          CmCard(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            radius: CmTokens.radiusXl,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l.teacherAnnouncementSectionTitle,
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                _CardHeader(
+                  icon: Icons.campaign_rounded,
+                  title: l.teacherAnnouncementSectionTitle,
                 ),
                 const SizedBox(height: 14),
                 TextField(
@@ -465,10 +462,6 @@ class _TeacherNewAnnouncementScreenState
                   decoration: InputDecoration(
                     labelText: l.teacherAnnounceTitleLabel,
                     hintText: l.teacherAnnounceTitleHint,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: cs.surfaceContainerHighest,
                   ),
                   textCapitalization: TextCapitalization.sentences,
                   style: const TextStyle(fontWeight: FontWeight.w700),
@@ -479,10 +472,6 @@ class _TeacherNewAnnouncementScreenState
                   decoration: InputDecoration(
                     labelText: l.teacherAnnounceMessageLabel,
                     hintText: l.teacherAnnounceMessageHint,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: cs.surfaceContainerHighest,
                     alignLabelWithHint: true,
                   ),
                   minLines: 5,
@@ -493,12 +482,14 @@ class _TeacherNewAnnouncementScreenState
                 // Attachment picker — files uploaded on publish.
                 Row(
                   children: [
+                    Icon(Icons.attach_file_rounded, size: 18, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 6),
                     Text(l.commonAttachments,
                         style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                     const Spacer(),
                     TextButton.icon(
                       onPressed: _pickAttachment,
-                      icon: const Icon(Icons.attach_file_rounded, size: 18),
+                      icon: const Icon(Icons.add_rounded, size: 18),
                       label: Text(l.teacherMaterialAddFile),
                     ),
                   ],
@@ -509,59 +500,55 @@ class _TeacherNewAnnouncementScreenState
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: _pendingFiles.asMap().entries.map((entry) {
-                      final i = entry.key;
-                      final f = entry.value;
-                      return InputChip(
-                        avatar: const Icon(Icons.insert_drive_file_rounded, size: 16),
-                        label: Text(f.name, overflow: TextOverflow.ellipsis),
-                        onDeleted: () => setState(() => _pendingFiles.removeAt(i)),
-                      );
-                    }).toList(),
-                  ),
+                  ..._pendingFiles.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final f = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        children: [
+                          CmIconTile(icon: Icons.insert_drive_file_rounded, size: 36, color: cs.tertiary),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              f.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          CmIconAction(
+                            icon: Icons.close_rounded,
+                            tooltip: l.a11yRemove,
+                            onPressed: () => setState(() => _pendingFiles.removeAt(i)),
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
               ],
             ),
           ),
           const SizedBox(height: 14),
 
           // ── Audience card ───────────────────────────────────────────
-          LiquidGlassCard(
-            padding: const EdgeInsets.all(16),
-            borderRadius: BorderRadius.circular(20),
-            color: cs.surfaceContainerLow,
-            border:
-                Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          CmCard(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            radius: CmTokens.radiusXl,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      l.teacherAudienceSectionTitle,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const Spacer(),
-                    if (hasAudience)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: cs.primaryContainer,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          l.teacherNewAnnouncementScreenSelectedCount(_selectedRoles.length + _selectedGrades.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length),
-                          style: TextStyle(
-                              color: cs.onPrimaryContainer,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                  ],
+                _CardHeader(
+                  icon: Icons.groups_rounded,
+                  title: l.teacherAudienceSectionTitle,
+                  trailing: hasAudience
+                      ? CmPill(
+                          icon: Icons.check_rounded,
+                          label: l.teacherNewAnnouncementScreenSelectedCount(_selectedRoles.length + _selectedGrades.length + _selectedStudentIds.length + _selectedParentIds.length + _selectedCohortIds.length),
+                          color: cs.primary,
+                        )
+                      : null,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -572,7 +559,9 @@ class _TeacherNewAnnouncementScreenState
                 const SizedBox(height: 14),
 
                 // ── Audience category selector ───────────────────────
-                SegmentedButton<_AudienceMode>(
+                SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<_AudienceMode>(
                   showSelectedIcon: false,
                   style: SegmentedButton.styleFrom(
                     visualDensity: VisualDensity.compact,
@@ -602,6 +591,7 @@ class _TeacherNewAnnouncementScreenState
                   selected: {_audienceMode},
                   onSelectionChanged: (set) =>
                       setState(() => _audienceMode = set.first),
+                ),
                 ),
                 const SizedBox(height: 14),
 
@@ -704,9 +694,8 @@ class _TeacherNewAnnouncementScreenState
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: cs.surfaceContainerLowest,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                      color: cs.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1278,6 +1267,30 @@ class _ParentTileState extends State<_ParentTile> {
 // Small reusable chips
 // ─────────────────────────────────────────────────────────────────────────────
 
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({required this.icon, required this.title, this.trailing});
+  final IconData icon;
+  final String title;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CmIconTile(icon: icon, size: 34),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
+          ),
+        ),
+        ?trailing,
+      ],
+    );
+  }
+}
+
 class _AudienceChip extends StatelessWidget {
   const _AudienceChip({
     required this.label,
@@ -1293,37 +1306,28 @@ class _AudienceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        duration: CmTokens.fast,
+        curve: CmTokens.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected
-              ? cs.primaryContainer
-              : cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected
-                ? cs.primary
-                : cs.outlineVariant,
-            width: selected ? 1.5 : 1,
-          ),
+          color: selected ? cs.primary : cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(999),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 15,
-                color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant),
+            Icon(selected ? Icons.check_rounded : icon, size: 16,
+                color: selected ? cs.onPrimary : cs.onSurfaceVariant),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                fontWeight:
-                    selected ? FontWeight.w800 : FontWeight.w500,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                 fontSize: 13,
-                color: selected ? cs.onPrimaryContainer : cs.onSurface,
+                color: selected ? cs.onPrimary : cs.onSurface,
               ),
             ),
           ],
@@ -1350,34 +1354,34 @@ class _PickerTrigger extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return CmPress(
       onTap: onTap,
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: AnimatedContainer(
+        duration: CmTokens.fast,
+        padding: const EdgeInsets.fromLTRB(8, 8, 10, 8),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          color: hasSelection
+              ? cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.08)
+              : cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: cs.primary),
-            const SizedBox(width: 10),
+            CmIconTile(icon: icon, size: 36, filled: hasSelection),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
                 style: TextStyle(
-                  color: hasSelection ? null : cs.onSurfaceVariant,
-                  fontWeight: hasSelection
-                      ? FontWeight.w600
-                      : FontWeight.normal,
+                  color: hasSelection ? cs.onSurface : cs.onSurfaceVariant,
+                  fontWeight: hasSelection ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: cs.onSurfaceVariant, size: 20),
+            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant, size: 22),
           ],
         ),
-      ),);
+      ),
+    );
   }
 }
 
@@ -1390,33 +1394,30 @@ class _MiniChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 4, 6, 4),
-      decoration: BoxDecoration(
-        color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: cs.onPrimaryContainer)),
-          const SizedBox(width: 4),
-          Semantics(
-            button: true,
-            label: l.a11yRemove,
-            child: GestureDetector(
-              onTap: onRemove,
-              child: Icon(Icons.close_rounded,
-                  size: 14,
-                  color: cs.onPrimaryContainer),
-            ),
+    return Semantics(
+      button: true,
+      label: '${l.a11yRemove} $label',
+      child: CmPress(
+        onTap: onRemove,
+        child: Container(
+          padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 8, 6),
+          decoration: BoxDecoration(
+            color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.2 : 0.1),
+            borderRadius: BorderRadius.circular(999),
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: cs.primary)),
+              const SizedBox(width: 4),
+              Icon(Icons.close_rounded, size: 15, color: cs.primary),
+            ],
+          ),
+        ),
       ),
     );
   }
