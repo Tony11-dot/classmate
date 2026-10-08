@@ -42,10 +42,11 @@ Update this file in the same commit as each screen's redesign.
 | Screen | Status |
 |---|---|
 | Messages inbox | ✅ |
-| Message thread / new chat / new group | 🎨 |
+| Message thread (header, request/pending banners, info sheet) | ✅ |
+| New chat / new group | 🎨 |
 | Message request / blocked people | ✅ / ✅ |
 | CMail inbox | ✅ |
-| CMail detail / compose | 🎨 |
+| CMail detail / compose | ✅ / ✅ |
 | Profile | ✅ |
 | Settings | ✅ |
 | Plans (billing) | ✅ |
@@ -94,8 +95,9 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 screens with the most traffic: message thread, CMail compose/detail, teacher assignment detail / exam grades
-2. Onboarding (low priority)
+1. 🎨 teacher assignment detail / exam grades / new announcement, new chat / new group
+2. 🎨 remaining teacher create/add forms, admin settings screens
+3. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired

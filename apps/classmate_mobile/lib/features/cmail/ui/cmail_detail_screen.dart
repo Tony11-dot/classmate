@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/attachment_pill.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_press.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/cmail_api.dart';
 import 'cmail_screen.dart' show cmailAudienceLabel;
 
@@ -31,7 +34,11 @@ class CMailDetailScreen extends ConsumerWidget {
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(l.commonCancel),
           ),
-          FilledButton.tonal(
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(l.commonDelete),
           ),
@@ -175,9 +182,10 @@ class CMailDetailScreen extends ConsumerWidget {
         child: detail.when(
           loading: () => const Center(child: CmLoading()),
           error: (e, _) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(e.toString(), textAlign: TextAlign.center),
+            child: CmEmptyState(
+              icon: Icons.mark_email_unread_outlined,
+              title: l.commonError,
+              message: e.toString(),
             ),
           ),
           data: (mail) {
@@ -197,93 +205,109 @@ class CMailDetailScreen extends ConsumerWidget {
 
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
               children: [
-                Text(
-                  mail.subject,
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w900),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: cs.primaryContainer,
-                      child: Text(
-                        initial,
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer,
-                          fontWeight: FontWeight.w800,
+                // ── Header: subject, sender, audience ──
+                CmCard(
+                  tint: cs.primary,
+                  radius: CmTokens.radiusXl,
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mail.subject,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.15,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 16),
+                      Row(
                         children: [
-                          Text(
-                            mail.senderName,
-                            style: theme.textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w800),
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundColor: cs.primary,
+                            child: Text(
+                              initial,
+                              style: TextStyle(
+                                color: cs.onPrimary,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 17,
+                              ),
+                            ),
                           ),
-                          Text(
-                            date,
-                            style: theme.textTheme.labelSmall
-                                ?.copyWith(color: cs.onSurfaceVariant),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  mail.senderName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  date,
+                                  style: theme.textTheme.labelMedium
+                                      ?.copyWith(color: cs.onSurfaceVariant),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    _Chip(
-                      icon: Icons.people_alt_rounded,
-                      label: metaBits.isNotEmpty
-                          ? '$audience · ${metaBits.join(' · ')}'
-                          : audience,
-                      colorScheme: cs,
-                    ),
-                    // Sender can open the roster; recipients just see the count.
-                    mail.isSender
-                        ? InkWell(
-                            borderRadius: BorderRadius.circular(999),
-                            onTap: () => _showRecipients(context, ref),
-                            child: _Chip(
-                              icon: Icons.mark_email_read_rounded,
-                              label:
-                                  l.cmailRecipients(mail.recipientCount),
-                              colorScheme: cs,
-                              trailing: Icons.chevron_right_rounded,
-                            ),
-                          )
-                        : _Chip(
-                            icon: Icons.mark_email_read_rounded,
-                            label: l.cmailRecipients(mail.recipientCount),
-                            colorScheme: cs,
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          CmPill(
+                            icon: Icons.people_alt_rounded,
+                            label: metaBits.isNotEmpty
+                                ? '$audience · ${metaBits.join(' · ')}'
+                                : audience,
+                            color: cs.primary,
                           ),
-                  ],
+                          // Sender can open the roster; recipients just see the count.
+                          if (mail.isSender)
+                            CmPress(
+                              onTap: () => _showRecipients(context, ref),
+                              child: _RecipientsPill(
+                                label: l.cmailRecipients(mail.recipientCount),
+                                tappable: true,
+                              ),
+                            )
+                          else
+                            _RecipientsPill(
+                              label: l.cmailRecipients(mail.recipientCount),
+                              tappable: false,
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 18),
-                if (mail.body.trim().isNotEmpty)
-                  SelectableText(
-                    mail.body,
-                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.45),
+                if (mail.body.trim().isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  CmCard(
+                    padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+                    child: SelectableText(
+                      mail.body,
+                      style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                    ),
                   ),
+                ],
                 if (mail.attachments.isNotEmpty) ...[
-                  const SizedBox(height: 24),
-                  Text(
-                    l.cmailAttachments,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                  const SizedBox(height: 16),
+                  CmSectionHeader(
+                    label: l.cmailAttachments,
+                    icon: Icons.attach_file_rounded,
+                    count: mail.attachments.length,
                   ),
-                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -308,44 +332,42 @@ class CMailDetailScreen extends ConsumerWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.icon,
-    required this.label,
-    required this.colorScheme,
-    this.trailing,
-  });
+/// Recipient-count pill; the sender's version shows a chevron and opens
+/// the read-receipt roster.
+class _RecipientsPill extends StatelessWidget {
+  const _RecipientsPill({required this.label, required this.tappable});
 
-  final IconData icon;
   final String label;
-  final ColorScheme colorScheme;
-  final IconData? trailing;
+  final bool tappable;
 
   @override
   Widget build(BuildContext context) {
-    final cs = colorScheme;
+    final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.fromLTRB(9, 4, 5, 4),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(999),
+        border: tappable
+            ? Border.all(color: cs.outlineVariant.withValues(alpha: 0.6))
+            : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: cs.onSurfaceVariant),
-          const SizedBox(width: 5),
+          Icon(Icons.mark_email_read_rounded, size: 13, color: cs.onSurfaceVariant),
+          const SizedBox(width: 4),
           Text(
             label,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          if (trailing != null) ...[
-            const SizedBox(width: 2),
-            Icon(trailing, size: 14, color: cs.onSurfaceVariant),
-          ],
+          if (tappable)
+            Icon(Icons.chevron_right_rounded, size: 15, color: cs.onSurfaceVariant)
+          else
+            const SizedBox(width: 4),
         ],
       ),
     );

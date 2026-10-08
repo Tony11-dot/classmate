@@ -16,7 +16,9 @@ import '../../chat_core/ui/chat_thread_view.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../../common/widgets/role_badge.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../users/ui/user_profile_sheet.dart';
 
 class MessageThreadScreen extends ConsumerStatefulWidget {
@@ -36,7 +38,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   void initState() {
     super.initState();
     final session = ref.read(authSessionProvider);
-    final realUserId = session.userId.isNotEmpty ? session.userId : session.displayName;
+    final realUserId = session.userId.isNotEmpty
+        ? session.userId
+        : session.displayName;
     _chatController = DmChatThreadController(
       ref: ref,
       threadId: widget.threadId,
@@ -69,7 +73,9 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         .read(messagesRepositoryProvider)
         .blockDirectThread(threadId: widget.threadId);
     if (!mounted) return;
-    ref.invalidate(messagesInboxProvider); // invalidate AFTER pop check — prevents race
+    ref.invalidate(
+      messagesInboxProvider,
+    ); // invalidate AFTER pop check — prevents race
     Navigator.of(context).pop();
   }
 
@@ -105,8 +111,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
   String _avatarText(MessageThreadDetail detail) {
     final title = detail.title.trim();
     if (title.isEmpty) return '?';
-    final parts =
-        title.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
+    final parts = title
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) {
       return parts.first.length >= 2
@@ -127,7 +135,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
       final peer = detail.participants.firstWhere(
         (p) => p.userId.isNotEmpty && p.userId != myId,
         orElse: () => detail.participants.isEmpty
-            ? const MessageParticipant(userId: '', displayName: '', initials: '?')
+            ? const MessageParticipant(
+                userId: '',
+                displayName: '',
+                initials: '?',
+              )
             : detail.participants.first,
       );
       if (peer.userId.isNotEmpty) {
@@ -180,27 +192,23 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-      child: Container(
+      child: CmCard(
+        tint: scheme.primary,
+        radius: CmTokens.radiusXl,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: scheme.outlineVariant, width: 1.5),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  radius: 26,
-                  backgroundColor: scheme.primaryContainer,
+                  radius: 24,
+                  backgroundColor: scheme.primary,
                   child: Text(
                     _avatarText(detail),
                     style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: scheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w900,
+                      color: scheme.onPrimary,
                       fontSize: 15,
                     ),
                   ),
@@ -214,12 +222,11 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: scheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 2),
                       Text(
                         subtitle,
                         maxLines: 2,
@@ -238,32 +245,41 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
             Row(
               children: [
                 Expanded(
-                  child: FilledButton(
-                    onPressed: () => _approveRequest(detail),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: scheme.primary,
-                      foregroundColor: scheme.onPrimary,
-                    ),
-                    child: Text(l.messagesApproveAction),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: () {
                       ref.invalidate(messagesInboxProvider);
                       if (!mounted) return;
                       Navigator.of(context).pop();
                     },
                     style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
                       foregroundColor: scheme.error,
-                      side: BorderSide(color: scheme.error.withValues(alpha: 0.5)),
+                      side: BorderSide(
+                        color: scheme.error.withValues(alpha: 0.5),
+                      ),
                     ),
-                    child: Text(
+                    icon: Icon(
+                      detail.isGroup
+                          ? Icons.logout_rounded
+                          : Icons.block_rounded,
+                      size: 18,
+                    ),
+                    label: Text(
                       detail.isGroup
                           ? l.classroomDetailLeaveAction
                           : l.messagesBlockAction,
                     ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _approveRequest(detail),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    icon: const Icon(Icons.check_rounded, size: 18),
+                    label: Text(l.messagesApproveAction),
                   ),
                 ),
               ],
@@ -283,23 +299,31 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     final text = detail.requestState == ChatRequestState.pendingOutgoing
         ? l.messagesThreadWaitingForApproval
         : (detail.requestState == ChatRequestState.blocked
-            ? l.messageThreadScreenBlockedHint
-            : l.messageThreadScreenCannotSendHint);
+              ? l.messageThreadScreenBlockedHint
+              : l.messageThreadScreenCannotSendHint);
+
+    final blocked = detail.requestState == ChatRequestState.blocked;
+    final outgoing = detail.requestState == ChatRequestState.pendingOutgoing;
+    final tone = blocked
+        ? scheme.error
+        : (outgoing ? CmTokens.of(context).warn : scheme.onSurfaceVariant);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-          border:
-              Border.all(color: scheme.outlineVariant),
-        ),
+      child: CmCard(
+        padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
         child: Row(
           children: [
-            Icon(Icons.schedule_rounded, color: scheme.onSurfaceVariant),
-            const SizedBox(width: 10),
+            CmIconTile(
+              icon: blocked
+                  ? Icons.block_rounded
+                  : (outgoing
+                        ? Icons.schedule_rounded
+                        : Icons.lock_outline_rounded),
+              color: tone,
+              size: 40,
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,15 +331,16 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     text,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
+                      color: scheme.onSurfaceVariant,
+                      height: 1.35,
+                    ),
                   ),
                 ],
               ),
@@ -337,10 +362,14 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
         child: thread.when(
           loading: () => const Center(child: CmLoading()),
           error: (error, _) => Center(
-              child: Text(
-                AppLocalizations.of(context)!.messagesRequestLoadFailed(error),
-              ),
+            child: CmEmptyState(
+              icon: Icons.forum_outlined,
+              title: AppLocalizations.of(context)!.commonError,
+              message: AppLocalizations.of(
+                context,
+              )!.messagesRequestLoadFailed(error),
             ),
+          ),
           data: (detail) {
             final banners = <Widget>[];
             if (detail.requestState == ChatRequestState.pendingIncoming) {
@@ -368,20 +397,32 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                         icon: const Icon(Icons.arrow_back_rounded),
                       ),
                       Expanded(
-                        child: GestureDetector(
+                        child: InkWell(
                           onTap: () => _openThreadInfo(detail),
+                          borderRadius: BorderRadius.circular(
+                            CmTokens.radiusMd,
+                          ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                              4,
+                              6,
+                              8,
+                              6,
+                            ),
                             child: Row(
                               children: [
                                 CircleAvatar(
                                   radius: 21,
-                                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
                                   child: Text(
                                     _avatarText(detail),
                                     style: TextStyle(
                                       fontWeight: FontWeight.w900,
-                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimaryContainer,
                                     ),
                                   ),
                                 ),
@@ -400,7 +441,10 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                         detail.title,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                       if (detail.subtitle.trim().isNotEmpty)
                                         Text(
@@ -411,23 +455,36 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                                               .textTheme
                                               .bodySmall
                                               ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                               ),
                                         )
                                       else if (detail.isGroup)
                                         Text(
-                                          AppLocalizations.of(context)!.messageThreadScreenTapForGroupInfo,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.primary,
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.messageThreadScreenTapForGroupInfo,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
                                               ),
                                         ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 16,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
                               ],
                             ),
                           ),
@@ -438,13 +495,17 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
                   actions: [
                     if (!detail.isGroup)
                       IconButton(
-                        tooltip: AppLocalizations.of(context)!.messagesThreadBlockPersonTitle,
+                        tooltip: AppLocalizations.of(
+                          context,
+                        )!.messagesThreadBlockPersonTitle,
                         onPressed: _blockDirectThread,
                         icon: const Icon(Icons.block_rounded),
                       ),
                     if (detail.isGroup)
                       IconButton(
-                        tooltip: AppLocalizations.of(context)!.messagesThreadLeaveGroupTitle,
+                        tooltip: AppLocalizations.of(
+                          context,
+                        )!.messagesThreadLeaveGroupTitle,
                         onPressed: _leaveGroup,
                         icon: const Icon(Icons.logout_rounded),
                       ),
@@ -471,7 +532,6 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     );
   }
 }
-
 
 // ── Thread Info Sheet ────────────────────────────────────────────────────────
 
@@ -507,11 +567,16 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final info = await widget.repo.fetchThreadInfo(threadId: widget.threadId);
       if (!mounted) return;
-      final threadInfo = info['thread'] is Map ? Map<String, dynamic>.from(info['thread'] as Map) : <String, dynamic>{};
+      final threadInfo = info['thread'] is Map
+          ? Map<String, dynamic>.from(info['thread'] as Map)
+          : <String, dynamic>{};
       setState(() {
         _info = info;
         _inviteCode = threadInfo['inviteCode']?.toString();
@@ -519,35 +584,54 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _error = e.toString(); _loading = false; });
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
     }
   }
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
+    if (parts.length == 1) {
+      return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
+    }
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 
   Set<String> get _memberIds {
-    final threadInfo = _info?['thread'] is Map ? Map<String, dynamic>.from(_info!['thread'] as Map) : <String, dynamic>{};
-    final members = threadInfo['members'] is List ? (threadInfo['members'] as List) : [];
+    final threadInfo = _info?['thread'] is Map
+        ? Map<String, dynamic>.from(_info!['thread'] as Map)
+        : <String, dynamic>{};
+    final members = threadInfo['members'] is List
+        ? (threadInfo['members'] as List)
+        : [];
     return members.map((m) => (m is Map ? m['userId'] : '').toString()).toSet();
   }
 
   Future<void> _toggleMute() async {
     final l = AppLocalizations.of(context)!;
     try {
-      final muted = await widget.repo.toggleMuteThread(threadId: widget.threadId);
+      final muted = await widget.repo.toggleMuteThread(
+        threadId: widget.threadId,
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(muted ? l.msgNotificationsMuted : l.msgNotificationsUnmuted)),
+        SnackBar(
+          content: Text(
+            muted ? l.msgNotificationsMuted : l.msgNotificationsUnmuted,
+          ),
+        ),
       );
       _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.commonErrorWith(e)),
+        ),
+      );
     }
   }
 
@@ -557,10 +641,16 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.msgBlockTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(
+          l.msgBlockTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
         content: Text(l.msgBlockContent),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.actionCancel),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: cs.error),
             onPressed: () => Navigator.pop(ctx, true),
@@ -577,7 +667,11 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.commonErrorWith(e)),
+        ),
+      );
     }
   }
 
@@ -587,22 +681,45 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.msgRenameGroup, style: const TextStyle(fontWeight: FontWeight.w800)),
-        content: TextField(controller: ctrl, decoration: InputDecoration(labelText: l.msgGroupName, border: const OutlineInputBorder()), autofocus: true),
+        title: Text(
+          l.msgRenameGroup,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: TextField(
+          controller: ctrl,
+          decoration: InputDecoration(
+            labelText: l.msgGroupName,
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.actionSave)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.actionSave),
+          ),
         ],
       ),
     );
     if (ok != true || !mounted) return;
     try {
-      await widget.repo.updateGroupTitle(threadId: widget.threadId, title: ctrl.text.trim());
+      await widget.repo.updateGroupTitle(
+        threadId: widget.threadId,
+        title: ctrl.text.trim(),
+      );
       widget.onRefresh();
       _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.commonErrorWith(e)),
+        ),
+      );
     }
   }
 
@@ -622,7 +739,10 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
     int successCount = 0;
     for (final uid in added) {
       try {
-        await widget.repo.addGroupMember(threadId: widget.threadId, userId: uid);
+        await widget.repo.addGroupMember(
+          threadId: widget.threadId,
+          userId: uid,
+        );
         successCount++;
       } catch (_) {}
     }
@@ -639,9 +759,14 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   Future<void> _generateInviteCode() async {
     setState(() => _generatingCode = true);
     try {
-      final code = await widget.repo.generateGroupInviteCode(threadId: widget.threadId);
+      final code = await widget.repo.generateGroupInviteCode(
+        threadId: widget.threadId,
+      );
       if (!mounted) return;
-      setState(() { _inviteCode = code; _generatingCode = false; });
+      setState(() {
+        _inviteCode = code;
+        _generatingCode = false;
+      });
     } catch (e) {
       if (mounted) setState(() => _generatingCode = false);
     }
@@ -654,30 +779,52 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
       builder: (ctx) => AlertDialog(
         title: Text(l.msgRemoveMemberTitle(name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
-          FilledButton(style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error), onPressed: () => Navigator.pop(ctx, true), child: Text(l.actionRemove)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.actionCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.actionRemove),
+          ),
         ],
       ),
     );
     if (ok != true || !mounted) return;
     try {
-      await widget.repo.removeGroupMember(threadId: widget.threadId, userId: userId);
+      await widget.repo.removeGroupMember(
+        threadId: widget.threadId,
+        userId: userId,
+      );
       _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.commonErrorWith(e)),
+        ),
+      );
     }
   }
 
   Future<void> _toggleAdmin(String userId, String name, bool isAdmin) async {
     try {
       await widget.repo.updateMemberRole(
-        threadId: widget.threadId, userId: userId, role: isAdmin ? 'MEMBER' : 'ADMIN',
+        threadId: widget.threadId,
+        userId: userId,
+        role: isAdmin ? 'MEMBER' : 'ADMIN',
       );
       _load();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonErrorWith(e))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.commonErrorWith(e)),
+        ),
+      );
     }
   }
 
@@ -685,13 +832,17 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final threadInfo = _info?['thread'] is Map ? Map<String, dynamic>.from(_info!['thread'] as Map) : <String, dynamic>{};
+    final threadInfo = _info?['thread'] is Map
+        ? Map<String, dynamic>.from(_info!['thread'] as Map)
+        : <String, dynamic>{};
     final myRole = (threadInfo['myRole'] ?? 'MEMBER').toString();
     final isAdmin = myRole == 'ADMIN';
     final isMuted = threadInfo['isMuted'] == true;
     final isGroup = widget.detail.isGroup;
     final members = threadInfo['members'] is List
-        ? (threadInfo['members'] as List).map((m) => Map<String, dynamic>.from(m is Map ? m : {})).toList()
+        ? (threadInfo['members'] as List)
+              .map((m) => Map<String, dynamic>.from(m is Map ? m : {}))
+              .toList()
         : <Map<String, dynamic>>[];
 
     final l = AppLocalizations.of(context)!;
@@ -709,84 +860,140 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
           children: [
             // Handle
             const SizedBox(height: 8),
-            Container(width: 36, height: 4, decoration: BoxDecoration(color: cs.outlineVariant, borderRadius: BorderRadius.circular(2))),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             const SizedBox(height: 16),
             // Avatar + name
-            CircleAvatar(
-              radius: 36,
-              backgroundColor: cs.primaryContainer,
-              child: Text(_initials(widget.detail.title), style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: cs.onPrimaryContainer)),
+            Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: cs.primary.withValues(alpha: 0.35),
+                  width: 2,
+                ),
+              ),
+              child: CircleAvatar(
+                radius: 36,
+                backgroundColor: cs.primaryContainer,
+                child: Text(
+                  _initials(widget.detail.title),
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    color: cs.onPrimaryContainer,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Flexible(
-                  child: Text(widget.detail.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+                  child: Text(
+                    widget.detail.title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 if (isGroup && isAdmin)
-                  IconButton(tooltip: l.a11yEdit, onPressed: _renameGroup, icon: const Icon(Icons.edit_rounded, size: 18), visualDensity: VisualDensity.compact),
+                  IconButton(
+                    tooltip: l.a11yEdit,
+                    onPressed: _renameGroup,
+                    icon: const Icon(Icons.edit_rounded, size: 18),
+                    visualDensity: VisualDensity.compact,
+                  ),
               ],
             ),
             if (isGroup)
-              Text(l.msgMembersCount(members.length), style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+              Text(
+                l.msgMembersCount(members.length),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+              ),
             const SizedBox(height: 12),
 
             // Action pills row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Mute / Unmute
-                  _ActionPill(
-                    icon: isMuted ? Icons.notifications_off_rounded : Icons.notifications_rounded,
-                    label: isMuted ? l.msgUnmute : l.msgMute,
-                    onTap: _toggleMute,
-                    active: isMuted,
+                  Expanded(
+                    child: _ActionPill(
+                      icon: isMuted
+                          ? Icons.notifications_off_rounded
+                          : Icons.notifications_rounded,
+                      label: isMuted ? l.msgUnmute : l.msgMute,
+                      onTap: _toggleMute,
+                      active: isMuted,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   // Block (DM only) or Block member
                   if (!isGroup)
-                    _ActionPill(
-                      icon: Icons.block_rounded,
-                      label: l.actionBlock,
-                      onTap: _blockDm,
-                      color: cs.error,
+                    Expanded(
+                      child: _ActionPill(
+                        icon: Icons.block_rounded,
+                        label: l.actionBlock,
+                        onTap: _blockDm,
+                        color: cs.error,
+                      ),
                     ),
                   if (isGroup) ...[
                     if (isAdmin) ...[
-                      _ActionPill(
-                        icon: Icons.person_add_rounded,
-                        label: l.actionAdd,
-                        onTap: _openAddParticipants,
+                      Expanded(
+                        child: _ActionPill(
+                          icon: Icons.person_add_rounded,
+                          label: l.actionAdd,
+                          onTap: _openAddParticipants,
+                        ),
                       ),
                       const SizedBox(width: 10),
                     ],
-                    _ActionPill(
-                      icon: Icons.link_rounded,
-                      label: _inviteCode != null ? l.msgCopyCode : l.msgInviteCode,
-                      onTap: _inviteCode != null
-                          ? () {
-                              Clipboard.setData(
-                                ClipboardData(text: _inviteCode!),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l.msgCodeCopied(_inviteCode!))),
-                              );
-                            }
-                          : (isAdmin ? _generateInviteCode : null),
-                      loading: _generatingCode,
+                    Expanded(
+                      child: _ActionPill(
+                        icon: Icons.link_rounded,
+                        label: _inviteCode != null
+                            ? l.msgCopyCode
+                            : l.msgInviteCode,
+                        onTap: _inviteCode != null
+                            ? () {
+                                Clipboard.setData(
+                                  ClipboardData(text: _inviteCode!),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      l.msgCodeCopied(_inviteCode!),
+                                    ),
+                                  ),
+                                );
+                              }
+                            : (isAdmin ? _generateInviteCode : null),
+                        loading: _generatingCode,
+                      ),
                     ),
                     const SizedBox(width: 10),
-                    _ActionPill(
-                      icon: Icons.logout_rounded,
-                      label: l.msgLeave,
-                      color: cs.error,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        widget.onLeave();
-                      },
+                    Expanded(
+                      child: _ActionPill(
+                        icon: Icons.logout_rounded,
+                        label: l.msgLeave,
+                        color: cs.error,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          widget.onLeave();
+                        },
+                      ),
                     ),
                   ],
                 ],
@@ -798,31 +1005,45 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 6, 6),
                   decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                    color: cs.primary.withValues(
+                      alpha: cs.brightness == Brightness.dark ? 0.18 : 0.08,
+                    ),
+                    borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+                    border: Border.all(
+                      color: cs.primary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.vpn_key_rounded, size: 16, color: cs.onPrimaryContainer),
+                      Icon(Icons.vpn_key_rounded, size: 18, color: cs.primary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _inviteCode!,
-                          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 3, color: cs.onPrimaryContainer, fontSize: 15),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 3,
+                            color: cs.primary,
+                            fontSize: 16,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                         ),
                       ),
                       IconButton(
                         tooltip: l.a11yCopy,
-                        icon: const Icon(Icons.copy_rounded, size: 16),
+                        icon: Icon(
+                          Icons.copy_rounded,
+                          size: 18,
+                          color: cs.primary,
+                        ),
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: _inviteCode!));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.msgInviteCodeCopied)));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l.msgInviteCodeCopied)),
+                          );
                         },
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
                       ),
                     ],
                   ),
@@ -837,96 +1058,179 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
               child: _loading
                   ? const Center(child: CmLoading())
                   : _error != null
-                      ? Center(child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(_error!, style: TextStyle(color: cs.error), textAlign: TextAlign.center),
-                        ))
-                      : isGroup
-                          ? ListView(
-                              controller: scrollCtrl,
-                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          _error!,
+                          style: TextStyle(color: cs.error),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : isGroup
+                  ? ListView(
+                      controller: scrollCtrl,
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                      children: [
+                        // Member list
+                        CmSectionHeader(
+                          label: l.msgMembersCount(members.length),
+                          icon: Icons.groups_rounded,
+                        ),
+                        ...members.map((m) {
+                          final mId = (m['userId'] ?? '').toString();
+                          final mName = (m['name'] ?? '').toString();
+                          final mRole = (m['role'] ?? 'MEMBER').toString();
+                          final mUserRole = (m['userRole'] ?? '').toString();
+                          final mIsAdmin = mRole == 'ADMIN';
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            onTap: mId.isEmpty
+                                ? null
+                                : () {
+                                    Navigator.of(context).pop();
+                                    UserProfileSheet.show(context, mId);
+                                  },
+                            leading: CircleAvatar(
+                              backgroundColor: mIsAdmin
+                                  ? cs.primary
+                                  : cs.primaryContainer,
+                              child: Text(
+                                _initials(mName),
+                                style: TextStyle(
+                                  color: mIsAdmin
+                                      ? cs.onPrimary
+                                      : cs.onPrimaryContainer,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            title: Row(
                               children: [
-                                // Member list
-                                Text(l.msgMembersCount(members.length), style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant, letterSpacing: 0.8)),
-                                const SizedBox(height: 6),
-                                ...members.map((m) {
-                                  final mId = (m['userId'] ?? '').toString();
-                                  final mName = (m['name'] ?? '').toString();
-                                  final mRole = (m['role'] ?? 'MEMBER').toString();
-                                  final mUserRole = (m['userRole'] ?? '').toString();
-                                  final mIsAdmin = mRole == 'ADMIN';
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                    onTap: mId.isEmpty
-                                        ? null
-                                        : () {
-                                            Navigator.of(context).pop();
-                                            UserProfileSheet.show(context, mId);
-                                          },
-                                    leading: CircleAvatar(
-                                      backgroundColor: mIsAdmin ? cs.primary : cs.primaryContainer,
-                                      child: Text(_initials(mName), style: TextStyle(color: mIsAdmin ? cs.onPrimary : cs.onPrimaryContainer, fontWeight: FontWeight.w700, fontSize: 13)),
+                                Flexible(
+                                  child: Text(
+                                    mName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    title: Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            mName,
-                                            style: const TextStyle(fontWeight: FontWeight.w600),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        if (mUserRole.isNotEmpty) ...[
-                                          const SizedBox(width: 6),
-                                          RoleBadge(role: mUserRole, compact: true),
-                                        ],
-                                      ],
-                                    ),
-                                    subtitle: mIsAdmin ? Text(l.msgAdmin, style: TextStyle(color: cs.primary, fontWeight: FontWeight.w700, fontSize: 11)) : null,
-                                    trailing: isAdmin ? PopupMenuButton<String>(
-                                      icon: const Icon(Icons.more_vert_rounded),
-                                      onSelected: (value) {
-                                        if (value == 'promote') _toggleAdmin(mId, mName, mIsAdmin);
-                                        if (value == 'kick') _kickMember(mId, mName);
-                                      },
-                                      itemBuilder: (_) {
-                                        final adminCount = members.where((m) => (m['role'] ?? 'MEMBER').toString() == 'ADMIN').length;
-                                        final isLastAdmin = mIsAdmin && adminCount <= 1;
-                                        return [
-                                          if (!isLastAdmin)
-                                            PopupMenuItem(
-                                              value: 'promote',
-                                              child: Text(mIsAdmin ? l.msgRemoveAdmin : l.msgMakeAdmin),
-                                            ),
-                                          if (isLastAdmin)
-                                            PopupMenuItem(
-                                              enabled: false,
-                                              child: Text(
-                                                l.msgOnlyAdmin,
-                                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
-                                              ),
-                                            ),
-                                          PopupMenuItem(value: 'kick', child: Text(l.msgRemoveFromGroup)),
-                                        ];
-                                      },
-                                    ) : null,
-                                  );
-                                }),
-                              ],
-                            )
-                          : ListView(
-                              controller: scrollCtrl,
-                              padding: const EdgeInsets.all(16),
-                              children: [
-                                for (final p in widget.detail.participants) ...[
-                                  ListTile(
-                                    leading: CircleAvatar(child: Text(_initials(p.displayName))),
-                                    title: Text(p.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                    subtitle: p.isAdmin ? Text(l.msgAdmin, style: TextStyle(color: cs.primary, fontSize: 11, fontWeight: FontWeight.w700)) : null,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
+                                ),
+                                if (mUserRole.isNotEmpty) ...[
+                                  const SizedBox(width: 6),
+                                  RoleBadge(role: mUserRole, compact: true),
                                 ],
                               ],
                             ),
+                            subtitle: mIsAdmin
+                                ? Text(
+                                    l.msgAdmin,
+                                    style: TextStyle(
+                                      color: cs.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 11,
+                                    ),
+                                  )
+                                : null,
+                            trailing: isAdmin
+                                ? PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_vert_rounded),
+                                    onSelected: (value) {
+                                      if (value == 'promote') {
+                                        _toggleAdmin(mId, mName, mIsAdmin);
+                                      }
+                                      if (value == 'kick') {
+                                        _kickMember(mId, mName);
+                                      }
+                                    },
+                                    itemBuilder: (_) {
+                                      final adminCount = members
+                                          .where(
+                                            (m) =>
+                                                (m['role'] ?? 'MEMBER')
+                                                    .toString() ==
+                                                'ADMIN',
+                                          )
+                                          .length;
+                                      final isLastAdmin =
+                                          mIsAdmin && adminCount <= 1;
+                                      return [
+                                        if (!isLastAdmin)
+                                          PopupMenuItem(
+                                            value: 'promote',
+                                            child: Text(
+                                              mIsAdmin
+                                                  ? l.msgRemoveAdmin
+                                                  : l.msgMakeAdmin,
+                                            ),
+                                          ),
+                                        if (isLastAdmin)
+                                          PopupMenuItem(
+                                            enabled: false,
+                                            child: Text(
+                                              l.msgOnlyAdmin,
+                                              style: TextStyle(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                        PopupMenuItem(
+                                          value: 'kick',
+                                          child: Text(l.msgRemoveFromGroup),
+                                        ),
+                                      ];
+                                    },
+                                  )
+                                : null,
+                          );
+                        }),
+                      ],
+                    )
+                  : ListView(
+                      controller: scrollCtrl,
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        for (final p in widget.detail.participants) ...[
+                          ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: cs.primaryContainer,
+                              child: Text(
+                                _initials(p.displayName),
+                                style: TextStyle(
+                                  color: cs.onPrimaryContainer,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              p.displayName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: p.isAdmin
+                                ? Text(
+                                    l.msgAdmin,
+                                    style: TextStyle(
+                                      color: cs.primary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ],
+                      ],
+                    ),
             ),
           ],
         ),
@@ -936,7 +1240,14 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
 }
 
 class _ActionPill extends StatelessWidget {
-  const _ActionPill({required this.icon, required this.label, required this.onTap, this.color, this.active = false, this.loading = false});
+  const _ActionPill({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.color,
+    this.active = false,
+    this.loading = false,
+  });
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
@@ -947,16 +1258,18 @@ class _ActionPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tint = color ?? (active ? cs.primary : cs.onSurfaceVariant);
-    final bg = active ? cs.primaryContainer : cs.surfaceContainerHighest;
+    final tint = color ?? (active ? cs.primary : cs.onSurface);
+    final dark = cs.brightness == Brightness.dark;
+    final bg = color != null || active
+        ? tint.withValues(alpha: dark ? 0.18 : 0.09)
+        : cs.surfaceContainerHigh;
     return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: tint.withValues(alpha: active ? 0.4 : 0.2)),
+          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -965,10 +1278,20 @@ class _ActionPill extends StatelessWidget {
                 ? CmLoading(size: 20, color: tint)
                 : Icon(icon, color: tint, size: 20),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(color: tint, fontWeight: FontWeight.w700, fontSize: 11)),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: tint,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
-      ),);
+      ),
+    );
   }
 }
 
@@ -1013,7 +1336,9 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
       final people = await widget.repo.fetchSameSchoolPeople();
       if (!mounted) return;
       setState(() {
-        _people = people.where((p) => !widget.existingMemberIds.contains(p.userId)).toList();
+        _people = people
+            .where((p) => !widget.existingMemberIds.contains(p.userId))
+            .toList();
         _loading = false;
       });
     } catch (e) {
@@ -1024,17 +1349,22 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
   List<MessageDirectoryPerson> get _filtered {
     final q = _search.text.trim().toLowerCase();
     if (q.isEmpty) return _people;
-    return _people.where((p) =>
-      p.displayName.toLowerCase().contains(q) ||
-      p.gradeLabel.toLowerCase().contains(q) ||
-      p.schoolName.toLowerCase().contains(q),
-    ).toList();
+    return _people
+        .where(
+          (p) =>
+              p.displayName.toLowerCase().contains(q) ||
+              p.gradeLabel.toLowerCase().contains(q) ||
+              p.schoolName.toLowerCase().contains(q),
+        )
+        .toList();
   }
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
+    if (parts.length == 1) {
+      return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
+    }
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 
@@ -1070,7 +1400,8 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
               children: [
                 Center(
                   child: Container(
-                    width: 36, height: 4,
+                    width: 36,
+                    height: 4,
                     decoration: BoxDecoration(
                       color: cs.outlineVariant,
                       borderRadius: BorderRadius.circular(2),
@@ -1082,14 +1413,25 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                   children: [
                     Expanded(
                       child: Text(
-                        AppLocalizations.of(context)!.messageThreadScreenAddParticipantsTitle,
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                        AppLocalizations.of(
+                          context,
+                        )!.messageThreadScreenAddParticipantsTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                     if (n > 0)
                       FilledButton(
-                        onPressed: _submitting ? null : () => Navigator.of(context).pop(_selected.toList()),
-                        child: Text(_submitting ? AppLocalizations.of(context)!.commonAdding : AppLocalizations.of(context)!.commonAddCount(n)),
+                        onPressed: _submitting
+                            ? null
+                            : () =>
+                                  Navigator.of(context).pop(_selected.toList()),
+                        child: Text(
+                          _submitting
+                              ? AppLocalizations.of(context)!.commonAdding
+                              : AppLocalizations.of(context)!.commonAddCount(n),
+                        ),
                       ),
                   ],
                 ),
@@ -1097,7 +1439,9 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                 // Search bar
                 CmSearchField(
                   controller: _search,
-                  hint: AppLocalizations.of(context)!.messagesSearchByNameOrGrade,
+                  hint: AppLocalizations.of(
+                    context,
+                  )!.messagesSearchByNameOrGrade,
                   autofocus: true,
                 ),
                 const SizedBox(height: 8),
@@ -1110,121 +1454,151 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
             child: _loading
                 ? const Center(child: CmLoading())
                 : filtered.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.person_search_rounded, size: 48, color: cs.onSurfaceVariant),
-                            const SizedBox(height: 12),
-                            Text(
-                              _search.text.isEmpty
-                                  ? AppLocalizations.of(context)!.messagesNoPeopleToAdd
-                                  : AppLocalizations.of(context)!.commonNoResultsForQuery(_search.text),
-                              style: TextStyle(color: cs.onSurfaceVariant),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.person_search_rounded,
+                          size: 48,
+                          color: cs.onSurfaceVariant,
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, i) {
-                          final p = filtered[i];
-                          final selected = _selected.contains(p.userId);
-                          final subtitle = [
-                            if (p.gradeLabel.isNotEmpty) p.gradeLabel,
-                            if (p.schoolName.isNotEmpty) p.schoolName,
-                          ].join(' · ');
+                        const SizedBox(height: 12),
+                        Text(
+                          _search.text.isEmpty
+                              ? AppLocalizations.of(
+                                  context,
+                                )!.messagesNoPeopleToAdd
+                              : AppLocalizations.of(
+                                  context,
+                                )!.commonNoResultsForQuery(_search.text),
+                          style: TextStyle(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, i) {
+                      final p = filtered[i];
+                      final selected = _selected.contains(p.userId);
+                      final subtitle = [
+                        if (p.gradeLabel.isNotEmpty) p.gradeLabel,
+                        if (p.schoolName.isNotEmpty) p.schoolName,
+                      ].join(' · ');
 
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: InkWell(
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => _toggle(p.userId),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 120),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? cs.primary
+                                  : cs.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(16),
-                              onTap: () => _toggle(p.userId),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 120),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: selected
-                                      ? cs.primary
-                                      : cs.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: selected
-                                        ? cs.primary
-                                        : cs.outlineVariant,
-                                    width: selected ? 1.5 : 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Avatar with gradient
-                                    Container(
-                                      width: 42, height: 42,
-                                      decoration: BoxDecoration(
-
-                                        borderRadius: BorderRadius.circular(13),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          p.initials.trim().isNotEmpty ? p.initials.trim() : _initials(p.displayName),
-                                          style: TextStyle(
-                                            color: selected ? cs.onPrimary : cs.onPrimaryContainer,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            p.displayName,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              color: selected ? cs.primary : cs.onSurface,
-                                            ),
-                                          ),
-                                          if (subtitle.isNotEmpty)
-                                            Text(
-                                              subtitle,
-                                              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Checkmark
-                                    AnimatedSwitcher(
-                                      duration: const Duration(milliseconds: 150),
-                                      child: selected
-                                          ? Container(
-                                              key: const ValueKey('check'),
-                                              width: 28, height: 28,
-                                              decoration: BoxDecoration(
-                                                color: cs.primary,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Icon(Icons.check_rounded, size: 16, color: cs.onPrimary),
-                                            )
-                                          : Container(
-                                              key: const ValueKey('empty'),
-                                              width: 28, height: 28,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                ),
+                              border: Border.all(
+                                color: selected
+                                    ? cs.primary
+                                    : cs.outlineVariant,
+                                width: selected ? 1.5 : 1,
                               ),
                             ),
-                          );
-                        },
-                      ),
+                            child: Row(
+                              children: [
+                                // Avatar with gradient
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(13),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      p.initials.trim().isNotEmpty
+                                          ? p.initials.trim()
+                                          : _initials(p.displayName),
+                                      style: TextStyle(
+                                        color: selected
+                                            ? cs.onPrimary
+                                            : cs.onPrimaryContainer,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        p.displayName,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          color: selected
+                                              ? cs.primary
+                                              : cs.onSurface,
+                                        ),
+                                      ),
+                                      if (subtitle.isNotEmpty)
+                                        Text(
+                                          subtitle,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                // Checkmark
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 150),
+                                  child: selected
+                                      ? Container(
+                                          key: const ValueKey('check'),
+                                          width: 28,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                            color: cs.primary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.check_rounded,
+                                            size: 16,
+                                            color: cs.onPrimary,
+                                          ),
+                                        )
+                                      : Container(
+                                          key: const ValueKey('empty'),
+                                          width: 28,
+                                          height: 28,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: cs.outlineVariant
+                                                  .withValues(alpha: 0.5),
+                                            ),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
           // Bottom confirm bar when items selected
           if (n > 0)
@@ -1239,11 +1613,19 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: _submitting ? null : () => Navigator.of(context).pop(_selected.toList()),
+                    onPressed: _submitting
+                        ? null
+                        : () => Navigator.of(context).pop(_selected.toList()),
                     icon: _submitting
                         ? const CmLoading(size: 18)
                         : const Icon(Icons.person_add_rounded),
-                    label: Text(_submitting ? AppLocalizations.of(context)!.commonAdding : AppLocalizations.of(context)!.messagesAddParticipants(n)),
+                    label: Text(
+                      _submitting
+                          ? AppLocalizations.of(context)!.commonAdding
+                          : AppLocalizations.of(
+                              context,
+                            )!.messagesAddParticipants(n),
+                    ),
                   ),
                 ),
               ),

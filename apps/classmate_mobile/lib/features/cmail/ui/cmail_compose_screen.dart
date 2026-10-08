@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/student_multi_select_sheet.dart';
 import '../data/cmail_api.dart';
@@ -261,158 +263,202 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
           children: [
-            LiquidGlassSelectField<String>(
-              label: l.cmailAudience,
-              hint: l.cmailAudienceRequired,
-              value: _audience,
-              items: [
-                for (final a in const [
-                  'SCHOOL',
-                  'STUDENTS',
-                  'TEACHERS',
-                  'PARENTS',
-                  'STAFF',
-                  'GRADES',
-                  'COHORTS',
-                  'USERS',
-                ])
-                  LiquidGlassDropdownItem(
-                    value: a,
-                    label: cmailAudienceLabel(l, a),
-                    icon: switch (a) {
-                      'SCHOOL' => Icons.school_rounded,
-                      'STUDENTS' => Icons.backpack_rounded,
-                      'TEACHERS' => Icons.co_present_rounded,
-                      'PARENTS' => Icons.family_restroom_rounded,
-                      'STAFF' => Icons.badge_rounded,
-                      'GRADES' => Icons.grade_rounded,
-                      'COHORTS' => Icons.groups_rounded,
-                      _ => Icons.person_search_rounded,
+            // ── Recipients ──
+            CmCard(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LiquidGlassSelectField<String>(
+                    label: l.cmailAudience,
+                    hint: l.cmailAudienceRequired,
+                    value: _audience,
+                    items: [
+                      for (final a in const [
+                        'SCHOOL',
+                        'STUDENTS',
+                        'TEACHERS',
+                        'PARENTS',
+                        'STAFF',
+                        'GRADES',
+                        'COHORTS',
+                        'USERS',
+                      ])
+                        LiquidGlassDropdownItem(
+                          value: a,
+                          label: cmailAudienceLabel(l, a),
+                          icon: _audienceIcon(a),
+                        ),
+                    ],
+                    onChanged: (v) async {
+                      setState(() => _audience = v);
+                      if ((v == 'GRADES' || v == 'COHORTS' || v == 'USERS') &&
+                          ddl != null) {
+                        await _pickSubAudience(v, ddl);
+                      }
                     },
                   ),
-              ],
-              onChanged: (v) async {
-                setState(() => _audience = v);
-                if ((v == 'GRADES' || v == 'COHORTS' || v == 'USERS') &&
-                    ddl != null) {
-                  await _pickSubAudience(v, ddl);
-                }
-              },
-            ),
-            if (needsSub) ...[
-              const SizedBox(height: 8),
-              CmPress(
-                onTap: ddl == null
-                    ? null
-                    : () => _pickSubAudience(_audience!, ddl),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: cs.surfaceContainerLow,
-                    border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.tune_rounded,
-                          size: 18, color: cs.onSurfaceVariant),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          summary.isEmpty
-                              ? switch (_audience) {
-                                  'GRADES' => l.cmailPickGrades,
-                                  'COHORTS' => l.cmailPickCohorts,
-                                  _ => l.cmailPickPeople,
-                                }
-                              : summary,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: summary.isEmpty
-                                ? cs.onSurfaceVariant
-                                : cs.onSurface,
-                            fontWeight: summary.isEmpty
-                                ? FontWeight.w500
-                                : FontWeight.w700,
-                          ),
+                  if (needsSub) ...[
+                    const SizedBox(height: 8),
+                    CmPress(
+                      onTap: ddl == null
+                          ? null
+                          : () => _pickSubAudience(_audience!, ddl),
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(8, 8, 10, 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                          color: summary.isEmpty
+                              ? CmTokens.of(context).warn.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.10)
+                              : cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.08),
+                        ),
+                        child: Row(
+                          children: [
+                            CmIconTile(
+                              icon: _audienceIcon(_audience!),
+                              size: 34,
+                              color: summary.isEmpty ? CmTokens.of(context).warn : cs.primary,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                summary.isEmpty
+                                    ? switch (_audience) {
+                                        'GRADES' => l.cmailPickGrades,
+                                        'COHORTS' => l.cmailPickCohorts,
+                                        _ => l.cmailPickPeople,
+                                      }
+                                    : summary,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: summary.isEmpty ? cs.onSurfaceVariant : cs.onSurface,
+                                  fontWeight: summary.isEmpty ? FontWeight.w600 : FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.tune_rounded, size: 20, color: cs.onSurfaceVariant),
+                          ],
                         ),
                       ),
-                      Icon(Icons.expand_more_rounded,
-                          color: cs.onSurfaceVariant),
-                    ],
-                  ),
-                ),),
-            ],
-            const SizedBox(height: 14),
-            TextField(
-              controller: _subjectCtl,
-              textInputAction: TextInputAction.next,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
-              decoration: InputDecoration(
-                hintText: l.cmailSubject,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _bodyCtl,
-              minLines: 8,
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(
-                hintText: l.cmailBodyHint,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                OutlinedButton.icon(
-                  onPressed: _uploading ? null : _attach,
-                  icon: _uploading
-                      ? const CmLoading(size: 16)
-                      : const Icon(Icons.attach_file_rounded, size: 18),
-                  label: Text(l.cmailAttach),
-                ),
-              ],
-            ),
-            if (_attachments.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (var i = 0; i < _attachments.length; i++)
-                    InputChip(
-                      avatar: const Icon(Icons.insert_drive_file_rounded,
-                          size: 16),
-                      label: Text(
-                        _attachments[i].fileName?.isNotEmpty == true
-                            ? _attachments[i].fileName!
-                            : l.cmailAttachments,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      onDeleted: () =>
-                          setState(() => _attachments.removeAt(i)),
                     ),
+                  ],
                 ],
               ),
-            ],
+            ),
+            const SizedBox(height: 12),
+
+            // ── Letter: subject, body, attachments ──
+            CmCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _subjectCtl,
+                    textInputAction: TextInputAction.next,
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    decoration: InputDecoration(
+                      hintText: l.cmailSubject,
+                      filled: false,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+                    ),
+                  ),
+                  Divider(height: 1, indent: 16, endIndent: 16, color: cs.outlineVariant.withValues(alpha: 0.5)),
+                  TextField(
+                    controller: _bodyCtl,
+                    minLines: 9,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.45),
+                    decoration: InputDecoration(
+                      hintText: l.cmailBodyHint,
+                      filled: false,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                    ),
+                  ),
+                  if (_attachments.isNotEmpty) ...[
+                    Divider(height: 1, indent: 16, endIndent: 16, color: cs.outlineVariant.withValues(alpha: 0.5)),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 8, 4, 0),
+                      child: Column(
+                        children: [
+                          for (var i = 0; i < _attachments.length; i++)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              child: Row(
+                                children: [
+                                  CmIconTile(
+                                    icon: _fileIcon(_attachments[i].fileName),
+                                    size: 36,
+                                    color: cs.tertiary,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      _attachments[i].fileName?.isNotEmpty == true
+                                          ? _attachments[i].fileName!
+                                          : l.cmailAttachments,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                  CmIconAction(
+                                    icon: Icons.close_rounded,
+                                    tooltip: l.commonRemove,
+                                    onPressed: () => setState(() => _attachments.removeAt(i)),
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                    child: Row(
+                      children: [
+                        TextButton.icon(
+                          onPressed: _uploading ? null : _attach,
+                          icon: _uploading
+                              ? const CmLoading(size: 16)
+                              : const Icon(Icons.attach_file_rounded, size: 20),
+                          label: Text(l.cmailAttach),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  static IconData _audienceIcon(String a) => switch (a) {
+        'SCHOOL' => Icons.school_rounded,
+        'STUDENTS' => Icons.backpack_rounded,
+        'TEACHERS' => Icons.co_present_rounded,
+        'PARENTS' => Icons.family_restroom_rounded,
+        'STAFF' => Icons.badge_rounded,
+        'GRADES' => Icons.grade_rounded,
+        'COHORTS' => Icons.groups_rounded,
+        _ => Icons.person_search_rounded,
+      };
+
+  static IconData _fileIcon(String? name) {
+    final n = (name ?? '').toLowerCase();
+    if (n.endsWith('.pdf')) return Icons.picture_as_pdf_rounded;
+    if (n.endsWith('.png') || n.endsWith('.jpg') || n.endsWith('.jpeg') || n.endsWith('.webp') || n.endsWith('.heic')) {
+      return Icons.image_rounded;
+    }
+    return Icons.insert_drive_file_rounded;
   }
 }
