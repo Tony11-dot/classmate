@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/semester/school_semester.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/glass/liquid_glass_card.dart';
+import '../../core/theme/cm_tokens.dart';
+import '../../core/util/subject_color.dart';
+import '../../ui/widgets/cm_surfaces.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
 import '../classrooms/providers/classrooms_repo_provider.dart';
 import '../parent/data/parent_repository.dart';
@@ -81,29 +83,13 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
               children: [
-                // Hero banner
-                LiquidGlassCard(
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                  child: Row(children: [
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
-                      const SizedBox(height: 4),
-                      Text(l.studentMaterialsEmptyTitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                    ])),
-                    Container(width: 46, height: 46,
-                      decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
-                      child: Icon(Icons.folder_open_rounded, size: 24, color: cs.onPrimaryContainer)),
-                  ]),
+                _Hero(subtitle: l.studentMaterialsEmptyTitle),
+                const SizedBox(height: 20),
+                CmEmptyState(
+                  icon: Icons.folder_open_rounded,
+                  title: l.studentMaterialsEmptyTitle,
+                  message: l.studentMaterialsEmptyHint,
                 ),
-                const SizedBox(height: 60),
-                Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.folder_open_rounded, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
-                  const SizedBox(height: 16),
-                  Text(l.studentMaterialsEmptyTitle, style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 6),
-                  Text(l.studentMaterialsEmptyHint, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-                ])),
               ],
             );
           }
@@ -121,22 +107,7 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
             children: [
-              // Hero banner
-              LiquidGlassCard(
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                child: Row(children: [
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
-                    const SizedBox(height: 4),
-                    Text(l.studentMaterialsResourceCount(items.length),
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                  ])),
-                  Container(width: 46, height: 46,
-                    decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(14)),
-                    child: Icon(Icons.folder_rounded, size: 24, color: cs.onPrimaryContainer)),
-                ]),
-              ),
+              _Hero(subtitle: l.studentMaterialsResourceCount(items.length)),
               const SizedBox(height: 20),
 
               SemesterFilterBar(
@@ -149,8 +120,14 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
 
               // Subject sections
               for (final subject in subjects) ...[
-                _SubjectHeader(subject: subject, cs: cs, theme: theme),
-                const SizedBox(height: 8),
+                CmSectionHeader(
+                  label: subject,
+                  icon: Icons.menu_book_rounded,
+                  count: grouped[subject]!.length,
+                  color: cs.brightness == Brightness.dark
+                      ? Color.lerp(subjectColorOrFallback(null, subject), Colors.white, 0.35)
+                      : subjectColorOrFallback(null, subject),
+                ),
                 for (final item in grouped[subject]!) ...[
                   _MaterialCard(item: item, cs: cs, theme: theme),
                   const SizedBox(height: 8),
@@ -165,33 +142,27 @@ class _StudentMaterialsScreenState extends ConsumerState<StudentMaterialsScreen>
   }
 }
 
-class _SubjectHeader extends StatelessWidget {
-  const _SubjectHeader({required this.subject, required this.cs, required this.theme});
-  final String subject;
-  final ColorScheme cs;
-  final ThemeData theme;
+class _Hero extends StatelessWidget {
+  const _Hero({required this.subtitle});
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(start: 4, bottom: 2),
+    final l = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    return CmCard(
+      tint: cs.primary,
+      radius: CmTokens.radiusXl,
+      padding: const EdgeInsets.all(18),
       child: Row(children: [
-        Container(
-          width: 4, height: 16,
-          decoration: BoxDecoration(
-            color: cs.primary,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          subject,
-          style: theme.textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: cs.onSurface,
-            letterSpacing: 0.3,
-          ),
-        ),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(l.studentMaterialsTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1)),
+          const SizedBox(height: 6),
+          Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+        ])),
+        const SizedBox(width: 12),
+        const CmIconTile(icon: Icons.folder_rounded, size: 52, filled: true),
       ]),
     );
   }
@@ -252,34 +223,28 @@ class _MaterialCard extends StatelessWidget {
 
     final attachments = _allAttachments;
 
-    return LiquidGlassCard(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+    return CmCard(
+      padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              width: 40, height: 40,
-              decoration: BoxDecoration(
-                color: attachments.isNotEmpty ? cs.primaryContainer : cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                attachments.isNotEmpty
-                    ? (attachments.first['type'] == 'link' ? Icons.link_rounded : Icons.insert_drive_file_rounded)
-                    : Icons.folder_rounded,
-                size: 20,
-                color: attachments.isNotEmpty ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-              ),
+            CmIconTile(
+              icon: attachments.isNotEmpty
+                  ? (attachments.first['type'] == 'link'
+                      ? Icons.link_rounded
+                      : attachments.first['type'] == 'pdf'
+                          ? Icons.picture_as_pdf_rounded
+                          : Icons.insert_drive_file_rounded)
+                  : Icons.folder_rounded,
+              size: 40,
+              color: attachments.isNotEmpty ? cs.tertiary : cs.onSurfaceVariant,
             ),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
                 title.isEmpty ? AppLocalizations.of(context)!.commonUntitled : title,
-                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -294,7 +259,7 @@ class _MaterialCard extends StatelessWidget {
             ])),
           ]),
           if (attachments.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             AttachmentPills(attachments: attachments),
           ],
         ],

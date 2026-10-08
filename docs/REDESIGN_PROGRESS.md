@@ -35,7 +35,7 @@ Update this file in the same commit as each screen's redesign.
 | Bagrut home | ✅ |
 | Bagrut exams list / exam | ✅ / ✅ |
 | Certificates home / list | ✅ / ✅ |
-| Student materials | 🎨 |
+| Student materials | ✅ |
 | Student notes editor | 🎨 |
 
 ## Shared (all roles)
