@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_session.dart';
+import '../../ui/widgets/cm_surfaces.dart';
+import '../../ui/widgets/cm_loading.dart';
+import '../../core/theme/cm_tokens.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/classmate_logo.dart';
 import 'onboarding_controller.dart';
@@ -433,16 +436,11 @@ class _OnboardingTourState extends State<OnboardingTour> {
                 backgroundColor: accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                 ),
               ),
               child: _finishing
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
+                  ? const CmLoading(size: 22, color: Colors.white)
                   : Text(
                       isLast ? l.onboardingGetStarted : l.onboardingNext,
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -534,14 +532,8 @@ class _SlideView extends StatelessWidget {
           ),
           if (slide.detail != null) ...[
             const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
+            CmCard(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outlineVariant, width: 0.6),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

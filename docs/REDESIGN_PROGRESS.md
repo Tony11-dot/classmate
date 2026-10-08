@@ -53,7 +53,7 @@ Update this file in the same commit as each screen's redesign.
 | Support | ✅ |
 | Login | ✅ (already polished) |
 | Forgot password / phone link | ✅ / ✅ |
-| Onboarding | ⬜ |
+| Onboarding | ✅ (was already polished; aligned to shared card/loader) |
 | Drawer tools order / classroom order | ✅ |
 | Image viewer / PDF viewer / video trimmer / media preview / splash | ➖ |
 
@@ -103,7 +103,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. Onboarding
+1. Every screen is ✅ or ➖. Next: on-device QA pass of build 301 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired
