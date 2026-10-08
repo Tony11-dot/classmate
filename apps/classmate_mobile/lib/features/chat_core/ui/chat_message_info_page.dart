@@ -236,7 +236,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     _ParticipantSection(
                       icon: Icons.done_all_rounded,
-                      iconColor: const Color(0xFF22C55E),
+                      iconColor: CmTokens.of(context).good,
                       title: l.chatMessageInfoPageReadSection,
                       participants: effectiveSeen,
                       emptyMessage: l.chatMessageInfoPageNoOneRead,
@@ -245,7 +245,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                       const SizedBox(height: 16),
                       _ParticipantSection(
                         icon: Icons.done_rounded,
-                        iconColor: const Color(0xFF60A5FA),
+                        iconColor: Theme.of(context).colorScheme.primary,
                         title: l.chatMessageInfoPageDeliveredSection,
                         participants: effectiveDelivered,
                       ),
@@ -254,7 +254,7 @@ class ChatMessageInfoPage extends StatelessWidget {
                       const SizedBox(height: 16),
                       _ParticipantSection(
                         icon: Icons.schedule_rounded,
-                        iconColor: const Color(0xFFF59E0B),
+                        iconColor: CmTokens.of(context).warn,
                         title: l.chatMessageInfoPagePendingSection,
                         participants: effectivePending,
                       ),

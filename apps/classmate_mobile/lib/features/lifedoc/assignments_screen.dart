@@ -1012,22 +1012,22 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 14, vertical: 10),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF22C55E)
+                                        color: CmTokens.of(context).good
                                             .withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                            color: const Color(0xFF22C55E)
+                                            color: CmTokens.of(context).good
                                                 .withValues(alpha: 0.4)),
                                       ),
                                       child: Row(children: [
-                                        const Icon(Icons.check_circle_rounded,
-                                            size: 18, color: Color(0xFF22C55E)),
+                                        Icon(Icons.check_circle_rounded,
+                                            size: 18, color: CmTokens.of(context).good),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(AppLocalizations.of(context)!.studentAssignmentHandedInBadge,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                   fontWeight: FontWeight.w800,
-                                                  color: Color(0xFF22C55E))),
+                                                  color: CmTokens.of(context).good)),
                                         ),
                                         Text(
                                           _friendlyDateTimeLabel(context,
@@ -1056,8 +1056,8 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                     if (_grade != null) ...[
                                       const SizedBox(height: 12),
                                       Row(children: [
-                                        const Icon(Icons.grade_rounded,
-                                            size: 18, color: Color(0xFF6366F1)),
+                                        Icon(Icons.grade_rounded,
+                                            size: 18, color: Theme.of(context).colorScheme.primary),
                                         const SizedBox(width: 8),
                                         Text(l.assignmentsScreenGradeLabel('${_grade! % 1 == 0 ? _grade!.toInt() : _grade!} / ${_gradeMax ?? 100}'),
                                             style: const TextStyle(
@@ -1080,20 +1080,20 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                             horizontal: 14, vertical: 10),
                                         margin: const EdgeInsets.only(bottom: 12),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFF59E0B)
+                                          color: CmTokens.of(context).warn
                                               .withValues(alpha: 0.12),
                                           borderRadius: BorderRadius.circular(12),
                                           border: Border.all(
-                                              color: const Color(0xFFF59E0B)
+                                              color: CmTokens.of(context).warn
                                                   .withValues(alpha: 0.4)),
                                         ),
                                         child: Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            const Icon(Icons.replay_rounded,
+                                            Icon(Icons.replay_rounded,
                                                 size: 18,
-                                                color: Color(0xFFB45309)),
+                                                color: CmTokens.of(context).warn),
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Column(
@@ -1102,11 +1102,10 @@ class _AssignmentDetailScreenState extends ConsumerState<AssignmentDetailScreen>
                                                 children: [
                                                   Text(
                                                       l.assignmentsScreenReturnedForResolution,
-                                                      style: const TextStyle(
+                                                      style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.w800,
-                                                          color: Color(
-                                                              0xFFB45309))),
+                                                          color: CmTokens.of(context).warn)),
                                                   const SizedBox(height: 2),
                                                   Text(_feedback.trim(),
                                                       style: TextStyle(
