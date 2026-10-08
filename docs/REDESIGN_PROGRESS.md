@@ -31,9 +31,9 @@ Update this file in the same commit as each screen's redesign.
 | Practice history / review / saved questions | ✅ |
 | NOVA home / NOVA chat | ✅ / ✅ (empty state) |
 | Solutions home | ✅ |
-| Solutions books / pages / questions / subject | 🎨 / 🎨 / 🎨 / ⬜ |
+| Solutions books / pages / questions / subject | 🎨 / 🎨 / 🎨 / ➖ (wraps Solutions home) |
 | Bagrut home | 🎨 |
-| Bagrut exams list / exam | ⬜ / ⬜ |
+| Bagrut exams list / exam | ✅ / ✅ |
 | Certificates home / list | ✅ / 🎨 |
 | Student materials | 🎨 |
 | Student notes editor | 🎨 |
@@ -93,11 +93,10 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. Bagrut exams list + exam, Solutions subject
-2. Teacher attendance history + cohorts, admin bell schedule
-3. Message request / blocked people, drawer tools order, classroom order
-4. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
-5. Onboarding (low priority)
+1. Teacher attendance history + cohorts, admin bell schedule
+2. Message request / blocked people, drawer tools order, classroom order
+3. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
+4. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired

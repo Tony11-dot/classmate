@@ -5,6 +5,7 @@ import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../bagrut/data/bagrut_api.dart';
+import '../../bagrut/ui/bagrut_widgets.dart';
 import '../../bagrut/domain/bagrut_models.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
 import 'manager_exam_form_screen.dart';
@@ -107,7 +108,7 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
                 padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
                 child: Row(
                   children: [
-                    _YearStub(year: e.year),
+                    BagrutYearStub(year: e.year),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -154,30 +155,3 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
   }
 }
 
-/// Year as a calendar-like stub on the left of each exam row.
-class _YearStub extends StatelessWidget {
-  const _YearStub({required this.year});
-
-  final int year;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: 54,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
-        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
-      ),
-      child: Text(
-        '$year',
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: cs.primary,
-              fontWeight: FontWeight.w900,
-            ),
-      ),
-    );
-  }
-}
