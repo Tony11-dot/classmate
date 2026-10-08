@@ -5,7 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_press.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../core/http/cm_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/auth/auth_session.dart' show parseGradeRanges;
@@ -268,7 +271,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
 
     return schoolAsync.when(
       loading: () => const Center(child: CmLoading()),
-      error: (e, _) => Center(child: Text(AppLocalizations.of(context)!.commonErrorWith(e))),
+      error: (e, _) => Center(child: CmEmptyState(icon: Icons.error_outline_rounded, title: AppLocalizations.of(context)!.commonErrorWith(e))),
       data: (school) {
         if (!_initialized && school != null) {
           _initialized = true;
@@ -297,7 +300,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel(label: l.adminSchoolLogoLabel),
+                  _FieldLabel(label: l.adminSchoolLogoLabel, icon: Icons.image_rounded),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -385,7 +388,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel(label: l.adminSchoolName),
+                  _FieldLabel(label: l.adminSchoolName, icon: Icons.school_rounded),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _nameCtrl,
@@ -405,7 +408,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel(label: l.adminSchoolGradeRangeLabel),
+                  _FieldLabel(label: l.adminSchoolGradeRangeLabel, icon: Icons.stairs_rounded),
                   const SizedBox(height: 4),
                   Text(
                     l.adminSchoolGradeRangesDescription,
@@ -470,7 +473,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel(label: l.adminSchoolSemestersLabel),
+                  _FieldLabel(label: l.adminSchoolSemestersLabel, icon: Icons.date_range_rounded),
                   const SizedBox(height: 4),
                   Text(
                     l.adminSchoolSemestersDescription,
@@ -762,34 +765,30 @@ class _SubjectSection extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
+    final tone = subjectColorOrFallback(subject.color, subject.nameEn);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-          boxShadow: CmTokens.of(context).shadowSm,
-        ),
+      child: CmCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
-          dense: true,
           onTap: onTap,
-          contentPadding: const EdgeInsetsDirectional.only(start: 16, end: 4),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(CmTokens.radiusLg)),
+          contentPadding: const EdgeInsetsDirectional.only(start: 12, end: 4),
           leading: Container(
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: cs.primaryContainer,
-              borderRadius: BorderRadius.circular(8),
+              color: tone.withValues(alpha: cs.brightness == Brightness.dark ? 0.24 : 0.14),
+              borderRadius: BorderRadius.circular(11),
             ),
             child: Center(
               child: Text(
                 '${index + 1}',
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: cs.onPrimaryContainer),
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: tone),
               ),
             ),
           ),
-          title: Text(subject.nameEn, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+          title: Text(subject.nameEn, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
           subtitle: Builder(builder: (_) {
             final extras = [subject.nameAr, subject.nameHe, subject.nameFr, subject.nameRu]
                 .where((s) => (s ?? '').trim().isNotEmpty)
@@ -1024,48 +1023,42 @@ class _BellPeriodRow extends StatelessWidget {
     final theme = Theme.of(context);
     final hasTime = times.start.isNotEmpty && times.end.isNotEmpty;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: hasTime ? cs.outlineVariant.withValues(alpha: 0.5) : cs.error.withValues(alpha: 0.3)),
-      ),
+    final warn = CmTokens.of(context).warn;
+    final duration = hasTime ? _duration(times.start, times.end) : '';
+
+    return CmCard(
+      padding: const EdgeInsets.all(12),
       child: Row(
         children: [
           Container(
             width: 44, height: 44,
             decoration: BoxDecoration(
-              color: hasTime ? cs.primaryContainer : cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
+              color: hasTime ? cs.primary : warn.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.14),
+              borderRadius: BorderRadius.circular(13),
             ),
             child: Center(
-              child: Text(l.adminSchedulePeriodLabel(period), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: hasTime ? cs.onPrimaryContainer : cs.onSurfaceVariant)),
+              child: Text(l.adminSchedulePeriodLabel(period), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: hasTime ? cs.onPrimary : warn)),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(child: _BellTimePicker(label: l.adminSchoolSettingsStart, time: times.start, onTap: onPickStart)),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text('→', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Icon(Icons.arrow_forward_rounded, size: 16, color: cs.onSurfaceVariant),
           ),
           Expanded(child: _BellTimePicker(label: l.adminSchoolSettingsEnd, time: times.end, onTap: onPickEnd)),
-          if (hasTime) ...[
+          if (duration.isNotEmpty) ...[
             const SizedBox(width: 8),
-            Text(_duration(times.start, times.end),
-                style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
+            Text(duration,
+                style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w800)),
           ],
-          if (onDelete != null) ...[
-            const SizedBox(width: 4),
-            Semantics(
-              button: true,
-              label: l.a11yRemove,
-              child: GestureDetector(
-                onTap: onDelete,
-                child: Icon(Icons.remove_circle_outline_rounded, size: 18, color: cs.error),
-              ),
+          if (onDelete != null)
+            CmIconAction(
+              icon: Icons.remove_circle_outline_rounded,
+              tooltip: l.a11yRemove,
+              onPressed: onDelete,
+              color: cs.error,
             ),
-          ],
         ],
       ),
     );
@@ -1095,21 +1088,31 @@ class _BellTimePicker extends StatelessWidget {
     final theme = Theme.of(context);
     final hasTime = time.isNotEmpty;
 
-    return GestureDetector(
+    final warn = CmTokens.of(context).warn;
+    final dark = cs.brightness == Brightness.dark;
+
+    return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
-          border: Border.all(color: hasTime ? cs.outlineVariant : cs.error.withValues(alpha: 0.5)),
-          borderRadius: BorderRadius.circular(10),
-          color: hasTime ? cs.surface : cs.errorContainer.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          color: hasTime
+              ? (dark ? cs.surfaceContainerHigh : cs.surface)
+              : warn.withValues(alpha: dark ? 0.16 : 0.08),
+          border: hasTime ? null : Border.all(color: warn.withValues(alpha: 0.45)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontSize: 11)),
+            Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontSize: 10)),
             Text(hasTime ? time : '--:--',
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: hasTime ? cs.onSurface : cs.error)),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                  color: hasTime ? cs.onSurface : warn,
+                )),
           ],
         ),
       ),
@@ -1130,33 +1133,21 @@ class _FieldCard extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-        boxShadow: CmTokens.of(context).shadowSm,
-      ),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => CmCard(
+        radius: CmTokens.radiusXl,
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+        child: child,
+      );
 }
 
 class _FieldLabel extends StatelessWidget {
-  const _FieldLabel({required this.label});
+  const _FieldLabel({required this.label, this.icon});
   final String label;
+  final IconData? icon;
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Text(
-      label,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.onSurfaceVariant),
-    );
-  }
+  Widget build(BuildContext context) =>
+      CmFormSectionHeader(title: label, icon: icon);
 }
 
 class _StepBtn extends StatelessWidget {
