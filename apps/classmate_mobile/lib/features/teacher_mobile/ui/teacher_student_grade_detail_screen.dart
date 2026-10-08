@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 
 import '../../../core/util/friendly_date.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -143,7 +144,14 @@ class _TeacherStudentGradeDetailScreenState
         content: Text(l.gradeDeleteConfirm(entry.assessment.title)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.averagesDelete)),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.averagesDelete),
+          ),
         ],
       ),
     );
@@ -229,8 +237,10 @@ class _TeacherStudentGradeDetailScreenState
           children: [
             Text(
               s.name,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
             if (s.cohortName.isNotEmpty)
               Text(
@@ -259,91 +269,50 @@ class _TeacherStudentGradeDetailScreenState
         child: _loading
             ? const Center(child: CmLoading())
             : _error != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        _error!,
-                        style: TextStyle(color: cs.onSurfaceVariant),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  )
+                ? ListView(children: [
+                    CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: _error),
+                  ])
                 : _entries.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.grade_outlined,
-                                size: 48, color: cs.onSurfaceVariant),
-                            const SizedBox(height: 12),
-                            Text(
-                              'No grades yet for ${s.name}',
-                              style: theme.textTheme.bodyLarge
-                                  ?.copyWith(color: cs.onSurfaceVariant),
-                            ),
-                          ],
-                        ),
-                      )
+                    ? ListView(children: [
+                        CmEmptyState(icon: Icons.grade_outlined, title: s.name, message: l.teacherNoGradesRecorded),
+                      ])
                     : ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding:
                             const EdgeInsets.fromLTRB(16, 12, 16, 120),
                         children: [
                           // ── Student hero ─────────────────────────────────
-                          LiquidGlassCard(
-                            borderRadius: BorderRadius.circular(20),
-                            color: cs.primaryContainer,
-                            border: Border.all(
-                                color: cs.outlineVariant),
+                          CmCard(
+                            tint: cs.primary,
+                            radius: CmTokens.radiusXl,
+                            padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
-                                Container(
-                                  width: 52,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    color: cs.primary,
-                                    borderRadius:
-                                        BorderRadius.circular(16),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    s.name.isNotEmpty
-                                        ? s.name[0].toUpperCase()
-                                        : '?',
-                                    style: TextStyle(
-                                      color: cs.onPrimary,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 22,
-                                    ),
-                                  ),
-                                ),
+                                CmMonogram(name: s.name, radius: 26),
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         s.name,
-                                        style: theme.textTheme.titleLarge
-                                            ?.copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          color: cs.onPrimaryContainer,
-                                        ),
+                                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                                       ),
-                                      Text(
-                                        [
+                                      const SizedBox(height: 6),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        children: [
                                           if (s.cohortName.isNotEmpty)
-                                            s.cohortName,
+                                            CmPill(icon: Icons.groups_rounded, label: s.cohortName),
                                           if (s.gradeLevel != null)
-                                            'Grade ${s.gradeLevel}',
-                                          '${_entries.where((e) => e.grade != null).length} grades',
-                                        ].join(' · '),
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(
-                                                color:
-                                                    cs.onPrimaryContainer),
+                                            CmPill(icon: Icons.school_rounded, label: l.solutionsGradeLabel(s.gradeLevel!)),
+                                          CmPill(
+                                            icon: Icons.grade_rounded,
+                                            label: '${_entries.where((e) => e.grade != null).length} grades',
+                                            color: cs.primary,
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -351,7 +320,7 @@ class _TeacherStudentGradeDetailScreenState
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           // ── Grades by subject ────────────────────────────
                           ...bySubject.entries.map((entry) {
                             final subject = entry.key;
@@ -359,49 +328,20 @@ class _TeacherStudentGradeDetailScreenState
                             return Padding(
                               padding:
                                   const EdgeInsets.only(bottom: 14),
-                              child: LiquidGlassCard(
-                                borderRadius: BorderRadius.circular(18),
-                                color: cs.surfaceContainerLow,
-                                border: Border.all(
-                                    color: cs.outlineVariant),
+                              child: CmCard(
+                                radius: CmTokens.radiusXl,
+                                padding: const EdgeInsets.fromLTRB(14, 14, 10, 12),
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
                                   children: [
                                     // Subject header
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 30,
-                                          height: 30,
-                                          decoration: BoxDecoration(
-                                            color: cs.secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    10),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Icon(
-                                            Icons.menu_book_rounded,
-                                            size: 16,
-                                            color:
-                                                cs.onSecondaryContainer,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          subject,
-                                          style: theme
-                                              .textTheme.titleSmall
-                                              ?.copyWith(
-                                                  fontWeight:
-                                                      FontWeight.w800),
-                                        ),
-                                      ],
+                                    CmFormSectionHeader(
+                                      icon: Icons.menu_book_rounded,
+                                      title: subject,
+                                      trailing: CmPill(label: '${rows.length}'),
                                     ),
-                                    const SizedBox(height: 12),
-                                    const Divider(height: 1),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 10),
                                     // ── Ungraded assessments first ───────────
                                     Builder(builder: (ctx) {
                                       final ungraded = rows.where((e) => e.grade == null).toList();
@@ -476,17 +416,17 @@ class _GradeRow extends StatelessWidget {
     final isDirty = entry.isDirty;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      duration: CmTokens.fast,
+      curve: CmTokens.easeOut,
+      padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 4, 6),
       decoration: BoxDecoration(
         color: isDirty
-            ? cs.primaryContainer.withValues(alpha: 0.35)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        border: isDirty
-            ? Border.all(
-                color: cs.primary.withValues(alpha: 0.30))
-            : null,
+            ? cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.16 : 0.07)
+            : cs.surfaceContainerHigh.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+        border: Border.all(
+          color: isDirty ? cs.primary.withValues(alpha: 0.5) : Colors.transparent,
+        ),
       ),
       child: Row(
         children: [
@@ -522,8 +462,10 @@ class _GradeRow extends StatelessWidget {
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               onChanged: (_) => onChanged(),
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
               decoration: InputDecoration(
                 hintText: entry.grade != null
                     ? '/ ${entry.assessment.maxGrade ?? 100}'
@@ -567,10 +509,11 @@ class _GradeRow extends StatelessWidget {
             ),
           ),
           if (onDelete != null && entry.grade != null)
-            IconButton(
+            CmIconAction(
+              icon: Icons.delete_outline_rounded,
               tooltip: AppLocalizations.of(context)!.gradeDeleteTooltip,
-              icon: Icon(Icons.delete_outline_rounded, color: cs.error, size: 20),
               onPressed: onDelete,
+              color: cs.error,
             ),
         ],
       ),

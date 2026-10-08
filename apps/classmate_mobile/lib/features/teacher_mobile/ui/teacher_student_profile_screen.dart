@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../messages/providers/messages_repository_provider.dart';
@@ -64,17 +65,13 @@ class _TeacherStudentProfileScreenState
         ? Map<String, dynamic>.from(_data['attendanceBreakdown'] as Map)
         : <String, dynamic>{};
 
-    String initials() {
-      final parts = widget.studentName.trim().split(RegExp(r'\s+'));
-      if (parts.isEmpty) return '?';
-      if (parts.length == 1) return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '?';
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
+    final tk = CmTokens.of(context);
+    final l = AppLocalizations.of(context)!;
 
     Color gradeColor(int? pct) {
       if (pct == null) return cs.onSurfaceVariant;
-      if (pct >= 80) return const Color(0xFF22C55E);
-      if (pct >= 60) return const Color(0xFFF59E0B);
+      if (pct >= 80) return tk.good;
+      if (pct >= 60) return tk.warn;
       return cs.error;
     }
 
@@ -83,32 +80,35 @@ class _TeacherStudentProfileScreenState
         child: Column(
           children: [
             // Header
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-              decoration: BoxDecoration(
-              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 16, 12),
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: AppLocalizations.of(context)!.a11yBack,
+                    tooltip: l.a11yBack,
                     onPressed: () { if (context.canPop()) context.pop(); },
                     icon: const Icon(Icons.arrow_back_rounded),
-                    style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),
                   ),
-                  const SizedBox(width: 12),
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: cs.primaryContainer,
-                    child: Text(initials(), style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w800, fontSize: 16)),
-                  ),
+                  const SizedBox(width: 4),
+                  CmMonogram(name: widget.studentName, radius: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.studentName, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        Text(
+                          widget.studentName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                        ),
                         if ((student['email'] ?? '').toString().isNotEmpty)
-                          Text(student['email'].toString(), style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          Text(
+                            student['email'].toString(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                          ),
                       ],
                     ),
                   ),
@@ -121,20 +121,16 @@ class _TeacherStudentProfileScreenState
               child: _loading
                   ? const Center(child: CmLoading())
                   : _error != null
-                      ? Center(child: Padding(
-                          padding: const EdgeInsets.all(32),
+                      ? Center(
                           child: Column(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
-                            const SizedBox(height: 16),
-                            Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
-                            const SizedBox(height: 20),
-                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
+                            CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: _error),
+                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(l.retry)),
                           ]),
-                        ))
+                        )
                       : CmRefreshIndicator(
                           onRefresh: _load,
                           child: ListView(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
                             children: [
                               // ── Quick actions ──────────────────────────────────────
                               _QuickActionsCard(
@@ -143,68 +139,65 @@ class _TeacherStudentProfileScreenState
                               ),
                               const SizedBox(height: 14),
                               // Summary cards
-                              Row(
-                                children: [
-                                  Expanded(child: _SummaryCard(
-                                    label: AppLocalizations.of(context)!.teacherGradeAvg,
-                                    value: gradeAvg != null ? '$gradeAvg%' : '—',
-                                    icon: Icons.grade_rounded,
-                                    color: gradeColor(gradeAvg),
-                                  )),
-                                  const SizedBox(width: 10),
-                                  Expanded(child: _SummaryCard(
-                                    label: AppLocalizations.of(context)!.navAttendance,
-                                    value: attRate != null ? '$attRate%' : '—',
-                                    icon: Icons.fact_check_rounded,
-                                    color: attRate == null ? cs.onSurfaceVariant
-                                        : attRate >= 90 ? const Color(0xFF22C55E)
-                                        : attRate >= 75 ? const Color(0xFFF59E0B)
-                                        : cs.error,
-                                  )),
-                                  const SizedBox(width: 10),
-                                  Expanded(child: _SummaryCard(
-                                    label: AppLocalizations.of(context)!.teacherSubmittedLabel,
-                                    value: '$submissionsCount',
-                                    icon: Icons.upload_file_rounded,
-                                    color: cs.secondary,
-                                  )),
-                                ],
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(child: _SummaryCard(
+                                      label: l.teacherGradeAvg,
+                                      value: gradeAvg != null ? '$gradeAvg%' : '—',
+                                      icon: Icons.grade_rounded,
+                                      color: gradeColor(gradeAvg),
+                                    )),
+                                    const SizedBox(width: 10),
+                                    Expanded(child: _SummaryCard(
+                                      label: l.navAttendance,
+                                      value: attRate != null ? '$attRate%' : '—',
+                                      icon: Icons.fact_check_rounded,
+                                      color: attRate == null ? cs.onSurfaceVariant
+                                          : attRate >= 90 ? tk.good
+                                          : attRate >= 75 ? tk.warn
+                                          : cs.error,
+                                    )),
+                                    const SizedBox(width: 10),
+                                    Expanded(child: _SummaryCard(
+                                      label: l.teacherSubmittedLabel,
+                                      value: '$submissionsCount',
+                                      icon: Icons.upload_file_rounded,
+                                      color: cs.secondary,
+                                    )),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 14),
 
                               // Attendance breakdown
                               if (attBreakdown.isNotEmpty) ...[
-                                LiquidGlassCard(
-                                  padding: const EdgeInsets.all(16),
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: cs.surfaceContainerLow,
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                CmFormSection(
+                                  icon: Icons.fact_check_rounded,
+                                  title: l.teacherAttendanceLast30,
+                                  child: Row(
                                     children: [
-                                      Text(AppLocalizations.of(context)!.teacherAttendanceLast30, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        children: [
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusPresent, count: (attBreakdown['PRESENT'] ?? 0) as int, color: const Color(0xFF22C55E), onColor: Colors.white),
-                                          const SizedBox(width: 8),
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusAbsent, count: (attBreakdown['ABSENT'] ?? 0) as int, color: cs.error, onColor: cs.onError),
-                                          const SizedBox(width: 8),
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusLate, count: (attBreakdown['LATE'] ?? 0) as int, color: const Color(0xFFF59E0B), onColor: Colors.white),
-                                          const SizedBox(width: 8),
-                                          _AttPill(label: AppLocalizations.of(context)!.attendanceStatusExcused, count: (attBreakdown['EXCUSED'] ?? 0) as int, color: cs.tertiary, onColor: cs.onTertiary),
-                                        ],
-                                      ),
+                                      _AttPill(label: l.attendanceStatusPresent, count: (attBreakdown['PRESENT'] ?? 0) as int, color: tk.good),
+                                      const SizedBox(width: 8),
+                                      _AttPill(label: l.attendanceStatusAbsent, count: (attBreakdown['ABSENT'] ?? 0) as int, color: cs.error),
+                                      const SizedBox(width: 8),
+                                      _AttPill(label: l.attendanceStatusLate, count: (attBreakdown['LATE'] ?? 0) as int, color: tk.warn),
+                                      const SizedBox(width: 8),
+                                      _AttPill(label: l.attendanceStatusExcused, count: (attBreakdown['EXCUSED'] ?? 0) as int, color: cs.tertiary),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 14),
                               ],
 
                               // Grades list
+                              CmSectionHeader(
+                                label: l.teacherRecentGrades,
+                                icon: Icons.grade_rounded,
+                                count: grades.isEmpty ? null : grades.length,
+                              ),
                               if (grades.isNotEmpty) ...[
-                                Text(AppLocalizations.of(context)!.teacherRecentGrades, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
-                                const SizedBox(height: 10),
                                 ...grades.map((g) {
                                   final item = Map<String, dynamic>.from(g is Map ? g : {});
                                   final title = (item['title'] ?? '').toString();
@@ -214,59 +207,55 @@ class _TeacherStudentProfileScreenState
                                   final max = item['max'];
                                   final date = (item['date'] ?? '').toString();
                                   final dateLabel = date.isNotEmpty ? FriendlyDate.date(date) : '';
+                                  final meta = [subject, dateLabel].where((x) => x.isNotEmpty).join(' · ');
+                                  final tone = gradeColor(pct);
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
-                                    child: LiquidGlassCard(
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: cs.surfaceContainerLow,
-                                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                                    child: CmCard(
+                                      padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
                                       child: Row(
                                         children: [
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                                                if (subject.isNotEmpty)
-                                                  Text(subject, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                                Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                                                if (meta.isNotEmpty)
+                                                  Text(meta, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                                               ],
                                             ),
                                           ),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                pct != null ? '$pct%' : '—',
-                                                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: gradeColor(pct)),
-                                              ),
-                                              if (raw != null && max != null)
-                                                Text('$raw/$max', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
-                                              if (dateLabel.isNotEmpty)
-                                                Text(dateLabel, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
-                                            ],
+                                          const SizedBox(width: 10),
+                                          Container(
+                                            constraints: const BoxConstraints(minWidth: 60),
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: tone.withValues(alpha: cs.brightness == Brightness.dark ? 0.2 : 0.12),
+                                              borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  pct != null ? '$pct%' : '—',
+                                                  style: theme.textTheme.titleMedium?.copyWith(
+                                                    fontWeight: FontWeight.w900,
+                                                    color: tone,
+                                                    fontFeatures: const [FontFeature.tabularFigures()],
+                                                  ),
+                                                ),
+                                                if (raw != null && max != null)
+                                                  Text('$raw/$max', style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
                                   );
                                 }),
-                              ] else ...[
-                                LiquidGlassCard(
-                                  padding: const EdgeInsets.all(16),
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: cs.surfaceContainerLow,
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.grade_outlined, color: cs.onSurfaceVariant),
-                                      const SizedBox(width: 12),
-                                      Text(AppLocalizations.of(context)!.teacherNoGradesRecorded, style: TextStyle(color: cs.onSurfaceVariant)),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              ] else
+                                CmEmptyState(icon: Icons.grade_outlined, title: l.teacherNoGradesRecorded),
                             ],
                           ),
                         ),
@@ -288,19 +277,24 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
+    return CmCard(
       padding: const EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(16),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: color)),
+          CmIconTile(icon: icon, color: color, size: 32),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 22,
+              color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
         ],
       ),
     );
@@ -347,66 +341,57 @@ class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    return LiquidGlassCard(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      borderRadius: BorderRadius.circular(18),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            l.teacherActions,
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              // View grades — opens dedicated grade detail screen for this student
-              _ActionChip(
-                icon: Icons.grade_rounded,
-                label: l.navGrades,
-                color: cs.secondary,
-                onColor: cs.onSecondary,
-                onTap: () => Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => TeacherStudentGradeDetailScreen(
-                      student: TeacherStudentWithLevel(
-                        studentId: widget.studentId,
-                        name: widget.studentName,
-                        email: '',
-                        gradeLevel: null,
-                        cohortId: '',
-                        cohortName: '',
-                        subjects: const [],
-                        coursesBySubject: const {},
-                      ),
+          // View grades — opens dedicated grade detail screen for this student
+          Expanded(
+            child: _ActionChip(
+              icon: Icons.grade_rounded,
+              label: l.navGrades,
+              color: cs.secondary,
+              onTap: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => TeacherStudentGradeDetailScreen(
+                    student: TeacherStudentWithLevel(
+                      studentId: widget.studentId,
+                      name: widget.studentName,
+                      email: '',
+                      gradeLevel: null,
+                      cohortId: '',
+                      cohortName: '',
+                      subjects: const [],
+                      coursesBySubject: const {},
                     ),
                   ),
                 ),
               ),
-              // Add a grade
-              _ActionChip(
-                icon: Icons.add_chart_rounded,
-                label: l.teacherAddGradeTitle,
-                color: cs.tertiary,
-                onColor: cs.onTertiary,
-                onTap: () => context.push('/teacher/grades/add', extra: <String, dynamic>{
-                  'prefillStudentId': widget.studentId,
-                  'prefillStudentName': widget.studentName,
-                }),
-              ),
-              // Direct message
-              _ActionChip(
-                icon: _dmLoading ? Icons.hourglass_top_rounded : Icons.chat_bubble_rounded,
-                label: l.navMessages,
-                color: cs.primary,
-                onColor: cs.onPrimary,
-                onTap: _startDm,
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Add a grade
+          Expanded(
+            child: _ActionChip(
+              icon: Icons.add_chart_rounded,
+              label: l.teacherAddGradeTitle,
+              color: cs.tertiary,
+              onTap: () => context.push('/teacher/grades/add', extra: <String, dynamic>{
+                'prefillStudentId': widget.studentId,
+                'prefillStudentName': widget.studentName,
+              }),
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Direct message
+          Expanded(
+            child: _ActionChip(
+              icon: Icons.chat_bubble_rounded,
+              label: l.navMessages,
+              color: cs.primary,
+              loading: _dmLoading,
+              onTap: _startDm,
+            ),
           ),
         ],
       ),
@@ -414,59 +399,73 @@ class _QuickActionsCardState extends ConsumerState<_QuickActionsCard> {
   }
 }
 
+/// Square-ish action tile: filled icon tile over a label.
 class _ActionChip extends StatelessWidget {
-  const _ActionChip({required this.icon, required this.label, required this.color, required this.onColor, required this.onTap});
+  const _ActionChip({required this.icon, required this.label, required this.color, required this.onTap, this.loading = false});
   final IconData icon;
   final String label;
   final Color color;
-  final Color onColor;
   final VoidCallback onTap;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return CmCard(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: onColor),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: onColor)),
-          ],
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          loading
+              ? SizedBox(width: 40, height: 40, child: Center(child: CmLoading(size: 20, color: color)))
+              : CmIconTile(icon: icon, color: color, size: 40, filled: true),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _AttPill extends StatelessWidget {
-  const _AttPill({required this.label, required this.count, required this.color, required this.onColor});
+  const _AttPill({required this.label, required this.count, required this.color});
   final String label;
   final int count;
   final Color color;
-  final Color onColor;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color),
+          color: color.withValues(alpha: cs.brightness == Brightness.dark ? 0.2 : 0.12),
+          borderRadius: BorderRadius.circular(CmTokens.radiusSm),
         ),
         child: Column(
           children: [
-            Text('$count', style: TextStyle(fontWeight: FontWeight.w900, color: onColor, fontSize: 18)),
-            Text(label, style: TextStyle(fontSize: 11, color: onColor, fontWeight: FontWeight.w600)),
+            Text(
+              '$count',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: color,
+                fontSize: 20,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700),
+            ),
           ],
         ),
       ),
