@@ -181,6 +181,12 @@ void main() {
       ),
     ];
 
+    // Tall window: the list is lazy, so the saved-question card (below the
+    // hero and quick actions) is only built when it's inside the viewport.
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
