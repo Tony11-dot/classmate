@@ -14,7 +14,7 @@ Update this file in the same commit as each screen's redesign.
 - ✅ Theme: cards, sheets, dialogs, snackbars, chips, tabs, inputs
 - ✅ All 50 search bars → `CmSearchField`; code entry → `CmCodeField`
 - ✅ Chat composer (Instagram style) + WhatsApp-style bubble timestamps
-- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy`, `CmDateStub`, `CmIconAction` (40px footer action), `CmSectionHeader` — use these for new redesigns
+- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy`, `CmDateStub`, `CmIconAction` (40px footer action), `CmSectionHeader`, `CmMonogram` (stable-colour initials avatar) — use these for new redesigns
 - ✅ Top bar same colour as screen; bigger logo; sheets open above the nav bar
 
 ## Student
@@ -43,7 +43,7 @@ Update this file in the same commit as each screen's redesign.
 |---|---|
 | Messages inbox | ✅ |
 | Message thread (header, request/pending banners, info sheet) | ✅ |
-| New chat / new group | 🎨 |
+| New chat / new group | ✅ / ✅ |
 | Message request / blocked people | ✅ / ✅ |
 | CMail inbox | ✅ |
 | CMail detail / compose | ✅ / ✅ |
@@ -95,7 +95,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 new chat / new group, teacher new announcement
+1. 🎨 teacher new announcement
 2. 🎨 remaining teacher create/add forms, admin settings screens
 3. Onboarding (low priority)
 

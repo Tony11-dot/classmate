@@ -120,13 +120,6 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
     return _all.where((s) => s.name.toLowerCase().contains(q) || s.email.toLowerCase().contains(q)).toList();
   }
 
-  String _initials(String name) {
-    if (name.isEmpty) return '?';
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -220,7 +213,6 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
             CmEmptyState(icon: Icons.person_search_rounded, title: l.teacherInsightsNoStudents)
           else
             ...filtered.map((student) {
-              final tone = _avatarTone(student.name, cs);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: CmCard(
@@ -231,14 +223,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                   padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: tone.withValues(alpha: cs.brightness == Brightness.dark ? 0.24 : 0.14),
-                        child: Text(
-                          _initials(student.name),
-                          style: TextStyle(color: tone, fontWeight: FontWeight.w900, fontSize: 15),
-                        ),
-                      ),
+                      CmMonogram(name: student.name),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -266,11 +251,5 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
         ],
       ),
     );
-  }
-
-  /// Stable per-name avatar colour from the theme's own accents.
-  Color _avatarTone(String name, ColorScheme cs) {
-    final tones = [cs.primary, cs.secondary, cs.tertiary];
-    return tones[name.hashCode.abs() % tones.length];
   }
 }

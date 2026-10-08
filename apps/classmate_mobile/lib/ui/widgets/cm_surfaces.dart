@@ -399,3 +399,51 @@ class CmSectionHeader extends StatelessWidget {
     );
   }
 }
+
+/// Initials avatar tinted with one of the theme's accents, picked stably from
+/// the name so the same person always gets the same colour.
+class CmMonogram extends StatelessWidget {
+  const CmMonogram({
+    super.key,
+    required this.name,
+    this.initials,
+    this.radius = 22,
+  });
+
+  final String name;
+
+  /// Pre-computed initials (e.g. from the server); derived from [name] if empty.
+  final String? initials;
+  final double radius;
+
+  static String initialsOf(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+
+  static Color toneFor(String name, ColorScheme cs) {
+    final tones = [cs.primary, cs.secondary, cs.tertiary];
+    return tones[name.hashCode.abs() % tones.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tone = toneFor(name, cs);
+    final text = (initials ?? '').replaceAll(',', '').trim();
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: tone.withValues(alpha: cs.brightness == Brightness.dark ? 0.24 : 0.14),
+      child: Text(
+        text.isNotEmpty ? text : initialsOf(name),
+        style: TextStyle(
+          color: tone,
+          fontWeight: FontWeight.w900,
+          fontSize: radius * 0.68,
+        ),
+      ),
+    );
+  }
+}
