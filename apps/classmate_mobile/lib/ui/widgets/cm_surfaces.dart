@@ -190,3 +190,81 @@ class CmEmptyState extends StatelessWidget {
     );
   }
 }
+
+/// Row for drag-to-reorder lists: leading [lead] (icon tile or number),
+/// title/subtitle and a drag-handle glyph.
+class CmReorderTile extends StatelessWidget {
+  const CmReorderTile({
+    super.key,
+    required this.lead,
+    required this.title,
+    this.subtitle,
+  });
+
+  final Widget lead;
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: CmCard(
+        padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
+        child: Row(
+          children: [
+            lead,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  if (subtitle != null && subtitle!.isNotEmpty)
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                ],
+              ),
+            ),
+            Icon(Icons.drag_indicator_rounded, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// `proxyDecorator` for ReorderableListView: the dragged row lifts slightly.
+Widget cmReorderProxy(Widget child, int index, Animation<double> animation) {
+  return AnimatedBuilder(
+    animation: animation,
+    builder: (context, child) {
+      final v = Curves.easeOut.transform(animation.value);
+      return Transform.scale(
+        scale: 1 + 0.03 * v,
+        child: Material(
+          type: MaterialType.transparency,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+              boxShadow: v > 0.01 ? CmTokens.of(context).shadowLg : null,
+            ),
+            child: child,
+          ),
+        ),
+      );
+    },
+    child: child,
+  );
+}

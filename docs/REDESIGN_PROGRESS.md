@@ -14,7 +14,7 @@ Update this file in the same commit as each screen's redesign.
 - ✅ Theme: cards, sheets, dialogs, snackbars, chips, tabs, inputs
 - ✅ All 50 search bars → `CmSearchField`; code entry → `CmCodeField`
 - ✅ Chat composer (Instagram style) + WhatsApp-style bubble timestamps
-- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState` — use these for new redesigns
+- ✅ Shared surfaces `lib/ui/widgets/cm_surfaces.dart`: `CmCard`, `CmIconTile`, `CmPill`, `CmEmptyState`, `CmReorderTile` + `cmReorderProxy` — use these for new redesigns
 - ✅ Top bar same colour as screen; bigger logo; sheets open above the nav bar
 
 ## Student
@@ -43,7 +43,7 @@ Update this file in the same commit as each screen's redesign.
 |---|---|
 | Messages inbox | ✅ |
 | Message thread / new chat / new group | 🎨 |
-| Message request / blocked people | ⬜ / ⬜ |
+| Message request / blocked people | ✅ / ✅ |
 | CMail inbox | ✅ |
 | CMail detail / compose | 🎨 |
 | Profile | ✅ |
@@ -53,7 +53,7 @@ Update this file in the same commit as each screen's redesign.
 | Login | ✅ (already polished) |
 | Forgot password / phone link | 🎨 |
 | Onboarding | ⬜ |
-| Drawer tools order / classroom order | ⬜ |
+| Drawer tools order / classroom order | ✅ |
 | Image viewer / PDF viewer / video trimmer / media preview / splash | ➖ |
 
 ## Teacher
@@ -93,9 +93,8 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. Message request / blocked people, drawer tools order, classroom order
-2. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
-3. Onboarding (low priority)
+1. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
+2. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired

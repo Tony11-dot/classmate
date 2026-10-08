@@ -5,6 +5,7 @@ import '../../../l10n/app_localizations.dart';
 import '../providers/classroom_order_prefs.dart';
 import '../providers/classrooms_providers.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 
 class ClassroomOrderScreen extends ConsumerStatefulWidget {
   const ClassroomOrderScreen({super.key});
@@ -87,7 +88,12 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
           }
 
           if (_items.isEmpty) {
-            return Center(child: Text(AppLocalizations.of(context)!.classroomsNoClassroomsToReorder));
+            return Center(
+              child: CmEmptyState(
+                icon: Icons.class_rounded,
+                title: AppLocalizations.of(context)!.classroomsNoClassroomsToReorder,
+              ),
+            );
           }
 
           return SafeArea(
@@ -95,6 +101,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
             child: ReorderableListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             itemCount: _items.length,
+            proxyDecorator: cmReorderProxy,
             onReorder: (oldIndex, newIndex) {
               setState(() {
                 if (newIndex > oldIndex) newIndex -= 1;
@@ -111,25 +118,44 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
               final title = _titleOf(item);
               final subtitle = _subtitleOf(item);
 
-              return Card(
+              return CmReorderTile(
                 key: ValueKey(id),
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                elevation: 0,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                  title: Text(title),
-                  subtitle: subtitle.isEmpty ? null : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  leading: CircleAvatar(
-                    radius: 16,
-                    child: Text('${index + 1}'),
-                  ),
-                  trailing: const Icon(Icons.drag_handle_rounded),
-                ),
+                lead: _NumberBadge(number: index + 1),
+                title: title,
+                subtitle: subtitle,
               );
             },
           ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Position number shown on each classroom while reordering.
+class _NumberBadge extends StatelessWidget {
+  const _NumberBadge({required this.number});
+
+  final int number;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        '$number',
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: cs.primary,
+              fontWeight: FontWeight.w900,
+            ),
       ),
     );
   }

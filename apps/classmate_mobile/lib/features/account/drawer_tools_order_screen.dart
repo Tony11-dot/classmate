@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_surfaces.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,6 +91,7 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
             child: ReorderableListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               itemCount: _items.length,
+              proxyDecorator: cmReorderProxy,
               onReorder: (oldIndex, newIndex) {
                 setState(() {
                   if (newIndex > oldIndex) newIndex -= 1;
@@ -101,20 +103,10 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
               },
               itemBuilder: (context, index) {
                 final t = _items[index];
-                return Card(
+                return CmReorderTile(
                   key: ValueKey(t.route),
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  elevation: 0,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                    leading: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: cs.primaryContainer,
-                      child: Icon(t.icon, size: 18, color: cs.onPrimaryContainer),
-                    ),
-                    title: Text(t.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    trailing: const Icon(Icons.drag_handle_rounded),
-                  ),
+                  lead: CmIconTile(icon: t.icon, size: 40),
+                  title: t.label,
                 );
               },
             ),

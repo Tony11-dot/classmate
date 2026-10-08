@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
 class BlockedPeopleScreen extends ConsumerStatefulWidget {
@@ -133,15 +134,17 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
 
           final items = snapshot.data ?? const <Map<String, dynamic>>[];
           if (items.isEmpty) {
-            return Center(child: Text(l.messagesNoBlockedPeople));
+            return Center(
+              child: CmEmptyState(icon: Icons.block_rounded, title: l.messagesNoBlockedPeople),
+            );
           }
 
           return CmRefreshIndicator(
             onRefresh: _reload,
             child: ListView.separated(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               itemCount: items.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final item = items[index];
                 final name = (item['displayName'] ?? l.messagesUnknownUser)
@@ -149,14 +152,34 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
                     .trim();
                 final initials = (item['initials'] ?? '?').toString().trim().replaceAll(',', '');
 
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(child: Text(initials.isEmpty ? '?' : initials)),
-                    title: Text(name.isEmpty ? l.messagesUnknownUser : name),
-                    trailing: FilledButton(
-                      onPressed: () => _unblock(item),
-                      child: Text(l.messagesUnblockAction),
-                    ),
+                final cs = theme.colorScheme;
+                return CmCard(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: cs.error.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                        child: Text(
+                          initials.isEmpty ? '?' : initials,
+                          style: TextStyle(color: cs.error, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          name.isEmpty ? l.messagesUnknownUser : name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton.tonal(
+                        onPressed: () => _unblock(item),
+                        child: Text(l.messagesUnblockAction),
+                      ),
+                    ],
                   ),
                 );
               },
