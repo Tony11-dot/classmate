@@ -6,7 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/config/env.dart';
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/glass/liquid_glass_card.dart';
+import '../../core/theme/cm_tokens.dart';
+import '../../ui/widgets/cm_surfaces.dart';
 import 'data/certificates_repository.dart';
 import '../parent/data/viewed_student_context.dart';
 import '../../ui/widgets/cm_refresh_indicator.dart';
@@ -76,17 +77,15 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
 
     if (_loading) return const Center(child: CmLoading());
     if (_error != null) {
-      return Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!, style: TextStyle(color: cs.error))));
+      return Center(child: CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: _error));
     }
     if (_items.isEmpty) {
       return CmRefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 80, 24, 24),
+          padding: const EdgeInsets.only(top: 40),
           children: [
-            Icon(Icons.workspace_premium_outlined, size: 56, color: cs.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text(l.certNoneYet, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
+            CmEmptyState(icon: Icons.workspace_premium_outlined, title: l.certNoneYet),
           ],
         ),
       );
@@ -104,38 +103,37 @@ class _StudentCertificatesScreenState extends ConsumerState<StudentCertificatesS
           final year = (c['schoolYear'] ?? '').toString();
           final issued = (c['issuedAt'] ?? '').toString();
           final pdfUrl = (c['pdfUrl'] ?? '').toString();
-          return LiquidGlassCard(
-            borderRadius: BorderRadius.circular(16),
-            color: cs.surfaceContainerLow,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          final gold = CmTokens.of(context).warn;
+          return CmCard(
+            tint: gold,
+            padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
             child: Row(
               children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
-                  child: Icon(Icons.workspace_premium_rounded, color: cs.onPrimaryContainer),
-                ),
+                CmIconTile(icon: Icons.workspace_premium_rounded, color: gold, size: 48, filled: true),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(year.isEmpty ? l.navCertificates : '${l.navCertificates} · $year',
-                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(year.isEmpty ? l.navCertificates : year,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, fontFeatures: const [FontFeature.tabularFigures()])),
                       if (title.isNotEmpty || issued.isNotEmpty)
                         Text([if (title.isNotEmpty) title, if (issued.isNotEmpty) FriendlyDate.date(issued)].join(' · '),
                             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                     ],
                   ),
                 ),
-                if (pdfUrl.isNotEmpty)
+                if (pdfUrl.isNotEmpty) ...[
+                  const SizedBox(width: 10),
                   FilledButton.tonalIcon(
+                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 14)),
                     onPressed: () => _open(pdfUrl),
                     icon: const Icon(Icons.download_rounded, size: 18),
                     label: Text(l.certDownload),
                   ),
+                ],
               ],
             ),
           );

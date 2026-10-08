@@ -34,7 +34,7 @@ Update this file in the same commit as each screen's redesign.
 | Solutions books / pages / questions / subject | 🎨 / 🎨 / 🎨 / ➖ (wraps Solutions home) |
 | Bagrut home | ✅ |
 | Bagrut exams list / exam | ✅ / ✅ |
-| Certificates home / list | ✅ / 🎨 |
+| Certificates home / list | ✅ / ✅ |
 | Student materials | 🎨 |
 | Student notes editor | 🎨 |
 
