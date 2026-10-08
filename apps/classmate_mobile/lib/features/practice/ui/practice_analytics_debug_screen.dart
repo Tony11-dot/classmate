@@ -207,7 +207,7 @@ class _TopicTile extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: CircleAvatar(
-          backgroundColor: accent,
+          backgroundColor: accent.withValues(alpha: 0.14),
           child: Icon(icon, color: accent, size: 18),
         ),
         title: CMAiMessage(

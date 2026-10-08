@@ -1831,78 +1831,94 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     final cs = theme.colorScheme;
     final l = AppLocalizations.of(context)!;
 
-    // Avatar + title + subtle AI disclaimer.
+    // Avatar + title, then the AI disclaimer and token tip in one quiet card.
+    Widget note(IconData icon, Color iconColor, String text) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(icon, size: 16, color: iconColor),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  text,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const _NovaAvatar(animating: false, size: 52),
-            const SizedBox(height: 8),
-            Text(
-              l.tutorEmptyStateTitle,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: cs.onSurfaceVariant,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: cs.primary.withValues(alpha: 0.08),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.18),
+                      blurRadius: 28,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const _NovaAvatar(animating: false, size: 60),
               ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                boxShadow: CmTokens.of(context).shadowSm,
+              const SizedBox(height: 16),
+              Text(
+                l.tutorEmptyStateTitle,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                  color: cs.onSurface,
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.info_outline_rounded, size: 14, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerLow.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+                  border: Border.all(
+                    color: cs.outlineVariant.withValues(alpha: 0.35),
+                    width: 0.8,
+                  ),
+                  boxShadow: CmTokens.of(context).shadowSm,
+                ),
+                child: Column(
+                  children: [
+                    note(
+                      Icons.info_outline_rounded,
+                      cs.onSurfaceVariant,
                       l.novaDisclaimer,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        height: 1.35,
-                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            // Gentle reminder that tokens are a study resource — use them well.
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: cs.primaryContainer.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.eco_outlined, size: 14, color: cs.primary),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      l.novaTokenTip,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        height: 1.35,
-                      ),
+                    Divider(
+                      height: 1,
+                      thickness: 0.6,
+                      indent: 40,
+                      color: cs.outlineVariant.withValues(alpha: 0.45),
                     ),
-                  ),
-                ],
+                    // Gentle reminder that tokens are a study resource.
+                    note(Icons.eco_outlined, cs.primary, l.novaTokenTip),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2241,11 +2257,12 @@ class _AssistantActionChip extends StatelessWidget {
 
     return CmPress(
       onTap: onTap,
-      child: LiquidGlassCard(
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        borderRadius: BorderRadius.circular(999),
-        color: cs.surfaceContainerLow,
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(999),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
