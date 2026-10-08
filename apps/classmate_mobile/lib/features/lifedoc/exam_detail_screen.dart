@@ -11,7 +11,7 @@ import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
 import 'data/exams_repository.dart';
 import 'domain/exam_models.dart';
-import '../../ui/glass/liquid_glass_card.dart';
+import '../../core/theme/cm_tokens.dart';
 import '../common/media/image_viewer_screen.dart';
 import '../common/media/pdf_viewer_screen.dart';
 import '../../ui/widgets/cm_loading.dart';
@@ -52,8 +52,7 @@ String _fmtTimeRange(String? start, String? end) {
   return '$s – $e';
 }
 
-Future<void> _addToCalendar(
-    BuildContext context, StudentExamItem exam) async {
+Future<void> _addToCalendar(BuildContext context, StudentExamItem exam) async {
   final date = _parseDate(exam.dateLabel);
 
   if (date != null) {
@@ -71,7 +70,11 @@ Future<void> _addToCalendar(
         'dates': '$start/$end',
         if (exam.teacher.isNotEmpty) 'details': 'Teacher: ${exam.teacher}',
       };
-      final gcalUri = Uri.https('calendar.google.com', '/calendar/render', params);
+      final gcalUri = Uri.https(
+        'calendar.google.com',
+        '/calendar/render',
+        params,
+      );
       if (kIsWeb) {
         await launchUrl(gcalUri, webOnlyWindowName: '_blank');
         return;
@@ -82,8 +85,9 @@ Future<void> _addToCalendar(
       }
     } else {
       // iOS: open the native Calendar app at the exam's date.
-      final calShowUri =
-          Uri.parse('calshow://${date.millisecondsSinceEpoch ~/ 1000}');
+      final calShowUri = Uri.parse(
+        'calshow://${date.millisecondsSinceEpoch ~/ 1000}',
+      );
       if (await canLaunchUrl(calShowUri)) {
         await launchUrl(calShowUri, mode: LaunchMode.externalApplication);
         return;
@@ -95,7 +99,8 @@ Future<void> _addToCalendar(
     final ymd =
         '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
     final uid = 'exam-${exam.id}@classmate';
-    final ics = 'BEGIN:VCALENDAR\r\n'
+    final ics =
+        'BEGIN:VCALENDAR\r\n'
         'VERSION:2.0\r\n'
         'BEGIN:VEVENT\r\n'
         'UID:$uid\r\n'
@@ -115,7 +120,9 @@ Future<void> _addToCalendar(
 
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.examCouldNotOpenCalendar)),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.examCouldNotOpenCalendar),
+      ),
     );
   }
 }
@@ -163,9 +170,7 @@ class ExamDetailScreen extends ConsumerWidget {
 
     final asyncExam = ref.watch(examsLiveProvider);
     return asyncExam.when(
-      loading: () => const Scaffold(
-        body: Center(child: CmLoading()),
-      ),
+      loading: () => const Scaffold(body: Center(child: CmLoading())),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
         body: Center(
@@ -173,7 +178,9 @@ class ExamDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(24),
             child: Text(
               AppLocalizations.of(context)!.examDetailScreenCouldNotLoad,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -186,8 +193,12 @@ class ExamDetailScreen extends ConsumerWidget {
         );
         if (exam == null || exam.id.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
-            body: Center(child: Text(AppLocalizations.of(context)!.examNotFound)),
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.examTitle),
+            ),
+            body: Center(
+              child: Text(AppLocalizations.of(context)!.examNotFound),
+            ),
           );
         }
         return _ExamDetailBody(exam: exam);
@@ -211,68 +222,74 @@ class _ExamDetailBody extends StatelessWidget {
       );
     }
     final cs = Theme.of(context).colorScheme;
+    final tokens = CmTokens.of(context);
+    final dark = cs.brightness == Brightness.dark;
     final status = _statusOf(exam);
     final countdown = _countdownLabel(context, exam);
 
-    // ── countdown hero colors ──
-    Color heroBg;
-    Color heroFg;
-    switch (status) {
-      case _ExamStatus.today:
-        heroBg = cs.errorContainer;
-        heroFg = cs.onErrorContainer;
-      case _ExamStatus.past:
-        heroBg = cs.surfaceContainerHighest;
-        heroFg = cs.onSurfaceVariant;
-      case _ExamStatus.upcoming:
-        heroBg = cs.tertiaryContainer;
-        heroFg = cs.onTertiaryContainer;
-    }
+    // ── status tone: today = urgent, upcoming = brand, past = neutral ──
+    final Color tone = switch (status) {
+      _ExamStatus.today => cs.error,
+      _ExamStatus.past => cs.onSurfaceVariant,
+      _ExamStatus.upcoming => cs.primary,
+    };
+    final IconData statusIcon = switch (status) {
+      _ExamStatus.today => Icons.today_rounded,
+      _ExamStatus.past => Icons.check_circle_rounded,
+      _ExamStatus.upcoming => Icons.upcoming_rounded,
+    };
 
-    Widget infoRow(IconData icon, String label, String? value) {
-      if ((value ?? '').trim().isEmpty) return const SizedBox.shrink();
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 16, color: cs.onSurfaceVariant),
-            const SizedBox(width: 10),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    height: 1.35,
-                    fontSize: 14,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '$label  ',
-                      style: TextStyle(
-                        color: cs.onSurface,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    TextSpan(text: value),
-                  ],
-                ),
-              ),
-            ),
-          ],
+    final metaChips = <(IconData, String)>[
+      (Icons.calendar_today_rounded, _fmtDate(exam.dateLabel)),
+      if ((exam.hourLabel ?? '').trim().isNotEmpty)
+        (Icons.access_time_rounded, exam.hourLabel!.trim()),
+      if ((exam.periodLabel ?? '').trim().isNotEmpty)
+        (Icons.schedule_rounded, exam.periodLabel!.trim()),
+      if ((exam.durationLabel ?? '').trim().isNotEmpty)
+        (Icons.timer_outlined, exam.durationLabel!.trim()),
+    ];
+
+    final infoRows = <Widget>[
+      if (exam.teacher.trim().isNotEmpty)
+        _InfoRow(
+          icon: Icons.person_outline_rounded,
+          label: l.examInfoTeacher,
+          value: exam.teacher,
         ),
-      );
-    }
+      _InfoRow(
+        icon: Icons.calendar_today_rounded,
+        label: l.examInfoDate,
+        value: _fmtDate(exam.dateLabel),
+      ),
+      if ((exam.hourLabel ?? '').trim().isNotEmpty)
+        _InfoRow(
+          icon: Icons.access_time_rounded,
+          label: l.examInfoTime,
+          value: _fmtTimeRange(exam.hourLabel, exam.durationLabel),
+        ),
+      if ((exam.periodLabel ?? '').trim().isNotEmpty)
+        _InfoRow(
+          icon: Icons.schedule_rounded,
+          label: l.examInfoPeriod,
+          value: exam.periodLabel!,
+        ),
+      if (exam.subject.trim().isNotEmpty)
+        _InfoRow(
+          icon: Icons.subject_rounded,
+          label: l.examInfoSubject,
+          value: exam.subject,
+        ),
+    ];
 
-    final metaLine = [
-          _fmtDate(exam.dateLabel),
-          exam.hourLabel,
-          exam.periodLabel,
-          exam.durationLabel,
-        ]
-        .where((v) => (v ?? '').trim().isNotEmpty)
-        .cast<String>()
-        .join('  ·  ');
+    final gradeMax = exam.maxGrade ?? 100;
+    final gradePct = exam.grade == null || gradeMax <= 0
+        ? 0.0
+        : (exam.grade! / gradeMax).clamp(0.0, 1.0);
+    final gradeTone = gradePct >= 0.8
+        ? tokens.good
+        : gradePct >= 0.55
+        ? tokens.warn
+        : cs.error;
 
     return Scaffold(
       body: SafeArea(
@@ -286,18 +303,19 @@ class _ExamDetailBody extends StatelessWidget {
                 Semantics(
                   button: true,
                   label: l.a11yBack,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
+                  child: CmPress(
                     onTap: () => context.pop(),
-                    child: SizedBox(
+                    child: Container(
                       width: 44,
                       height: 44,
-                      child: LiquidGlassCard(
-                        borderRadius: BorderRadius.circular(16),
+                      decoration: BoxDecoration(
                         color: cs.surfaceContainerHigh,
-                        padding: EdgeInsets.zero,
-                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                        child: const Center(child: Icon(Icons.arrow_back_rounded, size: 20)),
+                        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back_rounded,
+                        size: 20,
+                        color: cs.onSurface,
                       ),
                     ),
                   ),
@@ -315,243 +333,319 @@ class _ExamDetailBody extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-          LiquidGlassCard(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            borderRadius: BorderRadius.circular(26),
-            color: heroBg,
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        exam.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: heroFg,
-                        ),
-                      ),
-                      if (exam.topic != null &&
-                          exam.topic!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          exam.topic!,
-                          style: TextStyle(
-                            color: heroFg,
-                            height: 1.3,
-                          ),
-                        ),
-                      ],
-                      if (metaLine.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          metaLine,
-                          style: TextStyle(
-                            color: heroFg,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Icon(
-                      status == _ExamStatus.today
-                          ? Icons.today_rounded
-                          : status == _ExamStatus.past
-                          ? Icons.check_circle_rounded
-                          : Icons.upcoming_rounded,
-                      size: 28,
-                      color: heroFg,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      countdown,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                        color: heroFg,
-                      ),
-                      textAlign: TextAlign.end,
-                    ),
+
+            // ── hero ──
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    tone.withValues(alpha: dark ? 0.24 : 0.12),
+                    cs.surfaceContainerLow,
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // ── info section ──
-          _Section(
-            title: l.examDetailsSection,
-            child: Column(
-              children: [
-                if (exam.teacher.trim().isNotEmpty)
-                  infoRow(Icons.person_outline_rounded, l.examInfoTeacher, exam.teacher),
-                infoRow(Icons.calendar_today_rounded, l.examInfoDate, _fmtDate(exam.dateLabel)),
-                if ((exam.hourLabel ?? '').trim().isNotEmpty)
-                  infoRow(Icons.access_time_rounded, l.examInfoTime,
-                      _fmtTimeRange(exam.hourLabel, exam.durationLabel)),
-                if ((exam.periodLabel ?? '').trim().isNotEmpty)
-                  infoRow(Icons.schedule_rounded, l.examInfoPeriod, exam.periodLabel!),
-                if (exam.subject.trim().isNotEmpty)
-                  infoRow(Icons.subject_rounded, l.examInfoSubject, exam.subject),
-                if (exam.caption != null &&
-                    exam.caption!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  LiquidGlassCard(
-                    padding: const EdgeInsets.all(14),
-                    borderRadius: BorderRadius.circular(18),
-                    color: cs.surfaceContainerLow,
-                    border: Border.all(
-                      color: cs.outlineVariant,
-                    ),
-                    child: Text(
-                      exam.caption!,
-                      style: TextStyle(
-                        color: cs.onSurfaceVariant,
-                        height: 1.45,
-                        fontStyle: FontStyle.italic,
+                border: Border.all(
+                  color: cs.outlineVariant.withValues(alpha: 0.35),
+                  width: 0.8,
+                ),
+                boxShadow: tokens.shadowSm,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (countdown.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(8, 5, 12, 5),
+                      decoration: BoxDecoration(
+                        color: status == _ExamStatus.past
+                            ? cs.surfaceContainerHighest
+                            : tone,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            statusIcon,
+                            size: 16,
+                            color: status == _ExamStatus.past
+                                ? cs.onSurfaceVariant
+                                : (status == _ExamStatus.today
+                                      ? cs.onError
+                                      : cs.onPrimary),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            countdown,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12.5,
+                              color: status == _ExamStatus.past
+                                  ? cs.onSurfaceVariant
+                                  : (status == _ExamStatus.today
+                                        ? cs.onError
+                                        : cs.onPrimary),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                  const SizedBox(height: 14),
+                  Text(
+                    exam.title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      height: 1.15,
+                    ),
+                  ),
+                  if (exam.topic != null && exam.topic!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      exam.topic!,
+                      style: TextStyle(color: cs.onSurfaceVariant, height: 1.3),
+                    ),
+                  ],
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final (icon, text) in metaChips)
+                        _MetaChip(icon: icon, text: text),
+                    ],
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
 
-          // ── materials section ──
-          _Section(
-            title: l.examMaterialsSection,
-            trailing: exam.materials.isEmpty
-                ? null
-                : Text(
-                    '${exam.materials.length}',
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
+            // ── info section ──
+            _Section(
+              title: l.examDetailsSection,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < infoRows.length; i++) ...[
+                    if (i > 0)
+                      Divider(
+                        height: 1,
+                        thickness: 0.6,
+                        indent: 46,
+                        color: cs.outlineVariant.withValues(alpha: 0.45),
+                      ),
+                    infoRows[i],
+                  ],
+                  if (exam.caption != null &&
+                      exam.caption!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: dark ? cs.surfaceContainerHigh : cs.surface,
+                        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+                      ),
+                      child: Text(
+                        exam.caption!,
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          height: 1.45,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ),
-                  ),
-            child: exam.materials.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      l.examNoMaterials,
-                      style: TextStyle(color: cs.onSurfaceVariant),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // ── materials section ──
+            _Section(
+              title: l.examMaterialsSection,
+              trailing: exam.materials.isEmpty
+                  ? null
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '${exam.materials.length}',
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Wrap(
+              child: exam.materials.isEmpty
+                  ? Row(
+                      children: [
+                        Icon(
+                          Icons.folder_open_rounded,
+                          size: 18,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l.examNoMaterials,
+                            style: TextStyle(color: cs.onSurfaceVariant),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: exam.materials
                           .map((m) => _MaterialPill(material: m))
                           .toList(),
                     ),
-                  ),
-          ),
-          const SizedBox(height: 14),
+            ),
+            const SizedBox(height: 14),
 
-          // ── grade result card (past exams only) ──
-          if (status == _ExamStatus.past) ...[
-            _Section(
-              title: l.examViewGradeTitle,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (exam.grade != null) ...[
-                    // Show the actual grade prominently
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+            // ── grade result card (past exams only) ──
+            if (status == _ExamStatus.past) ...[
+              _Section(
+                title: l.examViewGradeTitle,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (exam.grade != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: gradeTone.withValues(
+                            alpha: dark ? 0.18 : 0.10,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            CmTokens.radiusMd,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 52,
+                              height: 52,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  CircularProgressIndicator(
+                                    value: gradePct,
+                                    strokeWidth: 5,
+                                    strokeCap: StrokeCap.round,
+                                    color: gradeTone,
+                                    backgroundColor: gradeTone.withValues(
+                                      alpha: 0.18,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.grade_rounded,
+                                    size: 22,
+                                    color: gradeTone,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              '${exam.grade} / $gradeMax',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 28,
+                                color: cs.onSurface,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      const SizedBox(height: 12),
+                    ] else ...[
+                      Row(
                         children: [
-                          Icon(Icons.grade_rounded, size: 28, color: cs.primary),
-                          const SizedBox(width: 12),
-                          Text(
-                            '${exam.grade} / ${exam.maxGrade ?? 100}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 28,
-                              color: cs.primary,
+                          Icon(
+                            Icons.grade_rounded,
+                            size: 20,
+                            color: cs.primary,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              l.examViewGradeBody,
+                              style: TextStyle(
+                                color: cs.onSurfaceVariant,
+                                height: 1.4,
+                              ),
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                    ],
+                    FilledButton.tonalIcon(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: () => context.go('/grades'),
+                      icon: const Icon(Icons.grade_rounded),
+                      label: Text(l.examViewGradeAction),
                     ),
-                    const SizedBox(height: 10),
-                  ] else ...[
-                    Row(
-                      children: [
-                        Icon(Icons.grade_rounded, size: 20, color: cs.primary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            l.examViewGradeBody,
-                            style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
                   ],
+                ),
+              ),
+              const SizedBox(height: 14),
+            ],
+
+            // ── actions section ──
+            _Section(
+              title: l.examQuickActionsSection,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   FilledButton.icon(
-                    onPressed: () => context.go('/grades'),
-                    icon: const Icon(Icons.grade_rounded),
-                    label: Text(l.examViewGradeAction),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    onPressed: () => context.push(
+                      Uri(
+                        path: '/tutor',
+                        queryParameters: {
+                          'title': exam.title,
+                          'subject': exam.subject,
+                          'prompt':
+                              'Help me prepare for ${exam.title} in ${exam.subject}. Focus on ${exam.topic ?? exam.subject}.',
+                        },
+                      ).toString(),
+                    ),
+                    icon: const Icon(Icons.psychology_rounded),
+                    label: Text(l.examStudyWithNova),
+                  ),
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    onPressed: () => _addToCalendar(context, exam),
+                    icon: const Icon(Icons.event_available_rounded),
+                    label: Text(l.examAddToCalendar),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
           ],
-
-          // ── actions section ──
-          _Section(
-            title: l.examQuickActionsSection,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FilledButton.icon(
-                  onPressed: () => context.push(
-                    Uri(
-                      path: '/tutor',
-                      queryParameters: {
-                        'title': exam.title,
-                        'subject': exam.subject,
-                        'prompt':
-                            'Help me prepare for ${exam.title} in ${exam.subject}. Focus on ${exam.topic ?? exam.subject}.',
-                      },
-                    ).toString(),
-                  ),
-                  icon: const Icon(Icons.psychology_rounded),
-                  label: Text(l.examStudyWithNova),
-                ),
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: () => _addToCalendar(context, exam),
-                  icon: const Icon(Icons.event_available_rounded),
-                  label: Text(l.examAddToCalendar),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -568,11 +662,17 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
-      padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(24),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -581,9 +681,9 @@ class _Section extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
                 ),
               ),
               ?trailing,
@@ -591,6 +691,103 @@ class _Section extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           child,
+        ],
+      ),
+    );
+  }
+}
+
+/// One detail line: tinted icon tile, small label above the value.
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    if (value.trim().isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(
+                alpha: cs.brightness == Brightness.dark ? 0.20 : 0.10,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 17, color: cs.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Compact icon + text chip on the hero (date / time / period / duration).
+class _MetaChip extends StatelessWidget {
+  const _MetaChip({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.brightness == Brightness.dark
+            ? cs.surfaceContainerHigh
+            : cs.surface,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: cs.onSurfaceVariant),
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurface,
+            ),
+          ),
         ],
       ),
     );
@@ -612,7 +809,8 @@ class _MaterialPill extends StatelessWidget {
     if (url.isEmpty) return;
     final kind = material.kind.toLowerCase();
     final lower = url.toLowerCase();
-    final isImage = kind.contains('image') ||
+    final isImage =
+        kind.contains('image') ||
         kind.contains('photo') ||
         lower.endsWith('.jpg') ||
         lower.endsWith('.jpeg') ||
@@ -653,13 +851,15 @@ class _MaterialPill extends StatelessWidget {
           decoration: BoxDecoration(
             color: cs.secondaryContainer,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(_materialIcon(material.kind),
-                  size: 14, color: cs.onSecondaryContainer),
+              Icon(
+                _materialIcon(material.kind),
+                size: 14,
+                color: cs.onSecondaryContainer,
+              ),
               const SizedBox(width: 6),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 160),
@@ -676,14 +876,16 @@ class _MaterialPill extends StatelessWidget {
               ),
               if (hasUrl) ...[
                 const SizedBox(width: 6),
-                Icon(Icons.open_in_new_rounded,
-                    size: 12, color: cs.onSecondaryContainer),
+                Icon(
+                  Icons.open_in_new_rounded,
+                  size: 12,
+                  color: cs.onSecondaryContainer,
+                ),
               ],
             ],
           ),
-        ),),
+        ),
+      ),
     );
   }
 }
-
-

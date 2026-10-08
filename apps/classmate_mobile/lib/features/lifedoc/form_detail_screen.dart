@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import 'data/forms_repository.dart';
 import 'domain/form_models.dart';
-import '../../ui/glass/liquid_glass_card.dart';
+import '../../core/theme/cm_tokens.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 
@@ -32,20 +32,17 @@ Future<Map<String, dynamic>?> _loadSavedAnswers(String formId) async {
 }
 
 Future<void> _saveSubmittedAnswers(
-    String formId, Map<String, dynamic> answers) async {
+  String formId,
+  Map<String, dynamic> answers,
+) async {
   try {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        _submittedPrefKey(formId), jsonEncode(answers));
+    await prefs.setString(_submittedPrefKey(formId), jsonEncode(answers));
   } catch (_) {}
 }
 
 class FormDetailScreen extends ConsumerStatefulWidget {
-  const FormDetailScreen({
-    super.key,
-    required this.formId,
-    this.initialForm,
-  });
+  const FormDetailScreen({super.key, required this.formId, this.initialForm});
 
   final String formId;
   final StudentFormItem? initialForm;
@@ -87,9 +84,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
 
     final asyncForms = ref.watch(formsLiveProvider);
     return asyncForms.when(
-      loading: () => const Scaffold(
-        body: Center(child: CmLoading()),
-      ),
+      loading: () => const Scaffold(body: Center(child: CmLoading())),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(
           leading: const BackButton(),
@@ -101,7 +96,8 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
             child: Text(
               AppLocalizations.of(context)!.formDetailScreenCouldNotLoad,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -119,7 +115,8 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
               title: Text(AppLocalizations.of(context)!.formTitle),
             ),
             body: Center(
-                child: Text(AppLocalizations.of(context)!.formNotFound)),
+              child: Text(AppLocalizations.of(context)!.formNotFound),
+            ),
           );
         }
         return _buildScaffold(context, form);
@@ -159,31 +156,48 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
           const SizedBox(height: 16),
           if (_savedAnswers != null && !form.allowMultipleResponses) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              margin: const EdgeInsets.only(bottom: 14),
               decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
+                color: CmTokens.of(context).good.withValues(
+                  alpha: cs.brightness == Brightness.dark ? 0.18 : 0.10,
+                ),
+                borderRadius: BorderRadius.circular(CmTokens.radiusMd),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 16, color: cs.onPrimaryContainer),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context)!.studentFormSubmittedBanner, style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer, fontSize: 13)),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 18,
+                    color: CmTokens.of(context).good,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.studentFormSubmittedBanner,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
-          ...form.questions.map((q) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: _QuestionCard(
-                  question: q,
-                  answer: _answers[q.id],
-                  onChanged: _savedAnswers != null && !form.allowMultipleResponses
-                      ? null
-                      : (v) => setState(() => _answers[q.id] = v),
-                ),
-              )),
+          for (final (i, q) in form.questions.indexed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: _QuestionCard(
+                number: i + 1,
+                question: q,
+                answer: _answers[q.id],
+                onChanged: _savedAnswers != null && !form.allowMultipleResponses
+                    ? null
+                    : (v) => setState(() => _answers[q.id] = v),
+              ),
+            ),
           const SizedBox(height: 8),
           // ── Submit button ───────────────────────────────────────────────────
           // Disabled after submit (or if form is closed, or allowMultipleResponses==false and already submitted)
@@ -197,6 +211,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
             const SizedBox(height: 10),
             Text(
               AppLocalizations.of(context)!.formClosed,
+              textAlign: TextAlign.center,
               style: TextStyle(color: cs.onSurfaceVariant),
             ),
           ],
@@ -256,28 +271,42 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (result['message'] ?? AppLocalizations.of(context)!.formDetailScreenSubmitted).toString(),
+              (result['message'] ??
+                      AppLocalizations.of(context)!.formDetailScreenSubmitted)
+                  .toString(),
             ),
           ),
         );
       } else {
-        final error = (result['error'] ?? AppLocalizations.of(context)!.formDetailScreenSubmissionFailed).toString();
+        final error =
+            (result['error'] ??
+                    AppLocalizations.of(
+                      context,
+                    )!.formDetailScreenSubmissionFailed)
+                .toString();
         if (error.toLowerCase().contains('already')) {
-          setState(() { _submitted = true; _savedAnswers = serialized; });
+          setState(() {
+            _submitted = true;
+            _savedAnswers = serialized;
+          });
           if (!form.allowMultipleResponses) {
             await _saveSubmittedAnswers(form.id, serialized);
           }
           // No snackbar — button is already locked, user sees "Already submitted" UI.
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error)));
         }
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.studentFormSubmitError(e.toString()))),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.studentFormSubmitError(e.toString()),
+          ),
+        ),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -286,12 +315,24 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
 
   void _showRequired(BuildContext context, String title) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.studentFormFieldRequired(title))),
+      SnackBar(
+        content: Text(
+          AppLocalizations.of(context)!.studentFormFieldRequired(title),
+        ),
+      ),
     );
   }
 }
 
 // ── Submit section — handles once-per-student logic ──────────────────────────
+
+final ButtonStyle _submitStyle = FilledButton.styleFrom(
+  minimumSize: const Size.fromHeight(52),
+);
+
+/// Fill for tiles nested inside a surfaceContainerLow card.
+Color _innerBg(ColorScheme cs) =>
+    cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface;
 
 class _SubmitSection extends StatelessWidget {
   const _SubmitSection({
@@ -313,6 +354,7 @@ class _SubmitSection extends StatelessWidget {
     // If the form is closed, show disabled button
     if (!form.acceptingResponses) {
       return FilledButton.icon(
+        style: _submitStyle,
         onPressed: null,
         icon: const Icon(Icons.lock_outline_rounded),
         label: Text(AppLocalizations.of(context)!.studentFormClosedButton),
@@ -325,9 +367,12 @@ class _SubmitSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           FilledButton.icon(
+            style: _submitStyle,
             onPressed: null,
             icon: const Icon(Icons.check_circle_outline_rounded),
-            label: Text(AppLocalizations.of(context)!.studentFormAlreadySubmittedButton),
+            label: Text(
+              AppLocalizations.of(context)!.studentFormAlreadySubmittedButton,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -340,6 +385,7 @@ class _SubmitSection extends StatelessWidget {
     }
 
     return FilledButton.icon(
+      style: _submitStyle,
       onPressed: submitting ? null : onSubmit,
       icon: submitting
           ? const CmLoading(size: 18)
@@ -348,8 +394,8 @@ class _SubmitSection extends StatelessWidget {
         submitting
             ? AppLocalizations.of(context)!.formDetailScreenSubmitting
             : submitted
-                ? AppLocalizations.of(context)!.formDetailScreenSubmitAgain
-                : AppLocalizations.of(context)!.formDetailScreenSubmitForm,
+            ? AppLocalizations.of(context)!.formDetailScreenSubmitAgain
+            : AppLocalizations.of(context)!.formDetailScreenSubmitForm,
       ),
     );
   }
@@ -366,72 +412,124 @@ class _FormHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return LiquidGlassCard(
+    final accepting = form.acceptingResponses;
+    final good = CmTokens.of(context).good;
+    final dark = cs.brightness == Brightness.dark;
+
+    return Container(
       padding: const EdgeInsets.all(18),
-      borderRadius: BorderRadius.circular(24),
-      color: cs.surfaceContainerHigh,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            cs.primary.withValues(alpha: dark ? 0.20 : 0.10),
+            cs.surfaceContainerLow,
+          ],
+        ),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  form.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                ),
+                child: Icon(
+                  Icons.assignment_rounded,
+                  color: cs.onPrimary,
+                  size: 22,
                 ),
               ),
+              const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: (form.acceptingResponses
-                          ? cs.primaryContainer
-                          : cs.surfaceContainerHighest)
-                      .withValues(alpha: 0.94),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
                 ),
-                child: Text(
-                  form.acceptingResponses ? AppLocalizations.of(context)!.formAccepting : AppLocalizations.of(context)!.formClosed,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                    color: form.acceptingResponses
-                        ? cs.onPrimaryContainer
-                        : cs.onSurfaceVariant,
-                  ),
+                decoration: BoxDecoration(
+                  color: accepting
+                      ? good.withValues(alpha: dark ? 0.20 : 0.12)
+                      : cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      accepting ? Icons.circle : Icons.lock_outline_rounded,
+                      size: accepting ? 8 : 13,
+                      color: accepting ? good : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      accepting
+                          ? AppLocalizations.of(context)!.formAccepting
+                          : AppLocalizations.of(context)!.formClosed,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 14),
+          Text(
+            form.title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              height: 1.15,
+            ),
+          ),
           const SizedBox(height: 10),
-          Text(form.description,
-              style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+          if (form.description.trim().isNotEmpty)
+            Text(
+              form.description,
+              style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
+            ),
           const SizedBox(height: 14),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             children: [
               _MetaChip(icon: Icons.subject_rounded, label: form.subject),
               _MetaChip(
-                  icon: Icons.person_outline_rounded, label: form.teacher),
+                icon: Icons.person_outline_rounded,
+                label: form.teacher,
+              ),
+              _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
               _MetaChip(
-                  icon: Icons.groups_rounded, label: form.audienceLabel),
+                icon: Icons.quiz_outlined,
+                label: AppLocalizations.of(
+                  context,
+                )!.formDetailScreenQuestionCount(form.questionCount),
+              ),
               _MetaChip(
-                  icon: Icons.quiz_outlined,
-                  label: AppLocalizations.of(context)!.formDetailScreenQuestionCount(form.questionCount)),
-              _MetaChip(
-                  icon: Icons.publish_rounded,
-                  label: form.summary.publishedLabel),
+                icon: Icons.publish_rounded,
+                label: form.summary.publishedLabel,
+              ),
               _MetaChip(
                 icon: Icons.repeat_rounded,
                 label: form.allowMultipleResponses
                     ? AppLocalizations.of(context)!.formDetailScreenMultiSubmit
-                    : AppLocalizations.of(context)!.formDetailScreenOnePerStudent,
+                    : AppLocalizations.of(
+                        context,
+                      )!.formDetailScreenOnePerStudent,
               ),
             ],
           ),
@@ -451,20 +549,24 @@ class _MetaChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
+        color: _innerBg(cs),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: cs.primary),
-          const SizedBox(width: 6),
+          Icon(icon, size: 14, color: cs.onSurfaceVariant),
+          const SizedBox(width: 5),
           Flexible(
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 12.5,
+                color: cs.onSurface,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -477,11 +579,13 @@ class _MetaChip extends StatelessWidget {
 
 class _QuestionCard extends StatelessWidget {
   const _QuestionCard({
+    required this.number,
     required this.question,
     required this.answer,
     required this.onChanged,
   });
 
+  final int number;
   final StudentFormQuestion question;
   final dynamic answer;
   // Null means read-only (form already submitted).
@@ -491,39 +595,85 @@ class _QuestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return LiquidGlassCard(
+    return Container(
       padding: const EdgeInsets.all(16),
-      borderRadius: BorderRadius.circular(22),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              Container(
+                width: 28,
+                height: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(
+                    alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12,
+                  ),
+                  shape: BoxShape.circle,
+                ),
                 child: Text(
-                  question.title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w900, fontSize: 16),
+                  '$number',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Text(
+                    question.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
               ),
               if (question.required)
-                Text(
-                  AppLocalizations.of(context)!.formDetailScreenRequired,
-                  style: TextStyle(
-                    color: cs.error,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
+                Container(
+                  margin: const EdgeInsetsDirectional.only(start: 8, top: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.error.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.formDetailScreenRequired,
+                    style: TextStyle(
+                      color: cs.error,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11.5,
+                    ),
                   ),
                 ),
             ],
           ),
           if ((question.description ?? '').trim().isNotEmpty) ...[
             const SizedBox(height: 6),
-            Text(
-              question.description!,
-              style: TextStyle(color: cs.onSurfaceVariant),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 38),
+              child: Text(
+                question.description!,
+                style: TextStyle(color: cs.onSurfaceVariant),
+              ),
             ),
           ],
           const SizedBox(height: 14),
@@ -541,7 +691,11 @@ class _QuestionCard extends StatelessWidget {
           initialValue: answer?.toString() ?? '',
           onChanged: readOnly ? null : onChanged,
           readOnly: readOnly,
-          decoration: InputDecoration(hintText: readOnly ? null : AppLocalizations.of(context)!.formDetailScreenYourAnswer),
+          decoration: InputDecoration(
+            hintText: readOnly
+                ? null
+                : AppLocalizations.of(context)!.formDetailScreenYourAnswer,
+          ),
         );
       case StudentFormQuestionType.paragraph:
         return TextFormField(
@@ -550,19 +704,34 @@ class _QuestionCard extends StatelessWidget {
           readOnly: readOnly,
           minLines: 4,
           maxLines: 7,
-          decoration: InputDecoration(hintText: readOnly ? null : AppLocalizations.of(context)!.formDetailScreenLongAnswerText),
+          decoration: InputDecoration(
+            hintText: readOnly
+                ? null
+                : AppLocalizations.of(context)!.formDetailScreenLongAnswerText,
+          ),
         );
       case StudentFormQuestionType.multipleChoice:
         return RadioGroup<String>(
           groupValue: answer?.toString(),
-          onChanged: readOnly ? (_) {} : (value) { if (value != null) onChanged!(value); },
+          onChanged: readOnly
+              ? (_) {}
+              : (value) {
+                  if (value != null) onChanged!(value);
+                },
           child: Column(
             children: question.options
                 .map(
-                  (option) => RadioListTile<String>(
-                    value: option,
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(option),
+                  (option) => _OptionTile(
+                    selected: answer?.toString() == option,
+                    child: RadioListTile<String>(
+                      value: option,
+                      dense: true,
+                      contentPadding: const EdgeInsetsDirectional.only(
+                        start: 4,
+                        end: 12,
+                      ),
+                      title: Text(option),
+                    ),
                   ),
                 )
                 .toList(),
@@ -573,34 +742,50 @@ class _QuestionCard extends StatelessWidget {
         return Column(
           children: question.options
               .map(
-                (option) => CheckboxListTile(
-                  value: selected.contains(option),
-                  onChanged: readOnly
-                      ? null
-                      : (checked) {
-                          final next = <String>{...selected};
-                          if (checked ?? false) {
-                            next.add(option);
-                          } else {
-                            next.remove(option);
-                          }
-                          onChanged!(next);
-                        },
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(option),
-                  controlAffinity: ListTileControlAffinity.leading,
+                (option) => _OptionTile(
+                  selected: selected.contains(option),
+                  child: CheckboxListTile(
+                    dense: true,
+                    value: selected.contains(option),
+                    onChanged: readOnly
+                        ? null
+                        : (checked) {
+                            final next = <String>{...selected};
+                            if (checked ?? false) {
+                              next.add(option);
+                            } else {
+                              next.remove(option);
+                            }
+                            onChanged!(next);
+                          },
+                    contentPadding: const EdgeInsetsDirectional.only(
+                      start: 4,
+                      end: 12,
+                    ),
+                    title: Text(option),
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
                 ),
               )
               .toList(),
         );
       case StudentFormQuestionType.dropdown:
         return LiquidGlassDropdown<String>(
-          label: question.title.trim().isNotEmpty ? question.title : AppLocalizations.of(context)!.formDetailScreenSelect,
+          label: question.title.trim().isNotEmpty
+              ? question.title
+              : AppLocalizations.of(context)!.formDetailScreenSelect,
           value: (answer?.toString().isEmpty ?? true) ? '' : answer.toString(),
           items: question.options
-              .map((option) => LiquidGlassDropdownItem(value: option, label: option))
+              .map(
+                (option) =>
+                    LiquidGlassDropdownItem(value: option, label: option),
+              )
               .toList(),
-          onChanged: readOnly ? (_) {} : (v) { if (onChanged != null) onChanged!(v.isEmpty ? null : v); },
+          onChanged: readOnly
+              ? (_) {}
+              : (v) {
+                  if (onChanged != null) onChanged!(v.isEmpty ? null : v);
+                },
         );
       case StudentFormQuestionType.linearScale:
         final selected = answer is int ? answer : null;
@@ -617,5 +802,38 @@ class _QuestionCard extends StatelessWidget {
           ],
         );
     }
+  }
+}
+
+/// Rounded option row for choice questions; tints when selected.
+class _OptionTile extends StatelessWidget {
+  const _OptionTile({required this.selected, required this.child});
+
+  final bool selected;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final dark = cs.brightness == Brightness.dark;
+    return AnimatedContainer(
+      duration: CmTokens.medium,
+      curve: CmTokens.easeOut,
+      margin: const EdgeInsets.only(bottom: 8),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: selected
+            ? cs.primary.withValues(alpha: dark ? 0.20 : 0.10)
+            : _innerBg(cs),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+        border: Border.all(
+          color: selected
+              ? cs.primary
+              : cs.outlineVariant.withValues(alpha: 0.5),
+          width: selected ? 1.4 : 0.8,
+        ),
+      ),
+      child: Material(type: MaterialType.transparency, child: child),
+    );
   }
 }
