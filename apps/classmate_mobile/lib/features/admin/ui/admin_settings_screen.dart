@@ -1,10 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../data/admin_repository.dart';
 
@@ -24,123 +25,132 @@ class AdminSettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
           // ── School ────────────────────────────────────────────────────────
-          _SectionHeader(label: l.navSchool),
-          const SizedBox(height: 10),
-          _SettingsNavTile(
-            icon: Icons.school_rounded,
-            label: l.adminSchoolSettingsTitle,
-            subtitle: session.schoolName.isNotEmpty ? session.schoolName : '—',
-            onTap: () => context.push('/admin/school'),
+          _Group(
+            label: l.navSchool,
+            icon: Icons.school_outlined,
+            children: [
+              _SettingsNavTile(
+                icon: Icons.school_rounded,
+                label: l.adminSchoolSettingsTitle,
+                subtitle: session.schoolName.isNotEmpty ? session.schoolName : '—',
+                onTap: () => context.push('/admin/school'),
+              ),
+              if (isAdmin)
+                _SettingsNavTile(
+                  icon: Icons.calendar_view_week_rounded,
+                  label: l.adminScheduleTitle,
+                  subtitle: l.adminScheduleNoSlotsHint,
+                  onTap: () => context.push('/admin/schedule'),
+                ),
+              _SettingsNavTile(
+                icon: Icons.manage_history_rounded,
+                label: l.adminSettingsPeriodDefaults,
+                subtitle: l.adminSettingsScheduleSubtitle,
+                onTap: () => context.push('/admin/periods'),
+              ),
+              if (isAdmin)
+                _SettingsNavTile(
+                  icon: Icons.admin_panel_settings_rounded,
+                  label: l.permissionsTitle,
+                  subtitle: l.permissionsNavSubtitle,
+                  onTap: () => context.push('/admin/permissions'),
+                ),
+            ],
           ),
-          if (isAdmin) ...[
-            const SizedBox(height: 6),
-            _SettingsNavTile(
-              icon: Icons.manage_history_rounded,
-              label: l.adminScheduleTitle,
-              subtitle: l.adminScheduleNoSlotsHint,
-              onTap: () => context.push('/admin/schedule'),
-            ),
-          ],
-          const SizedBox(height: 6),
-          _SettingsNavTile(
-            icon: Icons.manage_history_rounded,
-            label: l.adminSettingsPeriodDefaults,
-            subtitle: l.adminSettingsScheduleSubtitle,
-            onTap: () => context.push('/admin/periods'),
-          ),
-          if (isAdmin) ...[
-            const SizedBox(height: 6),
-            _SettingsNavTile(
-              icon: Icons.admin_panel_settings_rounded,
-              label: l.permissionsTitle,
-              subtitle: l.permissionsNavSubtitle,
-              onTap: () => context.push('/admin/permissions'),
-            ),
-          ],
 
           if (isAdmin) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 14),
             // ── Bulk tools ────────────────────────────────────────────────
-            _SectionHeader(label: l.adminSettingsScreenBulkTools),
-            const SizedBox(height: 10),
-            _SettingsNavTile(
-              icon: Icons.upload_file_rounded,
-              label: l.adminSettingsScreenImportUsers,
-              subtitle: l.adminSettingsScreenImportUsersSubtitle,
-              onTap: () => context.push('/admin/import-users'),
-            ),
-            const SizedBox(height: 6),
-            _SettingsNavTile(
-              icon: Icons.upgrade_rounded,
-              label: l.adminSettingsScreenUpgradeGrades,
-              subtitle: l.adminSettingsScreenUpgradeGradesSubtitle,
-              onTap: () => _confirmAndRun(
-                context, ref,
-                title: l.adminSettingsScreenUpgradeGradesTitle,
-                body: l.adminSettingsScreenUpgradeGradesBody,
-                confirmLabel: l.adminSettingsScreenUpgradeConfirm,
-                destructive: false,
-                action: (repo) => repo.promoteAllGrades(),
-                success: (r) => l.adminSettingsScreenUpgradeSuccess(
-                    (r['promoted'] ?? 0) as int, (r['graduating'] ?? 0) as int),
-              ),
+            _Group(
+              label: l.adminSettingsScreenBulkTools,
+              icon: Icons.construction_rounded,
+              children: [
+                _SettingsNavTile(
+                  icon: Icons.upload_file_rounded,
+                  label: l.adminSettingsScreenImportUsers,
+                  subtitle: l.adminSettingsScreenImportUsersSubtitle,
+                  onTap: () => context.push('/admin/import-users'),
+                ),
+                _SettingsNavTile(
+                  icon: Icons.upgrade_rounded,
+                  label: l.adminSettingsScreenUpgradeGrades,
+                  subtitle: l.adminSettingsScreenUpgradeGradesSubtitle,
+                  onTap: () => _confirmAndRun(
+                    context, ref,
+                    title: l.adminSettingsScreenUpgradeGradesTitle,
+                    body: l.adminSettingsScreenUpgradeGradesBody,
+                    confirmLabel: l.adminSettingsScreenUpgradeConfirm,
+                    destructive: false,
+                    action: (repo) => repo.promoteAllGrades(),
+                    success: (r) => l.adminSettingsScreenUpgradeSuccess(
+                        (r['promoted'] ?? 0) as int, (r['graduating'] ?? 0) as int),
+                  ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 14),
             // ── Danger zone ───────────────────────────────────────────────
-            _SectionHeader(label: l.adminSettingsScreenDangerZone),
-            const SizedBox(height: 10),
-            _SettingsNavTile(
-              icon: Icons.event_busy_rounded,
+            _Group(
+              label: l.adminSettingsScreenDangerZone,
+              icon: Icons.warning_amber_rounded,
               danger: true,
-              label: l.adminSettingsScreenResetSchedule,
-              subtitle: l.adminSettingsScreenResetScheduleSubtitle,
-              onTap: () => _confirmAndRun(
-                context, ref,
-                title: l.adminSettingsScreenResetScheduleTitle,
-                body: l.adminSettingsScreenResetScheduleBody,
-                confirmLabel: l.adminSettingsScreenResetSchedule,
-                destructive: true,
-                action: (repo) => repo.resetSchedule(),
-                success: (r) => l.adminSettingsScreenResetScheduleSuccess(
-                    (r['slots'] ?? 0) as int),
-              ),
-            ),
-            const SizedBox(height: 6),
-            _SettingsNavTile(
-              icon: Icons.groups_rounded,
-              danger: true,
-              label: l.adminSettingsScreenResetCohorts,
-              subtitle: l.adminSettingsScreenResetCohortsSubtitle,
-              onTap: () => _confirmAndRun(
-                context, ref,
-                title: l.adminSettingsScreenResetCohortsTitle,
-                body: l.adminSettingsScreenResetCohortsBody,
-                confirmLabel: l.adminSettingsScreenDeleteCohortsConfirm,
-                destructive: true,
-                action: (repo) => repo.resetCohorts(),
-                success: (r) => l.adminSettingsScreenResetCohortsSuccess(
-                    (r['deleted'] ?? 0) as int),
-              ),
+              children: [
+                _SettingsNavTile(
+                  icon: Icons.event_busy_rounded,
+                  danger: true,
+                  label: l.adminSettingsScreenResetSchedule,
+                  subtitle: l.adminSettingsScreenResetScheduleSubtitle,
+                  onTap: () => _confirmAndRun(
+                    context, ref,
+                    title: l.adminSettingsScreenResetScheduleTitle,
+                    body: l.adminSettingsScreenResetScheduleBody,
+                    confirmLabel: l.adminSettingsScreenResetSchedule,
+                    destructive: true,
+                    action: (repo) => repo.resetSchedule(),
+                    success: (r) => l.adminSettingsScreenResetScheduleSuccess(
+                        (r['slots'] ?? 0) as int),
+                  ),
+                ),
+                _SettingsNavTile(
+                  icon: Icons.groups_rounded,
+                  danger: true,
+                  label: l.adminSettingsScreenResetCohorts,
+                  subtitle: l.adminSettingsScreenResetCohortsSubtitle,
+                  onTap: () => _confirmAndRun(
+                    context, ref,
+                    title: l.adminSettingsScreenResetCohortsTitle,
+                    body: l.adminSettingsScreenResetCohortsBody,
+                    confirmLabel: l.adminSettingsScreenDeleteCohortsConfirm,
+                    destructive: true,
+                    action: (repo) => repo.resetCohorts(),
+                    success: (r) => l.adminSettingsScreenResetCohortsSuccess(
+                        (r['deleted'] ?? 0) as int),
+                  ),
+                ),
+              ],
             ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 14),
 
           // ── Account ────────────────────────────────────────────────────────
-          _SectionHeader(label: l.sectionAccount),
-          const SizedBox(height: 10),
-          _SettingsNavTile(
-            icon: Icons.person_rounded,
-            label: l.navProfile,
-            subtitle: session.displayName.isNotEmpty ? session.displayName : session.email,
-            onTap: () => context.push('/profile'),
-          ),
-          const SizedBox(height: 6),
-          _SettingsNavTile(
-            icon: Icons.palette_rounded,
-            label: l.navSettings,
-            subtitle: l.adminSettingsScreenAppearanceSubtitle,
-            onTap: () => context.push('/settings'),
+          _Group(
+            label: l.sectionAccount,
+            icon: Icons.person_outline_rounded,
+            children: [
+              _SettingsNavTile(
+                icon: Icons.person_rounded,
+                label: l.navProfile,
+                subtitle: session.displayName.isNotEmpty ? session.displayName : session.email,
+                onTap: () => context.push('/profile'),
+              ),
+              _SettingsNavTile(
+                icon: Icons.palette_rounded,
+                label: l.navSettings,
+                subtitle: l.adminSettingsScreenAppearanceSubtitle,
+                onTap: () => context.push('/settings'),
+              ),
+            ],
           ),
         ],
       ),
@@ -169,7 +179,7 @@ Future<void> _confirmAndRun(
       actions: [
         TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.adminSettingsScreenCancel)),
         FilledButton(
-          style: destructive ? FilledButton.styleFrom(backgroundColor: cs.error) : null,
+          style: destructive ? FilledButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError) : null,
           onPressed: () => Navigator.pop(d, true),
           child: Text(confirmLabel),
         ),
@@ -189,22 +199,55 @@ Future<void> _confirmAndRun(
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.label});
+/// One settings group: a card with a coloured header and hairline-divided
+/// rows (same layout as the main Settings screen).
+class _Group extends StatelessWidget {
+  const _Group({
+    required this.label,
+    required this.icon,
+    required this.children,
+    this.danger = false,
+  });
   final String label;
+  final IconData icon;
+  final List<Widget> children;
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(start: 4),
-      child: Text(
-        label.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w800,
-          color: cs.onSurfaceVariant,
-          letterSpacing: 1.2,
-        ),
+    final tone = danger ? cs.error : cs.primary;
+    return CmCard(
+      radius: CmTokens.radiusXl,
+      padding: const EdgeInsets.fromLTRB(16, 16, 12, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: tone),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: tone,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                indent: 50,
+                color: cs.outlineVariant.withValues(alpha: 0.4),
+              ),
+            children[i],
+          ],
+        ],
       ),
     );
   }
@@ -229,49 +272,37 @@ class _SettingsNavTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final accent = danger ? cs.error : cs.onSurfaceVariant;
-    return CmPress(
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: danger ? cs.errorContainer.withValues(alpha: 0.18) : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: (danger ? cs.error : cs.outlineVariant).withValues(alpha: 0.5)),
-        ),
+      borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: danger ? cs.error.withValues(alpha: 0.12) : cs.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, size: 20, color: accent),
-            ),
+            CmIconTile(icon: icon, size: 38, color: danger ? cs.error : cs.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                      style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: danger ? cs.error : null,
                       )),
                   Text(
                     subtitle,
-                    style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, size: 20),
+            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
           ],
         ),
-      ),);
+      ),
+    );
   }
 }
