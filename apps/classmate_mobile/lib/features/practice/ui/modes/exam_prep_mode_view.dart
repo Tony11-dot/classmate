@@ -14,20 +14,10 @@ class ExamPrepModeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.assignment_rounded, color: d.accent, size: 18),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l.practiceModeExamPrepBanner,
-                  style: d.theme.textTheme.labelLarge?.copyWith(
-                    color: d.accent,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
+          modeInfoStrip(
+            d,
+            icon: Icons.assignment_rounded,
+            text: l.practiceModeExamPrepBanner,
           ),
           const SizedBox(height: 14),
           sessionProgressStrip(d),

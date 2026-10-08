@@ -25,28 +25,10 @@ class AdaptiveModeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: d.accent),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.auto_awesome_rounded, color: d.accent, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _difficultyLine(context),
-                    style: d.theme.textTheme.labelLarge?.copyWith(
-                      color: d.accent,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          modeInfoStrip(
+            d,
+            icon: Icons.auto_awesome_rounded,
+            text: _difficultyLine(context),
           ),
           const SizedBox(height: 14),
           sessionProgressStrip(d),

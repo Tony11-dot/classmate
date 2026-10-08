@@ -23,9 +23,10 @@ class ConceptBuilderModeView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: d.accent,
+              color: d.accent.withValues(
+                alpha: d.cs.brightness == Brightness.dark ? 0.18 : 0.08,
+              ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: d.accent),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +34,7 @@ class ConceptBuilderModeView extends StatelessWidget {
                 Text(
                   l.practiceModeConceptFirst,
                   style: d.theme.textTheme.titleSmall?.copyWith(
-                    color: d.accent,
+                    color: d.cs.onSurface,
                     fontWeight: FontWeight.w900,
                   ),
                 ),

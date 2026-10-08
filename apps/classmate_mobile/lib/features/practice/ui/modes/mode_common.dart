@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/theme/cm_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/cm_press.dart';
 
 import '../../domain/practice_models.dart';
 import '../../providers/practice_providers.dart';
@@ -13,22 +15,17 @@ import '../../../../common/widgets/cm_ai_message.dart';
 
 typedef SessionResetFn = void Function();
 
-Color _sessionPanelBorder(ColorScheme cs) {
-  return cs.brightness == Brightness.dark
-      ? cs.outlineVariant
-      : cs.outlineVariant;
+bool _isDark(ColorScheme cs) => cs.brightness == Brightness.dark;
+
+/// Soft accent wash used for banners / selected states. Never a solid fill —
+/// accent text and icons sit on top of it and must stay readable.
+Color _accentWash(ColorScheme cs, Color accent, {double light = 0.10, double dark = 0.18}) {
+  return accent.withValues(alpha: _isDark(cs) ? dark : light);
 }
 
-Color _sessionPanelBg(ColorScheme cs, Color accent) {
-  return cs.brightness == Brightness.dark
-      ? Color.alphaBlend(
-          accent,
-          cs.surfaceContainerHigh,
-        )
-      // Light mode: surface == scaffold bg, so the panel blends in. Step up
-      // to a faintly elevated container so the card has shape.
-      : cs.surfaceContainerHigh;
-}
+/// Inner panel that sits on the question card (prompt, flashcard face).
+Color _innerPanelBg(ColorScheme cs) =>
+    _isDark(cs) ? cs.surfaceContainerHigh : cs.surface;
 
 /// Foreground that's guaranteed to contrast with a saturated accent fill.
 /// White if the accent is dark enough; black-ish otherwise.
@@ -181,110 +178,140 @@ Stay strictly inside the same subject/topic. Help the student solve this exact q
   }
 }
 
-Widget modeBanner(ModeContextData d) {
-  final accent = d.accent;
-  final cs = d.cs;
-  final theme = d.theme;
 
+/// Accent-washed strip with a filled icon badge — the one banner shape every
+/// mode uses (speed round, exam prep, adaptive, bagrut, concept builder).
+Widget modeInfoStrip(
+  ModeContextData d, {
+  required IconData icon,
+  required String text,
+  String? subtitle,
+  Widget? trailing,
+}) {
+  final cs = d.cs;
+  final accent = d.accent;
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+    padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 14, 10),
     decoration: BoxDecoration(
-      color: accent.withValues(
-        alpha: cs.brightness == Brightness.dark ? 0.14 : 0.08,
-      ),
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(
-        color: accent.withValues(
-          alpha: cs.brightness == Brightness.dark ? 0.26 : 0.22,
-        ),
-      ),
+      color: _accentWash(cs, accent),
+      borderRadius: BorderRadius.circular(CmTokens.radiusMd),
     ),
     child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: subtitle == null
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
-        Icon(practiceModeIcon(d.state.filter.mode), color: accent, size: 18),
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+          child: Icon(icon, size: 17, color: _onAccent(accent)),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                practiceModeLabel(d.context, d.state.filter.mode),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: accent,
-                  fontWeight: FontWeight.w900,
+                text,
+                style: d.theme.textTheme.labelLarge?.copyWith(
+                  color: cs.onSurface,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                practiceModeDescription(d.context, d.state.filter.mode),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  height: 1.25,
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: d.theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    height: 1.25,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
+        if (trailing != null) ...[const SizedBox(width: 8), trailing],
       ],
     ),
   );
 }
 
-Widget sessionProgressStrip(ModeContextData d) {
-  final streakActive = d.state.stats.streak > 1;
+Widget modeBanner(ModeContextData d) {
+  return modeInfoStrip(
+    d,
+    icon: practiceModeIcon(d.state.filter.mode),
+    text: practiceModeLabel(d.context, d.state.filter.mode),
+    subtitle: practiceModeDescription(d.context, d.state.filter.mode),
+  );
+}
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+Widget sessionProgressStrip(ModeContextData d) {
+  final streak = d.state.stats.streak;
+  final streakActive = streak > 1;
+  final cs = d.cs;
+
+  return Row(
     children: [
-      Row(
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: d.sessionProgress,
-                minHeight: 8,
-                backgroundColor: d.cs.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(d.accent),
-              ),
+      Text(
+        d.progressLabel,
+        style: d.theme.textTheme.labelLarge?.copyWith(
+          color: cs.onSurfaceVariant,
+          fontWeight: FontWeight.w800,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(end: d.sessionProgress.toDouble()),
+            duration: CmTokens.medium,
+            curve: CmTokens.easeOut,
+            builder: (_, v, _) => LinearProgressIndicator(
+              value: v,
+              minHeight: 6,
+              backgroundColor: cs.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(d.accent),
             ),
           ),
-          const SizedBox(width: 10),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: d.cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: streakActive
-                  ? [
-                      BoxShadow(
-                        color: d.accent,
-                        blurRadius: 18,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : const [],
+        ),
+      ),
+      const SizedBox(width: 10),
+      AnimatedContainer(
+        duration: CmTokens.medium,
+        curve: CmTokens.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: streakActive
+              ? CmTokens.of(d.context).warnContainer
+              : cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.local_fire_department_rounded,
+              size: 15,
+              color: streakActive
+                  ? CmTokens.of(d.context).warn
+                  : cs.onSurfaceVariant,
             ),
-            child: Text(
-              '🔥 ${d.state.stats.streak}',
+            const SizedBox(width: 3),
+            Text(
+              '$streak',
               style: d.theme.textTheme.labelMedium?.copyWith(
-                color: d.accent,
+                color: streakActive ? cs.onSurface : cs.onSurfaceVariant,
                 fontWeight: FontWeight.w900,
               ),
             ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      Text(
-        d.progressLabel,
-        style: d.theme.textTheme.bodySmall?.copyWith(
-          color: d.cs.onSurfaceVariant,
-          fontWeight: FontWeight.w700,
+          ],
         ),
       ),
     ],
@@ -294,25 +321,19 @@ Widget sessionProgressStrip(ModeContextData d) {
 Widget questionCard(
   ModeContextData d, {
   required Widget child,
-  EdgeInsets padding = const EdgeInsets.all(20),
+  EdgeInsets padding = const EdgeInsets.all(18),
 }) {
   final cs = d.cs;
-  final accent = d.accent;
   return Container(
     padding: padding,
     decoration: BoxDecoration(
-      color: cs.brightness == Brightness.dark
-          ? Color.alphaBlend(
-              accent,
-              cs.surfaceContainerLow,
-            )
-          : cs.surface,
-      borderRadius: BorderRadius.circular(28),
+      color: cs.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(CmTokens.radiusXl),
       border: Border.all(
-        color: cs.brightness == Brightness.dark
-            ? cs.outlineVariant
-            : cs.outlineVariant,
+        color: cs.outlineVariant.withValues(alpha: 0.35),
+        width: 0.8,
       ),
+      boxShadow: CmTokens.of(d.context).shadowSm,
     ),
     child: child,
   );
@@ -327,20 +348,28 @@ Widget defaultQuestionHeader(ModeContextData d) {
       Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: d.accent,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: d.accent),
             ),
-            child: Text(
-              practiceModeLabel(d.context, d.state.filter.mode),
-              style: d.theme.textTheme.labelLarge?.copyWith(
-                // Was `d.accent` — identical to the chip fill, so the label
-                // disappeared. Pick a contrasting foreground for the accent.
-                color: _onAccent(d.accent),
-                fontWeight: FontWeight.w800,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  practiceModeIcon(d.state.filter.mode),
+                  size: 14,
+                  color: _onAccent(d.accent),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  practiceModeLabel(d.context, d.state.filter.mode),
+                  style: d.theme.textTheme.labelMedium?.copyWith(
+                    color: _onAccent(d.accent),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
@@ -372,12 +401,11 @@ Widget questionPromptPanel(ModeContextData d, {bool withSave = true}) {
   return Container(
     width: double.infinity,
     padding: withSave
-        ? const EdgeInsets.fromLTRB(18, 10, 10, 18)
-        : const EdgeInsets.fromLTRB(18, 18, 18, 18),
+        ? const EdgeInsetsDirectional.fromSTEB(18, 8, 6, 18)
+        : const EdgeInsets.all(18),
     decoration: BoxDecoration(
-      color: _sessionPanelBg(cs, d.accent),
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: _sessionPanelBorder(cs)),
+      color: _innerPanelBg(cs),
+      borderRadius: BorderRadius.circular(CmTokens.radiusLg),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,13 +416,13 @@ Widget questionPromptPanel(ModeContextData d, {bool withSave = true}) {
             child: saveQuestionButton(d),
           ),
         Padding(
-          padding: EdgeInsetsDirectional.only(end: withSave ? 8 : 0),
+          padding: EdgeInsetsDirectional.only(end: withSave ? 12 : 0),
           child: CMAiMessage(
             d.promptOf(),
             compact: true,
             textStyle: d.theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w900,
-              height: 1.22,
+              fontWeight: FontWeight.w800,
+              height: 1.28,
             ),
           ),
         ),
@@ -451,6 +479,8 @@ class ModeAnswerTile extends StatelessWidget {
   final bool wrongSelected;
   final Color accent;
   final VoidCallback onTap;
+  /// Option position — rendered as the A/B/C/D badge.
+  final int index;
 
   const ModeAnswerTile({
     super.key,
@@ -461,95 +491,71 @@ class ModeAnswerTile extends StatelessWidget {
     required this.wrongSelected,
     required this.accent,
     required this.onTap,
+    this.index = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // Use an elevated container for the default state so the tile is
-    // distinguishable from the scaffold background in light mode — plain
-    // `cs.surface` is the same color as the page behind it.
-    final defaultFill = cs.brightness == Brightness.dark
-        ? cs.surface
-        : cs.surfaceContainerHigh;
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+    // Quiz feedback keeps the universal green/red.
+    const good = Colors.green;
+    const bad = Colors.red;
+    final showCorrect = revealed && correct;
+    final showWrong = revealed && wrongSelected;
+    final dimmed = revealed && !correct && !wrongSelected;
+    final tone = showCorrect
+        ? good
+        : showWrong
+        ? bad
+        : (!revealed && selected)
+        ? accent
+        : null;
+
+    final fill = tone != null
+        ? tone.withValues(alpha: _isDark(cs) ? 0.20 : 0.11)
+        : _innerPanelBg(cs);
+    final border = tone ?? cs.outlineVariant.withValues(alpha: 0.5);
+
+    final Widget badgeChild = showCorrect
+        ? const Icon(Icons.check_rounded, size: 17, color: Colors.white)
+        : showWrong
+        ? const Icon(Icons.close_rounded, size: 17, color: Colors.white)
+        : Text(
+            String.fromCharCode(65 + index),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: tone != null ? _onAccent(tone) : cs.onSurfaceVariant,
+            ),
+          );
+
+    return AnimatedOpacity(
+      duration: CmTokens.medium,
+      opacity: dimmed ? 0.55 : 1,
+      child: CmPress(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 280),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          duration: CmTokens.medium,
+          curve: CmTokens.easeOut,
+          padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 14, 10),
+          constraints: const BoxConstraints(minHeight: 56),
           decoration: BoxDecoration(
-            color: revealed
-                ? correct
-                      ? Colors.green
-                      : wrongSelected
-                      ? Colors.red
-                      : defaultFill
-                : selected
-                ? accent
-                : defaultFill,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: revealed
-                  ? correct
-                        ? Colors.green
-                        : wrongSelected
-                        ? Colors.red
-                        : cs.outlineVariant
-                  : selected
-                  ? accent
-                  : cs.outlineVariant,
-            ),
+            color: fill,
+            borderRadius: BorderRadius.circular(CmTokens.radiusMd + 2),
+            border: Border.all(color: border, width: tone != null ? 1.6 : 1),
           ),
           child: Row(
             children: [
-              Container(
-                width: 24,
-                height: 24,
+              AnimatedContainer(
+                duration: CmTokens.medium,
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: revealed
-                      ? correct
-                            ? Colors.green
-                            : wrongSelected
-                            ? Colors.red
-                            : Colors.transparent
-                      : selected
-                      ? accent
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: revealed
-                        ? correct
-                              ? Colors.green
-                              : wrongSelected
-                              ? Colors.red
-                              : cs.outlineVariant
-                        : selected
-                        ? accent
-                        : cs.outlineVariant,
-                  ),
+                  color: tone ?? cs.surfaceContainerHighest,
                 ),
-                alignment: Alignment.center,
-                child: revealed
-                    ? correct
-                          ? const Icon(
-                              Icons.check_rounded,
-                              size: 14,
-                              color: Colors.green,
-                            )
-                          : wrongSelected
-                          ? const Icon(
-                              Icons.close_rounded,
-                              size: 14,
-                              color: Colors.red,
-                            )
-                          : null
-                    : selected
-                    ? Icon(Icons.check_rounded, size: 14, color: accent)
-                    : null,
+                child: badgeChild,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -557,8 +563,10 @@ class ModeAnswerTile extends StatelessWidget {
                   label,
                   compact: true,
                   textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    height: 1.15,
+                    fontWeight: (selected || showCorrect)
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                    height: 1.2,
                   ),
                 ),
               ),
@@ -575,6 +583,7 @@ Widget answerList(ModeContextData d) {
     children: [
       for (int i = 0; i < d.options.length; i++) ...[
         ModeAnswerTile(
+          index: i,
           label: d.options[i],
           selected: d.selectedIndex == i,
           revealed: d.answered,
@@ -600,29 +609,33 @@ Widget answerResultBar(ModeContextData d) {
   if (result == null) return const SizedBox.shrink();
 
   final accent = result ? Colors.green : Colors.red;
-  final icon = result ? Icons.check_circle_rounded : Icons.cancel_rounded;
+  final icon = result ? Icons.check_rounded : Icons.close_rounded;
   final l = AppLocalizations.of(d.context)!;
   final title = result ? l.practiceModeFeedbackCorrect : l.practiceModeFeedbackNotQuite;
 
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(14),
+    padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 14, 10),
     decoration: BoxDecoration(
-      // Subtle tint, NOT a solid fill — the icon/title are accent-colored, so a
-      // solid accent background made them invisible (the empty green bar).
-      color: accent.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: accent.withValues(alpha: 0.5)),
+      // Subtle tint, NOT a solid fill — the title sits on top of it.
+      color: accent.withValues(alpha: _isDark(d.cs) ? 0.20 : 0.11),
+      borderRadius: BorderRadius.circular(CmTokens.radiusMd),
     ),
     child: Row(
       children: [
-        Icon(icon, color: accent),
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+          child: Icon(icon, color: Colors.white, size: 18),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             title,
             style: d.theme.textTheme.titleSmall?.copyWith(
-              color: accent,
+              color: d.cs.onSurface,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -634,25 +647,32 @@ Widget answerResultBar(ModeContextData d) {
 
 Widget explanationCard(ModeContextData d, {String? title}) {
   final l = AppLocalizations.of(d.context)!;
+  final cs = d.cs;
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      // Subtle tint so the accent title AND the dark explanation body are both
-      // readable (was a solid accent fill → invisible title, washed-out body).
-      color: d.accent.withValues(alpha: 0.10),
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: d.accent.withValues(alpha: 0.4)),
+      color: _innerPanelBg(cs),
+      borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+      border: Border.all(color: d.accent.withValues(alpha: 0.35)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title ?? l.practiceSessionExplanation,
-          style: d.theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: d.accent,
-          ),
+        Row(
+          children: [
+            Icon(Icons.lightbulb_rounded, size: 18, color: d.accent),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                title ?? l.practiceSessionExplanation,
+                style: d.theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         CMAiMessage(d.explanationOf(), compact: true),
@@ -687,6 +707,7 @@ Widget sharedPrimaryActionButton(
   IconData postAnswerIcon = Icons.arrow_forward_rounded,
 }) {
   return FilledButton.icon(
+    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
     onPressed: d.submitOrNext,
     icon: Icon(d.answered ? postAnswerIcon : preAnswerIcon),
     label: Text(
@@ -702,7 +723,11 @@ Widget compactIconAction({
   required IconData icon,
   required String tooltip,
 }) {
-  return IconButton(tooltip: tooltip, onPressed: onPressed, icon: Icon(icon));
+  return IconButton.filledTonal(
+    tooltip: tooltip,
+    onPressed: onPressed,
+    icon: Icon(icon),
+  );
 }
 
 Widget novaHintAction(ModeContextData d) {

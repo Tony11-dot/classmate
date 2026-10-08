@@ -63,21 +63,6 @@ String _practiceSessionModeDescription(BuildContext context, PracticeMode mode) 
   }
 }
 
-Color _sessionPanelBorder(ColorScheme cs) {
-  return cs.brightness == Brightness.dark
-      ? cs.outlineVariant
-      : cs.outlineVariant;
-}
-
-Color _sessionPanelBg(ColorScheme cs, Color accent) {
-  return cs.brightness == Brightness.dark
-      ? Color.alphaBlend(
-          accent,
-          cs.surfaceContainerHigh,
-        )
-      : cs.surface;
-}
-
 PracticeMode _practiceModeFromLabel(BuildContext context, String modeLabel) {
   final normalized = modeLabel.trim().toLowerCase();
   for (final mode in PracticeMode.values) {
@@ -254,82 +239,51 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             children: [
-              Container(
-                padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: _sessionPanelBorder(cs)),
+              _CompletionHero(
+                accent: accent,
+                title: l.practiceSessionCompleteTitle(
+                  _practiceSessionModeLabel(context, state.filter.mode),
                 ),
-                child: Column(
-                  children: [
-                    Icon(Icons.emoji_events_rounded, size: 54, color: accent),
-                    const SizedBox(height: 12),
-                    Text(
-                      l.practiceSessionCompleteTitle(
-                        _practiceSessionModeLabel(context, state.filter.mode),
-                      ),
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        _MetricPill(
-                          label: l.practiceSessionMetricAnswered,
-                          value: '$answered',
-                        ),
-                        _MetricPill(
-                          label: l.practiceSessionMetricCorrect,
-                          value: '$correct',
-                        ),
-                        _MetricPill(
-                          label: l.practiceSessionMetricWrong,
-                          value: '$wrong',
-                        ),
-                        _MetricPill(
-                          label: l.practiceSessionMetricAccuracy,
-                          value: '$accuracy%',
-                        ),
-                        _MetricPill(
-                          label: l.practiceSessionMetricTotal,
-                          value: '$total',
-                        ),
-                        _MetricPill(
-                          label: l.practiceSessionMetricStreak,
-                          value: '${state.stats.streak}',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      _practiceSessionModeDescription(
-                        context,
-                        state.filter.mode,
-                      ),
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      localizedPracticeSubjectAndTopic(
-                        context,
-                        subject: state.filter.subject,
-                        topicLabel: state.filter.topicLabel,
-                      ),
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                description: _practiceSessionModeDescription(
+                  context,
+                  state.filter.mode,
                 ),
+                subjectLine: localizedPracticeSubjectAndTopic(
+                  context,
+                  subject: state.filter.subject,
+                  topicLabel: state.filter.topicLabel,
+                ),
+                accuracy: accuracy,
+                accuracyLabel: l.practiceSessionMetricAccuracy,
+                metrics: [
+                  _MetricPill(
+                    icon: Icons.edit_note_rounded,
+                    label: l.practiceSessionMetricAnswered,
+                    value: '$answered',
+                  ),
+                  _MetricPill(
+                    icon: Icons.check_circle_rounded,
+                    tone: Colors.green,
+                    label: l.practiceSessionMetricCorrect,
+                    value: '$correct',
+                  ),
+                  _MetricPill(
+                    icon: Icons.cancel_rounded,
+                    tone: Colors.red,
+                    label: l.practiceSessionMetricWrong,
+                    value: '$wrong',
+                  ),
+                  _MetricPill(
+                    icon: Icons.format_list_numbered_rounded,
+                    label: l.practiceSessionMetricTotal,
+                    value: '$total',
+                  ),
+                  _MetricPill(
+                    icon: Icons.local_fire_department_rounded,
+                    label: l.practiceSessionMetricStreak,
+                    value: '${state.stats.streak}',
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Row(
@@ -416,10 +370,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: cs.outlineVariant,
-                    ),
+                    borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                   ),
                   child: Text(
                     l.practiceSessionNoQuestionsForFilter,
@@ -452,12 +403,12 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: cs.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                       border: Border.all(
-                        color: isCorrect
-                            ? CmTokens.of(context).good
-                            : cs.outlineVariant,
+                        color: cs.outlineVariant.withValues(alpha: 0.35),
+                        width: 0.8,
                       ),
+                      boxShadow: CmTokens.of(context).shadowSm,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,14 +427,9 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                                 ),
                               ),
                             ),
-                            Icon(
-                              isCorrect
-                                  ? Icons.check_circle_rounded
-                                  : Icons.radio_button_unchecked_rounded,
-                              color: isCorrect
-                                  ? CmTokens.of(context).good
-                                  : cs.outlineVariant,
-                              size: 18,
+                            _ReviewStatusDot(
+                              answered: result != null,
+                              correct: isCorrect,
                             ),
                           ],
                         ),
@@ -536,17 +482,25 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          CMAiMessage(selectedLabel, compact: true),
+                          _AnswerBox(
+                            tone: result == null
+                                ? null
+                                : (isCorrect ? Colors.green : Colors.red),
+                            child: CMAiMessage(selectedLabel, compact: true),
+                          ),
                           const SizedBox(height: 10),
                           Text(
                             l.practiceSessionCorrectAnswer,
                             style: theme.textTheme.labelMedium?.copyWith(
-                              color: CmTokens.of(context).good,
+                              color: cs.onSurfaceVariant,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          CMAiMessage(correctLabel, compact: true),
+                          _AnswerBox(
+                            tone: Colors.green,
+                            child: CMAiMessage(correctLabel, compact: true),
+                          ),
                           const SizedBox(height: 10),
                           Text(
                             l.practiceSessionExplanation,
@@ -593,7 +547,10 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                     ],
                   ),
                 ),
-              OutlinedButton.icon(
+              FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                ),
                 onPressed: () {
                   sessionCtl.reset();
                   Navigator.of(context).maybePop();
@@ -632,86 +589,38 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: cs.brightness == Brightness.dark
-                    ? _sessionPanelBg(cs, accent)
-                    : cs.surface,
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: _sessionPanelBorder(cs)),
+            _SessionHeader(
+              accent: accent,
+              icon: practiceModeIcon(state.filter.mode),
+              modeLabel: _practiceSessionModeLabel(context, state.filter.mode),
+              title: l.practiceSessionQuestionProgress(
+                state.currentIndex + 1,
+                state.questions.length,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      _MiniPill(
-                        label: localizedPracticeSubject(
-                          context,
-                          state.filter.subject,
-                        ),
-                      ),
-                      _MiniPill(
-                        label: localizedPracticeTopicPath(
-                          context,
-                          state.filter.topicPath,
-                        ).replaceAll(' · ', ' • '),
-                      ),
-                      _MiniPill(
-                        label: practiceDifficultyLabel(
-                          context,
-                          state.filter.difficulty,
-                        ),
-                      ),
-                      _MiniPill(
-                        label: _practiceSessionModeLabel(
-                          context,
-                          state.filter.mode,
-                        ),
-                      ),
-                    ],
+              progress: progress,
+              chips: [
+                localizedPracticeSubject(context, state.filter.subject),
+                localizedPracticeTopicPath(
+                  context,
+                  state.filter.topicPath,
+                ).replaceAll(' · ', ' • '),
+                practiceDifficultyLabel(context, state.filter.difficulty),
+              ],
+              metrics: [
+                if (behavior.allowTimer)
+                  _MetricPill(
+                    icon: Icons.timer_outlined,
+                    label: l.practiceSessionMetricTime,
+                    value: l.practiceSetupSecondsShort(state.secondsRemaining),
+                    dense: true,
                   ),
-                  const SizedBox(height: 14),
-                  Text(
-                    l.practiceSessionQuestionProgress(
-                      state.currentIndex + 1,
-                      state.questions.length,
-                    ),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      if (behavior.allowTimer)
-                        _MetricPill(
-                          label: l.practiceSessionMetricTime,
-                          value: l.practiceSetupSecondsShort(
-                            state.secondsRemaining,
-                          ),
-                        ),
-                      _MetricPill(
-                        label: l.practiceSessionMetricStreak,
-                        value: '${state.stats.streak}',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                _MetricPill(
+                  icon: Icons.local_fire_department_rounded,
+                  label: l.practiceSessionMetricStreak,
+                  value: '${state.stats.streak}',
+                  dense: true,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             _modeBody(d),
@@ -722,41 +631,335 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
   }
 }
 
-class _MetricPill extends StatelessWidget {
-  const _MetricPill({required this.label, required this.value});
+Color _onAccentColor(Color accent) =>
+    accent.computeLuminance() < 0.5 ? Colors.white : Colors.black87;
 
-  final String label;
-  final String value;
+/// In-session header: mode badge + "Question x of y", context chips, an
+/// animated progress bar and the live metrics (timer / streak).
+class _SessionHeader extends StatelessWidget {
+  const _SessionHeader({
+    required this.accent,
+    required this.icon,
+    required this.modeLabel,
+    required this.title,
+    required this.progress,
+    required this.chips,
+    required this.metrics,
+  });
+
+  final Color accent;
+  final IconData icon;
+  final String modeLabel;
+  final String title;
+  final double progress;
+  final List<String> chips;
+  final List<Widget> metrics;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: cs.brightness == Brightness.dark
-              ? cs.outlineVariant
-              : cs.outlineVariant,
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: accent,
+                borderRadius: BorderRadius.circular(CmTokens.radiusSm + 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: accent.withValues(alpha: 0.30),
+                    blurRadius: 14,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: _onAccentColor(accent), size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    modeLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            for (final m in metrics) ...[const SizedBox(width: 6), m],
+          ],
         ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final c in chips.where((c) => c.trim().isNotEmpty)) ...[
+                _MiniPill(label: c),
+                const SizedBox(width: 6),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(end: progress),
+            duration: CmTokens.medium,
+            curve: CmTokens.easeOut,
+            builder: (_, v, _) => LinearProgressIndicator(
+              value: v,
+              minHeight: 6,
+              backgroundColor: cs.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Results hero: trophy, title, a big accuracy ring and a metric grid.
+class _CompletionHero extends StatelessWidget {
+  const _CompletionHero({
+    required this.accent,
+    required this.title,
+    required this.description,
+    required this.subjectLine,
+    required this.accuracy,
+    required this.accuracyLabel,
+    required this.metrics,
+  });
+
+  final Color accent;
+  final String title;
+  final String description;
+  final String subjectLine;
+  final int accuracy;
+  final String accuracyLabel;
+  final List<Widget> metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final tokens = CmTokens.of(context);
+    final ringColor = accuracy >= 80
+        ? Colors.green
+        : accuracy >= 50
+        ? tokens.warn
+        : cs.error;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            accent.withValues(
+              alpha: cs.brightness == Brightness.dark ? 0.26 : 0.14,
+            ),
+            cs.surfaceContainerLow,
+          ],
+        ),
+        boxShadow: tokens.shadowSm,
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.emoji_events_rounded, size: 22, color: accent),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subjectLine,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: 132,
+            height: 132,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: accuracy / 100),
+                  duration: const Duration(milliseconds: 900),
+                  curve: CmTokens.easeOut,
+                  builder: (_, v, _) => CircularProgressIndicator(
+                    value: v,
+                    strokeWidth: 11,
+                    strokeCap: StrokeCap.round,
+                    backgroundColor: cs.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+                  ),
+                ),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$accuracy%',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      Text(
+                        accuracyLabel,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          LayoutBuilder(
+            builder: (context, c) {
+              const gap = 8.0;
+              final w = (c.maxWidth - gap * 2) / 3;
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                alignment: WrapAlignment.center,
+                children: [
+                  for (final m in metrics) SizedBox(width: w, child: m),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 14),
+          Text(
+            description,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetricPill extends StatelessWidget {
+  const _MetricPill({
+    required this.label,
+    required this.value,
+    this.icon,
+    this.tone,
+    this.dense = false,
+  });
+
+  final String label;
+  final String value;
+  final IconData? icon;
+  final Color? tone;
+
+  /// Header variant: icon + value only (label kept for screen readers).
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final iconColor = tone ?? cs.onSurfaceVariant;
+    if (dense) {
+      return Semantics(
+        label: '$label $value',
+        excludeSemantics: true,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 15, color: iconColor),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                value,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.75),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (icon != null) Icon(icon, size: 18, color: iconColor),
+          const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
           ),
-          const SizedBox(height: 2),
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -773,22 +976,76 @@ class _MiniPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: cs.brightness == Brightness.dark
-              ? cs.outlineVariant
-              : cs.outlineVariant,
-        ),
       ),
       child: Text(
         label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: cs.onSurfaceVariant,
+            ),
       ),
+    );
+  }
+}
+
+/// Small round status mark on a review card (correct / wrong / skipped).
+class _ReviewStatusDot extends StatelessWidget {
+  const _ReviewStatusDot({required this.answered, required this.correct});
+
+  final bool answered;
+  final bool correct;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = !answered
+        ? cs.surfaceContainerHighest
+        : correct
+        ? Colors.green
+        : Colors.red;
+    return Container(
+      width: 24,
+      height: 24,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: Icon(
+        !answered
+            ? Icons.remove_rounded
+            : correct
+            ? Icons.check_rounded
+            : Icons.close_rounded,
+        size: 15,
+        color: answered ? Colors.white : cs.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+/// Answer text in a soft tinted box (green = correct, red = wrong).
+class _AnswerBox extends StatelessWidget {
+  const _AnswerBox({required this.child, this.tone});
+
+  final Widget child;
+  final Color? tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final dark = cs.brightness == Brightness.dark;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: tone == null
+            ? cs.surfaceContainerHigh
+            : tone!.withValues(alpha: dark ? 0.18 : 0.10),
+        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+      ),
+      child: child,
     );
   }
 }
@@ -858,11 +1115,9 @@ class _PracticeSessionMatchmakingScreenState
     return Scaffold(
       backgroundColor: cs.surface,
       body: SafeArea(
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
-          ),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -874,14 +1129,16 @@ class _PracticeSessionMatchmakingScreenState
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(32),
-                    border: Border.all(color: cs.surfaceContainerLow),
+                    boxShadow: CmTokens.of(context).shadowMd,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: cs.surfaceContainerLow,
+                        backgroundColor: accent.withValues(
+                          alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12,
+                        ),
                         child: Icon(
                           practiceModeIcon(currentMode),
                           color: accent,
@@ -948,10 +1205,7 @@ class _PracticeSessionMatchmakingScreenState
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Color.alphaBlend(
-                            cs.surfaceContainerLow,
-                            cs.surfaceContainerHighest,
-                          ),
+                          color: cs.surfaceContainerHigh,
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
@@ -964,14 +1218,9 @@ class _PracticeSessionMatchmakingScreenState
                         ),
                       ),
                       const SizedBox(height: 18),
-                      OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: cs.surfaceContainerLow,
-                          ),
-                        ),
+                      FilledButton.tonalIcon(
                         onPressed: widget.onCancel,
-                        icon: Icon(Icons.close_rounded, color: accent),
+                        icon: const Icon(Icons.close_rounded),
                         label: Text(l.practiceSetupStopGenerating),
                       ),
                     ],

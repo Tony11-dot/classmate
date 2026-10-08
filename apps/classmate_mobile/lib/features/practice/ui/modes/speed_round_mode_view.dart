@@ -15,35 +15,19 @@ class SpeedRoundModeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: d.accent,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: d.accent),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.flash_on_rounded, color: d.accent, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l.practiceModeSpeedRoundBanner,
-                    style: d.theme.textTheme.labelLarge?.copyWith(
-                      color: d.accent,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-                Text(
-                  l.practiceSetupSecondsShort(d.state.secondsRemaining),
-                  style: d.theme.textTheme.titleMedium?.copyWith(
-                    color: d.accent,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
+          modeInfoStrip(
+            d,
+            icon: Icons.flash_on_rounded,
+            text: l.practiceModeSpeedRoundBanner,
+            trailing: Text(
+              l.practiceSetupSecondsShort(d.state.secondsRemaining),
+              style: d.theme.textTheme.titleMedium?.copyWith(
+                color: d.state.secondsRemaining <= 5
+                    ? d.cs.error
+                    : d.cs.onSurface,
+                fontWeight: FontWeight.w900,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
           const SizedBox(height: 14),

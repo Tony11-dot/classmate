@@ -14,29 +14,10 @@ class BagrutModeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-            decoration: BoxDecoration(
-              color: d.accent,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: d.accent),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.description_rounded, color: d.accent, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l.practiceModeBagrutBanner,
-                    style: d.theme.textTheme.labelLarge?.copyWith(
-                      color: d.accent,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          modeInfoStrip(
+            d,
+            icon: Icons.description_rounded,
+            text: l.practiceModeBagrutBanner,
           ),
           const SizedBox(height: 16),
           sessionProgressStrip(d),
