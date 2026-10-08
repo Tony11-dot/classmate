@@ -31,7 +31,7 @@ Update this file in the same commit as each screen's redesign.
 | Practice history / review / saved questions | ✅ |
 | NOVA home / NOVA chat | ✅ / ✅ (empty state) |
 | Solutions home | ✅ |
-| Solutions books / pages / questions / subject | 🎨 / 🎨 / 🎨 / ➖ (wraps Solutions home) |
+| Solutions books / pages / questions / subject | ✅ / ✅ / ✅ (not previewed: flow state) / ➖ (wraps Solutions home) |
 | Bagrut home | ✅ |
 | Bagrut exams list / exam | ✅ / ✅ |
 | Certificates home / list | ✅ / ✅ |
@@ -103,7 +103,7 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications
+1. 🎨 support, forgot password / phone link, parent notifications
 2. Export options sheet, admin dashboard detail pass
 3. Onboarding (low priority)
 

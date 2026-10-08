@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../ui/widgets/cm_search_field.dart';
+import '../../../../ui/widgets/cm_surfaces.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -62,7 +63,10 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.tutorCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.commonDelete),
           ),
@@ -125,29 +129,14 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
           ),
           Expanded(
             child: subject == null
-                ? Center(child: Text(l.solutionsChooseSubjectFirst))
+                ? Center(child: CmEmptyState(icon: Icons.category_rounded, title: l.solutionsChooseSubjectFirst))
                 : books.isEmpty
                 ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.menu_book_rounded,
-                            size: 52,
-                            color: cs.onSurfaceVariant,
-                          ),
-                          const SizedBox(height: 14),
-                          Text(
-                            _query.trim().isEmpty
-                                ? l.solutionsNoBooksYetForStudents
-                                : l.solutionsNoBooksMatch(_query),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: cs.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
+                    child: CmEmptyState(
+                      icon: Icons.menu_book_rounded,
+                      title: _query.trim().isEmpty
+                          ? l.solutionsNoBooksYetForStudents
+                          : l.solutionsNoBooksMatch(_query),
                     ),
                   )
                 : ListView.separated(
@@ -156,58 +145,50 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final book = books[index];
-                      return Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(22),
-                          onTap: () {
-                            notifier.selectBook(book);
-                            context.push('/solutions/pages');
-                          },
-                          child: Ink(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: cs.surfaceContainerLow.withValues(alpha: 0.75),
-                              borderRadius: BorderRadius.circular(22),
-                              border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                            ),
-                            child: Row(
-                              children: [
-                                _BookCover(book: book),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        book.title,
-                                        style: const TextStyle(fontWeight: FontWeight.w800),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        l.solutionsBookPagesCount(book.pageCount),
-                                        style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
-                                      ),
-                                    ],
+                      return CmCard(
+                        onTap: () {
+                          notifier.selectBook(book);
+                          context.push('/solutions/pages');
+                        },
+                        padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+                        child: Row(
+                          children: [
+                            _BookCover(book: book),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    book.title,
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                                   ),
-                                ),
-                                if (canManage)
-                                  PopupMenuButton<String>(
-                                    icon: Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
-                                    onSelected: (v) {
-                                      if (v == 'edit') _editBook(subject.id, book);
-                                      if (v == 'delete') _deleteBook(book);
-                                    },
-                                    itemBuilder: (_) => [
-                                      PopupMenuItem(value: 'edit', child: Text(l.solutionsEditBookTitle)),
-                                      PopupMenuItem(value: 'delete', child: Text(l.commonDelete)),
-                                    ],
-                                  )
-                                else
-                                  const Icon(Icons.chevron_right_rounded),
-                              ],
+                                  const SizedBox(height: 6),
+                                  CmPill(
+                                    icon: Icons.description_rounded,
+                                    label: l.solutionsBookPagesCount(book.pageCount),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            if (canManage)
+                              PopupMenuButton<String>(
+                                icon: Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
+                                onSelected: (v) {
+                                  if (v == 'edit') _editBook(subject.id, book);
+                                  if (v == 'delete') _deleteBook(book);
+                                },
+                                itemBuilder: (_) => [
+                                  PopupMenuItem(value: 'edit', child: Text(l.solutionsEditBookTitle)),
+                                  PopupMenuItem(value: 'delete', child: Text(l.commonDelete)),
+                                ],
+                              )
+                            else
+                              Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+                              ),
+                          ],
                         ),
                       );
                     },
@@ -236,8 +217,8 @@ class _BookCover extends StatelessWidget {
         height: 60,
         child: url.isEmpty
             ? Container(
-                color: cs.secondaryContainer,
-                child: Icon(Icons.menu_book_rounded, size: 22, color: cs.onSecondaryContainer),
+                color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                child: Icon(Icons.menu_book_rounded, size: 22, color: cs.primary),
               )
             : CachedNetworkImage(
                 imageUrl: url,

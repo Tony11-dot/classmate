@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/cm_surfaces.dart';
 import '../../data/solutions_api.dart';
 import '../../data/solutions_live_mapper.dart';
 import '../../domain/solutions_models.dart';
@@ -308,9 +309,9 @@ class _SectionTitle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+        Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
         const SizedBox(height: 4),
-        Text(subtitle, style: TextStyle(color: cs.onSurfaceVariant)),
+        Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
       ],
     );
   }
@@ -324,13 +325,15 @@ class _EmptyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+    return CmCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          CmIconTile(icon: Icons.lightbulb_outline_rounded, size: 36, color: cs.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: TextStyle(color: cs.onSurfaceVariant))),
+        ],
       ),
-      child: Text(text, style: TextStyle(color: cs.onSurfaceVariant)),
     );
   }
 }
@@ -403,21 +406,16 @@ class _SolutionCard extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final meta = _authorMeta(l);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-        boxShadow: CmTokens.of(context).shadowSm,
-      ),
+    return CmCard(
+      radius: CmTokens.radiusXl,
+      padding: const EdgeInsets.fromLTRB(14, 14, 6, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(child: Text(item.uploaderInitials)),
+              CmMonogram(name: item.uploaderName, initials: item.uploaderInitials),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -425,33 +423,34 @@ class _SolutionCard extends ConsumerWidget {
                   children: [
                     Text(
                       item.uploaderName,
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     if (meta.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(meta, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5)),
                     ],
-                    const SizedBox(height: 2),
-                    Text(
-                      l.solutionsPageQuestionSummary(
-                        item.pageNumber,
-                        item.questionNumber,
-                      ),
-                      style: TextStyle(color: cs.onSurfaceVariant),
+                    const SizedBox(height: 6),
+                    CmPill(
+                      icon: Icons.bookmark_rounded,
+                      label: l.solutionsPageQuestionSummary(item.pageNumber, item.questionNumber),
+                      color: cs.primary,
                     ),
                   ],
                 ),
               ),
-              IconButton(
+              CmIconAction(
+                icon: Icons.flag_outlined,
                 tooltip: l.solutionsReportAction,
-                visualDensity: VisualDensity.compact,
-                icon: Icon(Icons.flag_outlined, size: 20, color: cs.onSurfaceVariant),
                 onPressed: () => _report(context, ref),
+                color: cs.onSurfaceVariant,
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(item.caption),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: Text(item.caption, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.45)),
+          ),
           const SizedBox(height: 12),
           if (item.assets.isNotEmpty)
             SolutionMediaStrip(assets: item.assets),

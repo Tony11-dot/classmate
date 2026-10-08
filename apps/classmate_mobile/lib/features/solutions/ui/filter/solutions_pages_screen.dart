@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../ui/widgets/cm_surfaces.dart';
 import '../../providers/solutions_flow_provider.dart';
 
 /// Special sentinel for "all questions on this page".
@@ -92,22 +93,13 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
             // ── Book info banner ───────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Container(
+              child: CmCard(
+                tint: cs.primary,
+                radius: CmTokens.radiusXl,
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                  boxShadow: CmTokens.of(context).shadowSm,
-                ),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: cs.primaryContainer,
-                      child: Icon(Icons.menu_book_rounded,
-                          size: 18, color: cs.onPrimaryContainer),
-                    ),
+                    const CmIconTile(icon: Icons.menu_book_rounded, size: 48, filled: true),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -121,8 +113,8 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
                           ),
                           Text(
                             state.selectedBook?.title ?? l.solutionsBookLabel,
-                            style: tt.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w800),
+                            style: tt.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w900),
                           ),
                           if (pageCount < 9999)
                             Text(l.solutionsPagesCount(pageCount),
@@ -210,6 +202,7 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                   onPressed: _search,
                   icon: const Icon(Icons.search_rounded),
                   label: Text(l.solutionsViewSolutionsAction),
@@ -257,10 +250,8 @@ class SolutionsDrumPicker extends StatelessWidget {
             child: Container(
               height: itemExtent,
               decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                    color: cs.primary.withValues(alpha: 0.25), width: 1.5),
+                color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.18 : 0.10),
+                borderRadius: BorderRadius.circular(CmTokens.radiusMd),
               ),
             ),
           ),
@@ -282,8 +273,9 @@ class SolutionsDrumPicker extends StatelessWidget {
                   labelBuilder(i),
                   style: TextStyle(
                     fontSize: 22,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: cs.onSurface,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
               ),
