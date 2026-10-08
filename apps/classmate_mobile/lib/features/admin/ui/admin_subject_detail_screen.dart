@@ -1,4 +1,6 @@
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
+import 'package:classmate_mobile/core/theme/cm_tokens.dart';
+import 'package:classmate_mobile/ui/widgets/cm_surfaces.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/contracts/school_subject.dart';
@@ -65,12 +67,14 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
     return t.isEmpty ? null : t;
   }
 
-  Widget _field(BuildContext context, TextEditingController c, String label, String langCode, {TextDirection? dir}) {
+  Widget _field(BuildContext context, TextEditingController c, String label, String langCode,
+      {TextDirection? dir, ValueChanged<String>? onChanged, bool last = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: last ? 0 : 12),
       child: TextField(
         controller: c,
         textDirection: dir,
+        onChanged: onChanged,
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
           labelText: label,
@@ -136,27 +140,54 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
                   ),),
               ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              isNew ? AppLocalizations.of(context)!.adminSubjectDetailScreenNewSubject : widget.initial.nameEn,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            const SizedBox(height: 14),
+            // Live preview: name + colour as they'll appear across the app.
+            Builder(builder: (context) {
+              final tone = parseSubjectColor(_colorHex) ?? subjectColorOrFallback(null, _en.text.trim());
+              final name = _en.text.trim();
+              return CmCard(
+                tint: tone,
+                radius: CmTokens.radiusXl,
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CmIconTile(icon: Icons.menu_book_rounded, color: tone, size: 52, filled: true),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        name.isNotEmpty
+                            ? name
+                            : (isNew ? AppLocalizations.of(context)!.adminSubjectDetailScreenNewSubject : widget.initial.nameEn),
+                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 14),
+            CmFormSection(
+              icon: Icons.translate_rounded,
+              title: AppLocalizations.of(context)!.profileNamesTitle,
+              child: Column(
+                children: [
+                  _field(context, _en, AppLocalizations.of(context)!.adminSubjectDetailScreenLangEnglish, 'EN', onChanged: (_) => setState(() {})),
+                  _field(context, _ar, AppLocalizations.of(context)!.adminSubjectDetailScreenLangArabic,  'AR', dir: TextDirection.rtl),
+                  _field(context, _he, AppLocalizations.of(context)!.adminSubjectDetailScreenLangHebrew,  'HE', dir: TextDirection.rtl),
+                  _field(context, _fr, AppLocalizations.of(context)!.adminSubjectDetailScreenLangFrench,  'FR'),
+                  _field(context, _ru, AppLocalizations.of(context)!.adminSubjectDetailScreenLangRussian, 'RU', last: true),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            _field(context, _en, AppLocalizations.of(context)!.adminSubjectDetailScreenLangEnglish, 'EN'),
-            _field(context, _ar, AppLocalizations.of(context)!.adminSubjectDetailScreenLangArabic,  'AR', dir: TextDirection.rtl),
-            _field(context, _he, AppLocalizations.of(context)!.adminSubjectDetailScreenLangHebrew,  'HE', dir: TextDirection.rtl),
-            _field(context, _fr, AppLocalizations.of(context)!.adminSubjectDetailScreenLangFrench,  'FR'),
-            _field(context, _ru, AppLocalizations.of(context)!.adminSubjectDetailScreenLangRussian, 'RU'),
-            const SizedBox(height: 4),
-            Text(
-              AppLocalizations.of(context)!.adminSubjectDetailScreenColor,
-              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 8),
-            _ColorSwatchPicker(
-              value: _colorHex,
-              fallbackSeed: _en.text.trim(),
-              onChanged: (hex) => setState(() => _colorHex = hex),
+            const SizedBox(height: 14),
+            CmFormSection(
+              icon: Icons.palette_rounded,
+              title: AppLocalizations.of(context)!.adminSubjectDetailScreenColor,
+              child: _ColorSwatchPicker(
+                value: _colorHex,
+                fallbackSeed: _en.text.trim(),
+                onChanged: (hex) => setState(() => _colorHex = hex),
+              ),
             ),
           ],
         ),
@@ -240,19 +271,18 @@ class _SwatchTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return CmPress(
       onTap: onTap,
-      child: Container(
-        width: 32,
-        height: 32,
+      child: AnimatedContainer(
+        duration: CmTokens.fast,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(8),
+          shape: BoxShape.circle,
           border: Border.all(
-            color: selected ? cs.primary : cs.outlineVariant.withValues(alpha: 0.5),
-            width: selected ? 2.2 : 1,
+            color: selected ? cs.onSurface : Colors.transparent,
+            width: 2.5,
+            strokeAlign: BorderSide.strokeAlignOutside,
           ),
-          boxShadow: selected
-              ? [BoxShadow(color: cs.primary.withValues(alpha: 0.25), blurRadius: 4, spreadRadius: 0.5)]
-              : null,
         ),
         child: icon != null
             ? Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.85))

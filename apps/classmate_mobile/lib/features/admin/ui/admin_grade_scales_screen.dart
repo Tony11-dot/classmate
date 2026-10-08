@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/contracts/grade_scale.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/admin_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -68,7 +68,10 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
         actions: [
           TextButton(onPressed: () => Navigator.pop(dCtx, false), child: Text(l.commonCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(dCtx).colorScheme.error),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dCtx).colorScheme.error,
+              foregroundColor: Theme.of(dCtx).colorScheme.onError,
+            ),
             onPressed: () => Navigator.pop(dCtx, true),
             child: Text(l.commonDelete),
           ),
@@ -101,22 +104,16 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
       body: _loading
           ? const Center(child: CmLoading())
           : _error != null
-              ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)))
+              ? Center(child: CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: _error))
               : CmRefreshIndicator(
                   onRefresh: _load,
                   child: _scales.isEmpty
                       ? ListView(children: [
-                          const SizedBox(height: 80),
-                          Icon(Icons.abc_rounded, size: 56, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
-                          const SizedBox(height: 12),
-                          Center(child: Text(l.gradeScaleEmptyTitle,
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
-                          const SizedBox(height: 6),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Text(l.gradeScaleEmptyHint,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                          const SizedBox(height: 40),
+                          CmEmptyState(
+                            icon: Icons.grading_rounded,
+                            title: l.gradeScaleEmptyTitle,
+                            message: l.gradeScaleEmptyHint,
                           ),
                         ])
                       : ListView.builder(
@@ -126,59 +123,62 @@ class _AdminGradeScalesScreenState extends ConsumerState<AdminGradeScalesScreen>
                             final s = _scales[i];
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
-                              child: LiquidGlassCard(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(14),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(s.name,
-                                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                              child: CmCard(
+                                onTap: () => _openEditor(existing: s),
+                                padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const CmIconTile(icon: Icons.grading_rounded),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(s.name,
+                                                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, height: 1.2)),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                s.gradeLevels.isEmpty
+                                                    ? l.gradeScaleAllGrades
+                                                    : l.gradeScaleAppliesTo(s.gradeLevels.map((g) => '$g').join(', ')),
+                                                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                              ),
+                                            ],
                                           ),
-                                          IconButton(
-                                            icon: const Icon(Icons.edit_rounded, size: 20),
-                                            tooltip: l.a11yEdit,
-                                            onPressed: () => _openEditor(existing: s),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.delete_outline_rounded, size: 20, color: cs.error),
-                                            tooltip: l.a11yDelete,
-                                            onPressed: () => _delete(s),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        s.gradeLevels.isEmpty
-                                            ? l.gradeScaleAllGrades
-                                            : l.gradeScaleAppliesTo(s.gradeLevels.map((g) => '$g').join(', ')),
-                                        style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Wrap(
+                                        ),
+                                        CmIconAction(
+                                          icon: Icons.edit_rounded,
+                                          tooltip: l.a11yEdit,
+                                          onPressed: () => _openEditor(existing: s),
+                                        ),
+                                        CmIconAction(
+                                          icon: Icons.delete_outline_rounded,
+                                          tooltip: l.a11yDelete,
+                                          onPressed: () => _delete(s),
+                                          color: cs.error,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.only(start: 56),
+                                      child: Wrap(
                                         spacing: 6,
                                         runSpacing: 6,
                                         children: [
                                           for (final lab in s.labels)
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                              decoration: BoxDecoration(
-                                                color: cs.primaryContainer.withValues(alpha: 0.4),
-                                                borderRadius: BorderRadius.circular(999),
-                                              ),
-                                              child: Text(
-                                                lab.value != null ? '${lab.label} · ${lab.value}' : lab.label,
-                                                style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
-                                              ),
+                                            CmPill(
+                                              label: lab.value != null ? '${lab.label} · ${lab.value}' : lab.label,
+                                              color: cs.primary,
                                             ),
                                         ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
@@ -391,6 +391,7 @@ class _GradeScaleEditorSheetState extends ConsumerState<_GradeScaleEditorSheet> 
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                     onPressed: _saving ? null : _save,
                     child: _saving
                         ? const CmLoading(size: 20)
