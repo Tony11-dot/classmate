@@ -201,14 +201,16 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            const Text('Files', style: TextStyle(fontWeight: FontWeight.w800)),
-            const Text('Questions is the main file; the rest are optional.',
-                style: TextStyle(fontSize: 12, color: Colors.grey)),
-            const SizedBox(height: 8),
-            for (final kind in BagrutFileKind.all) _fileRow(kind),
             const SizedBox(height: 24),
+            Text('Files', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
+            const SizedBox(height: 2),
+            Text('Questions is the main file; the rest are optional.',
+                style: TextStyle(fontSize: 12.5, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 10),
+            for (final kind in BagrutFileKind.all) _fileRow(kind),
+            const SizedBox(height: 20),
             FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
               onPressed: _submitting ? null : _submit,
               child: _submitting
                   ? const SizedBox(height: 20, width: 20, child: CmLoading(size: 20, color: Colors.white))
@@ -222,11 +224,35 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
 
   Widget _fileRow(String kind) {
     final slot = _slots[kind]!;
-    return Card(
+    final cs = Theme.of(context).colorScheme;
+    final good = CmTokens.of(context).good;
+    final dark = cs.brightness == Brightness.dark;
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+        border: Border.all(
+          color: slot.hasFile ? good.withValues(alpha: 0.45) : cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+      ),
       child: ListTile(
-        leading: Icon(slot.hasFile ? Icons.check_circle_rounded : Icons.upload_file_rounded,
-            color: slot.hasFile ? CmTokens.of(context).good : null),
+        leading: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: slot.hasFile
+                ? good.withValues(alpha: dark ? 0.20 : 0.12)
+                : cs.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+          ),
+          child: Icon(
+            slot.hasFile ? Icons.check_circle_rounded : Icons.upload_file_rounded,
+            size: 20,
+            color: slot.hasFile ? good : cs.onSurfaceVariant,
+          ),
+        ),
         title: Text(_kindLabel(kind)),
         subtitle: slot.hasFile ? Text(slot.displayName ?? 'Attached', maxLines: 1, overflow: TextOverflow.ellipsis) : null,
         trailing: Row(
