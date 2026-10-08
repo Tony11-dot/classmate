@@ -80,7 +80,8 @@ Update this file in the same commit as each screen's redesign.
 | Secretary home, Secretary students, Student detail | ✅ |
 | Students hub | 🎨 |
 | Settings | ✅ |
-| School settings, Edit user, Import users, Export | 🎨 |
+| Edit user | ✅ |
+| School settings, Import users, Export | 🎨 |
 | Grade scales, Subject detail | ✅ |
 | Reports | ✅ |
 | Periods | ✅ (not previewed: private data provider) |

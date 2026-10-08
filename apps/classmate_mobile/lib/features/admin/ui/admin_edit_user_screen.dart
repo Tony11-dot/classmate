@@ -5,26 +5,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
 
 class AdminEditUserScreen extends ConsumerStatefulWidget {
-  const AdminEditUserScreen({super.key, required this.userId, required this.repo});
+  const AdminEditUserScreen({
+    super.key,
+    required this.userId,
+    required this.repo,
+  });
   final String userId;
   final AdminRepository repo;
 
   @override
-  ConsumerState<AdminEditUserScreen> createState() => _AdminEditUserScreenState();
+  ConsumerState<AdminEditUserScreen> createState() =>
+      _AdminEditUserScreenState();
 }
 
 class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   // Full name
-  final _nameEnCtrl   = TextEditingController();
-  final _emailCtrl    = TextEditingController();
+  final _nameEnCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _usernameCtrl = TextEditingController();
-  final _phoneCtrl    = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _nationalIdCtrl = TextEditingController();
   bool _isPrincipal = false;
   // Multiple grade ranges, like the school grade range (e.g. [[4,6],[9,12]]).
@@ -61,26 +67,34 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     }
     return set.toList()..sort();
   }
-  String  _dialCode = kDefaultDialCode;
+
+  String _dialCode = kDefaultDialCode;
 
   String? _role;
-  int?    _grade;
+  int? _grade;
+
   /// Cohorts the student is currently a member of (by name + grade).
   /// Populated alongside _loadUser. Empty for non-student roles.
   List<Map<String, dynamic>> _cohorts = const [];
-  bool    _loading = true;
-  bool    _saving  = false;
-  bool    _resetting = false;
+  bool _loading = true;
+  bool _saving = false;
+  bool _resetting = false;
 
   // Parent linking (PARENT role)
-  List<Map<String, dynamic>> _children  = [];
+  List<Map<String, dynamic>> _children = [];
   List<Map<String, dynamic>> _allStudents = [];
   bool _loadingChildren = false;
   bool _showAddChild = false;
   String? _linkStudentId;
 
-  static const _roles      = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
-  static const _roleLabels = ['Student', 'Teacher', 'Secretary', 'Parent', 'Admin'];
+  static const _roles = ['STUDENT', 'TEACHER', 'SECRETARY', 'PARENT', 'ADMIN'];
+  static const _roleLabels = [
+    'Student',
+    'Teacher',
+    'Secretary',
+    'Parent',
+    'Admin',
+  ];
 
   @override
   void initState() {
@@ -90,7 +104,13 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
   @override
   void dispose() {
-    for (final c in [_nameEnCtrl, _emailCtrl, _usernameCtrl, _phoneCtrl, _nationalIdCtrl]) {
+    for (final c in [
+      _nameEnCtrl,
+      _emailCtrl,
+      _usernameCtrl,
+      _phoneCtrl,
+      _nationalIdCtrl,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -99,15 +119,19 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   Future<void> _loadUser() async {
     try {
       final m = await widget.repo.getUserDetailRaw(widget.userId);
-      _nameEnCtrl.text   = m['name']?.toString() ?? m['nameEn']?.toString() ?? '';
-      _emailCtrl.text    = m['email']?.toString() ?? '';
+      _nameEnCtrl.text = m['name']?.toString() ?? m['nameEn']?.toString() ?? '';
+      _emailCtrl.text = m['email']?.toString() ?? '';
       _usernameCtrl.text = m['username']?.toString() ?? '';
       _nationalIdCtrl.text = m['nationalId']?.toString() ?? '';
       _isPrincipal = m['isPrincipal'] == true;
       final pg = m['principalGrades'];
       if (pg is List) {
-        _principalRanges =
-            _gradesToRanges(pg.map((e) => e is int ? e : int.tryParse('$e')).whereType<int>().toList());
+        _principalRanges = _gradesToRanges(
+          pg
+              .map((e) => e is int ? e : int.tryParse('$e'))
+              .whereType<int>()
+              .toList(),
+        );
       }
       // Split the stored E.164 phone into dial-code + local digits so the
       // PhoneField shows the right country chip on first paint.
@@ -118,7 +142,9 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         _phoneCtrl.text = split.localDigits;
       }
       final roles = m['roles'];
-      _role  = (roles is List && roles.isNotEmpty) ? roles.first.toString() : null;
+      _role = (roles is List && roles.isNotEmpty)
+          ? roles.first.toString()
+          : null;
       _grade = m['grade'] is num ? (m['grade'] as num).toInt() : null;
       final cohorts = m['cohorts'];
       if (cohorts is List) {
@@ -140,9 +166,15 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     setState(() => _loadingChildren = true);
     try {
       final children = await widget.repo.getUserChildren(widget.userId);
-      final students  = await widget.repo.getDdlStudents();
-      if (mounted) setState(() { _children = children; _allStudents = students; });
-    } catch (_) {} finally {
+      final students = await widget.repo.getDdlStudents();
+      if (mounted) {
+        setState(() {
+          _children = children;
+          _allStudents = students;
+        });
+      }
+    } catch (_) {
+    } finally {
       if (mounted) setState(() => _loadingChildren = false);
     }
   }
@@ -151,7 +183,9 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     final l = AppLocalizations.of(context)!;
     final nameEn = _nameEnCtrl.text.trim();
     if (nameEn.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserEnglishNameRequired)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.adminEditUserEnglishNameRequired)),
+      );
       return;
     }
     setState(() => _saving = true);
@@ -160,20 +194,28 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
         widget.userId,
         name: nameEn,
         email: _emailCtrl.text.trim().isEmpty ? '' : _emailCtrl.text.trim(),
-        username: _usernameCtrl.text.trim().isEmpty ? '' : _usernameCtrl.text.trim(),
+        username: _usernameCtrl.text.trim().isEmpty
+            ? ''
+            : _usernameCtrl.text.trim(),
         phone: joinE164(_dialCode, _phoneCtrl.text) ?? '',
         role: _role,
         grade: _grade,
         nationalId: _nationalIdCtrl.text.trim(),
         isPrincipal: _role == 'ADMIN' ? _isPrincipal : false,
-        principalGrades: (_role == 'ADMIN' && _isPrincipal) ? _rangesToGrades(_principalRanges) : const <int>[],
+        principalGrades: (_role == 'ADMIN' && _isPrincipal)
+            ? _rangesToGrades(_principalRanges)
+            : const <int>[],
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.adminEditUserSaved)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.adminEditUserSaved)));
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -191,11 +233,19 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       await widget.repo.setUserPassword(widget.userId, newPassword);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.adminEditUserPasswordChanged(_nameEnCtrl.text))),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.adminEditUserPasswordChanged(_nameEnCtrl.text),
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _resetting = false);
     }
@@ -204,13 +254,21 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
   Future<void> _addChild() async {
     if (_linkStudentId == null || _linkStudentId!.isEmpty) return;
     try {
-      await widget.repo.linkParent(parentId: widget.userId, studentId: _linkStudentId!);
+      await widget.repo.linkParent(
+        parentId: widget.userId,
+        studentId: _linkStudentId!,
+      );
       if (!mounted) return;
-      setState(() { _showAddChild = false; _linkStudentId = null; });
+      setState(() {
+        _showAddChild = false;
+        _linkStudentId = null;
+      });
       await _loadChildren();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -221,25 +279,38 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
       await _loadChildren();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
   String _roleLabel(AppLocalizations l, String role, int i) {
     switch (role) {
-      case 'STUDENT':   return l.adminEditUserRoleStudent;
-      case 'TEACHER':   return l.adminEditUserRoleTeacher;
-      case 'SECRETARY': return l.adminEditUserRoleSecretary;
-      case 'PARENT':    return l.adminEditUserRoleParent;
-      case 'ADMIN':     return l.adminEditUserRoleAdmin;
-      default:          return _roleLabels[i];
+      case 'STUDENT':
+        return l.adminEditUserRoleStudent;
+      case 'TEACHER':
+        return l.adminEditUserRoleTeacher;
+      case 'SECRETARY':
+        return l.adminEditUserRoleSecretary;
+      case 'PARENT':
+        return l.adminEditUserRoleParent;
+      case 'ADMIN':
+        return l.adminEditUserRoleAdmin;
+      default:
+        return _roleLabels[i];
     }
   }
 
-  Widget _langField(TextEditingController ctrl, String label, {bool req = false}) {
+  Widget _langField(
+    TextEditingController ctrl,
+    String label, {
+    bool req = false,
+    bool last = false,
+  }) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: last ? 0 : 12),
       child: TextField(
         controller: ctrl,
         textCapitalization: TextCapitalization.words,
@@ -247,9 +318,19 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
           labelText: req ? '$label *' : label,
           suffixIcon: Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
-            child: Text(label.split(' ').last, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
+            child: Text(
+              label.split(' ').last,
+              style: TextStyle(
+                fontSize: 11,
+                color: cs.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
-          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
         ),
       ),
     );
@@ -257,9 +338,9 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs    = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final l     = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
 
     if (_loading) return const Scaffold(body: Center(child: CmLoading()));
 
@@ -281,325 +362,508 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                 children: [
                   // ── Back chevron + title — no AppBar, so this header is
                   // the only visual way back.
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                        ),
                         tooltip: l.a11yBack,
                         onPressed: () => Navigator.maybePop(context),
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(width: 36, height: 36),
                       ),
                       const SizedBox(width: 4),
+                      CmMonogram(
+                        name: _nameEnCtrl.text.trim().isEmpty
+                            ? '?'
+                            : _nameEnCtrl.text.trim(),
+                        radius: 22,
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          _nameEnCtrl.text.trim().isEmpty ? l.adminEditUser : _nameEnCtrl.text.trim(),
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                          _nameEnCtrl.text.trim().isEmpty
+                              ? l.adminEditUser
+                              : _nameEnCtrl.text.trim(),
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w900,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   // ── Login credentials ──────────────────────────────────────
-                  Text(l.adminEditUserLoginSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _usernameCtrl,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                      labelText: l.adminEditUserUsernameLabel,
-                      prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18),
+                  CmFormSection(
+                    icon: Icons.key_rounded,
+                    title: l.adminEditUserLoginSection,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextField(
+                          controller: _usernameCtrl,
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                            labelText: l.adminEditUserUsernameLabel,
+                            prefixIcon: const Icon(
+                              Icons.alternate_email_rounded,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                            labelText: l.adminEditUserEmailOptional,
+                            prefixIcon: const Icon(
+                              Icons.email_rounded,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        PhoneField(
+                          controller: _phoneCtrl,
+                          dialCode: _dialCode,
+                          onDialCodeChanged: (v) =>
+                              setState(() => _dialCode = v),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _nationalIdCtrl,
+                          autocorrect: false,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            labelText: l.adminEditUserNationalId,
+                            prefixIcon: const Icon(
+                              Icons.badge_rounded,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        // Reset password
+                        OutlinedButton.icon(
+                          onPressed: _resetting ? null : _changePassword,
+                          icon: _resetting
+                              ? const CmLoading(size: 14)
+                              : const Icon(Icons.lock_reset_rounded, size: 16),
+                          label: Text(l.adminEditUserChangePassword),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: cs.error,
+                            side: BorderSide(
+                              color: cs.error.withValues(alpha: 0.5),
+                            ),
+                            minimumSize: const Size.fromHeight(46),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                      labelText: l.adminEditUserEmailOptional,
-                      prefixIcon: const Icon(Icons.email_rounded, size: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  PhoneField(
-                    controller: _phoneCtrl,
-                    dialCode: _dialCode,
-                    onDialCodeChanged: (v) => setState(() => _dialCode = v),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _nationalIdCtrl,
-                    autocorrect: false,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: l.adminEditUserNationalId,
-                      prefixIcon: const Icon(Icons.badge_rounded, size: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Reset password
-                  OutlinedButton.icon(
-                    onPressed: _resetting ? null : _changePassword,
-                    icon: _resetting ? const CmLoading(size: 14) : const Icon(Icons.lock_reset_rounded, size: 16),
-                    label: Text(l.adminEditUserChangePassword),
-                    style: OutlinedButton.styleFrom(foregroundColor: cs.error, side: BorderSide(color: cs.error.withValues(alpha: 0.5))),
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
 
                   // ── Name ───────────────────────────────────────────────────
-                  Text(l.adminEditUserNameSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 12),
-                  _langField(_nameEnCtrl, l.profileFullName, req: true),
-                  const SizedBox(height: 20),
+                  CmFormSection(
+                    icon: Icons.badge_rounded,
+                    title: l.adminEditUserNameSection,
+                    child: _langField(
+                      _nameEnCtrl,
+                      l.profileFullName,
+                      req: true,
+                      last: true,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
 
                   // ── Role ───────────────────────────────────────────────────
-                  Text(l.adminRoleLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8, runSpacing: 8,
-                    children: List.generate(_roles.length, (i) => ChoiceChip(
-                      label: Text(_roleLabel(l, _roles[i], i)),
-                      selected: _role == _roles[i],
-                      onSelected: (_) => setState(() { _role = _roles[i]; if (_role != 'STUDENT') _grade = null; }),
-                    )),
-                  ),
+                  CmFormSection(
+                    icon: Icons.manage_accounts_rounded,
+                    title: l.adminRoleLabel,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: List.generate(
+                            _roles.length,
+                            (i) => ChoiceChip(
+                              label: Text(_roleLabel(l, _roles[i], i)),
+                              selected: _role == _roles[i],
+                              onSelected: (_) => setState(() {
+                                _role = _roles[i];
+                                if (_role != 'STUDENT') _grade = null;
+                              }),
+                            ),
+                          ),
+                        ),
 
-                  // ── Principal (admins) ─────────────────────────────────────
-                  if (_role == 'ADMIN') ...[
-                    const SizedBox(height: 20),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: _isPrincipal,
-                      title: Text(l.adminPrincipalLabel),
-                      subtitle: Text(l.adminPrincipalHint,
-                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                      onChanged: (v) => setState(() => _isPrincipal = v),
-                    ),
-                    if (_isPrincipal) ...[
-                      const SizedBox(height: 6),
-                      Text(l.adminPrincipalGrades, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                      const SizedBox(height: 8),
-                      Builder(builder: (context) {
-                        final grades = ref.watch(authSessionProvider).schoolGrades;
-                        final gmin = grades.isNotEmpty ? grades.first : 1;
-                        final gmax = grades.isNotEmpty ? grades.last : 12;
-                        List<LiquidGlassDropdownItem<int>> items() => [
-                              for (final g in grades)
-                                LiquidGlassDropdownItem(value: g, label: l.adminCohortGradeFormat('$g')),
-                            ];
-                        return Column(
-                          children: [
-                            for (int i = 0; i < _principalRanges.length; i++)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Row(
+                        // ── Principal (admins) ─────────────────────────────────────
+                        if (_role == 'ADMIN') ...[
+                          const SizedBox(height: 20),
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            value: _isPrincipal,
+                            title: Text(l.adminPrincipalLabel),
+                            subtitle: Text(
+                              l.adminPrincipalHint,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                            onChanged: (v) => setState(() => _isPrincipal = v),
+                          ),
+                          if (_isPrincipal) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              l.adminPrincipalGrades,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Builder(
+                              builder: (context) {
+                                final grades = ref
+                                    .watch(authSessionProvider)
+                                    .schoolGrades;
+                                final gmin = grades.isNotEmpty
+                                    ? grades.first
+                                    : 1;
+                                final gmax = grades.isNotEmpty
+                                    ? grades.last
+                                    : 12;
+                                List<LiquidGlassDropdownItem<int>> items() => [
+                                  for (final g in grades)
+                                    LiquidGlassDropdownItem(
+                                      value: g,
+                                      label: l.adminCohortGradeFormat('$g'),
+                                    ),
+                                ];
+                                return Column(
                                   children: [
-                                    Expanded(
-                                      child: LiquidGlassSelectField<int>(
-                                        label: l.adminPrincipalRangeFrom,
-                                        value: _principalRanges[i][0].clamp(gmin, gmax),
-                                        items: items(),
-                                        onChanged: (v) => setState(() => _principalRanges[i][0] = v),
+                                    for (
+                                      int i = 0;
+                                      i < _principalRanges.length;
+                                      i++
+                                    )
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 8,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: LiquidGlassSelectField<int>(
+                                                label:
+                                                    l.adminPrincipalRangeFrom,
+                                                value: _principalRanges[i][0]
+                                                    .clamp(gmin, gmax),
+                                                items: items(),
+                                                onChanged: (v) => setState(
+                                                  () => _principalRanges[i][0] =
+                                                      v,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: LiquidGlassSelectField<int>(
+                                                label: l.adminPrincipalRangeTo,
+                                                value: _principalRanges[i][1]
+                                                    .clamp(gmin, gmax),
+                                                items: items(),
+                                                onChanged: (v) => setState(
+                                                  () => _principalRanges[i][1] =
+                                                      v,
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons
+                                                    .remove_circle_outline_rounded,
+                                                color: cs.error,
+                                              ),
+                                              tooltip: l.a11yRemove,
+                                              onPressed: () => setState(
+                                                () => _principalRanges.removeAt(
+                                                  i,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: LiquidGlassSelectField<int>(
-                                        label: l.adminPrincipalRangeTo,
-                                        value: _principalRanges[i][1].clamp(gmin, gmax),
-                                        items: items(),
-                                        onChanged: (v) => setState(() => _principalRanges[i][1] = v),
+                                    Align(
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      child: TextButton.icon(
+                                        onPressed: () => setState(
+                                          () => _principalRanges.add([
+                                            gmin,
+                                            gmax,
+                                          ]),
+                                        ),
+                                        icon: const Icon(Icons.add, size: 18),
+                                        label: Text(l.adminPrincipalAddRange),
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
-                                      tooltip: l.a11yRemove,
-                                      onPressed: () => setState(() => _principalRanges.removeAt(i)),
                                     ),
                                   ],
-                                ),
-                              ),
-                            Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: TextButton.icon(
-                                onPressed: () => setState(() => _principalRanges.add([gmin, gmax])),
-                                icon: const Icon(Icons.add, size: 18),
-                                label: Text(l.adminPrincipalAddRange),
-                              ),
+                                );
+                              },
                             ),
                           ],
-                        );
-                      }),
-                    ],
-                  ],
+                        ],
+                      ],
+                    ),
+                  ),
                   // ── Grade (students) ───────────────────────────────────────
                   if (isStudent) ...[
-                    const SizedBox(height: 20),
-                    Text(l.adminEditUserGradeSection, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8, runSpacing: 8,
-                      children: ref.watch(authSessionProvider).schoolGrades.map((g) => ChoiceChip(
-                        label: Text(l.adminCohortGradeFormat(g.toString())),
-                        selected: _grade == g,
-                        onSelected: (_) => setState(() => _grade = g),
-                      )).toList(),
-                    ),
-                    const SizedBox(height: 20),
-                    // ── Cohorts the student is in ───────────────────────────
-                    Text(l.adminEditUserCohortsSection,
-                        style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                    const SizedBox(height: 4),
-                    Text(
-                      _cohorts.isEmpty
-                          ? l.adminNotInAnyCohort
-                          : l.adminEditUserCohortMemberCount(_cohorts.length),
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                    if (_cohorts.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
+                    const SizedBox(height: 14),
+                    CmFormSection(
+                      icon: Icons.school_rounded,
+                      title: l.adminEditUserGradeSection,
+                      child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _cohorts.map((c) {
-                          final name = c['name']?.toString() ?? '';
-                          final grade = (c['grade'] as num?)?.toInt();
-                          final gradesRaw = c['grades'];
-                          final grades = gradesRaw is List
-                              ? gradesRaw.map((e) => (e as num).toInt()).toList()
-                              : (grade != null ? [grade] : const <int>[]);
-                          final gradeLabel = grades.length <= 1
-                              ? (grades.isEmpty ? '' : 'G${grades.first}')
-                              : (() {
-                                  final sorted = [...grades]..sort();
-                                  final isRange = sorted.last - sorted.first == sorted.length - 1;
-                                  return isRange ? 'G${sorted.first}-${sorted.last}' : 'G${sorted.join(',')}';
-                                })();
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: cs.primaryContainer.withValues(alpha: 0.4),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.groups_rounded, size: 14, color: cs.primary),
-                                const SizedBox(width: 6),
-                                Text(
-                                  name,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: cs.onPrimaryContainer,
-                                    fontSize: 12,
-                                  ),
+                        children: ref
+                            .watch(authSessionProvider)
+                            .schoolGrades
+                            .map(
+                              (g) => ChoiceChip(
+                                label: Text(
+                                  l.adminCohortGradeFormat(g.toString()),
                                 ),
-                                if (gradeLabel.isNotEmpty) ...[
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    '· $gradeLabel',
-                                    style: TextStyle(
-                                      color: cs.onPrimaryContainer.withValues(alpha: 0.7),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                                selected: _grade == g,
+                                onSelected: (_) => setState(() => _grade = g),
+                              ),
+                            )
+                            .toList(),
                       ),
-                    ],
+                    ),
+                    const SizedBox(height: 14),
+                    // ── Cohorts the student is in ───────────────────────────
+                    CmFormSection(
+                      icon: Icons.groups_rounded,
+                      title: l.adminEditUserCohortsSection,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _cohorts.isEmpty
+                                ? l.adminNotInAnyCohort
+                                : l.adminEditUserCohortMemberCount(
+                                    _cohorts.length,
+                                  ),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                          if (_cohorts.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _cohorts.map((c) {
+                                final name = c['name']?.toString() ?? '';
+                                final grade = (c['grade'] as num?)?.toInt();
+                                final gradesRaw = c['grades'];
+                                final grades = gradesRaw is List
+                                    ? gradesRaw
+                                          .map((e) => (e as num).toInt())
+                                          .toList()
+                                    : (grade != null ? [grade] : const <int>[]);
+                                final gradeLabel = grades.length <= 1
+                                    ? (grades.isEmpty ? '' : 'G${grades.first}')
+                                    : (() {
+                                        final sorted = [...grades]..sort();
+                                        final isRange =
+                                            sorted.last - sorted.first ==
+                                            sorted.length - 1;
+                                        return isRange
+                                            ? 'G${sorted.first}-${sorted.last}'
+                                            : 'G${sorted.join(',')}';
+                                      })();
+                                return CmPill(
+                                  icon: Icons.groups_rounded,
+                                  label: gradeLabel.isEmpty
+                                      ? name
+                                      : '$name · $gradeLabel',
+                                  color: cs.primary,
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ],
 
                   // ── Parent: children linking ───────────────────────────────
                   if (isParent) ...[
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(child: Text(l.adminEditUserLinkedChildren, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary))),
-                        TextButton.icon(
-                          onPressed: () => setState(() => _showAddChild = !_showAddChild),
-                          icon: Icon(_showAddChild ? Icons.close_rounded : Icons.add_rounded, size: 16),
-                          label: Text(_showAddChild ? l.commonCancel : l.adminLinkChild),
+                    const SizedBox(height: 14),
+                    CmFormSection(
+                      icon: Icons.family_restroom_rounded,
+                      title: l.adminEditUserLinkedChildren,
+                      trailing: TextButton.icon(
+                        onPressed: () =>
+                            setState(() => _showAddChild = !_showAddChild),
+                        icon: Icon(
+                          _showAddChild
+                              ? Icons.close_rounded
+                              : Icons.add_rounded,
+                          size: 16,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    if (_showAddChild) ...[
-                      LiquidGlassDropdown<String>(
-                        label: l.adminSelectStudentToLink,
-                        value: _linkStudentId ?? '',
-                        searchHint: l.adminEditUserSearchStudents,
-                        items: [
-                          LiquidGlassDropdownItem(value: '', label: l.adminChooseStudentDash),
-                          ..._allStudents.map((s) {
-                            final name = s['name']?.toString() ?? '';
-                            final grade = (s['grade'] as num?)?.toInt();
-                            // Grade is more useful than cohort here — admin
-                            // is picking a child to link to a parent, and
-                            // grade is the meaningful disambiguator.
-                            final suffix = grade != null ? ' ${l.adminEditUserGradeSuffix(grade)}' : '';
-                            return LiquidGlassDropdownItem(
-                              value: s['id']?.toString() ?? '',
-                              label: '$name$suffix',
-                            );
-                          }),
-                        ],
-                        onChanged: (v) => setState(() => _linkStudentId = v.isEmpty ? null : v),
+                        label: Text(
+                          _showAddChild ? l.commonCancel : l.adminLinkChild,
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      FilledButton.icon(
-                        onPressed: _linkStudentId != null ? _addChild : null,
-                        icon: const Icon(Icons.link_rounded, size: 16),
-                        label: Text(l.adminEditUserLinkButton),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (_showAddChild) ...[
+                            LiquidGlassDropdown<String>(
+                              label: l.adminSelectStudentToLink,
+                              value: _linkStudentId ?? '',
+                              searchHint: l.adminEditUserSearchStudents,
+                              items: [
+                                LiquidGlassDropdownItem(
+                                  value: '',
+                                  label: l.adminChooseStudentDash,
+                                ),
+                                ..._allStudents.map((s) {
+                                  final name = s['name']?.toString() ?? '';
+                                  final grade = (s['grade'] as num?)?.toInt();
+                                  // Grade is more useful than cohort here — admin
+                                  // is picking a child to link to a parent, and
+                                  // grade is the meaningful disambiguator.
+                                  final suffix = grade != null
+                                      ? ' ${l.adminEditUserGradeSuffix(grade)}'
+                                      : '';
+                                  return LiquidGlassDropdownItem(
+                                    value: s['id']?.toString() ?? '',
+                                    label: '$name$suffix',
+                                  );
+                                }),
+                              ],
+                              onChanged: (v) => setState(
+                                () => _linkStudentId = v.isEmpty ? null : v,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            FilledButton.icon(
+                              onPressed: _linkStudentId != null
+                                  ? _addChild
+                                  : null,
+                              icon: const Icon(Icons.link_rounded, size: 16),
+                              label: Text(l.adminEditUserLinkButton),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
 
-                    _loadingChildren
-                        ? const Center(child: CmLoading())
-                        : _children.isEmpty
-                            ? Text(l.adminEditUserNoChildren, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant))
-                            : Column(
-                                children: _children.map((c) {
-                                  final child = c['child'] as Map? ?? const {};
-                                  final childId = child['id']?.toString() ?? '';
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 6),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: cs.surfaceContainerLow,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                                        boxShadow: CmTokens.of(context).shadowSm,
-                                      ),
-                                      child: ListTile(
-                                        dense: true,
-                                        leading: const Icon(Icons.person_rounded, size: 18),
-                                        title: Text(child['name']?.toString() ?? child['nameEn']?.toString() ?? ''),
-                                        subtitle: Text(child['email']?.toString() ?? child['username']?.toString() ?? ''),
-                                        trailing: IconButton(
-                                          icon: Icon(Icons.link_off_rounded, size: 18, color: cs.error),
-                                          tooltip: l.a11yRemove,
-                                          onPressed: () => _removeChild(childId),
+                          _loadingChildren
+                              ? const Center(child: CmLoading())
+                              : _children.isEmpty
+                              ? Text(
+                                  l.adminEditUserNoChildren,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                )
+                              : Column(
+                                  children: _children.map((c) {
+                                    final child =
+                                        c['child'] as Map? ?? const {};
+                                    final childId =
+                                        child['id']?.toString() ?? '';
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Container(
+                                        padding:
+                                            const EdgeInsetsDirectional.fromSTEB(
+                                              10,
+                                              8,
+                                              4,
+                                              8,
+                                            ),
+                                        decoration: BoxDecoration(
+                                          color: cs.surfaceContainerHigh,
+                                          borderRadius: BorderRadius.circular(
+                                            CmTokens.radiusMd,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            CmMonogram(
+                                              name:
+                                                  (child['name'] ??
+                                                          child['nameEn'] ??
+                                                          '')
+                                                      .toString(),
+                                              radius: 18,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    child['name']?.toString() ??
+                                                        child['nameEn']
+                                                            ?.toString() ??
+                                                        '',
+                                                    style: theme
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                        ),
+                                                  ),
+                                                  Text(
+                                                    child['email']
+                                                            ?.toString() ??
+                                                        child['username']
+                                                            ?.toString() ??
+                                                        '',
+                                                    style: theme
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                          color: cs
+                                                              .onSurfaceVariant,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            CmIconAction(
+                                              icon: Icons.link_off_rounded,
+                                              tooltip: l.a11yRemove,
+                                              onPressed: () =>
+                                                  _removeChild(childId),
+                                              color: cs.error,
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                                    );
+                                  }).toList(),
+                                ),
+                        ],
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -673,12 +937,20 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
           TextField(
             controller: _pw2,
             obscureText: _obscure,
-            decoration: InputDecoration(labelText: l.adminEditUserConfirmPasswordLabel),
+            decoration: InputDecoration(
+              labelText: l.adminEditUserConfirmPasswordLabel,
+            ),
             onSubmitted: (_) => _submit(),
           ),
           if (_error != null) ...[
             const SizedBox(height: 10),
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+            Text(
+              _error!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
+            ),
           ],
           const SizedBox(height: 8),
           Text(
@@ -688,10 +960,15 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _submit, child: Text(l.adminEditUserSetPasswordButton)),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.commonCancel),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(l.adminEditUserSetPasswordButton),
+        ),
       ],
     );
   }
 }
-
