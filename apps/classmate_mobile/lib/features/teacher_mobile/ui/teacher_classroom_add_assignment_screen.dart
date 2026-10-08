@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/util/friendly_date.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/widgets/attachment_pill.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -134,23 +135,17 @@ class _TeacherClassroomAddAssignmentScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Assignment Details ─────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: cs.outlineVariant),
-              ),
-              padding: const EdgeInsets.all(16),
+            CmCard(
+              radius: CmTokens.radiusXl,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l.teacherClassroomAddAssignmentScreenDetails,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                  CmFormSectionHeader(
+                    icon: Icons.edit_note_rounded,
+                    title: l.teacherClassroomAddAssignmentScreenDetails,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // Title
                   TextFormField(
@@ -177,7 +172,7 @@ class _TeacherClassroomAddAssignmentScreenState
 
                   // Due date picker
                   InkWell(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                     onTap: () async {
                       final now = DateTime.now();
                       final picked = await showDatePicker(
@@ -207,7 +202,7 @@ class _TeacherClassroomAddAssignmentScreenState
                       child: Text(
                         _dueDate != null
                             ? FriendlyDate.date(_dueDate!)
-                            : l.teacherClassroomAddAssignmentScreenDueDateOptional,
+                            : '—',
                         style: TextStyle(
                           color: _dueDate != null
                               ? cs.onSurface
@@ -231,10 +226,16 @@ class _TeacherClassroomAddAssignmentScreenState
                   const SizedBox(height: 12),
 
                   // Attachments
-                  if (_attachments.isNotEmpty) ...[
-                    AttachmentPills(attachments: _attachments),
-                    const SizedBox(height: 8),
-                  ],
+                  for (var i = 0; i < _attachments.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: CmFileRow(
+                        name: (_attachments[i]['name'] ?? '').toString(),
+                        removeTooltip: l.a11yRemove,
+                        onRemove: () => setState(() => _attachments.removeAt(i)),
+                      ),
+                    ),
+                  if (_attachments.isNotEmpty) const SizedBox(height: 2),
                   OutlinedButton.icon(
                     onPressed: _uploading ? null : _pickFiles,
                     icon: _uploading

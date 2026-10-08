@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -191,23 +192,17 @@ class _TeacherClassroomAddMaterialScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Material Details ───────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: cs.outlineVariant),
-              ),
-              padding: const EdgeInsets.all(16),
+            CmCard(
+              radius: CmTokens.radiusXl,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.teacherMaterialDetails,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                  CmFormSectionHeader(
+                    icon: Icons.edit_note_rounded,
+                    title: AppLocalizations.of(context)!.teacherMaterialDetails,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   TextFormField(
                     controller: _titleCtrl,
@@ -233,62 +228,24 @@ class _TeacherClassroomAddMaterialScreenState
             const SizedBox(height: 16),
 
             // ── File / Link ────────────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: cs.outlineVariant),
-              ),
-              padding: const EdgeInsets.all(16),
+            CmCard(
+              radius: CmTokens.radiusXl,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.attach_file_rounded,
-                          size: 18, color: cs.onSurface),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.teacherMaterialContentSection,
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                    ],
+                  CmFormSectionHeader(
+                    icon: Icons.attach_file_rounded,
+                    title: AppLocalizations.of(context)!.teacherMaterialContentSection,
                   ),
                   const SizedBox(height: 14),
 
                   // Attached file row
                   if (_pickedFile != null) ...[
-                    Container(
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-                        boxShadow: CmTokens.of(context).shadowSm,
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      child: Row(
-                        children: [
-                          Icon(Icons.insert_drive_file_outlined, size: 20, color: cs.primary),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              _pickedFile!.name,
-                              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: l.a11yRemove,
-                            icon: Icon(Icons.delete_outline_rounded, size: 18, color: cs.error),
-                            onPressed: () => setState(() { _pickedFile = null; _url = null; }),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                          ),
-                        ],
-                      ),
+                    CmFileRow(
+                      name: _pickedFile!.name,
+                      removeTooltip: l.a11yRemove,
+                      onRemove: () => setState(() { _pickedFile = null; _url = null; }),
                     ),
                     const SizedBox(height: 12),
                   ],

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/util/friendly_date.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -192,23 +194,17 @@ class _TeacherClassroomAddMeetingScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Meeting Details ────────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: cs.outlineVariant),
-              ),
-              padding: const EdgeInsets.all(16),
+            CmCard(
+              radius: CmTokens.radiusXl,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.teacherMeetingDetailsSection,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                  CmFormSectionHeader(
+                    icon: Icons.videocam_rounded,
+                    title: AppLocalizations.of(context)!.teacherMeetingDetailsSection,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   TextFormField(
                     controller: _titleCtrl,
@@ -243,23 +239,17 @@ class _TeacherClassroomAddMeetingScreenState
             const SizedBox(height: 16),
 
             // ── When ──────────────────────────────────────────────────────
-            Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: cs.outlineVariant),
-              ),
-              padding: const EdgeInsets.all(16),
+            CmCard(
+              radius: CmTokens.radiusXl,
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.commonWhen,
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                  CmFormSectionHeader(
+                    icon: Icons.event_rounded,
+                    title: AppLocalizations.of(context)!.commonWhen,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // Start date + time
                   Row(
@@ -267,17 +257,16 @@ class _TeacherClassroomAddMeetingScreenState
                       // Start date
                       Expanded(
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                           onTap: _pickStartDate,
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingStartDateRequired,
-                              prefixIcon: const Icon(Icons.calendar_today_rounded),
                             ),
                             child: Text(
                               _startDate != null
                                   ? FriendlyDate.date(_startDate!)
-                                  : AppLocalizations.of(context)!.meetingStartDateRequired,
+                                  : '—',
                               style: TextStyle(
                                 color: _startDate != null
                                     ? cs.onSurface
@@ -292,17 +281,16 @@ class _TeacherClassroomAddMeetingScreenState
                       // Start time
                       Expanded(
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                           onTap: _pickStartTime,
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingStartTimeRequired,
-                              prefixIcon: const Icon(Icons.access_time_rounded),
                             ),
                             child: Text(
                               _startTime != null
                                   ? formatTime(_startTime!)
-                                  : AppLocalizations.of(context)!.meetingStartTimeRequired,
+                                  : '—',
                               style: TextStyle(
                                 color: _startTime != null
                                     ? cs.onSurface
@@ -322,17 +310,16 @@ class _TeacherClassroomAddMeetingScreenState
                       // End date
                       Expanded(
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                           onTap: _pickEndDate,
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingEndDateOptional,
-                              prefixIcon: const Icon(Icons.calendar_today_outlined),
                             ),
                             child: Text(
                               _endDate != null
                                   ? FriendlyDate.date(_endDate!)
-                                  : AppLocalizations.of(context)!.meetingEndDateOptional,
+                                  : '—',
                               style: TextStyle(
                                 color: _endDate != null
                                     ? cs.onSurface
@@ -347,13 +334,11 @@ class _TeacherClassroomAddMeetingScreenState
                       // End time
                       Expanded(
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
                           onTap: _pickEndTime,
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText: AppLocalizations.of(context)!.meetingEndTimeOptional,
-                              prefixIcon:
-                                  const Icon(Icons.access_time_outlined),
                               suffixIcon: _endTime != null
                                   ? IconButton(
                                       icon: const Icon(Icons.clear_rounded,
@@ -369,7 +354,7 @@ class _TeacherClassroomAddMeetingScreenState
                             child: Text(
                               _endTime != null
                                   ? formatTime(_endTime!)
-                                  : AppLocalizations.of(context)!.meetingEndTimeOptional,
+                                  : '—',
                               style: TextStyle(
                                 color: _endTime != null
                                     ? cs.onSurface
